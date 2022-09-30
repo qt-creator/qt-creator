@@ -11,19 +11,15 @@
 
 #include <utils/environment.h>
 
-#include <QFileInfo>
 #include <QLoggingCategory>
 
-
-namespace {
-static Q_LOGGING_CATEGORY(androidTCLog, "qtc.android.toolchainmanagement", QtWarningMsg);
-}
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Android {
 namespace Internal {
 
-using namespace ProjectExplorer;
-using namespace Utils;
+static Q_LOGGING_CATEGORY(androidTCLog, "qtc.android.toolchainmanagement", QtWarningMsg);
 
 using ClangTargetsType = QHash<QString, Abi>;
 Q_GLOBAL_STATIC_WITH_ARGS(ClangTargetsType, ClangTargets, ({
@@ -37,14 +33,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(ClangTargetsType, ClangTargets, ({
          Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)}}
 ));
 
-Q_GLOBAL_STATIC_WITH_ARGS(QList<Utils::Id>, LanguageIds, (
-                              {ProjectExplorer::Constants::CXX_LANGUAGE_ID,
-                               ProjectExplorer::Constants::C_LANGUAGE_ID}))
-
-static ToolChain *findToolChain(Utils::FilePath &compilerPath, Utils::Id lang, const QString &target,
+static ToolChain *findToolChain(FilePath &compilerPath, Id lang, const QString &target,
                                 const ToolChainList &alreadyKnown)
 {
-    ToolChain * tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](ToolChain *tc) {
+    ToolChain *tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](ToolChain *tc) {
         return tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
                 && tc->language() == lang
                 && tc->targetAbi() == ClangTargets->value(target)
@@ -59,12 +51,12 @@ AndroidToolChain::AndroidToolChain()
     setTypeDisplayName(AndroidToolChain::tr("Android Clang"));
 }
 
-Utils::FilePath AndroidToolChain::ndkLocation() const
+FilePath AndroidToolChain::ndkLocation() const
 {
     return m_ndkLocation;
 }
 
-void AndroidToolChain::setNdkLocation(const Utils::FilePath &ndkLocation)
+void AndroidToolChain::setNdkLocation(const FilePath &ndkLocation)
 {
     m_ndkLocation = ndkLocation;
 }
@@ -96,7 +88,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
 {
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
     env.set(QLatin1String("ANDROID_NDK_HOST"), config.toolchainHostFromNdk(m_ndkLocation));
-    const Utils::FilePath javaHome = config.openJDKLocation();
+    const FilePath javaHome = config.openJDKLocation();
     if (javaHome.exists()) {
         env.set(Constants::JAVA_HOME_ENV_VAR, javaHome.toUserOutput());
         const FilePath javaBin = javaHome.pathAppended("bin");
@@ -175,19 +167,24 @@ static FilePaths uniqueNdksForCurrentQtVersions()
 
 ToolChainList AndroidToolChainFactory::autodetectToolChains(const ToolChainList &alreadyKnown)
 {
-    const QList<Utils::FilePath> uniqueNdks = uniqueNdksForCurrentQtVersions();
+    const QList<FilePath> uniqueNdks = uniqueNdksForCurrentQtVersions();
     return autodetectToolChainsFromNdks(alreadyKnown, uniqueNdks);
 }
 
 ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
     const ToolChainList &alreadyKnown,
-    const QList<Utils::FilePath> &ndkLocations,
+    const QList<FilePath> &ndkLocations,
     const bool isCustom)
 {
     QList<ToolChain *> result;
     const AndroidConfig config = AndroidConfigurations::currentConfig();
 
-    for (const Utils::FilePath &ndkLocation : ndkLocations) {
+    const Id LanguageIds[] {
+        ProjectExplorer::Constants::CXX_LANGUAGE_ID,
+        ProjectExplorer::Constants::C_LANGUAGE_ID
+    };
+
+    for (const FilePath &ndkLocation : ndkLocations) {
         FilePath clangPath = config.clangPathFromNdk(ndkLocation);
         if (!clangPath.exists()) {
             qCDebug(androidTCLog) << "Clang toolchains detection fails. Can not find Clang"
@@ -195,7 +192,7 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
             continue;
         }
 
-        for (const Utils::Id &lang : *LanguageIds) {
+        for (const Id &lang : LanguageIds) {
             FilePath compilerCommand = clangPath;
             if (lang == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
                 compilerCommand = clangPlusPlusPath(clangPath);

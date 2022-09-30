@@ -6,16 +6,16 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QSortFilterProxyModel;
-class QStandardItemModel;
+class QDialogButtonBox;
 class QModelIndex;
 class QPushButton;
+class QSortFilterProxyModel;
+class QStandardItemModel;
 QT_END_NAMESPACE
 
-namespace VcsBase {
-namespace Internal {
+namespace Utils { class TreeView; }
 
-namespace Ui { class NickNameDialog; }
+namespace VcsBase::Internal {
 
 class NickNameDialog : public QDialog
 {
@@ -42,10 +42,11 @@ private:
 
     QPushButton *okButton() const;
 
-    Ui::NickNameDialog *m_ui;
     QStandardItemModel *m_model;
     QSortFilterProxyModel *m_filterModel;
+
+    Utils::TreeView *m_filterTreeView;
+    QDialogButtonBox *m_buttonBox;
 };
 
-} // namespace Internal
-} // namespace VcsBase
+} // VcsBase::Internal

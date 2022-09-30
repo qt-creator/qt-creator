@@ -294,7 +294,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished"></translation>
@@ -303,9 +303,6 @@
         <source>Build Environment</source>
         <translation>Ambiente di Compilazione</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="unfinished"></translation>
@@ -318,23 +315,14 @@
         <source>New Configuration Name:</source>
         <translation type="unfinished">Nome della Nuova Configurazione:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>&amp;Change</source>
         <translation>&amp;Cambia</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>Procedura Guidata di CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Parametri:</translation>
@@ -375,9 +363,6 @@
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation type="unfinished"></translation>
@@ -386,9 +371,6 @@
         <source>Qt Creator has detected an in-source-build which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation type="obsolete">Qt Creator ha rilevato che la compilazione avviene nella cartella dei file sorgenti e ciò impedisce la compilazione in cartelle separate. Qt Creator non permette di di cambiare la cartella di compilazione, perciò se vuoi una compilazione in cartella separata, pulisci la cartella dei file sorgenti e apri nuovamente il progetto.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
         <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
         <translation type="unfinished"></translation>
@@ -449,9 +431,6 @@
         <source>No valid cmake executable specified.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -460,9 +439,6 @@
         <source>CMake executable</source>
         <translation>Eseguibile CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Parametri aggiuntivi:</translation>
@@ -475,9 +451,6 @@
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Inserisci la cartella in cui vuoi compilare il tuo progetto. </translation>
@@ -490,9 +463,6 @@
         <source>Build directory:</source>
         <translation>Cartella di compilazione:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::XmlFileUpToDatePage</name>
     <message>
         <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project.</source>
         <translation type="obsolete">Qt Creator ha rilevato un file cbp recente, e lo leggerà per ricavare informazioni sul progetto. Puoi cambiare i parametri usati per creare questo file nella modalità di progetto. Fai clic su fine per caricare il progetto.</translation>
@@ -8051,7 +8021,7 @@ al VCS (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QMakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation>Configurazione di QMake:</translation>
@@ -8274,7 +8244,7 @@ al VCS (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation>Applicazione Qt4 per Linea di Comando</translation>
@@ -8283,16 +8253,10 @@ al VCS (%2)?</translation>
         <source>Creates a Qt4 console application.</source>
         <translation>Crea una applicazione per console Qt4.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation>Questa procedura guidata genera un progetto per applicazione console Qt4. L&apos;applicazione deriva da QCoreApplication e non include una GUI.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer non risponde (%1).</translation>
@@ -8301,16 +8265,10 @@ al VCS (%2)?</translation>
         <source>Unable to create server socket: %1</source>
         <translation>Impossibile creare il socket del server: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmbeddedPropertiesPanel</name>
     <message>
         <source>Embedded Linux</source>
         <translation>Embedded Linux</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt4 Project</source>
         <translation>Progetto Qt4 Vuoto</translation>
@@ -8319,16 +8277,10 @@ al VCS (%2)?</translation>
         <source>Creates an empty Qt project.</source>
         <translation>Crea un progetto Qt4 vuoto.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
         <translation>Questa procedura guidata genera un progetto Qt4 vuoto. Altri file potranno essere aggiunti in seguito con altre procedure guidate.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Impossibile avviare &quot;%1&quot;</translation>
@@ -8337,9 +8289,6 @@ al VCS (%2)?</translation>
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>L&apos;applicazione &quot;%1&quot; non è stata trovata.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Informazioni sulla Classe</translation>
@@ -8348,9 +8297,6 @@ al VCS (%2)?</translation>
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
         <translation>Inserisci le informazioni fondamentali sulla classe di cui vuoi generare lo scheletro dei file sorgenti.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt4 Gui Application</source>
         <translation>Applicazione Qt4 Gui</translation>
@@ -8363,16 +8309,10 @@ al VCS (%2)?</translation>
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
         <translation>Il file template &apos;%1&apos; non può essere aperto in lettura: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Questa procedura guidata genera un progetto per applicazione Gui Qt4. L&apos;applicazione deriva da QApplication ed include un widget vuoto.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>Libreria C++</translation>
@@ -8381,9 +8321,6 @@ al VCS (%2)?</translation>
         <source>Creates a C++ Library.</source>
         <translation>Crea una Libreria C++.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared library</source>
         <translation>Libreria condivisa</translation>
@@ -8404,9 +8341,6 @@ al VCS (%2)?</translation>
         <source>This wizard generates a C++ library project.</source>
         <translation>Questa procedura guidata genera un progetto per una libreria C++.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select required modules</source>
         <translation>Marca i moduli richiesti</translation>
@@ -8415,9 +8349,6 @@ al VCS (%2)?</translation>
         <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
         <translation>Seleziona tutti i moduli che vuoi includere nel tuo progetto. Quelli raccomandati per questo progetto sono già selezionati.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProEditor</name>
     <message>
         <source>New</source>
         <translation>Nuovo</translation>
@@ -8473,9 +8404,6 @@ al VCS (%2)?</translation>
         <source>Add Block</source>
         <translation>Aggiungi Blocco</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProEditorModel</name>
     <message>
         <source>&lt;Global Scope&gt;</source>
         <translation>&lt;Ambito Globale&gt;</translation>
@@ -8512,9 +8440,6 @@ al VCS (%2)?</translation>
         <source>Insert Item</source>
         <translation>Inserisci Elemento</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <source>Import existing settings</source>
         <translation>Importa le impostazioni esistenti</translation>
@@ -8539,9 +8464,6 @@ al VCS (%2)?</translation>
         <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version from:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of Qt versions.</source>
         <translation type="obsolete">&lt;b&gt;Nota:&lt;/b&gt; Importando le impostazioni, si aggiungerà automaticamente la Versione di Qt in:&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; alla lista delle Versioni di Qt.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeBuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished"></translation>
@@ -8550,9 +8472,6 @@ al VCS (%2)?</translation>
         <source>Build Environment</source>
         <translation>Ambiente di Compilazione</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakePriFileNode</name>
     <message>
         <source>Headers</source>
         <translation type="unfinished"></translation>
@@ -8597,20 +8516,10 @@ al VCS (%2)?</translation>
         <source>Error while changing pro file %1.</source>
         <translation>Errore durante la modifica del file pro %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProFileNode</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation>Errore durante la lettura del file %1. Rinuncio.</translation>
-    </message>
     <message>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
         <translation>Impossibile trovare il file .pro della sottocartella &apos;%1&apos; in &apos;%2&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Configuration Name:</source>
         <translation>Nome della Configurazione:</translation>
@@ -8677,16 +8586,10 @@ al VCS (%2)?</translation>
         <source>Tool Chain:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>Avvia qmake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <source>Qt4RunConfiguration</source>
         <translation>Qt4RunConfiguration</translation>
@@ -8695,9 +8598,6 @@ al VCS (%2)?</translation>
         <source>Could not parse %1. The Qt4 run configuration %2 can not be started.</source>
         <translation>Impossibile leggere %1. L&apos;esecuzione &apos;%2&apos; non può essere avviata.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation type="unfinished">Parametri:</translation>
@@ -8766,9 +8666,6 @@ al VCS (%2)?</translation>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>Utilizza la versione di debug dei framework (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;specifica un nome&gt;</translation>
@@ -8838,9 +8735,6 @@ al VCS (%2)?</translation>
         <source>Found Qt version %1, using mkspec %2</source>
         <translation>Trovata la versione Qt %1, uso l&apos;mkspec %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtVersionManager</name>
     <message>
         <source>Qt versions</source>
         <translation>Versioni Qt</translation>
@@ -8936,16 +8830,10 @@ p, li { white-space: pre-wrap; }
         <source>MWC Directory:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation>Impossibile aprire il progetto %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ValueEditor</name>
     <message>
         <source>Edit Variable</source>
         <translation>Modifica Variabile</translation>
@@ -9016,11 +8904,6 @@ p, li { white-space: pre-wrap; }
         <translation>Nuovo</translation>
     </message>
     <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Rimuovi</translation>
-    </message>
-    <message>
         <source>Edit Values</source>
         <translation>Modifica i Valori</translation>
     </message>
@@ -9036,9 +8919,6 @@ p, li { white-space: pre-wrap; }
         <source>Edit Advanced Expression</source>
         <translation>Modifica Espressione Avanzata</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Impossibile trovare il comando make: %1 nell&apos;ambiente di compilazione&lt;/font&gt;</translation>
@@ -9047,9 +8927,6 @@ p, li { white-space: pre-wrap; }
         <source>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;No Makefile found, assuming project is clean.&lt;/b&gt;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;Non trovo il Makefile. Assumo che il progetto sia pulito.&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Ridefinisci %1:</translation>
@@ -9062,16 +8939,10 @@ p, li { white-space: pre-wrap; }
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2 in %3</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
@@ -9092,9 +8963,6 @@ p, li { white-space: pre-wrap; }
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping QMake step.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;La configurazione non è cambiata, salto la fase QMake.&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
         <translation type="unfinished"></translation>
@@ -9107,16 +8975,10 @@ p, li { white-space: pre-wrap; }
         <source>No valid Qt version set.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
     <message>
         <source>QMake</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Loading project %1 ...</source>
         <translation>Caricamento del progetto %1 ...</translation>
@@ -9141,9 +9003,6 @@ p, li { white-space: pre-wrap; }
         <source>Done opening project</source>
         <translation>Progetto aperto</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QtVersionManager</name>
     <message>
         <source>&lt;not found&gt;</source>
         <translation>&lt;non trovato&gt;</translation>
@@ -11648,7 +11507,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
@@ -11776,9 +11635,6 @@ p, li { white-space: pre-wrap; }
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation type="unfinished"></translation>
@@ -11823,9 +11679,6 @@ p, li { white-space: pre-wrap; }
         <source>icons.qrc</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation type="unfinished"></translation>
@@ -11977,11 +11830,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DevicesPreferencePane</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <location/>
         <source>Installed S60 SDKs:</source>
@@ -12958,7 +12807,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation type="unfinished"></translation>
@@ -12971,9 +12820,6 @@ Reason: %2</source>
         <source>Delete class %1 from list?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt4 Designer Custom Widget</source>
         <translation type="unfinished"></translation>
@@ -12982,16 +12828,10 @@ Reason: %2</source>
         <source>Creates a Qt4 Designer Custom Widget or a Custom Widget Collection.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Cannot open icon file %1.</source>
         <translation type="unfinished"></translation>
@@ -13013,7 +12853,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>%1 on Device</source>
         <translation type="unfinished"></translation>
@@ -13026,9 +12866,6 @@ Reason: %2</source>
         <source>Could not parse %1. The QtS60 Device run configuration %2 can not be started.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
         <source>Name:</source>
         <translation type="unfinished">Nome:</translation>
@@ -13061,16 +12898,6 @@ Reason: %2</source>
         <source>Key file:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControlBase</name>
     <message>
         <source>Creating %1.sisx ...</source>
         <translation type="unfinished"></translation>
@@ -13145,9 +12972,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>An error has occurred while running %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControl</name>
     <message>
         <source>Finished.</source>
         <translation type="unfinished"></translation>
@@ -13164,9 +12988,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Could not start application: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation type="unfinished"></translation>
@@ -13179,16 +13000,10 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Debugging finished.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesWidget</name>
     <message>
         <source>No Qt installed</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
     <message>
         <source>%1 in Emulator</source>
         <translation type="unfinished"></translation>
@@ -13201,27 +13016,10 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Could not parse %1. The QtS60 emulator run configuration %2 can not be started.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="unfinished">Nome:</translation>
-    </message>
     <message>
         <source>Executable:</source>
         <translation type="unfinished">Eseguibile:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
-    <message>
-        <source>%1 in Emulator</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation type="unfinished">Avvio di %1...</translation>
@@ -13234,9 +13032,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>%1 exited with code %2</source>
         <translation type="unfinished">%1 è uscito con il codice %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60Manager</name>
     <message>
         <source>Run in Emulator</source>
         <translation type="unfinished"></translation>
@@ -13249,9 +13044,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Debug on Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Default Qt Version</source>
         <translation type="unfinished"></translation>

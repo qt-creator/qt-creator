@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QComboBox>
 #include <QStyledItemDelegate>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class ConfigModelItemDelegate : public QStyledItemDelegate
 {
@@ -29,5 +28,4 @@ private:
     Utils::FilePath m_base;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

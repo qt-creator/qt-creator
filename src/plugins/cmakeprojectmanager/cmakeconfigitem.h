@@ -5,7 +5,6 @@
 
 #include "cmake_global.h"
 
-
 #include <QByteArray>
 #include <QStringList>
 

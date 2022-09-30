@@ -4,13 +4,14 @@
 #include "clearcasesubmiteditorwidget.h"
 
 #include "activityselector.h"
+#include "clearcasetr.h"
 
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
 #include <QVBoxLayout>
 
-using namespace ClearCase::Internal;
+namespace ClearCase::Internal {
 
 ClearCaseSubmitEditorWidget::ClearCaseSubmitEditorWidget()
 {
@@ -19,10 +20,10 @@ ClearCaseSubmitEditorWidget::ClearCaseSubmitEditorWidget()
 
     m_verticalLayout = new QVBoxLayout(checkInWidget);
 
-    m_chkIdentical = new QCheckBox(tr("Chec&k in even if identical to previous version"));
+    m_chkIdentical = new QCheckBox(Tr::tr("Chec&k in even if identical to previous version"));
     m_verticalLayout->addWidget(m_chkIdentical);
 
-    m_chkPTime = new QCheckBox(tr("&Preserve file modification time"));
+    m_chkPTime = new QCheckBox(Tr::tr("&Preserve file modification time"));
     m_verticalLayout->addWidget(m_chkPTime);
 
     insertTopWidget(checkInWidget);
@@ -73,5 +74,7 @@ void ClearCaseSubmitEditorWidget::addActivitySelector(bool isUcm)
 
 QString ClearCaseSubmitEditorWidget::commitName() const
 {
-    return tr("&Check In");
+    return Tr::tr("&Check In");
 }
+
+} // ClearCase::Internal

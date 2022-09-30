@@ -7,8 +7,7 @@
 
 #include <QRegularExpression>
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 class ClearCaseEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
@@ -25,5 +24,4 @@ private:
     const QRegularExpression m_versionNumberPattern;
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

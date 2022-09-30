@@ -7,8 +7,7 @@
 
 #include <texteditor/autocompleter.h>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class CMAKE_EXPORT CMakeAutoCompleter : public TextEditor::AutoCompleter
 {
@@ -27,5 +26,4 @@ public:
     bool contextAllowsElectricCharacters(const QTextCursor &cursor) const override;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

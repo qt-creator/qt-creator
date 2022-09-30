@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "externaleditors.h"
+#include "qmakeprojectmanagertr.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -35,12 +36,12 @@ namespace Internal {
 static inline QString msgStartFailed(const QString &binary, QStringList arguments)
 {
     arguments.push_front(binary);
-    return ExternalQtEditor::tr("Unable to start \"%1\"").arg(arguments.join(QLatin1Char(' ')));
+    return Tr::tr("Unable to start \"%1\"").arg(arguments.join(QLatin1Char(' ')));
 }
 
 static inline QString msgAppNotFound(const QString &id)
 {
-    return ExternalQtEditor::tr("The application \"%1\" could not be found.").arg(id);
+    return Tr::tr("The application \"%1\" could not be found.").arg(id);
 }
 
 // -- Commands and helpers
@@ -229,7 +230,7 @@ bool DesignerExternalEditor::startEditor(const Utils::FilePath &filePath, QStrin
            qDebug() << Q_FUNC_INFO << "\nWriting to socket:" << data.binary << filePath;
         QTcpSocket *socket = it.value();
         if (!socket->write(filePath.toString().toUtf8() + '\n')) {
-            *errorMessage = tr("Qt Designer is not responding (%1).").arg(socket->errorString());
+            *errorMessage = Tr::tr("Qt Designer is not responding (%1).").arg(socket->errorString());
             return false;
         }
         return true;
@@ -237,7 +238,7 @@ bool DesignerExternalEditor::startEditor(const Utils::FilePath &filePath, QStrin
     // No process yet. Create socket & launch the process
     QTcpServer server;
     if (!server.listen(QHostAddress::LocalHost)) {
-        *errorMessage = tr("Unable to create server socket: %1").arg(server.errorString());
+        *errorMessage = Tr::tr("Unable to create server socket: %1").arg(server.errorString());
         return false;
     }
     const quint16 port = server.serverPort();

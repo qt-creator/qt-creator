@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "subdirsprojectwizarddialog.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -19,8 +20,8 @@ SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const Core::BaseFileWizar
     setWindowIcon(icon);
     setWindowTitle(templateName);
 
-    setIntroDescription(tr("This wizard generates a Qt Subdirs project. "
-                           "Add subprojects to it later on by using the other wizards."));
+    setIntroDescription(Tr::tr("This wizard generates a Qt Subdirs project. "
+                               "Add subprojects to it later on by using the other wizards."));
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();

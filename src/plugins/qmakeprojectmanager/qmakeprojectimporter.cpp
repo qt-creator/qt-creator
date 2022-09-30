@@ -3,11 +3,12 @@
 
 #include "qmakeprojectimporter.h"
 
+#include "makefileparse.h"
+#include "qmakebuildconfiguration.h"
 #include "qmakebuildinfo.h"
 #include "qmakekitinformation.h"
-#include "qmakebuildconfiguration.h"
 #include "qmakeproject.h"
-#include "makefileparse.h"
+#include "qmakeprojectmanagertr.h"
 #include "qmakestep.h"
 
 #include <projectexplorer/buildinfo.h>
@@ -190,10 +191,10 @@ const QList<BuildInfo> QmakeProjectImporter::buildInfoList(void *directoryData) 
     BuildInfo info;
     if (data->buildConfig & QtVersion::DebugBuild) {
         info.buildType = BuildConfiguration::Debug;
-        info.displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
+        info.displayName = Tr::tr("Debug");
     } else {
         info.buildType = BuildConfiguration::Release;
-        info.displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Release");
+        info.displayName = Tr::tr("Release");
     }
     info.buildDirectory = data->buildDirectory;
 

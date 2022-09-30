@@ -18,9 +18,6 @@ struct SubmitFieldWidgetPrivate;
 class VCSBASE_EXPORT SubmitFieldWidget : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList fields READ fields WRITE setFields DESIGNABLE true)
-    Q_PROPERTY(bool hasBrowseButton READ hasBrowseButton WRITE setHasBrowseButton DESIGNABLE true)
-    Q_PROPERTY(bool allowDuplicateFields READ allowDuplicateFields WRITE setAllowDuplicateFields DESIGNABLE true)
 
 public:
     explicit SubmitFieldWidget(QWidget *parent = nullptr);

@@ -4,18 +4,19 @@
 #include "qmakeprojectmanagerplugin.h"
 
 #include "addlibrarywizard.h"
+#include "customwidgetwizard/customwidgetwizard.h"
+#include "externaleditors.h"
 #include "profileeditor.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakekitinformation.h"
+#include "qmakemakestep.h"
 #include "qmakenodes.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagertr.h"
 #include "qmakesettings.h"
 #include "qmakestep.h"
-#include "qmakemakestep.h"
-#include "qmakebuildconfiguration.h"
 #include "wizards/subdirsprojectwizard.h"
-#include "customwidgetwizard/customwidgetwizard.h"
-#include "qmakeprojectmanagerconstants.h"
-#include "qmakeproject.h"
-#include "externaleditors.h"
-#include "qmakekitinformation.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -140,12 +141,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     //create and register objects
     ProjectManager::registerProjectType<QmakeProject>(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 
-    IWizardFactory::registerFactoryCreator([] {
-        return QList<IWizardFactory *> {
-            new SubdirsProjectWizard,
-            new CustomWidgetWizard
-        };
-    });
+    IWizardFactory::registerFactoryCreator([] { return new SubdirsProjectWizard; });
+    IWizardFactory::registerFactoryCreator([] { return new CustomWidgetWizard; });
 
     //menus
     ActionContainer *mbuild =
@@ -160,7 +157,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     //register actions
     Command *command = nullptr;
 
-    d->m_buildSubProjectContextMenu = new ParameterAction(tr("Build"), tr("Build \"%1\""),
+    d->m_buildSubProjectContextMenu = new ParameterAction(Tr::tr("Build"), Tr::tr("Build \"%1\""),
                                                               ParameterAction::AlwaysEnabled/*handled manually*/,
                                                               this);
     command = ActionManager::registerAction(d->m_buildSubProjectContextMenu, Constants::BUILDSUBDIRCONTEXTMENU, projectContext);
@@ -171,7 +168,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(d->m_buildSubProjectContextMenu, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::buildSubDirContextMenu);
 
-    d->m_runQMakeActionContextMenu = new QAction(tr("Run qmake"), this);
+    d->m_runQMakeActionContextMenu = new QAction(Tr::tr("Run qmake"), this);
     command = ActionManager::registerAction(d->m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
@@ -183,7 +180,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
                                         &d->m_subProjectRebuildSeparator);
     command->setAttribute(Command::CA_Hide);
 
-    d->m_rebuildSubProjectContextMenu = new QAction(tr("Rebuild"), this);
+    d->m_rebuildSubProjectContextMenu = new QAction(Tr::tr("Rebuild"), this);
     command = ActionManager::registerAction(
                 d->m_rebuildSubProjectContextMenu, Constants::REBUILDSUBDIRCONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
@@ -191,7 +188,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(d->m_rebuildSubProjectContextMenu, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::rebuildSubDirContextMenu);
 
-    d->m_cleanSubProjectContextMenu = new QAction(tr("Clean"), this);
+    d->m_cleanSubProjectContextMenu = new QAction(Tr::tr("Clean"), this);
     command = ActionManager::registerAction(
                 d->m_cleanSubProjectContextMenu, Constants::CLEANSUBDIRCONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
@@ -199,14 +196,14 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(d->m_cleanSubProjectContextMenu, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu);
 
-    d->m_buildFileContextMenu = new QAction(tr("Build"), this);
+    d->m_buildFileContextMenu = new QAction(Tr::tr("Build"), this);
     command = ActionManager::registerAction(d->m_buildFileContextMenu, Constants::BUILDFILECONTEXTMENU, projectContext);
     command->setAttribute(Command::CA_Hide);
     mfile->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
     connect(d->m_buildFileContextMenu, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::buildFileContextMenu);
 
-    d->m_buildSubProjectAction = new ParameterAction(tr("Build &Subproject"), tr("Build &Subproject \"%1\""),
+    d->m_buildSubProjectAction = new ParameterAction(Tr::tr("Build &Subproject"), Tr::tr("Build &Subproject \"%1\""),
                                                          ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(d->m_buildSubProjectAction, Constants::BUILDSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
@@ -216,15 +213,15 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(d->m_buildSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::buildSubDirContextMenu);
 
-    d->m_runQMakeAction = new QAction(tr("Run qmake"), this);
+    d->m_runQMakeAction = new QAction(Tr::tr("Run qmake"), this);
     const Context globalcontext(Core::Constants::C_GLOBAL);
     command = ActionManager::registerAction(d->m_runQMakeAction, Constants::RUNQMAKE, globalcontext);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(d->m_runQMakeAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::runQMake);
 
-    d->m_rebuildSubProjectAction = new QAction(ProjectExplorer::Icons::REBUILD.icon(), tr("Rebuild"), this);
-    d->m_rebuildSubProjectAction->setWhatsThis(tr("Rebuild Subproject"));
+    d->m_rebuildSubProjectAction = new QAction(ProjectExplorer::Icons::REBUILD.icon(), Tr::tr("Rebuild"), this);
+    d->m_rebuildSubProjectAction->setWhatsThis(Tr::tr("Rebuild Subproject"));
     command = ActionManager::registerAction(d->m_rebuildSubProjectAction, Constants::REBUILDSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
@@ -233,8 +230,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(d->m_rebuildSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::rebuildSubDirContextMenu);
 
-    d->m_cleanSubProjectAction = new QAction(Utils::Icons::CLEAN.icon(),tr("Clean"), this);
-    d->m_cleanSubProjectAction->setWhatsThis(tr("Clean Subproject"));
+    d->m_cleanSubProjectAction = new QAction(Utils::Icons::CLEAN.icon(),Tr::tr("Clean"), this);
+    d->m_cleanSubProjectAction->setWhatsThis(Tr::tr("Clean Subproject"));
     command = ActionManager::registerAction(d->m_cleanSubProjectAction, Constants::CLEANSUBDIR, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
@@ -243,13 +240,13 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     connect(d->m_cleanSubProjectAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::cleanSubDirContextMenu);
 
-    d->m_buildFileAction = new ParameterAction(tr("Build File"), tr("Build File \"%1\""),
+    d->m_buildFileAction = new ParameterAction(Tr::tr("Build File"), Tr::tr("Build File \"%1\""),
                                                    ParameterAction::AlwaysEnabled, this);
     command = ActionManager::registerAction(d->m_buildFileAction, Constants::BUILDFILE, projectContext);
     command->setAttribute(Command::CA_Hide);
     command->setAttribute(Command::CA_UpdateText);
     command->setDescription(d->m_buildFileAction->text());
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
+    command->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_FILE);
     connect(d->m_buildFileAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::buildFile);
@@ -271,14 +268,14 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     command = ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(command);
 
-    d->m_addLibraryAction = new QAction(tr("Add Library..."), this);
+    d->m_addLibraryAction = new QAction(Tr::tr("Add Library..."), this);
     command = ActionManager::registerAction(d->m_addLibraryAction,
         Constants::ADDLIBRARY, proFileEditorContext);
     connect(d->m_addLibraryAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::addLibrary);
     contextMenu->addAction(command);
 
-    d->m_addLibraryActionContextMenu = new QAction(tr("Add Library..."), this);
+    d->m_addLibraryActionContextMenu = new QAction(Tr::tr("Add Library..."), this);
     command = ActionManager::registerAction(d->m_addLibraryActionContextMenu,
         Constants::ADDLIBRARY, projectTreeContext);
     connect(d->m_addLibraryActionContextMenu, &QAction::triggered,
@@ -416,7 +413,7 @@ void QmakeProjectManagerPluginPrivate::runQMakeImpl(Project *p, Node *node)
         if (auto *profile = dynamic_cast<QmakeProFileNode *>(node))
             bc->setSubNodeBuild(profile);
 
-    BuildManager::appendStep(qs, QmakeProjectManagerPlugin::tr("QMake"));
+    BuildManager::appendStep(qs, Tr::tr("QMake"));
     bc->setSubNodeBuild(nullptr);
 }
 

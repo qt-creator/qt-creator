@@ -9,6 +9,7 @@
 #include "cmakeparser.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
 
 #include <coreplugin/find/itemviewfind.h>
@@ -38,8 +39,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char CMAKE_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.CMakeArguments";
@@ -112,17 +112,17 @@ QVariant CMakeTargetItem::data(int column, int role) const
     if (column == 0) {
         if (role == Qt::DisplayRole) {
             if (m_target.isEmpty())
-                return CMakeBuildStep::tr("Current executable");
+                return Tr::tr("Current executable");
             return m_target;
         }
 
         if (role == Qt::ToolTipRole) {
             if (m_target.isEmpty()) {
-                return CMakeBuildStep::tr("Build the executable used in the active run "
+                return Tr::tr("Build the executable used in the active run "
                                           "configuration. Currently: %1")
                         .arg(m_step->activeRunConfigTarget());
             }
-            return CMakeBuildStep::tr("Target: %1").arg(m_target);
+            return Tr::tr("Target: %1").arg(m_target);
         }
 
         if (role == Qt::CheckStateRole)
@@ -161,12 +161,12 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
 {
     m_cmakeArguments = addAspect<StringAspect>();
     m_cmakeArguments->setSettingsKey(CMAKE_ARGUMENTS_KEY);
-    m_cmakeArguments->setLabelText(tr("CMake arguments:"));
+    m_cmakeArguments->setLabelText(Tr::tr("CMake arguments:"));
     m_cmakeArguments->setDisplayStyle(StringAspect::LineEditDisplay);
 
     m_toolArguments = addAspect<StringAspect>();
     m_toolArguments->setSettingsKey(TOOL_ARGUMENTS_KEY);
-    m_toolArguments->setLabelText(tr("Tool arguments:"));
+    m_toolArguments->setLabelText(Tr::tr("Tool arguments:"));
     m_toolArguments->setDisplayStyle(StringAspect::LineEditDisplay);
 
     Kit *kit = buildConfiguration()->kit();
@@ -176,13 +176,13 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
         m_useiOSAutomaticProvisioningUpdates->setSettingsKey(
                     IOS_AUTOMATIC_PROVISIONG_UPDATES_ARGUMENTS_KEY);
         m_useiOSAutomaticProvisioningUpdates->setLabel(
-                    tr("Enable automatic provisioning updates:"));
+                    Tr::tr("Enable automatic provisioning updates:"));
         m_useiOSAutomaticProvisioningUpdates->setToolTip(
-                    tr("Tells xcodebuild to create and download a provisioning profile "
+                    Tr::tr("Tells xcodebuild to create and download a provisioning profile "
                        "if a valid one does not exist."));
     }
 
-    m_buildTargetModel.setHeader({tr("Target")});
+    m_buildTargetModel.setHeader({Tr::tr("Target")});
 
     setBuildTargets({defaultBuildTarget()});
     auto *bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
@@ -248,7 +248,7 @@ bool CMakeBuildStep::init()
 
     if (!bc->isEnabled()) {
         emit addTask(BuildSystemTask(Task::Error,
-                                     tr("The build configuration is currently disabled.")));
+                                     Tr::tr("The build configuration is currently disabled.")));
         emitFaultyConfigurationMessage();
         return false;
     }
@@ -256,7 +256,7 @@ bool CMakeBuildStep::init()
     CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
     if (!tool || !tool->isValid()) {
         emit addTask(BuildSystemTask(Task::Error,
-                          tr("A CMake tool must be set up for building. "
+                          Tr::tr("A CMake tool must be set up for building. "
                              "Configure a CMake tool in the kit options.")));
         emitFaultyConfigurationMessage();
         return false;
@@ -280,7 +280,7 @@ bool CMakeBuildStep::init()
     if (bc->buildDirectory() != projectDirectory) {
         if (projectDirectory.pathAppended("CMakeCache.txt").exists()) {
             emit addTask(BuildSystemTask(Task::Warning,
-                              tr("There is a CMakeCache.txt file in \"%1\", which suggest an "
+                              Tr::tr("There is a CMakeCache.txt file in \"%1\", which suggest an "
                                  "in-source build was done before. You are now building in \"%2\", "
                                  "and the CMakeCache.txt file might confuse CMake.")
                               .arg(projectDirectory.toUserOutput(), bc->buildDirectory().toUserOutput())));
@@ -323,10 +323,10 @@ void CMakeBuildStep::doRun()
     m_waiting = false;
     auto bs = static_cast<CMakeBuildSystem *>(buildSystem());
     if (bs->persistCMakeState()) {
-        emit addOutput(tr("Persisting CMake state..."), BuildStep::OutputFormat::NormalMessage);
+        emit addOutput(Tr::tr("Persisting CMake state..."), BuildStep::OutputFormat::NormalMessage);
         m_waiting = true;
     } else if (buildSystem()->isWaitingForParse()) {
-        emit addOutput(tr("Running CMake in preparation to build..."), BuildStep::OutputFormat::NormalMessage);
+        emit addOutput(Tr::tr("Running CMake in preparation to build..."), BuildStep::OutputFormat::NormalMessage);
         m_waiting = true;
     }
 
@@ -353,7 +353,7 @@ void CMakeBuildStep::handleProjectWasParsed(bool success)
     } else if (success) {
         runImpl();
     } else {
-        AbstractProcessStep::stdError(tr("Project did not parse successfully, cannot build."));
+        AbstractProcessStep::stdError(Tr::tr("Project did not parse successfully, cannot build."));
         emit finished(false);
     }
 }
@@ -518,7 +518,7 @@ QWidget *CMakeBuildStep::createConfigWidget()
         setSummaryText(summaryText);
     };
 
-    setDisplayName(tr("Build", "ConfigWidget display name."));
+    setDisplayName(Tr::tr("Build", "ConfigWidget display name."));
 
     auto buildTargetsView = new QTreeView;
     buildTargetsView->setMinimumHeight(200);
@@ -530,7 +530,7 @@ QWidget *CMakeBuildStep::createConfigWidget()
                                                        ItemViewFind::LightColored);
 
     auto createAndAddEnvironmentWidgets = [this](Layouting::Form &builder) {
-        auto clearBox = new QCheckBox(tr("Clear system environment"));
+        auto clearBox = new QCheckBox(Tr::tr("Clear system environment"));
         clearBox->setChecked(useClearEnvironment());
 
         auto envWidget = new EnvironmentWidget(nullptr, EnvironmentWidget::TypeLocal, clearBox);
@@ -564,7 +564,7 @@ QWidget *CMakeBuildStep::createConfigWidget()
     if (m_useiOSAutomaticProvisioningUpdates)
         builder.addRow(m_useiOSAutomaticProvisioningUpdates);
 
-    builder.addRow({new QLabel(tr("Targets:")), frame});
+    builder.addRow({new QLabel(Tr::tr("Targets:")), frame});
 
     if (!isCleanStep() && !m_buildPreset.isEmpty())
         createAndAddEnvironmentWidgets(builder);
@@ -712,9 +712,9 @@ Environment CMakeBuildStep::baseEnvironment() const
 QString CMakeBuildStep::baseEnvironmentText() const
 {
     if (useClearEnvironment())
-        return tr("Clean Environment");
+        return Tr::tr("Clean Environment");
     else
-        return tr("System Environment");
+        return Tr::tr("System Environment");
 }
 
 void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
@@ -728,11 +728,10 @@ void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
 CMakeBuildStepFactory::CMakeBuildStepFactory()
 {
     registerStep<CMakeBuildStep>(Constants::CMAKE_BUILD_STEP_ID);
-    setDisplayName(CMakeBuildStep::tr("CMake Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
+    setDisplayName(Tr::tr("CMake Build", "Display name for CMakeProjectManager::CMakeBuildStep id."));
     setSupportedProjectType(Constants::CMAKE_PROJECT_ID);
 }
 
-} // Internal
-} // CMakeProjectManager
+} // CMakeProjectManager::Internal
 
 #include <cmakebuildstep.moc>

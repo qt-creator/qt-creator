@@ -278,7 +278,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">Vyprázdnit prostředí systému</translation>
@@ -287,9 +287,6 @@
         <source>Build Environment</source>
         <translation type="obsolete">Prostředí pro sestavování</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Run cmake</source>
         <translation>Provést cmake</translation>
@@ -310,16 +307,10 @@
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>Průvodce CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
@@ -373,16 +364,9 @@
         <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation type="obsolete">Spouští se spustitelný soubor: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
         <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
         <translation type="obsolete">Zadejte, prosím, cestu ke spustitelnému souboru cmake. V cestě nebyl nalezen žádný spustitelný soubor cmake.</translation>
@@ -398,10 +382,6 @@
     <message>
         <source> The path %1 is not a valid cmake.</source>
         <translation type="obsolete">Cesta &apos;%1&apos; není platným cmake.</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -440,14 +420,6 @@
         <translation>Soubor cpb ve složce %1 se vytváří znovu.</translation>
     </message>
     <message>
-        <source>MinGW Generator (%1)</source>
-        <translation type="obsolete">Generátor MinGW (%1)</translation>
-    </message>
-    <message>
-        <source>Unix Generator (%1)</source>
-        <translation type="obsolete">Generátor Unix (%1)</translation>
-    </message>
-    <message>
         <source>No generator selected.</source>
         <translation>Nevybrán žádný generátor.</translation>
     </message>
@@ -480,14 +452,6 @@
         <translation type="obsolete">Adresář %1, který byl zadán v nastavení sestavování, neobsahuje soubor cbp. Qt Creator musí soubor vytvořit pomocí vyvolání cmake. U některých projektů jsou k tomu vyžadovány argumenty příkazového řádku. Všimněte si, že cmake ukládá argumenty příkazového řádku z předchozího vyvolání.</translation>
     </message>
     <message>
-        <source>NMake Generator</source>
-        <translation type="obsolete">Tvůrce NMake</translation>
-    </message>
-    <message>
-        <source>NMake Generator (%1)</source>
-        <translation type="obsolete">Generátor NMake (%1)</translation>
-    </message>
-    <message>
         <source>MinGW Generator</source>
         <translation type="obsolete">Tvůrce MinGW</translation>
     </message>
@@ -498,13 +462,6 @@
     <message>
         <source>Qt Creator needs to run cmake in the new build directory. Some projects require command line arguments to the initial cmake call.</source>
         <translation type="obsolete">Qt Creator musí vyvolat cmake v novém adresáři pro sestavování. U některých projektů jsou k tomu vyžadovány argumenty příkazového řádku.</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -518,9 +475,6 @@
         <source>CMake executable</source>
         <translation type="obsolete">Spustitelný soubor CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Bylo zjištěno &lt;b&gt;sestavování ve zdrojovém adresáři v %1&lt;/b&gt;, které zabraňuje stínovým sestavováním. Adresář se sestavováním nelze v Qt Creatoru změnit. Pokud chcete stínové sestavování, vyčistěte, prosím, svůj zdrojový adresář a otevřte projekt znovu ještě jednou.</translation>
@@ -529,9 +483,6 @@
         <source>Build Location</source>
         <translation>Umístění sestavování</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Dodatečné argumenty:</translation>
@@ -565,9 +516,6 @@
         <source>&lt;b&gt;Unknown Toolchain&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;Neznámá sada nástrojů&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Zadejte, prosím, adresář, ve kterém chcete vytvořit svůj projekt.</translation>
@@ -579,14 +527,6 @@
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Zadejte, prosím, adresář, ve kterém chcete vytvořit svůj projekt.. Doporučuje se, nepoužívat pro vytvoření projektu zdrojový adresář. Tím se zajistí, že zdrojový adresář zůstane volný, a umožní různá sestavení s rozdílnými nastaveními.</translation>
-    </message>
-    <message>
-        <source>Build directory:</source>
-        <translation>Adresář pro sestavování:</translation>
-    </message>
-    <message>
-        <source>Build Location</source>
-        <translation>Umístění sestavování</translation>
     </message>
 </context>
 <context>
@@ -12190,42 +12130,10 @@ přidat do správy verzí (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QMakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation type="obsolete">Nastavení sestavování pro QMake:</translation>
-    </message>
-    <message>
-        <source>debug</source>
-        <translation type="obsolete">debug</translation>
-    </message>
-    <message>
-        <source>release</source>
-        <translation type="obsolete">release</translation>
-    </message>
-    <message>
-        <source>Additional arguments:</source>
-        <translation type="obsolete">Dodatečné argumenty:</translation>
-    </message>
-    <message>
-        <source>Effective qmake call:</source>
-        <translation type="obsolete">Účinné vyvolání qmake:</translation>
-    </message>
-    <message>
-        <source>qmake build configuration:</source>
-        <translation type="obsolete">Nastavení sestavování pro qmake:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Ladění</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="obsolete">Vydání</translation>
-    </message>
-    <message>
-        <source>Link QML debugging library:</source>
-        <translation type="obsolete">Odkaz na knihovnu pro ladění QML:</translation>
     </message>
 </context>
 <context>
@@ -12412,7 +12320,7 @@ přidat do správy verzí (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation type="obsolete">Konzolová aplikace v Qt4</translation>
@@ -12433,9 +12341,6 @@ Preselects a desktop Qt for building the application if available.</source>
 
 Vybere pro sestavení programu verzi Qt pro stolní počítač, je-li dostupná.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation type="obsolete">Tento průvodce vytvoří projekt konzolové aplikace v Qt4. Aplikace je odvozena z QCoreApplication a nemá žádné uživatelské rozhraní.</translation>
@@ -12448,9 +12353,6 @@ Vybere pro sestavení programu verzi Qt pro stolní počítač, je-li dostupná.
         <source>This wizard generates a Qt Console Application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation>Tento průvodce vytvoří projekt konzolové aplikace v Qt4. Aplikace je odvozena z QCoreApplication a nemá žádné uživatelské rozhraní.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer neodpovídá (%1).</translation>
@@ -12459,16 +12361,10 @@ Vybere pro sestavení programu verzi Qt pro stolní počítač, je-li dostupná.
         <source>Unable to create server socket: %1</source>
         <translation>Serverovou zásuvku se nepodařilo vytvořit: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmbeddedPropertiesPanel</name>
     <message>
         <source>Embedded Linux</source>
         <translation type="obsolete">Vložený Linux</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt4 Project</source>
         <translation type="obsolete">Prázdný projekt Qt4</translation>
@@ -12485,9 +12381,6 @@ Vybere pro sestavení programu verzi Qt pro stolní počítač, je-li dostupná.
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
         <translation>Vytvoří projekt založený na qmake bez jakýchkoli souborů. To vám umožní vytvoření programu bez jakýchkoli výchozích tříd.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
         <translation type="obsolete">Tento průvodce vytvoří prázdný projekt Qt4. S pomocí ostatních průvodců do něj lze později přidat další soubory.</translation>
@@ -12496,9 +12389,6 @@ Vybere pro sestavení programu verzi Qt pro stolní počítač, je-li dostupná.
         <source>This wizard generates an empty Qt project. Add files to it later on by using the other wizards.</source>
         <translation>Tento průvodce vytvoří prázdný projekt Qt4. S pomocí ostatních průvodců do něj lze později přidat další soubory.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Nelze spustit &quot;%1&quot;</translation>
@@ -12507,9 +12397,6 @@ Vybere pro sestavení programu verzi Qt pro stolní počítač, je-li dostupná.
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>Aplikaci &quot;%1&quot; se nepodařilo najít.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Informace ohledně třídy</translation>
@@ -12518,9 +12405,6 @@ Vybere pro sestavení programu verzi Qt pro stolní počítač, je-li dostupná.
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
         <translation>Zadejte základní informace ohledně tříd, pro které chcete vytvořit soubory s kostrou zdrojového kódu.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt4 Gui Application</source>
         <translation type="obsolete">Program s uživatelským rozhraním Qt4</translation>
@@ -12549,9 +12433,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
         <translation type="obsolete">Soubor s předlohou &apos;%1&apos; se nepodařilo otevřít pro čtení: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation type="obsolete">Tento průvodce vytvoří projekt programu s uživatelským rozhraním Qt4. Aplikace se odvozuje ve výchozím nastavení od třídy QApplication s obsahuje jeden prázdný prvek.</translation>
@@ -12568,9 +12449,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>Knihovna C++</translation>
@@ -12587,9 +12465,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Creates a C++ Library.</source>
         <translation type="obsolete">Vytvoří knihovnu C++.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared library</source>
         <translation type="obsolete">Sdílená knihovna (dynamicky svázaná)</translation>
@@ -12635,13 +12510,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <translation type="obsolete">Zvláštní pro Symbian</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
-    <message>
         <source>Select required modules</source>
         <translation type="obsolete">Vybrat požadované moduly</translation>
     </message>
@@ -12653,9 +12521,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
         <translation>Vyberte moduly, které chcete zahrnout ve svém projektu. Moduly doporučené pro tento projekt jsou již vybrány.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProEditor</name>
     <message>
         <source>New</source>
         <translation type="obsolete">Nový</translation>
@@ -12708,9 +12573,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Add Block</source>
         <translation type="obsolete">Přidat blok</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProEditorModel</name>
     <message>
         <source>&lt;Global Scope&gt;</source>
         <translation type="obsolete">&lt;Celkový obor&gt;</translation>
@@ -12747,9 +12609,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Insert Item</source>
         <translation type="obsolete">Vložit prvek</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <source>Import existing build settings</source>
         <translation type="obsolete">Zavést stávající nastavení sestavování</translation>
@@ -12774,9 +12633,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Project Setup</source>
         <translation type="obsolete">Nastavení projektu</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeBuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">Vyprázdnit prostředí systému</translation>
@@ -12784,37 +12640,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
     <message>
         <source>Build Environment</source>
         <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakePriFileNode</name>
-    <message>
-        <source>Headers</source>
-        <translation type="obsolete">Hlavičky</translation>
-    </message>
-    <message>
-        <source>Sources</source>
-        <translation type="obsolete">Zdroje</translation>
-    </message>
-    <message>
-        <source>Forms</source>
-        <translation type="obsolete">Formuláře</translation>
-    </message>
-    <message>
-        <source>Resources</source>
-        <translation type="obsolete">Prostředky</translation>
-    </message>
-    <message>
-        <source>QML</source>
-        <translation type="obsolete">QML</translation>
-    </message>
-    <message>
-        <source>Other files</source>
-        <translation type="obsolete">Jiné soubory</translation>
-    </message>
-    <message>
-        <source>Cannot Open File</source>
-        <translation type="obsolete">Soubor nelze otevřít</translation>
     </message>
     <message>
         <source>Cannot open the file for edit with VCS.</source>
@@ -12829,14 +12654,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <translation type="obsolete">Soubor se nepodařilo udělat zapisovatelný.</translation>
     </message>
     <message>
-        <source>Failed!</source>
-        <translation type="obsolete">Chyba!</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Chyba souboru</translation>
-    </message>
-    <message>
         <source>Could not open the file for edit with SCC.</source>
         <translation type="obsolete">Soubor se nepodařilo otevřít pro úpravy s pomocí SCC.</translation>
     </message>
@@ -12845,39 +12662,9 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <translation type="obsolete">Nepodařilo se nastavit oprávnění k souboru tak, aby se stal zapisovatelným.</translation>
     </message>
     <message>
-        <source>There are unsaved changes for project file %1.</source>
-        <translation type="obsolete">Soubor s projektem %1 má neuložené změny.</translation>
-    </message>
-    <message>
-        <source>Could not write project file %1.</source>
-        <translation type="obsolete">Soubor s projektem %1 se nepodařilo zapsat.</translation>
-    </message>
-    <message>
         <source>Error while reading PRO file %1: %2</source>
         <translation type="obsolete">Chyba při čtení souboru PRO %1: %2</translation>
     </message>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation type="obsolete">Chyba při vyhodnocování souboru %1. Zrušeno.</translation>
-    </message>
-    <message>
-        <source>Error while changing pro file %1.</source>
-        <translation type="obsolete">Chyba při změně projektového souboru %1.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProFileNode</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation type="obsolete">Chyba při vyhodnocování souboru %1. Zrušeno.</translation>
-    </message>
-    <message>
-        <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
-        <translation type="obsolete">Soubor .pro pro podadresář &apos;%1&apos; se v &apos;%2&apos; nepodařilo najít</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Configuration Name:</source>
         <translation type="obsolete">Název nastavení:</translation>
@@ -12973,16 +12760,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <translation>Varování:</translation>
     </message>
     <message>
-        <source>%1 Debug</source>
-        <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 ladění</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 vydání</translation>
-    </message>
-    <message>
         <source>&lt;No tool chain selected&gt;</source>
         <translation type="obsolete">&lt;b&gt;Nevybrána žádna sada nástrojů&lt;/b&gt;</translation>
     </message>
@@ -13031,13 +12808,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>problemLabel</source>
         <translation>problemLabel</translation>
     </message>
-    <message>
-        <source>Manage...</source>
-        <translation type="obsolete">Spravovat...</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>Provést qmake</translation>
@@ -13110,9 +12880,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Build in %1</source>
         <translation type="obsolete">Sestavit v %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <source>Qt4RunConfiguration</source>
         <translation type="obsolete">Nastavení spuštění Qt4</translation>
@@ -13142,10 +12909,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
         <source>Qt Run Configuration</source>
         <translation>Nastavení spuštění Qt4</translation>
     </message>
@@ -13157,9 +12920,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Qt4 RunConfiguration</source>
         <translation type="obsolete">Nastavení spuštění Qt4</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
     <message>
         <source>Name:</source>
         <translation type="obsolete">Název:</translation>
@@ -13225,18 +12985,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Smazat prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
         <translation type="obsolete">Spouští se spustitelný soubor: &lt;b&gt;%1&lt;/b&gt; %2 (v terminálu)</translation>
     </message>
@@ -13248,9 +12996,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>Používat ladicí verzi rámce (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation type="obsolete">&lt;Zadejte název&gt;</translation>
@@ -13345,9 +13090,6 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
         <source>Found Qt version %1, using mkspec %2</source>
         <translation type="obsolete">Byla nalezena verze Qt %1 s mkspec %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtVersionManager</name>
     <message>
         <source>Qt versions</source>
         <translation type="obsolete">Verze Qt</translation>
@@ -13460,16 +13202,10 @@ p, li { white-space: pre-wrap; }
         <source>Debugging helper:</source>
         <translation type="obsolete">Pomocná knihovna pro výstup dat o ladění:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Projekt %1 se nepodařilo otevřít.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ValueEditor</name>
     <message>
         <source>Edit Variable</source>
         <translation type="obsolete">Upravir proměnnou</translation>
@@ -13523,14 +13259,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Upravit prvky</translation>
     </message>
     <message>
-        <source>New</source>
-        <translation type="obsolete">Nový</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
         <source>Edit Values</source>
         <translation type="obsolete">Upravit hodnoty</translation>
     </message>
@@ -13546,9 +13274,6 @@ p, li { white-space: pre-wrap; }
         <source>Edit Advanced Expression</source>
         <translation type="obsolete">Upravit rozšířený výraz</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Příkaz make %1 se v prostředí pro sestavování nepodařilo nalézt&lt;/font&gt;</translation>
@@ -13595,9 +13320,6 @@ p, li { white-space: pre-wrap; }
         <source>Could not find make command: %1 in the build environment</source>
         <translation type="obsolete">Příkaz make: %1 se v prostředí pro sestavování nepodařilo nalézt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Přepsat %1:</translation>
@@ -13630,9 +13352,6 @@ p, li { white-space: pre-wrap; }
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2 in %3</source>
         <translation type="obsolete">&lt;b&gt;Příkaz Make:&lt;/b&gt; %1 %2 v %3</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
@@ -13691,17 +13410,6 @@ p, li { white-space: pre-wrap; }
         <source>Library not available. &lt;a href=&apos;compile&apos;&gt;Compile...&lt;/a&gt;</source>
         <translation type="obsolete">Knihovna není dostupná. &lt;a href=&apos;compile&apos;&gt;Sestavit...&lt;/a&gt;</translation>
     </message>
-    <message>
-        <source>QML Debugging</source>
-        <translation type="obsolete">Ladění QML</translation>
-    </message>
-    <message>
-        <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
-        <translation type="obsolete">Toto nastavení se projeví jen v případě nového sestavení projektu. Chcete projekt sestavit znovu nyní?</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Loading project %1 ...</source>
         <translation type="obsolete">Nahrává se projekt %1 ...</translation>
@@ -13762,9 +13470,6 @@ p, li { white-space: pre-wrap; }
         <source>Done opening project</source>
         <translation type="obsolete">Projekt otevřen</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QtVersionManager</name>
     <message>
         <source>&lt;not found&gt;</source>
         <translation type="obsolete">&lt;nenalezeno&gt;</translation>
@@ -13772,10 +13477,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Qt in PATH</source>
         <translation type="obsolete">Qt v CESTĚ</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
     </message>
     <message>
         <source>Source:</source>
@@ -13800,10 +13501,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Version:</source>
         <translation type="obsolete">Verze:</translation>
-    </message>
-    <message>
-        <source>Debugging helper:</source>
-        <translation type="obsolete">Pomocná knihovna pro výstup dat o ladění:</translation>
     </message>
 </context>
 <context>
@@ -17743,7 +17440,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -17848,13 +17545,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Soubory s ikonami (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
     <message>
         <source>Plugin and Collection Class Information</source>
         <translation>Přídavný modul a informace o třídě sbírky</translation>
@@ -17887,9 +17577,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>icons.qrc</source>
         <translation>icons.qrc</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Průvodce pro vytvoření vlastního prvku Qt</translation>
@@ -18115,11 +17802,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DevicesPreferencePane</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Installed S60 SDKs:</source>
         <translation type="obsolete">Nainstalované S60-SDK:</translation>
@@ -18151,10 +17834,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Change Qt version</source>
         <translation type="obsolete">Změnit verzi Qt</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
     </message>
 </context>
 <context>
@@ -18691,7 +18370,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">Vytvořit</translation>
@@ -20416,7 +20095,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Nová třída&gt;</translation>
@@ -20429,9 +20108,6 @@ Důvod: %2</translation>
         <source>Delete class %1 from list?</source>
         <translation>Má se smazat třída %1 na seznamu?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt4 Designer Custom Widget</source>
         <translation type="obsolete">Uživatelsky stanovený prvek pro Qt4 Designer</translation>
@@ -20448,9 +20124,6 @@ Důvod: %2</translation>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Vytvoří jeden nebo více uživatelsky stanovených prvků pro Qt Designer.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
         <translation type="obsolete">Tento průvodce vytvoří projekt Qt4 s jedním nebo více uživatelsky stanovenými prvky pro Qt4 Designer.</translation>
@@ -20467,9 +20140,6 @@ Důvod: %2</translation>
         <source>Plugin Details</source>
         <translation>Podrobnosti přídavného modulu</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Cannot open icon file %1.</source>
         <translation type="obsolete">Nelze otevřít soubor s ikonou &apos;%1&apos;.</translation>
@@ -20491,14 +20161,11 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
         <translation type="obsolete">&lt;b&gt;QMake:&lt;/b&gt; Není nastavena verze Qt. QMake nelze spustit.</translation>
@@ -20518,10 +20185,6 @@ Důvod: %2</translation>
     <message>
         <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
         <translation>Toto nastavení se projeví jen v případě nového sestavení projektu. Chcete projekt sestavit znovu nyní?</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation type="obsolete">Pomocné knihovny pro výstup dat</translation>
     </message>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
@@ -20544,10 +20207,6 @@ Důvod: %2</translation>
         <translation>Zapnout ladění QML:</translation>
     </message>
     <message>
-        <source>Link QML debugging library:</source>
-        <translation type="obsolete">Odkaz na knihovnu pro ladění QML:</translation>
-    </message>
-    <message>
         <source>Might make your application vulnerable. Only use in a safe environment.</source>
         <translation>Může váš program udělat zranitelným. Mělo by se používat jen v bezpečném prostředí.</translation>
     </message>
@@ -20555,20 +20214,6 @@ Důvod: %2</translation>
         <source>&lt;No Qt version&gt;</source>
         <translation>&lt;Žádná verze Qt&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>QMake</source>
-        <translation type="obsolete">QMake</translation>
-    </message>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">%1 na zařízení Symbian</translation>
@@ -20581,16 +20226,6 @@ Důvod: %2</translation>
         <source>Could not parse %1. The QtS60 Device run configuration %2 can not be started.</source>
         <translation type="obsolete">%1 se nepodařilo vyhodnotit. Nastavení spuštění zařízení Qt4 S60 %2 se nepodařilo spustit.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 na zařízení Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControlBase</name>
     <message>
         <source>There is no device plugged in.</source>
         <translation type="obsolete">Není připojeno žádné zařízení.</translation>
@@ -20727,9 +20362,6 @@ Prověřte, prosím, zda je telefon připojen a zda běží program Trk.</transl
         <source>An error has occurred while running %1.</source>
         <translation type="obsolete">Při spouštění %1 se vyskytla chyba.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControl</name>
     <message>
         <source>Finished.</source>
         <translation type="obsolete">Dokončeno.</translation>
@@ -20746,9 +20378,6 @@ Prověřte, prosím, zda je telefon připojen a zda běží program Trk.</transl
         <source>Could not start application: %1</source>
         <translation type="obsolete">Nepodařilo se spustit program: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation type="obsolete">Varování: Nepodařilo se najít symbolický soubor patřící &apos;%1&apos;.</translation>
@@ -20773,31 +20402,12 @@ Prověřte, prosím, zda je telefon připojen a zda běží program Trk.</transl
         <translation type="obsolete">Spouští se ladicí program...</translation>
     </message>
     <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation type="obsolete">Ladicí program pro platformu Symbian</translation>
-    </message>
-    <message>
         <source>Debug on Device</source>
         <translation type="obsolete">Ladit na zařízení</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
         <source>Device:</source>
         <translation type="obsolete">Zařízení:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumenty:</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Ladič:</translation>
     </message>
     <message>
         <source>Installation file:</source>
@@ -20820,16 +20430,8 @@ Prověřte, prosím, zda je telefon připojen a zda běží program Trk.</transl
         <translation type="obsolete">Vyvolává informace ze zařízení</translation>
     </message>
     <message>
-        <source>Self-signed certificate</source>
-        <translation type="obsolete">Osobně podepsané osvědčení</translation>
-    </message>
-    <message>
         <source>Choose certificate file (.cer)</source>
         <translation type="obsolete">Zadejte soubor s osvědčením (.cer)</translation>
-    </message>
-    <message>
-        <source>Custom certificate:</source>
-        <translation type="obsolete">Uživatelsky stanovené osvědčení:</translation>
     </message>
     <message>
         <source>Choose key file (.key / .pem)</source>
@@ -20860,16 +20462,9 @@ Prověřte, prosím, zda je telefon připojen a zda běží program Trk.</transl
         <source>Connecting...</source>
         <translation type="obsolete">Spojuje se...</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60Devices::Device</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">ID:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
     </message>
     <message>
         <source>EPOC:</source>
@@ -20883,16 +20478,10 @@ Prověřte, prosím, zda je telefon připojen a zda běží program Trk.</transl
         <source>Qt:</source>
         <translation type="obsolete">Qt:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesWidget</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Qt není nainstalováno</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <extracomment>S60 emulator run configuration default display name, %1 is base pro-File name
@@ -20906,14 +20495,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation type="obsolete">Spustit v emulátoru Symbianu</translation>
     </message>
     <message>
-        <source>The .pro file is currently being parsed.</source>
-        <translation type="obsolete">Soubor .pro je právě vyhodnocován.</translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Soubor .pro se nepodařilo vyhodnotit.</translation>
-    </message>
-    <message>
         <source>Qt Symbian Emulator RunConfiguration</source>
         <translation type="obsolete">Nastavení běhu Qt napodobovatele jinak též emulátoru pro Symbian</translation>
     </message>
@@ -20925,31 +20506,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.</source>
         <translation type="obsolete">%1 se nepodařilo vyhodnotit. Nastavení spuštění napodobovatele Qt pro Symbian %2 se nepodařilo spustit.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Spustitelný soubor:</translation>
-    </message>
     <message>
         <source>Summary: Run %1 in emulator</source>
         <translation type="obsolete">Souhrn: Spustit &apos;%1&apos; v napodobovateli</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
-    <message>
-        <source>%1 in Symbian Emulator</source>
-        <translation type="obsolete">%1 v emulátoru Symbianu</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation type="obsolete">Spouští se %1...</translation>
@@ -20974,9 +20534,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 ukončen. Vrácená hodnota %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60Manager</name>
     <message>
         <source>Run in Emulator</source>
         <translation type="obsolete">Spustit v emulátoru</translation>
@@ -20985,13 +20542,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Run on Device</source>
         <translation type="obsolete">Spustit na zařízení</translation>
     </message>
-    <message>
-        <source>Debug on Device</source>
-        <translation type="obsolete">Ladit na zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Default Qt Version</source>
         <translation type="obsolete">Používá se výchozí verze Qt</translation>
@@ -21046,10 +20596,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <comment>Shadow build directory suffix</comment>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Ladění</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Sestavování</translation>
     </message>
     <message>
         <source>Release</source>
@@ -22985,11 +22531,7 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Self-signed certificate</source>
         <translation type="obsolete">Osobně podepsaný certifikát</translation>
@@ -22997,14 +22539,6 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
     <message>
         <source>Custom certificate:</source>
         <translation type="obsolete">Uživatelsky stanovený certifikát:</translation>
-    </message>
-    <message>
-        <source>Choose certificate file (.cer)</source>
-        <translation type="obsolete">Zadejte soubor s osvědčením (.cer)</translation>
-    </message>
-    <message>
-        <source>Key file:</source>
-        <translation type="obsolete">Soubor s klíčem:</translation>
     </message>
     <message>
         <source>Not signed</source>
@@ -23030,9 +22564,6 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
         <source>Certificate&apos;s details</source>
         <translation type="obsolete">Podrobnosti certifikátu</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TargetSetupPage</name>
     <message>
         <source>Setup targets for your project</source>
         <translation type="obsolete">Nastavte cíl pro svůj projekt</translation>
@@ -23086,16 +22617,6 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
         <translation type="obsolete">V adresáři &quot;%2&quot; se nepodařilo nalézt žádná sestavení projektu &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; </source>
-        <comment>Severity is Task::Error</comment>
-        <translation type="obsolete">&lt;b&gt;Chyba:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
-        <comment>Severity is Task::Warning</comment>
-        <translation type="obsolete">&lt;b&gt;Varování:&lt;/b&gt; </translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;No valid Qt versions found.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Please add a Qt version in &lt;i&gt;Tools/Options&lt;/i&gt; or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;Nepodařilo se najít žádné platné verze Qt.&lt;/b&gt;&lt;br&gt;Přidejte, prosím, platnou verzi verzi Qt v  &lt;i&gt;Nástroje/Nastavení&lt;/i&gt; nebo prostřednictvím instalačního nástroje SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -23107,9 +22628,6 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;No valid Qt versions found.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Please add a Qt version in &lt;span style=&quot; font-style:italic;&quot;&gt;Tools &amp;gt; Options &amp;gt; Build &amp;amp; Run&lt;/span&gt; (&lt;span style=&quot; font-style:italic;&quot;&gt;Qt Creator &amp;gt; Preferences &amp;gt; Build &amp;amp; Run&lt;/span&gt; on Mac OS) or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Nenalezeny žádné platné verze Qt.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Přidejte, prosím, verzi Qt v &lt;span style=&quot; font-style:italic;&quot;&gt;Nástroje &amp;gt; Volby &amp;gt; Sestavení &amp;amp; Spuštění&lt;/span&gt; (&lt;span style=&quot; font-style:italic;&quot;&gt;Qt Creator &amp;gt; Nastavení &amp;gt; Sestavení &amp;amp; Spuštění&lt;/span&gt; na Mac OS) nebo přes nástroj na správu SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translatorcomment>WizardPage</translatorcomment>
@@ -24455,7 +23973,7 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation type="obsolete">CMake-Ziel ausführen</translation>
@@ -24469,18 +23987,6 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <translation>(vypnuto)</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Smazat prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
         <source>The executable is not built by the current build configuration</source>
         <translation>Spustitelný soubor není sestaven současným nastavením pro sestavování</translation>
     </message>
@@ -24492,17 +23998,11 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <source> (disabled)</source>
         <translation>(zakázáno)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
         <translation>Stolní počítač</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>CMakeProjectManager::MakeStep display name.</comment>
@@ -24521,9 +24021,6 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Nastavení je chybné. Prověřte, prosím, pohled na potíže kvůli podrobnostem.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
@@ -26797,7 +26294,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeTarget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -28238,7 +27735,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QemuRuntimeManager</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Start Maemo Emulator</source>
         <translation type="obsolete">Spustit napodobovatele jinak též emulátor Maemo</translation>
@@ -28267,9 +27764,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>Stop Maemo Emulator</source>
         <translation type="obsolete">Zastavit napodobovatele jinak též emulátor Maemo</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStep</name>
     <message>
         <source>Create SIS Package</source>
         <comment>Create SIS package build step name</comment>
@@ -28354,20 +27848,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>The process &quot;%1&quot; crashed.</source>
         <translation type="obsolete">Proces %1 spadl.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepFactory</name>
-    <message>
-        <source>Create SIS Package</source>
-        <translation type="obsolete">Vytvořit balíček SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
-    <message>
-        <source>Reset Passphrases</source>
-        <translation type="obsolete">Nastavit hesla znovu</translation>
-    </message>
     <message>
         <source>Do you want to reset all passphrases saved for keys used?</source>
         <translation type="obsolete">Chcete nastavit všechna hesla uložená pro použité klíče znovu?</translation>
@@ -28400,35 +27880,14 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1</source>
         <translation type="obsolete">&lt;b&gt;Vytvořit balíček SIS:&lt;/b&gt; %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesBaseWidget</name>
     <message>
         <source>Default</source>
         <translation type="obsolete">Výchozí</translation>
     </message>
     <message>
-        <source>SDK Location</source>
-        <translation type="obsolete">Umístění SDK</translation>
-    </message>
-    <message>
-        <source>Qt Location</source>
-        <translation type="obsolete">Umístění Qt</translation>
-    </message>
-    <message>
         <source>Choose Qt folder</source>
         <translation type="obsolete">Vybrat složku s Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesModel</name>
-    <message>
-        <source>No Qt installed</source>
-        <translation type="obsolete">Qt není nainstalováno</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GnuPocS60DevicesWidget</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Krok 1 ze 2: Vybrat složku s GnuPoc</translation>
@@ -28474,30 +27933,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeBuildConfigurationFactory</name>
-    <message>
-        <source>Using Qt Version &quot;%1&quot;</source>
-        <translation type="obsolete">Používá se verze Qt &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>New configuration</source>
-        <translation type="obsolete">Nové nastavení</translation>
-    </message>
-    <message>
-        <source>New Configuration Name:</source>
-        <translation type="obsolete">Název nového nastavení:</translation>
-    </message>
-    <message>
-        <source>%1 Debug</source>
-        <translation type="obsolete">%1 ladění</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <translation type="obsolete">%1 vydání</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>Vyhodnocení</translation>
@@ -28518,17 +27954,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>The .pro file &apos;%1&apos; could not be parsed.</source>
         <translation>Soubor .pro &apos;%1&apos; se nepodařilo zpracovat.</translation>
     </message>
-    <message>
-        <source>Debug</source>
-        <translation>Ladění</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Vydání</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4</source>
         <translation type="obsolete">Qt4</translation>
@@ -28555,17 +27980,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeTargetFactory</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Ladění</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="obsolete">Vydání</translation>
-    </message>
-</context>
-<context>
     <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
@@ -28579,7 +27993,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake nepodporuje žádné sestavování v adresářích, které se nacházejí pod zdrojovým adresářem.</translation>
@@ -28759,7 +28173,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MobileGuiAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Mobile Qt Application</source>
         <translation type="obsolete">Program Qt pro přenosná zařízení</translation>
@@ -28772,9 +28186,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
 
 Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
     <message>
         <source>Modules</source>
         <translation>Moduly</translation>
@@ -28784,17 +28195,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <translation>Sady</translation>
     </message>
     <message>
-        <source>Targets</source>
-        <translation type="obsolete">Cíle</translation>
-    </message>
-    <message>
-        <source>Qt Versions</source>
-        <translation type="obsolete">Verze Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizard</name>
-    <message>
         <source>Qt Unit Test</source>
         <translation>Jednotková zkouška Qt</translation>
     </message>
@@ -28802,9 +28202,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
         <translation>Vytvoří na QTestLib založenou jednotkovou zkoušku pro funkci nebo třídu. Jednotkové zkoušky slouží k přezkoušení použitelnosti kódu a ke zjištění regresí.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
         <translation>Tento průvodce vytvoří jednotkový test Qt sestávající z jednoho zdrojového souboru s jednou zkouškovou třídou.</translation>
@@ -28812,10 +28209,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     <message>
         <source>This wizard generates a Qt Unit Test consisting of a single source file with a test class.</source>
         <translation>Tento průvodce vytvoří jednotkový test Qt sestávající z jednoho zdrojového souboru s jednou zkouškovou třídou.</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
     </message>
 </context>
 <context>
@@ -30655,7 +30048,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>Knihovna:</translation>
@@ -30731,13 +30124,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Remove &quot;d&quot; suffix for release version</source>
         <translation>Odstranit příponu &quot;d&quot; pro verzi ladění</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::RvctToolChainConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
     </message>
     <message>
         <source>ARM &amp;version:</source>
@@ -30847,7 +30233,7 @@ Předchozí verze Qt mají omezení v sestavování vhodných souborů SIS.</tra
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::WinscwToolChainConfigWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -33824,7 +33210,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeEditor</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>Změny v souborech cmake budou ukázány po vytvoření projektového stromu.</translation>
@@ -33832,13 +33218,6 @@ Server: %2.</translation>
     <message>
         <source>Build now</source>
         <translation>Sestavit nyní</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
-    <message>
-        <source>Run CMake</source>
-        <translation>Provést CMake</translation>
     </message>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
@@ -37612,26 +36991,15 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Přidat knihovnu</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
         <source>Summary</source>
         <translation>Shrnutí</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Typ knihovny</translation>
@@ -37678,9 +37046,6 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
         <source>Links to a system library using pkg-config.</source>
         <translation>Odkáže na systémovou knihovnu za použití pkg-config.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>Internal Library</source>
         <translation>Vnitřní knihovna</translation>
@@ -37713,23 +37078,9 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
         <source>Specify the package to link to</source>
         <translation>Vyberte balíček k používání</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
-    <message>
-        <source>Summary</source>
-        <translation>Shrnutí</translation>
-    </message>
     <message>
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Následující úryvek bude přidán do souboru &lt;br&gt;&lt;b&gt;%1&lt;/b&gt;:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
-        <translation>Propojení:</translation>
     </message>
     <message>
         <source>%1 Dynamic</source>
@@ -37740,39 +37091,12 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
         <translation>%1 statické</translation>
     </message>
     <message>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
-    </message>
-    <message>
         <source>%1 Framework</source>
         <translation>%1 Framework</translation>
     </message>
     <message>
         <source>%1 Library</source>
         <translation>%1 Knihovna</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeTarget</name>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt4 Desktop target display name</comment>
-        <translation type="obsolete">Stolní počítač</translation>
-    </message>
-    <message>
-        <source>Qt Simulator</source>
-        <comment>Qt4 Simulator target display name</comment>
-        <translation type="obsolete">Qt Simulator</translation>
-    </message>
-    <message>
-        <source>Symbian Emulator</source>
-        <comment>Qt4 Symbian Emulator target display name</comment>
-        <translation type="obsolete">Emulátor Symbianu</translation>
-    </message>
-    <message>
-        <source>Symbian Device</source>
-        <comment>Qt4 Symbian Device target display name</comment>
-        <translation type="obsolete">Zařízení Symbian</translation>
     </message>
     <message>
         <source>Maemo5</source>
@@ -37799,9 +37123,6 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
         <comment>Qt4 Android target display name</comment>
         <translation type="obsolete">Android</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::CodaRunControl</name>
     <message>
         <source>No device is connected. Please connect a device and try again.
 </source>
@@ -37906,9 +37227,6 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
         <translation type="obsolete">Zařízení &apos;%1&apos; bylo odpojeno.
 </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GcceToolChainFactory</name>
     <message>
         <source>GCCE</source>
         <translation type="obsolete">GCCE</translation>
@@ -37921,9 +37239,6 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
         <source>GCCE (%1)</source>
         <translation type="obsolete">GCCE (%1)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::PassphraseForKeyDialog</name>
     <message>
         <source>Passphrase:</source>
         <translation type="obsolete">Heslo:</translation>
@@ -37940,28 +37255,10 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
         <source>Passphrase for %1</source>
         <translation type="obsolete">Heslo pro %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeSymbianTarget</name>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
-        <translation type="obsolete">&lt;b&gt;Zařízení:&lt;/b&gt; Nepřipojeno</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;Zařízení:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; %1, %2</source>
-        <translation type="obsolete">&lt;b&gt;Zařízení:&lt;/b&gt; %1, %2</translation>
-    </message>
     <message>
         <source>&lt;b&gt;IP address:&lt;/b&gt; %1:%2</source>
         <translation type="obsolete">&lt;b&gt;IP adresa:&lt;/b&gt; %1:%2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::RvctToolChainFactory</name>
     <message>
         <source>ARMv5</source>
         <translation type="obsolete">ARMv5</translation>
@@ -37979,9 +37276,6 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
         <extracomment>%1 arm version, %2 major version, %3 minor version, %4 build number</extracomment>
         <translation type="obsolete">RVCT (%1 %2.%3 Sestavení %4)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CertificateInfo</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -38038,9 +37332,6 @@ Platí od: %2.</translation>
             <numerusform>Podporuje %n zařízení: </numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageParser</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -38054,9 +37345,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
         <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
         <translation type="obsolete">Nelze vytvořit balíček Smart Installer, neboť základní soubor pro Smart Installer chybí. Ujistěte se, prosím, že je přítomen v SDK.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeployConfiguration</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation type="obsolete">Nasazení %1 na zařízení Symbian</translation>
@@ -38064,24 +37352,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
     <message>
         <source>Deploy to Symbian device</source>
         <translation type="obsolete">Nasazení na zařízení Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeployConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 na zařízení Symbian</translation>
-    </message>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation type="obsolete">Nasazení na zařízení Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployConfigurationWidget</name>
-    <message>
-        <source>Device:</source>
-        <translation type="obsolete">Zařízení:</translation>
     </message>
     <message>
         <source>Silent installation</source>
@@ -38096,20 +37366,12 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
         <translation type="obsolete">WLAN:</translation>
     </message>
     <message>
-        <source>Installation file:</source>
-        <translation type="obsolete">Instalační soubor:</translation>
-    </message>
-    <message>
         <source>Silent installation is an installation mode that does not require user&apos;s intervention. In case it fails the non silent installation is launched.</source>
         <translation type="obsolete">V režimu &apos;Tichá instalace&apos; se nevyžaduje žádný zásah uživatele na mobilním zařízení. Pokud toto selže, spustí se běžná, ne-tichá instalace.</translation>
     </message>
     <message>
         <source>Installation drive:</source>
         <translation type="obsolete">Instalační disková jednotka:</translation>
-    </message>
-    <message>
-        <source>Queries the device for information</source>
-        <translation type="obsolete">Vyvolává informace ze zařízení</translation>
     </message>
     <message>
         <source>Serial port:</source>
@@ -38142,10 +37404,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
     <message>
         <source>Not installed on device</source>
         <translation type="obsolete">Neinstalováno na zařízení</translation>
-    </message>
-    <message>
-        <source>Qt version:</source>
-        <translation type="obsolete">Verze Qt:</translation>
     </message>
     <message>
         <source>Unrecognised Symbian version 0x%1</source>
@@ -38203,17 +37461,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
         <source>Screen size:</source>
         <translation type="obsolete">Velikost obrazovky:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStep</name>
-    <message>
-        <source>Unable to remove existing file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Stávající soubor &apos;%1&apos; se nepodařilo odstranit: %2</translation>
-    </message>
-    <message>
-        <source>Unable to rename file &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation type="obsolete">Soubor &apos;%1&apos; se nepodařilo přejmenovat na &apos;%2&apos;: %3</translation>
-    </message>
     <message>
         <source>Deploy</source>
         <extracomment>Qt4 Deploystep display name</extracomment>
@@ -38227,14 +37474,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
     <message>
         <source>No package has been found. Specify at least one installation package.</source>
         <translation type="obsolete">Nepodařilo se najít žádný instalační balíček. Zadejte, prosím, alespoň jeden.</translation>
-    </message>
-    <message>
-        <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">Přejmenovává se nový balíček &apos;%1&apos; na &apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>Removing old package &apos;%1&apos;</source>
-        <translation type="obsolete">Odstraňuje se starý balíček &apos;%1&apos;</translation>
     </message>
     <message>
         <source>&apos;%1&apos;: Package file not found</source>
@@ -38305,10 +37544,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
         <translation type="obsolete">Instalace se nezdařila: %1; podívejte se na %2 pro popis chybových kódů</translation>
     </message>
     <message>
-        <source>Could not write to file %1 on device: %2</source>
-        <translation type="obsolete">Do souboru %1 se nepodařilo zapisovat na zařízení: %2</translation>
-    </message>
-    <message>
         <source>Failed to close the remote file: %1</source>
         <translation type="obsolete">Vzdálený soubor se nepodařilo zavřít: %1</translation>
     </message>
@@ -38321,10 +37556,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
         <translation type="obsolete">Nasazení bylo zrušeno.</translation>
     </message>
     <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">Zařízení &apos;%1&apos; bylo odpojeno</translation>
-    </message>
-    <message>
         <source>Copy progress: %1%</source>
         <translation type="obsolete">Kopíruje se: %1%</translation>
     </message>
@@ -38332,62 +37563,10 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
         <source>A timeout while deploying has occurred. CODA might not be responding. Try reconnecting the device.</source>
         <translation type="obsolete">Při nasazování bylo překročeno časové omezení. CODA možná neodpovídá. Pokuste se znovu vytvořit spojení se zařízením.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStepWidget</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation type="obsolete">Nasazení balíčku SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStepFactory</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation type="obsolete">Nasazení balíčku SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeviceRunConfiguration</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <extracomment>S60 device runconfiguration default display name, %1 is base pro-File name</extracomment>
-        <translation type="obsolete">%1 na zařízení Symbian</translation>
-    </message>
     <message>
         <source>Run on Symbian device</source>
         <extracomment>S60 device runconfiguration default display name (no profile set)</extracomment>
         <translation type="obsolete">Spustit na zařízení Symbian</translation>
-    </message>
-    <message>
-        <source>The .pro file is currently being parsed.</source>
-        <translation type="obsolete">Soubor .pro je právě vyhodnocován.</translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Soubor .pro se nepodařilo vyhodnotit.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 na zařízení Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublisherOvi</name>
-    <message>
-        <source>Clean</source>
-        <translation type="obsolete">Pročistit</translation>
-    </message>
-    <message>
-        <source>qmake</source>
-        <translation type="obsolete">qmake</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="obsolete">Sestavení</translation>
     </message>
     <message>
         <source>Freeze</source>
@@ -38427,17 +37606,11 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
         <translation type="obsolete">%1 byl vytvořen.
 </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CommandPublishStep</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
         <translation type="obsolete">Provádí se %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation type="obsolete">Nepodařilo se najít žádnou platnou verzi Qt &lt;br&gt; Zadejte, prosím, správnou verzi Qt v &quot;Nastavení &gt; Qt 4&quot;</translation>
@@ -38445,10 +37618,6 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
     <message>
         <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
         <translation type="obsolete">Nepodařilo se najít žádnou platnou sadu nástrojů.&lt;br&gt; Zadejte, prosím, správnou sadu nástrojů v &quot;Nastavení &gt; Sady nástrojů&quot;</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
     </message>
     <message>
         <source>Choose a build configuration:</source>
@@ -38464,9 +37633,6 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
         <translation type="obsolete">Tento průvodce ukáže jen verze Qt po verzi 4.6.3.
 Předchozí verze Qt mají omezení v sestavování vhodných souborů SIS.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingResultsPageOvi</name>
     <message>
         <source>Open Containing Folder</source>
         <translation type="obsolete">Otevřít obsahující složku</translation>
@@ -38475,13 +37641,6 @@ Předchozí verze Qt mají omezení v sestavování vhodných souborů SIS.</tra
         <source>Close</source>
         <translation type="obsolete">Zavřít</translation>
     </message>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
     <message>
         <source>This should be application&apos;s display name. &lt;br&gt;It cannot be empty.&lt;br&gt;</source>
         <translation type="obsolete">Zobrazený název programu. &lt;br&gt;Nesmí být prázdný.&lt;br&gt;</translation>
@@ -38571,10 +37730,6 @@ Předchozí verze Qt mají omezení v sestavování vhodných souborů SIS.</tra
         <translation type="obsolete">Ujistěte se, prosím, že používáte vydanou verzi Qt. &lt;br&gt;&lt;a href=&quot;http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian&quot;&gt;Qt Packages Distributed by Smart Installer&lt;/a&gt; má seznam uvolněných verzí.</translation>
     </message>
     <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
         <source>Localised Vendor Names</source>
         <translation type="obsolete">Lokalizovaný název prodejce</translation>
     </message>
@@ -38618,9 +37773,6 @@ Předchozí verze Qt mají omezení v sestavování vhodných souborů SIS.</tra
         <source>Global vendor name:</source>
         <translation type="obsolete">Jednoznačný název prodejce:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
     <message>
         <source>Publish Qt Symbian Applications to Ovi Store</source>
         <translation type="obsolete">Zveřejnit jako program Qt Symbianv Ovi Store</translation>
@@ -38673,9 +37825,6 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM a TCB
 
 Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete nějakou neuvolněnou verzi Qt na další straně.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingWizardOvi</name>
     <message>
         <source>Publishing to Ovi Store</source>
         <translation type="obsolete">Zveřejnit na Ovi Store</translation>
@@ -38696,9 +37845,6 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <source>Creating an Uploadable SIS File</source>
         <translation type="obsolete">Vytváří se nahrávatelný soubor SIS</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60RunControlBase</name>
     <message>
         <source>Launching</source>
         <translation type="obsolete">Spouští se</translation>
@@ -38731,9 +37877,6 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <translation type="obsolete">Dokončeno.
 </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::SbsV2Parser</name>
     <message>
         <source>SBSv2 build log</source>
         <translation type="obsolete">Záznam o sestavování SBSv2</translation>
@@ -38753,20 +37896,10 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <extracomment>%1 is the SBSv2 build recipe name, %2 the return code of the failed command</extracomment>
         <translation type="obsolete">Recipe %1 selhalo. Vrácená hodnota %2.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SymbianQtConfigWidget</name>
-    <message>
-        <source>S60 SDK:</source>
-        <translation type="obsolete">S60 SDK:</translation>
-    </message>
     <message>
         <source>SBS v2 directory:</source>
         <translation type="obsolete">Adresář SBS-v2:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::WinscwToolChainFactory</name>
     <message>
         <source>WINSCW</source>
         <translation type="obsolete">WINSCW</translation>
@@ -38775,16 +37908,10 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <source>WINSCW from Qt version</source>
         <translation type="obsolete">WINSCW z verze Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Parsing the .pro file</source>
         <translation>Vyhodnocuje se soubor .pro</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Chyba při vyhodnocování souboru %1. Zrušeno.</translation>
@@ -38792,19 +37919,6 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
     <message>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
         <translation>Soubor .pro pro podadresář &apos;%1&apos; se v &apos;%2&apos; nepodařilo najít</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBaseTargetFactory</name>
-    <message>
-        <source>%1 Debug</source>
-        <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 ladění</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Name of a release build configuration to be created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 vydání</translation>
     </message>
 </context>
 <context>
@@ -38821,7 +37935,7 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeDefaultTargetSetupWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation type="obsolete">Přidat sestavování z:</translation>
@@ -38859,14 +37973,6 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <translation type="obsolete">Stínové sestavování</translation>
     </message>
     <message>
-        <source>Qt version:</source>
-        <translation type="obsolete">Verze Qt:</translation>
-    </message>
-    <message>
-        <source>No Build Found</source>
-        <translation type="obsolete">Žádná sestavení nebyla nalezena</translation>
-    </message>
-    <message>
         <source>Incompatible Build Found</source>
         <translation type="obsolete">Nalezeno neslučitelné sestavování</translation>
     </message>
@@ -38891,10 +37997,6 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <translation type="obsolete">Použít stínové sestavování</translation>
     </message>
     <message>
-        <source>Qt Version:</source>
-        <translation type="obsolete">Verze Qt:</translation>
-    </message>
-    <message>
         <source>debug</source>
         <extracomment>Debug build</extracomment>
         <translation type="obsolete">Ladění</translation>
@@ -38909,10 +38011,6 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <translation type="obsolete">Žádná sestavení nebyla nalezena</translation>
     </message>
     <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation type="obsolete">V %1 nebylo nalezeno žádné sestavení odpovídající projektu %2.</translation>
-    </message>
-    <message>
         <source>Incompatible build found</source>
         <translation type="obsolete">Nalezeno neslučitelné sestavování</translation>
     </message>
@@ -38925,33 +38023,12 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <translation type="obsolete">Zavést sestavení z %1</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; </source>
-        <comment>Severity is Task::Error</comment>
-        <translation type="obsolete">&lt;b&gt;Chyba:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
-        <comment>Severity is Task::Warning</comment>
-        <translation type="obsolete">&lt;b&gt;Varování:&lt;/b&gt; </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
-    <message>
-        <source>Qt Versions</source>
-        <translation type="obsolete">Verze Qt</translation>
-    </message>
-    <message>
         <source>Targets</source>
         <translation>Cíle</translation>
     </message>
     <message>
         <source>Mobile Options</source>
         <translation>Nastavení pro mobilní zařízení</translation>
-    </message>
-    <message>
-        <source>Symbian Specific</source>
-        <translation type="obsolete">Zvláštní pro Symbian</translation>
     </message>
     <message>
         <source>Maemo5 And MeeGo Specific</source>
@@ -38966,19 +38043,9 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <translation>Zvláštní pro Harmattan</translation>
     </message>
     <message>
-        <source>Kits</source>
-        <translation>Sady</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileApp</name>
-    <message>
         <source>Could not open template file &apos;%1&apos;.</source>
         <translation>Soubor s předlohou &apos;%1&apos; se nepodařilo otevřít.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
     <message>
         <source>New HTML5 Application</source>
         <translation>Nový program HTML5</translation>
@@ -38995,9 +38062,6 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
         <source>HTML Options</source>
         <translation>Volby pro HTML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
     <message>
         <source>HTML5 Application</source>
         <translation>Program HTML5</translation>
@@ -39018,9 +38082,6 @@ You can build the application and deploy it on desktop and mobile target platfor
 
 Můžete tuto aplikaci sestavit a nasadit jak na stolním počítači tak na mobilních zařízeních. Tento typ projektu například umožní vytvoření podepsaného balíčku Symbian Installation System (SIS).</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
     <message>
         <source>Select HTML File</source>
         <translation>Vybrat soubor HTML</translation>
@@ -39042,7 +38103,7 @@ Vybere verze Qt pro Simulator a mobilní cíle, pokud jsou dostupné.</translati
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation>Automaticky změnit orientaci</translation>
@@ -39056,16 +38117,9 @@ Vybere verze Qt pro Simulator a mobilní cíle, pokud jsou dostupné.</translati
         <translation>Stanovit formát na výšku</translation>
     </message>
     <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
         <source>Orientation behavior:</source>
         <translation>Chování orientace:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PngIconScaler</name>
     <message>
         <source>Wrong Icon Size</source>
         <translation>Neplatná velikost ikony</translation>
@@ -39082,9 +38136,6 @@ Vybere verze Qt pro Simulator a mobilní cíle, pokud jsou dostupné.</translati
         <source>Could not copy icon file: %1</source>
         <translation>Soubor ikony se nepodařilo zkopírovat: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation type="obsolete">Cestu pro importování QML &apos;%1 se nepodařilo najít.</translation>
@@ -39105,9 +38156,6 @@ Vybere verze Qt pro Simulator a mobilní cíle, pokud jsou dostupné.</translati
         <source>No .pro file for plugin &apos;%1&apos; cannot be found.</source>
         <translation type="obsolete">Pro přídavný modul &apos;%1&apos; se nepodařilo najít žádný soubor .pro.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Nový program Qt Quick</translation>
@@ -39132,9 +38180,6 @@ Vybere verze Qt pro Simulator a mobilní cíle, pokud jsou dostupné.</translati
         <source>Application Type</source>
         <translation type="obsolete">Typ aplikace</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Nový program Qt Quick</translation>
@@ -39315,9 +38360,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
 
 Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
     <message>
         <source>Select QML File</source>
         <translation>Vybrat soubor QML</translation>
@@ -39334,9 +38376,6 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
         <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Všechny soubory a adresáře nacházející se v tomtéž adresáři jako hlavní soubor QML jsou připraveny k nasazení. Obsah adresáře lze před nasazením kdykoli upravit.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Projekt s podadresáři</translation>
@@ -39358,9 +38397,6 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
         <comment>Title of dialog</comment>
         <translation>Nový dílčí projekt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation type="obsolete">Tento průvodce vytvoří projekt Qt4 s podadresáři. Dílčí projekty lze později přidat s pomocí dalších průvodců.</translation>
@@ -39373,17 +38409,9 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Tento průvodce vytvoří projekt Qt s podadresáři. Dílčí projekty lze později přidat s pomocí dalších průvodců.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::TargetSetupPage</name>
     <message>
         <source>Target Setup</source>
         <translation type="obsolete">Nastavení cíle</translation>
-    </message>
-    <message>
-        <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
-        <comment>%1: Project name</comment>
-        <translation type="obsolete">Qt Creator může pro projekt &lt;b&gt;%1&lt;/b&gt; nastavit následující cíle:</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
@@ -39494,7 +38522,7 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmlDebuggingLibrary</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Vyžaduje Qt 4.7.1 nebo novější.</translation>
@@ -39502,10 +38530,6 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
     <message>
         <source>Not needed.</source>
         <translation>Není potřeba.</translation>
-    </message>
-    <message>
-        <source>QML Debugging</source>
-        <translation>Ladění QML</translation>
     </message>
     <message>
         <source>The target directory %1 could not be created.</source>
@@ -39521,20 +38545,9 @@ Reason: %2</source>
 
 Důvod: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDumpTool</name>
     <message>
         <source>Only available for Qt for Desktop and Qt for Qt Simulator.</source>
         <translation>Dostupné jen pro &quot;Qt pro Desktop&quot; a &quot;Qt pro Qt Simulator&quot;.</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Vyžaduje Qt 4.7.1 nebo novější.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Není potřeba.</translation>
     </message>
     <message>
         <source>Private headers are missing for this Qt version.</source>
@@ -39566,18 +38579,10 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmlObserverTool</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>Dostupné jen pro &quot;Qt pro Desktop&quot; a &quot;Qt pro Qt Simulator&quot;.</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Vyžaduje Qt 4.7.1 nebo novější.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Není potřeba.</translation>
     </message>
     <message>
         <source>QMLObserver</source>
@@ -43233,7 +42238,7 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakePriFileNode</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Headers</source>
         <translation>Hlavičky</translation>
@@ -43267,14 +42272,6 @@ o pravděpodobném URI.</translation>
         <translation type="obsolete">Soubor se nepodařilo s pomocí správy verzí udělat zapisovatelný (otevřít pro úpravy).</translation>
     </message>
     <message>
-        <source>Cannot Set Permissions</source>
-        <translation type="obsolete">Chyba při nastavení oprávnění pro přístup k souboru</translation>
-    </message>
-    <message>
-        <source>Cannot set permissions to writable.</source>
-        <translation type="obsolete">Soubor se nepodařilo udělat zapisovatelný.</translation>
-    </message>
-    <message>
         <source>There are unsaved changes for project file %1.</source>
         <translation>Soubor s projektem %1 má neuložené změny.</translation>
     </message>
@@ -43285,10 +42282,6 @@ o pravděpodobném URI.</translation>
     <message>
         <source>Could not write project file %1.</source>
         <translation>Soubor s projektem %1 se nepodařilo zapsat.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Chyba souboru</translation>
     </message>
 </context>
 <context>
@@ -45900,29 +44893,14 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
         <translation>Argumenty příkazového řádku pro &apos;make&apos;:</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>Přepsat %1:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
-    <message>
         <source>qmake build configuration:</source>
         <translation>Nastavení sestavování pro qmake:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Ladění</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Vydání</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -45936,19 +44914,9 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Effective qmake call:</source>
         <translation>Výsledné vyvolání qmake:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CertificateDetailsDialog</name>
     <message>
         <source>Details of Certificate</source>
         <translation type="obsolete">Podrobnosti k certifikátu</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardSourcesPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
     </message>
     <message>
         <source>Main HTML File</source>
@@ -45986,13 +44954,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</source>
         <translation>Pro dotykové ovládání optimalizované navádění způsobí, že stránku HTML lze obsluhovat pomocí udělání rychlého pohybu (Flick) a zvětší oblast prvků citlivých na dotyk. Nechte nastavení vypnuto, pokud již používáte pro dotykové ovládání vyladěnou soustavu JavaScript.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
     <message>
         <source>Application icon (80x80):</source>
         <translation>Ikona programu (80x80):</translation>
@@ -46005,23 +44966,9 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Make application boostable</source>
         <translation>Udělat program schopný vzpruhy</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
     <message>
         <source>Application icon (64x64):</source>
         <translation>Ikona programu (64x64):</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardSymbianOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
     </message>
     <message>
         <source>Application icon (.svg):</source>
@@ -46035,24 +44982,9 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Enable network access</source>
         <translation type="obsolete">Povolit přístup k síti</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileLibraryWizardOptionPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Target UID3:</source>
-        <translation type="obsolete">Cílové UID3:</translation>
-    </message>
     <message>
         <source>Plugin&apos;s directory name:</source>
         <translation>Název adresáře přídavného modulu:</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation type="obsolete">Povolit přístup k síti</translation>
     </message>
 </context>
 <context>
@@ -47975,7 +46907,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AndroidDeployStepFactory</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Deploy to Android device/emulator</source>
         <translation type="obsolete">Nasadit na zařízení/emulátor Android</translation>
@@ -48001,7 +46933,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AndroidPackageCreationFactory</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation type="obsolete">Vytvořit balíček pro Android (*.apk)</translation>
@@ -48192,7 +47124,7 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AndroidPackageInstallationFactory</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Deploy to device</source>
         <translation type="obsolete">Nasadit na zařízení</translation>
@@ -48802,7 +47734,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>Sestavit cíl CMake</translation>
@@ -50448,7 +49380,7 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::SymbianIDevice</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Device</source>
         <translation type="obsolete">Zařízení</translation>
@@ -50474,134 +49406,6 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
         <source>Symbian Device</source>
         <translation type="obsolete">Zařízení Symbian</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SymbianIDeviceConfigurationWidget</name>
-    <message>
-        <source>Device:</source>
-        <translation type="obsolete">Zařízení:</translation>
-    </message>
-    <message>
-        <source>Serial:</source>
-        <translation type="obsolete">Sériová:</translation>
-    </message>
-    <message>
-        <source>WLAN:</source>
-        <translation type="obsolete">WLAN:</translation>
-    </message>
-    <message>
-        <source>Queries the device for information</source>
-        <translation type="obsolete">Vyvolává informace ze zařízení</translation>
-    </message>
-    <message>
-        <source>Serial port:</source>
-        <translation type="obsolete">Sériová přípojka:</translation>
-    </message>
-    <message>
-        <source>Communication Channel</source>
-        <translation type="obsolete">Komunikační protokol</translation>
-    </message>
-    <message>
-        <source>Connecting</source>
-        <translation type="obsolete">Připojuje se</translation>
-    </message>
-    <message>
-        <source>Unable to create CODA connection. Please try again.</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádné spojení s CODA. Zkuste to, prosím, znovu.</translation>
-    </message>
-    <message>
-        <source>Currently there is no information about the device for this connection type.</source>
-        <translation type="obsolete">Pro tento typ spojení nejsou nyní dostupné žádné informace o zařízení.</translation>
-    </message>
-    <message>
-        <source>No device information available</source>
-        <translation type="obsolete">Nejsou dostupné žádné informace o zařízení</translation>
-    </message>
-    <message>
-        <source>Qt version: </source>
-        <translation type="obsolete">Verze Qt: </translation>
-    </message>
-    <message>
-        <source>Not installed on device</source>
-        <translation type="obsolete">Neinstalováno na zařízení</translation>
-    </message>
-    <message>
-        <source>Qt version:</source>
-        <translation type="obsolete">Verze Qt:</translation>
-    </message>
-    <message>
-        <source>Unrecognised Symbian version 0x%1</source>
-        <translation type="obsolete">Nerozpoznaná verze Symbianu 0x%1</translation>
-    </message>
-    <message>
-        <source>Unrecognised S60 version 0x%1</source>
-        <translation type="obsolete">Nerozpoznaná verze S60 0x%1</translation>
-    </message>
-    <message>
-        <source>OS version:</source>
-        <translation type="obsolete">Verze operačního systému:</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation type="obsolete">Neznámý</translation>
-    </message>
-    <message>
-        <source>ROM version:</source>
-        <translation type="obsolete">Verze ROM:</translation>
-    </message>
-    <message>
-        <source>Release:</source>
-        <translation type="obsolete">Vydání:</translation>
-    </message>
-    <message>
-        <source>CODA version: </source>
-        <translation type="obsolete">Verze CODA: </translation>
-    </message>
-    <message>
-        <source>Error reading CODA version</source>
-        <translation type="obsolete">Chyba při čtení verze CODA</translation>
-    </message>
-    <message>
-        <source>Qt Mobility version: </source>
-        <translation type="obsolete">Verze Qt Mobility: </translation>
-    </message>
-    <message>
-        <source>Error reading Qt Mobility version</source>
-        <translation type="obsolete">Chyba při čtení verze Qt Mobility</translation>
-    </message>
-    <message>
-        <source>Qt Quick components version: </source>
-        <translation type="obsolete">Verze součásti Qt Quick: </translation>
-    </message>
-    <message>
-        <source>Not installed</source>
-        <translation type="obsolete">Neinstalováno</translation>
-    </message>
-    <message>
-        <source>QML Viewer version: </source>
-        <translation type="obsolete">Verze prohlížeče QML: </translation>
-    </message>
-    <message>
-        <source>Screen size:</source>
-        <translation type="obsolete">Velikost obrazovky:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SymbianIDeviceFactory</name>
-    <message>
-        <source>Symbian Device</source>
-        <translation type="obsolete">Zařízení Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Nastavit projekt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TargetSetupPageWrapper</name>
     <message>
         <source>Configure Project</source>
         <translation>Nastavit projekt</translation>
@@ -50638,9 +49442,6 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
         <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses &lt;b&gt;no Qt version&lt;/b&gt; and &lt;b&gt;no tool chain&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;settings&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
         <translation type="obsolete">&lt;p&gt;Projekt &lt;b&gt;%1&lt;/b&gt; ještě není nastaven.&lt;/p&gt;&lt;p&gt;Qt Creator nepoužívá &lt;b&gt;žádnou verzi Qt&lt;/b&gt; a žádnou sadu nástrojů&lt;/b&gt; pro zpracování projektu. Můžete je upravit v dialogu &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;Nastavení&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::UnConfiguredSettingsWidget</name>
     <message>
         <source>Qt Creator can open qmake projects without configuring them for building.
 The C++ and QML code models need a Qt version and tool chain to offer code completion.
@@ -50648,14 +49449,6 @@ The C++ and QML code models need a Qt version and tool chain to offer code compl
         <translation type="obsolete">Qt Creator může otevřít projekty qmake bez jejich nastavení pro sestavení.
 Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a QML nabídly doplnění kódu.
 </translation>
-    </message>
-    <message>
-        <source>Qt Version:</source>
-        <translation type="obsolete">Verze Qt:</translation>
-    </message>
-    <message>
-        <source>Tool Chain:</source>
-        <translation type="obsolete">Sada nástrojů:</translation>
     </message>
 </context>
 <context>
@@ -50974,7 +49767,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Získat (checkout)</translation>
@@ -51000,9 +49793,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>Použít pro místní úpravy (&amp;hijack)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Nastavení</translation>
@@ -51085,9 +49875,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>VOBs list, separated by comma. Indexer will only traverse the specified VOBs. If left blank, all active VOBs will be indexed.</source>
         <translation>Seznam VOB, oddělený čárkou. Indexer překročí pouze zadané VOBs. Bude-li ponecháno prázdné, budou zindexovány všechny činné VOB.</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -51100,9 +49887,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Uložit kopii souboru s příponou &apos;.keep&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Potvrdit verzi k načtení</translation>
@@ -51753,7 +50537,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Vybrat č&amp;innost:</translation>
@@ -51766,9 +50550,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Keep item activity</source>
         <translation>Zachovat činnost položky</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>&amp;Check Out</source>
         <translation type="obsolete">&amp;Načíst (checkout)</translation>
@@ -51781,16 +50562,10 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>&amp;Hijack</source>
         <translation>Upravit místně (&amp;hijack)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditor</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Opatřit anotacemi verzi &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation>Úpravy odvozeného objektu: %1</translation>
@@ -52085,32 +50860,19 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translatorcomment>XXX: příliš dlouhé?</translatorcomment>
         <translation>Indexování ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>Zápis-odevzdání do ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>Zapsat-&amp;odevzdat i v případě shody s předchozí verzí</translation>
-    </message>
-    <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>&amp;Zachovat čas změny souboru</translation>
     </message>
     <message>
         <source>&amp;Check In</source>
         <translatorcomment>XXX: příliš dlouhé?</translatorcomment>
         <translation>&amp;Zapsat-odevzdat (check in)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>Příkaz pro ClearCase</translation>
@@ -52129,7 +50891,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::ChooseCMakePage</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Choose Cmake Executable</source>
         <translation type="obsolete">Vybrat spustitelný soubor Cmake</translation>
@@ -52137,22 +50899,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>The cmake executable is valid.</source>
         <translation type="obsolete">Spustitelný soubor cmake je platný.</translation>
-    </message>
-    <message>
-        <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
-        <translation type="obsolete">Zadejte, prosím, cestu ke spustitelnému souboru cmake. V cestě nebyl nalezen žádný spustitelný soubor cmake.</translation>
-    </message>
-    <message>
-        <source> The cmake executable (%1) does not exist.</source>
-        <translation type="obsolete"> Spustitelný soubor cmake (%1) neexistuje.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a executable.</source>
-        <translation type="obsolete">Cesta &apos;%1&apos; není spustitelným souborem.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a valid cmake.</source>
-        <translation type="obsolete">Cesta &apos;%1&apos; není platným cmake.</translation>
     </message>
     <message>
         <source>CMake Executable:</source>
@@ -53814,7 +52560,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>mkspec k použití při sestavování projektu s qmake.&lt;br&gt;Toto nastavení se přehlíží, když se používají jiné sestavovací systémy.</translation>
@@ -53823,9 +52569,6 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
         <source>Qt mkspec:</source>
         <translation>Qt mkspec:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Nenastavena žádná verze Qt, takže se mkspec přehlíží.</translation>
@@ -53838,9 +52581,6 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
         <source>mkspec</source>
         <translation>mkspec</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeTargetSetupWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Spravovat...</translation>
@@ -53855,9 +52595,6 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;Varování:&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ImportWidget</name>
     <message>
         <source>Import Build from...</source>
         <translation>Importovat sestavení z...</translation>
@@ -55507,7 +54244,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::GeneratorInfo</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Ninja (%1)</source>
         <translation>Ninja (%1)</translation>
@@ -55524,9 +54261,6 @@ nelze najít v cestě.</translation>
         <source>Unix Generator (%1)</source>
         <translation>Generátor Unix (%1)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::NoKitPage</name>
     <message>
         <source>Show Options</source>
         <translation>Ukázat volby</translation>
@@ -60872,22 +59606,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::Qt4Target</name>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt4 Desktop target display name</comment>
-        <translation>Desktop</translation>
-    </message>
-    <message>
-        <source>Maemo Emulator</source>
-        <comment>Qt4 Maemo Emulator target display name</comment>
-        <translation>Emulátor pro Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Device</source>
-        <comment>Qt4 Maemo Device target display name</comment>
-        <translation>Zařízení Maemo</translation>
-    </message>
+    <name>QmakeProjectManager</name>
 </context>
 <context>
     <name>ProjectExplorer::TargetSetupPage</name>
@@ -60983,76 +59702,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
-    <message>
-        <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
-        <translation>Soubor .pro &apos;%1&apos; se právě zpracovává.</translation>
-    </message>
-    <message>
-        <source>Qt Run Configuration</source>
-        <translation>Nastavení spuštění Qt4</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfigurationWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
-    <message>
-        <source>Select Working Directory</source>
-        <translation>Vybrat pracovní adresář</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation>Nastavit znovu výchozí</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Pracovní adresář:</translation>
-    </message>
-    <message>
-        <source>Run in terminal</source>
-        <translation>Spustit v terminálu</translation>
-    </message>
-    <message>
-        <source>Run on QVFb</source>
-        <translation>Spustit na QVFb</translation>
-    </message>
-    <message>
-        <source>Check this option to run the application on a Qt Virtual Framebuffer.</source>
-        <translation>Zaškrtněte tuto volbu pro spuštění programu na Qt Virtual Framebuffer.</translation>
-    </message>
-    <message>
-        <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
-        <translation>Používat ladicí verzi rámce (DYLD_IMAGE_SUFFIX=_debug)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>Ladění</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Vydání</translation>
-    </message>
-    <message>
-        <source>No Build Found</source>
-        <translation>Žádná sestavení nebyla nalezena</translation>
-    </message>
-    <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation>V %1 nebylo nalezeno žádné sestavení odpovídající projektu %2.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickComponentSetPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation>Vybrat sadu součástek Qt Quick</translation>
@@ -61635,7 +60285,7 @@ Projekty Qt Quick 2 UI není potřeba sestavovat a lze je spouštět přímo v p
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtQuickAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Creates a deployable Qt Quick 1 application using the QtQuick 1.1 import. Requires Qt 4.8 or newer.</source>
         <translation>Vytvoří nasaditelný program Qt Quick 1 pomocí Qt Quick import. Vyžaduje Qt 4.8 nebo novější.</translation>

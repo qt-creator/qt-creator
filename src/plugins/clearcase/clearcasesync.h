@@ -11,8 +11,7 @@ template <typename T>
 class QFutureInterface;
 QT_END_NAMESPACE
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 class ClearCaseSync : public QObject
 {
@@ -53,5 +52,4 @@ public slots:
 #endif
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

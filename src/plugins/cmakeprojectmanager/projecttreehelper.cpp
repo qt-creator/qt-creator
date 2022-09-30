@@ -3,6 +3,8 @@
 
 #include "projecttreehelper.h"
 
+#include "cmakeprojectmanagertr.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
@@ -11,8 +13,7 @@
 
 using namespace ProjectExplorer;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
                                                int priority,
@@ -77,18 +78,17 @@ void addCMakeInputs(FolderNode *root,
     addCMakeVFolder(cmakeVFolder.get(),
                     buildDir,
                     100,
-                    QCoreApplication::translate("CMakeProjectManager::Internal::ProjectTreeHelper",
-                                                "<Build Directory>"),
+                    Tr::tr("<Build Directory>"),
                     removeKnownNodes(knownFiles, std::move(buildInputs)));
     addCMakeVFolder(cmakeVFolder.get(),
                     Utils::FilePath(),
                     10,
-                    QCoreApplication::translate("CMakeProjectManager::Internal::ProjectTreeHelper",
-                                                "<Other Locations>"),
+                    Tr::tr("<Other Locations>"),
                     removeKnownNodes(knownFiles, std::move(rootInputs)));
 
     root->addNode(std::move(cmakeVFolder));
 }
+
 QHash<Utils::FilePath, ProjectNode *> addCMakeLists(
     CMakeProjectNode *root, std::vector<std::unique_ptr<FileNode>> &&cmakeLists)
 {
@@ -177,9 +177,7 @@ void addFileSystemNodes(ProjectNode *root, const std::shared_ptr<FolderNode> &fo
     auto fileSystemNode = cloneFolderNode<VirtualFolderNode>(folderNode.get());
     // just before special nodes like "CMake Modules"
     fileSystemNode->setPriority(Node::DefaultPriority - 6);
-    fileSystemNode->setDisplayName(
-        QCoreApplication::translate("CMakeProjectManager::Internal::ProjectTreeHelper",
-                                    "<File System>"));
+    fileSystemNode->setDisplayName(Tr::tr("<File System>"));
     fileSystemNode->setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN));
 
     if (!fileSystemNode->isEmpty()) {
@@ -192,5 +190,4 @@ void addFileSystemNodes(ProjectNode *root, const std::shared_ptr<FolderNode> &fo
     }
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

@@ -5,22 +5,25 @@
 
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
+#include "diffeditorplugin.h"
 #include "diffutils.h"
 
-#include <QHash>
 #include <QMenu>
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
+#include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/displaysettings.h>
 
+#include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -34,17 +37,18 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
     , m_controller(this)
 {
+    setReadOnly(true);
+
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
     SelectableTextEditorWidget::setDisplaySettings(settings);
-
-    setReadOnly(true);
     connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
             this, &UnifiedDiffEditorWidget::setDisplaySettings);
     setDisplaySettings(TextEditorSettings::displaySettings());
+
     setCodeStyle(TextEditorSettings::codeStyle());
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
@@ -63,14 +67,20 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     setCodeFoldingSupported(true);
 }
 
+UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
+{
+    if (m_watcher) {
+        m_watcher->cancel();
+        DiffEditorPlugin::addFuture(m_watcher->future());
+    }
+}
+
 void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
+    m_controller.setBusyShowing(true);
     m_controller.setDocument(document);
     clear();
-    QList<FileData> diffFileList;
-    if (document)
-        diffFileList = document->diffFiles();
-    setDiff(diffFileList);
+    setDiff(document ? document->diffFiles() : QList<FileData>());
 }
 
 DiffEditorDocument *UnifiedDiffEditorWidget::diffDocument() const
@@ -116,8 +126,13 @@ void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
     if (m_controller.m_ignoreChanges.isLocked())
         return;
 
+    const int fileIndex = m_data.fileIndexForBlockNumber(textCursor().blockNumber());
+    if (fileIndex < 0)
+        return;
+
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    emit currentDiffFileIndexChanged(fileIndexForBlockNumber(textCursor().blockNumber()));
+    m_controller.setCurrentDiffFileIndex(fileIndex);
+    emit currentDiffFileIndexChanged(fileIndex);
 }
 
 void UnifiedDiffEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
@@ -156,30 +171,30 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QTextCursor cursor = cursorForPosition(e->pos());
     const int blockNumber = cursor.blockNumber();
 
-    const int fileIndex = fileIndexForBlockNumber(blockNumber);
-    const int chunkIndex = chunkIndexForBlockNumber(blockNumber);
+    const int fileIndex = m_data.fileIndexForBlockNumber(blockNumber);
+    const int chunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber);
 
     const ChunkData chunkData = m_controller.chunkData(fileIndex, chunkIndex);
 
     QList<int> leftSelection, rightSelection;
 
     for (int i = startBlockNumber; i <= endBlockNumber; ++i) {
-        const int currentFileIndex = fileIndexForBlockNumber(i);
+        const int currentFileIndex = m_data.fileIndexForBlockNumber(i);
         if (currentFileIndex < fileIndex)
             continue;
 
         if (currentFileIndex > fileIndex)
             break;
 
-        const int currentChunkIndex = chunkIndexForBlockNumber(i);
+        const int currentChunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(i);
         if (currentChunkIndex < chunkIndex)
             continue;
 
         if (currentChunkIndex > chunkIndex)
             break;
 
-        const int leftRow = m_data.m_leftLineNumbers.value(i, qMakePair(-1, -1)).second;
-        const int rightRow = m_data.m_rightLineNumbers.value(i, qMakePair(-1, -1)).second;
+        const int leftRow = m_data.m_lineNumbers[LeftSide].value(i, qMakePair(-1, -1)).second;
+        const int rightRow = m_data.m_lineNumbers[RightSide].value(i, qMakePair(-1, -1)).second;
 
         if (leftRow >= 0)
             leftSelection.append(leftRow);
@@ -189,24 +204,22 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     const ChunkSelection selection(leftSelection, rightSelection);
 
-    addContextMenuActions(menu, fileIndexForBlockNumber(blockNumber),
-                          chunkIndexForBlockNumber(blockNumber), selection);
+    addContextMenuActions(menu, m_data.fileIndexForBlockNumber(blockNumber),
+                          m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber), selection);
 
     connect(this, &UnifiedDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
     menu->exec(e->globalPos());
     delete menu;
 }
 
-void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
-                                                    int fileIndex,
-                                                    int chunkIndex,
+void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu, int fileIndex, int chunkIndex,
                                                     const ChunkSelection &selection)
 {
     menu->addSeparator();
 
     m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
-    m_controller.addApplyAction(menu, fileIndex, chunkIndex);
-    m_controller.addRevertAction(menu, fileIndex, chunkIndex);
+    m_controller.addPatchAction(menu, fileIndex, chunkIndex, PatchAction::Apply);
+    m_controller.addPatchAction(menu, fileIndex, chunkIndex, PatchAction::Revert);
     m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 
@@ -214,6 +227,12 @@ void UnifiedDiffEditorWidget::clear(const QString &message)
 {
     m_data = {};
     setSelections({});
+    if (m_watcher) {
+        m_watcher->cancel();
+        DiffEditorPlugin::addFuture(m_watcher->future());
+        m_watcher.reset();
+        m_controller.setBusyShowing(false);
+    }
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
     SelectableTextEditorWidget::clear();
@@ -225,81 +244,75 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
 {
     QString lineNumberString;
 
-    const bool leftLineExists = m_data.m_leftLineNumbers.contains(blockNumber);
-    const bool rightLineExists = m_data.m_rightLineNumbers.contains(blockNumber);
+    const bool leftLineExists = m_data.m_lineNumbers[LeftSide].contains(blockNumber);
+    const bool rightLineExists = m_data.m_lineNumbers[RightSide].contains(blockNumber);
 
     if (leftLineExists || rightLineExists) {
-        const QString leftLine = leftLineExists
-                ? QString::number(m_data.m_leftLineNumbers.value(blockNumber).first)
-                : QString();
-        lineNumberString += QString(m_data.m_leftLineNumberDigits - leftLine.count(),
-                                    ' ') + leftLine;
-
+        auto addSideNumber = [&](DiffSide side, bool lineExists) {
+            const QString line = lineExists
+                    ? QString::number(m_data.m_lineNumbers[side].value(blockNumber).first)
+                    : QString();
+            lineNumberString += QString(m_data.m_lineNumberDigits[side] - line.count(), ' ') + line;
+        };
+        addSideNumber(LeftSide, leftLineExists);
         lineNumberString += '|';
-
-        const QString rightLine = rightLineExists
-                ? QString::number(m_data.m_rightLineNumbers.value(blockNumber).first)
-                : QString();
-        lineNumberString += QString(m_data.m_rightLineNumberDigits - rightLine.count(),
-                                    ' ') + rightLine;
+        addSideNumber(RightSide, rightLineExists);
     }
     return lineNumberString;
 }
 
 int UnifiedDiffEditorWidget::lineNumberDigits() const
 {
-    return m_data.m_leftLineNumberDigits + m_data.m_rightLineNumberDigits + 1;
+    return m_data.m_lineNumberDigits[LeftSide] + m_data.m_lineNumberDigits[RightSide] + 1;
 }
 
-void UnifiedDiffData::setLeftLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk)
+int UnifiedDiffData::blockNumberForFileIndex(int fileIndex) const
 {
+    if (fileIndex < 0 || fileIndex >= m_fileInfo.count())
+        return -1;
+
+    return std::next(m_fileInfo.constBegin(), fileIndex).key();
+}
+
+int UnifiedDiffData::fileIndexForBlockNumber(int blockNumber) const
+{
+    int i = -1;
+    for (auto it = m_fileInfo.cbegin(), end = m_fileInfo.cend(); it != end; ++it, ++i) {
+        if (it.key() > blockNumber)
+            break;
+    }
+    return i;
+}
+
+void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk)
+{
+    QTC_ASSERT(side < SideCount, return);
     const QString lineNumberString = QString::number(lineNumber);
-    m_leftLineNumbers.insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
-    m_leftLineNumberDigits = qMax(m_leftLineNumberDigits, lineNumberString.count());
-}
-
-void UnifiedDiffData::setRightLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk)
-{
-    const QString lineNumberString = QString::number(lineNumber);
-    m_rightLineNumbers.insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
-    m_rightLineNumberDigits = qMax(m_rightLineNumberDigits, lineNumberString.count());
-}
-
-void UnifiedDiffData::setFileInfo(int blockNumber, const DiffFileInfo &leftInfo,
-                                                   const DiffFileInfo &rightInfo)
-{
-    m_fileInfo[blockNumber] = qMakePair(leftInfo, rightInfo);
-}
-
-void UnifiedDiffData::setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex)
-{
-    m_chunkInfo.insert(startBlockNumber, qMakePair(blockCount, chunkIndex));
+    m_lineNumbers[side].insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
+    m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.count());
 }
 
 void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    clear();
+    clear(tr("Waiting for data..."));
     m_controller.m_contextFileData = diffFileList;
     showDiff();
 }
 
-QString UnifiedDiffData::showChunk(const DiffEditorInput &input, const ChunkData &chunkData,
-                                   bool lastChunk, int *blockNumber, int *charNumber,
-                                   QMap<int, QList<DiffSelection>> *selections)
+QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
+                                  bool lastChunk, int *blockNumber, DiffSelections *selections)
 {
     if (chunkData.contextChunk)
-        return QString();
+        return {};
 
     QString diffText;
-    int leftLineCount = 0;
-    int rightLineCount = 0;
     int blockCount = 0;
-    int charCount = 0;
-    QList<TextLineData> leftBuffer, rightBuffer;
-    QList<int> leftRowsBuffer, rightRowsBuffer;
+    std::array<int, SideCount> lineCount{};
+    std::array<QList<TextLineData>, SideCount> buffer{};
+    std::array<QList<int>, SideCount> rowsBuffer{};
 
-    (*selections)[*blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+    (*selections)[*blockNumber].append({input.m_chunkLineFormat});
 
     int lastEqualRow = -1;
     if (lastChunk) {
@@ -312,140 +325,94 @@ QString UnifiedDiffData::showChunk(const DiffEditorInput &input, const ChunkData
         }
     }
 
+    auto processSideChunk = [&](DiffSide side, int chunkIndex) {
+        if (buffer[side].isEmpty())
+            return;
+
+        for (int j = 0; j < buffer[side].count(); j++) {
+            const TextLineData &lineData = buffer[side].at(j);
+            const QString line = DiffUtils::makePatchLine(
+                        '-',
+                        lineData.text,
+                        lastChunk,
+                        chunkIndex == chunkData.rows.count() && j == buffer[side].count() - 1);
+
+            const int blockDelta = line.count('\n'); // no new line
+            // could have been added
+            for (int k = 0; k < blockDelta; k++)
+                (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_lineFormat[side]});
+
+            for (auto it = lineData.changedPositions.cbegin(),
+                 end = lineData.changedPositions.cend(); it != end; ++it) {
+                const int startPos = it.key() < 0 ? 1 : it.key() + 1;
+                const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
+                (*selections)[*blockNumber + blockCount + 1].append(
+                            {input.m_charFormat[side], startPos, endPos});
+            }
+
+            if (!line.isEmpty()) {
+                setLineNumber(side,
+                              *blockNumber + blockCount + 1,
+                              chunkData.startingLineNumber[side] + lineCount[side] + 1,
+                              rowsBuffer[side].at(j));
+                blockCount += blockDelta;
+                ++lineCount[side];
+            }
+            diffText += line;
+        }
+        buffer[side].clear();
+        rowsBuffer[side].clear();
+    };
+
+    auto processSideChunkEmpty = [&](DiffSide side, int chunkIndex) {
+        setLineNumber(side, *blockNumber + blockCount + 1,
+                      chunkData.startingLineNumber[side] + lineCount[side] + 1, chunkIndex);
+        ++lineCount[side];
+    };
+
+    auto processSideChunkDifferent = [&](DiffSide side, int chunkIndex, const RowData &rowData) {
+        if (rowData.line[side].textLineType == TextLineData::TextLine) {
+            buffer[side].append(rowData.line[side]);
+            rowsBuffer[side].append(chunkIndex);
+        }
+    };
+
     for (int i = 0; i <= chunkData.rows.count(); i++) {
         const RowData &rowData = i < chunkData.rows.count()
                 ? chunkData.rows.at(i)
-                : RowData(TextLineData(TextLineData::Separator)); // dummy,
-                                       // ensure we process buffers to the end.
-                                       // rowData will be equal
+                  // dummy, ensure we process buffers to the end. rowData will be equal
+                : RowData(TextLineData(TextLineData::Separator));
+
+
         if (rowData.equal && i != lastEqualRow) {
-            if (!leftBuffer.isEmpty()) {
-                for (int j = 0; j < leftBuffer.count(); j++) {
-                    const TextLineData &lineData = leftBuffer.at(j);
-                    const QString line = DiffUtils::makePatchLine(
-                                '-',
-                                lineData.text,
-                                lastChunk,
-                                i == chunkData.rows.count()
-                                && j == leftBuffer.count() - 1);
-
-                    const int blockDelta = line.count('\n'); // no new line
-                                                     // could have been added
-                    for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append(input.m_leftLineFormat);
-
-                    for (auto it = lineData.changedPositions.cbegin(),
-                              end = lineData.changedPositions.cend(); it != end; ++it) {
-                        const int startPos = it.key() < 0
-                                ? 1 : it.key() + 1;
-                        const int endPos = it.value() < 0
-                                ? it.value() : it.value() + 1;
-                        (*selections)[*blockNumber + blockCount + 1].append(
-                                    DiffSelection(startPos, endPos, input.m_leftCharFormat));
-                    }
-
-                    if (!line.isEmpty()) {
-                        setLeftLineNumber(*blockNumber + blockCount + 1,
-                                          chunkData.leftStartingLineNumber
-                                          + leftLineCount + 1,
-                                          leftRowsBuffer.at(j));
-                        blockCount += blockDelta;
-                        ++leftLineCount;
-                    }
-
-                    diffText += line;
-
-                    charCount += line.count();
-                }
-                leftBuffer.clear();
-                leftRowsBuffer.clear();
-            }
-            if (!rightBuffer.isEmpty()) {
-                for (int j = 0; j < rightBuffer.count(); j++) {
-                    const TextLineData &lineData = rightBuffer.at(j);
-                    const QString line = DiffUtils::makePatchLine(
-                                '+',
-                                lineData.text,
-                                lastChunk,
-                                i == chunkData.rows.count()
-                                && j == rightBuffer.count() - 1);
-
-                    const int blockDelta = line.count('\n'); // no new line
-                                                     // could have been added
-
-                    for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append(input.m_rightLineFormat);
-
-                    for (auto it = lineData.changedPositions.cbegin(),
-                              end = lineData.changedPositions.cend(); it != end; ++it) {
-                        const int startPos = it.key() < 0
-                                ? 1 : it.key() + 1;
-                        const int endPos = it.value() < 0
-                                ? it.value() : it.value() + 1;
-                        (*selections)[*blockNumber + blockCount + 1].append
-                                (DiffSelection(startPos, endPos, input.m_rightCharFormat));
-                    }
-
-                    if (!line.isEmpty()) {
-                        setRightLineNumber(*blockNumber + blockCount + 1,
-                                           chunkData.rightStartingLineNumber
-                                           + rightLineCount + 1,
-                                           rightRowsBuffer.at(j));
-                        blockCount += blockDelta;
-                        ++rightLineCount;
-                    }
-
-                    diffText += line;
-
-                    charCount += line.count();
-                }
-                rightBuffer.clear();
-                rightRowsBuffer.clear();
-            }
+            processSideChunk(LeftSide, i);
+            processSideChunk(RightSide, i);
             if (i < chunkData.rows.count()) {
                 const QString line = DiffUtils::makePatchLine(' ',
-                                          rowData.rightLine.text,
+                                          rowData.line[RightSide].text,
                                           lastChunk,
                                           i == chunkData.rows.count() - 1);
-
                 if (!line.isEmpty()) {
-                    setLeftLineNumber(*blockNumber + blockCount + 1,
-                                      chunkData.leftStartingLineNumber
-                                      + leftLineCount + 1,
-                                      i);
-                    setRightLineNumber(*blockNumber + blockCount + 1,
-                                       chunkData.rightStartingLineNumber
-                                       + rightLineCount + 1,
-                                       i);
+                    processSideChunkEmpty(LeftSide, i);
+                    processSideChunkEmpty(RightSide, i);
                     blockCount += line.count('\n');
-                    ++leftLineCount;
-                    ++rightLineCount;
                 }
-
                 diffText += line;
-
-                charCount += line.count();
             }
         } else {
-            if (rowData.leftLine.textLineType == TextLineData::TextLine) {
-                leftBuffer.append(rowData.leftLine);
-                leftRowsBuffer.append(i);
-            }
-            if (rowData.rightLine.textLineType == TextLineData::TextLine) {
-                rightBuffer.append(rowData.rightLine);
-                rightRowsBuffer.append(i);
-            }
+            processSideChunkDifferent(LeftSide, i, rowData);
+            processSideChunkDifferent(RightSide, i, rowData);
         }
     }
 
     const QString chunkLine = "@@ -"
-            + QString::number(chunkData.leftStartingLineNumber + 1)
+            + QString::number(chunkData.startingLineNumber[LeftSide] + 1)
             + ','
-            + QString::number(leftLineCount)
+            + QString::number(lineCount[LeftSide])
             + " +"
-            + QString::number(chunkData.rightStartingLineNumber+ 1)
+            + QString::number(chunkData.startingLineNumber[RightSide]+ 1)
             + ','
-            + QString::number(rightLineCount)
+            + QString::number(lineCount[RightSide])
             + " @@"
             + chunkData.contextInfo
             + '\n';
@@ -453,119 +420,147 @@ QString UnifiedDiffData::showChunk(const DiffEditorInput &input, const ChunkData
     diffText.prepend(chunkLine);
 
     *blockNumber += blockCount + 1; // +1 for chunk line
-    *charNumber += charCount + chunkLine.count();
     return diffText;
 }
 
-UnifiedDiffOutput UnifiedDiffData::showDiff(const DiffEditorInput &input)
+UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int progressMin,
+                                              int progressMax, const DiffEditorInput &input)
 {
     UnifiedDiffOutput output;
 
     int blockNumber = 0;
-    int charNumber = 0;
+    int i = 0;
+    const int count = input.m_contextFileData.size();
 
     for (const FileData &fileData : qAsConst(input.m_contextFileData)) {
-        const QString leftFileInfo = "--- " + fileData.leftFileInfo.fileName + '\n';
-        const QString rightFileInfo = "+++ " + fileData.rightFileInfo.fileName + '\n';
-        setFileInfo(blockNumber, fileData.leftFileInfo, fileData.rightFileInfo);
+        const QString leftFileInfo = "--- " + fileData.fileInfo[LeftSide].fileName + '\n';
+        const QString rightFileInfo = "+++ " + fileData.fileInfo[RightSide].fileName + '\n';
+        output.diffData.m_fileInfo[blockNumber] = fileData.fileInfo;
         output.foldingIndent.insert(blockNumber, 1);
-        output.selections[blockNumber].append(DiffSelection(input.m_fileLineFormat));
+        output.selections[blockNumber].append({input.m_fileLineFormat});
         blockNumber++;
         output.foldingIndent.insert(blockNumber, 1);
-        output.selections[blockNumber].append(DiffSelection(input.m_fileLineFormat));
+        output.selections[blockNumber].append({input.m_fileLineFormat});
         blockNumber++;
 
         output.diffText += leftFileInfo;
         output.diffText += rightFileInfo;
-        charNumber += leftFileInfo.count() + rightFileInfo.count();
 
         if (fileData.binaryFiles) {
             output.foldingIndent.insert(blockNumber, 2);
-            output.selections[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+            output.selections[blockNumber].append({input.m_chunkLineFormat});
             blockNumber++;
             const QString binaryLine = "Binary files "
-                    + fileData.leftFileInfo.fileName
+                    + fileData.fileInfo[LeftSide].fileName
                     + " and "
-                    + fileData.rightFileInfo.fileName
+                    + fileData.fileInfo[RightSide].fileName
                     + " differ\n";
             output.diffText += binaryLine;
-            charNumber += binaryLine.count();
         } else {
             for (int j = 0; j < fileData.chunks.count(); j++) {
-                const int oldBlockNumber = blockNumber;
+                const int oldBlock = blockNumber;
                 output.foldingIndent.insert(blockNumber, 2);
-                output.diffText += showChunk(input, fileData.chunks.at(j),
-                                      (j == fileData.chunks.count() - 1)
-                                      && fileData.lastChunkAtTheEndOfFile,
-                                      &blockNumber,
-                                      &charNumber,
-                                      &output.selections);
+                output.diffText += output.diffData.setChunk(input, fileData.chunks.at(j),
+                                                            (j == fileData.chunks.count() - 1)
+                                                            && fileData.lastChunkAtTheEndOfFile,
+                                                            &blockNumber,
+                                                            &output.selections);
                 if (!fileData.chunks.at(j).contextChunk)
-                    setChunkIndex(oldBlockNumber, blockNumber - oldBlockNumber, j);
+                    output.diffData.m_chunkInfo.setChunkIndex(oldBlock, blockNumber - oldBlock, j);
             }
         }
+        fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
+        if (fi.isCanceled())
+            return {};
     }
 
     output.diffText.replace('\r', ' ');
+    output.selections = SelectableTextEditorWidget::polishedSelections(output.selections);
     return output;
 }
 
 void UnifiedDiffEditorWidget::showDiff()
 {
-    const DiffEditorInput input = {&m_controller};
-    const UnifiedDiffOutput output = m_data.showDiff(input);
-
-    if (output.diffText.isEmpty()) {
+    if (m_controller.m_contextFileData.isEmpty()) {
         setPlainText(tr("No difference."));
         return;
     }
 
-    {
-        const GuardLocker locker(m_controller.m_ignoreChanges);
-        setPlainText(output.diffText);
+    m_watcher.reset(new QFutureWatcher<ShowResult>());
+    m_controller.setBusyShowing(true);
+    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
+        if (m_watcher->isCanceled()) {
+            setPlainText(tr("Retrieving data failed."));
+        } else {
+            const ShowResult result = m_watcher->result();
+            m_data = result.diffData;
+            TextDocumentPtr doc(result.textDocument);
+            {
+                const GuardLocker locker(m_controller.m_ignoreChanges);
+                // TextDocument was living in no thread, so it's safe to pull it
+                doc->moveToThread(thread());
+                setTextDocument(doc);
 
-        QTextBlock block = document()->firstBlock();
+                setReadOnly(true);
+            }
+            setSelections(result.selections);
+            setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
+        }
+        m_watcher.release()->deleteLater();
+        m_controller.setBusyShowing(false);
+    });
+
+    const DiffEditorInput input(&m_controller);
+
+    auto getDocument = [input](QFutureInterface<ShowResult> &futureInterface) {
+        auto cleanup = qScopeGuard([&futureInterface] {
+            if (futureInterface.isCanceled())
+                futureInterface.reportCanceled();
+        });
+        const int progressMax = 100;
+        const int firstPartMax = 20; // diffOutput is about 4 times quicker than filling document
+        futureInterface.setProgressRange(0, progressMax);
+        futureInterface.setProgressValue(0);
+        QFutureInterface<void> fi = futureInterface;
+        const UnifiedDiffOutput output = UnifiedDiffData::diffOutput(fi, 0, firstPartMax, input);
+        if (futureInterface.isCanceled())
+            return;
+
+        const ShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
+                                   output.diffData, output.selections};
+        // No need to store the change history
+        result.textDocument->document()->setUndoRedoEnabled(false);
+
+        // We could do just:
+        //   result.textDocument->setPlainText(output.diffText);
+        // but this would freeze the thread for couple of seconds without progress reporting
+        // and without checking for canceled.
+        const int diffSize = output.diffText.size();
+        const int packageSize = 10000;
+        int currentPos = 0;
+        QTextCursor cursor(result.textDocument->document());
+        while (currentPos < diffSize) {
+            const QString package = output.diffText.mid(currentPos, packageSize);
+            cursor.insertText(package);
+            currentPos += package.size();
+            fi.setProgressValue(DiffUtils::interpolate(currentPos, 0, diffSize, firstPartMax, progressMax));
+            if (futureInterface.isCanceled())
+                return;
+        }
+
+        QTextBlock block = result.textDocument->document()->firstBlock();
         for (int b = 0; block.isValid(); block = block.next(), ++b)
             setFoldingIndent(block, output.foldingIndent.value(b, 3));
-    }
 
-    setSelections(output.selections);
-}
+        // If future was canceled, the destructor runs in this thread, so we can't move it
+        // to caller's thread. We push it to no thread (make object to have no thread affinity),
+        // and later, in the caller's thread, we pull it back to the caller's thread.
+        result.textDocument->moveToThread(nullptr);
+        futureInterface.reportResult(result);
+    };
 
-int UnifiedDiffEditorWidget::blockNumberForFileIndex(int fileIndex) const
-{
-    if (fileIndex < 0 || fileIndex >= m_data.m_fileInfo.count())
-        return -1;
-
-    return std::next(m_data.m_fileInfo.constBegin(), fileIndex).key();
-}
-
-int UnifiedDiffEditorWidget::fileIndexForBlockNumber(int blockNumber) const
-{
-    int i = -1;
-    for (auto it = m_data.m_fileInfo.cbegin(), end = m_data.m_fileInfo.cend(); it != end; ++it, ++i) {
-        if (it.key() > blockNumber)
-            break;
-    }
-
-    return i;
-}
-
-int UnifiedDiffEditorWidget::chunkIndexForBlockNumber(int blockNumber) const
-{
-    if (m_data.m_chunkInfo.isEmpty())
-        return -1;
-
-    auto it = m_data.m_chunkInfo.upperBound(blockNumber);
-    if (it == m_data.m_chunkInfo.constBegin())
-        return -1;
-
-    --it;
-
-    if (blockNumber < it.key() + it.value().first)
-        return it.value().second;
-
-    return -1;
+    m_watcher->setFuture(runAsync(getDocument));
+    ProgressManager::addTask(m_watcher->future(), tr("Rendering diff"), "DiffEditor");
 }
 
 void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
@@ -574,34 +569,34 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
         return;
 
     const int blockNumber = cursor.blockNumber();
-    const int fileIndex = fileIndexForBlockNumber(blockNumber);
+    const int fileIndex = m_data.fileIndexForBlockNumber(blockNumber);
     if (fileIndex < 0)
         return;
 
     const FileData fileData = m_controller.m_contextFileData.at(fileIndex);
-    const QString leftFileName = fileData.leftFileInfo.fileName;
-    const QString rightFileName = fileData.rightFileInfo.fileName;
+    const QString leftFileName = fileData.fileInfo[LeftSide].fileName;
+    const QString rightFileName = fileData.fileInfo[RightSide].fileName;
 
     const int columnNumber = cursor.positionInBlock() - 1; // -1 for the first character in line
 
-    const int rightLineNumber = m_data.m_rightLineNumbers.value(blockNumber, qMakePair(-1, 0)).first;
+    const int rightLineNumber = m_data.m_lineNumbers[RightSide].value(blockNumber, qMakePair(-1, 0)).first;
     if (rightLineNumber >= 0) {
         m_controller.jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
         return;
     }
 
-    const int leftLineNumber = m_data.m_leftLineNumbers.value(blockNumber, qMakePair(-1, 0)).first;
+    const int leftLineNumber = m_data.m_lineNumbers[LeftSide].value(blockNumber, qMakePair(-1, 0)).first;
     if (leftLineNumber >= 0) {
         if (leftFileName == rightFileName) {
             for (const ChunkData &chunkData : fileData.chunks) {
 
-                int newLeftLineNumber = chunkData.leftStartingLineNumber;
-                int newRightLineNumber = chunkData.rightStartingLineNumber;
+                int newLeftLineNumber = chunkData.startingLineNumber[LeftSide];
+                int newRightLineNumber = chunkData.startingLineNumber[RightSide];
 
                 for (const RowData &rowData : chunkData.rows) {
-                    if (rowData.leftLine.textLineType == TextLineData::TextLine)
+                    if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
                         newLeftLineNumber++;
-                    if (rowData.rightLine.textLineType == TextLineData::TextLine)
+                    if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
                         newRightLineNumber++;
                     if (newLeftLineNumber == leftLineNumber) {
                         m_controller.jumpToOriginalFile(leftFileName, newRightLineNumber, 0);
@@ -622,7 +617,8 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
         return;
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    const int blockNumber = blockNumberForFileIndex(diffFileIndex);
+    m_controller.setCurrentDiffFileIndex(diffFileIndex);
+    const int blockNumber = m_data.blockNumberForFileIndex(diffFileIndex);
 
     QTextBlock block = document()->findBlockByNumber(blockNumber);
     QTextCursor cursor = textCursor();

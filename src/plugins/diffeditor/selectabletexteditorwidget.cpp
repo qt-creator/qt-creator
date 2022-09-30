@@ -20,17 +20,22 @@ SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *pa
 
 SelectableTextEditorWidget::~SelectableTextEditorWidget() = default;
 
+void SelectableTextEditorWidget::setSelections(const DiffSelections &selections)
+{
+    m_diffSelections = selections;
+}
+
 static QList<DiffSelection> subtractSelection(
         const DiffSelection &minuendSelection,
         const DiffSelection &subtrahendSelection)
 {
     // tha case that whole minuend is before the whole subtrahend
     if (minuendSelection.end >= 0 && minuendSelection.end <= subtrahendSelection.start)
-        return QList<DiffSelection>() << minuendSelection;
+        return {minuendSelection};
 
     // the case that whole subtrahend is before the whole minuend
     if (subtrahendSelection.end >= 0 && subtrahendSelection.end <= minuendSelection.start)
-        return QList<DiffSelection>() << minuendSelection;
+        return {minuendSelection};
 
     bool makeMinuendSubtrahendStart = false;
     bool makeSubtrahendMinuendEnd = false;
@@ -42,16 +47,16 @@ static QList<DiffSelection> subtractSelection(
 
     QList<DiffSelection> diffList;
     if (makeMinuendSubtrahendStart)
-        diffList << DiffSelection(minuendSelection.start, subtrahendSelection.start, minuendSelection.format);
+        diffList += {minuendSelection.format, minuendSelection.start, subtrahendSelection.start};
     if (makeSubtrahendMinuendEnd)
-        diffList << DiffSelection(subtrahendSelection.end, minuendSelection.end, minuendSelection.format);
+        diffList += {minuendSelection.format, subtrahendSelection.end, minuendSelection.end};
 
     return diffList;
 }
 
-void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelection> > &selections)
+DiffSelections SelectableTextEditorWidget::polishedSelections(const DiffSelections &selections)
 {
-    m_diffSelections.clear();
+    DiffSelections polishedSelections;
     for (auto it = selections.cbegin(), end = selections.cend(); it != end; ++it) {
         const QList<DiffSelection> diffSelections = it.value();
         QList<DiffSelection> workingList;
@@ -72,8 +77,9 @@ void SelectableTextEditorWidget::setSelections(const QMap<int, QList<DiffSelecti
             }
             workingList.append(diffSelection);
         }
-        m_diffSelections.insert(it.key(), workingList);
+        polishedSelections.insert(it.key(), workingList);
     }
+    return polishedSelections;
 }
 
 void SelectableTextEditorWidget::setFoldingIndent(const QTextBlock &block, int indent)

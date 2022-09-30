@@ -3,6 +3,7 @@
 
 #include "customwidgetpluginwizardpage.h"
 #include "customwidgetwidgetswizardpage.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/wizard.h>
@@ -24,25 +25,25 @@ CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
     m_classCount(-1),
     m_complete(false)
 {
-    m_collectionClassLabel = new QLabel(tr("Collection class:"));
+    m_collectionClassLabel = new QLabel(Tr::tr("Collection class:"));
     m_collectionClassEdit = new QLineEdit;
-    m_collectionHeaderLabel = new QLabel(tr("Collection header file:"));
+    m_collectionHeaderLabel = new QLabel(Tr::tr("Collection header file:"));
     m_collectionHeaderEdit = new QLineEdit;
-    m_collectionSourceLabel = new QLabel(tr("Collection source file:"));
+    m_collectionSourceLabel = new QLabel(Tr::tr("Collection source file:"));
     m_collectionSourceEdit = new QLineEdit;
     m_pluginNameEdit = new QLineEdit;
-    m_resourceFileEdit = new QLineEdit(tr("icons.qrc"));
+    m_resourceFileEdit = new QLineEdit(Tr::tr("icons.qrc"));
 
     using namespace Utils::Layouting;
     Column {
-        tr("Specify the properties of the plugin library and the collection class."),
+        Tr::tr("Specify the properties of the plugin library and the collection class."),
         Space(10),
         Form {
             m_collectionClassLabel, m_collectionClassEdit, br,
             m_collectionHeaderLabel, m_collectionHeaderEdit, br,
             m_collectionSourceLabel, m_collectionSourceEdit, br,
-            tr("Plugin name:"), m_pluginNameEdit, br,
-            tr("Resource file:"), m_resourceFileEdit, br,
+            Tr::tr("Plugin name:"), m_pluginNameEdit, br,
+            Tr::tr("Resource file:"), m_resourceFileEdit, br,
         }
     }.attachTo(this);
 
@@ -60,7 +61,7 @@ CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
         m_collectionSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
     });
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Plugin Details"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Plugin Details"));
 }
 
 QString CustomWidgetPluginWizardPage::collectionClassName() const

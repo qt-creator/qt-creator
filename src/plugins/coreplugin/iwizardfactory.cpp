@@ -174,33 +174,31 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 
         QHash<Id, IWizardFactory *> sanityCheck;
         for (const FactoryCreator &fc : qAsConst(s_factoryCreators)) {
-            const QList<IWizardFactory *> tmp = fc();
-            for (IWizardFactory *newFactory : tmp) {
-                QTC_ASSERT(newFactory, continue);
-                IWizardFactory *existingFactory = sanityCheck.value(newFactory->id());
+            IWizardFactory *newFactory = fc();
+            QTC_ASSERT(newFactory, continue);
+            IWizardFactory *existingFactory = sanityCheck.value(newFactory->id());
 
-                QTC_ASSERT(existingFactory != newFactory, continue);
-                if (existingFactory) {
-                    qWarning("%s", qPrintable(tr("Factory with id=\"%1\" already registered. Deleting.")
-                                              .arg(existingFactory->id().toString())));
-                    delete newFactory;
-                    continue;
-                }
-
-                QTC_ASSERT(!newFactory->m_action, continue);
-                newFactory->m_action = new QAction(newFactory->displayName(), newFactory);
-                ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
-
-                connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory]() {
-                    if (!ICore::isNewItemDialogRunning()) {
-                        FilePath path = newFactory->runPath({});
-                        newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
-                    }
-                });
-
-                sanityCheck.insert(newFactory->id(), newFactory);
-                s_allFactories << newFactory;
+            QTC_ASSERT(existingFactory != newFactory, continue);
+            if (existingFactory) {
+                qWarning("%s", qPrintable(tr("Factory with id=\"%1\" already registered. Deleting.")
+                                          .arg(existingFactory->id().toString())));
+                delete newFactory;
+                continue;
             }
+
+            QTC_ASSERT(!newFactory->m_action, continue);
+            newFactory->m_action = new QAction(newFactory->displayName(), newFactory);
+            ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
+
+            connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory]() {
+                if (!ICore::isNewItemDialogRunning()) {
+                    FilePath path = newFactory->runPath({});
+                    newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
+                }
+            });
+
+            sanityCheck.insert(newFactory->id(), newFactory);
+            s_allFactories << newFactory;
         }
     }
 

@@ -718,6 +718,39 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             QToolTip::hideText();
 
         auto keyEvent = static_cast<QKeyEvent *>(event);
+
+        if (keyEvent->matches(QKeySequence::MoveToStartOfBlock)
+            || keyEvent->matches(QKeySequence::SelectStartOfBlock)
+            || keyEvent->matches(QKeySequence::MoveToStartOfLine)
+            || keyEvent->matches(QKeySequence::SelectStartOfLine)) {
+            const int filterEndIndex = currentText().indexOf(' ');
+            if (filterEndIndex > 0 && filterEndIndex < currentText().length() - 1) {
+                const bool startsWithShortcutString
+                    = Utils::anyOf(Locator::filters(),
+                                   [shortcutString = currentText().left(filterEndIndex)](
+                                       const ILocatorFilter *filter) {
+                                       return filter->isEnabled() && !filter->isHidden()
+                                              && filter->shortcutString() == shortcutString;
+                                   });
+                if (startsWithShortcutString) {
+                    const int cursorPosition = m_fileLineEdit->cursorPosition();
+                    const int patternStart = filterEndIndex + 1;
+                    const bool mark = keyEvent->matches(QKeySequence::SelectStartOfBlock)
+                                      || keyEvent->matches(QKeySequence::SelectStartOfLine);
+                    if (cursorPosition == patternStart) {
+                        m_fileLineEdit->home(mark);
+                    } else {
+                        const int diff = m_fileLineEdit->cursorPosition() - patternStart;
+                        if (diff < 0)
+                            m_fileLineEdit->cursorForward(mark, qAbs(diff));
+                        else
+                            m_fileLineEdit->cursorBackward(mark, diff);
+                    }
+                    return true;
+                }
+            }
+        }
+
         switch (keyEvent->key()) {
         case Qt::Key_PageUp:
         case Qt::Key_PageDown:

@@ -3,15 +3,16 @@
 
 #include "qmakebuildconfiguration.h"
 
-#include "qmakebuildinfo.h"
-#include "qmakekitinformation.h"
-#include "qmakeproject.h"
-#include "qmakeprojectmanagerconstants.h"
-#include "qmakenodes.h"
-#include "qmakesettings.h"
-#include "qmakestep.h"
 #include "makefileparse.h"
 #include "qmakebuildconfiguration.h"
+#include "qmakebuildinfo.h"
+#include "qmakekitinformation.h"
+#include "qmakenodes.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagertr.h"
+#include "qmakesettings.h"
+#include "qmakestep.h"
 
 #include <android/androidconstants.h>
 
@@ -55,10 +56,10 @@ class RunSystemAspect : public TriStateAspect
 {
     Q_OBJECT
 public:
-    RunSystemAspect() : TriStateAspect(tr("Run"), tr("Ignore"), tr("Use global setting"))
+    RunSystemAspect() : TriStateAspect(Tr::tr("Run"), Tr::tr("Ignore"), Tr::tr("Use global setting"))
     {
         setSettingsKey("RunSystemFunction");
-        setDisplayName(tr("qmake system() behavior when parsing:"));
+        setDisplayName(Tr::tr("qmake system() behavior when parsing:"));
     }
 };
 
@@ -91,7 +92,7 @@ const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Utils::Id id)
     : BuildConfiguration(target, id)
 {
-    setConfigWidgetDisplayName(tr("General"));
+    setConfigWidgetDisplayName(Tr::tr("General"));
     setConfigWidgetHasFrame(true);
 
     m_buildSystem = new QmakeBuildSystem(this);
@@ -228,8 +229,8 @@ void QmakeBuildConfiguration::updateProblemLabel()
     // Check for Qt version:
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version) {
-        buildDirectoryAspect()->setProblem(tr("This kit cannot build this project since it "
-                                              "does not define a Qt version."));
+        buildDirectoryAspect()->setProblem(Tr::tr("This kit cannot build this project since it "
+                                                  "does not define a Qt version."));
         return;
     }
 
@@ -280,11 +281,11 @@ void QmakeBuildConfiguration::updateProblemLabel()
                 QString type;
                 switch (task.type) {
                 case ProjectExplorer::Task::Error:
-                    type = tr("Error:");
+                    type = Tr::tr("Error:");
                     type += QLatin1Char(' ');
                     break;
                 case ProjectExplorer::Task::Warning:
-                    type = tr("Warning:");
+                    type = Tr::tr("Warning:");
                     type += QLatin1Char(' ');
                     break;
                 case ProjectExplorer::Task::Unknown:
@@ -299,12 +300,12 @@ void QmakeBuildConfiguration::updateProblemLabel()
             return;
         }
     } else if (targetMismatch) {
-        buildDirectoryAspect()->setProblem(tr("The build directory contains a build for "
-                                              "a different project, which will be overwritten."));
+        buildDirectoryAspect()->setProblem(Tr::tr("The build directory contains a build for "
+                                                  "a different project, which will be overwritten."));
         return;
     } else if (incompatibleBuild) {
-        buildDirectoryAspect()->setProblem(tr("%1 The build will be overwritten.",
-                                              "%1 error message")
+        buildDirectoryAspect()->setProblem(Tr::tr("%1 The build will be overwritten.",
+                                                  "%1 error message")
                                            .arg(errorString));
         return;
     } else if (unalignedBuildDir) {
@@ -372,7 +373,7 @@ void QmakeBuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildCo
 
 QString QmakeBuildConfiguration::unalignedBuildDirWarning()
 {
-    return tr("The build directory should be at the same level as the source directory.");
+    return Tr::tr("The build directory should be at the same level as the source directory.");
 }
 
 bool QmakeBuildConfiguration::isBuildDirAtSafeLocation(const QString &sourceDir,
@@ -489,7 +490,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     if (parse.makeFileState() == MakeFileParse::CouldNotParse) {
         qCDebug(logs) << "**Makefile incompatible";
         if (errorString)
-            *errorString = tr("Could not parse Makefile.");
+            *errorString = Tr::tr("Could not parse Makefile.");
         return MakefileIncompatible;
     }
 
@@ -510,7 +511,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         qCDebug(logs) << "**Different profile used to generate the Makefile:"
                       << parse.srcProFile() << " expected profile:" << projectPath;
         if (errorString)
-            *errorString = tr("The Makefile is for a different project.");
+            *errorString = Tr::tr("The Makefile is for a different project.");
         return MakefileIncompatible;
     }
 
@@ -526,7 +527,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         qCDebug(logs) << "**Different qmake buildconfigurations buildconfiguration:"
                       << qmakeBuildConfiguration() << " Makefile:" << buildConfig;
         if (errorString)
-            *errorString = tr("The build type has changed.");
+            *errorString = Tr::tr("The build type has changed.");
         return MakefileIncompatible;
     }
 
@@ -575,14 +576,14 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     if (actualArgs != parsedArgs) {
         qCDebug(logs) << "**Mismatched args";
         if (errorString)
-            *errorString = tr("The qmake arguments have changed.");
+            *errorString = Tr::tr("The qmake arguments have changed.");
         return MakefileIncompatible;
     }
 
     if (parse.config() != qs->deducedArguments()) {
         qCDebug(logs) << "**Mismatched config";
         if (errorString)
-            *errorString = tr("The qmake arguments have changed.");
+            *errorString = Tr::tr("The qmake arguments have changed.");
         return MakefileIncompatible;
     }
 
@@ -601,7 +602,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
 
     qCDebug(logs) << "**Incompatible specs";
     if (errorString)
-        *errorString = tr("The mkspec has changed.");
+        *errorString = Tr::tr("The mkspec has changed.");
     return MakefileIncompatible;
 }
 
@@ -690,9 +691,9 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
 
     if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.
-        info.displayName = BuildConfiguration::tr("Release");
+        info.displayName = BuildConfigurationTr::tr("Release");
         //: Non-ASCII characters in directory suffix may cause build issues.
-        suffix = QmakeBuildConfiguration::tr("Release", "Shadow build directory suffix");
+        suffix = Tr::tr("Release", "Shadow build directory suffix");
         if (settings.qtQuickCompiler.value() == TriState::Default) {
             if (version && version->isQtQuickCompilerSupported())
                 extraInfo.config.useQtQuickCompiler = TriState::Enabled;
@@ -700,14 +701,14 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
-            info.displayName = BuildConfiguration::tr("Debug");
+            info.displayName = BuildConfigurationTr::tr("Debug");
             //: Non-ASCII characters in directory suffix may cause build issues.
-            suffix = QmakeBuildConfiguration::tr("Debug", "Shadow build directory suffix");
+            suffix = Tr::tr("Debug", "Shadow build directory suffix");
         } else if (type == BuildConfiguration::Profile) {
             //: The name of the profile build configuration created by default for a qmake project.
-            info.displayName = BuildConfiguration::tr("Profile");
+            info.displayName = BuildConfigurationTr::tr("Profile");
             //: Non-ASCII characters in directory suffix may cause build issues.
-            suffix = QmakeBuildConfiguration::tr("Profile", "Shadow build directory suffix");
+            suffix = Tr::tr("Profile", "Shadow build directory suffix");
             if (settings.separateDebugInfo.value() == TriState::Default)
                 extraInfo.config.separateDebugInfo = TriState::Enabled;
 

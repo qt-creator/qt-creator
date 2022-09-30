@@ -3,6 +3,8 @@
 
 #include "cmakeconfigitem.h"
 
+#include "cmakeprojectmanagertr.h"
+
 #include <projectexplorer/kit.h>
 
 #include <utils/algorithm.h>
@@ -337,8 +339,7 @@ CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *err
     QFile cache(cacheFile.toString());
     if (!cache.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (errorMessage)
-            *errorMessage = QCoreApplication::translate("CMakeProjectManager::CMakeConfigItem", "Failed to open %1 for reading.")
-                .arg(cacheFile.toUserOutput());
+            *errorMessage = Tr::tr("Failed to open %1 for reading.").arg(cacheFile.toUserOutput());
         return CMakeConfig();
     }
 

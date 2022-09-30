@@ -11,6 +11,7 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
+#include "cmakeprojectmanagertr.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "projecttreehelper.h"
@@ -59,8 +60,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 static void copySourcePathsToClipboard(const FilePaths &srcPaths, const ProjectNode *node)
 {
@@ -92,8 +92,8 @@ static void noAutoAdditionNotify(const FilePaths &filePaths, const ProjectNode *
             bool checkValue{false};
             QDialogButtonBox::StandardButton reply = CheckableMessageBox::question(
                 Core::ICore::dialogParent(),
-                QMessageBox::tr("Copy to Clipboard?"),
-                QMessageBox::tr("Files are not automatically added to the "
+                Tr::tr("Copy to Clipboard?"),
+                Tr::tr("Files are not automatically added to the "
                                 "CMakeLists.txt file of the CMake project."
                                 "\nCopy the path to the source files to the clipboard?"),
                 "Remember My Choice",
@@ -359,7 +359,7 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
     if (!tool || !tool->isValid()) {
         TaskHub::addTask(
             BuildSystemTask(Task::Error,
-                            tr("The kit needs to define a CMake tool to parse this project.")));
+                            Tr::tr("The kit needs to define a CMake tool to parse this project.")));
         return;
     }
     if (!tool->hasFileApi()) {
@@ -391,8 +391,8 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
         return false;
 
     int answer = QMessageBox::question(Core::ICore::dialogParent(),
-                                       tr("Apply configuration changes?"),
-                                       "<p>" + tr("Run CMake with configuration changes?")
+                                       Tr::tr("Apply configuration changes?"),
+                                       "<p>" + Tr::tr("Run CMake with configuration changes?")
                                        + "</p><pre>"
                                        + parameters.configurationChangesArguments.join("\n")
                                        + "</pre>",
@@ -498,7 +498,7 @@ void CMakeBuildSystem::combineScanAndParse(bool restoredFromBackup)
             if (restoredFromBackup)
                 project()->addIssue(
                     CMakeProject::IssueType::Warning,
-                    tr("<b>CMake configuration failed<b>"
+                    Tr::tr("<b>CMake configuration failed<b>"
                        "<p>The backup of the previous configuration has been restored.</p>"
                        "<p>Issues and \"Projects > Build\" settings "
                        "show more information about the failure.</p"));
@@ -516,7 +516,7 @@ void CMakeBuildSystem::combineScanAndParse(bool restoredFromBackup)
 
             project()->addIssue(
                 CMakeProject::IssueType::Warning,
-                tr("<b>Failed to load project<b>"
+                Tr::tr("<b>Failed to load project<b>"
                    "<p>Issues and \"Projects > Build\" settings "
                    "show more information about the failure.</p"));
         }
@@ -704,7 +704,7 @@ void CMakeBuildSystem::updateFallbackProjectData()
     QTC_CHECK(m_treeScanner.isFinished());
     if (m_treeScanner.asyncScanForFiles(projectDirectory()))
         Core::ProgressManager::addTask(m_treeScanner.future(),
-                                       tr("Scan \"%1\" project tree")
+                                       Tr::tr("Scan \"%1\" project tree")
                                            .arg(project()->displayName()),
                                        "CMake.Scan.Tree");
 }
@@ -853,13 +853,13 @@ void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters
     const FilePath bdir = parameters.buildDirectory;
 
     if (!buildConfiguration()->createBuildDirectory()) {
-        handleParsingFailed(tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
+        handleParsingFailed(Tr::tr("Failed to create build directory \"%1\".").arg(bdir.toUserOutput()));
         return;
     }
 
     const CMakeTool *tool = parameters.cmakeTool();
     if (!tool) {
-        handleParsingFailed(tr("No CMake tool set up in kit."));
+        handleParsingFailed(Tr::tr("No CMake tool set up in kit."));
         return;
     }
 
@@ -867,7 +867,7 @@ void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters
         if (!tool->cmakeExecutable().ensureReachable(bdir)) {
             // Make sure that the build directory is available on the device.
             handleParsingFailed(
-                tr("The remote CMake executable cannot write to the local build directory."));
+                Tr::tr("The remote CMake executable cannot write to the local build directory."));
         }
     }
 }
@@ -1337,5 +1337,4 @@ MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installR
     return cmd;
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

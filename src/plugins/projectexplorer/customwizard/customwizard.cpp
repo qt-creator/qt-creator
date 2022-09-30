@@ -365,7 +365,7 @@ CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizard
     containing valid configuration files and parse them into wizards.
 */
 
-QList<IWizardFactory *> CustomWizard::createWizards()
+void CustomWizard::createWizards()
 {
     QString errorMessage;
     QString verboseLog;
@@ -379,7 +379,7 @@ QList<IWizardFactory *> CustomWizard::createWizards()
     if (!templateDir.exists()) {
         if (CustomWizardPrivate::verbose)
            qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.absolutePath()));
-        return {};
+        return;
     }
 
     const QDir userTemplateDir(userTemplateDirName);
@@ -411,8 +411,9 @@ QList<IWizardFactory *> CustomWizard::createWizards()
             switch (parameters->parse(dir.absoluteFilePath(configFile), &errorMessage)) {
             case CustomWizardParameters::ParseOk:
                 if (!Utils::contains(toCreate, [parameters](CustomWizardParametersPtr p) { return parameters->id == p->id; })) {
-                    parameters->directory = dir.absolutePath();
                     toCreate.append(parameters);
+                    parameters->directory = dir.absolutePath();
+                    IWizardFactory::registerFactoryCreator([parameters] { return createWizard(parameters); });
                 } else {
                     verboseLog += QString::fromLatin1("Customwizard: Ignoring wizard in %1 due to duplicate Id %2.\n")
                             .arg(dir.absolutePath()).arg(parameters->id.toString());
@@ -438,23 +439,6 @@ QList<IWizardFactory *> CustomWizard::createWizards()
             }
         }
     }
-
-    QList<IWizardFactory *> rc;
-    for (CustomWizardParametersPtr p : qAsConst(toCreate)) {
-        if (CustomWizard *w = createWizard(p)) {
-            rc.push_back(w);
-        } else {
-            qWarning("Custom wizard factory function failed for %s from %s.",
-                     qPrintable(p->id.toString()), qPrintable(p->directory));
-        }
-    }
-
-
-    if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
-        qWarning("%s", qPrintable(verboseLog));
-        MessageManager::writeDisrupting(verboseLog);
-    }
-    return rc;
 }
 
 /*!

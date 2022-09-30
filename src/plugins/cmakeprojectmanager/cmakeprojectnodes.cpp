@@ -5,29 +5,32 @@
 
 #include "cmakebuildsystem.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanagertr.h"
 
 #include <android/androidconstants.h>
+
 #include <ios/iosconstants.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
-CMakeInputsNode::CMakeInputsNode(const Utils::FilePath &cmakeLists) :
+CMakeInputsNode::CMakeInputsNode(const FilePath &cmakeLists) :
     ProjectExplorer::ProjectNode(cmakeLists)
 {
     setPriority(Node::DefaultPriority - 10); // Bottom most!
-    setDisplayName(QCoreApplication::translate("CMakeFilesProjectNode", "CMake Modules"));
+    setDisplayName(Tr::tr("CMake Modules"));
     setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_MODULES));
     setListInProject(false);
 }
 
-CMakeListsNode::CMakeListsNode(const Utils::FilePath &cmakeListPath) :
+CMakeListsNode::CMakeListsNode(const FilePath &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {
     setIcon(DirectoryIcon(Constants::Icons::FILE_OVERLAY));
@@ -39,12 +42,12 @@ bool CMakeListsNode::showInSimpleTree() const
     return false;
 }
 
-std::optional<Utils::FilePath> CMakeListsNode::visibleAfterAddFileAction() const
+std::optional<FilePath> CMakeListsNode::visibleAfterAddFileAction() const
 {
     return filePath().pathAppended("CMakeLists.txt");
 }
 
-CMakeProjectNode::CMakeProjectNode(const Utils::FilePath &directory) :
+CMakeProjectNode::CMakeProjectNode(const FilePath &directory) :
     ProjectExplorer::ProjectNode(directory)
 {
     setPriority(Node::DefaultProjectPriority + 1000);
@@ -57,7 +60,7 @@ QString CMakeProjectNode::tooltip() const
     return QString();
 }
 
-CMakeTargetNode::CMakeTargetNode(const Utils::FilePath &directory, const QString &target) :
+CMakeTargetNode::CMakeTargetNode(const FilePath &directory, const QString &target) :
     ProjectExplorer::ProjectNode(directory)
 {
     m_target = target;
@@ -77,17 +80,17 @@ QString CMakeTargetNode::buildKey() const
     return m_target;
 }
 
-Utils::FilePath CMakeTargetNode::buildDirectory() const
+FilePath CMakeTargetNode::buildDirectory() const
 {
     return m_buildDirectory;
 }
 
-void CMakeTargetNode::setBuildDirectory(const Utils::FilePath &directory)
+void CMakeTargetNode::setBuildDirectory(const FilePath &directory)
 {
     m_buildDirectory = directory;
 }
 
-QVariant CMakeTargetNode::data(Utils::Id role) const
+QVariant CMakeTargetNode::data(Id role) const
 {
     auto value = [this](const QByteArray &key) -> QVariant {
         for (const CMakeConfigItem &configItem : m_config) {
@@ -169,7 +172,7 @@ void CMakeTargetNode::setConfig(const CMakeConfig &config)
     m_config = config;
 }
 
-std::optional<Utils::FilePath> CMakeTargetNode::visibleAfterAddFileAction() const
+std::optional<FilePath> CMakeTargetNode::visibleAfterAddFileAction() const
 {
     return filePath().pathAppended("CMakeLists.txt");
 }
@@ -182,19 +185,16 @@ void CMakeTargetNode::build()
         static_cast<CMakeBuildSystem *>(t->buildSystem())->buildCMakeTarget(displayName());
 }
 
-void CMakeTargetNode::setTargetInformation(const QList<Utils::FilePath> &artifacts,
-                                           const QString &type)
+void CMakeTargetNode::setTargetInformation(const QList<FilePath> &artifacts, const QString &type)
 {
-    m_tooltip = QCoreApplication::translate("CMakeTargetNode", "Target type: ") + type + "<br>";
+    m_tooltip = Tr::tr("Target type: ") + type + "<br>";
     if (artifacts.isEmpty()) {
-        m_tooltip += QCoreApplication::translate("CMakeTargetNode", "No build artifacts");
+        m_tooltip += Tr::tr("No build artifacts");
     } else {
-        const QStringList tmp = Utils::transform(artifacts, &Utils::FilePath::toUserOutput);
-        m_tooltip += QCoreApplication::translate("CMakeTargetNode", "Build artifacts:") + "<br>"
-                + tmp.join("<br>");
+        const QStringList tmp = Utils::transform(artifacts, &FilePath::toUserOutput);
+        m_tooltip += Tr::tr("Build artifacts:") + "<br>" + tmp.join("<br>");
         m_artifact = artifacts.first();
     }
 }
 
-} // Internal
-} // CMakeBuildSystem
+} // CMakeProjectManager::Internal

@@ -17,6 +17,17 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
+class ActionFilterEntryData
+{
+public:
+    QPointer<QAction> action;
+    Utils::Id commandId;
+    friend bool operator==(const ActionFilterEntryData &a, const ActionFilterEntryData &b)
+    {
+        return a.action == b.action && a.commandId == b.commandId;
+    }
+};
+
 class ActionsFilter : public ILocatorFilter
 {
     Q_OBJECT
@@ -30,14 +41,20 @@ public:
     void prepareSearch(const QString &entry) override;
 
 private:
-    QList<LocatorFilterEntry> entriesForAction(QAction *action,
-                                              const QStringList &path,
-                                              QList<const QMenu *> &processedMenus);
-    QList<LocatorFilterEntry> entriesForCommands();
+    void saveState(QJsonObject &object) const override;
+    void restoreState(const QJsonObject &object) override;
+    void collectEntriesForAction(QAction *action,
+                                 const QStringList &path,
+                                 QList<const QMenu *> &processedMenus);
+    void collectEntriesForCommands();
+    void collectEntriesForLastTriggered();
+    void updateEntry(const QPointer<QAction> action, const LocatorFilterEntry &entry);
     void updateEnabledActionCache();
 
     QList<LocatorFilterEntry> m_entries;
+    QMap<QPointer<QAction>, int> m_indexes;
     QSet<QPointer<QAction>> m_enabledActions;
+    mutable QList<ActionFilterEntryData> m_lastTriggered;
 };
 
 } // namespace Internal

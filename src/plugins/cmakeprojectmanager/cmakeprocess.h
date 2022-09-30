@@ -22,8 +22,7 @@ class ProcessResultData;
 class QtcProcess;
 }
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class BuildDirParameters;
 
@@ -55,5 +54,4 @@ private:
     int m_lastExitCode = 0;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

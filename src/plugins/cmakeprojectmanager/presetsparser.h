@@ -3,16 +3,14 @@
 
 #pragma once
 
-#include <utils/filepath.h>
-
 #include "cmakeconfigitem.h"
 
+#include <utils/filepath.h>
+
 #include <QHash>
-#include <QString>
 #include <QVersionNumber>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 namespace PresetsDetails {
 
@@ -96,8 +94,8 @@ public:
     int version = 0;
     QVersionNumber cmakeMinimimRequired;
     QHash<QString, QString> vendor;
-    std::vector<PresetsDetails::ConfigurePreset> configurePresets;
-    std::vector<PresetsDetails::BuildPreset> buildPresets;
+    QList<PresetsDetails::ConfigurePreset> configurePresets;
+    QList<PresetsDetails::BuildPreset> buildPresets;
 };
 
 class PresetsParser
@@ -109,5 +107,4 @@ public:
     const PresetsData &presetsData() const;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

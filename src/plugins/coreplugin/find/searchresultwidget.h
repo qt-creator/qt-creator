@@ -70,7 +70,7 @@ public:
     void setReplaceEnabled(bool enabled);
 
 public slots:
-    void finishSearch(bool canceled);
+    void finishSearch(bool canceled, const QString &reason);
     void sendRequestPopup();
 
 signals:
@@ -118,6 +118,7 @@ private:
     QWidget *m_descriptionContainer = nullptr;
     QLabel *m_label = nullptr;
     QLabel *m_searchTerm = nullptr;
+    QLabel *m_messageLabel = nullptr;
     QToolButton *m_cancelButton = nullptr;
     QLabel *m_matchesFoundLabel = nullptr;
     bool m_preserveCaseSupported = true;

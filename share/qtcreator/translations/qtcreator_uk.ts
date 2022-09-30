@@ -1047,7 +1047,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -1081,9 +1081,6 @@ Local pulls are not applied to the master branch.</source>
         <source>New configuration name:</source>
         <translation type="vanished">Назва нової конфігурації:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Run cmake</source>
         <translation type="vanished">Запустити cmake</translation>
@@ -1124,20 +1121,6 @@ Local pulls are not applied to the master branch.</source>
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeEditor</name>
-    <message>
-        <source>Changes to cmake files are shown in the project tree after building.</source>
-        <translation type="vanished">Зміни у файлах cmake будуть відображені в дереві проекту після збірки.</translation>
-    </message>
-    <message>
-        <source>Build now</source>
-        <translation type="vanished">Зібрати зараз</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
         <translation>Запустити CMake</translation>
@@ -1154,16 +1137,10 @@ Local pulls are not applied to the master branch.</source>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation type="vanished">Збій відкриття проекту &apos;%1&apos;: Проект не є файлом</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation type="vanished">Майстер CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>Run CMake kit</source>
         <translation>Запустити комплект cmake</translation>
@@ -1180,9 +1157,6 @@ Local pulls are not applied to the master branch.</source>
         <source> (disabled)</source>
         <translation type="vanished"> (вимкнено)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation type="vanished">Аргументи:</translation>
@@ -1210,17 +1184,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Run in Terminal</source>
         <translation type="vanished">Запускати в терміналі</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
-    <message>
-        <source>Run CMake</source>
-        <translation type="vanished">Запустити CMake</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="vanished">Аргументи:</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -1290,13 +1253,6 @@ Local pulls are not applied to the master branch.</source>
         <source>CMake exited with errors. Please check CMake output.</source>
         <translation type="vanished">CMake завершився з помилками. Будь ласка, перевірте виведення CMake.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
     <message>
         <source>Executable:</source>
         <translation type="vanished">Виконуваний модуль:</translation>
@@ -1305,9 +1261,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Prefer Ninja generator (CMake 2.8.9 or higher required)</source>
         <translation type="vanished">Надавати перевагу генератору Ninja (необхідний CMake 2.8.9 або вище)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -1317,9 +1270,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Desktop</source>
         <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation type="vanished">Qt Creator знайшов &lt;b&gt;збірку в теці з кодом в%1&lt;/b&gt;, яка заважає тіньовим збіркам. Qt Creator не дозволить вам змінити теку збірки. Якщо ви хочете тіньової збірки, то очистіть теку з кодом та перевідкрийте проект.</translation>
@@ -1327,14 +1277,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Build Location</source>
         <translation type="vanished">Розташування збірки</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStep</name>
-    <message>
-        <source>Make</source>
-        <extracomment>Default display name for the cmake make step.</extracomment>
-        <translation type="vanished">Make</translation>
     </message>
     <message>
         <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
@@ -1344,9 +1286,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation type="vanished">Конфігурація збійна. Перевірте вид &quot;Проблеми&quot; для деталей.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Override command:</source>
         <translation type="vanished">Команда на заміну:</translation>
@@ -1356,37 +1295,10 @@ Local pulls are not applied to the master branch.</source>
         <translation type="vanished">Додаткові аргументи:</translation>
     </message>
     <message>
-        <source>Targets:</source>
-        <translation type="vanished">Цілі:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
-        <translation type="vanished">&lt;b&gt;Для цього комплекту відсутня конфігурація збірки.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Make</source>
-        <comment>CMakeProjectManager::MakeStepConfigWidget display name.</comment>
-        <translation type="vanished">Make</translation>
-    </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
-    <message>
         <source>Make</source>
         <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
         <translation type="vanished">Make</translation>
     </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation type="vanished">Будь ласка, введіть теку, в якій ви хочете зібрати ваш проект. </translation>
@@ -1398,14 +1310,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation type="vanished">Будь ласка, введіть теку, в якій ви хочете зібрати ваш проект. Qt Creator рекомендує не використовувати теку з кодом для збірки. Це гарантуватиме, що тека з кодом лишатиметься чистою, та дозволить здійснювати декілька збірок з різними налаштуваннями.</translation>
-    </message>
-    <message>
-        <source>Build directory:</source>
-        <translation type="vanished">Тека збірки:</translation>
-    </message>
-    <message>
-        <source>Build Location</source>
-        <translation type="vanished">Розташування збірки</translation>
     </message>
 </context>
 <context>
@@ -18432,16 +18336,10 @@ Do you want to save the data first?</source>
         <source>Qt Versions</source>
         <translation type="vanished">Версії Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileApp</name>
     <message>
         <source>Could not open template file &apos;%1&apos;.</source>
         <translation type="vanished">Не вдалось відкрити файл шаблону &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
     <message>
         <source>Mobile Options</source>
         <translation type="vanished">Мобільні параметри</translation>
@@ -18462,39 +18360,10 @@ Do you want to save the data first?</source>
         <source>Kits</source>
         <translation type="vanished">Комплекти</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
     <message>
         <source>Add Library</source>
         <translation>Додати бібліотеку</translation>
     </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Тип</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="vanished">Підсумок</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
-    <message>
-        <source>Modules</source>
-        <translation type="vanished">Модулі</translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="vanished">Комплекти</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -18599,9 +18468,6 @@ Do you want to save the data first?</source>
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Файли піктограм (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Новий клас&gt;</translation>
@@ -18614,9 +18480,6 @@ Do you want to save the data first?</source>
         <source>Delete class %1 from list?</source>
         <translation>Видалити клас %1 зі списку?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
     <message>
         <source>Qt Console Application</source>
         <translation type="vanished">Консольна програма Qt</translation>
@@ -18629,9 +18492,6 @@ Preselects a desktop Qt for building the application if available.</source>
 
 Попередньо обирає Qt для стільниці для збірки програми, якщо доступно.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation type="vanished">Цей майстер генерує проект консольної програми Qt. Програма походить від QCoreApplication та не надає графічного інтерфейсу користувача.</translation>
@@ -18640,9 +18500,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>This wizard generates a Qt Console Application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation type="vanished">Цей майстер генерує проект консольної програми Qt. Програма походить від QCoreApplication та не надає графічного інтерфейсу користувача.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Сторінка майстра</translation>
@@ -18683,9 +18540,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Plugin Details</source>
         <translation>Деталі додатку</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Майстер користувацького віджета Qt Widget</translation>
@@ -18710,9 +18564,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Custom Widgets</source>
         <translation>Користувацькі віджети</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Користувацький віджет Qt Designer</translation>
@@ -18721,24 +18572,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Створює користувацький віджет Qt Designer або колекцію користувацьких віджетів.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation>Цей майстер генерує проект користувацького віджета Qt Designer або колекції користувацьких віджетів Qt Designer.</translation>
     </message>
-    <message>
-        <source>Custom Widgets</source>
-        <translation type="vanished">Користувацькі віджети</translation>
-    </message>
-    <message>
-        <source>Plugin Details</source>
-        <translation type="vanished">Деталі додатку</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer не відповідає (%1).</translation>
@@ -18747,9 +18584,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Unable to create server socket: %1</source>
         <translation>Неможливо створити серверний сокет: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>System Library</source>
         <translation>Системна бібліотека</translation>
@@ -18786,9 +18620,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Internal Library</source>
         <translation>Внутрішня бібліотека</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt Project</source>
         <translation type="vanished">Порожній проект Qt</translation>
@@ -18797,16 +18628,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
         <translation type="vanished">Створює проект, що базується на qmake, без жодних файлів. Це дозволить вам створити програму без будь-яких типових класів.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <source>This wizard generates an empty Qt project. Add files to it later on by using the other wizards.</source>
         <translation type="vanished">Цей майстер генерує порожній проект Qt. Використовуйте інші майстри, щоб пізніше додати до нього файли.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Неможливо запустити &quot;%1&quot;</translation>
@@ -18815,9 +18640,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>Не вдалось знайти програму &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Інформація про клас</translation>
@@ -18826,13 +18648,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
         <translation>Вкажіть базову інформацію про класи, для яких ви бажаєте згенерувати каркасні файли з кодом.</translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation>Деталі</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Gui Application</source>
         <translation type="vanished">Графічна програма Qt</translation>
@@ -18849,9 +18664,6 @@ Preselects a desktop Qt for building the application if available.</source>
 
 Обирає Qt для стільниці для збірки програми, якщо доступно.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation type="vanished">Цей майстер генерує проект графічної програми Qt. Програма походить від QApplication та включає порожній віджет.</translation>
@@ -18860,13 +18672,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Цей майстер генерує проект програми Qt Widgets. Програма походить типово від QApplication та включає порожній віджет.</translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
     <message>
         <source>HTML5 Application</source>
         <translation type="vanished">Програма HTML5</translation>
@@ -18879,9 +18684,6 @@ You can build the application and deploy it on desktop and mobile target platfor
 
 Ви можете зібрати програму та розгорнути її на стаціонарні та мобільні платформи.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
     <message>
         <source>New HTML5 Application</source>
         <translation type="vanished">Нова програма HTML5</translation>
@@ -18898,16 +18700,10 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>HTML Options</source>
         <translation type="vanished">Опції HTML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
     <message>
         <source>Select HTML File</source>
         <translation type="vanished">Виберіть файл HTML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
     <message>
         <source>Linkage:</source>
         <translation>Компонування:</translation>
@@ -18932,9 +18728,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>%1 Library</source>
         <translation>%1 бібліотека</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library:</source>
         <translation>Бібліотека:</translation>
@@ -18964,20 +18757,12 @@ You can build the application and deploy it on desktop and mobile target platfor
         <translation>Windows</translation>
     </message>
     <message>
-        <source>Linkage:</source>
-        <translation>Компонування:</translation>
-    </message>
-    <message>
         <source>Dynamic</source>
         <translation>Динамічне</translation>
     </message>
     <message>
         <source>Static</source>
         <translation>Статичне</translation>
-    </message>
-    <message>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
     </message>
     <message>
         <source>Library</source>
@@ -19007,9 +18792,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>Package:</source>
         <translation>Пакунок:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Тип бібліотеки</translation>
@@ -19060,9 +18842,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Компонування з бібліотекою, що розташована у вашому дереві збірки.
 Додає шляхи до до бібліотеки та заголовочних файлів до файлу .pro.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>Бібліотека C++</translation>
@@ -19071,9 +18850,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Створює бібліотеку C++ за допомогою qmake. Може використовуватись, щоб створити:&lt;ul&gt;&lt;li&gt;динамічну бібліотеку C++ для використання з &lt;tt&gt;QPluginLoader&lt;/tt&gt; та під час виконання (додаток)&lt;/li&gt;&lt;li&gt;динамічну або статичну бібліотеку C++ для використання з іншим проектом під час компонування&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation>Динамічна бібліотека</translation>
@@ -19087,10 +18863,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Додаток Qt</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
         <source>This wizard generates a C++ Library project.</source>
         <translation>Цей майстер генерує проект бібліотеки C++.</translation>
     </message>
@@ -19099,26 +18871,9 @@ Adds the library and include paths to the .pro file.</source>
         <translation type="vanished">Цей майстер генерує проект бібліотеки C++.</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Деталі</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
-    <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation>Виберіть необхідні модулі</translation>
@@ -19131,16 +18886,10 @@ Adds the library and include paths to the .pro file.</source>
         <source>Modules</source>
         <translation>Модулі</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>Створення декількох бібліотек віджетів (%1, %2) в одному проекті (%3) не підтримується.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PngIconScaler</name>
     <message>
         <source>Wrong Icon Size</source>
         <translation type="vanished">Невірний розмір піктограми</translation>
@@ -19150,23 +18899,9 @@ Adds the library and include paths to the .pro file.</source>
         <translation type="vanished">Ця піктограма має бути розміром %1x%2 пікселів. Бажаєте, щоб Qt Creator відмасштабував її?</translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation type="vanished">Помилка файлу</translation>
-    </message>
-    <message>
         <source>Could not copy icon file: %1</source>
         <translation type="vanished">Не вдалось скопіювати файл піктограми: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Shadow build:</source>
         <translation>Тіньова збірка:</translation>
@@ -19230,9 +18965,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>A build for a different project exists in %1, which will be overwritten.</source>
         <translation type="vanished">Збірка для іншого проекту існує в %1, яка не буде перезаписана.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>Запустити qmake</translation>
@@ -19293,23 +19025,9 @@ Adds the library and include paths to the .pro file.</source>
         <source>Add Library...</source>
         <translation>Додати бібліотеку...</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
         <translation type="vanished">Здійснюється розбір файлу .pro &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Qt Run Configuration</source>
-        <translation type="vanished">Конфігурація запуску Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation type="vanished">Виконуваний модуль:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -19332,21 +19050,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation type="vanished">Запускати в терміналі</translation>
     </message>
     <message>
-        <source>Run on QVFb</source>
-        <translation type="vanished">Запустити в QVFb</translation>
-    </message>
-    <message>
-        <source>Check this option to run the application on a Qt Virtual Framebuffer.</source>
-        <translation type="vanished">Увімкніть цю опцію, що запустити програму в віртуальному буфері кадрів Qt.</translation>
-    </message>
-    <message>
-        <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
-        <translation type="vanished">Використовувати зневаджувальну версію фреймворку (DYLD_IMAGE_SUFFIX=_debug)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeTarget</name>
-    <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
         <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
@@ -19355,9 +19058,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Desktop</source>
         <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation type="vanished">Нова програма Qt Quick</translation>
@@ -19378,9 +19078,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Select existing QML file</source>
         <translation type="vanished">Вибір існуючого файлу QML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
     <message>
         <source>Select QML File</source>
         <translation type="vanished">Виберіть файл QML</translation>
@@ -19389,9 +19086,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Select Existing QML file</source>
         <translation type="vanished">Вибір існуючого файлу QML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Проект з підтеками</translation>
@@ -19417,9 +19111,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>New Subproject</source>
         <translation type="vanished">Новий підпроект</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation type="vanished">Цей майстер генерує проект Qt з підтеками. Використовуйте інші майстри, щоб пізніше додати до нього підпроекти.</translation>
@@ -19428,9 +19119,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Цей майстер генерує проект Qt з підтеками. Використовуйте інші майстри, щоб пізніше додати до нього підпроекти.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>Підсумок</translation>
@@ -19439,9 +19127,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Наступний фрагмент буде додано до файлу &lt;br&gt;&lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizard</name>
     <message>
         <source>Qt Unit Test</source>
         <translation>Модульний тест Qt</translation>
@@ -19450,9 +19135,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
         <translation>Створює модульний тест, оснований на QTestLib для властивості або класу. Модульні тести дозволяють вам перевірити, що код придатний для використання і в ньому немає регресій.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
         <translation type="vanished">Цей майстер створює Qt unit test, що складається з одного файлу коду, який містить тестовий клас.</translation>
@@ -19460,17 +19142,6 @@ Adds the library and include paths to the .pro file.</source>
     <message>
         <source>This wizard generates a Qt Unit Test consisting of a single source file with a test class.</source>
         <translation>Цей майстер генерує модульний тест Qt, що складається з одного файлу коду, який містить тестовий клас.</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>Сторінка майстра</translation>
     </message>
     <message>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
@@ -19517,13 +19188,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Інформація про тестовий клас</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Деталі</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
-    <message>
         <source>Make</source>
         <comment>Qt MakeStep display name.</comment>
         <translation>Make</translation>
@@ -19540,13 +19204,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation type="vanished">Конфігурація збійна. Перевірте вид &quot;Проблеми&quot; для деталей.</translation>
     </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Перевизначити %1:</translation>
@@ -19567,9 +19224,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 не знайдено в середовищі.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -19583,9 +19237,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Configuration unchanged, skipping qmake step.</source>
         <translation>Конфігурація не змінилась, пропускаємо крок qmake.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation>Зневадження QML</translation>
@@ -19626,17 +19277,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>&lt;No Qt version&gt;</source>
         <translation>&lt;Немає версії Qt&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDebuggingLibrary</name>
-    <message>
-        <source>Not needed.</source>
-        <translation type="vanished">Не потрібна.</translation>
-    </message>
-    <message>
-        <source>QML Debugging</source>
-        <translation type="vanished">Зневадження QML</translation>
-    </message>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation type="vanished">Не вдалось створити цільову теку %1.</translation>
@@ -19651,13 +19291,6 @@ Reason: %2</source>
 
 Причина: %2</translation>
     </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation type="vanished">Доступно лише з Qt 4.7.1 або новіше.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDumpTool</name>
     <message>
         <source>qmldump</source>
         <translation>qmldump</translation>
@@ -19682,9 +19315,6 @@ Reason: %2</source>
         <source>Private headers are missing for this Qt version.</source>
         <translation>У цієї версії Qt відсутні приватні файли заголовків.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlObserverTool</name>
     <message>
         <source>QMLObserver</source>
         <translation type="vanished">Оглядач QML</translation>
@@ -19693,17 +19323,6 @@ Reason: %2</source>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation type="vanished">Доступно лише з Qt для стаціонарних комп&apos;ютерів та Qt для Qt Simulator.</translation>
     </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation type="vanished">Доступно лише з Qt 4.7.1 або новіше.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation type="vanished">Не потрібна.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Could not parse Makefile.</source>
         <translation>Не вдалось розібрати Makefile.</translation>
@@ -19728,9 +19347,6 @@ Reason: %2</source>
         <source>Parsing the .pro file</source>
         <translation>Розбір файлу .pro</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Qmake based build</source>
         <translation type="vanished">Збірка на базі qmake</translation>
@@ -19780,17 +19396,10 @@ Reason: %2</source>
         <translation>Profile</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation type="vanished">Збірка</translation>
-    </message>
-    <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
         <translation>Реліз</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Update of Generated Files</source>
         <translation type="vanished">Оновлення згенерованих файлів</translation>
@@ -19811,9 +19420,6 @@ Reason: %2</source>
         <source>QMake</source>
         <translation>QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFileNode</name>
     <message>
         <source>Headers</source>
         <translation>Заголовки</translation>
@@ -19847,27 +19453,8 @@ Reason: %2</source>
         <translation type="vanished">В файлі проект %1 є незбережені зміни.</translation>
     </message>
     <message>
-        <source>Failed</source>
-        <translation type="vanished">Збій</translation>
-    </message>
-    <message>
         <source>Failed!</source>
         <translation type="vanished">Збій!</translation>
-    </message>
-    <message>
-        <source>Could not write project file %1.</source>
-        <translation type="vanished">Не вдалось записати файл проекту %1.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="vanished">Помилка файлу</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProFileNode</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation type="vanished">Помилка під час розбору файлу %1. Припиняємо.</translation>
     </message>
     <message>
         <source>Could not find .pro file for sub dir &quot;%1&quot; in &quot;%2&quot;</source>
@@ -19877,9 +19464,6 @@ Reason: %2</source>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
         <translation type="vanished">Не вдалось знайти файл .pro для підтеки &apos;%1&apos; в &apos;%2&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>Evaluating</source>
         <translation type="vanished">Оцінка</translation>
@@ -19916,14 +19500,6 @@ Reason: %2</source>
         <source>The .pro file &apos;%1&apos; could not be parsed.</source>
         <translation type="vanished">Не вдалось розібрати файл .pro &apos;%1&apos;.</translation>
     </message>
-    <message>
-        <source>Debug</source>
-        <translation type="vanished">Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="vanished">Release</translation>
-    </message>
 </context>
 <context>
     <name>QtSuppport</name>
@@ -19939,7 +19515,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake не підтримує тек збірки нижче теки з кодом.</translation>
@@ -19948,9 +19524,6 @@ Reason: %2</source>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Тека збірки має бути на тому ж рівні, що й тека з кодом.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation type="vanished">&lt;span style=&quot; font-weight:600;&quot;&gt;Не знайдено комплектів.&lt;/span&gt;</translation>
@@ -19975,14 +19548,6 @@ Reason: %2</source>
         <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation type="vanished">Qt Creator може використовувати наступні комплекти для проекту &lt;b&gt;%1&lt;/b&gt;:</translation>
-    </message>
-    <message>
-        <source>No Build Found</source>
-        <translation type="vanished">Збірку не знайдено</translation>
-    </message>
-    <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation type="vanished">Не знайдено збірку в %1, яка б відповідала проекту %2.</translation>
     </message>
     <message>
         <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -25601,29 +25166,14 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
         <translation>Аргументи make:</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>Перевизначити %1:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
-    <message>
         <source>qmake build configuration:</source>
         <translation>Конфігурація збірки qmake:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Зневадження</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Реліз</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -25648,13 +25198,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
     <message>
         <source>Use QML compiler:</source>
         <translation>Використовувати компілятор QML:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardSourcesPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
     </message>
     <message>
         <source>Main HTML File</source>
@@ -25688,34 +25231,13 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Enable touch optimized navigation</source>
         <translation type="vanished">Увімкнути навігацію, оптимізовану для дотиків</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
     <message>
         <source>Application icon (80x80):</source>
         <translation type="vanished">Піктограма програми (80x80):</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
     <message>
         <source>Application icon (64x64):</source>
         <translation type="vanished">Піктограма програми (64x64):</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileLibraryWizardOptionPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
     </message>
     <message>
         <source>Plugin&apos;s directory name:</source>
@@ -27083,7 +26605,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>Зібрати ціль CMake</translation>
@@ -27735,14 +27257,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation type="vanished">Конфігурування проекту</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TargetSetupPageWrapper</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Configure Project</source>
         <translation type="vanished">Конфігурування проекту</translation>
@@ -27763,9 +27278,6 @@ Do you want to kill it?</source>
         <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
         <translation type="vanished">Проект &lt;b&gt;%1&lt;/b&gt; ще не сконфігуровано.&lt;br/&gt;Qt Creator використовує неправильний комплект &lt;b&gt;%2&lt;/b&gt;, щоб розібрати проект.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Creates a Qt Quick 1 application project that can contain both QML and C++ code and includes a QDeclarativeView.
 
@@ -28798,7 +28310,7 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation type="unfinished"></translation>
@@ -28824,9 +28336,6 @@ The APK will not be usable on any other device.</source>
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -28912,9 +28421,6 @@ The APK will not be usable on any other device.</source>
         <source>Do &amp;not prompt for comment during checkout or check-in</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Діалог</translation>
@@ -28927,9 +28433,6 @@ The APK will not be usable on any other device.</source>
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Зберегти копію файлу з розширенням &apos;.keep&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation type="unfinished"></translation>
@@ -30321,7 +29824,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation type="unfinished"></translation>
@@ -30334,9 +29837,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Keep item activity</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>Check &amp;Out</source>
         <translation type="unfinished"></translation>
@@ -30345,9 +29845,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>&amp;Hijack</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation type="unfinished"></translation>
@@ -30640,31 +30137,18 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Enter activity headline</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Preserve file modification time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Check In</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>Команда ClearCase</translation>
@@ -30679,7 +30163,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::ChooseCMakePage</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake Executable:</source>
         <translation type="vanished">Виконуваний модуль CMake:</translation>
@@ -33094,7 +32578,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>mkspec, що використовується для збірки проектів за допомогою qmake.&lt;br&gt;Це налаштування ігнорується при використанні інших систем збірки.</translation>
@@ -33103,9 +32587,6 @@ Do you want to retry?</source>
         <source>Qt mkspec:</source>
         <translation>Qt mkspec:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Версія Qt не задана, mkspec ігнорується.</translation>
@@ -33118,9 +32599,6 @@ Do you want to retry?</source>
         <source>mkspec</source>
         <translation>mkspec</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeTargetSetupWidget</name>
     <message>
         <source>Manage...</source>
         <translation type="vanished">Управління...</translation>
@@ -33143,9 +32621,6 @@ Do you want to retry?</source>
         <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
         <translation type="vanished">&lt;b&gt;Попередження:&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ImportWidget</name>
     <message>
         <source>Import Build from...</source>
         <translation type="vanished">Імпортувати збірку з...</translation>
@@ -34552,7 +34027,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::GeneratorInfo</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Ninja (%1)</source>
         <translation type="vanished">Ninja (%1)</translation>
@@ -34569,9 +34044,6 @@ cannot be found in the path.</source>
         <source>Unix Generator (%1)</source>
         <translation type="vanished">Генератор для Unix (%1)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::NoKitPage</name>
     <message>
         <source>Show Options</source>
         <translation type="vanished">Показати опції</translation>
@@ -39699,18 +39171,6 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::Qt4Target</name>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt4 Desktop target display name</comment>
-        <translation>Стаціонарний комп&apos;ютер</translation>
-    </message>
-    <message>
-        <source>Desktop</source>
-        <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
@@ -39828,11 +39288,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
-    <message>
-        <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
-        <translation type="vanished">Здійснюється розбір файлу .pro &apos;%1&apos;.</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
         <translation>Здійснюється розбір файлу .pro &quot;%1&quot;.</translation>
@@ -39841,36 +39297,13 @@ Please close all running instances of your application before starting a build.<
         <source>Qt Run Configuration</source>
         <translation>Конфігурація запуску Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Виконуваний модуль:</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation type="vanished">Аргументи:</translation>
-    </message>
-    <message>
-        <source>Select Working Directory</source>
-        <translation type="vanished">Оберіть робочу теку</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="vanished">Скинути до типового</translation>
-    </message>
-    <message>
         <source>Reset to Default</source>
         <translation type="vanished">Скинути до типового</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="vanished">Робоча тека:</translation>
-    </message>
-    <message>
-        <source>Run in terminal</source>
-        <translation type="vanished">Запускати в терміналі</translation>
     </message>
     <message>
         <source>Run on QVFb</source>
@@ -39896,17 +39329,6 @@ Please close all running instances of your application before starting a build.<
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation>Додати шлях до бібліотеки, що збирається, до LD_LIBRARY_PATH</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>Зневадження</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Реліз</translation>
-    </message>
     <message>
         <source>No Build Found</source>
         <translation>Збірку не знайдено</translation>
@@ -39915,9 +39337,6 @@ Please close all running instances of your application before starting a build.<
         <source>No build found in %1 matching project %2.</source>
         <translation>Не знайдено збірку в %1, яка б відповідала проекту %2.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickComponentSetPage</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation type="vanished">Вибір набору компонентів Qt Quick</translation>
@@ -39925,10 +39344,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>Qt Quick component set:</source>
         <translation type="vanished">Набір компонентів Qt Quick:</translation>
-    </message>
-    <message>
-        <source>Component Set</source>
-        <translation type="vanished">Набір компонентів</translation>
     </message>
 </context>
 <context>
@@ -40328,7 +39743,7 @@ Please close all running instances of your application before starting a build.<
     <name>QbsProjectManager</name>
 </context>
 <context>
-    <name>QmakeProjectManager::QtQuickAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Creates a deployable Qt Quick 1 application using the QtQuick 1.1 import. Requires Qt 4.8 or newer.</source>
         <translation type="vanished">Створює додаток Qt Quick 1 для розгортання використовуючи імпорт QtQuick 1.1. Необхідна Qt 4.8 або новіша.</translation>
@@ -44754,7 +44169,7 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
+    <name>ClearCase</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -48673,7 +48088,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>QmakePriFileNode</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Failed</source>
         <translation>Збій</translation>
@@ -48686,9 +48101,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>File Error</source>
         <translation>Помилка файлу</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Помилка під час розбору файлу %1. Припиняємо.</translation>
@@ -49278,7 +48690,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake Tool:</source>
         <translation>Інструмент CMake:</translation>
@@ -49291,20 +48703,10 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Немає інструмента CMake&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
     <message>
         <source>Unconfigured</source>
         <translation>Не сконфігуровано</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::NoCMakePage</name>
     <message>
         <source>Check CMake Tools</source>
         <translation type="vanished">Перевірити інструменти CMake</translation>
@@ -49317,9 +48719,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Qt Creator has no CMake Tools that are required for CMake projects. Please configure at least one.</source>
         <translation type="vanished">В Qt Creator немає інструментів CMake, які необхідні для проектів CMake. Будь ласка, сконфігуруйте хоча б один.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source> (Default)</source>
         <translation> (Типово)</translation>
@@ -49348,9 +48747,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Path:</source>
         <translation>Шлях:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>Додати</translation>
@@ -49376,10 +48772,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation type="vanished">Встановити як типовий інструмент CMake для використання при створенні нових комлектів.</translation>
     </message>
     <message>
-        <source>Prefer Ninja generator (CMake 2.8.9 or higher required)</source>
-        <translation type="vanished">Надавати перевагу генератору Ninja (необхідний CMake 2.8.9 або вище)</translation>
-    </message>
-    <message>
         <source>Clone of %1</source>
         <translation>Клон %1</translation>
     </message>
@@ -49387,9 +48779,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>New CMake</source>
         <translation>Новий CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
     <message>
         <source>CMake at %1</source>
         <translation>CMake в %1</translation>
@@ -50718,7 +50107,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::CMakeProject</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Internal Error: No build configuration found in settings file.</source>
         <translation type="vanished">Внутрішня помилка: конфігурацію збірки не знайдено в файлі налаштувань.</translation>
@@ -52169,7 +51558,7 @@ Please set a real Clang executable.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>The build directory is not for %1</source>
         <translation>Тека збірки не для %1</translation>
@@ -52194,9 +51583,6 @@ Please set a real Clang executable.</source>
         <source>Failed to open %1 for reading.</source>
         <translation>Збій відкриття %1 для читання.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -52206,16 +51592,10 @@ Please set a real Clang executable.</source>
         <source>Persisting CMake state...</source>
         <translation>Збереження стану CMake...</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>Qt Creator needs a CMake Tool set up to build. Configure a CMake Tool in the kit options.</source>
         <translation>Qt Creator потребує заданого засобу CMake для збірки. Налаштуйте засіб CMake в опціях комплекту.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
     <message>
         <source>Tool arguments:</source>
         <translation>Аргументи для засобу:</translation>
@@ -52233,17 +51613,11 @@ Please set a real Clang executable.</source>
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Для цього комплекту відсутня конфігурація збірки.&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepFactory</name>
     <message>
         <source>Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>Збірка</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
     <message>
         <source>CMake Generator:</source>
         <translation>Генератор CMake:</translation>
@@ -52256,9 +51630,6 @@ Please set a real Clang executable.</source>
         <source>CMake generator defines how a project is built when using CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>Генератор CMake визначає, як проект буде збудовано за допомогою CMake.&lt;br&gt;Це налаштування ігнорується для інших систем збірки.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Змінити...</translation>
@@ -52283,9 +51654,6 @@ Please set a real Clang executable.</source>
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>Введіть змінні, по одній на кожний рядок. Назва змінної має відділятись від значення символом &quot;=&quot;.&lt;br&gt;Ви можете давати підказку типу, додаючи &quot;:TYPE&quot; перед &quot;=&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>No CMake Tool configured, CMake generator will be ignored.</source>
         <translation>Засіб CMake не задано, генератор CMake буде зігноровано.</translation>
@@ -52306,13 +51674,6 @@ Please set a real Clang executable.</source>
         <source>CMake Generator</source>
         <translation>Генератор CMake</translation>
     </message>
-    <message>
-        <source>&lt;Use Default Generator&gt;</source>
-        <translation>&lt;Типовий генератор&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation>Конфігурація CMake не має встановленого шляху до виконуваного модуля qmake, хоча комплект має правильну версію Qt.</translation>
@@ -52338,13 +51699,6 @@ Please set a real Clang executable.</source>
         <translation>Конфігурація CMake має встановлений шлях до компілятора C++, який не збігається з шляхом до компілятора налаштованим в наборі інструментів комплекту.</translation>
     </message>
     <message>
-        <source>CMake Configuration</source>
-        <translation>Конфігурація CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
-    <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;НЕ ЗАДАНО&gt;</translation>
     </message>
@@ -52355,10 +51709,6 @@ Please set a real Clang executable.</source>
     <message>
         <source>Value</source>
         <translation>Значення</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Додатково</translation>
     </message>
 </context>
 <context>

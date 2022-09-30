@@ -7,8 +7,7 @@
 
 #include <projectexplorer/projectnodes.h>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class CMakeInputsNode : public ProjectExplorer::ProjectNode
 {
@@ -59,5 +58,4 @@ private:
     CMakeConfig m_config;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

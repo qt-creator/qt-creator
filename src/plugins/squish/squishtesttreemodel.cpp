@@ -5,8 +5,10 @@
 
 #include "squishfilehandler.h"
 #include "squishtr.h"
+#include "suiteconf.h"
 
 #include <debugger/debuggericons.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -23,23 +25,23 @@ SquishTestTreeItem::SquishTestTreeItem(const QString &displayName, Type type)
     , m_type(type)
     , m_checked(Qt::Checked)
 {
+    const Qt::ItemFlags common = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     switch (type) {
     case Root:
         m_flags = Qt::NoItemFlags;
         break;
     case SquishSuite:
-        m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserTristate
-                  | Qt::ItemIsUserCheckable;
+        m_flags = common | Qt::ItemIsUserTristate | Qt::ItemIsUserCheckable;
         break;
     case SquishTestCase:
-        m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
+        m_flags = common | Qt::ItemIsEditable | Qt::ItemIsUserCheckable;
         break;
     case SquishSharedData:
     case SquishSharedDataFolder:
     case SquishSharedFile:
     case SquishSharedFolder:
     case SquishSharedRoot:
-        m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        m_flags = common;
         break;
     }
 }
@@ -108,7 +110,39 @@ bool SquishTestTreeItem::modifyContent(const SquishTestTreeItem &other)
     m_displayName = other.m_displayName;
     m_filePath = other.m_filePath;
     m_parentName = other.m_parentName;
+
+    removeChildren();
+    if (other.hasChildren()) {
+        for (int i = 0; i < other.childCount(); ++i) {
+            const auto modifiedChild = static_cast<SquishTestTreeItem *>(other.childAt(i));
+            auto child = new SquishTestTreeItem(modifiedChild->displayName(),
+                                                modifiedChild->type());
+            child->modifyContent(*modifiedChild);
+            appendChild(child);
+        }
+    }
     return modified;
+}
+
+QString SquishTestTreeItem::generateTestCaseName() const
+{
+    QTC_ASSERT(m_type == SquishSuite, return {});
+
+    const auto suiteConfFilePath = Utils::FilePath::fromString(m_filePath);
+    const SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfFilePath);
+    const QStringList used = suiteConf.usedTestCases();
+    const auto suiteDir = suiteConfFilePath.parentDir();
+
+    const QString tmpl("tst_case");
+    for (int i = 1; i < 9999; ++i) {
+        const QString current = tmpl + QString::number(i);
+        if (used.contains(current))
+            continue;
+        const Utils::FilePath testCaseFolder = suiteDir.pathAppended(current);
+        if (!testCaseFolder.exists())
+            return current;
+    }
+    return {};
 }
 
 void SquishTestTreeItem::revalidateCheckState()
@@ -363,7 +397,7 @@ void SquishTestTreeModel::modifyTreeItem(int row,
 
     QModelIndex childIndex = index(row, 0, parent);
 
-    SquishTestTreeItem *toBeModified = static_cast<SquishTestTreeItem *>(itemForIndex(childIndex));
+    SquishTestTreeItem *toBeModified = itemForIndex(childIndex);
 
     if (toBeModified->modifyContent(modified))
         emit dataChanged(childIndex, childIndex);

@@ -23,6 +23,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
 #include <QMenu>
 #include <QStringListModel>
 #include <QVector>

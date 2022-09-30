@@ -42,8 +42,6 @@
 
 #include <diffeditor/descriptionwidgetwatcher.h>
 #include <diffeditor/diffeditorconstants.h>
-#include <diffeditor/diffeditorcontroller.h>
-#include <diffeditor/diffutils.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>

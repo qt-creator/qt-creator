@@ -3,8 +3,7 @@
 
 #include "cmakeindenter.h"
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 CMakeIndenter::CMakeIndenter(QTextDocument *doc)
     : TextEditor::TextIndenter(doc)
@@ -111,7 +110,4 @@ int CMakeIndenter::indentFor(const QTextBlock &block,
     return qMax(0, indentation);
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
-
-
+} // CMakeProjectManager::Internal

@@ -1,0 +1,113 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
+    "id": "Z.Snippet",
+    "category": "H.Project",
+    "trDescription": "Creates a CMake-based test project for which a code snippet can be entered.",
+    "trDisplayName": "Code Snippet",
+    "trDisplayCategory": "Other Project",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
+    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "CppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "MacOSBundleValue", "value": "%{JS: %{MacOSBundle} ? 'TRUE' : 'FALSE' }" }
+    ],
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data":
+            {
+                "trDescription": "Creates a CMake-based test project for which a code snippet can be entered."
+            }
+        },
+        {
+            "trDisplayName": "Define Code snippet",
+            "trShortTitle": "Code snippet",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "CodeSnippet",
+                    "trDisplayName": "Code:",
+                    "type": "TextEdit",
+                    "data":
+                    {
+                        "trText": "int main(int argc, char *argv[])\n{\n    return 0;\n}"
+                    }
+                },
+                {
+                    "name": "QtModule",
+                    "trDisplayName": "Use Qt Modules:",
+                    "type": "ComboBox",
+                    "persistenceKey": "QtModule",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "QtCore",
+                                "value": "Core"
+                            },
+                            {
+                                "trKey": "QtCore, QtWidgets",
+                                "value": "Widgets"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "MacOSBundle",
+                    "trDisplayName": "Application bundle (macOS)",
+                    "type": "CheckBox",
+                    "persistenceKey": "MacOSBundle",
+                    "data":
+                    {
+                        "checked": true
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data":
+            {
+                "projectFilePath": "%{ProjectFile}"
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "CMakeLists.txt",
+                    "target": "%{ProjectFile}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.cpp",
+                    "target": "%{CppFileName}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}

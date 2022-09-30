@@ -36,6 +36,8 @@ private:
     void onRemoveSharedFolderTriggered(int row, const QModelIndex &parent);
     void onRemoveAllSharedFolderTriggered();
     void onRecordTestCase(const QString &suiteName, const QString &testCase);
+    void onNewTestCaseTriggered(const QModelIndex &index);
+
     SquishTestTreeView *m_view;
     SquishTestTreeModel *m_model; // not owned
     SquishTestTreeSortModel *m_sortModel;

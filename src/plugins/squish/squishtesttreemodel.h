@@ -44,7 +44,9 @@ public:
     Qt::CheckState checkState() const { return m_checked; }
 
     bool modifyContent(const SquishTestTreeItem &other);
+    QString generateTestCaseName() const;
 
+    void reloadSuite();
 private:
     void revalidateCheckState();
 

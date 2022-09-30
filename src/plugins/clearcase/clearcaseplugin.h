@@ -10,8 +10,7 @@
 #include <QStringList>
 #include <QSharedPointer>
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 class ClearCaseSettings;
 
@@ -91,5 +90,4 @@ private slots:
 #endif
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

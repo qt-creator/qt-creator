@@ -217,6 +217,13 @@ public:
     Stack(std::initializer_list<LayoutItem> items) : LayoutBuilder(StackLayout, items) {}
 };
 
+class QTCREATOR_UTILS_EXPORT Splitter : public LayoutBuilder
+{
+public:
+    Splitter() : LayoutBuilder(StackLayout) {}
+    Splitter(std::initializer_list<LayoutItem> items) : LayoutBuilder(StackLayout, items) {}
+};
+
 using Space = LayoutBuilder::Space;
 using Span = LayoutBuilder::Span;
 

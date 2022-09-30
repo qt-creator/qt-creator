@@ -5,6 +5,7 @@
 
 #include "vcsbase_global.h"
 
+#include <coreplugin/patchtool.h>
 #include <texteditor/texteditor.h>
 
 #include <QSet>
@@ -110,11 +111,6 @@ public:
 
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
 {
-    Q_PROPERTY(QString source READ source WRITE setSource)
-    Q_PROPERTY(Utils::FilePath workingDirectory READ workingDirectory WRITE setWorkingDirectory)
-    Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
-    Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
-    Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
     Q_OBJECT
 
 protected:
@@ -203,8 +199,7 @@ signals:
     void describeRequested(const Utils::FilePath &source, const QString &change);
     void annotateRevisionRequested(const Utils::FilePath &workingDirectory, const QString &file,
                                    const QString &change, int lineNumber);
-    void diffChunkApplied(const VcsBase::DiffChunk &dc);
-    void diffChunkReverted(const VcsBase::DiffChunk &dc);
+    void diffChunkReverted();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e) override;
@@ -250,14 +245,14 @@ private:
     void slotJumpToEntry(int);
     void slotCursorPositionChanged() override;
     void slotAnnotateRevision(const QString &change);
-    void slotApplyDiffChunk(const DiffChunk &chunk, bool revert);
+    void slotApplyDiffChunk(const DiffChunk &chunk, Core::PatchAction patchAction);
     void slotPaste();
     void showProgressIndicator();
     void hideProgressIndicator();
 
     bool canApplyDiffChunk(const DiffChunk &dc) const;
     // Revert a patch chunk. Default implementation uses patch.exe
-    bool applyDiffChunk(const DiffChunk &dc, bool revert = false) const;
+    bool applyDiffChunk(const DiffChunk &dc, Core::PatchAction patchAction) const;
 
     // Indicates if the editor has diff contents. If true, an appropriate
     // highlighter is used and double-click inside a diff chunk jumps to

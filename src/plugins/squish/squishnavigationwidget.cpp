@@ -5,6 +5,8 @@
 
 #include "squishconstants.h"
 #include "squishfilehandler.h"
+#include "squishplugin.h"
+#include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtesttreeview.h"
 #include "squishtr.h"
@@ -50,6 +52,7 @@ SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
     header->setSectionResizeMode(2, QHeaderView::Fixed);
     m_view->setHeader(header);
     m_view->setHeaderHidden(true);
+    m_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -132,6 +135,10 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 connect(runThisTestSuite, &QAction::triggered, [suiteName]() {
                     SquishFileHandler::instance()->runTestSuite(suiteName);
                 });
+                connect(addNewTestCase, &QAction::triggered, [this, idx]() {
+                    onNewTestCaseTriggered(idx);
+                });
+
                 connect(closeTestSuite, &QAction::triggered, [suiteName]() {
                     SquishFileHandler::instance()->closeTestSuite(suiteName);
                 });
@@ -244,8 +251,9 @@ void SquishNavigationWidget::onItemActivated(const QModelIndex &idx)
         break;
     }
 
-    if (!item->filePath().isEmpty())
-        Core::EditorManager::openEditor(Utils::FilePath::fromString(item->filePath()));
+    auto filePath = Utils::FilePath::fromString(item->filePath());
+    if (filePath.exists())
+        Core::EditorManager::openEditor(filePath);
 }
 
 void SquishNavigationWidget::onExpanded(const QModelIndex &idx)
@@ -318,6 +326,33 @@ void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QS
         return;
 
     SquishFileHandler::instance()->recordTestCase(suiteName, testCase);
+}
+
+void SquishNavigationWidget::onNewTestCaseTriggered(const QModelIndex &index)
+{
+    auto settings = SquishPlugin::squishSettings();
+    QTC_ASSERT(settings, return);
+
+    if (!settings->squishPath.filePath().pathAppended("scriptmodules").exists()) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              Tr::tr("Error"),
+                              Tr::tr("Set up a valid Squish path to be able to create "
+                                     "a new test case.\n(Edit > Preferences > Squish)"));
+        return;
+    }
+
+    SquishTestTreeItem *suiteItem = m_model->itemForIndex(m_sortModel->mapToSource(index));
+    QTC_ASSERT(suiteItem, return);
+
+    const QString name = suiteItem->generateTestCaseName();
+    SquishTestTreeItem *item = new SquishTestTreeItem(name, SquishTestTreeItem::SquishTestCase);
+    item->setParentName(suiteItem->displayName());
+
+    m_model->addTreeItem(item);
+    m_view->expand(index);
+    QModelIndex added = m_model->indexForItem(item);
+    QTC_ASSERT(added.isValid(), return);
+    m_view->edit(m_sortModel->mapFromSource(added));
 }
 
 SquishNavigationWidgetFactory::SquishNavigationWidgetFactory()

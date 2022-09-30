@@ -3,13 +3,22 @@
 
 #pragma once
 
-#include "ui_findwidget.h"
 #include "currentdocumentfind.h"
 
 #include <utils/id.h>
 #include <utils/styledbar.h>
 
 #include <QTimer>
+
+QT_BEGIN_NAMESPACE
+class QCompleter;
+class QHBoxLayout;
+class QLabel;
+class QSpacerItem;
+class QToolButton;
+QT_END_NAMESPACE
+
+namespace Utils { class FancyLineEdit; }
 
 namespace Core {
 
@@ -122,7 +131,7 @@ private:
     void updateReplaceEnabled();
 
     CurrentDocumentFind *m_currentDocumentFind = nullptr;
-    Ui::FindWidget m_ui;
+
     QCompleter *m_findCompleter = nullptr;
     QCompleter *m_replaceCompleter = nullptr;
     QAction *m_goToCurrentFindAction = nullptr;
@@ -150,6 +159,21 @@ private:
     QAction *m_localReplacePreviousAction = nullptr;
     QAction *m_localReplaceAllAction = nullptr;
 
+    QLabel *m_findLabel;
+    Utils::FancyLineEdit *m_findEdit;
+    QHBoxLayout *m_findButtonLayout;
+    QToolButton *m_findPreviousButton;
+    QToolButton *m_findNextButton;
+    QToolButton *m_selectAllButton;
+    QSpacerItem *m_horizontalSpacer;
+    QToolButton *m_close;
+    QLabel *m_replaceLabel;
+    Utils::FancyLineEdit *m_replaceEdit;
+    QWidget *m_replaceButtonsWidget;
+    QToolButton *m_replaceButton;
+    QToolButton *m_replaceNextButton;
+    QToolButton *m_replaceAllButton;
+    QToolButton *m_advancedButton;
     FindFlags m_findFlags;
 
     QTimer m_findIncrementalTimer;

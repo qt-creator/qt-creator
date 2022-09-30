@@ -13,6 +13,7 @@
 
 #include <QStringList>
 
+using namespace Core;
 using namespace Utils;
 
 namespace DiffEditor {
@@ -55,7 +56,8 @@ QString DiffEditorController::makePatch(int fileIndex, int chunkIndex,
                                         PatchOptions options) const
 {
     return m_document->makePatch(fileIndex, chunkIndex, selection,
-                                 options & Revert, options & AddPrefix);
+                                 (options & Revert) ? PatchAction::Revert : PatchAction::Apply,
+                                 options & AddPrefix);
 }
 
 Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,
@@ -63,7 +65,7 @@ Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId
 {
     QString preferredDisplayName = displayName;
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Constants::DIFF_EDITOR_ID, &preferredDisplayName, QByteArray(), vcsId);
+                Constants::DIFF_EDITOR_ID, &preferredDisplayName, {}, vcsId);
     return editor ? editor->document() : nullptr;
 }
 

@@ -2,15 +2,20 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "filterdialog.h"
-#include "ui_filterdialog.h"
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/treemodel.h>
 
+#include <QApplication>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHeaderView>
 #include <QItemSelectionModel>
+#include <QPushButton>
+#include <QTreeView>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 enum Columns { CheckName, Count };
 
@@ -59,61 +64,76 @@ public:
 
 FilterDialog::FilterDialog(const Checks &checks, QWidget *parent)
     : QDialog(parent)
-    , m_ui(new Ui::FilterDialog)
 {
-    m_ui->setupUi(this);
+    resize(400, 400);
+    setWindowTitle(tr("Filter Diagnostics"));
+
+    auto selectAll = new QPushButton(tr("Select All"));
+    auto selectWithFixits = new QPushButton(tr("Select All with Fixits"));
+    auto selectNone = new QPushButton(tr("Clear Selection"));
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
     m_model = new FilterChecksModel(checks);
 
-    // View
-    m_ui->view->setModel(m_model);
-    m_ui->view->header()->setStretchLastSection(false);
-    m_ui->view->header()->setSectionResizeMode(Columns::CheckName, QHeaderView::Stretch);
-    m_ui->view->header()->setSectionResizeMode(Columns::Count, QHeaderView::ResizeToContents);
-    m_ui->view->setSelectionMode(QAbstractItemView::MultiSelection);
-    m_ui->view->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_ui->view->setIndentation(0);
-    connect(m_ui->view->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&](){
-        const bool hasSelection = !m_ui->view->selectionModel()->selectedRows().isEmpty();
-        m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(hasSelection);
+    m_view = new QTreeView(this);
+    m_view->setModel(m_model);
+    m_view->header()->setStretchLastSection(false);
+    m_view->header()->setSectionResizeMode(Columns::CheckName, QHeaderView::Stretch);
+    m_view->header()->setSectionResizeMode(Columns::Count, QHeaderView::ResizeToContents);
+    m_view->setSelectionMode(QAbstractItemView::MultiSelection);
+    m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_view->setIndentation(0);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        tr("Select the diagnostics to display."),
+        Row { selectAll, selectWithFixits, selectNone, st },
+        m_view,
+        buttonBox,
+    }.attachTo(this);
+
+    connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&] {
+        const bool hasSelection = !m_view->selectionModel()->selectedRows().isEmpty();
+        buttonBox->button(QDialogButtonBox::Ok)->setEnabled(hasSelection);
     });
 
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
     // Buttons
-    connect(m_ui->selectNone, &QPushButton::clicked, m_ui->view, &QTreeView::clearSelection);
-    connect(m_ui->selectAll, &QPushButton::clicked, m_ui->view, &QTreeView::selectAll);
-    connect(m_ui->selectWithFixits, &QPushButton::clicked, m_ui->view, [this] {
-        m_ui->view->clearSelection();
+    connect(selectNone, &QPushButton::clicked, m_view, &QTreeView::clearSelection);
+    connect(selectAll, &QPushButton::clicked, m_view, &QTreeView::selectAll);
+    connect(selectWithFixits, &QPushButton::clicked, m_view, [this] {
+        m_view->clearSelection();
         m_model->forItemsAtLevel<1>([&](CheckItem *item) {
             if (item->check.hasFixit)
-                m_ui->view->selectionModel()->select(item->index(), selectionFlags());
+                m_view->selectionModel()->select(item->index(), selectionFlags());
         });
     });
-    m_ui->selectWithFixits->setEnabled(
+    selectWithFixits->setEnabled(
         Utils::anyOf(checks, [](const Check &c) { return c.hasFixit; }));
 
     // Select checks that are not filtered out
     m_model->forItemsAtLevel<1>([this](CheckItem *item) {
         if (item->check.isShown)
-            m_ui->view->selectionModel()->select(item->index(), selectionFlags());
+            m_view->selectionModel()->select(item->index(), selectionFlags());
     });
 }
 
-FilterDialog::~FilterDialog()
-{
-    delete m_ui;
-}
+FilterDialog::~FilterDialog() = default;
 
 QSet<QString> FilterDialog::selectedChecks() const
 {
     QSet<QString> checks;
     m_model->forItemsAtLevel<1>([&](CheckItem *item) {
-        if (m_ui->view->selectionModel()->isSelected(item->index()))
+        if (m_view->selectionModel()->isSelected(item->index()))
             checks << item->check.name;
     });
     return checks;
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal
 
 #include "filterdialog.moc"

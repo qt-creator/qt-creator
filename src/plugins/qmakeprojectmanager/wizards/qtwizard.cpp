@@ -5,6 +5,7 @@
 
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakeprojectmanagertr.h>
 
 #include <coreplugin/icore.h>
 
@@ -158,17 +159,17 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
     m_targetSetupPage->setTasksGenerator([this](const Kit *k) -> Tasks {
         if (!QtKitAspect::qtVersionPredicate(requiredFeatures())(k))
             return {
-                ProjectExplorer::CompileTask(Task::Error, tr("Required Qt features not present."))};
+                ProjectExplorer::CompileTask(Task::Error, Tr::tr("Required Qt features not present."))};
 
         const Utils::Id platform = selectedPlatform();
         if (platform.isValid() && !QtKitAspect::platformPredicate(platform)(k))
             return {ProjectExplorer::CompileTask(
                 ProjectExplorer::Task::Warning,
-                tr("Qt version does not target the expected platform."))};
+                Tr::tr("Qt version does not target the expected platform."))};
         QSet<Utils::Id> features = {QtSupport::Constants::FEATURE_DESKTOP};
         if (!QtKitAspect::qtVersionPredicate(features)(k))
             return {ProjectExplorer::CompileTask(ProjectExplorer::Task::Unknown,
-                                                 tr("Qt version does not provide all features."))};
+                                                 Tr::tr("Qt version does not provide all features."))};
         return {};
     });
 

@@ -49,6 +49,7 @@ static const FormattingOptions formattingOptions(const TextEditor::TabSettings &
 QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
         const QTextCursor &cursor, const TextEditor::TabSettings &tabSettings)
 {
+    QTC_ASSERT(m_client, return nullptr);
     cancelCurrentRequest();
     m_progress = QFutureInterface<ChangeSet>();
 
@@ -101,7 +102,7 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
 
 void LanguageClientFormatter::cancelCurrentRequest()
 {
-    if (m_currentRequest.has_value()) {
+    if (QTC_GUARD(m_client) && m_currentRequest.has_value()) {
         m_progress.reportCanceled();
         m_progress.reportFinished();
         m_client->cancelRequest(*m_currentRequest);
@@ -113,8 +114,8 @@ void LanguageClientFormatter::cancelCurrentRequest()
 void LanguageClientFormatter::handleResponse(const DocumentRangeFormattingRequest::Response &response)
 {
     m_currentRequest = std::nullopt;
-    if (const std::optional<DocumentRangeFormattingRequest::Response::Error> &error = response
-                                                                                          .error())
+    const std::optional<DocumentRangeFormattingRequest::Response::Error> &error = response.error();
+    if (QTC_GUARD(m_client) && error)
         m_client->log(*error);
     ChangeSet changeSet;
     if (std::optional<LanguageClientArray<TextEdit>> result = response.result()) {

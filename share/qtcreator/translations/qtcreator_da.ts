@@ -4302,23 +4302,14 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Value requested by kit: %1</source>
         <translation>Værdi anmodet af kit: %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>The build configuration is currently disabled.</source>
         <translation>Byggekonfigurationen er deaktiveret på nuværende tidspunkt.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigItem</name>
     <message>
         <source>Failed to open %1 for reading.</source>
         <translation>Kunne ikke åbne %1 til læsning.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation>CMake-konfigurationen har ikke sat nogen sti til en qmake-binær, selvom kittet har en gyldig Qt version.</translation>
@@ -4363,9 +4354,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>CMake Configuration</source>
         <translation>CMake-konfiguration</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>CMake-værktøj er ikke konfigureret, CMake-generator ignoreres.</translation>
@@ -4406,9 +4394,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>&lt;Use Default Generator&gt;</source>
         <translation>&lt;brug standard generator&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
     <message>
         <source>CMake version %1 is unsupported. Please update to version 3.0 or later.</source>
         <translation>CMake-version %1 understøttes ikke. Opdater venligst til version 3.0 eller senere.</translation>
@@ -4425,9 +4410,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Path to the cmake executable</source>
         <translation>Sti til cmake-eksekverbaren</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeProject</name>
     <message>
         <source>No cmake tool set.</source>
         <translation>Intet cmake-værktøj sat.</translation>
@@ -4440,9 +4422,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Scan &quot;%1&quot; project tree</source>
         <translation>Skan &quot;%1&quot; projekttræ</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source> (Default)</source>
         <translation> (standard)</translation>
@@ -4487,9 +4466,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Path:</source>
         <translation>Sti:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
     <message>
         <source>CMake at %1</source>
         <translation>CMake ved %1</translation>
@@ -4498,9 +4474,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>System CMake at %1</source>
         <translation>Systemets CMake ved %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
     <message>
         <source>Key</source>
         <translation>Nøgle</translation>
@@ -4521,9 +4494,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Value</source>
         <translation>Værdi</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModelItemDelegate</name>
     <message>
         <source>Select a file for %1</source>
         <translation>Vælg en fil for %1</translation>
@@ -4532,9 +4502,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Select a directory for %1</source>
         <translation>Vælg en mappe for %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
     <message>
         <source>Failed to create build directory &quot;%1&quot;.</source>
         <translation>Kunne ikke oprette bygmappe &quot;%1&quot;.</translation>
@@ -4556,14 +4523,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>&lt;fjernet&gt;</translation>
     </message>
     <message>
-        <source>Key</source>
-        <translation>Nøgle</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-    <message>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
@@ -4579,16 +4538,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Apply Changes to Project</source>
         <translation>Anvend ændringer til projekt</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
     <message>
         <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>CMake-konfiguration sat af kittet blev tilsidesat af projektet.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -4613,13 +4566,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Release with Debug Information</source>
         <translation>Udgivelse med fejlretinformation</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -4686,10 +4632,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Anvend konfigurationsændringer</translation>
     </message>
     <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;AFSÆT&gt;</translation>
-    </message>
-    <message>
         <source>bool</source>
         <comment>display string for cmake type BOOLEAN</comment>
         <translation>bool</translation>
@@ -4713,9 +4655,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Force to %1</source>
         <translation>Tving til %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>CMake Build</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -4741,9 +4680,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Project did not parse successfully, cannot build.</source>
         <translation>Projekt blev ikke parset, kan ikke bygge.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
     <message>
         <source>Tool arguments:</source>
         <translation>Værktøjsargumenter:</translation>
@@ -4761,24 +4697,14 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Ingen byggekonfiguration fundet i dette kit.&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepFactory</name>
     <message>
         <source>Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>Byg</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Skift...</translation>
-    </message>
-    <message>
-        <source>CMake Configuration</source>
-        <translation>CMake-konfiguration</translation>
     </message>
     <message>
         <source>Default configuration passed to CMake when setting up a project.</source>
@@ -4792,19 +4718,9 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>Indtast én variabel pr. linje med variabelnavnet separeret fra variablens værdi med &quot;=&quot;.&lt;br&gt;Du kan give et tip om type ved at tilføje &quot;:TYPE&quot; før &quot;=&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
     <message>
         <source>CMake Editor</source>
         <translation>CMake-redigering</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
-    <message>
-        <source>Change...</source>
-        <translation>Skift...</translation>
     </message>
     <message>
         <source>CMake generator:</source>
@@ -4823,10 +4739,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>CMake-generator definerer hvordan et projekt bygges ved brug af CMake.&lt;br&gt;Denne indstilling ignoreres når andre byggesystemer bruges.</translation>
     </message>
     <message>
-        <source>CMake Generator</source>
-        <translation>CMake-generator</translation>
-    </message>
-    <message>
         <source>Generator:</source>
         <translation>Generator:</translation>
     </message>
@@ -4842,9 +4754,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Toolset:</source>
         <translation>Værktøjssæt:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
     <message>
         <source>CMake Tool:</source>
         <translation>CMake-værktøj:</translation>
@@ -4857,16 +4766,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Intet tilgængeligt CMake-værktøj&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
     <message>
         <source>Build CMake target</source>
         <translation>Byg CMake-mål</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
         <translation>Kør CMake</translation>
@@ -4879,47 +4782,24 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Rescan Project</source>
         <translation>Genskan projekt</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
         <translation>CMake</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Byg</translation>
-    </message>
-    <message>
         <source>Build &quot;%1&quot;</source>
         <translation>Byg &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>The project no longer builds the target associated with this run configuration.</source>
         <translation>Projektet bygger ikke længere målet tilknyttet med denne kør-konfiguration.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
         <translation>Desktop</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>Tilføj</translation>
@@ -4948,9 +4828,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>New CMake</source>
         <translation>Ny CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerMode</name>
     <message>
         <source>Running &quot;%1 %2&quot; in %3.</source>
         <translation>Kører &quot;%1 %2&quot; i %3.</translation>
@@ -5035,9 +4912,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Received a signal in reply to a request.</source>
         <translation>Modtog et signal som svar til en anmodning.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerModeReader</name>
     <message>
         <source>Parsing of CMake project failed: Connection to CMake server lost.</source>
         <translation>Parsing af CMake-projekt mislykkedes: Forbindelse til CMake-server tabt.</translation>
@@ -5094,20 +4968,9 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>&lt;Headers&gt;</source>
         <translation>&lt;headere&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::TeaLeafReader</name>
     <message>
         <source>The build directory is not for %1 but for %2</source>
         <translation>Bygmappen er ikke til %1 men til %2</translation>
-    </message>
-    <message>
-        <source>Running &quot;%1 %2&quot; in %3.</source>
-        <translation>Kører &quot;%1 %2&quot; i %3.</translation>
-    </message>
-    <message>
-        <source>Configuring &quot;%1&quot;</source>
-        <translation>Konfigurerer &quot;%1&quot;</translation>
     </message>
     <message>
         <source>*** cmake process crashed.</source>
@@ -5343,7 +5206,7 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Vælg &amp;aktivitet:</translation>
@@ -5356,9 +5219,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Keep item activity</source>
         <translation>Hold post aktivitet</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
     <message>
         <source>Check Out</source>
         <translation>Check out</translation>
@@ -5384,9 +5244,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>Brug &amp;hijacked fil</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>Check &amp;Out</source>
         <translation>Check &amp;out</translation>
@@ -5395,16 +5252,10 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>&amp;Hijack</source>
         <translation>&amp;Hijack</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Annotate version &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation>Redigerer afledt objekt: %1</translation>
@@ -5702,31 +5553,18 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Updating ClearCase Index</source>
         <translation>Opdaterer ClearCase-indeks</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>ClearCase check in</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>Chec&amp;k in selv hvis identisk med forrige version</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>&amp;Bevar filændringstid</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>&amp;Check in</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -5808,9 +5646,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>ClearCase</source>
         <translation>ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>ClearCase-kommando</translation>
@@ -5823,9 +5658,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>DiffUtils is available for free download at http://gnuwin32.sourceforge.net/packages/diffutils.htm. Extract it to a directory in your PATH.</source>
         <translation>DiffUtils kan frit downloades på http://gnuwin32.sourceforge.net/packages/diffutils.htm. Udpak den til en mappe i din PATH.</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -5838,9 +5670,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Gem kopi af filen med en &apos;.keep&apos;-endelse</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Bekræft version som skal check out</translation>
@@ -29179,7 +29008,7 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     </message>
 </context>
 <context>
-    <name>QmakePriFile</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Failed</source>
         <translation>Mislykkedes</translation>
@@ -29192,9 +29021,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>File Error</source>
         <translation>Filfejl</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFile</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Fejl under parsing af filen %1. Opgiver.</translation>
@@ -29203,25 +29029,16 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
         <translation>Kunne ikke finde .pro-fil for undermappen &quot;%1&quot; i &quot;%2&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>&quot;%1&quot; is used by qmake, but &quot;%2&quot; is configured in the kit.
 Please update your kit or choose a mkspec for qmake that matches your target environment better.</source>
         <translation>&quot;%1&quot; bruges af qmake, men &quot;%2&quot; er konfigureret i kittet.
 Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-miljø bedre.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
     <message>
         <source>Add Library</source>
         <translation>Tilføj bibliotek</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <source>The header file</source>
         <translation>Headerfilen</translation>
@@ -29322,9 +29139,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Ikonfiler (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;ny klasse&gt;</translation>
@@ -29337,9 +29151,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Delete class %1 from list?</source>
         <translation>Slet klassen %1 fra liste?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Assistent side</translation>
@@ -29380,9 +29191,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Plugin Details</source>
         <translation>Plugindetaljer</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Brugerdefineret Qt widget-assistent</translation>
@@ -29407,9 +29215,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Custom Widgets</source>
         <translation>Brugerdefineret widgets</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Qt brugerdefineret Designer-widget</translation>
@@ -29418,16 +29223,10 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Opretter et Qt brugerdefineret Designer-widget eller en brugerdefineret widget-samling.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation>Denne assistent genererer en Qt Designer brugerdefineret widget eller et Qt Designer brugerdefineret widget-samling-projekt.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer svarer ikke (%1).</translation>
@@ -29436,16 +29235,10 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Unable to create server socket: %1</source>
         <translation>Kunne ikke oprette server-socket: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
     <message>
         <source>Qt Run Configuration</source>
         <translation>Qt kør-konfiguration</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>Details</source>
         <translation>Detaljer</translation>
@@ -29482,9 +29275,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Specify the package to link to</source>
         <translation>Angiv pakken som der skal linkes til</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Kunne ikke starte &quot;%1&quot;</translation>
@@ -29493,9 +29283,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>Programmet &quot;%1&quot; kunne ikke findes.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Klasseinformation</translation>
@@ -29505,19 +29292,9 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <translation>Angiv grundlæggende information om klasserne for hvilke du vil generere skelet kildekode-fil.</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
-    <message>
         <source>Files</source>
         <translation>Filer</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Widgets Application</source>
         <translation>Qt widgets-program</translation>
@@ -29530,16 +29307,10 @@ Preselects a desktop Qt for building the application if available.</source>
 
 Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Denne assistent genererer et Qt Widgets-programprojekt. Programmet stammer som standard fra QApplication og inkluderer en tom widget.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
     <message>
         <source>Linkage:</source>
         <translation>Linkning:</translation>
@@ -29564,9 +29335,6 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
         <source>%1 Library</source>
         <translation>%1 bibliotek</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library:</source>
         <translation>Bibliotek:</translation>
@@ -29600,20 +29368,12 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
         <translation>Windows</translation>
     </message>
     <message>
-        <source>Linkage:</source>
-        <translation>Linkning:</translation>
-    </message>
-    <message>
         <source>Dynamic</source>
         <translation>Dynamisk</translation>
     </message>
     <message>
         <source>Static</source>
         <translation>Statisk</translation>
-    </message>
-    <message>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
     </message>
     <message>
         <source>Library</source>
@@ -29639,9 +29399,6 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
         <source>Remove &quot;d&quot; suffix for release version</source>
         <translation>Fjern &quot;d&quot;-suffiks for udgiv-version</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Bibliotekstype</translation>
@@ -29692,9 +29449,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Type</source>
         <translation>Type</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>C++-bibliotek</translation>
@@ -29703,9 +29457,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Opretter et C++-bibliotek baseret på qmake. Dette kan bruges til at oprette:&lt;ul&gt;&lt;li&gt;et delt C++-bibliotek til brug sammen med &lt;tt&gt;QPluginLoader&lt;/tt&gt; og runtime (plugins)&lt;/li&gt;&lt;li&gt;et delt eller statisk C++-bibliotek til brug sammen med et andet projekt ved linktime&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation>Delt bibliotek</translation>
@@ -29719,20 +29470,9 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <translation>Qt-plugin</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
         <source>This wizard generates a C++ Library project.</source>
         <translation>Denne assistent genererer et C++-bibliotek-projekt.</translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Override %1:</source>
         <translation>Tilsidesæt %1:</translation>
@@ -29741,16 +29481,10 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Make arguments:</source>
         <translation>Make-argumenter:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation>Vælg krævet moduler</translation>
@@ -29763,27 +29497,13 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Modules</source>
         <translation>Moduler</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>Oprettelse af flere widget-biblioteker (%1, %2) i et projekt (%3) understøttes ikke.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
     <message>
         <source>qmake build configuration:</source>
         <translation>qmake-byggekonfiguration:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Fejlretning</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Udgivelse</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -29805,16 +29525,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Effective qmake call:</source>
         <translation>Virkende qmake kald:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
     <message>
         <source>Qt mkspec:</source>
         <translation>Qt mkspec:</translation>
@@ -29823,9 +29533,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>Mkspec som skal bruges når projektet bygges med qmake.&lt;br&gt;Denne indstilling ignoreres når der bruges andre byggesystemer.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Shadow build:</source>
         <translation>Skygge-byg:</translation>
@@ -29872,20 +29579,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <comment>%1 error message, %2 build directory</comment>
         <translation>%1 Byggen i %2 overskrives.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>Fejlret</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Udgiv</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Build</source>
         <translation>Byg</translation>
@@ -29946,9 +29639,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Add Library...</source>
         <translation>Tilføj bibliotek...</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Qt4Target</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -29964,9 +29654,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <comment>Qt4 Maemo Device target display name</comment>
         <translation>Maemo-enhed</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake Project (Limited Functionality)</source>
         <translation>Importér som qmake-projekt (begrænset funktionalitet)</translation>
@@ -29975,9 +29662,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Imports existing projects that do not use qmake, CMake or Autotools.&lt;p&gt;This creates a qmake .pro file that allows you to use %1 as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated .pro file.</source>
         <translation>Importerer eksisterende projekter som ikke bruger qmake, CMake eller Autotools.&lt;p&gt;Dette opretter en qmake .pro-fil der giver dig mulighed for at bruge %1 som en koderedigering og som en starter til fejlretnings- of analyseringsværktøjer. Hvis du vil bygge projektet, så kan det være du skal redigere den genererede .pro-fil.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Importér eksisterende projekt</translation>
@@ -29998,9 +29682,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>File Selection</source>
         <translation>Valg af fil</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Undermapper-projekt</translation>
@@ -30022,16 +29703,10 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <comment>Title of dialog</comment>
         <translation>Nyt underprojekt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Denne assistent genererer et Qt undermapper-projekt. Tilføj underprojekter til det senere ved at bruge de andre assistenter.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>Opsummering</translation>
@@ -30040,9 +29715,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Følgende snippet skal tilføjes til &lt;br&gt;&lt;b&gt;%1&lt;/b&gt;-filen:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>Qt MakeStep display name.</comment>
@@ -30051,13 +29723,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
         <translation>Kan ikke finde Makefile. Tjek dine bygindstillinger.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Tilsidesæt %1:</translation>
     </message>
     <message>
         <source>Make:</source>
@@ -30075,9 +29740,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 ikke fundet i miljøet.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -30103,9 +29765,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>&lt;no Make step found&gt;</source>
         <translation>&lt;intet Make-trin fundet&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation>QML-fejlretning</translation>
@@ -30142,9 +29801,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>Deaktiverer QML-fejlretning. QML-profilering vil stadig virke.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Could not parse Makefile.</source>
         <translation>Kunne ikke parse Makefile.</translation>
@@ -30169,9 +29825,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Parsing the .pro file</source>
         <translation>Parser .pro-fil</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -30205,9 +29858,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Profile</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Ingen Qt version sat, så mkspec ignoreres.</translation>
@@ -30224,16 +29874,10 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Mkspec configured for qmake by the Kit.</source>
         <translation>Mkspec konfigureret for qmake af kittet.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>QMake</source>
         <translation>QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFile</name>
     <message>
         <source>Headers</source>
         <translation>Headere</translation>
@@ -30262,9 +29906,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Other files</source>
         <translation>Andre filer</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
         <translation>Læser projektet &quot;%1&quot;</translation>
@@ -30292,7 +29933,7 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Bygmappen skal være på samme niveau som kildemappen.</translation>
@@ -43065,7 +42706,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingForm</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
         <translation>Beslutter om filstier kopieres til udklipsholderen til indsættelse i CMakeLists.txt-filen, når du tilføjer nye filer til CMake-projekter.</translation>
@@ -43701,11 +43342,7 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
+    <name>CMakeProjectManager</name>
 </context>
 <context>
     <name>Core::HelpManager</name>

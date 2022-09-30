@@ -5,13 +5,10 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class CMakeTargetLocatorFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
-
 public:
     CMakeTargetLocatorFilter();
 
@@ -27,8 +24,6 @@ private:
 
 class BuildCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
 {
-    Q_OBJECT
-
 public:
     BuildCMakeTargetLocatorFilter();
 
@@ -40,8 +35,6 @@ public:
 
 class OpenCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
 {
-    Q_OBJECT
-
 public:
     OpenCMakeTargetLocatorFilter();
 
@@ -51,5 +44,4 @@ public:
                 int *selectionLength) const final;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

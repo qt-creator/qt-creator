@@ -6,13 +6,11 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QRadioButton;
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace ClearCase {
-namespace Internal {
-
-namespace Ui { class VersionSelector; }
+namespace ClearCase::Internal {
 
 class VersionSelector : public QDialog
 {
@@ -27,10 +25,10 @@ public:
 private:
     bool readValues();
 
-    Ui::VersionSelector *ui;
     QTextStream *m_stream;
     QString m_versionID, m_createdBy, m_createdOn, m_message;
+
+    QRadioButton *m_updatedRadioButton;
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

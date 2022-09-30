@@ -4,6 +4,7 @@
 #include "addlibrarywizard.h"
 
 #include "librarydetailscontroller.h"
+#include "qmakeprojectmanagertr.h"
 
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
@@ -65,7 +66,7 @@ static bool validateLibraryPath(const Utils::FilePath &filePath,
 AddLibraryWizard::AddLibraryWizard(const Utils::FilePath &proFile, QWidget *parent) :
     Utils::Wizard(parent), m_proFile(proFile)
 {
-    setWindowTitle(tr("Add Library"));
+    setWindowTitle(Tr::tr("Add Library"));
     m_libraryTypePage = new LibraryTypePage(this);
     addPage(m_libraryTypePage);
     m_detailsPage = new DetailsPage(this);
@@ -96,51 +97,51 @@ QString AddLibraryWizard::snippet() const
 LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     : QWizardPage(parent)
 {
-    setTitle(tr("Library Type"));
-    setSubTitle(tr("Choose the type of the library to link to"));
+    setTitle(Tr::tr("Library Type"));
+    setSubTitle(Tr::tr("Choose the type of the library to link to"));
 
     auto *layout = new QVBoxLayout(this);
 
-    m_internalRadio = new QRadioButton(tr("Internal library"), this);
+    m_internalRadio = new QRadioButton(Tr::tr("Internal library"), this);
     layout->addWidget(m_internalRadio);
 
-    QLabel *internalLabel = new QLabel(tr("Links to a library "
-                                    "that is located in your build "
-                                    "tree.\nAdds the library and "
-                                    "include paths to the .pro file."));
+    QLabel *internalLabel = new QLabel(Tr::tr("Links to a library "
+                                              "that is located in your build "
+                                              "tree.\nAdds the library and "
+                                              "include paths to the .pro file."));
 
     internalLabel->setWordWrap(true);
     internalLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(internalLabel);
 
-    m_externalRadio = new QRadioButton(tr("External library"), this);
+    m_externalRadio = new QRadioButton(Tr::tr("External library"), this);
     layout->addWidget(m_externalRadio);
 
-    QLabel *externalLabel = new QLabel(tr("Links to a library "
-                                    "that is not located in your "
-                                    "build tree.\nAdds the library "
-                                    "and include paths to the .pro file."));
+    QLabel *externalLabel = new QLabel(Tr::tr("Links to a library "
+                                              "that is not located in your "
+                                              "build tree.\nAdds the library "
+                                              "and include paths to the .pro file."));
 
     externalLabel->setWordWrap(true);
     externalLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(externalLabel);
 
-    m_systemRadio = new QRadioButton(tr("System library"), this);
+    m_systemRadio = new QRadioButton(Tr::tr("System library"), this);
     layout->addWidget(m_systemRadio);
 
-    QLabel *systemLabel = new QLabel(tr("Links to a system library."
-                                    "\nNeither the path to the "
-                                    "library nor the path to its "
-                                    "includes is added to the .pro file."));
+    QLabel *systemLabel = new QLabel(Tr::tr("Links to a system library."
+                                            "\nNeither the path to the "
+                                            "library nor the path to its "
+                                            "includes is added to the .pro file."));
 
     systemLabel->setWordWrap(true);
     systemLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(systemLabel);
 
-    m_packageRadio = new QRadioButton(tr("System package"), this);
+    m_packageRadio = new QRadioButton(Tr::tr("System package"), this);
     layout->addWidget(m_packageRadio);
 
-    QLabel *packageLabel = new QLabel(tr("Links to a system library using pkg-config."));
+    QLabel *packageLabel = new QLabel(Tr::tr("Links to a system library using pkg-config."));
 
     packageLabel->setWordWrap(true);
     packageLabel->setAttribute(Qt::WA_MacSmallSize, true);
@@ -154,7 +155,7 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     // select the default
     m_internalRadio->setChecked(true);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Type"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Type"));
 }
 
 AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
@@ -185,7 +186,7 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
                                        libPathChooser, errorMessage);
     };
     libPathChooser->setValidationFunction(pathValidator);
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Details"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Details"));
 }
 
 bool DetailsPage::isComplete() const
@@ -212,26 +213,26 @@ void DetailsPage::initializePage()
     QString subTitle;
     switch (m_libraryWizard->libraryKind()) {
     case AddLibraryWizard::InternalLibrary:
-        title = tr("Internal Library");
-        subTitle = tr("Choose the project file of the library to link to");
+        title = Tr::tr("Internal Library");
+        subTitle = Tr::tr("Choose the project file of the library to link to");
         m_libraryDetailsController = new InternalLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     case AddLibraryWizard::ExternalLibrary:
-        title = tr("External Library");
-        subTitle = tr("Specify the library to link to and the includes path");
+        title = Tr::tr("External Library");
+        subTitle = Tr::tr("Specify the library to link to and the includes path");
         m_libraryDetailsController = new ExternalLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     case AddLibraryWizard::SystemLibrary:
-        title = tr("System Library");
-        subTitle = tr("Specify the library to link to");
+        title = Tr::tr("System Library");
+        subTitle = Tr::tr("Specify the library to link to");
         m_libraryDetailsController = new SystemLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
     case AddLibraryWizard::PackageLibrary:
-        title = tr("System Package");
-        subTitle = tr("Specify the package to link to");
+        title = Tr::tr("System Package");
+        subTitle = Tr::tr("Specify the package to link to");
         m_libraryDetailsController = new PackageLibraryDetailsController(
                 m_libraryDetailsWidget, m_libraryWizard->proFile(), this);
         break;
@@ -251,7 +252,7 @@ void DetailsPage::initializePage()
 SummaryPage::SummaryPage(AddLibraryWizard *parent)
     : QWizardPage(parent), m_libraryWizard(parent)
 {
-    setTitle(tr("Summary"));
+    setTitle(Tr::tr("Summary"));
     setFinalPage(true);
 
     auto *layout = new QVBoxLayout(this);
@@ -271,14 +272,14 @@ SummaryPage::SummaryPage(AddLibraryWizard *parent)
     m_snippetLabel->setTextFormat(Qt::RichText);
     m_snippetLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Summary"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Summary"));
 }
 
 void SummaryPage::initializePage()
 {
     m_snippet = m_libraryWizard->snippet();
     m_summaryLabel->setText(
-            tr("The following snippet will be added to the<br><b>%1</b> file:")
+            Tr::tr("The following snippet will be added to the<br><b>%1</b> file:")
             .arg(m_libraryWizard->proFile().fileName()));
     QString richSnippet;
     {
@@ -312,40 +313,40 @@ LibraryDetailsWidget::LibraryDetailsWidget(QWidget *parent)
     libraryTypeComboBox = new QComboBox(parent);
 
 
-    platformGroupBox = new QGroupBox(tr("Platform:"));
+    platformGroupBox = new QGroupBox(Tr::tr("Platform:"));
     platformGroupBox->setFlat(true);
 
-    linkageGroupBox = new QGroupBox(tr("Linkage:"));
+    linkageGroupBox = new QGroupBox(Tr::tr("Linkage:"));
     linkageGroupBox->setFlat(true);
 
-    macGroupBox = new QGroupBox(tr("Mac:"));
+    macGroupBox = new QGroupBox(Tr::tr("Mac:"));
     macGroupBox->setFlat(true);
 
-    winGroupBox = new QGroupBox(tr("Windows:"));
+    winGroupBox = new QGroupBox(Tr::tr("Windows:"));
     winGroupBox->setFlat(true);
 
 
-    linCheckBox = new QCheckBox(tr("Linux"));
+    linCheckBox = new QCheckBox(Tr::tr("Linux"));
     linCheckBox->setChecked(true);
 
-    macCheckBox = new QCheckBox(tr("Mac"));
+    macCheckBox = new QCheckBox(Tr::tr("Mac"));
     macCheckBox->setChecked(true);
 
-    winCheckBox = new QCheckBox(tr("Windows"));
+    winCheckBox = new QCheckBox(Tr::tr("Windows"));
     winCheckBox->setChecked(true);
 
-    dynamicRadio = new QRadioButton(tr("Dynamic"), linkageGroupBox);
-    staticRadio = new QRadioButton(tr("Static"), linkageGroupBox);
+    dynamicRadio = new QRadioButton(Tr::tr("Dynamic"), linkageGroupBox);
+    staticRadio = new QRadioButton(Tr::tr("Static"), linkageGroupBox);
 
-    libraryRadio = new QRadioButton(tr("Library"), macGroupBox);
-    frameworkRadio = new QRadioButton(tr("Framework"), macGroupBox);
+    libraryRadio = new QRadioButton(Tr::tr("Library"), macGroupBox);
+    frameworkRadio = new QRadioButton(Tr::tr("Framework"), macGroupBox);
 
-    useSubfoldersCheckBox = new QCheckBox(tr("Library inside \"debug\" or \"release\" subfolder"),
+    useSubfoldersCheckBox = new QCheckBox(Tr::tr("Library inside \"debug\" or \"release\" subfolder"),
         winGroupBox);
     useSubfoldersCheckBox->setChecked(true);
 
-    addSuffixCheckBox = new QCheckBox(tr("Add \"d\" suffix for debug version"), winGroupBox);
-    removeSuffixCheckBox = new QCheckBox(tr("Remove \"d\" suffix for release version"), winGroupBox);
+    addSuffixCheckBox = new QCheckBox(Tr::tr("Add \"d\" suffix for debug version"), winGroupBox);
+    removeSuffixCheckBox = new QCheckBox(Tr::tr("Remove \"d\" suffix for release version"), winGroupBox);
 
     using namespace Utils::Layouting;
 
@@ -357,11 +358,11 @@ LibraryDetailsWidget::LibraryDetailsWidget(QWidget *parent)
 
     Column { useSubfoldersCheckBox, addSuffixCheckBox, removeSuffixCheckBox }.attachTo(winGroupBox);
 
-    libraryLabel = new QLabel(tr("Library:"));
-    libraryFileLabel = new QLabel(tr("Library file:"));
-    libraryTypeLabel = new QLabel(tr("Library type:"));
-    packageLabel = new QLabel(tr("Package:"));
-    includeLabel = new QLabel(tr("Include path:"));
+    libraryLabel = new QLabel(Tr::tr("Library:"));
+    libraryFileLabel = new QLabel(Tr::tr("Library file:"));
+    libraryTypeLabel = new QLabel(Tr::tr("Library type:"));
+    packageLabel = new QLabel(Tr::tr("Package:"));
+    includeLabel = new QLabel(Tr::tr("Include path:"));
 
     Column {
         Form {

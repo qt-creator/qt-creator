@@ -32,6 +32,7 @@ QtcPlugin {
         "diffeditorplugin.h",
         "diffeditorwidgetcontroller.cpp",
         "diffeditorwidgetcontroller.h",
+        "diffenums.h",
         "diffutils.cpp",
         "diffutils.h",
         "diffview.cpp",

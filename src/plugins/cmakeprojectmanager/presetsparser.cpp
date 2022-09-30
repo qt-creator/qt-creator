@@ -3,13 +3,13 @@
 
 #include "presetsparser.h"
 
-#include <QCoreApplication>
+#include "cmakeprojectmanagertr.h"
+
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 bool parseVersion(const QJsonValue &jsonValue, int &version)
 {
@@ -35,7 +35,7 @@ bool parseCMakeMinimumRequired(const QJsonValue &jsonValue, QVersionNumber &vers
 }
 
 bool parseConfigurePresets(const QJsonValue &jsonValue,
-                           std::vector<PresetsDetails::ConfigurePreset> &configurePresets)
+                           QList<PresetsDetails::ConfigurePreset> &configurePresets)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -185,7 +185,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
 }
 
 bool parseBuildPresets(const QJsonValue &jsonValue,
-                       std::vector<PresetsDetails::BuildPreset> &buildPresets)
+                       QList<PresetsDetails::BuildPreset> &buildPresets)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -284,9 +284,7 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
 {
     const std::optional<QByteArray> jsonContents = jsonFile.fileContents();
     if (!jsonContents) {
-        errorMessage = QCoreApplication::translate("CMakeProjectManager::Internal",
-                                                   "Failed to read %1 file")
-                           .arg(jsonFile.fileName());
+        errorMessage = Tr::tr("Failed to read %1 file").arg(jsonFile.fileName());
         return false;
     }
 
@@ -302,18 +300,14 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     }
 
     if (!jsonDoc.isObject()) {
-        errorMessage = QCoreApplication::translate("CMakeProjectManager::Internal",
-                                                   "Invalid %1 file")
-                           .arg(jsonFile.fileName());
+        errorMessage = Tr::tr( "Invalid %1 file").arg(jsonFile.fileName());
         return false;
     }
 
     QJsonObject root = jsonDoc.object();
 
     if (!parseVersion(root.value("version"), m_presetsData.version)) {
-        errorMessage = QCoreApplication::translate("CMakeProjectManager::Internal",
-                                                   "Invalid \"version\" in %1 file")
-                           .arg(jsonFile.fileName());
+        errorMessage = Tr::tr("Invalid \"version\" in %1 file").arg(jsonFile.fileName());
         return false;
     }
 
@@ -324,18 +318,14 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     // optional
     if (!parseConfigurePresets(root.value("configurePresets"), m_presetsData.configurePresets)) {
         errorMessage
-            = QCoreApplication::translate("CMakeProjectManager::Internal",
-                                          "Invalid \"configurePresets\" section in %1 file")
-                  .arg(jsonFile.fileName());
+            = Tr::tr("Invalid \"configurePresets\" section in %1 file").arg(jsonFile.fileName());
         return false;
     }
 
     // optional
     if (!parseBuildPresets(root.value("buildPresets"), m_presetsData.buildPresets)) {
         errorMessage
-            = QCoreApplication::translate("CMakeProjectManager::Internal",
-                                          "Invalid \"buildPresets\" section in %1 file")
-                  .arg(jsonFile.fileName());
+            = Tr::tr("Invalid \"buildPresets\" section in %1 file").arg(jsonFile.fileName());
         return false;
     }
 
@@ -411,5 +401,4 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
         nativeToolOptions = other.nativeToolOptions;
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

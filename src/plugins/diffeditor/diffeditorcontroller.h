@@ -6,6 +6,8 @@
 #include "diffeditor_global.h"
 #include "diffutils.h"
 
+#include <utils/filepath.h>
+
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QMenu)
@@ -63,7 +65,7 @@ protected:
 
     void setDiffFiles(const QList<FileData> &diffFileList,
                       const Utils::FilePath &baseDirectory = {},
-                      const QString &startupFile = QString());
+                      const QString &startupFile = {});
     void setDescription(const QString &description);
     QString description() const;
     void forceContextLineCount(int lines);

@@ -3,6 +3,8 @@
 
 #include "configmodel.h"
 
+#include "cmakeprojectmanagertr.h"
+
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
@@ -11,8 +13,7 @@
 #include <QFont>
 #include <QSortFilterProxyModel>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 // DataItem
 
@@ -104,7 +105,7 @@ CMakeConfigItem ConfigModel::DataItem::toCMakeConfigItem() const
 
 ConfigModel::ConfigModel(QObject *parent) : Utils::TreeModel<>(parent)
 {
-    setHeader({tr("Key"), tr("Value")});
+    setHeader({Tr::tr("Key"), Tr::tr("Value")});
 }
 
 ConfigModel::~ConfigModel() = default;
@@ -578,9 +579,7 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
                    : QVariant();
     case Qt::DisplayRole:
         if (column == 0)
-            return dataItem->key.isEmpty()
-                       ? ConfigModel::tr("<UNSET>")
-                       : dataItem->key;
+            return dataItem->key.isEmpty() ? Tr::tr("<UNSET>") : dataItem->key;
         return value;
     case Qt::EditRole:
         if (column == 0)
@@ -668,23 +667,22 @@ QString ConfigModelTreeItem::toolTip() const
     const QString pattern = "<dt style=\"font-weight:bold\">%1</dt><dd>%2</dd>";
     if (dataItem->isInitial) {
         if (!dataItem->kitValue.isEmpty())
-            tooltip << pattern.arg(ConfigModel::tr("Kit:")).arg(dataItem->kitValue);
+            tooltip << pattern.arg(Tr::tr("Kit:")).arg(dataItem->kitValue);
 
-        tooltip << pattern.arg(ConfigModel::tr("Initial Configuration:")).arg(dataItem->currentValue());
+        tooltip << pattern.arg(Tr::tr("Initial Configuration:")).arg(dataItem->currentValue());
     } else {
         if (!dataItem->initialValue.isEmpty()) {
-            tooltip << pattern.arg(ConfigModel::tr("Initial Configuration:"))
+            tooltip << pattern.arg(Tr::tr("Initial Configuration:"))
                           .arg(dataItem->initialValue);
         }
 
         if (dataItem->inCMakeCache) {
-            tooltip << pattern.arg(ConfigModel::tr("Current Configuration:"))
-                          .arg(dataItem->currentValue());
+            tooltip << pattern.arg(Tr::tr("Current Configuration:")).arg(dataItem->currentValue());
         } else {
-            tooltip << pattern.arg(ConfigModel::tr("Not in CMakeCache.txt")).arg(QString());
+            tooltip << pattern.arg(Tr::tr("Not in CMakeCache.txt")).arg(QString());
         }
     }
-    tooltip << pattern.arg(ConfigModel::tr("Type:")).arg(dataItem->typeDisplay());
+    tooltip << pattern.arg(Tr::tr("Type:")).arg(dataItem->typeDisplay());
 
     return "<dl style=\"white-space:pre\">" + tooltip.join(QString()) + "</dl>";
 }
@@ -695,5 +693,4 @@ QString ConfigModelTreeItem::currentValue() const
     return dataItem->isUserChanged ? dataItem->newValue : dataItem->value;
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

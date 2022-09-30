@@ -3,8 +3,7 @@
 
 #include "annotationhighlighter.h"
 
-using namespace ClearCase;
-using namespace ClearCase::Internal;
+namespace ClearCase::Internal {
 
 ClearCaseAnnotationHighlighter::ClearCaseAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                                QTextDocument *document) :
@@ -16,3 +15,5 @@ QString ClearCaseAnnotationHighlighter::changeNumber(const QString &block) const
     const int pos = block.indexOf(m_separator);
     return pos > 1 ? block.left(pos) : QString();
 }
+
+} // ClearCase::Internal

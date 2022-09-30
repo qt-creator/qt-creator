@@ -146,7 +146,7 @@ public:
 
     Environment environment();
 
-    CommandLine withDockerExecCmd(const CommandLine &cmd, bool interactive = false) const;
+    CommandLine withDockerExecCmd(const CommandLine &cmd, bool interactive = false);
 
     bool prepareForBuild(const Target *target);
 
@@ -400,10 +400,12 @@ void DockerDevice::updateContainerAccess() const
     d->updateContainerAccess();
 }
 
-CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd, bool interactive) const
+CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd, bool interactive)
 {
     if (!m_settings)
         return {};
+
+    updateContainerAccess();
 
     QStringList args;
 

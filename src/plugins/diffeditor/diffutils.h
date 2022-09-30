@@ -4,11 +4,14 @@
 #pragma once
 
 #include "diffeditor_global.h"
+#include "diffenums.h"
 
-#include <utils/filepath.h>
+#include <utils/algorithm.h>
 
 #include <QMap>
 #include <QString>
+
+#include <array>
 
 QT_BEGIN_NAMESPACE
 class QFutureInterfaceBase;
@@ -31,6 +34,23 @@ public:
     QString fileName;
     QString typeInfo;
     PatchBehaviour patchBehaviour = PatchFile;
+};
+
+using DiffFileInfoArray = std::array<DiffFileInfo, SideCount>;
+
+class DiffChunkInfo {
+public:
+    int chunkIndexForBlockNumber(int blockNumber) const;
+    int chunkRowForBlockNumber(int blockNumber) const;
+    int chunkRowsCountForBlockNumber(int blockNumber) const;
+
+    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex) {
+        m_chunkInfo.insert(startBlockNumber, {blockCount, chunkIndex});
+    }
+
+private:
+    // start block number, block count of a chunk, chunk index inside a file.
+    QMap<int, QPair<int, int>> m_chunkInfo;
 };
 
 class DIFFEDITOR_EXPORT TextLineData {
@@ -58,11 +78,10 @@ class DIFFEDITOR_EXPORT RowData {
 public:
     RowData() = default;
     RowData(const TextLineData &l)
-        : leftLine(l), rightLine(l), equal(true) {}
+        : line({l, l}), equal(true) {}
     RowData(const TextLineData &l, const TextLineData &r)
-        : leftLine(l), rightLine(r) {}
-    TextLineData leftLine;
-    TextLineData rightLine;
+        : line({l, r}) {}
+    std::array<TextLineData, SideCount> line{};
     bool equal = false;
 };
 
@@ -70,8 +89,7 @@ class DIFFEDITOR_EXPORT ChunkData {
 public:
     QList<RowData> rows;
     QString contextInfo;
-    int leftStartingLineNumber = 0;
-    int rightStartingLineNumber = 0;
+    std::array<int, SideCount> startingLineNumber{};
     bool contextChunk = false;
 };
 
@@ -79,11 +97,10 @@ class DIFFEDITOR_EXPORT ChunkSelection {
 public:
     ChunkSelection() = default;
     ChunkSelection(const QList<int> &left, const QList<int> &right)
-        : leftSelection(left), rightSelection(right) {}
-    bool isNull() const { return leftSelection.isEmpty() && rightSelection.isEmpty(); }
+        : selection({left, right}) {}
+    bool isNull() const { return Utils::allOf(selection, &QList<int>::isEmpty); }
     int selectedRowsCount() const;
-    QList<int> leftSelection;
-    QList<int> rightSelection;
+    std::array<QList<int>, SideCount> selection{};
 };
 
 class DIFFEDITOR_EXPORT FileData {
@@ -100,8 +117,7 @@ public:
     FileData() = default;
     FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
     QList<ChunkData> chunks;
-    DiffFileInfo leftFileInfo;
-    DiffFileInfo rightFileInfo;
+    DiffFileInfoArray fileInfo{};
     FileOperation fileOperation = ChangeFile;
     bool binaryFiles = false;
     bool lastChunkAtTheEndOfFile = false;
@@ -135,6 +151,8 @@ public:
     static QList<FileData> readPatch(const QString &patch,
                                      bool *ok = nullptr,
                                      QFutureInterfaceBase *jobController = nullptr);
+    // For progress reporting
+    static int interpolate(int x, int x1, int x2, int y1, int y2);
 };
 
 } // namespace DiffEditor

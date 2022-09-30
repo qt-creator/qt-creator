@@ -5,6 +5,7 @@
 
 #include "subdirsprojectwizarddialog.h"
 #include "../qmakeprojectmanagerconstants.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/icore.h>
@@ -25,9 +26,9 @@ SubdirsProjectWizard::SubdirsProjectWizard()
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
-    setDisplayName(tr("Subdirs Project"));
-    setDescription(tr("Creates a qmake-based subdirs project. This allows you to group "
-                "your projects in a tree structure."));
+    setDisplayName(Tr::tr("Subdirs Project"));
+    setDescription(Tr::tr("Creates a qmake-based subdirs project. This allows you to group "
+                          "your projects in a tree structure."));
     setIcon(themedIcon(":/wizards/images/gui.png"));
     setRequiredFeatures({QtSupport::Constants::FEATURE_QT_PREFIX});
 }
@@ -40,7 +41,7 @@ Core::BaseFileWizard *SubdirsProjectWizard::create(QWidget *parent,
 
     dialog->setProjectName(SubdirsProjectWizardDialog::uniqueProjectName(parameters.defaultPath()));
     const QString buttonText = dialog->wizardStyle() == QWizard::MacStyle
-            ? tr("Done && Add Subproject") : tr("Finish && Add Subproject");
+            ? Tr::tr("Done && Add Subproject") : Tr::tr("Finish && Add Subproject");
     dialog->setButtonText(QWizard::FinishButton, buttonText);
     return dialog;
 }
@@ -71,7 +72,7 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
         map.insert(QLatin1String(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE), profileName.toVariant());
         map.insert(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS),
                    Utils::transform<QStringList>(wizard->selectedKits(), &Utils::Id::toString));
-        IWizardFactory::requestNewItemDialog(tr("New Subproject", "Title of dialog"),
+        IWizardFactory::requestNewItemDialog(Tr::tr("New Subproject", "Title of dialog"),
                                              Utils::filtered(Core::IWizardFactory::allWizardFactories(),
                                                              [](Core::IWizardFactory *f) {
                                                                  return f->supportedProjectTypes().contains(Constants::QMAKEPROJECT_ID);

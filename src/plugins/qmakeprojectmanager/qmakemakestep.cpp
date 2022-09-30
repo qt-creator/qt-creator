@@ -3,11 +3,12 @@
 
 #include "qmakemakestep.h"
 
+#include "qmakebuildconfiguration.h"
+#include "qmakenodes.h"
 #include "qmakeparser.h"
 #include "qmakeproject.h"
-#include "qmakenodes.h"
-#include "qmakebuildconfiguration.h"
 #include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagertr.h"
 #include "qmakesettings.h"
 #include "qmakestep.h"
 
@@ -35,8 +36,6 @@ namespace Internal {
 
 class QmakeMakeStep : public MakeStep
 {
-    Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager::QmakeMakeStep)
-
 public:
     QmakeMakeStep(BuildStepList *bsl, Id id);
 
@@ -211,7 +210,7 @@ void QmakeMakeStep::doRun()
 
     if (!m_makeFileToCheck.exists()) {
         if (!ignoreReturnValue())
-            emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::OutputFormat::NormalMessage);
+            emit addOutput(Tr::tr("Cannot find Makefile. Check your build settings."), BuildStep::OutputFormat::NormalMessage);
         const bool success = ignoreReturnValue();
         emit finished(success);
         return;
@@ -224,7 +223,7 @@ void QmakeMakeStep::finish(bool success)
 {
     if (!success && !isCanceled() && m_unalignedBuildDir
             && QmakeSettings::warnAgainstUnalignedBuildDir()) {
-        const QString msg = tr("The build directory is not at the same level as the source "
+        const QString msg = Tr::tr("The build directory is not at the same level as the source "
                                "directory, which could be the reason for the build failure.");
         emit addTask(BuildSystemTask(Task::Warning, msg));
     }

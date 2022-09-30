@@ -6,6 +6,7 @@
 #include "cmakebuildconfiguration.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanagertr.h"
 #include "cmaketoolmanager.h"
 #include "presetsmacros.h"
 
@@ -488,7 +489,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                     .canonicalPath();
         const FilePath canonicalProjectDirectory = projectDirectory().canonicalPath();
         if (data->cmakeHomeDirectory != canonicalProjectDirectory) {
-            *warningMessage = tr("Unexpected source directory \"%1\", expected \"%2\". "
+            *warningMessage = Tr::tr("Unexpected source directory \"%1\", expected \"%2\". "
                                  "This can be correct in some situations, for example when "
                                  "importing a standalone Qt test, but usually this is an error. "
                                  "Import the build anyway?")

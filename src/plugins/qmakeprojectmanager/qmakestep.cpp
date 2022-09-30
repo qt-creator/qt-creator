@@ -9,6 +9,7 @@
 #include "qmakeparser.h"
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagertr.h"
 #include "qmakesettings.h"
 
 #include <android/androidconstants.h>
@@ -64,17 +65,17 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
 
     m_buildType = addAspect<SelectionAspect>();
     m_buildType->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    m_buildType->setDisplayName(tr("qmake build configuration:"));
-    m_buildType->addOption(tr("Debug"));
-    m_buildType->addOption(tr("Release"));
+    m_buildType->setDisplayName(Tr::tr("qmake build configuration:"));
+    m_buildType->addOption(Tr::tr("Debug"));
+    m_buildType->addOption(Tr::tr("Release"));
 
     m_userArgs = addAspect<ArgumentsAspect>(macroExpander());
     m_userArgs->setSettingsKey(QMAKE_ARGUMENTS_KEY);
-    m_userArgs->setLabelText(tr("Additional arguments:"));
+    m_userArgs->setLabelText(Tr::tr("Additional arguments:"));
 
     m_effectiveCall = addAspect<StringAspect>();
     m_effectiveCall->setDisplayStyle(StringAspect::TextEditDisplay);
-    m_effectiveCall->setLabelText(tr("Effective qmake call:"));
+    m_effectiveCall->setLabelText(Tr::tr("Effective qmake call:"));
     m_effectiveCall->setReadOnly(true);
     m_effectiveCall->setUndoRedoEnabled(false);
     m_effectiveCall->setEnabled(true);
@@ -82,9 +83,9 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     auto updateSummary = [this] {
         QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
         if (!qtVersion)
-            return tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
+            return Tr::tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
         const QString program = qtVersion->qmakeFilePath().fileName();
-        return tr("<b>qmake:</b> %1 %2").arg(program, project()->projectFilePath().fileName());
+        return Tr::tr("<b>qmake:</b> %1 %2").arg(program, project()->projectFilePath().fileName());
     };
     setSummaryUpdater(updateSummary);
 
@@ -182,7 +183,7 @@ bool QMakeStep::init()
     const QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
 
     if (!qtVersion) {
-        emit addOutput(tr("No Qt version configured."), BuildStep::OutputFormat::ErrorMessage);
+        emit addOutput(Tr::tr("No Qt version configured."), BuildStep::OutputFormat::ErrorMessage);
         return false;
     }
 
@@ -217,8 +218,8 @@ bool QMakeStep::init()
     if (m_runMakeQmake) {
         const FilePath make = makeCommand();
         if (make.isEmpty()) {
-            emit addOutput(tr("Could not determine which \"make\" command to run. "
-                              "Check the \"make\" step in the build configuration."),
+            emit addOutput(Tr::tr("Could not determine which \"make\" command to run. "
+                                  "Check the \"make\" step in the build configuration."),
                            BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
@@ -278,7 +279,7 @@ void QMakeStep::doRun()
     }
 
     if (!m_needToRunQMake) {
-        emit addOutput(tr("Configuration unchanged, skipping qmake step."), BuildStep::OutputFormat::NormalMessage);
+        emit addOutput(Tr::tr("Configuration unchanged, skipping qmake step."), BuildStep::OutputFormat::NormalMessage);
         emit finished(true);
         return;
     }
@@ -415,10 +416,10 @@ QString QMakeStep::effectiveQMakeCall() const
     QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
     FilePath qmake = qtVersion ? qtVersion->qmakeFilePath() : FilePath();
     if (qmake.isEmpty())
-        qmake = FilePath::fromString(tr("<no Qt version>"));
+        qmake = FilePath::fromString(Tr::tr("<no Qt version>"));
     FilePath make = makeCommand();
     if (make.isEmpty())
-        make = FilePath::fromString(tr("<no Make step found>"));
+        make = FilePath::fromString(Tr::tr("<no Make step found>"));
 
     CommandLine cmd(qmake, {});
 
@@ -497,7 +498,7 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 
 QWidget *QMakeStep::createConfigWidget()
 {
-    abisLabel = new QLabel(tr("ABIs:"));
+    abisLabel = new QLabel(Tr::tr("ABIs:"));
     abisLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 
     abisListWidget = new QListWidget;
@@ -529,7 +530,7 @@ QWidget *QMakeStep::createConfigWidget()
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmlDebuggingChanged,
             widget, [this] {
         linkQmlDebuggingLibraryChanged();
-        askForRebuild(tr("QML Debugging"));
+        askForRebuild(Tr::tr("QML Debugging"));
     });
 
     connect(project(), &Project::projectLanguagesUpdated,
@@ -584,14 +585,14 @@ void QMakeStep::useQtQuickCompilerChanged()
 {
     updateAbiWidgets();
     updateEffectiveQMakeCall();
-    askForRebuild(tr("Qt Quick Compiler"));
+    askForRebuild(Tr::tr("Qt Quick Compiler"));
 }
 
 void QMakeStep::separateDebugInfoChanged()
 {
     updateAbiWidgets();
     updateEffectiveQMakeCall();
-    askForRebuild(tr("Separate Debug Information"));
+    askForRebuild(Tr::tr("Separate Debug Information"));
 }
 
 static bool isIos(const Kit *k)
@@ -676,7 +677,7 @@ void QMakeStep::askForRebuild(const QString &title)
 {
     auto *question = new QMessageBox(Core::ICore::dialogParent());
     question->setWindowTitle(title);
-    question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
+    question->setText(Tr::tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
     question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     question->setModal(true);
     connect(question, &QDialog::finished, this, &QMakeStep::recompileMessageBoxFinished);
@@ -756,7 +757,7 @@ QMakeStepFactory::QMakeStepFactory()
     setSupportedConfiguration(Constants::QMAKE_BC_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     //: QMakeStep default display name
-    setDisplayName(::QmakeProjectManager::QMakeStep::tr("qmake"));
+    setDisplayName(::QmakeProjectManager::Tr::tr("qmake")); // Fully qualifying for lupdate
     setFlags(BuildStepInfo::UniqueStep);
 }
 

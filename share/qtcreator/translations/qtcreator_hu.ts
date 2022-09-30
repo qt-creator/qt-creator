@@ -263,7 +263,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::0</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build Environment</source>
         <translation type="obsolete">Fordítási környezet</translation>
@@ -356,9 +356,6 @@
         <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project</source>
         <translation type="obsolete">A Qt Creator megtalálta a legutolsó cbp fájlt, amelyet a Qt Creator elemzésre for használni, hogy információkat nyerhessen a projektről. Megváltoztathatja aparancssori argumentumokat, amelyeket új fájl létrehozására hoztak létre projekt módban. Kattintson a befejezés gombra a projekt betöltéséhez.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation>Létrehozás</translation>
@@ -371,9 +368,6 @@
         <source>New Configuration Name:</source>
         <translation>Új konfiguráció név:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Rendszer környezet megtisztítása</translation>
@@ -382,23 +376,14 @@
         <source>Build Environment</source>
         <translation>Fordítási környezet</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>&amp;Change</source>
         <translation>&amp;Váltotatás</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>CMake Varázsló</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumentumok:</translation>
@@ -432,16 +417,9 @@
         <translation>Rendszer környezet</translation>
     </message>
     <message>
-        <source>Build Environment</source>
-        <translation>Fordítási környezet</translation>
-    </message>
-    <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
         <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
         <translation>Kérem határozza meg a cmake futtatható fájl útvonalát. Nem található cmake futtatható fájl az útvonalon.</translation>
@@ -502,9 +480,6 @@
         <source>No valid cmake executable specified.</source>
         <translation>Nincsen érvényes, meghatározott cmake futtatható.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -513,16 +488,10 @@
         <source>CMake executable</source>
         <translation>CMake futtatható fájl</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>A Qt Creator egy &lt;b&gt;beépített forrást észlelt a(z) %1-ben&lt;/b&gt;, amely megelőzi az árnyék építéstől. A Qt Creator nem fogja engedélyezni Önnek, hogy megváltoztassa az építési könyvtárat. Ha árnyék építést szeretne végrehajtani, ürítse ki a forrás könyvtárat és nyissa meg újra a projektet.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>További argumentumok:</translation>
@@ -535,9 +504,6 @@
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Kérem gépelje be a könyvtár nevét, amelybe a projektet szeretné felépíteni.</translation>
@@ -12631,7 +12597,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QMakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation>QMake Építési Konfiguráció:</translation>
@@ -13030,7 +12996,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::0</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;A make parancs nem található: %1 a fordító környezetben&lt;/font&gt;</translation>
@@ -13099,9 +13065,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Auto-detected Qt</source>
         <translation type="obsolete">Automatikusan észlelt Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::0</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation type="obsolete">Qt4 konzol alkalmazás</translation>
@@ -13678,9 +13641,6 @@ p, li { white-space: pre-wrap; }
         <source>Edit Advanced Expression</source>
         <translation type="obsolete">Speciális kifejezés szerkesztése</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -13785,9 +13745,6 @@ p, li { white-space: pre-wrap; }
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>ikon fájlok (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Új osztály&gt;</translation>
@@ -13800,9 +13757,6 @@ p, li { white-space: pre-wrap; }
         <source>Delete class %1 from list?</source>
         <translation>%1 osztály törlése a listáról?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation>Qt4 konzol alkalmazás</translation>
@@ -13811,16 +13765,10 @@ p, li { white-space: pre-wrap; }
         <source>Creates a Qt4 console application.</source>
         <translation>Egy Qt4 konzol alkalmazás létrehozása.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation>Ez a varázsló egy Qt4 konzol alkalmazási projektet generál. Az alkalmazás a QCoreApplication-ből származik és nem biztosít GUI-t.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Varázsló lap</translation>
@@ -13857,9 +13805,6 @@ p, li { white-space: pre-wrap; }
         <source>icons.qrc</source>
         <translation>icons.qrc</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Szokásos Qt Widget Varázsló</translation>
@@ -13876,9 +13821,6 @@ p, li { white-space: pre-wrap; }
         <source>Specify the list of custom widgets and their properties.</source>
         <translation>Határozza meg a szokásos widgetek listáját és tulajdonságaikat.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt4 Designer Custom Widget</source>
         <translation>Qt4 Designer Szokásos Widget</translation>
@@ -13887,16 +13829,10 @@ p, li { white-space: pre-wrap; }
         <source>Creates a Qt4 Designer Custom Widget or a Custom Widget Collection.</source>
         <translation>Qt4 Designer Szokásos Widget vagy szokásos Widget gyűjtemény létrehozása.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
         <translation>Ez a varázsló egy Qt4 Designer szokásos Widget-t vagy Qt4 Designer szokásos Widget gyűjtemény projektet generál.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>A Qt Designer nem válaszol (%1).</translation>
@@ -13905,16 +13841,10 @@ p, li { white-space: pre-wrap; }
         <source>Unable to create server socket: %1</source>
         <translation>Nem lehet szerver socket-et létrehozni: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmbeddedPropertiesPanel</name>
     <message>
         <source>Embedded Linux</source>
         <translation>Beágyazott Linux</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt4 Project</source>
         <translation>Üres Qt4 Projekt</translation>
@@ -13923,16 +13853,10 @@ p, li { white-space: pre-wrap; }
         <source>Creates an empty Qt project.</source>
         <translation>Egy üres Qt projekt létrehozása.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
         <translation>Ez a varázsló egy üres Qt4 projektet generál. Fájlok hozzáadása később más varázslók használatával.können später Dateien hinzufügt werden.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Nem lehet elindítani a(z) &quot;%1&quot;-t</translation>
@@ -13941,9 +13865,6 @@ p, li { white-space: pre-wrap; }
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>A(z) &quot;%1&quot; alkalmazás nem található.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Osztály információ</translation>
@@ -14108,7 +14029,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4 Gui Application</source>
         <translation>Qt4 Gui Alkalmazás</translation>
@@ -14121,16 +14042,10 @@ p, li { white-space: pre-wrap; }
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
         <translation>A(z) &apos;%1&apos;-es példa fájlt nem sikerült megnyitni olvasásra: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Ez a varázsló egy Qt4 GUI alkalmazói projektet generál. Az alkalmazás az alapértelmezett QApplication-ből származik és egy üres widget tartalmaz.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>C++ könyvtár</translation>
@@ -14139,9 +14054,6 @@ p, li { white-space: pre-wrap; }
         <source>Creates a C++ Library.</source>
         <translation>C++ könyvtár létrehozása.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared library</source>
         <translation>Megosztott könyvtár</translation>
@@ -14162,16 +14074,10 @@ p, li { white-space: pre-wrap; }
         <source>This wizard generates a C++ library project.</source>
         <translation>Ez a varázsló C++ könyvtár projektet generál.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select required modules</source>
         <translation>Az igényelt modulok kiválasztása</translation>
@@ -14180,9 +14086,6 @@ p, li { white-space: pre-wrap; }
         <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
         <translation>Válassza ki a projektbe betenni kívánt modulokat. Az erre a projektre ajánlott modulok automatikusan ki vannak választva.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Cannot open icon file %1.</source>
         <translation>Nem lehet megnyitni a(z) ikon fájlt.</translation>
@@ -14195,9 +14098,6 @@ p, li { white-space: pre-wrap; }
         <source>Cannot open %1: %2</source>
         <translation>Nem lehet megnyitni a(z) %1-t: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProEditor</name>
     <message>
         <source>New</source>
         <translation>Új</translation>
@@ -14250,9 +14150,6 @@ p, li { white-space: pre-wrap; }
         <source>Add Block</source>
         <translation>Blokk hozzáadása</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProEditorModel</name>
     <message>
         <source>&lt;Global Scope&gt;</source>
         <translation>&lt;Globális hatókör&gt;</translation>
@@ -14289,9 +14186,6 @@ p, li { white-space: pre-wrap; }
         <source>Insert Item</source>
         <translation>Elem beszúrása</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <source>Import existing build settings</source>
         <translation>Meglevő építési beállítások importolása</translation>
@@ -14308,16 +14202,10 @@ p, li { white-space: pre-wrap; }
         <source>&lt;b&gt;Note:&lt;/b&gt; Importing the settings will automatically add the Qt Version identified by &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; to the list of Qt versions.</source>
         <translation>&lt;b&gt;Megjegyzés:&lt;/b&gt; A beállítások importálása automatikusan hozzá fogja adni a Qt verziót, amely &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; -val van azonosítva a Qt verziók listájához..</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
     <message>
         <source>QMake</source>
         <translation>QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeBuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Rendszer környezet megtisztítása</translation>
@@ -14326,9 +14214,6 @@ p, li { white-space: pre-wrap; }
         <source>Build Environment</source>
         <translation>Fordítási környezet</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakePriFileNode</name>
     <message>
         <source>Headers</source>
         <translation>Fejállomány</translation>
@@ -14373,20 +14258,10 @@ p, li { white-space: pre-wrap; }
         <source>Error while changing pro file %1.</source>
         <translation>Hiba történt a(z) %1 pro fájl módosítása közben.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProFileNode</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation>Hiba történt a(z) fájl elemzése közben. Leáll.</translation>
-    </message>
     <message>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
         <translation>Nem sikerült megtalálni a .pro fájlt a(z) &apos;%2&apos;-ben a(z) &apos;%1&apos;alkönytár számára</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Qt Version:</source>
         <translation>Qt verzió:</translation>
@@ -14439,16 +14314,10 @@ p, li { white-space: pre-wrap; }
         <source>General</source>
         <translation>Általános</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>qmake futtatása</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <source>Qt4RunConfiguration</source>
         <translation>Qt4RunConfiguration</translation>
@@ -14457,9 +14326,6 @@ p, li { white-space: pre-wrap; }
         <source>Could not parse %1. The Qt4 run configuration %2 can not be started.</source>
         <translation>Nem sikerült az %1 emlemzése. A(z) %2-t futtató Qt4 elindítása nem sikerült.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
     <message>
         <source>Name:</source>
         <translation>Név:</translation>
@@ -14509,10 +14375,6 @@ p, li { white-space: pre-wrap; }
         <translation>Rendszer környezet</translation>
     </message>
     <message>
-        <source>Build Environment</source>
-        <translation>Fordítási környezet</translation>
-    </message>
-    <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
         <translation>Futtatható fájl futtatása: &lt;b&gt;%1&lt;/b&gt; %2 (terminálban)</translation>
     </message>
@@ -14520,9 +14382,6 @@ p, li { white-space: pre-wrap; }
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation>Futtatható fájl futtatása: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;egy név meghatározása&gt;</translation>
@@ -14579,9 +14438,6 @@ p, li { white-space: pre-wrap; }
         <source>Found Qt version %1, using mkspec %2</source>
         <translation>Talált Qt verzió: %1, mkspec használata: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtVersionManager</name>
     <message>
         <source>Qt versions</source>
         <translation>Qt verziók</translation>
@@ -14662,16 +14518,10 @@ p, li { white-space: pre-wrap; }
         <source>Default Qt Version:</source>
         <translation>Alapértelmezett Qt Verzió:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation>Nem sikerült megnyitni a(z) %1 prokeltet.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation>Figyelmeztetés: Nem sikerült behatárolni a szimbólum fájlt ami a(z) %1-hez tartozik.</translation>
@@ -14684,9 +14534,6 @@ p, li { white-space: pre-wrap; }
         <source>Debugging finished.</source>
         <translation>Debuggolás befejezve.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation>%1 Symbian eszközön</translation>
@@ -14699,23 +14546,9 @@ p, li { white-space: pre-wrap; }
         <source>Could not parse %1. The QtS60 Device run configuration %2 can not be started.</source>
         <translation>Nem sikerült a(z) %1 elemzése. A QtS60 eszköz futtatási konfigurációját %2 nem lehet elindítani.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation>%1 Symbian eszközön</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
         <source>Device:</source>
         <translation>Eszköz:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Név:</translation>
     </message>
     <message>
         <source>Install File:</source>
@@ -14769,9 +14602,6 @@ p, li { white-space: pre-wrap; }
         <source>Connecting...</source>
         <translation>Csatlakozás...</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControl</name>
     <message>
         <source>Finished.</source>
         <translation>Befejezve.</translation>
@@ -14788,9 +14618,6 @@ p, li { white-space: pre-wrap; }
         <source>Could not start application: %1</source>
         <translation>Nem sikerült elindítani az alkalmazást: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControlBase</name>
     <message>
         <source>There is no device plugged in.</source>
         <translation>Nincsen bedugott eszköz.</translation>
@@ -14891,16 +14718,9 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>An error has occurred while running %1.</source>
         <translation>Hiba történt a(z) %1 futtatása közben.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60Devices::0</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">Azonosító:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Név:</translation>
     </message>
     <message>
         <source>EPOC:</source>
@@ -14914,16 +14734,9 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>Qt:</source>
         <translation type="obsolete">Qt:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60Devices::Device</name>
     <message>
         <source>Id:</source>
         <translation>Azonosító:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Név:</translation>
     </message>
     <message>
         <source>EPOC:</source>
@@ -14936,13 +14749,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
     <message>
         <source>Qt:</source>
         <translation>Qt:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesPreferencePane</name>
-    <message>
-        <source>Form</source>
-        <translation>Forma</translation>
     </message>
     <message>
         <source>Installed S60 SDKs:</source>
@@ -14968,16 +14774,10 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>S60 SDKs</source>
         <translation>S60 SDK-k</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesWidget</name>
     <message>
         <source>No Qt installed</source>
         <translation>Nincsen a Qt installálva</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <translation>%1 Symbian emulátorban</translation>
@@ -14990,31 +14790,14 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.</source>
         <translation>Nem sikerült a(z) %1 elemzése. Nem lehet elindítani a Qt-t a Symbian emulátor futtatási konfigurációjára (%2).</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <translation>%1 Symbian Emulátorban</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Név:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Futtatható:</translation>
     </message>
     <message>
         <source>Summary: Run %1 in emulator</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation>%1 elindítása...</translation>
@@ -15027,9 +14810,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>%1 exited with code %2</source>
         <translation>%1 befejeződött %2-s kóddal</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60Manager</name>
     <message>
         <source>Run in Emulator</source>
         <translation>Futtatás emulátorban</translation>
@@ -15042,9 +14822,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>Debug on Device</source>
         <translation>Debug eszközön</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ValueEditor</name>
     <message>
         <source>Edit Variable</source>
         <translation>Variable bearbeiten</translation>
@@ -15098,14 +14875,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <translation>Elemek szerkesztése</translation>
     </message>
     <message>
-        <source>New</source>
-        <translation>Új</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
-    </message>
-    <message>
         <source>Edit Values</source>
         <translation>Értékek szerkesztése</translation>
     </message>
@@ -15121,9 +14890,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>Edit Advanced Expression</source>
         <translation>Speciális kifejezés szerkesztése</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;A make parancs nem található: %1 a fordító környezetben&lt;/font&gt;</translation>
@@ -15132,9 +14898,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;No Makefile found, assuming project is clean.&lt;/b&gt;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;Makefile nem található, feltételezve hogy a projekt tiszta.&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>%1 megsemmisítése:</translation>
@@ -15147,9 +14910,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2 in %3</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2 %3-ban</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
@@ -15170,9 +14930,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping QMake step.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;Nem változott a konfiguráció, QMake lépés átugrása &lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
         <translation>&lt;b&gt;QMake:&lt;/b&gt; Nincsen beállított Qt verzió. Nem lehet futtatni a QMake-t.</translation>
@@ -15185,9 +14942,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>No valid Qt version set.</source>
         <translation>Nincs érvényes Qt verzió beállítva.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Default Qt Version</source>
         <translation>Alapértelmezett Qt verzió használata</translation>
@@ -15212,9 +14966,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>%1 Release</source>
         <translation>%1 Release</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Loading project %1 ...</source>
         <translation>%1 Projekt betöltése ...</translation>
@@ -15239,9 +14990,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
         <source>Done opening project</source>
         <translation>Projektek megnyitva</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QtVersionManager</name>
     <message>
         <source>&lt;not found&gt;</source>
         <translation>&lt;nem található&gt;</translation>
@@ -15249,10 +14997,6 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
     <message>
         <source>Qt in PATH</source>
         <translation>Qt az útvonalon</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Név:</translation>
     </message>
     <message>
         <source>Source:</source>

@@ -4,17 +4,13 @@
 #pragma once
 
 #include <projectexplorer/ioutputparser.h>
-#include <utils/fileutils.h>
 
-#include <QRegularExpression>
+#include <utils/filepath.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class JavaParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     JavaParser();
 
@@ -23,13 +19,11 @@ public:
     void setSourceDirectory(const Utils::FilePath &sourceDirectory);
 
 private:
-    Result handleLine(const QString &line, Utils::OutputFormat type) override;
+    Result handleLine(const QString &line, Utils::OutputFormat type) final;
 
-    const QRegularExpression m_javaRegExp;
     Utils::FilePaths m_fileList;
     Utils::FilePath m_sourceDirectory;
     Utils::FilePath m_buildDirectory;
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

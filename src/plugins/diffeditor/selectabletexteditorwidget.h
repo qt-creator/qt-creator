@@ -11,14 +11,15 @@ namespace Internal {
 class DiffSelection
 {
 public:
-    DiffSelection() = default;
-    DiffSelection(QTextCharFormat *f) : format(f) {}
-    DiffSelection(int s, int e, QTextCharFormat *f) : start(s), end(e), format(f) {}
-
+    QTextCharFormat *format = nullptr;
     int start = -1;
     int end = -1;
-    QTextCharFormat *format = nullptr;
 };
+
+// block number, list of ranges
+// DiffSelection.start - can be -1 (continues from the previous line)
+// DiffSelection.end - can be -1 (spans to the end of line, even after the last character in line)
+using DiffSelections = QMap<int, QList<DiffSelection>>;
 
 class SelectableTextEditorWidget : public TextEditor::TextEditorWidget
 {
@@ -26,8 +27,9 @@ class SelectableTextEditorWidget : public TextEditor::TextEditorWidget
 public:
     SelectableTextEditorWidget(Utils::Id id, QWidget *parent = nullptr);
     ~SelectableTextEditorWidget() override;
-    void setSelections(const QMap<int, QList<DiffSelection> > &selections);
+    void setSelections(const DiffSelections &selections);
 
+    static DiffSelections polishedSelections(const DiffSelections &selections);
     static void setFoldingIndent(const QTextBlock &block, int indent);
 
 private:
@@ -37,10 +39,7 @@ private:
                     const QVector<QTextLayout::FormatRange> &selections,
                     const QRect &clipRect) const override;
 
-    // block number, list of ranges
-    // DiffSelection.start - can be -1 (continues from the previous line)
-    // DiffSelection.end - can be -1 (spans to the end of line, even after the last character in line)
-    QMap<int, QList<DiffSelection> > m_diffSelections;
+    DiffSelections m_diffSelections;
 };
 
 } // namespace Internal

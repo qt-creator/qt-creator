@@ -5,35 +5,38 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
-#include <QFileInfo>
 
-using namespace Android::Internal;
+#include <QRegularExpression>
+
 using namespace ProjectExplorer;
+using namespace Utils;
 
-JavaParser::JavaParser() :
-  m_javaRegExp(QLatin1String("^(.*\\[javac\\]\\s)(.*\\.java):(\\d+):(.*)$"))
+namespace Android::Internal {
+
+JavaParser::JavaParser()
 { }
 
-void JavaParser::setProjectFileList(const Utils::FilePaths &fileList)
+void JavaParser::setProjectFileList(const FilePaths &fileList)
 {
     m_fileList = fileList;
 }
 
-void JavaParser::setBuildDirectory(const Utils::FilePath &buildDirectory)
+void JavaParser::setBuildDirectory(const FilePath &buildDirectory)
 {
     m_buildDirectory = buildDirectory;
 }
 
-void JavaParser::setSourceDirectory(const Utils::FilePath &sourceDirectory)
+void JavaParser::setSourceDirectory(const FilePath &sourceDirectory)
 {
     m_sourceDirectory = sourceDirectory;
 }
 
-Utils::OutputLineParser::Result JavaParser::handleLine(const QString &line,
-                                                       Utils::OutputFormat type)
+OutputLineParser::Result JavaParser::handleLine(const QString &line, OutputFormat type)
 {
     Q_UNUSED(type);
-    const QRegularExpressionMatch match = m_javaRegExp.match(line);
+    static const QRegularExpression javaRegExp("^(.*\\[javac\\]\\s)(.*\\.java):(\\d+):(.*)$");
+
+    const QRegularExpressionMatch match = javaRegExp.match(line);
     if (!match.hasMatch())
         return Status::NotHandled;
 
@@ -41,9 +44,9 @@ Utils::OutputLineParser::Result JavaParser::handleLine(const QString &line,
     int lineno = match.captured(3).toInt(&ok);
     if (!ok)
         lineno = -1;
-    Utils::FilePath file = Utils::FilePath::fromUserInput(match.captured(2));
+    FilePath file = FilePath::fromUserInput(match.captured(2));
     if (file.isChildOf(m_buildDirectory)) {
-        Utils::FilePath relativePath = file.relativeChildPath(m_buildDirectory);
+        FilePath relativePath = file.relativeChildPath(m_buildDirectory);
         file = m_sourceDirectory.pathAppended(relativePath.toString());
     }
     if (file.toFileInfo().isRelative()) {
@@ -63,3 +66,5 @@ Utils::OutputLineParser::Result JavaParser::handleLine(const QString &line,
     scheduleTask(task, 1);
     return {Status::Done, linkSpecs};
 }
+
+} // Android::Internal

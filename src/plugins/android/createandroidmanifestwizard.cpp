@@ -172,10 +172,10 @@ void ChooseDirectoryPage::checkPackageSourceDir()
 {
     const QString buildKey = m_wizard->buildKey();
     const BuildTargetInfo bti = m_wizard->buildSystem()->buildTarget(buildKey);
-    const QString projectDir = bti.projectFilePath.toFileInfo().absolutePath();
+    const FilePath projectDir = bti.projectFilePath.absolutePath();
 
-    const QString newDir = m_androidPackageSourceDir->filePath().toString();
-    bool isComplete = QFileInfo(projectDir) != QFileInfo(newDir);
+    const FilePath newDir = m_androidPackageSourceDir->filePath();
+    bool isComplete = projectDir.canonicalPath() != newDir.canonicalPath();
 
     m_sourceDirectoryWarning->setVisible(!isComplete);
 

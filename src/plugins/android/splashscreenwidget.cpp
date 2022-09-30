@@ -7,8 +7,6 @@
 #include <texteditor/texteditor.h>
 #include <utils/utilsicons.h>
 
-#include <QFileDialog>
-#include <QFileInfo>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLoggingCategory>
@@ -18,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(androidManifestEditorLog, "qtc.android.splashScreenWidget", QtWarningMsg)
 
@@ -244,5 +241,4 @@ void SplashScreenWidget::setImageFileName(const QString &imageFileName)
     m_imageFileName = imageFileName;
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

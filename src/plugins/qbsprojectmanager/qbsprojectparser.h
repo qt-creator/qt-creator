@@ -11,8 +11,7 @@
 #include <QJsonObject>
 #include <QObject>
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class QbsBuildSystem;
 
@@ -24,7 +23,9 @@ public:
     QbsProjectParser(QbsBuildSystem *buildSystem, QFutureInterface<bool> *fi);
     ~QbsProjectParser() override;
 
-    void parse(const QVariantMap &config, const Utils::Environment &env, const QString &dir,
+    void parse(const QVariantMap &config,
+               const Utils::Environment &env,
+               const Utils::FilePath &dir,
                const QString &configName);
     void cancel();
     Utils::Environment environment() const { return m_environment; }
@@ -38,7 +39,7 @@ signals:
 
 private:
     Utils::Environment m_environment;
-    const QString m_projectFilePath;
+    const Utils::FilePath m_projectFilePath;
     QbsSession * const m_session;
     ErrorInfo m_error;
     QJsonObject m_projectData;
@@ -46,5 +47,4 @@ private:
     QFutureInterface<bool> *m_fi = nullptr;
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal

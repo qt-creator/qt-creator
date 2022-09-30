@@ -3,6 +3,7 @@
 
 #include "fileapidataextractor.h"
 
+#include "cmakeprojectmanagertr.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "fileapiparser.h"
@@ -22,12 +23,9 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
-
-namespace {
-
-using namespace CMakeProjectManager;
-using namespace CMakeProjectManager::Internal;
 using namespace CMakeProjectManager::Internal::FileApiDetails;
+
+namespace CMakeProjectManager::Internal {
 
 // --------------------------------------------------------------------
 // Helpers:
@@ -601,14 +599,12 @@ void addCompileGroups(ProjectNode *targetRoot,
     addCMakeVFolder(targetRoot,
                     buildDirectory,
                     100,
-                    QCoreApplication::translate("CMakeProjectManager::Internal::FileApi",
-                                                "<Build Directory>"),
+                    Tr::tr("<Build Directory>"),
                     std::move(buildFileNodes));
     addCMakeVFolder(targetRoot,
                     Utils::FilePath(),
                     10,
-                    QCoreApplication::translate("CMakeProjectManager::Internal::FileApi",
-                                                "<Other Locations>"),
+                    Tr::tr("<Other Locations>"),
                     std::move(otherFileNodes));
 }
 
@@ -730,11 +726,6 @@ void setupLocationInfoForTargets(CMakeProjectNode *rootNode, const QList<CMakeBu
     }
 }
 
-} // namespace
-
-namespace CMakeProjectManager {
-namespace Internal {
-
 using namespace FileApiDetails;
 
 // --------------------------------------------------------------------
@@ -777,5 +768,4 @@ FileApiQtcData extractData(FileApiData &input,
     return result;
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

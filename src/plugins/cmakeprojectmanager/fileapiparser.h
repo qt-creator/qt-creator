@@ -21,8 +21,7 @@
 
 #include <vector>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 namespace FileApiDetails {
 
@@ -218,7 +217,6 @@ public:
 
 class FileApiParser
 {
-    Q_DECLARE_TR_FUNCTIONS(FileApiParser)
 public:
     static FileApiData parseData(QFutureInterface<std::shared_ptr<FileApiQtcData>> &fi,
                                  const Utils::FilePath &replyFilePath,
@@ -233,5 +231,4 @@ public:
     static Utils::FilePath scanForCMakeReplyFile(const Utils::FilePath &buildDirectory);
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

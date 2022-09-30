@@ -1084,7 +1084,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>チェックアウト</translation>
@@ -1110,9 +1110,6 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>ハイジャックファイルを使う(&amp;H)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -1194,9 +1191,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Do &amp;not prompt for comment during checkout or check-in</source>
         <translation>チェックアウトまたはチェックイン時にコメントを確認しない(&amp;N)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -1209,9 +1203,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&apos;.keep&apos; 拡張子を付けてコピーを保存する(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>チェックアウトバージョンの確認</translation>
@@ -4872,7 +4863,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -4977,9 +4968,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>アイコンファイル (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -5020,9 +5008,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Plugin Details</source>
         <translation>プラグインの詳細</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>カスタム Qt ウィジェットウィザード</translation>
@@ -5047,9 +5032,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Custom Widgets</source>
         <translation>カスタムウィジェット</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library:</source>
         <translation>ライブラリ:</translation>
@@ -5126,9 +5108,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Library type:</source>
         <translation>ライブラリタイプ:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make arguments:</source>
         <translation>Make の引数:</translation>
@@ -5137,9 +5116,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Override %1:</source>
         <translation>%1 の代わりに使用するコマンド:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Shadow build:</source>
         <translation>シャドウビルド:</translation>
@@ -5186,20 +5162,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <comment>%1 error message, %2 build directory</comment>
         <translation>%1 %2 のビルドは上書きされます。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
     <message>
         <source>qmake build configuration:</source>
         <translation>qmake ビルド設定:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>デバッグ</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>リリース</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -5220,13 +5185,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Use QML compiler:</source>
         <translation>QML コンパイラを使用する:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>ウィザードページ</translation>
     </message>
     <message>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
@@ -13122,7 +13080,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>アクティビティの選択 (&amp;A):</translation>
@@ -13135,9 +13093,6 @@ in the system&apos;s browser for manual download.</source>
         <source>Keep item activity</source>
         <translation>アイテムのアクティビティを保持</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>Check &amp;Out</source>
         <translation>チェックアウト(&amp;O)</translation>
@@ -13146,9 +13101,6 @@ in the system&apos;s browser for manual download.</source>
         <source>&amp;Hijack</source>
         <translation>ハイジャック(&amp;H)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation>派生オブジェクトの編集中: %1</translation>
@@ -13441,31 +13393,18 @@ in the system&apos;s browser for manual download.</source>
         <source>Enter activity headline</source>
         <translation>アクティビティ ヘッドラインに入る</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>ClearCase チェックイン</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>以前のバージョンが指定されている場合でもチェックインする(&amp;K)</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>ファイルの更新日時を保持する(&amp;P)</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>チェックイン(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>ClearCase コマンド</translation>
@@ -13478,13 +13417,9 @@ in the system&apos;s browser for manual download.</source>
         <source>DiffUtils is available for free download at http://gnuwin32.sourceforge.net/packages/diffutils.htm. Extract it to a directory in your PATH.</source>
         <translation>DiffUtils は http://gnuwin32.sourceforge.net/packages/diffutils.htm からフリーでダウンロードできます。PATH の通ったディレクトリに展開してください。</translation>
     </message>
-    <message>
-        <source>ClearCase</source>
-        <translation>ClearCase</translation>
-    </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -13510,16 +13445,10 @@ in the system&apos;s browser for manual download.</source>
         <source>Release with Debug Information</source>
         <translation>デバッグ情報付きリリース</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
     <message>
         <source>Build CMake target</source>
         <translation>CMake ターゲットをビルド</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
@@ -13672,9 +13601,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
         <translation>CMake の実行</translation>
@@ -13686,10 +13612,6 @@ To unset a variable, use -U&lt;variable&gt;.
     <message>
         <source>Rescan Project</source>
         <translation>プロジェクトを再スキャン</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
     </message>
     <message>
         <source>Build File</source>
@@ -13711,16 +13633,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>Run CMake kit</source>
         <translation>CMake キットの実行</translation>
@@ -26835,7 +26747,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -26843,7 +26755,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::Qt4Target</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -27407,14 +27319,11 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>ライブラリの追加</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>ライブラリの種類</translation>
@@ -27465,13 +27374,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Type</source>
         <translation>タイプ</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
-    <message>
-        <source>Details</source>
-        <translation>詳細</translation>
-    </message>
     <message>
         <source>Internal Library</source>
         <translation>内部ライブラリ</translation>
@@ -27504,9 +27406,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Specify the package to link to</source>
         <translation>リンクするパッケージの指定</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>概要</translation>
@@ -27515,9 +27414,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>以下のテンプレートが追加されます&lt;br&gt;ファイル &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;新しいクラス&gt;</translation>
@@ -27530,9 +27426,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Delete class %1 from list?</source>
         <translation>クラス %1 をリストから削除しますか？</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Qt カスタム Designer ウィジェット</translation>
@@ -27541,23 +27434,14 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Qt カスタム Designer ウィジェットかカスタムウィジェットコレクションを作成します。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation>このウィザードは Qt Designer カスタムウィジェットあるいは Qt Designer カスタムウィジェットコレクションプロジェクトを生成します。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>一つのプロジェクト(%3)で複数のウィジェットライブラリ(%1, %2)の作成はサポートしていません。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
         <translation>.pro ファイル &quot;%1&quot; を現在解析しています。</translation>
@@ -27566,9 +27450,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Qt Run Configuration</source>
         <translation>Qt 実行設定</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>実行ファイル:</translation>
@@ -27597,9 +27478,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation>LD_LIBRARY_PATH にビルドライブラリ検索パスを追加する</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>&quot;%1&quot; を開始できません</translation>
@@ -27608,9 +27486,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>アプリケーション &quot;%1&quot; が見つかりませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer が無応答です(%1)。</translation>
@@ -27618,13 +27493,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <message>
         <source>Unable to create server socket: %1</source>
         <translation>サーバーソケットが作成できません: %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
-        <translation>リンク方法:</translation>
     </message>
     <message>
         <source>%1 Dynamic</source>
@@ -27635,10 +27503,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>%1 スタティック</translation>
     </message>
     <message>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
-    </message>
-    <message>
         <source>%1 Framework</source>
         <translation>%1 フレームワーク</translation>
     </message>
@@ -27646,9 +27510,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>%1 Library</source>
         <translation>%1 ライブラリ</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>Qt MakeStep display name.</comment>
@@ -27657,13 +27518,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
         <translation>Makefile が見つかりません。ビルド設定を確認してください。</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>%1 の代わりに使用するコマンド:</translation>
     </message>
     <message>
         <source>Make:</source>
@@ -27681,31 +27535,9 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; 環境に %1 が見つかりません。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-    <message>
-        <source>This kit cannot build this project since it does not define a Qt version.</source>
-        <translation>このキットには Qt が定義されていないため、このプロジェクトをビルドできません。</translation>
-    </message>
-    <message>
-        <source>Error:</source>
-        <translation>エラー:</translation>
-    </message>
-    <message>
-        <source>Warning:</source>
-        <translation>警告:</translation>
     </message>
     <message>
         <source>The build directory contains a build for a different project, which will be overwritten.</source>
@@ -27741,30 +27573,9 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>mkspec が変更されました。</translation>
     </message>
     <message>
-        <source>Release</source>
-        <comment>Shadow build directory suffix</comment>
-        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
-        <translation>リリース</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <comment>Shadow build directory suffix</comment>
-        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
-        <translation>デバッグ</translation>
-    </message>
-    <message>
-        <source>Profile</source>
-        <comment>Shadow build directory suffix</comment>
-        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
-        <translation>プロファイル</translation>
-    </message>
-    <message>
         <source>Parsing the .pro file</source>
         <translation>.pro ファイルの解析中</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -27798,9 +27609,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Profile</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
     <message>
         <source>Qt mkspec:</source>
         <translation>Qt mkspec:</translation>
@@ -27809,9 +27617,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>qmake でこのプロジェクトをビルドするときに用いる mkspec です。&lt;br&gt;他のビルドシステムを使用する場合にはこの設定は無視されます。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Qt バージョンが設定されていないため、mkspec を無視します。</translation>
@@ -27827,13 +27632,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <message>
         <source>Mkspec configured for qmake by the Kit.</source>
         <translation>キットで設定されている qmake 用 Mkspec です。</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFileNode</name>
-    <message>
-        <source>Headers</source>
-        <translation>ヘッダー</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -27859,21 +27657,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Other files</source>
         <translation>その他のファイル</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません</translation>
     </message>
-    <message>
-        <source>QMake</source>
-        <translation>QMake
-</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
         <translation>プロジェクト &quot;%1&quot; の読込中</translation>
@@ -27906,17 +27693,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The .pro file &quot;%1&quot; could not be parsed.</source>
         <translation>.pro ファイル &quot;%1&quot; を解析できませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>デバッグ</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>リリース</translation>
-    </message>
     <message>
         <source>No Build Found</source>
         <translation>ビルドが見つかりません</translation>
@@ -27925,9 +27701,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>No build found in %1 matching project %2.</source>
         <translation>%1 にプロジェクト %2 のビルドが見つかりません。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Build</source>
         <translation>ビルド</translation>
@@ -28000,33 +27773,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>QMake</source>
         <translation>QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
         <translation>qmake</translation>
-    </message>
-    <message>
-        <source>qmake build configuration:</source>
-        <translation>qmake ビルド設定:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>デバッグ</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>リリース</translation>
-    </message>
-    <message>
-        <source>Additional arguments:</source>
-        <translation>追加の引数:</translation>
-    </message>
-    <message>
-        <source>Effective qmake call:</source>
-        <translation>実際の qmake コマンドライン:</translation>
     </message>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
@@ -28076,25 +27826,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
         <translation>このオプションはプロジェクトの再コンパイル時に有効になります。再コンパイルを行いますか？</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
-    <message>
-        <source>QML Debugging</source>
-        <translation>QML デバッグ</translation>
-    </message>
-    <message>
-        <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
-        <translation>このオプションはプロジェクトの再コンパイル時に有効になります。再コンパイルを行いますか？</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
-        <translation>&lt;b&gt;qmake:&lt;/b&gt; Qt が設定されていません。qmake を実行できませんでした。</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
-        <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
-    </message>
     <message>
         <source>Enable QML debugging and profiling:</source>
         <translation>QML デバッグとプロファイルを有効にする:</translation>
@@ -28112,13 +27843,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <message>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>QML デバッグを無効化します。QML プロファイラは利用可能です。</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
     </message>
 </context>
 <context>
@@ -28221,7 +27945,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Class Information</source>
         <translation>クラス情報</translation>
@@ -28230,13 +27954,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
         <translation>ソースコードのスケルトンファイルを生成したいクラスの基本的な情報を指定してください。</translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation>詳細</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Widgets Application</source>
         <translation>Qt ウィジェットアプリケーション</translation>
@@ -28249,16 +27966,10 @@ Preselects a desktop Qt for building the application if available.</source>
 
 デスクトップ用 Qt が存在する場合、アプリケーションのビルド用に選択します。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>このウィザードは Qt ウイジェットアプリケーションプロジェクトを生成します。アプリケーションは QApplication を使用し、空のウィジェットを持ちます。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>C++ ライブラリ</translation>
@@ -28267,9 +27978,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>qmake ベースの C++ ライブラリを作成します。以下のいずれかが作成できます。&lt;ul&gt;&lt;li&gt;&lt;tt&gt;QPluginLoader&lt;/tt&gt; から使用する C++ 共有ライブラリとランタイム(プラグイン)&lt;/li&gt;&lt;li&gt;他のプロジェクトからリンクして使用する C++ の共有あるいは静的ライブラリ&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation>共有ライブラリ</translation>
@@ -28283,20 +27991,9 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Qt プラグイン</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>種類</translation>
-    </message>
-    <message>
         <source>This wizard generates a C++ Library project.</source>
         <translation>このウィザードは C++ ライブラリプロジェクトを生成します。</translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation>詳細</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation>必要なモジュールの選択</translation>
@@ -28309,9 +28006,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Modules</source>
         <translation>モジュール</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>サブディレクトリプロジェクト</translation>
@@ -28333,9 +28027,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <comment>Title of dialog</comment>
         <translation>新しいサブプロジェクト</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizard</name>
     <message>
         <source>Qt Unit Test</source>
         <translation>Qt ユニットテスト</translation>
@@ -28344,9 +28035,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
         <translation>QTestLib ベースに機能あるいはクラス用ユニットテストを作成します。ユニットテストはコードが目的に沿ったものであるか、デグレードが無いかなどの検証を行うことができます。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Unit Test consisting of a single source file with a test class.</source>
         <translation>このウィザードはテストクラスを持つ単一ファイルで構成される Qt ユニットテストを生成します。</translation>
@@ -30680,7 +30368,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>ビルドディレクトリはソースディレクトリと同じ階層にある必要があります。</translation>
@@ -35235,7 +34923,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>このウィザードは Qt サブディレクトリプロジェクトを生成します。プロジェクト生成後に他のウィザードを用いてサブプロジェクトを追加してください。</translation>
@@ -39449,14 +39137,14 @@ clang の実行ファイルを設定してください。</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
+    <name>ClearCase</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>バージョン &quot;%1&quot; のアノテーション</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>The build directory is not for %1 but for %2</source>
         <translation>このビルドディレクトリは %2 向けで %1 向けではありません</translation>
@@ -39497,9 +39185,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>Failed to open %1 for reading.</source>
         <translation>読み込み用に %1 を開くのに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -39567,23 +39252,9 @@ clang の実行ファイルを設定してください。</translation>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>CMake ビルド</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>Qt Creator needs a CMake Tool set up to build. Configure a CMake Tool in the kit options.</source>
         <translation>ビルドする為には CMake ツールの設定が必要です。キットのオプションの CMake ツールを設定してください。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
-    <message>
-        <source>Tool arguments:</source>
-        <translation>ツールの引数:</translation>
-    </message>
-    <message>
-        <source>Targets:</source>
-        <translation>ターゲット:</translation>
     </message>
     <message>
         <source>Build</source>
@@ -39594,17 +39265,11 @@ clang の実行ファイルを設定してください。</translation>
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;このキットからビルド設定が見つかりません。&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepFactory</name>
     <message>
         <source>Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>ビルド</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
     <message>
         <source>CMake Tool:</source>
         <translation>CMake ツール:</translation>
@@ -39617,9 +39282,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;CMake ツールが見つかりません&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
     <message>
         <source>CMake Generator:</source>
         <translation>CMake ジェネレータ:</translation>
@@ -39632,9 +39294,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>CMake generator defines how a project is built when using CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>CMake ジェネレータは CMake 使用時のプロジェクトビルド方法を定義します。&lt;br&gt;他のビルドシステム使用時には無視されます。</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>変更...</translation>
@@ -39648,19 +39307,8 @@ clang の実行ファイルを設定してください。</translation>
         <translation>プロジェクト設定時に既定の設定が CMake に渡されます。</translation>
     </message>
     <message>
-        <source>Edit CMake Configuration</source>
-        <translation>CMake 設定の編集</translation>
-    </message>
-    <message>
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>一行に付き一つの変数をその名と値を &quot;=&quot; で繋ぐ形式で入力してください。&lt;br&gt;&quot;=&quot; の前に &quot;:TYPE&quot; 形式で型のヒントを指定できます。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -39670,9 +39318,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>Path to the cmake executable</source>
         <translation>cmake 実行ファイルへのパス</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>CMake ツールが設定されていないため、CMake ジェネレータは無視されます。</translation>
@@ -39689,13 +39334,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>CMake Generator</source>
         <translation>CMake ジェネレータ</translation>
     </message>
-    <message>
-        <source>&lt;Use Default Generator&gt;</source>
-        <translation>&lt;既定のジェネレータを使用&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation>キットに有効な Qt が存在するにもかかわらず、CMake の設定に qmake へのパスが見つかりません。</translation>
@@ -39721,13 +39359,6 @@ clang の実行ファイルを設定してください。</translation>
         <translation>CMake の設定で指定されている C++ コンパイラのパスがキットのツールチェインのパスとは異なります。</translation>
     </message>
     <message>
-        <source>CMake Configuration</source>
-        <translation>CMake 設定</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeProject</name>
-    <message>
         <source>No cmake tool set.</source>
         <translation>CMake ツールが見つかりません。</translation>
     </message>
@@ -39735,9 +39366,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>No compilers set in kit.</source>
         <translation>キットにコンパイラが設定されていません。</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source>yes</source>
         <translation>はい</translation>
@@ -39778,9 +39406,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>Help file:</source>
         <translation>ヘルプファイル:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>追加</translation>
@@ -39810,13 +39435,6 @@ clang の実行ファイルを設定してください。</translation>
         <translation>新しい CMake</translation>
     </message>
     <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
-    <message>
         <source>CMake at %1</source>
         <translation>CMake(パス: %1)</translation>
     </message>
@@ -39825,19 +39443,8 @@ clang の実行ファイルを設定してください。</translation>
         <translation>システムの CMake(パス: %1)</translation>
     </message>
     <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
-    <message>
         <source> (ADVANCED)</source>
         <translation> (拡張)</translation>
-    </message>
-    <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;未定義&gt;</translation>
     </message>
     <message>
         <source>Setting</source>
@@ -39846,10 +39453,6 @@ clang の実行ファイルを設定してください。</translation>
     <message>
         <source>Value</source>
         <translation>値</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>拡張</translation>
     </message>
 </context>
 <context>
@@ -44055,7 +43658,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QmakePriFileNode</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Failed</source>
         <translation>失敗</translation>
@@ -44068,9 +43671,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>File Error</source>
         <translation>ファイルエラー</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>ファイル %1 の解析中にエラーが発生しました。中断します。</translation>
@@ -45882,22 +45482,11 @@ Output:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>キットで設定された CMake 設定はプロジェクトで上書きされました。</translation>
     </message>
-    <message>
-        <source>Minimum Size Release</source>
-        <translation type="vanished">最小サイズリリース</translation>
-    </message>
-    <message>
-        <source>Release with Debug Information</source>
-        <translation type="vanished">デバッグ情報付きリリース</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
     <message>
         <source>CMake Editor</source>
         <translation>CMake エディタ</translation>
@@ -46063,14 +45652,11 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Files</source>
         <translation>ファイル</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>既存プロジェクトのインポート</translation>
@@ -46091,9 +45677,6 @@ Output:
         <source>File Selection</source>
         <translation>ファイル選択</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake Project (Limited Functionality)</source>
         <translation>qmake プロジェクトとしてインポート(機能限定版)</translation>
@@ -49967,278 +49550,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCasePluginPrivate</name>
-    <message>
-        <source>Editing Derived Object: %1</source>
-        <translation>派生オブジェクトの編集中: %1</translation>
-    </message>
-    <message>
-        <source>C&amp;learCase</source>
-        <translation>C&amp;learCase</translation>
-    </message>
-    <message>
-        <source>Check Out...</source>
-        <translation>チェックアウト...</translation>
-    </message>
-    <message>
-        <source>Check &amp;Out &quot;%1&quot;...</source>
-        <translation>&quot;%1&quot; をチェックアウト(&amp;O)...</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+O</source>
-        <translation>Meta+L,Meta+O</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+O</source>
-        <translation>Alt+L,Alt+O</translation>
-    </message>
-    <message>
-        <source>Check &amp;In...</source>
-        <translation>チェックイン(&amp;I)...</translation>
-    </message>
-    <message>
-        <source>Check &amp;In &quot;%1&quot;...</source>
-        <translation>&quot;%1&quot; をチェックイン(&amp;I)...</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+I</source>
-        <translation>Meta+L,Meta+I</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+I</source>
-        <translation>Alt+L,Alt+I</translation>
-    </message>
-    <message>
-        <source>Undo Check Out</source>
-        <translation>チェックアウトを元に戻す</translation>
-    </message>
-    <message>
-        <source>&amp;Undo Check Out &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のチェックアウトを元に戻す(&amp;U)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+U</source>
-        <translation>Meta+L,Meta+U</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+U</source>
-        <translation>Alt+L,Alt+U</translation>
-    </message>
-    <message>
-        <source>Undo Hijack</source>
-        <translation>ハイジャックを元に戻す</translation>
-    </message>
-    <message>
-        <source>Undo Hi&amp;jack &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のハイジャックを元に戻す(&amp;J)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+R</source>
-        <translation>Meta+L,Meta+R</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+R</source>
-        <translation>Alt+L,Alt+R</translation>
-    </message>
-    <message>
-        <source>&amp;Diff &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の差分表示(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+D</source>
-        <translation>Meta+L,Meta+D</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+D</source>
-        <translation>Alt+L,Alt+D</translation>
-    </message>
-    <message>
-        <source>History Current File</source>
-        <translation>現在のファイルの履歴</translation>
-    </message>
-    <message>
-        <source>&amp;History &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の履歴(&amp;H)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+H</source>
-        <translation>Meta+L,Meta+H</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+H</source>
-        <translation>Alt+L,Alt+H</translation>
-    </message>
-    <message>
-        <source>&amp;Annotate &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のアノテーション(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+A</source>
-        <translation>Meta+L,Meta+A</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+A</source>
-        <translation>Alt+L,Alt+A</translation>
-    </message>
-    <message>
-        <source>Add File...</source>
-        <translation>ファイルを追加...</translation>
-    </message>
-    <message>
-        <source>Add File &quot;%1&quot;</source>
-        <translation>ファイル &quot;%1&quot; を追加</translation>
-    </message>
-    <message>
-        <source>Diff A&amp;ctivity...</source>
-        <translation>アクティビティの差分表示(&amp;C)...</translation>
-    </message>
-    <message>
-        <source>Ch&amp;eck In Activity</source>
-        <translation>アクティビティをチェックイン(&amp;E)</translation>
-    </message>
-    <message>
-        <source>Chec&amp;k In Activity &quot;%1&quot;...</source>
-        <translation>アクティビティ &quot;%1&quot; をチェックイン(&amp;K)...</translation>
-    </message>
-    <message>
-        <source>Update Index</source>
-        <translation>インデックス更新</translation>
-    </message>
-    <message>
-        <source>Update View</source>
-        <translation>ビュー更新</translation>
-    </message>
-    <message>
-        <source>U&amp;pdate View &quot;%1&quot;</source>
-        <translation>ビュー &quot;%1&quot; 更新(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Check In All &amp;Files...</source>
-        <translation>すべてのファイルをチェックイン(&amp;F)...</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+F</source>
-        <translation>Meta+L,Meta+F</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+F</source>
-        <translation>Alt+L,Alt+F</translation>
-    </message>
-    <message>
-        <source>View &amp;Status</source>
-        <translation>ステータス更新(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+S</source>
-        <translation>Meta+L,Meta+S</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+S</source>
-        <translation>Alt+L,Alt+S</translation>
-    </message>
-    <message>
-        <source>Check In</source>
-        <translation>チェックイン</translation>
-    </message>
-    <message>
-        <source>Do you want to undo the check out of &quot;%1&quot;?</source>
-        <translation>&quot;%1&quot; のチェックアウトを元に戻しますか？</translation>
-    </message>
-    <message>
-        <source>Undo Hijack File</source>
-        <translation>ハイジャックファイルを元に戻す</translation>
-    </message>
-    <message>
-        <source>Do you want to undo hijack of &quot;%1&quot;?</source>
-        <translation>&quot;%1&quot; のハイジャックを元に戻しますか？</translation>
-    </message>
-    <message>
-        <source>External diff is required to compare multiple files.</source>
-        <translation>外部 diff ツールは、複数のファイルを比較できる必要があります。</translation>
-    </message>
-    <message>
-        <source>Enter Activity</source>
-        <translation>アクティビティに入る</translation>
-    </message>
-    <message>
-        <source>Activity Name</source>
-        <translation>アクティビティ名</translation>
-    </message>
-    <message>
-        <source>Check In Activity</source>
-        <translation>アクティビティをチェックイン</translation>
-    </message>
-    <message>
-        <source>Another check in is currently being executed.</source>
-        <translation>別のチェックインが実行中です。</translation>
-    </message>
-    <message>
-        <source>There are no modified files.</source>
-        <translation>変更されたファイルはありません。</translation>
-    </message>
-    <message>
-        <source>No ClearCase executable specified.</source>
-        <translation>実行可能な ClearCase が指定されていません。</translation>
-    </message>
-    <message>
-        <source>ClearCase Checkout</source>
-        <translation>ClearCase チェックアウト</translation>
-    </message>
-    <message>
-        <source>File is already checked out.</source>
-        <translation>ファイルは、既にチェックアウトされています。</translation>
-    </message>
-    <message>
-        <source>Set current activity failed: %1</source>
-        <translation>アクティビティ設定失敗: %1</translation>
-    </message>
-    <message>
-        <source>Enter &amp;comment:</source>
-        <translation>コメントを入力(&amp;C):</translation>
-    </message>
-    <message>
-        <source>ClearCase Add File %1</source>
-        <translation>ClearCase ファイル %1 を追加</translation>
-    </message>
-    <message>
-        <source>ClearCase Remove Element %1</source>
-        <translation>ClearCase 要素 %1 を削除</translation>
-    </message>
-    <message>
-        <source>This operation is irreversible. Are you sure?</source>
-        <translation>この操作は元に戻せませんが、よろしいですか？</translation>
-    </message>
-    <message>
-        <source>ClearCase Remove File %1</source>
-        <translation>ClearCase ファイル %1 を削除</translation>
-    </message>
-    <message>
-        <source>ClearCase Rename File %1 -&gt; %2</source>
-        <translation>ClearCase ファイル名変更 %1 -&gt; %2</translation>
-    </message>
-    <message>
-        <source>Activity Headline</source>
-        <translation>アクティビティ ヘッドライン</translation>
-    </message>
-    <message>
-        <source>Enter activity headline</source>
-        <translation>アクティビティ ヘッドラインに入る</translation>
-    </message>
-    <message>
-        <source>Updating ClearCase Index</source>
-        <translation>ClearCase インデックスの更新中</translation>
-    </message>
-    <message>
-        <source>Check &amp;Out</source>
-        <translation>チェックアウト(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;Hijack</source>
-        <translation>ハイジャック(&amp;H)</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changing Build Directory</source>
         <translation>ビルドディレクトリの変更</translation>
@@ -50256,157 +49568,12 @@ Output:
         <translation>プロビジョニングプロファイルの CMake フラグ</translation>
     </message>
     <message>
-        <source>Minimum Size Release</source>
-        <translation>最小サイズリリース</translation>
-    </message>
-    <message>
-        <source>Release with Debug Information</source>
-        <translation>デバッグ情報付きリリース</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigItem</name>
-    <message>
-        <source>Failed to open %1 for reading.</source>
-        <translation>読み込み用に %1 を開くのに失敗しました。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitAspect</name>
-    <message>
-        <source>&lt;No CMake Tool available&gt;</source>
-        <translation>&lt;CMake ツールが見つかりません&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitAspect</name>
-    <message>
-        <source>The CMake Tool to use when building a project with CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation>CMake ツールはプロジェクトを CMake でビルドする際に使用します。&lt;br&gt;他のビルドシステム使用時には無視されます。</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>未設定</translation>
-    </message>
-    <message>
-        <source>Path to the cmake executable</source>
-        <translation>cmake 実行ファイルへのパス</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitAspect</name>
-    <message>
-        <source>Change...</source>
-        <translation>変更...</translation>
-    </message>
-    <message>
-        <source>CMake Generator</source>
-        <translation>CMake ジェネレータ</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitAspect</name>
-    <message>
-        <source>CMake generator defines how a project is built when using CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation>CMake ジェネレータは CMake 使用時のプロジェクトビルド方法を定義します。&lt;br&gt;他のビルドシステム使用時には無視されます。</translation>
-    </message>
-    <message>
-        <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
-        <translation>CMake ツールが設定されていないため、CMake ジェネレータは無視されます。</translation>
-    </message>
-    <message>
-        <source>CMake Tool does not support the configured generator.</source>
-        <translation>CMake ツールがジェネレータに対応していません。</translation>
-    </message>
-    <message>
-        <source>&lt;Use Default Generator&gt;</source>
-        <translation>&lt;既定のジェネレータを使用&gt;</translation>
-    </message>
-    <message>
-        <source>CMake Generator</source>
-        <translation>CMake ジェネレータ</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitAspect</name>
-    <message>
-        <source>Change...</source>
-        <translation>変更...</translation>
-    </message>
-    <message>
-        <source>Edit CMake Configuration</source>
-        <translation>CMake 設定の編集</translation>
-    </message>
-    <message>
-        <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
-        <translation>一行に付き一つの変数をその名と値を &quot;=&quot; で繋ぐ形式で入力してください。&lt;br&gt;&quot;=&quot; の前に &quot;:TYPE&quot; 形式で型のヒントを指定できます。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitAspect</name>
-    <message>
-        <source>CMake Configuration</source>
-        <translation>CMake 設定</translation>
-    </message>
-    <message>
-        <source>Default configuration passed to CMake when setting up a project.</source>
-        <translation>プロジェクト設定時に既定の設定が CMake に渡されます。</translation>
-    </message>
-    <message>
-        <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
-        <translation>キットに有効な Qt が存在するにもかかわらず、CMake の設定に qmake へのパスが見つかりません。</translation>
-    </message>
-    <message>
-        <source>CMake configuration has a path to a qmake binary set, even though the kit has no valid Qt version.</source>
-        <translation>キットに有効な Qt が存在しないにもかかわらず、CMake の設定に qmake へのパスが存在します。</translation>
-    </message>
-    <message>
-        <source>CMake configuration has no path to a C++ compiler set, even though the kit has a valid tool chain.</source>
-        <translation>キットに有効なツールチェインが存在するにもかかわらず、CMake の設定に C++ コンパイラへのパスが見つかりません。</translation>
-    </message>
-    <message>
-        <source>CMake configuration has a path to a C++ compiler set, even though the kit has no valid tool chain.</source>
-        <translation>キットに有効なツールチェインが存在しないにもかかわらず、CMake の設定に C++ コンパイラへのパスが存在します。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::BuildCMakeTargetLocatorFilter</name>
-    <message>
-        <source>Build CMake target</source>
-        <translation>CMake ターゲットをビルド</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeProcess</name>
-    <message>
-        <source>Configuring &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の設定中</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
-    <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
-    </message>
-    <message>
         <source>Build &quot;%1&quot;</source>
         <translation>&quot;%1&quot; のビルド</translation>
     </message>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingWidget</name>
-    <message>
-        <source>CMake</source>
         <translation>CMake</translation>
     </message>
 </context>
@@ -53038,7 +52205,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::RunSystemAspect</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Run</source>
         <translation>実行</translation>
@@ -53047,95 +52214,9 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Ignore</source>
         <translation>無視</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitAspect</name>
-    <message>
-        <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation>qmake でこのプロジェクトをビルドするときに用いる mkspec です。&lt;br&gt;他のビルドシステムを使用する場合にはこの設定は無視されます。</translation>
-    </message>
-    <message>
-        <source>No Qt version set, so mkspec is ignored.</source>
-        <translation>Qt バージョンが設定されていないため、mkspec を無視します。</translation>
-    </message>
-    <message>
-        <source>Mkspec not found for Qt version.</source>
-        <translation>指定された mkspec が Qt にありません。</translation>
-    </message>
-    <message>
-        <source>mkspec</source>
-        <translation>mkspec</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeMakeStep</name>
-    <message>
-        <source>Cannot find Makefile. Check your build settings.</source>
-        <translation>Makefile が見つかりません。ビルド設定を確認してください。</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFile</name>
     <message>
         <source>Headers</source>
         <translation>ヘッダ</translation>
-    </message>
-    <message>
-        <source>Sources</source>
-        <translation>ソース</translation>
-    </message>
-    <message>
-        <source>Forms</source>
-        <translation>フォーム</translation>
-    </message>
-    <message>
-        <source>State charts</source>
-        <translation>状態遷移図</translation>
-    </message>
-    <message>
-        <source>Resources</source>
-        <translation>リソース</translation>
-    </message>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
-    </message>
-    <message>
-        <source>Other files</source>
-        <translation>その他のファイル</translation>
-    </message>
-</context>
-<context>
-    <name>QmakePriFile</name>
-    <message>
-        <source>Failed</source>
-        <translation>失敗</translation>
-    </message>
-    <message>
-        <source>Could not write project file %1.</source>
-        <translation>プロジェクトファイル %1 に書き込みできませんでした。</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>ファイルエラー</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProFile</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation>ファイル %1 の解析中にエラーが発生しました。中断します。</translation>
-    </message>
-    <message>
-        <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
-        <translation>&quot;%2&quot; に サブディレクトリ &quot;%1&quot; 用 .pro ファイルが見つかりませんでした。</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildSystem</name>
-    <message>
-        <source>Reading Project &quot;%1&quot;</source>
-        <translation>プロジェクト &quot;%1&quot; の読込中</translation>
     </message>
 </context>
 <context>

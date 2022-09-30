@@ -5,6 +5,8 @@
 #include "customwidgetwidgetswizardpage.h"
 #include "customwidgetpluginwizardpage.h"
 #include "pluginoptions.h"
+#include "../qmakeprojectmanagertr.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -26,8 +28,8 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const Core::BaseFileWizardFac
     setWindowIcon(icon);
     setWindowTitle(templateName);
 
-    setIntroDescription(tr("This wizard generates a Qt Designer Custom Widget "
-                           "or a Qt Designer Custom Widget Collection project."));
+    setIntroDescription(Tr::tr("This wizard generates a Qt Designer Custom Widget "
+                               "or a Qt Designer Custom Widget Collection project."));
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();

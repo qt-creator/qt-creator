@@ -11,8 +11,7 @@ class CommandLine;
 class StringAspect;
 } // Utils
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class CMakeBuildStep;
 
@@ -123,5 +122,4 @@ public:
     CMakeBuildStepFactory();
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

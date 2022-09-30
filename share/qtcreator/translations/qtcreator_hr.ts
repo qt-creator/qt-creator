@@ -1926,7 +1926,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Odjava</translation>
@@ -1952,9 +1952,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>Koristi &amp;otetu datoteku</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -2036,9 +2033,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>ClearCase</source>
         <translation>ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -2051,9 +2045,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Spremi kopiju datoteke s nastavkom &apos;.keep&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Potvrdi verziju u odjavi</translation>
@@ -2085,7 +2076,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingForm</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
         <translation>Određuje, da li se staze datoteke kopiraju u međuspremnik za lijepljenje u datoteku CMakeLists.txt, kad dodaješ nove datoteke CMake projektima.</translation>
@@ -6274,7 +6265,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The header file</source>
         <translation>Datoteka zaglavlja</translation>
@@ -6375,9 +6366,6 @@ Greška: %5</translation>
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Datoteke ikona (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Stranice čarobnjaka</translation>
@@ -6418,9 +6406,6 @@ Greška: %5</translation>
         <source>Plugin Details</source>
         <translation>Detalji o priključku</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Prilagođeni čarobnjak za QT programčiće</translation>
@@ -6445,9 +6430,6 @@ Greška: %5</translation>
         <source>Custom Widgets</source>
         <translation>Prilagođeni programčići</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library file:</source>
         <translation>Datoteka biblioteke:</translation>
@@ -6524,9 +6506,6 @@ Greška: %5</translation>
         <source>Remove &quot;d&quot; suffix for release version</source>
         <translation>Ukloni nastavak &quot;d&quot; iz verzije za objavljivanje</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Shadow build:</source>
         <translation>Prikaži gradnju:</translation>
@@ -6573,20 +6552,9 @@ Greška: %5</translation>
         <comment>%1 error message, %2 build directory</comment>
         <translation>%1 Gradnja %2 će se prepisati.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
     <message>
         <source>qmake build configuration:</source>
         <translation>Konfiguracija qmake gradnje:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Uklanjanje grešaka</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Objavljivanje</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -17402,7 +17370,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Odaberi &amp;aktivnost:</translation>
@@ -17415,9 +17383,6 @@ Izlaz:
         <source>Keep item activity</source>
         <translation>Zadrži aktivnost stavke</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>Check &amp;Out</source>
         <translation type="unfinished"></translation>
@@ -17426,16 +17391,10 @@ Izlaz:
         <source>&amp;Hijack</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Pribilježi verziju &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation type="unfinished"></translation>
@@ -17704,31 +17663,18 @@ Izlaz:
         <source>Updating ClearCase Index</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Preserve file modification time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Check In</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation type="unfinished"></translation>
@@ -17743,7 +17689,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Failed to create build directory &quot;%1&quot;.</source>
         <translation>Neupjelo stvaranje direktorija za gradnju &quot;%1&quot;.</translation>
@@ -17788,16 +17734,10 @@ Izlaz:
         <source>Apply Changes to Project</source>
         <translation>Primijeni promjene u CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
     <message>
         <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>CMake konfiguracija postavljena od kompleta je prepisana u ovom projektu.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -17822,13 +17762,6 @@ Izlaz:
     <message>
         <source>Release with Debug Information</source>
         <translation>Izdaj s podacima o ispravkama</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -17922,9 +17855,6 @@ Izlaz:
         <source>Force to %1</source>
         <translation>Prisili na %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>CMake Build</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -17955,9 +17885,6 @@ Izlaz:
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>Gradnja</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>The build configuration is currently disabled.</source>
         <translation>Konfiguracija za gradnju je trenutačno onemogućena.</translation>
@@ -17979,7 +17906,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <comment>CMakeProjectManager::CMakeBuildStepConfigWidget display name.</comment>
@@ -17997,16 +17924,10 @@ Izlaz:
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;U ovom kompletu nije nađena konfiguracija gradnje.&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigItem</name>
     <message>
         <source>Failed to open %1 for reading.</source>
         <translation>Neuspjelo otvaranje od %1 za čitanje.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
     <message>
         <source>CMake Tool</source>
         <translation>CMake alat</translation>
@@ -18019,9 +17940,6 @@ Izlaz:
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Nema dostupnog CMake alata&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Promijeni …</translation>
@@ -18062,13 +17980,6 @@ Izlaz:
         <source>Toolset:</source>
         <translation>Skup alata:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
-    <message>
-        <source>Change...</source>
-        <translation>Promijeni …</translation>
-    </message>
     <message>
         <source>CMake Configuration</source>
         <translation>CMake konfiguracija</translation>
@@ -18085,16 +17996,9 @@ Izlaz:
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>Upiši jednu varijablu po retku, a naziv varijable odvoji od vrijednosti varijable s &quot;=&quot;. &lt;br&gt; Možeš navesti vrstu savjeta dodavanjem &quot;: TYPE&quot; prije &quot;=&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
     <message>
         <source>CMake version %1 is unsupported. Please update to version 3.0 or later.</source>
         <translation>CMake verzija %1 nije podržana. Aktualiziraj na verziju 3.0 ili noviju.</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -18104,9 +18008,6 @@ Izlaz:
         <source>Path to the cmake executable</source>
         <translation>Staza do izvršne cmake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>CMake alat nije konfiguriran, zanemarit će se CMake generator.</translation>
@@ -18143,13 +18044,6 @@ Izlaz:
         <source>Toolset: %1</source>
         <translation>Skup alata: %1</translation>
     </message>
-    <message>
-        <source>CMake Generator</source>
-        <translation>CMake generator</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation type="unfinished"></translation>
@@ -18191,19 +18085,9 @@ Izlaz:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>CMake Configuration</source>
-        <translation>CMake konfiguracija</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
-    <message>
         <source>Build CMake target</source>
         <translation>Odredište za CMake gradnju</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeProject</name>
     <message>
         <source>No cmake tool set.</source>
         <translation>Nijedan cmake alat nije postavljen.</translation>
@@ -18216,16 +18100,10 @@ Izlaz:
         <source>Scan &quot;%1&quot; project tree</source>
         <translation>Pretraži &quot;%1&quot; stablo projekta</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
     <message>
         <source>CMake Editor</source>
         <translation>CMake uređivač</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
         <translation>Pokreni CMake</translation>
@@ -18275,30 +18153,20 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
         <translation>CMake</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Izgradi</translation>
-    </message>
-    <message>
         <source>Build &quot;%1&quot;</source>
         <translation>Izgradi &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>The project no longer builds the target associated with this run configuration.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source> (Default)</source>
         <translation> (Zadano)</translation>
@@ -18343,9 +18211,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Path:</source>
         <translation>Staza:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -18374,23 +18239,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>New CMake</source>
         <translation>Novi CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
     <message>
         <source>CMake at %1</source>
         <translation>CMake pri %1</translation>
@@ -18398,17 +18246,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     <message>
         <source>System CMake at %1</source>
         <translation>CMake sustava pri %1</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
-    <message>
-        <source>Key</source>
-        <translation>Ključ</translation>
     </message>
     <message>
         <source>Value</source>
@@ -18423,13 +18260,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <translation>Trenutačni komplet: %1</translation>
     </message>
     <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;NEPOSTAVLJENO&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager</name>
-    <message>
         <source>Current CMake: %1</source>
         <translation>Trenutačni CMake: %1</translation>
     </message>
@@ -18441,9 +18271,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Value requested by kit: %1</source>
         <translation>Komplet zahtijeva vrijednost: %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModelItemDelegate</name>
     <message>
         <source>Select a file for %1</source>
         <translation>Odaberi datoteku za %1</translation>
@@ -18452,9 +18279,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Select a directory for %1</source>
         <translation>Odaberi direktorij za %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerMode</name>
     <message>
         <source>Running &quot;%1 %2&quot; in %3.</source>
         <translation>Pokretanje &quot;%1 %2&quot; u %3.</translation>
@@ -18539,9 +18363,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Received a signal in reply to a request.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerModeReader</name>
     <message>
         <source>Parsing of CMake project failed: Connection to CMake server lost.</source>
         <translation>Obrada CMake projekta neuspjela: Veza sa CMake poslužiteljem izgubljena.</translation>
@@ -18598,20 +18419,9 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>&lt;Headers&gt;</source>
         <translation>&lt;Zaglavlja&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::TeaLeafReader</name>
     <message>
         <source>The build directory is not for %1 but for %2</source>
         <translation>Direktorij gradnje nije za %1, već za %2</translation>
-    </message>
-    <message>
-        <source>Running &quot;%1 %2&quot; in %3.</source>
-        <translation>Pokretanje &quot;%1 %2&quot; u %3.</translation>
-    </message>
-    <message>
-        <source>Configuring &quot;%1&quot;</source>
-        <translation>Konfiguriranje &quot;%1&quot;</translation>
     </message>
     <message>
         <source>*** cmake process crashed.</source>
@@ -33080,14 +32890,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation type="unfinished"></translation>
@@ -33135,9 +32942,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Type</source>
         <translation>Vrsta</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>Details</source>
         <translation type="unfinished">Detalji</translation>
@@ -33174,9 +32978,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Specify the package to link to</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation type="unfinished"></translation>
@@ -33185,9 +32986,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation type="unfinished"></translation>
@@ -33200,9 +32998,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Delete class %1 from list?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation type="unfinished"></translation>
@@ -33211,30 +33006,18 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
     <message>
         <source>Qt Run Configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -33243,22 +33026,12 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33270,10 +33043,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mac:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1 Framework</source>
         <translation type="unfinished"></translation>
     </message>
@@ -33281,9 +33050,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>%1 Library</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Could not parse Makefile.</source>
         <translation type="unfinished"></translation>
@@ -33308,9 +33074,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Parsing the .pro file</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation type="unfinished"></translation>
@@ -33330,7 +33093,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -33364,9 +33127,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
     <message>
         <source>Qt mkspec</source>
         <translation type="unfinished"></translation>
@@ -33375,9 +33135,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation type="unfinished"></translation>
@@ -33394,16 +33151,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Mkspec configured for qmake by the Kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeMakeStep</name>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFile</name>
     <message>
         <source>Headers</source>
         <translation type="unfinished"></translation>
@@ -33432,9 +33183,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Other files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakePriFile</name>
     <message>
         <source>Failed</source>
         <translation type="unfinished"></translation>
@@ -33447,9 +33195,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>File Error</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFile</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation type="unfinished"></translation>
@@ -33458,9 +33203,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -33477,35 +33219,15 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>No C++ compiler set in kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>&quot;%1&quot; is used by qmake, but &quot;%2&quot; is configured in the kit.
 Please update your kit (%3) or choose a mkspec for qmake that matches your target environment better.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>Ispravi greške</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Objavi</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>QMake</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Build</source>
         <translation type="unfinished"></translation>
@@ -33566,9 +33288,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Add Library...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -33594,9 +33313,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>&lt;no Make step found&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation type="unfinished"></translation>
@@ -33734,7 +33450,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Class Information</source>
         <translation type="unfinished"></translation>
@@ -33743,13 +33459,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation type="unfinished">Detalji</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Widgets Application</source>
         <translation type="unfinished"></translation>
@@ -33760,16 +33469,10 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
 Preselects a desktop Qt for building the application if available.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation type="unfinished"></translation>
@@ -33778,9 +33481,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation type="unfinished"></translation>
@@ -33794,20 +33494,9 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Vrsta</translation>
-    </message>
-    <message>
         <source>This wizard generates a C++ Library project.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation type="unfinished">Detalji</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation type="unfinished"></translation>
@@ -33820,16 +33509,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Modules</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
     <message>
         <source>Files</source>
         <translation type="unfinished">Datoteke</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation type="unfinished"></translation>
@@ -33850,9 +33533,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>File Selection</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake Project (Limited Functionality)</source>
         <translation type="unfinished"></translation>
@@ -33861,9 +33541,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Imports existing projects that do not use qmake, CMake or Autotools.&lt;p&gt;This creates a qmake .pro file that allows you to use %1 as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated .pro file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation type="unfinished"></translation>
@@ -33885,9 +33562,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <comment>Title of dialog</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation type="unfinished"></translation>

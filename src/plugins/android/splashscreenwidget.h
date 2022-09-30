@@ -15,8 +15,7 @@ class QColor;
 class QImage;
 QT_END_NAMESPACE
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class SplashScreenWidget : public QWidget
 {
@@ -73,5 +72,4 @@ private:
     bool m_showImageFullScreen = false;
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

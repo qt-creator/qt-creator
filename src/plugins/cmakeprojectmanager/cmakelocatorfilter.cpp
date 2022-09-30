@@ -6,8 +6,10 @@
 #include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakeproject.h"
+#include "cmakeprojectmanagertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/session.h>
@@ -15,10 +17,10 @@
 
 #include <utils/algorithm.h>
 
-using namespace CMakeProjectManager;
-using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace CMakeProjectManager::Internal {
 
 // --------------------------------------------------------------------
 // CMakeTargetLocatorFilter:
@@ -93,8 +95,8 @@ void CMakeTargetLocatorFilter::projectListUpdated()
 BuildCMakeTargetLocatorFilter::BuildCMakeTargetLocatorFilter()
 {
     setId("Build CMake target");
-    setDisplayName(tr("Build CMake target"));
-    setDescription(tr("Builds a target of any open CMake project."));
+    setDisplayName(Tr::tr("Build CMake target"));
+    setDescription(Tr::tr("Builds a target of any open CMake project."));
     setDefaultShortcutString("cm");
     setPriority(High);
 }
@@ -143,8 +145,8 @@ void BuildCMakeTargetLocatorFilter::accept(const Core::LocatorFilterEntry &selec
 OpenCMakeTargetLocatorFilter::OpenCMakeTargetLocatorFilter()
 {
     setId("Open CMake target definition");
-    setDisplayName(tr("Open CMake target"));
-    setDescription(tr("Jumps to the definition of a target of any open CMake project."));
+    setDisplayName(Tr::tr("Open CMake target"));
+    setDescription(Tr::tr("Jumps to the definition of a target of any open CMake project."));
     setDefaultShortcutString("cmo");
     setPriority(Medium);
 }
@@ -169,3 +171,5 @@ void OpenCMakeTargetLocatorFilter::accept(const Core::LocatorFilterEntry &select
     else
         Core::EditorManager::openEditor(file, {}, Core::EditorManager::AllowExternalEditor);
 }
+
+} // CMakeProjectManager::Internal

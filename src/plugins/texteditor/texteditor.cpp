@@ -492,7 +492,6 @@ public:
     TextEditorWidgetPrivate(TextEditorWidget *parent);
     ~TextEditorWidgetPrivate() override;
 
-    void setupDocumentSignals();
     void updateLineSelectionColor();
 
     void print(QPrinter *printer);
@@ -503,7 +502,7 @@ public:
     void collectToCircularClipboard();
     void setClipboardSelection();
 
-    void ctor(const QSharedPointer<TextDocument> &doc);
+    void setDocument(const QSharedPointer<TextDocument> &doc);
     void handleHomeKey(bool anchor, bool block);
     void handleBackspaceKey();
     void moveLineUpDown(bool up);
@@ -588,6 +587,7 @@ public:
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
     void updateTabStops();
+    void applyTabSettings();
     void applyFontSettingsDelayed();
     void markRemoved(TextMark *mark);
 
@@ -652,15 +652,12 @@ public:
     bool m_lastCursorChangeWasInteresting = false;
 
     QSharedPointer<TextDocument> m_document;
+    QList<QMetaObject::Connection> m_documentConnections;
     QByteArray m_tempState;
     QByteArray m_tempNavigationState;
 
     bool m_parenthesesMatchingEnabled = false;
-
-    // parentheses matcher
-    bool m_formatRange = false;
     QTimer m_parenthesesMatchingTimer;
-    // end parentheses matcher
 
     QWidget *m_extraArea = nullptr;
 
@@ -891,19 +888,23 @@ void TextEditorWidgetFind::cancelCurrentSelectAll()
 }
 
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
-  : q(parent),
-    m_marksVisible(false),
-    m_codeFoldingVisible(false),
-    m_codeFoldingSupported(false),
-    m_revisionsVisible(false),
-    m_lineNumbersVisible(true),
-    m_highlightCurrentLine(true),
-    m_requestMarkEnabled(true),
-    m_lineSeparatorsAllowed(false),
-    m_maybeFakeTooltipEvent(false),
-    m_hoverHandlerRunner(parent, m_hoverHandlers),
-    m_clipboardAssistProvider(new ClipboardAssistProvider),
-    m_autoCompleter(new AutoCompleter)
+    : q(parent)
+    , m_marksVisible(false)
+    , m_codeFoldingVisible(false)
+    , m_codeFoldingSupported(false)
+    , m_revisionsVisible(false)
+    , m_lineNumbersVisible(true)
+    , m_highlightCurrentLine(true)
+    , m_requestMarkEnabled(true)
+    , m_lineSeparatorsAllowed(false)
+    , m_maybeFakeTooltipEvent(false)
+    , m_hoverHandlerRunner(parent, m_hoverHandlers)
+    , m_clipboardAssistProvider(new ClipboardAssistProvider)
+    , m_autoCompleter(new AutoCompleter)
+    , m_overlay(new TextEditorOverlay(q))
+    , m_snippetOverlay(new SnippetOverlay(q))
+    , m_searchResultOverlay(new TextEditorOverlay(q))
+    , m_refactorOverlay(new RefactorOverlay(q))
 {
     auto aggregate = new Aggregation::Aggregate;
     m_find = new TextEditorWidgetFind(q);
@@ -947,6 +948,68 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingLabel);
 
     m_extraSelections.reserve(NExtraSelectionKinds);
+
+    connect(&m_codeAssistant, &CodeAssistant::finished,
+            q, &TextEditorWidget::assistFinished);
+
+    connect(q, &QPlainTextEdit::blockCountChanged,
+            this, &TextEditorWidgetPrivate::slotUpdateExtraAreaWidth);
+
+    connect(q, &QPlainTextEdit::modificationChanged,
+            m_extraArea, QOverload<>::of(&QWidget::update));
+
+    connect(q, &QPlainTextEdit::cursorPositionChanged,
+            q, &TextEditorWidget::slotCursorPositionChanged);
+
+    connect(q, &QPlainTextEdit::cursorPositionChanged,
+            this, &TextEditorWidgetPrivate::updateCursorPosition);
+
+    connect(q, &QPlainTextEdit::updateRequest,
+            this, &TextEditorWidgetPrivate::slotUpdateRequest);
+
+    connect(q, &QPlainTextEdit::selectionChanged,
+            this, &TextEditorWidgetPrivate::slotSelectionChanged);
+
+    m_parenthesesMatchingTimer.setSingleShot(true);
+    m_parenthesesMatchingTimer.setInterval(50);
+    connect(&m_parenthesesMatchingTimer, &QTimer::timeout,
+            this, &TextEditorWidgetPrivate::_q_matchParentheses);
+
+    m_highlightBlocksTimer.setSingleShot(true);
+    connect(&m_highlightBlocksTimer, &QTimer::timeout,
+            this, &TextEditorWidgetPrivate::_q_highlightBlocks);
+
+    m_scrollBarUpdateTimer.setSingleShot(true);
+    connect(&m_scrollBarUpdateTimer, &QTimer::timeout,
+            this, &TextEditorWidgetPrivate::highlightSearchResultsInScrollBar);
+
+    m_delayedUpdateTimer.setSingleShot(true);
+    connect(&m_delayedUpdateTimer, &QTimer::timeout,
+            q->viewport(), QOverload<>::of(&QWidget::update));
+
+    connect(m_fileEncodingLabel, &FixedSizeClickLabel::clicked,
+            q, &TextEditorWidget::selectEncoding);
+
+    connect(m_fileLineEnding, &QComboBox::currentIndexChanged,
+            q, &TextEditorWidget::selectLineEnding);
+
+    TextEditorSettings *settings = TextEditorSettings::instance();
+
+    // Connect to settings change signals
+    connect(settings, &TextEditorSettings::typingSettingsChanged,
+            q, &TextEditorWidget::setTypingSettings);
+    connect(settings, &TextEditorSettings::storageSettingsChanged,
+            q, &TextEditorWidget::setStorageSettings);
+    connect(settings, &TextEditorSettings::behaviorSettingsChanged,
+            q, &TextEditorWidget::setBehaviorSettings);
+    connect(settings, &TextEditorSettings::marginSettingsChanged,
+            q, &TextEditorWidget::setMarginSettings);
+    connect(settings, &TextEditorSettings::displaySettingsChanged,
+            q, &TextEditorWidget::setDisplaySettings);
+    connect(settings, &TextEditorSettings::completionSettingsChanged,
+            q, &TextEditorWidget::setCompletionSettings);
+    connect(settings, &TextEditorSettings::extraEncodingSettingsChanged,
+            q, &TextEditorWidget::setExtraEncodingSettings);
 }
 
 TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
@@ -1089,11 +1152,16 @@ TextEditorWidget::TextEditorWidget(QWidget *parent)
     // passed to this object's event() which uses 'd'.
     d = nullptr;
     d = new TextEditorWidgetPrivate(this);
+
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setLayoutDirection(Qt::LeftToRight);
+    viewport()->setMouseTracking(true);
+    setFrameStyle(QFrame::NoFrame);
 }
 
 void TextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
 {
-    d->ctor(doc);
+    d->setDocument(doc);
 }
 
 void TextEditorWidgetPrivate::setupScrollBar()
@@ -1111,33 +1179,140 @@ void TextEditorWidgetPrivate::setupScrollBar()
     }
 }
 
-void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
+void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &doc)
 {
-    q->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    QSharedPointer<TextDocument> previousDocument = m_document;
+    for (const QMetaObject::Connection &connection : m_documentConnections)
+        disconnect(connection);
+    m_documentConnections.clear();
 
-    m_overlay = new TextEditorOverlay(q);
-    m_snippetOverlay = new SnippetOverlay(q);
-    m_searchResultOverlay = new TextEditorOverlay(q);
-    m_refactorOverlay = new RefactorOverlay(q);
+    m_document = doc;
+    q->QPlainTextEdit::setDocument(doc->document());
+    previousDocument.clear();
+    q->setCursorWidth(2); // Applies to the document layout
 
-    {
-        // QPlainTextEdit keeps pointer to the old QTextDocumentLayout,
-        // and QPlainTextEdit::setDocument() disconnects unconditionally from the old layout.
-        // Since the old layout it being deleted together with the old text document when
-        // dropping the shared pointer reference, QPlainTextEdit::setDocument() will crash.
-        // We prolong the lifetime of the old document and its layout by keeping the
-        // shared pointer still for a while.
-        QSharedPointer<TextDocument> lifetimeProlonger = m_document;
-        m_document = doc;
-        setupDocumentSignals();
-    }
+    auto documentLayout = qobject_cast<TextDocumentLayout *>(
+        m_document->document()->documentLayout());
+    QTC_CHECK(documentLayout);
+
+    m_documentConnections << connect(documentLayout,
+                                     &QPlainTextDocumentLayout::updateBlock,
+                                     this,
+                                     &TextEditorWidgetPrivate::slotUpdateBlockNotify);
+
+    m_documentConnections << connect(documentLayout,
+                                     &TextDocumentLayout::updateExtraArea,
+                                     m_extraArea,
+                                     QOverload<>::of(&QWidget::update));
+
+    m_documentConnections << connect(q,
+                                     &TextEditorWidget::requestBlockUpdate,
+                                     documentLayout,
+                                     &QPlainTextDocumentLayout::updateBlock);
+
+    m_documentConnections << connect(documentLayout,
+                                     &TextDocumentLayout::updateExtraArea,
+                                     this,
+                                     &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
+
+    m_documentConnections << connect(documentLayout,
+                                     &TextDocumentLayout::parenthesesChanged,
+                                     &m_parenthesesMatchingTimer,
+                                     QOverload<>::of(&QTimer::start));
+
+    m_documentConnections << connect(documentLayout,
+                                     &QAbstractTextDocumentLayout::documentSizeChanged,
+                                     this,
+                                     &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
+
+    m_documentConnections << connect(documentLayout,
+                                     &QAbstractTextDocumentLayout::update,
+                                     this,
+                                     &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
+
+    m_documentConnections << connect(m_document->document(),
+                                     &QTextDocument::contentsChange,
+                                     this,
+                                     &TextEditorWidgetPrivate::editorContentsChange);
+
+    m_documentConnections << connect(m_document->document(),
+                                     &QTextDocument::modificationChanged,
+                                     q,
+                                     &TextEditorWidget::updateTextCodecLabel);
+
+    m_documentConnections << connect(m_document->document(),
+                                     &QTextDocument::modificationChanged,
+                                     q,
+                                     &TextEditorWidget::updateTextLineEndingLabel);
+
+    m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::aboutToReload,
+                                     this,
+                                     &TextEditorWidgetPrivate::documentAboutToBeReloaded);
+
+    m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::reloadFinished,
+                                     this,
+                                     &TextEditorWidgetPrivate::documentReloadFinished);
+
+    m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::tabSettingsChanged,
+                                     this,
+                                     &TextEditorWidgetPrivate::applyTabSettings);
+
+    m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::fontSettingsChanged,
+                                     this,
+                                     &TextEditorWidgetPrivate::applyFontSettingsDelayed);
+
+    m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::markRemoved,
+                                     this,
+                                     &TextEditorWidgetPrivate::markRemoved);
+
+    m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::aboutToOpen,
+                                     q,
+                                     &TextEditorWidget::aboutToOpen);
+
+    m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::openFinishedSuccessfully,
+                                     q,
+                                     &TextEditorWidget::openFinishedSuccessfully);
+
+    m_documentConnections << connect(TextEditorSettings::instance(),
+                                     &TextEditorSettings::fontSettingsChanged,
+                                     m_document.data(),
+                                     &TextDocument::setFontSettings);
+
+    slotUpdateExtraAreaWidth();
+
+    // Apply current settings
+    // the document might already have the same settings as we set here in which case we do not
+    // get an update, so we have to trigger updates manually here
+    const FontSettings fontSettings = TextEditorSettings::fontSettings();
+    if (m_document->fontSettings() == fontSettings)
+        applyFontSettingsDelayed();
+    else
+        m_document->setFontSettings(fontSettings);
+    const TabSettings tabSettings = TextEditorSettings::codeStyle()->tabSettings();
+    if (m_document->tabSettings() == tabSettings)
+        applyTabSettings();
+    else
+        m_document->setTabSettings(tabSettings); // also set through code style ???
+
+    q->setTypingSettings(TextEditorSettings::typingSettings());
+    q->setStorageSettings(TextEditorSettings::storageSettings());
+    q->setBehaviorSettings(TextEditorSettings::behaviorSettings());
+    q->setMarginSettings(TextEditorSettings::marginSettings());
+    q->setDisplaySettings(TextEditorSettings::displaySettings());
+    q->setCompletionSettings(TextEditorSettings::completionSettings());
+    q->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
+    q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
 
     m_blockCount = doc->document()->blockCount();
 
     // from RESEARCH
-
-    q->setLayoutDirection(Qt::LeftToRight);
-    q->viewport()->setMouseTracking(true);
 
     extraAreaSelectionAnchorBlockNumber = -1;
     extraAreaToggleMarkBlockNumber = -1;
@@ -1145,71 +1320,19 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     visibleFoldedBlockNumber = -1;
     suggestedVisibleFoldedBlockNumber = -1;
 
-    QObject::connect(&m_codeAssistant, &CodeAssistant::finished,
-                     q, &TextEditorWidget::assistFinished);
-
-    QObject::connect(q, &QPlainTextEdit::blockCountChanged,
-                     this, &TextEditorWidgetPrivate::slotUpdateExtraAreaWidth);
-
-    QObject::connect(q, &QPlainTextEdit::modificationChanged,
-                     m_extraArea, QOverload<>::of(&QWidget::update));
-
-    QObject::connect(q, &QPlainTextEdit::cursorPositionChanged,
-                     q, &TextEditorWidget::slotCursorPositionChanged);
-
-    QObject::connect(q, &QPlainTextEdit::cursorPositionChanged,
-                     this, &TextEditorWidgetPrivate::updateCursorPosition);
-
-    QObject::connect(q, &QPlainTextEdit::updateRequest,
-                     this, &TextEditorWidgetPrivate::slotUpdateRequest);
-
-    QObject::connect(q, &QPlainTextEdit::selectionChanged,
-                     this, &TextEditorWidgetPrivate::slotSelectionChanged);
-
-    // parentheses matcher
-    m_formatRange = true;
-    m_parenthesesMatchingTimer.setSingleShot(true);
-    m_parenthesesMatchingTimer.setInterval(50);
-    QObject::connect(&m_parenthesesMatchingTimer, &QTimer::timeout,
-                     this, &TextEditorWidgetPrivate::_q_matchParentheses);
-
-    m_highlightBlocksTimer.setSingleShot(true);
-    QObject::connect(&m_highlightBlocksTimer, &QTimer::timeout,
-                     this, &TextEditorWidgetPrivate::_q_highlightBlocks);
-
-    m_scrollBarUpdateTimer.setSingleShot(true);
-    QObject::connect(&m_scrollBarUpdateTimer, &QTimer::timeout,
-                     this, &TextEditorWidgetPrivate::highlightSearchResultsInScrollBar);
-
-    m_bracketsAnimator = nullptr;
-    m_autocompleteAnimator = nullptr;
+    if (m_bracketsAnimator)
+        m_bracketsAnimator->finish();
+    if (m_autocompleteAnimator)
+        m_autocompleteAnimator->finish();
 
     slotUpdateExtraAreaWidth();
     updateHighlights();
-    q->setFrameStyle(QFrame::NoFrame);
-
-    m_delayedUpdateTimer.setSingleShot(true);
-    QObject::connect(&m_delayedUpdateTimer, &QTimer::timeout,
-                     q->viewport(), QOverload<>::of(&QWidget::update));
 
     m_moveLineUndoHack = false;
 
     updateCannotDecodeInfo();
 
-    QObject::connect(m_document.data(), &TextDocument::aboutToOpen,
-                     q, &TextEditorWidget::aboutToOpen);
-    QObject::connect(m_document.data(), &TextDocument::openFinishedSuccessfully,
-                     q, &TextEditorWidget::openFinishedSuccessfully);
-    connect(m_fileEncodingLabel, &FixedSizeClickLabel::clicked,
-            q, &TextEditorWidget::selectEncoding);
-    connect(m_document->document(), &QTextDocument::modificationChanged,
-            q, &TextEditorWidget::updateTextCodecLabel);
     q->updateTextCodecLabel();
-
-    connect(m_fileLineEnding, &QComboBox::currentIndexChanged,
-            q, &TextEditorWidget::selectLineEnding);
-    connect(m_document->document(), &QTextDocument::modificationChanged,
-            q, &TextEditorWidget::updateTextLineEndingLabel);
     q->updateTextLineEndingLabel();
     setupFromDefinition(currentDefinition());
 }
@@ -3445,91 +3568,6 @@ AutoCompleter *TextEditorWidget::autoCompleter() const
 // TextEditorWidgetPrivate
 //
 
-void TextEditorWidgetPrivate::setupDocumentSignals()
-{
-    QTextDocument *doc = m_document->document();
-    q->QPlainTextEdit::setDocument(doc);
-    q->setCursorWidth(2); // Applies to the document layout
-
-    auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
-    QTC_CHECK(documentLayout);
-
-    QObject::connect(documentLayout, &QPlainTextDocumentLayout::updateBlock,
-                     this, &TextEditorWidgetPrivate::slotUpdateBlockNotify);
-
-    QObject::connect(documentLayout, &TextDocumentLayout::updateExtraArea,
-                     m_extraArea, QOverload<>::of(&QWidget::update));
-
-    QObject::connect(q, &TextEditorWidget::requestBlockUpdate,
-                     documentLayout, &QPlainTextDocumentLayout::updateBlock);
-
-    QObject::connect(documentLayout, &TextDocumentLayout::updateExtraArea,
-                     this, &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
-
-    QObject::connect(documentLayout, &TextDocumentLayout::parenthesesChanged,
-                     &m_parenthesesMatchingTimer, QOverload<>::of(&QTimer::start));
-
-    QObject::connect(documentLayout, &QAbstractTextDocumentLayout::documentSizeChanged,
-                     this, &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
-
-    QObject::connect(documentLayout, &QAbstractTextDocumentLayout::update,
-                     this, &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
-
-    QObject::connect(doc, &QTextDocument::contentsChange,
-                     this, &TextEditorWidgetPrivate::editorContentsChange);
-
-    QObject::connect(m_document.data(), &TextDocument::aboutToReload,
-                     this, &TextEditorWidgetPrivate::documentAboutToBeReloaded);
-
-    QObject::connect(m_document.data(), &TextDocument::reloadFinished,
-                     this, &TextEditorWidgetPrivate::documentReloadFinished);
-
-    QObject::connect(m_document.data(), &TextDocument::tabSettingsChanged, this, [this] {
-        updateTabStops();
-        m_autoCompleter->setTabSettings(m_document->tabSettings());
-    });
-
-    QObject::connect(m_document.data(), &TextDocument::fontSettingsChanged,
-                     this, &TextEditorWidgetPrivate::applyFontSettingsDelayed);
-
-    QObject::connect(m_document.data(), &TextDocument::markRemoved,
-                     this, &TextEditorWidgetPrivate::markRemoved);
-
-    slotUpdateExtraAreaWidth();
-
-    TextEditorSettings *settings = TextEditorSettings::instance();
-
-    // Connect to settings change signals
-    connect(settings, &TextEditorSettings::fontSettingsChanged,
-            m_document.data(), &TextDocument::setFontSettings);
-    connect(settings, &TextEditorSettings::typingSettingsChanged,
-            q, &TextEditorWidget::setTypingSettings);
-    connect(settings, &TextEditorSettings::storageSettingsChanged,
-            q, &TextEditorWidget::setStorageSettings);
-    connect(settings, &TextEditorSettings::behaviorSettingsChanged,
-            q, &TextEditorWidget::setBehaviorSettings);
-    connect(settings, &TextEditorSettings::marginSettingsChanged,
-            q, &TextEditorWidget::setMarginSettings);
-    connect(settings, &TextEditorSettings::displaySettingsChanged,
-            q, &TextEditorWidget::setDisplaySettings);
-    connect(settings, &TextEditorSettings::completionSettingsChanged,
-            q, &TextEditorWidget::setCompletionSettings);
-    connect(settings, &TextEditorSettings::extraEncodingSettingsChanged,
-            q, &TextEditorWidget::setExtraEncodingSettings);
-
-    // Apply current settings
-    m_document->setFontSettings(TextEditorSettings::fontSettings());
-    m_document->setTabSettings(TextEditorSettings::codeStyle()->tabSettings()); // also set through code style ???
-    q->setTypingSettings(TextEditorSettings::typingSettings());
-    q->setStorageSettings(TextEditorSettings::storageSettings());
-    q->setBehaviorSettings(TextEditorSettings::behaviorSettings());
-    q->setMarginSettings(TextEditorSettings::marginSettings());
-    q->setDisplaySettings(TextEditorSettings::displaySettings());
-    q->setCompletionSettings(TextEditorSettings::completionSettings());
-    q->setExtraEncodingSettings(TextEditorSettings::extraEncodingSettings());
-    q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
-}
-
 bool TextEditorWidgetPrivate::snippetCheckCursor(const QTextCursor &cursor)
 {
     if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
@@ -4520,7 +4558,6 @@ void TextEditorWidgetPrivate::paintCursor(const PaintEventData &data, QPainter &
 void TextEditorWidgetPrivate::setupBlockLayout(const PaintEventData &data,
                                                QPainter &painter,
                                                PaintEventBlockData &blockData) const
-
 {
     blockData.layout = data.block.layout();
 
@@ -7378,6 +7415,11 @@ void TextEditorWidget::applyFontSettings()
     if (font != this->font()) {
         setFont(font);
         d->updateTabStops(); // update tab stops, they depend on the font
+    } else if (font != document()->defaultFont()) {
+        // When the editor already have the correct font configured it wont generate a font change
+        // signal. In turn the default font of the document wont get updated so we need to do that
+        // manually here
+        document()->setDefaultFont(font);
     }
 
     // Line numbers
@@ -8278,6 +8320,12 @@ void TextEditorWidgetPrivate::updateTabStops()
     QTextOption option = q->document()->defaultTextOption();
     option.setTabStopDistance(charWidth * m_document->tabSettings().m_tabSize);
     q->document()->setDefaultTextOption(option);
+}
+
+void TextEditorWidgetPrivate::applyTabSettings()
+{
+    updateTabStops();
+    m_autoCompleter->setTabSettings(m_document->tabSettings());
 }
 
 int TextEditorWidget::columnCount() const

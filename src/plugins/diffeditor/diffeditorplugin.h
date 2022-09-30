@@ -8,6 +8,11 @@
 #include <coreplugin/diffservice.h>
 #include <extensionsystem/iplugin.h>
 
+QT_BEGIN_NAMESPACE
+template <typename T>
+class QFuture;
+QT_END_NAMESPACE
+
 namespace DiffEditor {
 namespace Internal {
 
@@ -29,9 +34,14 @@ class DiffEditorPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
 
 public:
-    ~DiffEditorPlugin() final;
+    DiffEditorPlugin();
+    ~DiffEditorPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
+
+    template <typename T>
+    static void addFuture(const QFuture<T> &future) { addFuture(QFuture<void>(future)); }
+    static void addFuture(const QFuture<void> &future);
 
 private:
     class DiffEditorPluginPrivate *d = nullptr;

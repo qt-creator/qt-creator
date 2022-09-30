@@ -6,6 +6,7 @@
 #include <nodeinstanceglobal.h>
 
 #include <QByteArray>
+#include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QColorDialog)
 

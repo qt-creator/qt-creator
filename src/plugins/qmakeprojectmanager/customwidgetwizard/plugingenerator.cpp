@@ -3,6 +3,7 @@
 
 #include "plugingenerator.h"
 #include "pluginoptions.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <coreplugin/generatedfile.h>
 #include <cppeditor/abstracteditorsupport.h>
@@ -157,7 +158,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
                 widgetProjectContents.insert(wo.widgetProjectFile, pc);
             } else {
                 if (pc.library != wo.widgetLibrary) {
-                    *errorMessage = tr("Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.")
+                    *errorMessage = Tr::tr("Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.")
                         .arg(pc.library, wo.widgetLibrary, wo.widgetProjectFile);
                     return QList<Core::GeneratedFile>();
                 }

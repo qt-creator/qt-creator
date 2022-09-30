@@ -377,13 +377,12 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
 //FIXME: loadDefaultValues() has an almost identical loop. Make the loop return the results instead of
 //internal processing and create a separate function for it. Then process the results in
 //loadDefaultValues() and loadDefaultValues()
-QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
+void JsonWizardFactory::createWizardFactories()
 {
     QString errorMessage;
     QString verboseLog;
     const QString wizardFileName = QLatin1String(WIZARD_FILE);
 
-    QList <Core::IWizardFactory *> result;
     const Utils::FilePaths paths = searchPaths();
     for (const Utils::FilePath &path : paths) {
         if (path.isEmpty())
@@ -449,13 +448,10 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                     continue;
                 }
 
-                JsonWizardFactory *factory = createWizardFactory(data, currentDir, &errorMessage);
-                if (!factory) {
-                    verboseLog.append(tr("* Failed to create: %1\n").arg(errorMessage));
-                    continue;
-                }
-
-                result << factory;
+                IWizardFactory::registerFactoryCreator([data, currentDir] {
+                    QString errorMessage;
+                    return createWizardFactory(data, currentDir, &errorMessage);
+                });
             } else {
                 FilePaths subDirs = currentDir.dirEntries(filter, sortflags);
                 if (!subDirs.isEmpty()) {
@@ -474,7 +470,6 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
         Core::MessageManager::writeDisrupting(verboseLog);
     }
 
-    return result;
 }
 
 JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &data,
@@ -485,6 +480,7 @@ JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &dat
     if (!factory->initialize(data, baseDir, errorMessage)) {
         delete factory;
         factory = nullptr;
+        Core::MessageManager::writeDisrupting(*errorMessage);
     }
     return factory;
 }

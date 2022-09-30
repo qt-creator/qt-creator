@@ -5,6 +5,7 @@
 
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagertr.h"
 
 #include <android/androidconstants.h>
 
@@ -731,10 +732,8 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
-                                     QCoreApplication::translate("QmakePriFile", "Failed"),
-                                     QCoreApplication::translate("QmakePriFile",
-                                                                 "Could not write project file %1.")
-                                         .arg(file));
+                                     Tr::tr("Failed"),
+                                     Tr::tr("Could not write project file %1.").arg(file));
                 return false;
             }
         }
@@ -922,8 +921,7 @@ void QmakePriFile::save(const QStringList &lines)
         FileChangeBlocker changeGuard(filePath());
         QString errorMsg;
         if (!m_textFormat.writeFile(filePath(), lines.join('\n'), &errorMsg)) {
-            QMessageBox::critical(Core::ICore::dialogParent(), QCoreApplication::translate(
-                                      "QmakePriFile", "File Error"), errorMsg);
+            QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("File Error"), errorMsg);
         }
     }
 
@@ -940,8 +938,7 @@ void QmakePriFile::save(const QStringList &lines)
             errorStrings << errorString;
     }
     if (!errorStrings.isEmpty())
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             QCoreApplication::translate("QmakePriFile", "File Error"),
+        QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("File Error"),
                              errorStrings.join(QLatin1Char('\n')));
 }
 
@@ -1661,11 +1658,8 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
         setParseInProgressRecursive(false);
 
         if (result->state == QmakeEvalResult::EvalFail) {
-            QmakeBuildSystem::proFileParseError(
-                QCoreApplication::translate("QmakeProFile",
-                                            "Error while parsing file %1. Giving up.")
-                    .arg(filePath().toUserOutput()),
-                filePath());
+            QmakeBuildSystem::proFileParseError(Tr::tr("Error while parsing file %1. Giving up.")
+                                                .arg(filePath().toUserOutput()), filePath());
             if (m_projectType == ProjectType::Invalid)
                 return;
 
@@ -1929,7 +1923,7 @@ FilePaths QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
             }
         } else {
             if (errors)
-                errors->append(QCoreApplication::translate("QmakeProFile", "Could not find .pro file for subdirectory \"%1\" in \"%2\".")
+                errors->append(Tr::tr("Could not find .pro file for subdirectory \"%1\" in \"%2\".")
                                .arg(subDirVar).arg(realDir));
         }
     }

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "diffenums.h"
+
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 #include <utils/guard.h>
@@ -38,8 +40,7 @@ public:
     QWidget *toolBar() override;
     TextEditor::TextEditorWidget *descriptionWidget() const;
     TextEditor::TextEditorWidget *unifiedEditorWidget() const;
-    TextEditor::TextEditorWidget *leftEditorWidget() const;
-    TextEditor::TextEditorWidget *rightEditorWidget() const;
+    TextEditor::TextEditorWidget *sideEditorWidget(DiffSide side) const;
 
 private:
     DiffEditor();

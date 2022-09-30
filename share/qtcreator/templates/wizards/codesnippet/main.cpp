@@ -1,1 +1,1 @@
-%CODE%
+%{CodeSnippet}

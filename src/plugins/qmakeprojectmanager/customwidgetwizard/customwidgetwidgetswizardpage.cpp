@@ -4,6 +4,7 @@
 #include "customwidgetwidgetswizardpage.h"
 #include "classdefinition.h"
 #include "classlist.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/utilsicons.h>
@@ -23,7 +24,7 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
     m_tabStackLayout(new QStackedLayout),
     m_complete(false)
 {
-    auto classListLabel = new QLabel(tr("Widget &Classes:"));
+    auto classListLabel = new QLabel(Tr::tr("Widget &Classes:"));
     auto addButton = new QToolButton;
     addButton->setIcon(Utils::Icons::PLUS.icon());
     m_deleteButton = new QToolButton;
@@ -40,7 +41,7 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
 
     using namespace Utils::Layouting;
     Column {
-        tr("Specify the list of custom widgets and their properties."),
+        Tr::tr("Specify the list of custom widgets and their properties."),
         Space(10),
         Row {
             Column {
@@ -62,7 +63,7 @@ CustomWidgetWidgetsWizardPage::CustomWidgetWidgetsWizardPage(QWidget *parent) :
     connect(m_classList, &ClassList::classRenamed,
             this, &CustomWidgetWidgetsWizardPage::slotClassRenamed);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Custom Widgets"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Custom Widgets"));
 }
 
 bool CustomWidgetWidgetsWizardPage::isComplete() const

@@ -9,36 +9,192 @@
 #include "clangtoolsutils.h"
 #include "executableinfo.h"
 
-#include "ui_clazychecks.h"
-#include "ui_tidychecks.h"
-
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
+
 #include <projectexplorer/selectablefilesmodel.h>
 #include <projectexplorer/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
+#include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <QApplication>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDesktopServices>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QHBoxLayout>
+#include <QGroupBox>
+#include <QHeaderView>
+#include <QLabel>
+#include <QListView>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
+#include <QStackedWidget>
 #include <QStringListModel>
+#include <QTreeView>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QUuid>
-#include <QVBoxLayout>
+
 
 using namespace CppEditor;
+using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
+
+QString removeClangTidyCheck(const QString &checks, const QString &check);
+QString removeClazyCheck(const QString &checks, const QString &check);
+
+class TidyChecksWidget : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::TidyChecks)
+
+public:
+    QComboBox *tidyMode;
+    QPushButton *plainTextEditButton;
+    FancyLineEdit *filterLineEdit;
+    QTreeView *checksPrefixesTree;
+
+    QStackedWidget *stackedWidget;
+
+    TidyChecksWidget()
+    {
+        tidyMode = new QComboBox;
+        tidyMode->addItem(tr("Select Checks"));
+        tidyMode->addItem(tr("Use .clang-tidy config file"));
+
+        plainTextEditButton = new QPushButton(tr("Edit Checks as String..."));
+
+        filterLineEdit = new FancyLineEdit;
+
+        auto checksPage = new QWidget;
+        checksPrefixesTree = new QTreeView;
+        checksPrefixesTree->header()->setVisible(false);
+        checksPrefixesTree->setMinimumHeight(380);
+
+        auto invalidExecutableLabel = new InfoLabel;
+        invalidExecutableLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
+        invalidExecutableLabel->setType(InfoLabel::Warning);
+        invalidExecutableLabel->setElideMode(Qt::ElideNone);
+        invalidExecutableLabel->setText(tr("Could not query the supported checks from the "
+            "clang-tidy executable.\nSet a valid executable first."));
+
+        auto invalidExecutablePage = new QWidget;
+
+        stackedWidget = new QStackedWidget;
+        stackedWidget->addWidget(checksPage);
+        stackedWidget->addWidget(new QWidget);
+        stackedWidget->addWidget(invalidExecutablePage);
+
+        using namespace Layouting;
+
+        Column {
+            checksPrefixesTree
+        }.attachTo(checksPage, WithoutMargins);
+
+        Column {
+            invalidExecutableLabel,
+            st,
+        }.attachTo(invalidExecutablePage, WithoutMargins);
+
+        Column {
+            Row { tidyMode, plainTextEditButton, filterLineEdit },
+            stackedWidget,
+        }.attachTo(this);
+    }
+};
+
+class ClazyChecksWidget : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::ClazyChecks)
+
+public:
+    QStackedWidget *stackedWidget;
+    FancyLineEdit *filterLineEdit;
+    QPushButton *topicsResetButton;
+    QListView *topicsView;
+    QGroupBox *checksGroupBox;
+    QCheckBox *enableLowerLevelsCheckBox;
+    QTreeView *checksView;
+
+    ClazyChecksWidget()
+    {
+        auto checksPage = new QWidget;
+
+        auto label = new QLabel;
+        label->setOpenExternalLinks(true);
+        label->setText(tr("See <a href=\"https://github.com/KDE/clazy\">"
+                          "Clazy's homepage</a> for more information."));
+
+        auto groupBox = new QGroupBox(tr("Filters"));
+        QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        sp.setHorizontalStretch(1);
+        groupBox->setSizePolicy(sp);
+
+        filterLineEdit = new FancyLineEdit;
+
+        topicsResetButton = new QPushButton(tr("Reset Topic Filter"));
+        topicsView = new QListView;
+
+        checksGroupBox = new QGroupBox(tr("Checks"));
+        sp.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+        sp.setHorizontalStretch(100);
+        checksGroupBox->setSizePolicy(sp);
+
+        enableLowerLevelsCheckBox = new QCheckBox(tr("Enable lower levels automatically"));
+        enableLowerLevelsCheckBox->setToolTip(tr("When enabling a level explicitly, "
+            "also enable lower levels (Clazy semantic)."));
+
+        checksView = new QTreeView;
+
+        auto invalidExecutablePage = new QWidget;
+
+        auto invalidExecutableLabel = new InfoLabel;
+        invalidExecutableLabel->setType(InfoLabel::Warning);
+        invalidExecutableLabel->setElideMode(Qt::ElideNone);
+        invalidExecutableLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
+        invalidExecutableLabel->setText(tr("Could not query the supported checks from the "
+            "clazy-standalone executable.\nSet a valid executable first."));
+
+        stackedWidget = new QStackedWidget;
+        stackedWidget->addWidget(checksPage);
+        stackedWidget->addWidget(invalidExecutablePage);
+
+        using namespace Layouting;
+
+        Column {
+            filterLineEdit,
+            topicsResetButton,
+            topicsView
+        }.attachTo(groupBox);
+
+        Column {
+            label,
+            Row { groupBox, checksGroupBox }
+        }.attachTo(checksPage, WithoutMargins);
+
+        Column {
+            invalidExecutableLabel,
+            st
+        }.attachTo(invalidExecutablePage, WithoutMargins);
+
+        Column {
+            enableLowerLevelsCheckBox,
+            checksView,
+        }.attachTo(checksGroupBox);
+
+        Column {
+            stackedWidget
+        }.attachTo(this);
+    }
+};
 
 class TidyOptionsDialog : public QDialog
 {
@@ -49,9 +205,7 @@ public:
     {
         setWindowTitle(tr("Options for %1").arg(check));
         resize(600, 300);
-        const auto mainLayout = new QVBoxLayout(this);
-        const auto widgetLayout = new QHBoxLayout;
-        mainLayout->addLayout(widgetLayout);
+
         m_optionsWidget.setColumnCount(2);
         m_optionsWidget.setHeaderLabels({tr("Option"), tr("Value")});
         const auto addItem = [this](const QString &option, const QString &value) {
@@ -62,33 +216,42 @@ public:
         for (auto it = options.begin(); it != options.end(); ++it)
             addItem(it.key(), it.value());
         m_optionsWidget.resizeColumnToContents(0);
-        widgetLayout->addWidget(&m_optionsWidget);
-        const auto buttonLayout = new QVBoxLayout;
-        widgetLayout->addLayout(buttonLayout);
+
         const auto addButton = new QPushButton(tr("Add Option"));
+        const auto removeButton = new QPushButton(tr("Remove Option"));
+        const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                                    | QDialogButtonBox::Cancel);
+
+        using namespace Layouting;
+        Column {
+            Row {
+                &m_optionsWidget,
+                Column {
+                    addButton,
+                    removeButton,
+                    st
+                }
+            },
+            buttonBox
+        }.attachTo(this);
+
         connect(addButton, &QPushButton::clicked, this, [this, addItem] {
             const auto item = addItem(tr("<new option>"), {});
             m_optionsWidget.editItem(item);
         });
-        buttonLayout->addWidget(addButton);
-        const auto removeButton = new QPushButton(tr("Remove Option"));
         connect(removeButton, &QPushButton::clicked, this, [this] {
             qDeleteAll(m_optionsWidget.selectedItems());
         });
+
         const auto toggleRemoveButtonEnabled = [this, removeButton] {
             removeButton->setEnabled(!m_optionsWidget.selectionModel()->selectedRows().isEmpty());
         };
         connect(&m_optionsWidget, &QTreeWidget::itemSelectionChanged,
                 this, [toggleRemoveButtonEnabled] { toggleRemoveButtonEnabled(); });
         toggleRemoveButtonEnabled();
-        buttonLayout->addWidget(removeButton);
-        buttonLayout->addStretch(1);
 
-        const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                                    | QDialogButtonBox::Cancel);
         connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-        mainLayout->addWidget(buttonBox);
     }
 
     ClangDiagnosticConfig::TidyCheckOptions options() const
@@ -802,18 +965,13 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     , m_clazyTreeModel(new ClazyChecksTreeModel(clazyInfo.supportedChecks))
     , m_clazyInfo(clazyInfo)
 {
-    m_clazyChecks = std::make_unique<Ui::ClazyChecks>();
-    m_clazyChecksWidget = new QWidget();
-    m_clazyChecks->setupUi(m_clazyChecksWidget);
-    m_clazyChecks->invalidExecutableLabel->setType(Utils::InfoLabel::Warning);
-    m_clazyChecks->invalidExecutableLabel->setElideMode(Qt::ElideNone);
+    m_clazyChecks = new ClazyChecksWidget;
     m_clazySortFilterProxyModel = new ClazyChecksSortFilterModel(this);
     m_clazySortFilterProxyModel->setSourceModel(m_clazyTreeModel.get());
     m_clazySortFilterProxyModel->setRecursiveFilteringEnabled(true);
     m_clazySortFilterProxyModel->setAutoAcceptChildRows(true);
     setupTreeView(m_clazyChecks->checksView, m_clazySortFilterProxyModel, 2);
     m_clazyChecks->filterLineEdit->setFiltering(true);
-    m_clazyChecks->filterLineEdit->setPlaceholderText(tr("Filter by name"));
     connect(m_clazyChecks->filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             m_clazySortFilterProxyModel,
             qOverload<const QString &>(&QSortFilterProxyModel::setFilterRegularExpression));
@@ -846,25 +1004,19 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     connect(m_clazyChecks->enableLowerLevelsCheckBox, &QCheckBox::stateChanged, [this](int) {
         const bool enable = m_clazyChecks->enableLowerLevelsCheckBox->isChecked();
         m_clazyTreeModel->setEnableLowerLevels(enable);
-        codeModelSettings()->setEnableLowerClazyLevels(
-            m_clazyChecks->enableLowerLevelsCheckBox->isChecked());
+        codeModelSettings()->setEnableLowerClazyLevels(enable);
     });
     const Qt::CheckState checkEnableLowerClazyLevels
         = codeModelSettings()->enableLowerClazyLevels() ? Qt::Checked : Qt::Unchecked;
     m_clazyChecks->enableLowerLevelsCheckBox->setCheckState(checkEnableLowerClazyLevels);
 
-    m_tidyChecks = std::make_unique<Ui::TidyChecks>();
-    m_tidyChecksWidget = new QWidget();
-    m_tidyChecks->setupUi(m_tidyChecksWidget);
-    m_tidyChecks->invalidExecutableLabel->setType(Utils::InfoLabel::Warning);
-    m_tidyChecks->invalidExecutableLabel->setElideMode(Qt::ElideNone);
+    m_tidyChecks = new TidyChecksWidget;
     const auto tidyFilterModel = new QSortFilterProxyModel(this);
     tidyFilterModel->setRecursiveFilteringEnabled(true);
     tidyFilterModel->setAutoAcceptChildRows(true);
     tidyFilterModel->setSourceModel(m_tidyTreeModel.get());
     setupTreeView(m_tidyChecks->checksPrefixesTree, tidyFilterModel);
     m_tidyChecks->filterLineEdit->setFiltering(true);
-    m_tidyChecks->filterLineEdit->setPlaceholderText(tr("Filter by name"));
     connect(m_tidyChecks->filterLineEdit, &Utils::FancyLineEdit::filterChanged, tidyFilterModel,
             qOverload<const QString &>(&QSortFilterProxyModel::setFilterRegularExpression));
 
@@ -900,18 +1052,23 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
 
         QDialog dialog;
         dialog.setWindowTitle(tr("Checks"));
-        dialog.setLayout(new QVBoxLayout);
-        auto *textEdit = new QTextEdit(&dialog);
+
+        const QString initialChecks = m_tidyTreeModel->selectedChecks();
+
+        auto textEdit = new QTextEdit(&dialog);
         textEdit->setReadOnly(readOnly);
-        dialog.layout()->addWidget(textEdit);
-        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok
+        textEdit->setPlainText(initialChecks);
+
+        auto buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok
                                                 | (readOnly ? QDialogButtonBox::NoButton
                                                             : QDialogButtonBox::Cancel));
-        dialog.layout()->addWidget(buttonsBox);
-        QObject::connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-        QObject::connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-        const QString initialChecks = m_tidyTreeModel->selectedChecks();
-        textEdit->setPlainText(initialChecks);
+
+        using namespace Layouting;
+
+        Column {
+            textEdit,
+            buttonsBox
+        }.attachTo(&dialog);
 
         QObject::connect(&dialog, &QDialog::accepted, [=, &initialChecks]() {
             const QString updatedChecks = textEdit->toPlainText();
@@ -926,17 +1083,25 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
 
             connectClangTidyItemChanged();
         });
+
+        QObject::connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        QObject::connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
         dialog.exec();
     });
 
     connectClangTidyItemChanged();
     connectClazyItemChanged();
 
-    tabWidget()->addTab(m_tidyChecksWidget, tr("Clang-Tidy Checks"));
-    tabWidget()->addTab(m_clazyChecksWidget, tr("Clazy Checks"));
+    tabWidget()->addTab(m_tidyChecks, tr("Clang-Tidy Checks"));
+    tabWidget()->addTab(m_clazyChecks, tr("Clazy Checks"));
 }
 
-DiagnosticConfigsWidget::~DiagnosticConfigsWidget() = default;
+DiagnosticConfigsWidget::~DiagnosticConfigsWidget()
+{
+    delete m_tidyChecks;
+    delete m_clazyChecks;
+}
 
 void DiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticConfig &config)
 {
@@ -1192,7 +1357,6 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
     settings->writeSettings();
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal
 
 #include "diagnosticconfigswidget.moc"

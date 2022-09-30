@@ -9,8 +9,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QClipboard>
+#include <QFile>
 #include <QGuiApplication>
 #include <QScrollBar>
 #include <QTimer>
@@ -24,15 +26,55 @@ using namespace Help::Internal;
 
 const int kMaxHistoryItems = 20;
 
-static QByteArray getData(const QUrl &url)
+static void setLight(QWidget *widget)
 {
-    // TODO: this is just a hack for Qt documentation
+    QPalette p = widget->palette();
+    p.setColor(QPalette::Base, Qt::white);
+    p.setColor(QPalette::Text, Qt::black);
+    widget->setPalette(p);
+}
+
+static void setPaletteFromTheme(QWidget *widget)
+{
+    if (Utils::creatorTheme())
+        widget->setPalette(Utils::creatorTheme()->palette());
+}
+
+static bool isDarkTheme()
+{
+    return Utils::creatorTheme() && Utils::creatorTheme()->flag(Utils::Theme::DarkUserInterface);
+}
+
+static QByteArray getData(const QUrl &url, QWidget *widget)
+{
+    // This is a hack for Qt documentation,
     // which decides to use a simpler CSS if the viewer does not have JavaScript
-    // which was a hack to decide if we are viewing in QTextBrowser or QtWebEngine et al
+    // which was a hack to decide if we are viewing in QTextBrowser or QtWebEngine et al.
+    // Force it to use the "normal" offline CSS even without JavaScript, since litehtml can
+    // handle that, and inject a dark themed CSS into Qt documentation for dark Qt Creator themes
     QUrl actualUrl = url;
     QString path = url.path(QUrl::FullyEncoded);
     static const char simpleCss[] = "/offline-simple.css";
     if (path.endsWith(simpleCss)) {
+        if (isDarkTheme()) {
+            // check if dark CSS is shipped with documentation
+            QString darkPath = path;
+            darkPath.replace(simpleCss, "/offline-dark.css");
+            actualUrl.setPath(darkPath);
+            LocalHelpManager::HelpData data = LocalHelpManager::helpData(actualUrl);
+            if (!data.resolvedUrl.isValid() || data.data.isEmpty()) {
+                // fallback
+                QFile css(":/help/offline-dark.css");
+                if (css.open(QIODevice::ReadOnly))
+                    data.data = css.readAll();
+            }
+            if (!data.data.isEmpty()) {
+                // we found the dark style
+                // set background dark (by using theme palette)
+                setPaletteFromTheme(widget);
+                return data.data;
+            }
+        }
         path.replace(simpleCss, "/offline.css");
         actualUrl.setPath(path);
     }
@@ -44,7 +86,7 @@ LiteHtmlHelpViewer::LiteHtmlHelpViewer(QWidget *parent)
     : HelpViewer(parent)
     , m_viewer(new QLiteHtmlWidget)
 {
-    m_viewer->setResourceHandler([](const QUrl &url) { return getData(url); });
+    m_viewer->setResourceHandler([this](const QUrl &url) { return getData(url, this); });
     m_viewer->setFrameStyle(QFrame::NoFrame);
     m_viewer->viewport()->installEventFilter(this);
     connect(m_viewer, &QLiteHtmlWidget::linkClicked, this, [this](const QUrl &url) {
@@ -113,6 +155,8 @@ void LiteHtmlHelpViewer::setSource(const QUrl &url)
 
 void LiteHtmlHelpViewer::setHtml(const QString &html)
 {
+    // We control the html, so use theme palette
+    setPaletteFromTheme(this);
     m_viewer->setUrl({"about:invalid"});
     m_viewer->setHtml(html);
 }
@@ -252,8 +296,12 @@ void LiteHtmlHelpViewer::setSourceInternal(const QUrl &url, std::optional<int> v
     QUrl newUrlWithoutFragment = url;
     newUrlWithoutFragment.setFragment({});
     m_viewer->setUrl(url);
-    if (currentUrlWithoutFragment != newUrlWithoutFragment)
-        m_viewer->setHtml(QString::fromUtf8(getData(url)));
+    if (currentUrlWithoutFragment != newUrlWithoutFragment) {
+        // We do not expect the documentation to support dark themes, so start with light palette.
+        // We override this if we find Qt's dark style
+        setLight(this);
+        m_viewer->setHtml(QString::fromUtf8(getData(url, this)));
+    }
     if (vscroll)
         m_viewer->verticalScrollBar()->setValue(*vscroll);
     else

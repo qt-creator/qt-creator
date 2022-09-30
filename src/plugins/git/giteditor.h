@@ -37,7 +37,7 @@ signals:
     void toggleFilters(bool value);
 
 private:
-    void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
+    void applyDiffChunk(const VcsBase::DiffChunk& chunk, Core::PatchAction patchAction);
 
     void init() override;
     void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk) override;

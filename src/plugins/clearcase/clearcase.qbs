@@ -20,7 +20,6 @@ QtcPlugin {
         "annotationhighlighter.h",
         "checkoutdialog.cpp",
         "checkoutdialog.h",
-        "checkoutdialog.ui",
         "clearcaseconstants.h",
         "clearcaseeditor.cpp",
         "clearcaseeditor.h",
@@ -36,11 +35,8 @@ QtcPlugin {
         "clearcasesync.h",
         "settingspage.cpp",
         "settingspage.h",
-        "settingspage.ui",
-        "undocheckout.ui",
         "versionselector.cpp",
         "versionselector.h",
-        "versionselector.ui",
     ]
 }
 

@@ -3,6 +3,7 @@
 
 #include "cmaketool.h"
 
+#include "cmakeprojectmanagertr.h"
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/helpmanager.h>
@@ -294,7 +295,7 @@ CMakeTool::Version CMakeTool::version() const
 QString CMakeTool::versionDisplay() const
 {
     if (!isValid())
-        return CMakeToolManager::tr("Version not parseable");
+        return Tr::tr("Version not parseable");
 
     const Version &version = m_introspection->m_version;
     if (version.fullVersion.isEmpty())

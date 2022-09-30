@@ -7,8 +7,7 @@
 
 #include <texteditor/textindenter.h>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class CMAKE_EXPORT CMakeIndenter : public TextEditor::TextIndenter
 {
@@ -21,5 +20,4 @@ public:
                   int cursorPositionInEditor = -1) override;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

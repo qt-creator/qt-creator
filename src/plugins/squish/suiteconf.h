@@ -21,6 +21,7 @@ public:
     static QStringList validTestCases(const QString &baseDirectory);
 
     bool read();
+    bool write();
 
     QString aut() const { return m_aut; }
     void setAut(const QString &aut) { m_aut = aut; }
@@ -32,7 +33,9 @@ public:
     QString objectMapStyle() const { return m_objectMapStyle; }
     QString scriptExtension() const;
     QStringList testCases() const;
+    void addTestCase(const QString &testCase);
 
+    QStringList usedTestCases() const;
 private:
     void setLanguage(const QString &language);
 

@@ -1219,6 +1219,8 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
 
 FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending amending) const
 {
+    if (isAbsolutePath())
+        return *this;
     FilePaths directories = deviceEnvironment().path();
     if (!additionalDirs.isEmpty()) {
         if (amending == AppendToPath)

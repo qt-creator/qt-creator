@@ -10,8 +10,7 @@ class QCheckBox;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 class ActivitySelector;
 
@@ -40,5 +39,4 @@ private:
     QVBoxLayout *m_verticalLayout;
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal
