@@ -147,7 +147,7 @@ ClazyStandaloneInfo ClazyStandaloneInfo::getInfo(const FilePath &executablePath)
     const auto it = cache.find(executablePath);
     if (it == cache.end()) {
         const ClazyStandaloneInfo info(executablePath);
-        cache.insert(executablePath, qMakePair(timeStamp, info));
+        cache.insert(executablePath, {timeStamp, info});
         return info;
     }
     if (it->first != timeStamp) {
@@ -219,8 +219,8 @@ QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolP
     const FilePath dynamicResourceDir = queryResourceDir(clangToolPath);
     const QString dynamicVersion = queryVersion(clangToolPath, QueryFailMode::Noisy);
     if (dynamicResourceDir.isEmpty() || dynamicVersion.isEmpty())
-        return qMakePair(FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION));
-    return qMakePair(dynamicResourceDir + "/include", dynamicVersion);
+        return {FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION)};
+    return {dynamicResourceDir + "/include", dynamicVersion};
 }
 
 QHash<Utils::FilePath, QPair<QDateTime, ClazyStandaloneInfo>> ClazyStandaloneInfo::cache;

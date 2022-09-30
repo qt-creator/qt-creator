@@ -190,14 +190,12 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
     QList<StringPair> lines;
 
     if (!step.message.isEmpty()) {
-        lines << qMakePair(
-            QCoreApplication::translate("ClangTools::ExplainingStep", "Message:"),
-                step.message.toHtmlEscaped());
+        lines.push_back({QCoreApplication::translate("ClangTools::ExplainingStep", "Message:"),
+                         step.message.toHtmlEscaped()});
     }
 
-    lines << qMakePair(
-        QCoreApplication::translate("ClangTools::ExplainingStep", "Location:"),
-                createFullLocationString(step.location));
+    lines.push_back({QCoreApplication::translate("ClangTools::ExplainingStep", "Location:"),
+                     createFullLocationString(step.location)});
 
     QString html = QLatin1String("<html>"
                    "<head>"

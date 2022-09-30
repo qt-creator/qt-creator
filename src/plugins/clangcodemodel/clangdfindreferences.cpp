@@ -200,7 +200,7 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
     });
 
     for (const Location &loc : locations)
-        fileData[loc.uri()].rangesAndLineText << qMakePair(loc.range(), QString());
+        fileData[loc.uri()].rangesAndLineText.push_back({loc.range(), {}});
     for (auto it = fileData.begin(); it != fileData.end();) {
         const Utils::FilePath filePath = it.key().toFilePath();
         if (!filePath.exists()) { // https://github.com/clangd/clangd/issues/935
