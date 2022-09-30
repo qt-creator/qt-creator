@@ -94,7 +94,7 @@ Tasks QbsKitAspect::validate(const Kit *) const { return {}; }
 
 KitAspect::ItemList QbsKitAspect::toUserOutput(const Kit *k) const
 {
-    return ItemList({qMakePair(displayName(), representation(k))});
+    return {{displayName(), representation(k)}};
 }
 
 KitAspectWidget *QbsKitAspect::createConfigWidget(Kit *k) const
