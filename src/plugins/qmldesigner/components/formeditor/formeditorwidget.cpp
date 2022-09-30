@@ -273,7 +273,10 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_resetAction.data());
 
     m_graphicsView = new FormEditorGraphicsView(this);
-    auto applyZoom = [this](double zoom) { zoomAction()->setZoomFactor(zoom); };
+    auto applyZoom = [this, writeZoomLevel](double zoom) {
+        zoomAction()->setZoomFactor(zoom);
+        writeZoomLevel();
+    };
     connect(m_graphicsView, &FormEditorGraphicsView::zoomChanged, applyZoom);
     connect(m_graphicsView, &FormEditorGraphicsView::zoomIn, zoomIn);
     connect(m_graphicsView, &FormEditorGraphicsView::zoomOut, zoomOut);
