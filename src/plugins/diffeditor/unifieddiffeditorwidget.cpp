@@ -193,8 +193,8 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         if (currentChunkIndex > chunkIndex)
             break;
 
-        const int leftRow = m_data.m_lineNumbers[LeftSide].value(i, qMakePair(-1, -1)).second;
-        const int rightRow = m_data.m_lineNumbers[RightSide].value(i, qMakePair(-1, -1)).second;
+        const int leftRow = m_data.m_lineNumbers[LeftSide].value(i, {-1, -1}).second;
+        const int rightRow = m_data.m_lineNumbers[RightSide].value(i, {-1, -1}).second;
 
         if (leftRow >= 0)
             leftSelection.append(leftRow);
@@ -288,7 +288,7 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
 {
     QTC_ASSERT(side < SideCount, return);
     const QString lineNumberString = QString::number(lineNumber);
-    m_lineNumbers[side].insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
+    m_lineNumbers[side].insert(blockNumber, {lineNumber, rowNumberInChunk});
     m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.count());
 }
 
@@ -579,13 +579,13 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 
     const int columnNumber = cursor.positionInBlock() - 1; // -1 for the first character in line
 
-    const int rightLineNumber = m_data.m_lineNumbers[RightSide].value(blockNumber, qMakePair(-1, 0)).first;
+    const int rightLineNumber = m_data.m_lineNumbers[RightSide].value(blockNumber, {-1, 0}).first;
     if (rightLineNumber >= 0) {
         m_controller.jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
         return;
     }
 
-    const int leftLineNumber = m_data.m_lineNumbers[LeftSide].value(blockNumber, qMakePair(-1, 0)).first;
+    const int leftLineNumber = m_data.m_lineNumbers[LeftSide].value(blockNumber, {-1, 0}).first;
     if (leftLineNumber < 0)
         return;
     if (leftFileName != rightFileName) {

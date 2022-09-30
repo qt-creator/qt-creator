@@ -537,10 +537,8 @@ static QString encodeExpandedWhitespace(const QString &leftEquality,
             const int replacementPosition = output.count();
             const int replacementSize = qMax(leftWhitespaces.count(), rightWhitespaces.count());
             const QString replacement(replacementSize, ' ');
-            leftCodeMap->insert(replacementPosition,
-                                qMakePair(replacementSize, leftWhitespaces));
-            rightCodeMap->insert(replacementPosition,
-                                 qMakePair(replacementSize, rightWhitespaces));
+            leftCodeMap->insert(replacementPosition, {replacementSize, leftWhitespaces});
+            rightCodeMap->insert(replacementPosition, {replacementSize, rightWhitespaces});
             output.append(replacement);
         }
 
