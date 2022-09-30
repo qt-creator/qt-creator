@@ -481,7 +481,6 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
     } else if (identifier == "drop_bundle_material") {
         m_bundleMaterialDropTarget = nodeList.first();
 
-
         ModelNode defaultMat = getBundleMaterialDefaultInstance(m_draggedBundleMaterial->type());
         if (defaultMat.isValid())
             applyBundleMaterialToDropTarget(defaultMat);

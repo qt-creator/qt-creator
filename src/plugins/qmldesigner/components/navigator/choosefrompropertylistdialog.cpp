@@ -58,6 +58,8 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     //  -> Attractor3D
     // Material
     //  -> Model
+    // BundleMaterial
+    //  -> Model
 
     const TypeName textureType = "QtQuick3D.Texture";
     if (insertInfo.isSubclassOf(textureType)) {
@@ -107,7 +109,10 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
                 || parentInfo.isSubclassOf("QtQuick3D.Particles3D.Attractor3D"))
             propertyList.append("shape");
     } else if (insertInfo.isSubclassOf("QtQuick3D.Material")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.Particles3D.Model"))
+        if (parentInfo.isSubclassOf("QtQuick3D.Model"))
+            propertyList.append("materials");
+    } else if (insertInfo.typeName().startsWith("ComponentBundles.MaterialBundle")) {
+        if (parentInfo.isSubclassOf("QtQuick3D.Model"))
             propertyList.append("materials");
     }
 }

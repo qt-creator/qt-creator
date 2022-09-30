@@ -284,6 +284,14 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
 
         m_widget->setDragType(matNode.metaInfo().typeName());
         m_widget->update();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
+        QByteArray data = mimeData->data(Constants::MIME_TYPE_BUNDLE_MATERIAL);
+        QDataStream stream(data);
+        TypeName bundleMatType;
+        stream >> bundleMatType;
+
+        m_widget->setDragType(bundleMatType);
+        m_widget->update();
     }
 }
 
