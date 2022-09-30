@@ -300,7 +300,7 @@ std::pair<int, QStringList> JsonWizardFactory::screenSizeInfoFromPage(const QStr
     if (values.isEmpty())
         return {};
 
-    return std::make_pair(index, values);
+    return {index, values};
 }
 
 JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QString *errorMessage)

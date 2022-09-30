@@ -685,11 +685,9 @@ static QString badToolchainTimestampKey() { return {"Timestamp"}; }
 
 QVariantMap BadToolchain::toMap() const
 {
-    return {
-        std::make_pair(badToolchainFilePathKey(), filePath.toVariant()),
-        std::make_pair(badToolchainSymlinkTargetKey(), symlinkTarget.toVariant()),
-        std::make_pair(badToolchainTimestampKey(), timestamp.toMSecsSinceEpoch()),
-    };
+    return {{badToolchainFilePathKey(), filePath.toVariant()},
+            {badToolchainSymlinkTargetKey(), symlinkTarget.toVariant()},
+            {badToolchainTimestampKey(), timestamp.toMSecsSinceEpoch()}};
 }
 
 BadToolchain BadToolchain::fromMap(const QVariantMap &map)
