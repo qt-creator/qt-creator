@@ -15,7 +15,7 @@ template<typename T>
 class Handles
 {
 public:
-    typedef QList<Handle<T> > value_type;
+    typedef QList<Handle<T>> value_type;
     typedef typename value_type::iterator iterator;
     typedef typename value_type::const_iterator const_iterator;
 

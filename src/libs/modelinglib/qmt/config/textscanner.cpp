@@ -52,14 +52,14 @@ TextScanner::~TextScanner()
     delete d;
 }
 
-void TextScanner::setKeywords(const QList<QPair<QString, int> > &keywords)
+void TextScanner::setKeywords(const QList<QPair<QString, int>> &keywords)
 {
     d->m_keywordToSubtypeMap.clear();
     foreach (const DefTuple &tuple, keywords)
         d->m_keywordToSubtypeMap.insert(tuple.first.toLower(), tuple.second);
 }
 
-void TextScanner::setOperators(const QList<QPair<QString, int> > &operators)
+void TextScanner::setOperators(const QList<QPair<QString, int>> &operators)
 {
     d->m_operatorToSubtypeMap.clear();
     d->m_maxOperatorLength = 0;

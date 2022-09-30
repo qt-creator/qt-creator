@@ -36,8 +36,8 @@ public:
     explicit TextScanner(QObject *parent = nullptr);
     ~TextScanner() override;
 
-    void setKeywords(const QList<QPair<QString, int> > &keywords);
-    void setOperators(const QList<QPair<QString, int> > &operators);
+    void setKeywords(const QList<QPair<QString, int>> &keywords);
+    void setOperators(const QList<QPair<QString, int>> &operators);
     void setSource(ITextSource *textSource);
     SourcePos sourcePos() const;
 

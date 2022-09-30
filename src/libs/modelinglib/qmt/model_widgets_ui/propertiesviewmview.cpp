@@ -1146,7 +1146,7 @@ void PropertiesView::MView::visitDSwimlane(const DSwimlane *swimlane)
 void PropertiesView::MView::onStereotypesChanged(const QString &stereotypes)
 {
     QList<QString> set = m_stereotypesController->fromString(stereotypes);
-    assignModelElement<MElement, QList<QString> >(m_modelElements, SelectionMulti, set,
+    assignModelElement<MElement, QList<QString>>(m_modelElements, SelectionMulti, set,
                                                   &MElement::stereotypes, &MElement::setStereotypes);
 }
 
@@ -1164,7 +1164,7 @@ void PropertiesView::MView::onNamespaceChanged(const QString &umlNamespace)
 void PropertiesView::MView::onTemplateParametersChanged(const QString &templateParameters)
 {
     QList<QString> templateParametersList = splitTemplateParameters(templateParameters);
-    assignModelElement<MClass, QList<QString> >(m_modelElements, SelectionSingle, templateParametersList,
+    assignModelElement<MClass, QList<QString>>(m_modelElements, SelectionSingle, templateParametersList,
                                                 &MClass::templateParameters, &MClass::setTemplateParameters);
 }
 
@@ -1191,7 +1191,7 @@ void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMemb
                 showMembers.insert(klass->uid());
         }
     }
-    assignModelElement<MClass, QList<MClassMember> >(m_modelElements, SelectionSingle, classMembers,
+    assignModelElement<MClass, QList<MClassMember>>(m_modelElements, SelectionSingle, classMembers,
                                                      &MClass::members, &MClass::setMembers);
     foreach (DElement *element, m_diagramElements) {
         if (showMembers.contains(element->modelUid())) {
