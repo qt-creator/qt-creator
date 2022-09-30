@@ -699,7 +699,7 @@ void setupLocationInfoForTargets(CMakeProjectNode *rootNode, const QList<CMakeBu
                 QVector<FolderNode::LocationInfo> result;
                 for (const FolderNode::LocationInfo &i : bt) {
                     int count = locations.count();
-                    locations.insert(std::make_pair(i.path, i.line));
+                    locations.insert({i.path, i.line});
                     if (count != locations.count()) {
                         result.append(i);
                     }

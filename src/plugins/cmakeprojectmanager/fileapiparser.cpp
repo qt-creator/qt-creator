@@ -52,7 +52,7 @@ static std::pair<int, int> cmakeVersion(const QJsonObject &obj)
     const QJsonObject version = obj.value("version").toObject();
     const int major = version.value("major").toInt(-1);
     const int minor = version.value("minor").toInt(-1);
-    return std::make_pair(major, minor);
+    return {major, minor};
 }
 
 static bool checkJsonObject(const QJsonObject &obj, const QString &kind, int major, int minor = -1)
@@ -67,7 +67,7 @@ static bool checkJsonObject(const QJsonObject &obj, const QString &kind, int maj
 
 static std::pair<QString, QString> nameValue(const QJsonObject &obj)
 {
-    return std::make_pair(obj.value("name").toString(), obj.value("value").toString());
+    return {obj.value("name").toString(), obj.value("value").toString()};
 }
 
 static QJsonDocument readJsonFile(const FilePath &filePath)
