@@ -136,7 +136,7 @@
     \endif
     \row
         \li Adding custom properties for a particular component type
-        \li \l{Specifying Dynamic Properties}
+        \li \l{Specifying Custom Properties}
     \omit
     \row
         \li Adding properties for controlling states

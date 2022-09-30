@@ -219,7 +219,7 @@
         \li \l{Preset Components}
         \li \l{Specifying Component Properties}
         \li \l{Adding Bindings Between Properties}
-        \li \l{Specifying Dynamic Properties}
+        \li \l{Specifying Custom Properties}
     \endlist
 
     \section1 Signal

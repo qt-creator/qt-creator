@@ -31,10 +31,10 @@
     \else
     \nextpage quick-connections-backend.html
     \endif
+    \sa {Specifying Component Properties}
+    \title Specifying Custom Properties
 
-    \title Specifying Dynamic Properties
-
-    Each preset \l{glossary-component}{component} has a set of preset properties
+    Each \l{Preset Components}{preset component }has a set of preset properties
     that you can specify values for. You can add custom properties that would
     not otherwise exist for a particular \l{Component Types}{component type}.
     You bind the properties to dynamic expressions to define global properties
@@ -55,49 +55,35 @@
     should have an \e int or \e real property for speed to which the UI is
     bound.
 
-    You can add properties for components on the \uicontrol Properties tab in
-    in the \l {Connections} view.
+    \section1 Adding Properties for a Component
 
-    \image qmldesigner-dynamicprops.png "Custom properties in the Connections view Custom Properties tab"
-
-    To add properties for a component:
+    To add a custom property for a component:
 
     \list 1
-        \li Go to the \uicontrol Properties tab in the \l Connections view.
+        \li Go to the \uicontrol {Local Custom Properties} section in the
+        \uicontrol Properties view.
         \li Select the \inlineimage icons/plus.png
-            (\uicontrol Add) button to add a dynamic property for the currently
-            selected component. The component ID is displayed in the \uicontrol Item
-            column.
-        \li Double-click the value in the \uicontrol Property column to give a
-            name to the property. Property names must begin with a lower case
-            letter and can only contain letters, numbers, and underscores.
-            JavaScript \e {reserved words} are not valid property names.
-        \li Double-click the value in the \uicontrol {Property Type} column to
-            specify the \l{Supported Property Types}{type of the property}.
-        \li Double-click the value in the \uicontrol {Property Value} column
-            to specify the value of the property.
+            (\uicontrol Add) button to add a custom property for the currently
+            selected component.
+            \image add-local-custom-property.png
+        \li Set the \uicontrol Name and \uicontrol Type for the property.
+            \image add-new-property-dialog.png
     \endlist
 
-    Right-click a property and select \uicontrol {Open Binding Editor} in
-    the context menu to bind the value of the property to that of another one
-    or to data accessible in the application in \uicontrol {Binding Editor}.
+    \section1 Binding a Property Value
+
+    To bind the value of the property to that of another one or to data
+    accessible in the application.
+
+    \list 1
+      \li In the \uicontrol Properties view, select
+        \inlineimage icons/action-icon.png
+        next to the property.
+      \li Select \uicontrol {Set Binding}.
+        \image qmldesigner-binding-editor.png "Binding Editor"
+    \endlist
+
     For more information, see \l{Setting Bindings}.
-
-    \image qmldesigner-binding-editor.png "Binding Editor"
-
-    The properties you add for a component are displayed in the \l Properties
-    view when you select a component of that type in the \l Navigator or
-    \l {2D} view.
-
-    \image qtquick-custom-properties.png "Custom properties in Properties view"
-
-    For more information about setting property values in the
-    \l Properties view, see \l{Specifying Component Properties}.
-
-    \if defined(qtcreator)
-    For an example of using custom properties in an application, see
-    \l{Creating a Mobile Application}.
-    \endif
 
     \section1 Supported Property Types
 
@@ -135,6 +121,9 @@
         \li string
         \li Free form text string
     \row
+        \li TextureInput
+        \li Specifies a texture exposed to the shaders of a CustomMaterial or Effect.
+    \row
         \li url
         \li Resource locator, such as a file name. It can be either  absolute,
             (\c http://qt-project.org), or relative  (\c pics/logo.png). A
@@ -144,5 +133,14 @@
         \li variant
         \li Generic property type. For example, variant properties can store
             numbers, strings, objects, arrays, and functions.
+    \row
+        \li vector2d
+        \li Refers to a value with x and y attributes.
+    \row
+        \li vector3d
+        \li Refers to a value with x, y, and z attributes.
+    \row
+        \li vector4d
+        \li Refers to a value with x, y, z, and w attributes.
     \endtable
 */
