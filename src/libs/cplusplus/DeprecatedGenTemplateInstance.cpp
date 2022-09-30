@@ -389,7 +389,7 @@ FullySpecifiedType DeprecatedGenTemplateInstance::instantiate(const Name *classN
 
                         if (templArgName && templArgName->identifier()) {
                             const Identifier *templArgId = templArgName->identifier();
-                            subst.append(qMakePair(templArgId, templArgTy));
+                            subst.push_back({templArgId, templArgTy});
                         }
                     }
                 }

@@ -792,7 +792,7 @@ QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(const QStr
         const QList<Document::Include> includeFiles = doc->resolvedIncludes();
         for (const Document::Include &includeFile : includeFiles) {
             if (includeFile.resolvedFileName() == fileName)
-                result.append(qMakePair(doc, includeFile.line()));
+                result.push_back({doc, includeFile.line()});
         }
     }
     return result;

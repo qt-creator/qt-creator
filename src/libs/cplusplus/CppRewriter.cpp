@@ -404,7 +404,7 @@ SubstitutionMap::~SubstitutionMap()
 
 void SubstitutionMap::bind(const Name *name, const FullySpecifiedType &ty)
 {
-    _map.append(qMakePair(name, ty));
+    _map.push_back({name, ty});
 }
 
 FullySpecifiedType SubstitutionMap::apply(const Name *name, Rewrite *) const
