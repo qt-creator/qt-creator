@@ -406,8 +406,8 @@ QColor FormatDescription::defaultBackground(TextStyle id)
             smallRatio = .05;
             largeRatio = .4;
         }
-        const qreal ratio = ((palette.color(QPalette::Text).value() < 128)
-                             ^ (palette.color(QPalette::HighlightedText).value() < 128)) ? smallRatio : largeRatio;
+        const qreal ratio = ((palette.color(QPalette::Text).value() < 128) !=
+                (palette.color(QPalette::HighlightedText).value() < 128)) ? smallRatio : largeRatio;
 
         const QColor &col = QColor::fromRgbF(fg.redF() * ratio + bg.redF() * (1 - ratio),
                                              fg.greenF() * ratio + bg.greenF() * (1 - ratio),

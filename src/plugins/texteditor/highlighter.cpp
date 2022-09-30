@@ -299,7 +299,8 @@ void Highlighter::highlightBlock(const QString &text)
         TextBlockUserData *data = TextDocumentLayout::userData(nextBlock);
         if (data->syntaxState() != state) {
             data->setSyntaxState(state);
-            setCurrentBlockState(currentBlockState() ^ 1); // force rehighlight of next block
+            // Toggles the LSB of current block's userState. It forces rehighlight of next block.
+            setCurrentBlockState(currentBlockState() ^ 1);
         }
         data->setFoldingIndent(TextDocumentLayout::braceDepth(block));
     }

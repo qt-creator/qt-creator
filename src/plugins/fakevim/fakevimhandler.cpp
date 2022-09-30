@@ -6519,7 +6519,7 @@ bool FakeVimHandler::Private::handleExMultiRepeatCommand(const ExCommand &cmd)
         const Range range(pos, pos, RangeLineMode);
         const QString lineContents = selectText(range);
         const QRegularExpressionMatch match = re.match(lineContents);
-        if (match.hasMatch() ^ negates) {
+        if (match.hasMatch() != negates) {
             QTextCursor tc(document());
             tc.setPosition(pos);
             matches.append(tc);

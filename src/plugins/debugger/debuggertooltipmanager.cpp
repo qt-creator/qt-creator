@@ -1333,7 +1333,7 @@ bool DebuggerToolTipManagerPrivate::eventFilter(QObject *o, QEvent *e)
         const auto se = static_cast<const QWindowStateChangeEvent *>(e);
         const bool wasMinimized = se->oldState() & Qt::WindowMinimized;
         const bool isMinimized  = static_cast<const QWidget *>(o)->windowState() & Qt::WindowMinimized;
-        if (wasMinimized ^ isMinimized) {
+        if (wasMinimized != isMinimized) {
             purgeClosedToolTips();
             for (DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips))
                 tooltip->widget->setVisible(!isMinimized);

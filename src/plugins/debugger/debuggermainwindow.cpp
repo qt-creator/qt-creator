@@ -999,7 +999,7 @@ void PerspectivePrivate::restoreLayout()
         if (op.operationType != Perspective::Raise) {
             op.ensureDockExists();
             QTC_ASSERT(op.dock, continue);
-            const bool active = op.visibleByDefault ^ op.changedByUser();
+            const bool active = op.visibleByDefault != op.changedByUser();
             op.dock->setVisible(active);
             qCDebug(perspectivesLog) << "RESTORE DOCK " << op.name() << "ACTIVE: " << active
                                      << (active == op.visibleByDefault ? "DEFAULT USER" : "*** NON-DEFAULT USER");
