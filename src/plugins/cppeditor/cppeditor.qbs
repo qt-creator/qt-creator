@@ -49,7 +49,6 @@ QtcPlugin {
         "clangdiagnosticconfigsselectionwidget.h",
         "clangdiagnosticconfigswidget.cpp",
         "clangdiagnosticconfigswidget.h",
-        "clangdiagnosticconfigswidget.ui",
         "compileroptionsbuilder.cpp",
         "compileroptionsbuilder.h",
         "cppautocompleter.cpp",

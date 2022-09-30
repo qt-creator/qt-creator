@@ -10,19 +10,18 @@
 #include <QHash>
 #include <QWidget>
 
-#include <memory>
-
 QT_BEGIN_NAMESPACE
+class QPushButton;
 class QTabWidget;
+class QTreeView;
 QT_END_NAMESPACE
+
+namespace Utils { class InfoLabel; }
 
 namespace CppEditor {
 
 class ClangDiagnosticConfig;
 class ClangBaseChecksWidget;
-
-namespace Ui { class ClangDiagnosticConfigsWidget; }
-
 class ConfigsModel;
 
 class CPPEDITOR_EXPORT ClangDiagnosticConfigsWidget : public QWidget
@@ -59,11 +58,15 @@ private:
     void disconnectClangOnlyOptionsChanged();
 
 private:
-    Ui::ClangDiagnosticConfigsWidget *m_ui;
     ConfigsModel *m_configsModel = nullptr;
     QHash<Utils::Id, QString> m_notAcceptedOptions;
 
     ClangBaseChecksWidget *m_clangBaseChecks = nullptr;
+    QTreeView *m_configsView;
+    Utils::InfoLabel *m_infoLabel;
+    QTabWidget *m_tabWidget;
+    QPushButton *m_renameButton;
+    QPushButton *m_removeButton;
 };
 
 } // CppEditor namespace

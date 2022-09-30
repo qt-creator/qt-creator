@@ -4,20 +4,24 @@
 #include "clangdiagnosticconfigswidget.h"
 
 #include "clangdiagnosticconfigsmodel.h"
-#include "ui_clangdiagnosticconfigswidget.h"
 #include "wrappablelineedit.h"
 
 #include <utils/environment.h>
 #include <utils/executeondestruction.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
 #include <utils/treemodel.h>
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QHeaderView>
 #include <QInputDialog>
 #include <QLabel>
 #include <QPushButton>
+#include <QPushButton>
+#include <QTabWidget>
+#include <QTreeView>
 
 using namespace Utils;
 
@@ -145,40 +149,57 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const ClangDiagnostic
                                                            const Id &configToSelect,
                                                            QWidget *parent)
     : QWidget(parent)
-    , m_ui(new Ui::ClangDiagnosticConfigsWidget)
     , m_configsModel(new ConfigsModel(configs))
 {
-    m_ui->setupUi(this);
-    m_ui->configsView->setHeaderHidden(true);
-    m_ui->configsView->setUniformRowHeights(true);
-    m_ui->configsView->setRootIsDecorated(false);
-    m_ui->configsView->setModel(m_configsModel);
-    m_ui->configsView->setCurrentIndex(m_configsModel->itemForConfigId(configToSelect)->index());
-    m_ui->configsView->setItemsExpandable(false);
-    m_ui->configsView->expandAll();
-    connect(m_ui->configsView->selectionModel(),
-            &QItemSelectionModel::currentChanged,
-            this,
-            &ClangDiagnosticConfigsWidget::sync);
+    auto copyButton = new QPushButton(tr("Copy..."));
+    m_renameButton = new QPushButton(tr("Rename..."));
+    m_removeButton = new QPushButton(tr("Remove"));
+
+    m_infoLabel = new InfoLabel;
+
+    m_configsView = new QTreeView;
+    m_configsView->setHeaderHidden(true);
+    m_configsView->setUniformRowHeights(true);
+    m_configsView->setRootIsDecorated(false);
+    m_configsView->setModel(m_configsModel);
+    m_configsView->setCurrentIndex(m_configsModel->itemForConfigId(configToSelect)->index());
+    m_configsView->setItemsExpandable(false);
+    m_configsView->expandAll();
 
     m_clangBaseChecks = new ClangBaseChecksWidget;
 
-    m_ui->tabWidget->addTab(m_clangBaseChecks, tr("Clang Warnings"));
-    m_ui->tabWidget->setCurrentIndex(0);
+    m_tabWidget = new QTabWidget;
+    m_tabWidget->addTab(m_clangBaseChecks, tr("Clang Warnings"));
 
-    connect(m_ui->copyButton, &QPushButton::clicked,
+    using namespace Layouting;
+
+    Column {
+        Row {
+            m_configsView,
+            Column {
+                copyButton,
+                m_renameButton,
+                m_removeButton,
+                st
+            }
+        },
+        m_infoLabel,
+        m_tabWidget
+    }.attachTo(this);
+
+    connect(copyButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onCopyButtonClicked);
-    connect(m_ui->renameButton, &QPushButton::clicked,
+    connect(m_renameButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onRenameButtonClicked);
-    connect(m_ui->removeButton, &QPushButton::clicked,
+    connect(m_removeButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onRemoveButtonClicked);
+    connect(m_configsView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &ClangDiagnosticConfigsWidget::sync);
+
     connectClangOnlyOptionsChanged();
 }
 
-ClangDiagnosticConfigsWidget::~ClangDiagnosticConfigsWidget()
-{
-    delete m_ui;
-}
+ClangDiagnosticConfigsWidget::~ClangDiagnosticConfigsWidget() = default;
 
 void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
 {
@@ -195,7 +216,7 @@ void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
             = ClangDiagnosticConfigsModel::createCustomConfig(config, newName);
 
         m_configsModel->appendCustomConfig(customConfig);
-        m_ui->configsView->setCurrentIndex(
+        m_configsView->setCurrentIndex(
             m_configsModel->itemForConfigId(customConfig.id())->index());
         sync();
         m_clangBaseChecks->diagnosticOptionsTextEdit->setFocus();
@@ -221,7 +242,7 @@ void ClangDiagnosticConfigsWidget::onRenameButtonClicked()
 
 const ClangDiagnosticConfig ClangDiagnosticConfigsWidget::currentConfig() const
 {
-    TreeItem *item = m_configsModel->itemForIndex(m_ui->configsView->currentIndex());
+    TreeItem *item = m_configsModel->itemForIndex(m_configsView->currentIndex());
     return static_cast<ConfigNode *>(item)->config;
 }
 
@@ -229,7 +250,7 @@ void ClangDiagnosticConfigsWidget::onRemoveButtonClicked()
 {
     const Id configToRemove = currentConfig().id();
     if (m_configsModel->customConfigsCount() == 1)
-        m_ui->configsView->setCurrentIndex(m_configsModel->fallbackConfigIndex());
+        m_configsView->setCurrentIndex(m_configsModel->fallbackConfigIndex());
     m_configsModel->removeConfig(configToRemove);
     sync();
 }
@@ -299,7 +320,7 @@ void ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged()
 
 void ClangDiagnosticConfigsWidget::sync()
 {
-    if (!m_ui->configsView->currentIndex().isValid())
+    if (!m_configsView->currentIndex().isValid())
         return;
 
     disconnectClangOnlyOptionsChanged();
@@ -307,8 +328,8 @@ void ClangDiagnosticConfigsWidget::sync()
 
     // Update main button row
     const ClangDiagnosticConfig &config = currentConfig();
-    m_ui->removeButton->setEnabled(!config.isReadOnly());
-    m_ui->renameButton->setEnabled(!config.isReadOnly());
+    m_removeButton->setEnabled(!config.isReadOnly());
+    m_renameButton->setEnabled(!config.isReadOnly());
 
     // Update check box
     m_clangBaseChecks->useFlagsFromBuildSystemCheckBox->setChecked(config.useBuildSystemWarnings());
@@ -321,9 +342,9 @@ void ClangDiagnosticConfigsWidget::sync()
     m_clangBaseChecks->setEnabled(!config.isReadOnly());
 
     if (config.isReadOnly()) {
-        m_ui->infoLabel->setType(InfoLabel::Information);
-        m_ui->infoLabel->setText(tr("Copy this configuration to customize it."));
-        m_ui->infoLabel->setFilled(false);
+        m_infoLabel->setType(InfoLabel::Information);
+        m_infoLabel->setText(tr("Copy this configuration to customize it."));
+        m_infoLabel->setFilled(false);
     }
 
     syncExtraWidgets(config);
@@ -347,13 +368,13 @@ void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
 void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMessage)
 {
     if (errorMessage.isEmpty()) {
-        m_ui->infoLabel->setType(InfoLabel::Information);
-        m_ui->infoLabel->setText(tr("Configuration passes sanity checks."));
-        m_ui->infoLabel->setFilled(false);
+        m_infoLabel->setType(InfoLabel::Information);
+        m_infoLabel->setText(tr("Configuration passes sanity checks."));
+        m_infoLabel->setFilled(false);
     } else {
-        m_ui->infoLabel->setType(InfoLabel::Error);
-        m_ui->infoLabel->setText(tr("%1").arg(errorMessage));
-        m_ui->infoLabel->setFilled(true);
+        m_infoLabel->setType(InfoLabel::Error);
+        m_infoLabel->setText(tr("%1").arg(errorMessage));
+        m_infoLabel->setFilled(true);
     }
 }
 
@@ -371,8 +392,7 @@ void ClangDiagnosticConfigsWidget::connectClangOnlyOptionsChanged()
 
 void ClangDiagnosticConfigsWidget::disconnectClangOnlyOptionsChanged()
 {
-    disconnect(m_clangBaseChecks->useFlagsFromBuildSystemCheckBox,
-               &QCheckBox::stateChanged,
+    disconnect(m_clangBaseChecks->useFlagsFromBuildSystemCheckBox, &QCheckBox::stateChanged,
                this,
                &ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged);
     disconnect(m_clangBaseChecks->diagnosticOptionsTextEdit->document(),
@@ -388,7 +408,7 @@ ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::configs() const
 
 QTabWidget *ClangDiagnosticConfigsWidget::tabWidget() const
 {
-    return m_ui->tabWidget;
+    return m_tabWidget;
 }
 
 } // CppEditor namespace
