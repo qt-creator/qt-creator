@@ -311,6 +311,8 @@ Core::GeneratedFiles SquishFileGenerator::fileList(Utils::MacroExpander *expande
     QString aut = expander->expand(QString{"%{AUT}"});
     if (aut == Tr::tr("<None>"))
         aut.clear();
+    if (aut.contains(' '))
+        aut = QString('"' + aut + '"');
     const QString lang = expander->expand(QString{"%{Language}"});
     const QString toolkit = expander->expand(QString{"%{Toolkit}"});;
     const Utils::FilePath suiteConf = projectDir.pathAppended("suite.conf");
