@@ -120,15 +120,6 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     m_advancedButton->setText(QCoreApplication::translate("Core::Internal::FindWidget", "Advanced..."));
     m_advancedButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
 
-    QWidget::setTabOrder(m_findEdit, m_replaceEdit);
-    QWidget::setTabOrder(m_replaceEdit, m_findPreviousButton);
-    QWidget::setTabOrder(m_findPreviousButton, m_findNextButton);
-    QWidget::setTabOrder(m_findNextButton, m_replaceButton);
-    QWidget::setTabOrder(m_replaceButton, m_replaceNextButton);
-    QWidget::setTabOrder(m_replaceNextButton, m_replaceAllButton);
-    QWidget::setTabOrder(m_replaceAllButton, m_advancedButton);
-    QWidget::setTabOrder(m_advancedButton, m_close);
-
     auto replaceButtonsLayout = new QHBoxLayout(m_replaceButtonsWidget);
     replaceButtonsLayout->setSpacing(3);
     replaceButtonsLayout->setContentsMargins(0, 0, 0, 0);
@@ -167,6 +158,15 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     setFocusProxy(m_findEdit);
     setProperty("topBorder", true);
     setSingleRow(false);
+
+    QWidget::setTabOrder(m_findEdit, m_replaceEdit);
+    QWidget::setTabOrder(m_replaceEdit, m_findPreviousButton);
+    QWidget::setTabOrder(m_findPreviousButton, m_findNextButton);
+    QWidget::setTabOrder(m_findNextButton, m_replaceButton);
+    QWidget::setTabOrder(m_replaceButton, m_replaceNextButton);
+    QWidget::setTabOrder(m_replaceNextButton, m_replaceAllButton);
+    QWidget::setTabOrder(m_replaceAllButton, m_advancedButton);
+    QWidget::setTabOrder(m_advancedButton, m_close);
 
     connect(m_findEdit, &Utils::FancyLineEdit::editingFinished,
             this, &FindToolBar::invokeResetIncrementalSearch);
