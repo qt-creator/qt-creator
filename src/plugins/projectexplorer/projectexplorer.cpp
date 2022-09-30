@@ -832,10 +832,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     ToolChainManager::registerLanguage(Constants::CXX_LANGUAGE_ID, tr("C++"));
 
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
-
     IWizardFactory::registerFactoryCreator([] { return new SimpleProjectWizard; });
-    CustomWizard::createWizards();
-    JsonWizardFactory::createWizardFactories();
 
     connect(&dd->m_welcomePage, &ProjectWelcomePage::manageSessions,
             dd, &ProjectExplorerPluginPrivate::showSessionManager);
@@ -894,7 +891,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     JsonWizardFactory::registerPageFactory(new KitsPageFactory);
     JsonWizardFactory::registerPageFactory(new ProjectPageFactory);
     JsonWizardFactory::registerPageFactory(new SummaryPageFactory);
-
     JsonWizardFactory::registerGeneratorFactory(new FileGeneratorFactory);
     JsonWizardFactory::registerGeneratorFactory(new ScannerGeneratorFactory);
 
@@ -2197,6 +2193,9 @@ void ProjectExplorerPluginPrivate::closeAllProjects()
 
 void ProjectExplorerPlugin::extensionsInitialized()
 {
+    CustomWizard::createWizards();
+    JsonWizardFactory::createWizardFactories();
+
     // Register factories for all project managers
     QStringList allGlobPatterns;
 
