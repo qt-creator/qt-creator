@@ -311,13 +311,13 @@ void tst_ImportCheck::moduleMapping_data()
     QTest::newRow("check that QtQuick controls cannot be found with a mapping")
             << QString(TESTSRCDIR "/moduleMapping/importQtQuick.qml")
             << QString(TESTSRCDIR "/moduleMapping")
-            << StrStrHash({ std::make_pair(QStringLiteral("QtQuick.Controls"), QStringLiteral("MyControls")) })
+            << StrStrHash({{QStringLiteral("QtQuick.Controls"), QStringLiteral("MyControls")}})
             << QStringList({ "Item", "Button" })
             << false;
     QTest::newRow("check that custom controls can be found with a mapping")
             << QString(TESTSRCDIR "/moduleMapping/importQtQuick.qml")
             << QString(TESTSRCDIR "/moduleMapping")
-            << StrStrHash({ std::make_pair(QStringLiteral("QtQuick.Controls"), QStringLiteral("MyControls")) })
+            << StrStrHash({{QStringLiteral("QtQuick.Controls"), QStringLiteral("MyControls")}})
             << QStringList({ "Item", "Oblong" })  // item is in QtQuick, and should still be found, as only
                                                   // the QtQuick.Controls are redirected
             << true;

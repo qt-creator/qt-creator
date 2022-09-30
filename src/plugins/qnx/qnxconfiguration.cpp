@@ -264,7 +264,7 @@ QnxConfiguration::QnxToolChainMap QnxConfiguration::createToolChain(const Target
         toolChain->resetToolChain(qccCompilerPath());
         ToolChainManager::registerToolChain(toolChain);
 
-        toolChainMap.insert(std::make_pair(language, toolChain));
+        toolChainMap.insert({language, toolChain});
     }
 
     return toolChainMap;
