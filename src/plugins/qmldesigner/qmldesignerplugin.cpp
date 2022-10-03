@@ -641,6 +641,11 @@ void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
     d->blockEditorChange = false;
 }
 
+void QmlDesignerPlugin::emitAssetChanged(const QString &assetPath)
+{
+    emit assetChanged(assetPath);
+}
+
 double QmlDesignerPlugin::formEditorDevicePixelRatio()
 {
     if (QmlDesignerPlugin::settings().value(DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO).toBool())

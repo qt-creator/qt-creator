@@ -240,38 +240,64 @@ static bool hasItemLibraryInfo(const QMimeData *mimeData)
     return mimeData->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
 }
 
-void DragTool::dropEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
+void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneDragDropEvent *event)
 {
     if (canBeDropped(event->mimeData())) {
         event->accept();
         end(generateUseSnapping(event->modifiers()));
 
+        QString effectPath;
+        const QStringList assetPaths = QString::fromUtf8(event->mimeData()
+                                                         ->data(Constants::MIME_TYPE_ASSETS)).split(',');
+        for (auto &path : assetPaths) {
+            auto assetType = AssetsLibraryWidget::getAssetTypeAndData(path).first;
+            if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
+                effectPath = path;
+                break;
+            }
+        }
+
         bool resetPuppet = false;
-        for (auto &node : m_dragNodes) {
-            if (node.isValid()) {
-                if ((node.instanceParentItem().isValid()
-                     && node.instanceParent().modelNode().metaInfo().isLayoutable())
-                    || node.isFlowItem()) {
-                    node.removeProperty("x");
-                    node.removeProperty("y");
-                    resetPuppet = true;
+
+        if (!effectPath.isEmpty()) {
+            FormEditorItem *targetContainerFormEditorItem = targetContainerOrRootItem(itemList);
+            if (targetContainerFormEditorItem) {
+                QmlItemNode parentQmlItemNode = targetContainerFormEditorItem->qmlItemNode();
+                QString effectName = QFileInfo(effectPath).baseName();
+                QmlItemNode effectNode = QmlItemNode::createQmlItemNodeForEffect(view(), parentQmlItemNode, effectName);
+
+                view()->setSelectedModelNodes({effectNode});
+                view()->resetPuppet();
+
+                commitTransaction();
+            }
+        } else {
+            for (QmlItemNode &node : m_dragNodes) {
+                if (node.isValid()) {
+                    if ((node.instanceParentItem().isValid()
+                         && node.instanceParent().modelNode().metaInfo().isLayoutable())
+                            || node.isFlowItem()) {
+                        node.removeProperty("x");
+                        node.removeProperty("y");
+                        resetPuppet = true;
+                    }
                 }
             }
-        }
-        if (resetPuppet)
-            view()->resetPuppet(); // Otherwise the layout might not reposition the items
+            if (resetPuppet)
+                view()->resetPuppet(); // Otherwise the layout might not reposition the items
 
-        commitTransaction();
+            commitTransaction();
 
-        if (!m_dragNodes.isEmpty()) {
-            QList<ModelNode> nodeList;
-            for (auto &node : std::as_const(m_dragNodes)) {
-                if (node.isValid())
-                    nodeList.append(node);
+            if (!m_dragNodes.isEmpty()) {
+                QList<ModelNode> nodeList;
+                for (auto &node : std::as_const(m_dragNodes)) {
+                    if (node.isValid())
+                        nodeList.append(node);
+                }
+                view()->setSelectedModelNodes(nodeList);
             }
-            view()->setSelectedModelNodes(nodeList);
+            m_dragNodes.clear();
         }
-        m_dragNodes.clear();
 
         view()->changeToSelectionTool();
     }
@@ -347,10 +373,17 @@ void DragTool::createDragNodes(const QMimeData *mimeData, const QPointF &scenePo
 
 void DragTool::dragMoveEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneDragDropEvent *event)
 {
-    if (!m_blockMove && !m_isAborted && canBeDropped(event->mimeData())) {
+    FormEditorItem *targetContainerItem = targetContainerOrRootItem(itemList);
+    const QStringList assetPaths = QString::fromUtf8(event->mimeData()
+                                                     ->data(Constants::MIME_TYPE_ASSETS)).split(',');
+    QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPaths[0]).first;
+
+    if (!m_blockMove
+            && !m_isAborted
+            && canBeDropped(event->mimeData())
+            && assetType != Constants::MIME_TYPE_ASSET_EFFECT) {
         event->accept();
         if (!m_dragNodes.isEmpty()) {
-            FormEditorItem *targetContainerItem = targetContainerOrRootItem(itemList);
             if (targetContainerItem) {
                 move(event->scenePos(), itemList);
             } else {
@@ -364,7 +397,7 @@ void DragTool::dragMoveEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSc
         } else {
             createDragNodes(event->mimeData(), event->scenePos(), itemList);
         }
-    } else {
+    } else if (assetType != Constants::MIME_TYPE_ASSET_EFFECT) {
         event->ignore();
     }
 }

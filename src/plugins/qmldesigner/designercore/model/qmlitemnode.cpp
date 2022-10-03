@@ -181,6 +181,33 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
     return newQmlItemNode;
 }
 
+QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
+                                                    const QmlItemNode &parentNode,
+                                                    const QString &effectName)
+{
+    QmlItemNode newQmlItemNode;
+
+    QmlDesigner::Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
+    try {
+        if (!view->model()->hasImport(import, true, true))
+            view->model()->changeImports({import}, {});
+    } catch (const Exception &e) {
+        QTC_ASSERT(false, return QmlItemNode());
+    }
+
+    TypeName type(effectName.toUtf8());
+    newQmlItemNode = QmlItemNode(view->createModelNode(type, 1, 0));
+    NodeAbstractProperty parentProperty = parentNode.defaultNodeAbstractProperty();
+    parentProperty.reparentHere(newQmlItemNode);
+
+    newQmlItemNode.modelNode().bindingProperty("source").setExpression("parent");
+    newQmlItemNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
+
+    QTC_ASSERT(newQmlItemNode.isValid(), return QmlItemNode());
+
+    return  newQmlItemNode;
+}
+
 bool QmlItemNode::isValid() const
 {
     return isValidQmlItemNode(modelNode());
