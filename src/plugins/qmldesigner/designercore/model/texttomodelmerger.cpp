@@ -530,10 +530,6 @@ public:
                 qDebug() << astTypeNode->name.toString() << typeName;
                 qDebug() << metaInfo.isValid() << metaInfo.typeName();
                 qDebug() << metaInfo.directSuperClass().typeName();
-
-                if (!metaInfo.isFileComponent() && m_model == m_model->metaInfoProxyModel()
-                    && metaInfo.isValid())
-                    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
             }
 
             typeName = QString::fromUtf8(metaInfo.typeName());
@@ -1961,7 +1957,7 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
     Q_UNUSED(minorVersion)
     Q_UNUSED(majorVersion)
 
-    QTC_ASSERT(modelNode.type() == typeName, return );
+    QTC_ASSERT(modelNode.type() == typeName, return);
 
     if (modelNode.majorVersion() != majorVersion) {
         qDebug() << Q_FUNC_INFO << modelNode;

@@ -105,6 +105,7 @@ const char MIME_TYPE_ASSET_SOUND[]       = "application/vnd.qtdesignstudio.asset
 const char MIME_TYPE_ASSET_VIDEO[]       = "application/vnd.qtdesignstudio.asset.video";
 const char MIME_TYPE_ASSET_TEXTURE3D[]   = "application/vnd.qtdesignstudio.asset.texture3d";
 const char MIME_TYPE_MODELNODE_LIST[]    = "application/vnd.qtdesignstudio.modelnode.list";
+const char MIME_TYPE_ASSET_EFFECT[]      = "application/vnd.qtdesignstudio.asset.effect";
 
 // Menus
 const char M_VIEW_WORKSPACES[] = "QmlDesigner.Menu.View.Workspaces";

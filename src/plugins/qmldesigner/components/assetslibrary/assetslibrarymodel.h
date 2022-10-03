@@ -66,6 +66,7 @@ public:
     static const QStringList &supportedAudioSuffixes();
     static const QStringList &supportedVideoSuffixes();
     static const QStringList &supportedTexture3DSuffixes();
+    static const QStringList &supportedEffectMakerSuffixes();
     static const QSet<QString> &supportedSuffixes();
 
     const QSet<QString> &previewableSuffixes() const;

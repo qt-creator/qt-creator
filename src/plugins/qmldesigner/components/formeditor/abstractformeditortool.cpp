@@ -242,7 +242,8 @@ void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemLis
         for (const QString &assetPath : assetPaths) {
             QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
             if (assetType == Constants::MIME_TYPE_ASSET_IMAGE
-             || assetType == Constants::MIME_TYPE_ASSET_FONT) {
+             || assetType == Constants::MIME_TYPE_ASSET_FONT
+             || assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
                 hasValidAssets = true;
                 break;
             }
