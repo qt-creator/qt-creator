@@ -241,7 +241,22 @@ Item {
 
                 width: root.width - addMaterialButton.width
 
-                onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
+                onSearchChanged: (searchText) => {
+                    rootView.handleSearchFilterChanged(searchText)
+
+                    // make sure searched categories that have matches are expanded
+                    if (!materialBrowserModel.isEmpty && !userMaterialsSection.expanded)
+                        userMaterialsSection.expanded = true
+
+                    if (!materialBrowserBundleModel.isEmpty && !bundleMaterialsSection.expanded)
+                        bundleMaterialsSection.expanded = true
+
+                    for (let i = 0; i < bundleMaterialsSectionRepeater.count; ++i) {
+                        let sec = bundleMaterialsSectionRepeater.itemAt(i)
+                        if (sec.visible && !sec.expanded)
+                            sec.expanded = true
+                    }
+                }
             }
 
             IconButton {
@@ -338,6 +353,8 @@ Item {
                 }
 
                 Section {
+                    id: bundleMaterialsSection
+
                     width: root.width
                     caption: qsTr("Material Library")
                     addTopPadding: noMatchText.visible
@@ -345,6 +362,8 @@ Item {
 
                     Column {
                         Repeater {
+                            id: bundleMaterialsSectionRepeater
+
                             model: materialBrowserBundleModel
 
                             delegate: Section {
