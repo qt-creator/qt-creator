@@ -310,10 +310,8 @@ Item {
                                 height: root.cellHeight
 
                                 onShowContextMenu: {
-                                    if (searchBox.isEmpty()) {
-                                        root.currentMaterial = model
-                                        cxtMenu.popup()
-                                    }
+                                    root.currentMaterial = model
+                                    cxtMenu.popup()
                                 }
                             }
                         }
@@ -371,10 +369,8 @@ Item {
                                             height: root.cellHeight
 
                                             onShowContextMenu: {
-                                                if (searchBox.isEmpty()) {
-                                                    root.currentBundleMaterial = modelData
-                                                    cxtMenuBundle.popup()
-                                                }
+                                                root.currentBundleMaterial = modelData
+                                                cxtMenuBundle.popup()
                                             }
                                         }
                                     }
