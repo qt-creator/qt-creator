@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
 #include <QSortFilterProxyModel>
@@ -35,8 +36,8 @@ public:
     Qt::ItemFlags flags(int column) const override;
     QString displayName() const { return m_displayName; }
     QString toolTip(int column) const;
-    void setFilePath(const QString &filePath);
-    QString filePath() const { return m_filePath; }
+    void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }
+    Utils::FilePath filePath() const { return m_filePath; }
     void setParentName(const QString &parentName);
     QString parentName() const { return m_parentName; }
     Type type() const { return m_type; }
@@ -51,7 +52,7 @@ private:
     void revalidateCheckState();
 
     QString m_displayName; // holds suite or test case name
-    QString m_filePath;    // holds suite.conf path for suites, test.* for test cases
+    Utils::FilePath m_filePath; // holds suite.conf path for suites, test.* for test cases
     Type m_type;
     QString m_parentName;     // holds suite name for test cases, folder path for shared files
     Qt::CheckState m_checked; // suites and test cases can have a check state
@@ -74,7 +75,7 @@ public:
     void removeTreeItem(int row, const QModelIndex &parent);
     void modifyTreeItem(int row, const QModelIndex &parent, const SquishTestTreeItem &modified);
     void removeAllSharedFolders();
-    QStringList getSelectedSquishTestCases(const QString &suiteConfPath) const;
+    QStringList getSelectedSquishTestCases(const Utils::FilePath &suiteConfPath) const;
 
 private:
     SquishTestTreeItem *findSuite(const QString &displayName) const;

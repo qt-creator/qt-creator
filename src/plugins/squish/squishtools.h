@@ -62,9 +62,9 @@ public:
     };
 
     State state() const { return m_state; }
-    void runTestCases(const QString &suitePath,
+    void runTestCases(const Utils::FilePath &suitePath,
                       const QStringList &testCases = QStringList());
-    void recordTestCase(const QString &suitePath, const QString &testCaseName,
+    void recordTestCase(const Utils::FilePath &suitePath, const QString &testCaseName,
                         const SuiteConf &suiteConf);
     void queryServerSettings();
     void writeServerSettingsChanges(const QList<QStringList> &changes);
@@ -144,11 +144,11 @@ private:
     Request m_request = None;
     State m_state = Idle;
     RunnerState m_squishRunnerState = RunnerState::None;
-    QString m_suitePath;
+    Utils::FilePath m_suitePath;
     QStringList m_testCases;
     SuiteConf m_suiteConf; // holds information of current test suite e.g. while recording
-    QStringList m_reportFiles;
-    QString m_currentResultsDirectory;
+    Utils::FilePaths m_reportFiles;
+    Utils::FilePath m_currentResultsDirectory;
     QString m_fullRunnerOutput; // used when querying the server
     Utils::FilePath m_currentTestCasePath;
     Utils::FilePath m_currentRecorderSnippetFile;

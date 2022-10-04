@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 #include <QXmlStreamReader>
 
@@ -18,8 +20,8 @@ public:
     explicit SquishXmlOutputHandler(QObject *parent = nullptr);
     void clearForNextRun();
 
-    static void mergeResultFiles(const QStringList &reportFiles,
-                                 const QString &resultsDirectory,
+    static void mergeResultFiles(const Utils::FilePaths &reportFiles,
+                                 const Utils::FilePath &resultsDirectory,
                                  const QString &suiteName,
                                  QString *error = nullptr);
 

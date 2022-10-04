@@ -7,6 +7,7 @@
 #include "squishresultmodel.h"
 #include "squishtr.h"
 
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
@@ -32,12 +33,12 @@ void SquishXmlOutputHandler::clearForNextRun()
     m_xmlReader.clear();
 }
 
-void SquishXmlOutputHandler::mergeResultFiles(const QStringList &reportFiles,
-                                              const QString &resultsDirectory,
+void SquishXmlOutputHandler::mergeResultFiles(const Utils::FilePaths &reportFiles,
+                                              const Utils::FilePath &resultsDirectory,
                                               const QString &suiteName,
                                               QString *error)
 {
-    QFile resultsXML(QString::fromLatin1("%1/results.xml").arg(resultsDirectory));
+    QFile resultsXML(resultsDirectory.pathAppended("results.xml").toString());
     if (resultsXML.exists()) {
         if (error)
             *error = Tr::tr("Could not merge results into single results.xml.\n"
@@ -59,8 +60,8 @@ void SquishXmlOutputHandler::mergeResultFiles(const QStringList &reportFiles,
     bool isFirstReport = true;
     bool isFirstTest = true;
     QString lastEpilogTime;
-    for (const QString &caseResult : reportFiles) {
-        QFile currentResultsFile(caseResult);
+    for (const Utils::FilePath &caseResult : reportFiles) {
+        QFile currentResultsFile(caseResult.toString());
         if (!currentResultsFile.exists())
             continue;
         if (!currentResultsFile.open(QFile::ReadOnly))

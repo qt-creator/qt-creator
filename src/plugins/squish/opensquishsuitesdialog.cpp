@@ -4,7 +4,6 @@
 #include "opensquishsuitesdialog.h"
 
 #include "squishtr.h"
-#include "suiteconf.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -84,16 +83,16 @@ void OpenSquishSuitesDialog::onDirectoryChanged()
 {
     m_suitesListWidget->clear();
     m_buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
-    QDir baseDir(m_directoryLineEdit->filePath().toString());
-    if (!baseDir.exists()) {
-        return;
-    }
 
-    const QFileInfoList subDirs = baseDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    for (const QFileInfo &subDir : subDirs) {
+    const Utils::FilePath baseDir = m_directoryLineEdit->filePath();
+    if (!baseDir.exists())
+        return;
+
+    const Utils::FilePaths subDirs = baseDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const Utils::FilePath &subDir : subDirs) {
         if (!subDir.baseName().startsWith("suite_"))
             continue;
-        if (Utils::FilePath::fromFileInfo(subDir).pathAppended("suite.conf").isReadableFile()) {
+        if (subDir.pathAppended("suite.conf").isReadableFile()) {
             QListWidgetItem *item = new QListWidgetItem(subDir.baseName(), m_suitesListWidget);
             item->setCheckState(Qt::Checked);
             connect(m_suitesListWidget,
@@ -134,11 +133,11 @@ void OpenSquishSuitesDialog::deselectAll()
 void OpenSquishSuitesDialog::setChosenSuites()
 {
     const int count = m_suitesListWidget->count();
-    const QDir baseDir(m_directoryLineEdit->filePath().toString());
+    const Utils::FilePath baseDir = m_directoryLineEdit->filePath();
     for (int row = 0; row < count; ++row) {
         QListWidgetItem *item = m_suitesListWidget->item(row);
         if (item->checkState() == Qt::Checked)
-            m_chosenSuites.append(QFileInfo(baseDir, item->text()).absoluteFilePath());
+            m_chosenSuites.append(baseDir.pathAppended(item->text()));
     }
 }
 

@@ -131,7 +131,7 @@ QWidget *SquishTestTreeItemDelegate::createEditor(QWidget *parent,
 
     const SquishTestTreeItem *suite = srcModel->itemForIndex(model->mapToSource(index.parent()));
     SquishTestTreeItem *testCaseItem = srcModel->itemForIndex(model->mapToSource(index));
-    const SuiteConf suiteConf = SuiteConf::readSuiteConf(Utils::FilePath::fromString(suite->filePath()));
+    const SuiteConf suiteConf = SuiteConf::readSuiteConf(suite->filePath());
     const QStringList inUse = suiteConf.usedTestCases();
     Utils::FancyLineEdit *editor = new Utils::FancyLineEdit(parent);
     editor->setValidationFunction([inUse](Utils::FancyLineEdit *edit, QString *) {
@@ -239,7 +239,7 @@ void SquishTestTreeItemDelegate::setModelData(QWidget *editor, QAbstractItemMode
 
     const QModelIndex parent = index.parent();
     SquishTestTreeItem *suiteItem = sourceModel->itemForIndex(sortModel->mapToSource(parent));
-    const auto suiteConfPath = Utils::FilePath::fromString(suiteItem->filePath());
+    const auto suiteConfPath = suiteItem->filePath();
     SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfPath);
     const Utils::FilePath destination = suiteConfPath.parentDir().pathAppended(chosenName);
     bool ok = copyScriptTemplates(suiteConf, destination);

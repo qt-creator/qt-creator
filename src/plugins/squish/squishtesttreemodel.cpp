@@ -64,15 +64,10 @@ QString SquishTestTreeItem::toolTip(int column) const
         if (column == 2)
             return Tr::tr("Record Test Case");
     }
-    if (m_displayName == m_filePath)
+    if (m_displayName == m_filePath.toUserOutput())
         return m_displayName;
 
-    return QString{m_displayName + '\n' + m_filePath};
-}
-
-void SquishTestTreeItem::setFilePath(const QString &filePath)
-{
-    m_filePath = filePath;
+    return QString{m_displayName + '\n' + m_filePath.toUserOutput()};
 }
 
 void SquishTestTreeItem::setParentName(const QString &parentName)
@@ -128,10 +123,9 @@ QString SquishTestTreeItem::generateTestCaseName() const
 {
     QTC_ASSERT(m_type == SquishSuite, return {});
 
-    const auto suiteConfFilePath = Utils::FilePath::fromString(m_filePath);
-    const SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfFilePath);
+    const SuiteConf suiteConf = SuiteConf::readSuiteConf(m_filePath);
     const QStringList used = suiteConf.usedTestCases();
-    const auto suiteDir = suiteConfFilePath.parentDir();
+    const auto suiteDir = m_filePath.parentDir();
 
     const QString tmpl("tst_case");
     for (int i = 1; i < 9999; ++i) {
@@ -291,7 +285,7 @@ QVariant SquishTestTreeModel::data(const QModelIndex &idx, int role) const
                 return QVariant();
             return item->toolTip(idx.column());
         case LinkRole:
-            return item->filePath();
+            return item->filePath().toVariant();
         case TypeRole:
             return type;
         case DisplayNameRole:
@@ -408,7 +402,8 @@ void SquishTestTreeModel::removeAllSharedFolders()
     m_squishSharedFolders->removeChildren();
 }
 
-QStringList SquishTestTreeModel::getSelectedSquishTestCases(const QString &suiteConfPath) const
+QStringList SquishTestTreeModel::getSelectedSquishTestCases(
+        const Utils::FilePath &suiteConfPath) const
 {
     QStringList result;
     const int count = m_squishSuitesRoot->childCount();
