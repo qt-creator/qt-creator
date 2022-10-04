@@ -44,16 +44,6 @@ class VcsManagerPrivate
 public:
     class VcsInfo {
     public:
-        VcsInfo() = default;
-        VcsInfo(IVersionControl *vc, const QString &tl) :
-            versionControl(vc), topLevel(tl)
-        { }
-
-        bool operator == (const VcsInfo &other) const
-        {
-            return versionControl == other.versionControl && topLevel == other.topLevel;
-        }
-
         IVersionControl *versionControl = nullptr;
         QString topLevel;
     };
@@ -99,7 +89,7 @@ public:
         QString tmpDir = dir;
         const QChar slash = QLatin1Char('/');
         while (tmpDir.count() >= topLevel.count() && !tmpDir.isEmpty()) {
-            m_cachedMatches.insert(tmpDir, VcsInfo(vc, topLevel));
+            m_cachedMatches.insert(tmpDir, {vc, topLevel});
             // if no vc was found, this might mean we're inside a repo internal directory (.git)
             // Cache only input directory, not parents
             if (!vc)
