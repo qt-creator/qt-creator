@@ -3,8 +3,8 @@
 
 #include "configurestep.h"
 
-#include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
+#include "autotoolsprojectmanagertr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/processparameters.h>
@@ -20,8 +20,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 // Helper Function
 
@@ -52,8 +51,6 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc)
 
 class ConfigureStep final : public AbstractProcessStep
 {
-    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::ConfigureStep)
-
 public:
     ConfigureStep(BuildStepList *bsl, Id id);
 
@@ -73,7 +70,7 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl, Id id)
     auto arguments = addAspect<StringAspect>();
     arguments->setDisplayStyle(StringAspect::LineEditDisplay);
     arguments->setSettingsKey("AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
-    arguments->setLabelText(tr("Arguments:"));
+    arguments->setLabelText(Tr::tr("Arguments:"));
     arguments->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
 
     connect(arguments, &BaseAspect::changed, this, [this] {
@@ -116,7 +113,7 @@ void ConfigureStep::doRun()
     }
 
     if (!m_runConfigure) {
-        emit addOutput(tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
+        emit addOutput(Tr::tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
         emit finished(true);
         return;
     }
@@ -142,10 +139,9 @@ void ConfigureStep::doRun()
 ConfigureStepFactory::ConfigureStepFactory()
 {
     registerStep<ConfigureStep>(Constants::CONFIGURE_STEP_ID);
-    setDisplayName(ConfigureStep::tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
+    setDisplayName(Tr::tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

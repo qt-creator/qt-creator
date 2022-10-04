@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "bineditorwidget.h"
+
 #include "bineditorconstants.h"
 #include "bineditorservice.h"
+#include "bineditortr.h"
 #include "markup.h"
 
 #include <coreplugin/coreconstants.h>
@@ -42,8 +44,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace BinEditor {
-namespace Internal {
+namespace BinEditor::Internal {
 
 const QChar MidpointChar(u'\u00B7');
 
@@ -1218,7 +1219,7 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
     QString msg;
     QTextStream str(&msg);
     str << "<html><head/><body><p align=\"center\"><b>"
-        << tr("Memory at 0x%1").arg(address, 0, 16) << "</b></p>";
+        << Tr::tr("Memory at 0x%1").arg(address, 0, 16) << "</b></p>";
 
     for (const Markup &m : qAsConst(m_markup)) {
         if (m.covers(address) && !m.toolTip.isEmpty()) {
@@ -1226,16 +1227,16 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
             break;
         }
     }
-    const QString msgDecimalUnsigned = tr("Decimal&nbsp;unsigned&nbsp;value:");
-    const QString msgDecimalSigned = tr("Decimal&nbsp;signed&nbsp;value:");
-    const QString msgOldDecimalUnsigned = tr("Previous&nbsp;decimal&nbsp;unsigned&nbsp;value:");
-    const QString msgOldDecimalSigned = tr("Previous&nbsp;decimal&nbsp;signed&nbsp;value:");
+    const QString msgDecimalUnsigned = Tr::tr("Decimal&nbsp;unsigned&nbsp;value:");
+    const QString msgDecimalSigned = Tr::tr("Decimal&nbsp;signed&nbsp;value:");
+    const QString msgOldDecimalUnsigned = Tr::tr("Previous&nbsp;decimal&nbsp;unsigned&nbsp;value:");
+    const QString msgOldDecimalSigned = Tr::tr("Previous&nbsp;decimal&nbsp;signed&nbsp;value:");
 
     // Table showing little vs. big endian integers for multi-byte
     if (intSize > 1) {
         str << "<table><tr><th>"
-            << tr("%1-bit&nbsp;Integer&nbsp;Type").arg(8 * intSize) << "</th><th>"
-            << tr("Little Endian") << "</th><th>" << tr("Big Endian") << "</th></tr>";
+            << Tr::tr("%1-bit&nbsp;Integer&nbsp;Type").arg(8 * intSize) << "</th><th>"
+            << Tr::tr("Little Endian") << "</th><th>" << Tr::tr("Big Endian") << "</th></tr>";
         str << tableRowStartC << msgDecimalUnsigned
             << numericTableRowSepC << littleEndianValue << numericTableRowSepC
             << bigEndianValue << tableRowEndC <<  tableRowStartC << msgDecimalSigned
@@ -1261,14 +1262,14 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
             str << tableRowStartC << msgDecimalSigned << numericTableRowSepC
                 << littleEndianSigned << tableRowEndC;
         }
-        str << tableRowStartC << tr("Binary&nbsp;value:") << numericTableRowSepC;
+        str << tableRowStartC << Tr::tr("Binary&nbsp;value:") << numericTableRowSepC;
         str.setIntegerBase(2);
         str.setFieldWidth(8);
         str.setPadChar(QLatin1Char('0'));
         str << littleEndianValue;
         str.setFieldWidth(0);
         str << tableRowEndC << tableRowStartC
-            << tr("Octal&nbsp;value:") << numericTableRowSepC;
+            << Tr::tr("Octal&nbsp;value:") << numericTableRowSepC;
         str.setIntegerBase(8);
         str.setFieldWidth(3);
         str << littleEndianValue << tableRowEndC;
@@ -1281,13 +1282,13 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
                 str << tableRowStartC << msgOldDecimalSigned << numericTableRowSepC
                     << littleEndianSignedOld << tableRowEndC;
             }
-            str << tableRowStartC << tr("Previous&nbsp;binary&nbsp;value:")
+            str << tableRowStartC << Tr::tr("Previous&nbsp;binary&nbsp;value:")
                 << numericTableRowSepC;
             str.setIntegerBase(2);
             str.setFieldWidth(8);
             str << littleEndianValueOld;
             str.setFieldWidth(0);
-            str << tableRowEndC << tableRowStartC << tr("Previous&nbsp;octal&nbsp;value:")
+            str << tableRowEndC << tableRowStartC << Tr::tr("Previous&nbsp;octal&nbsp;value:")
                 << numericTableRowSepC;
             str.setIntegerBase(8);
             str.setFieldWidth(3);
@@ -1303,10 +1304,10 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
         double doubleValue, doubleValueOld;
         asDouble(selStart, doubleValue, false);
         asDouble(selStart, doubleValueOld, true);
-        str << tableRowStartC << tr("<i>double</i>&nbsp;value:") << numericTableRowSepC
+        str << tableRowStartC << Tr::tr("<i>double</i>&nbsp;value:") << numericTableRowSepC
             << doubleValue << tableRowEndC;
         if (doubleValue != doubleValueOld)
-            str << tableRowStartC << tr("Previous <i>double</i>&nbsp;value:") << numericTableRowSepC
+            str << tableRowStartC << Tr::tr("Previous <i>double</i>&nbsp;value:") << numericTableRowSepC
                 << doubleValueOld << tableRowEndC;
         str << "</table>";
     }
@@ -1317,10 +1318,10 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
         float floatValue, floatValueOld;
         asFloat(selStart, floatValue, false);
         asFloat(selStart, floatValueOld, true);
-        str << tableRowStartC << tr("<i>float</i>&nbsp;value:") << numericTableRowSepC
+        str << tableRowStartC << Tr::tr("<i>float</i>&nbsp;value:") << numericTableRowSepC
             << floatValue << tableRowEndC;
         if (floatValue != floatValueOld)
-            str << tableRowStartC << tr("Previous <i>float</i>&nbsp;value:") << numericTableRowSepC
+            str << tableRowStartC << Tr::tr("Previous <i>float</i>&nbsp;value:") << numericTableRowSepC
                 << floatValueOld << tableRowEndC;
 
         str << "</table>";
@@ -1441,8 +1442,7 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
 static void showZoomIndicator(QWidget *editor, const int newZoom)
 {
     Utils::FadingIndicator::showText(editor,
-                                     QCoreApplication::translate("BinEditorWidget::TextEditorWidget",
-                                                                 "Zoom: %1%").arg(newZoom),
+                                     Tr::tr("Zoom: %1%").arg(newZoom),
                                      Utils::FadingIndicator::SmallText);
 }
 
@@ -1465,8 +1465,8 @@ void BinEditorWidget::copy(bool raw)
     int selEnd = selectionEnd();
     const int selectionLength = selEnd - selStart + 1;
     if (selectionLength >> 22) {
-        QMessageBox::warning(this, tr("Copying Failed"),
-                             tr("You cannot copy more than 4 MB of binary data."));
+        QMessageBox::warning(this, Tr::tr("Copying Failed"),
+                             Tr::tr("You cannot copy more than 4 MB of binary data."));
         return;
     }
     QByteArray data = dataMid(selStart, selectionLength);
@@ -1577,15 +1577,15 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
 
     QPointer<QMenu> contextMenu(new QMenu(this));
 
-    auto copyAsciiAction = new QAction(tr("Copy Selection as ASCII Characters"), contextMenu);
-    auto copyHexAction = new QAction(tr("Copy Selection as Hex Values"), contextMenu);
+    auto copyAsciiAction = new QAction(Tr::tr("Copy Selection as ASCII Characters"), contextMenu);
+    auto copyHexAction = new QAction(Tr::tr("Copy Selection as Hex Values"), contextMenu);
     auto copyBeValue = new QAction(contextMenu);
     auto copyLeValue = new QAction(contextMenu);
     auto jumpToBeAddressHereAction = new QAction(contextMenu);
     auto jumpToBeAddressNewWindowAction = new QAction(contextMenu);
     auto jumpToLeAddressHereAction = new QAction(contextMenu);
     auto jumpToLeAddressNewWindowAction = new QAction(contextMenu);
-    auto addWatchpointAction = new QAction(tr("Set Data Breakpoint on Selection"), contextMenu);
+    auto addWatchpointAction = new QAction(Tr::tr("Set Data Breakpoint on Selection"), contextMenu);
     contextMenu->addAction(copyAsciiAction);
     contextMenu->addAction(copyHexAction);
     contextMenu->addAction(addWatchpointAction);
@@ -1596,11 +1596,11 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     quint64 leAddress = 0;
     if (byteCount <= 8) {
         asIntegers(selStart, byteCount, beAddress, leAddress);
-        copyBeValue->setText(tr("Copy 0x%1").arg(QString::number(beAddress, 16)));
+        copyBeValue->setText(Tr::tr("Copy 0x%1").arg(QString::number(beAddress, 16)));
         contextMenu->addAction(copyBeValue);
         // If the menu entries would be identical, show only one of them.
         if (beAddress != leAddress) {
-            copyLeValue->setText(tr("Copy 0x%1").arg(QString::number(leAddress, 16)));
+            copyLeValue->setText(Tr::tr("Copy 0x%1").arg(QString::number(leAddress, 16)));
             contextMenu->addAction(copyLeValue);
         }
         setupJumpToMenuAction(contextMenu, jumpToBeAddressHereAction,
@@ -1611,9 +1611,9 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
                                   jumpToLeAddressNewWindowAction, leAddress);
         }
     } else {
-        jumpToBeAddressHereAction->setText(tr("Jump to Address in This Window"));
-        jumpToBeAddressNewWindowAction->setText(tr("Jump to Address in New Window"));
-        copyBeValue->setText(tr("Copy Value"));
+        jumpToBeAddressHereAction->setText(Tr::tr("Jump to Address in This Window"));
+        jumpToBeAddressNewWindowAction->setText(Tr::tr("Jump to Address in New Window"));
+        copyBeValue->setText(Tr::tr("Copy Value"));
         jumpToBeAddressHereAction->setEnabled(false);
         jumpToBeAddressNewWindowAction->setEnabled(false);
         copyBeValue->setEnabled(false);
@@ -1650,9 +1650,9 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
 void BinEditorWidget::setupJumpToMenuAction(QMenu *menu, QAction *actionHere,
                                       QAction *actionNew, quint64 addr)
 {
-    actionHere->setText(tr("Jump to Address 0x%1 in This Window")
+    actionHere->setText(Tr::tr("Jump to Address 0x%1 in This Window")
                         .arg(QString::number(addr, 16)));
-    actionNew->setText(tr("Jump to Address 0x%1 in New Window")
+    actionNew->setText(Tr::tr("Jump to Address 0x%1 in New Window")
                         .arg(QString::number(addr, 16)));
     menu->addAction(actionHere);
     menu->addAction(actionNew);
@@ -1735,5 +1735,4 @@ void BinEditorWidget::setMarkup(const QList<Markup> &markup)
     viewport()->update();
 }
 
-} // namespace Internal
-} // namespace BinEditor
+} // BinEditor::Internal

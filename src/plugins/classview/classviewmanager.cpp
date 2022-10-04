@@ -99,7 +99,7 @@ void ManagerPrivate::resetParser()
     QHash<FilePath, QPair<QString, FilePaths>> projectData;
     for (const Project *project : SessionManager::projects()) {
         projectData.insert(project->projectFilePath(),
-                           qMakePair(project->displayName(), project->files(Project::SourceFiles)));
+                           {project->displayName(), project->files(Project::SourceFiles)});
     }
     QMetaObject::invokeMethod(m_parser, [this, projectData]() {
         m_parser->resetData(projectData);

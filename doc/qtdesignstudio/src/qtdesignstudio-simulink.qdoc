@@ -143,7 +143,7 @@
     Navigator to add the properties on the \uicontrol Properties tab in the
     \l Connections view.
 
-    See \l {Specifying Dynamic Properties} for a detailed description of how
+    See \l {Specifying Custom Properties} for a detailed description of how
     to add a custom property. The name of the property and the data type
     need to match those of the send or receive property of the Simulink model.
 

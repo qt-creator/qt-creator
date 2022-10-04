@@ -61,30 +61,26 @@ QString createDiagnosticToolTipString(
     QList<StringPair> lines;
 
     if (!diagnostic.category.isEmpty()) {
-        lines << qMakePair(
-                     QCoreApplication::translate("ClangTools::Diagnostic", "Category:"),
-                     diagnostic.category.toHtmlEscaped());
+        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Category:"),
+                         diagnostic.category.toHtmlEscaped()});
     }
 
     if (!diagnostic.type.isEmpty()) {
-        lines << qMakePair(
-                     QCoreApplication::translate("ClangTools::Diagnostic", "Type:"),
-                     diagnostic.type.toHtmlEscaped());
+        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Type:"),
+                         diagnostic.type.toHtmlEscaped()});
     }
 
     if (!diagnostic.description.isEmpty()) {
-        lines << qMakePair(
-                     QCoreApplication::translate("ClangTools::Diagnostic", "Description:"),
-                     diagnostic.description.toHtmlEscaped());
+        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Description:"),
+                         diagnostic.description.toHtmlEscaped()});
     }
 
-    lines << qMakePair(
-                 QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
-                 createFullLocationString(diagnostic.location));
+    lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
+                     createFullLocationString(diagnostic.location)});
 
     if (status) {
-        lines << qMakePair(QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
-                           fixitStatus(*status));
+        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
+                         fixitStatus(*status)});
     }
 
     if (showSteps && !diagnostic.explainingSteps.isEmpty()) {
@@ -103,8 +99,8 @@ QString createDiagnosticToolTipString(
 
     const QString url = documentationUrl(diagnostic.name);
     if (!url.isEmpty()) {
-        lines << qMakePair(QCoreApplication::translate("ClangTools::Diagnostic", "Documentation:"),
-                           QString("<a href=\"%1\">%1</a>").arg(url));
+        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Documentation:"),
+                         QString("<a href=\"%1\">%1</a>").arg(url)});
     }
 
     QString html = QLatin1String("<html>"

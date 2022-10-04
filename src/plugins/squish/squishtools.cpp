@@ -739,7 +739,7 @@ void SquishTools::onRecorderFinished()
                 "test" + m_suiteConf.scriptExtension());
     bool result = helper.writeScriptFile(testFile, m_currentRecorderSnippetFile,
                                          m_suiteConf.aut(),
-                                         m_suiteConf.arguments().split(' ', Qt::SkipEmptyParts));
+                                         m_suiteConf.arguments());
     qCInfo(LOG) << "Wrote recorded test case" << testFile.toUserOutput() << " " << result;
     m_currentRecorderSnippetFile.removeFile();
     m_currentRecorderSnippetFile.clear();

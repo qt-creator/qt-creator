@@ -689,7 +689,7 @@ void AndroidManifestEditorWidget::updateInfoBar()
 
 void AndroidManifestEditorWidget::updateSdkVersions()
 {
-    static const QPair<int, int> sdkPair = qMakePair(16, 31);
+    static const QPair<int, int> sdkPair{16, 31};
     int minSdk = sdkPair.first;
     const int targetSdk = sdkPair.second;
     const Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath());

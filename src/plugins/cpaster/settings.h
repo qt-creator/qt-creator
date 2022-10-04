@@ -11,8 +11,6 @@ namespace CodePaster {
 
 class Settings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(CodePaster::Settings)
-
 public:
     Settings();
 
@@ -29,4 +27,4 @@ public:
     SettingsPage(Settings *settings);
 };
 
-} // namespace CodePaster
+} // CodePaster

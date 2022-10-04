@@ -7,8 +7,7 @@
 
 #include <QRegularExpression>
 
-namespace Cvs {
-namespace Internal {
+namespace Cvs::Internal {
 
 class CvsEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
@@ -28,5 +27,4 @@ private:
     QString m_diffBaseDir;
 };
 
-} // namespace Internal
-} // namespace Cvs
+} // Cvs::Internal

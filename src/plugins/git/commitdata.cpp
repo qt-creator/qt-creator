@@ -95,7 +95,7 @@ bool CommitData::checkLine(const QString &stateInfo, const QString &file)
     QTC_ASSERT(stateInfo.count() == 2, return false);
 
     if (stateInfo == "??") {
-        files.append(qMakePair(FileStates(UntrackedFile), file));
+        files.push_back({FileStates(UntrackedFile), file});
         return true;
     }
 
@@ -110,22 +110,22 @@ bool CommitData::checkLine(const QString &stateInfo, const QString &file)
         if (xState == yState) {
             if (xState == UnmergedFile)
                 xState = ModifiedFile;
-            files.append(qMakePair(xState | UnmergedFile | UnmergedUs | UnmergedThem, file));
+            files.push_back({xState | UnmergedFile | UnmergedUs | UnmergedThem, file});
         } else if (xState == UnmergedFile) {
-            files.append(qMakePair(yState | UnmergedFile | UnmergedThem, file));
+            files.push_back({yState | UnmergedFile | UnmergedThem, file});
         } else {
-            files.append(qMakePair(xState | UnmergedFile | UnmergedUs, file));
+            files.push_back({xState | UnmergedFile | UnmergedUs, file});
         }
     } else {
         if (xState != EmptyFileState)
-            files.append(qMakePair(xState | StagedFile, file));
+            files.push_back({xState | StagedFile, file});
 
         if (yState != EmptyFileState) {
             QString newFile = file;
             if (xState & (RenamedFile | CopiedFile))
                 newFile = file.mid(file.indexOf(" -> ") + 4);
 
-            files.append(qMakePair(yState, newFile));
+            files.push_back({yState, newFile});
         }
     }
     Utils::sort(files);

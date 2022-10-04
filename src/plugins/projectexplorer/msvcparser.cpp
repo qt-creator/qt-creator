@@ -19,7 +19,7 @@ static QPair<FilePath, int> parseFileName(const QString &input)
 {
     QString fileName = input;
     if (fileName.startsWith("LINK") || fileName.startsWith("cl"))
-        return qMakePair(FilePath(), -1);
+        return {{}, -1};
 
     // Extract linenumber (if it is there):
     int linenumber = -1;
@@ -39,7 +39,7 @@ static QPair<FilePath, int> parseFileName(const QString &input)
         }
     }
     const QString normalized = FileUtils::normalizedPathName(fileName);
-    return qMakePair(FilePath::fromUserInput(normalized), linenumber);
+    return {FilePath::fromUserInput(normalized), linenumber};
 }
 
 using namespace ProjectExplorer;

@@ -12,6 +12,10 @@ class FilePath;
 
 namespace CMakeProjectManager::Internal {
 
+namespace PresetsDetails {
+class ConfigurePreset;
+}
+
 namespace CMakePresets::Macros {
 /**
  * Expands the CMakePresets Macros using Utils::Environment as target and source for parent environment values.
@@ -39,6 +43,22 @@ void expand(const PresetType &preset,
             const Utils::Environment &env,
             const Utils::FilePath &sourceDirectory,
             QString &value);
+
+/**
+ * Updates the cacheVariables parameter of the configurePreset with the expandned toolchainFile parameter.
+ * Including macro expansion and relative paths resolving.
+ */
+void updateToolchainFile(PresetsDetails::ConfigurePreset &configurePreset,
+                         const Utils::Environment &env,
+                         const Utils::FilePath &sourceDirectory,
+                         const Utils::FilePath &buildDirectory);
+
+/**
+ * Expands the condition values and then evaluates the condition object of the preset and returns
+ * the boolean result.
+ */
+template<class PresetType>
+bool evaluatePresetCondition(const PresetType &preset, const Utils::FilePath &sourceDirectory);
 
 } // namespace CMakePresets::Macros
 

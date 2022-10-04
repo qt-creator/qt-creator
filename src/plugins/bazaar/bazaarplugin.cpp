@@ -834,7 +834,8 @@ bool BazaarPluginPrivate::submitEditorAboutToClose()
         if (!commitWidget->committer().isEmpty())
             extraOptions.append(QLatin1String("--author=") + commitWidget->committer());
         // Fixed bugs
-        foreach (const QString &fix, commitWidget->fixedBugs()) {
+        const QStringList fixes = commitWidget->fixedBugs();
+        for (const QString &fix : fixes) {
             if (!fix.isEmpty())
                 extraOptions << QLatin1String("--fixes") << fix;
         }
@@ -864,7 +865,7 @@ void BazaarPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     m_revertFile->setParameter(filename);
     m_statusFile->setParameter(filename);
 
-    foreach (QAction *repoAction, m_repositoryActionList)
+    for (QAction *repoAction : qAsConst(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
 }
 

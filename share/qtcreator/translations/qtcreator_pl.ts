@@ -317,7 +317,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteSelectDialog</name>
+    <name>CodePaster</name>
     <message>
         <source>Refresh</source>
         <translation>Odśwież</translation>
@@ -330,16 +330,13 @@
         <source>This protocol does not support listing</source>
         <translation>Ten protokół nie obsługuje wyświetlania zawartości</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -1378,7 +1375,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zakładkę</translation>
@@ -1986,10 +1983,6 @@ Przyczyna: %3</translation>
 </context>
 <context>
     <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Zakładki</translation>
-    </message>
     <message>
         <source>Move Up</source>
         <translation>Przenieś do góry</translation>
@@ -2770,7 +2763,7 @@ Kontynuować?</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>Wklejanie &amp;kodu</translation>
@@ -2933,7 +2926,7 @@ Kontynuować?</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsPlugin</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
@@ -3206,9 +3199,6 @@ Kontynuować?</translation>
         <source>The initial revision %1 cannot be described.</source>
         <translation>Początkowa wersja %1 nie może być opisana.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Dodano</translation>
@@ -3221,9 +3211,6 @@ Kontynuować?</translation>
         <source>Modified</source>
         <translation>Zmodyfikowano</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Komenda CVS</translation>
@@ -9958,15 +9945,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
 </context>
 <context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Usuń katalog</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Zmień nazwę katalogu</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Pokaż zakładkę</translation>
@@ -9983,13 +9962,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
         <source>Rename Bookmark</source>
         <translation>Zmień nazwę zakładki</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Zakładki</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Usuń</translation>
@@ -9997,10 +9969,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>Usunięcie katalogu usuwa również jego zawartość.&lt;br&gt;Czy kontynuować?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nowy katalog</translation>
     </message>
     <message>
         <source>Bookmark</source>
@@ -11018,9 +10986,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>Code Pasting</source>
         <translation>Wklejanie kodu</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Komentarz&gt;</translation>
@@ -12345,7 +12310,7 @@ które można ustawić poniżej.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Nie można otworzyć %1: %2</translation>
@@ -12366,16 +12331,10 @@ które można ustawić poniżej.</translation>
         <source>Pasted: %1</source>
         <translation>Wklejono: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Błąd konfiguracji</translation>
@@ -13156,7 +13115,7 @@ Lista serwera: %2.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::NetworkProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>Sprawdzanie połączenia</translation>
@@ -19427,7 +19386,7 @@ Wykluczenia: %3
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -19448,13 +19407,6 @@ Wykluczenia: %3
         <source>entries</source>
         <translation>wpisów</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; pozwala wysyłać fragmenty kodu do własnych poddomen (np. creator.pastebin.com). Podaj przedrostek serwera.</translation>
@@ -19467,9 +19419,6 @@ Wykluczenia: %3
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Uwaga: wtyczka użyje go zarówno do wysyłania jak i pobierania fragmentów kodu.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokół:</translation>
@@ -19478,16 +19427,9 @@ Wykluczenia: %3
         <source>Paste:</source>
         <translation>Wklej:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Wyślij do Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokół:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -19537,9 +19479,6 @@ p, li { white-space: pre-wrap; }
         <source> Days</source>
         <translation> Dni</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Pokazuj panel z komunikatami po wysłaniu kodu</translation>
@@ -19555,14 +19494,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Domyślny protokół:</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>Okr&amp;es ważności:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> Dni</translation>
     </message>
 </context>
 <context>
@@ -21249,15 +21180,12 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -21266,9 +21194,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Konfiguracja niezmieniona, krok autogen pominięty.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
@@ -21278,17 +21203,11 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -21297,21 +21216,11 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Konfiguracja niezmieniona, krok autoreconf pominięty.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -21321,9 +21230,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Build</source>
         <translation>Wersja</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Katalog wersji:</translation>
@@ -21332,39 +21238,23 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Autotools Manager</source>
         <translation>Menedżer Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Kreator Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Podaj katalog, w którym zbudować projekt. Zaleca się nie budować projektu w katalogu ze źródłami. Dzięki temu katalog ze źródłami pozostaje czysty i możliwe jest zbudowanie wielu wersji z różnymi ustawieniami, na podstawie tych samych źródeł.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Katalog wersji:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Położenie wersji</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Konfiguracja</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Konfiguracja</translation>
@@ -21373,21 +21263,11 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Konfiguracja niezmieniona, krok konfiguracji pominięty.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Konfiguracja</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Parsowanie %1 w katalogu %2</translation>
@@ -21396,27 +21276,14 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Parsing directory %1</source>
         <translation>Parsowanie katalogu %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
     </message>
     <message>
         <source>Make</source>
@@ -25398,7 +25265,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Edycja</translation>
@@ -30433,7 +30300,7 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Edytor plików binarnych nie może otwierać pustych plików.</translation>
@@ -30450,9 +30317,6 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
         <source>Cannot open %1: %2</source>
         <translation>Nie można otworzyć %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Cofnij</translation>
@@ -30986,7 +30850,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dołącz adnotację do wersji &quot;%1&quot;</translation>
@@ -39993,7 +39857,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Pamięć w 0x%1</translation>
@@ -41705,7 +41569,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Powiększenie:%1%</translation>
@@ -41946,18 +41810,11 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::AuthenticationDialog</name>
-    <message>
-        <source>Username:</source>
-        <translation>Nazwa użytkownika:</translation>
-    </message>
+    <name>CodePaster</name>
     <message>
         <source>Password:</source>
         <translation>Hasło:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::KdePasteProtocol</name>
     <message>
         <source>Pasting to KDE paster needs authentication.&lt;br/&gt;Enter your KDE Identity credentials to continue.</source>
         <translation type="unfinished"></translation>
@@ -42012,7 +41869,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffConfig</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignoruj białe znaki</translation>

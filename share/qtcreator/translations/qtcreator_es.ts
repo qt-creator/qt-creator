@@ -89,7 +89,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Agregar marcador</translation>
@@ -126,16 +126,9 @@
         <source>Rename Folder</source>
         <translation>Renombrar directorio</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
     <message>
         <source>Bookmark</source>
         <translation type="obsolete">Marcador</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Marcadores</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -148,17 +141,6 @@
     <message>
         <source>New Folder</source>
         <translation>Nuevo directorio</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Suprimir directorio</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Renombrar directorio</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -183,17 +165,6 @@
     <message>
         <source>Add</source>
         <translation>Agregar</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Suprimir</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Marcadores</translation>
     </message>
     <message>
         <source>&amp;Remove Bookmark</source>
@@ -542,7 +513,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation></translation>
@@ -571,9 +542,6 @@
         <source>Waiting for items</source>
         <translation>Esperando items</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CustomFetcher</name>
     <message>
         <source>CodePaster Error</source>
         <translation type="obsolete">Error de CodePaster</translation>
@@ -582,20 +550,10 @@
         <source>Could not fetch code</source>
         <translation type="obsolete">No se pudo obtener el código</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CustomPoster</name>
-    <message>
-        <source>CodePaster Error</source>
-        <translation type="obsolete">Error de CodePaster</translation>
-    </message>
     <message>
         <source>Some error occured while posting</source>
         <translation type="obsolete">Ocurrió algún error mientras se enviaba el código</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Paste:</source>
         <translation>Pegar:</translation>
@@ -605,9 +563,6 @@
         <source>Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>CodePaster Server:</source>
         <translation type="obsolete">Servidor CodePaster:</translation>
@@ -11246,7 +11201,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
@@ -12157,14 +12112,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No such paste</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation type="unfinished"></translation>
@@ -12248,7 +12200,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="unfinished"></translation>
@@ -12257,9 +12209,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository and path.</source>
         <translation type="unfinished"></translation>
@@ -12268,16 +12217,10 @@ p, li { white-space: pre-wrap; }
         <source>Repository:</source>
         <translation type="unfinished">Repositorio:</translation>
     </message>
-</context>
-<context>
-    <name>CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation type="unfinished"></translation>
@@ -12468,9 +12411,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation type="unfinished"></translation>
@@ -12487,9 +12427,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS Submit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation type="unfinished"></translation>

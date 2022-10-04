@@ -51,12 +51,12 @@ public:
 
     void errorCount(qint64 unique, qint64 count)
     {
-        errorcounts.push_back(qMakePair(unique, count));
+        errorcounts.push_back({unique, count});
     }
 
     void suppressionCount(const QString &name, qint64 count)
     {
-        suppcounts.push_back(qMakePair(name, count));
+        suppcounts.push_back({name, count});
     }
 
 };

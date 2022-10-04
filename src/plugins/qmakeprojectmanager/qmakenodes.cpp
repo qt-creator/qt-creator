@@ -115,7 +115,8 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
                 const FolderNode *folder = node->asFolderNode();
                 if (folder) {
                     QStringList list;
-                    foreach (FolderNode *f, folder->folderNodes())
+                    const auto folderNodes = folder->folderNodes();
+                    for (FolderNode *f : folderNodes)
                         list << f->filePath().toString() + QLatin1Char('/');
                     if (n->deploysFolder(Utils::commonPath(list)))
                         addExistingFiles = false;
@@ -341,7 +342,7 @@ QStringList QmakeProFileNode::targetApplications() const
     return apps;
 }
 
-QVariant QmakeProFileNode::data(Utils::Id role) const
+QVariant QmakeProFileNode::data(Id role) const
 {
     if (role == Android::Constants::AndroidAbis)
         return variableValue(Variable::AndroidAbis);
@@ -400,7 +401,7 @@ QVariant QmakeProFileNode::data(Utils::Id role) const
     return {};
 }
 
-bool QmakeProFileNode::setData(Utils::Id role, const QVariant &value) const
+bool QmakeProFileNode::setData(Id role, const QVariant &value) const
 {
     QmakeProFile *pro = proFile();
     if (!pro)

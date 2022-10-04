@@ -17,6 +17,7 @@ Item {
     property var currentMaterial: null
     property int currentMaterialIdx: 0
     property var currentBundleMaterial: null
+    property int copiedMaterialInternalId: -1
 
     property var matSectionsModel: []
 
@@ -125,15 +126,20 @@ Item {
                 StudioControls.MenuItem {
                     text: modelData
                     enabled: root.currentMaterial
-                    onTriggered: materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx, modelData)
+                    onTriggered: {
+                        root.copiedMaterialInternalId = root.currentMaterial.materialInternalId
+                        materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx, modelData)
+                    }
                 }
             }
         }
 
         StudioControls.MenuItem {
             text: qsTr("Paste properties")
-            enabled: root.currentMaterial && root.currentMaterial.materialType
-                                             === materialBrowserModel.copiedMaterialType
+            enabled: root.currentMaterial
+                     && root.copiedMaterialInternalId !== root.currentMaterial.materialInternalId
+                     && root.currentMaterial.materialType === materialBrowserModel.copiedMaterialType
+                     && materialBrowserModel.isCopiedMaterialValid()
             onTriggered: materialBrowserModel.pasteMaterialProperties(root.currentMaterialIdx)
         }
 
@@ -213,7 +219,22 @@ Item {
 
                 width: root.width - addMaterialButton.width
 
-                onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
+                onSearchChanged: (searchText) => {
+                    rootView.handleSearchFilterChanged(searchText)
+
+                    // make sure searched categories that have matches are expanded
+                    if (!materialBrowserModel.isEmpty && !userMaterialsSection.expanded)
+                        userMaterialsSection.expanded = true
+
+                    if (!materialBrowserBundleModel.isEmpty && !bundleMaterialsSection.expanded)
+                        bundleMaterialsSection.expanded = true
+
+                    for (let i = 0; i < bundleMaterialsSectionRepeater.count; ++i) {
+                        let sec = bundleMaterialsSectionRepeater.itemAt(i)
+                        if (sec.visible && !sec.expanded)
+                            sec.expanded = true
+                    }
+                }
             }
 
             IconButton {
@@ -282,10 +303,8 @@ Item {
                                 height: root.cellHeight
 
                                 onShowContextMenu: {
-                                    if (searchBox.isEmpty()) {
-                                        root.currentMaterial = model
-                                        cxtMenu.popup()
-                                    }
+                                    root.currentMaterial = model
+                                    cxtMenu.popup()
                                 }
                             }
                         }
@@ -312,6 +331,8 @@ Item {
                 }
 
                 Section {
+                    id: bundleMaterialsSection
+
                     width: root.width
                     caption: qsTr("Material Library")
                     addTopPadding: noMatchText.visible
@@ -319,6 +340,8 @@ Item {
 
                     Column {
                         Repeater {
+                            id: bundleMaterialsSectionRepeater
+
                             model: materialBrowserBundleModel
 
                             delegate: Section {
@@ -343,10 +366,8 @@ Item {
                                             height: root.cellHeight
 
                                             onShowContextMenu: {
-                                                if (searchBox.isEmpty()) {
-                                                    root.currentBundleMaterial = modelData
-                                                    cxtMenuBundle.popup()
-                                                }
+                                                root.currentBundleMaterial = modelData
+                                                cxtMenuBundle.popup()
                                             }
                                         }
                                     }

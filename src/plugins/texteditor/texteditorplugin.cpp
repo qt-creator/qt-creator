@@ -261,20 +261,21 @@ void TextEditorPluginPrivate::updateSearchResultsFont(const FontSettings &settin
         const Format containingFunctionResultFormat =
              settings.formatFor(C_SEARCH_RESULT_CONTAINING_FUNCTION);
         window->setTextEditorFont(QFont(settings.family(), settings.fontSize() * settings.fontZoom() / 100),
-            {std::make_pair(SearchResultColor::Style::Default,
-             SearchResultColor(textFormat.background(), textFormat.foreground(),
-             defaultResultFormat.background(), defaultResultFormat.foreground(),
-             containingFunctionResultFormat.background(), containingFunctionResultFormat.foreground())),
-             std::make_pair(SearchResultColor::Style::Alt1,
-                          SearchResultColor(textFormat.background(), textFormat.foreground(),
-                          alt1ResultFormat.background(), alt1ResultFormat.foreground(),
-                          containingFunctionResultFormat.background(),
-                          containingFunctionResultFormat.foreground())),
-             std::make_pair(SearchResultColor::Style::Alt2,
-                          SearchResultColor(textFormat.background(), textFormat.foreground(),
-                          alt2ResultFormat.background(), alt2ResultFormat.foreground(),
-                          containingFunctionResultFormat.background(),
-                          containingFunctionResultFormat.foreground()))});
+            {{SearchResultColor::Style::Default,
+              {textFormat.background(), textFormat.foreground(),
+               defaultResultFormat.background(), defaultResultFormat.foreground(),
+               containingFunctionResultFormat.background(),
+               containingFunctionResultFormat.foreground()}},
+             {SearchResultColor::Style::Alt1,
+              {textFormat.background(), textFormat.foreground(),
+               alt1ResultFormat.background(), alt1ResultFormat.foreground(),
+               containingFunctionResultFormat.background(),
+               containingFunctionResultFormat.foreground()}},
+             {SearchResultColor::Style::Alt2,
+              {textFormat.background(), textFormat.foreground(),
+               alt2ResultFormat.background(), alt2ResultFormat.foreground(),
+               containingFunctionResultFormat.background(),
+               containingFunctionResultFormat.foreground()}}});
     }
 }
 

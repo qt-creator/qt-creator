@@ -13,6 +13,8 @@ class QComboBox;
 class QLineEdit;
 QT_END_NAMESPACE
 
+namespace Utils { class InfoLabel; }
+
 namespace Squish {
 namespace Internal {
 
@@ -43,6 +45,7 @@ private:
 
     QButtonGroup *m_buttonGroup = nullptr;
     QLineEdit *m_hiddenLineEdit = nullptr;
+    Utils::InfoLabel *m_errorLabel = nullptr;
 };
 
 class SquishScriptLanguagePageFactory : public ProjectExplorer::JsonWizardPageFactory

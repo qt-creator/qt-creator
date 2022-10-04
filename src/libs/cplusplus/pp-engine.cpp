@@ -1420,7 +1420,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                 trackedLine = tk.lineno;
                 trackedColumn = unsigned(computeDistance(tk, true));
             }
-            m_state.m_expandedTokensInfo.append(qMakePair(trackedLine, trackedColumn));
+            m_state.m_expandedTokensInfo.push_back({trackedLine, trackedColumn});
         } else if (m_state.m_expansionStatus == JustFinishedExpansion) {
             m_state.setExpansionStatus(NotExpanding);
             macroExpanded = true;

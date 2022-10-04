@@ -2939,7 +2939,7 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Protokol lijepljenja temeljen na programu za zajedničko korištenje datoteka, omogućuje dijeljenje isječaka kȏda pomoću jednostavnih datoteka na zajedničkom mrežnom pogonu. Datoteke se nikad ne brišu.</translation>
@@ -2956,9 +2956,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>entries</source>
         <translation>unosa</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; omogućuje slanje članaka na prilagođene poddomene (npr. creator.pastebin.com). Unesi željeni prefiks.</translation>
@@ -2971,9 +2968,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Napomena: Dodatak će koristiti prefiks za slanje i za dohvaćanje.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokol:</translation>
@@ -2982,16 +2976,9 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>Paste:</source>
         <translation>Zalijepi:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Pošalji na Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokol:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -3041,9 +3028,6 @@ p, li { white-space: pre-wrap; }
         <source>Patch 2</source>
         <translation>Zakrpa 2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Copy-paste URL to clipboard</source>
         <translation>Kopiraj-zalijepi URL u međuspremnik</translation>
@@ -3053,20 +3037,12 @@ p, li { white-space: pre-wrap; }
         <translation>Zadani protokol:</translation>
     </message>
     <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Isteći će nakon:</translation>
-    </message>
-    <message>
         <source>Display Output pane after sending a post</source>
         <translation>Pirkaži ploču izrade nakon slanja članka</translation>
     </message>
     <message>
         <source>Username:</source>
         <translation>Korisničko ime:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> dana</translation>
     </message>
 </context>
 <context>
@@ -3609,7 +3585,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -9383,7 +9359,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj knjižnu oznaku</translation>
@@ -15521,7 +15497,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -15539,9 +15515,6 @@ Check the test environment.</source>
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
@@ -15552,16 +15525,9 @@ Check the test environment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation type="unfinished">Argumenti:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -15571,27 +15537,14 @@ Check the test environment.</source>
         <source>Build</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
-    <message>
-        <source>Build directory:</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Autotools Manager</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. It is not recommended to use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation type="unfinished"></translation>
@@ -15604,9 +15557,6 @@ Check the test environment.</source>
         <source>Build Location</source>
         <translation>Mjesto izgradnje</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
@@ -15617,16 +15567,9 @@ Check the test environment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation type="unfinished">Argumenti:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping configure step.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation type="unfinished"></translation>
@@ -16464,7 +16407,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Memorija pri 0x%1</translation>
@@ -16626,7 +16569,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binarni uređivač ne može otvoriti prazne datoteke.</translation>
@@ -16643,9 +16586,6 @@ Check the test environment.</source>
         <source>Cannot open %1: %2</source>
         <translation>Nije moguće otvoriti %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -16654,134 +16594,27 @@ Check the test environment.</source>
         <source>&amp;Redo</source>
         <translation>Po&amp;novi</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
-    <message>
-        <source>Memory at 0x%1</source>
-        <translation>Memorija pri 0x%1</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>Decimalna&amp;nbsp;nepotpisana&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>Decimalna&amp;nbsp;potpisana&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>Prethodna&amp;nbsp;decimalna&amp;nbsp;nepotpisana&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>Prethodna&amp;nbsp;decimalna&amp;nbsp;potpisana&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation>%1-bit&amp;nbsp;cjelobrojna&amp;nbsp;vrsta</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binary&amp;nbsp;value:</source>
-        <translation>Binarna&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Octal&amp;nbsp;value:</source>
-        <translation>Oktalna&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation>Prethodna&amp;nbsp;binarna&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation>Prethodna&amp;nbsp;oktalna&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;dupla&lt;/i&gt;&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>Prethodna &lt;i&gt;dupla&lt;/i&gt;&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;pomična&lt;/i&gt;&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>Prethodna &lt;i&gt;pomična&lt;/i&gt;&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation>Neuspjelo kopiranje</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation>Ne možeš kopirati više od 4 MB binarnih podataka.</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation>Kopiraj odabir kao ASCII znakove</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation>Kopiraj odabir kao heksadecimalne znakove</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation>Postavi točku prekida podataka na odabiru</translation>
-    </message>
     <message>
         <source>Copy 0x%1</source>
         <translation>Kopiraj 0x%1</translation>
     </message>
     <message>
-        <source>Jump to Address in This Window</source>
-        <translation>Prijeđi na adresu u ovom prozoru</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation>Prijeđi na adresu u novom prozoru</translation>
-    </message>
-    <message>
         <source>Copy Value</source>
         <translation>Kopiraj vrijednost</translation>
     </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation>Prijeđi na adresu 0x%1 u ovom prozoru</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation>Prijeđi na adresu 0x%1 u novom prozoru</translation>
-    </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zumiranje: %1%</translation>
     </message>
 </context>
 <context>
-    <name>BookmarkManager</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmark</source>
         <translation>Knjižna oznaka</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Knjižne oznake</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -16790,17 +16623,6 @@ Check the test environment.</source>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>Brisanjem mape se uklanja i njen sadržaj.&lt;br&gt;Želiš li nastaviti?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nova mapa</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Knjižne oznake</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -20608,18 +20430,11 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CodePaster::AuthenticationDialog</name>
-    <message>
-        <source>Username:</source>
-        <translation>Korisničko ime:</translation>
-    </message>
+    <name>CodePaster</name>
     <message>
         <source>Password:</source>
         <translation>Lozinka:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Lijepljenje kȏda</translation>
@@ -20664,9 +20479,6 @@ u kontrolu verzija (%2)
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Dobiven je prazan isječak za &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Nije moguće otvoriti %1: %2</translation>
@@ -20687,16 +20499,10 @@ u kontrolu verzija (%2)
         <source>Pasted: %1</source>
         <translation>Zalijepljeno: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Dijeljenje datoteka</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::KdePasteProtocol</name>
     <message>
         <source>Pasting to KDE paster needs authentication.&lt;br/&gt;Enter your KDE Identity credentials to continue.</source>
         <translation>Za lijepljenje u KDE paster je potrebna autenticikacija.&lt;br/&gt;Upiši tvoje podatke za KDE identifikaciju za nastavljanje.</translation>
@@ -20705,16 +20511,10 @@ u kontrolu verzija (%2)
         <source>Login failed</source>
         <translation>Neuspjela prijava</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteCodeDotXyzProtocol</name>
     <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Aktualiziraj</translation>
@@ -20727,9 +20527,6 @@ u kontrolu verzija (%2)
         <source>This protocol does not support listing</source>
         <translation>Ovaj protokol ne podržava popis</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Komentar&gt;</translation>
@@ -20738,16 +20535,10 @@ u kontrolu verzija (%2)
         <source>Paste</source>
         <translation>Zalijepi</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 – Greška u konfiguraciji</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Pasting needs authentication.&lt;br/&gt;Enter your identity credentials to continue.</source>
         <translation>Za lijepljenje je potrebna autenticikacija.&lt;br/&gt;Upiši tvoje podatke za identifikaciju za nastavljanje.</translation>
@@ -20764,16 +20555,10 @@ u kontrolu verzija (%2)
         <source>Connecting to %1...</source>
         <translation>Povezivanje na %1 …</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>Lijepljenje kȏda</translation>
@@ -21807,7 +21592,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffConfig</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation type="unfinished"></translation>
@@ -21816,9 +21601,6 @@ Oznake: %3</translation>
         <source>Ignore Blank Lines</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsControl</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Uredi</translation>
@@ -21827,16 +21609,10 @@ Oznake: %3</translation>
         <source>CVS Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -22081,9 +21857,6 @@ Oznake: %3</translation>
         <source>No CVS executable specified.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation type="unfinished"></translation>
@@ -22096,9 +21869,6 @@ Oznake: %3</translation>
         <source>Modified</source>
         <translation>Posljednja promjena</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation type="unfinished"></translation>
@@ -40894,15 +40664,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Ukloni mapu</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Preimenuj mapu</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Prikaži knjižnu oznaku</translation>

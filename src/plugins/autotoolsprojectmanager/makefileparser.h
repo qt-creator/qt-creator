@@ -14,8 +14,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QDir)
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 /**
  * @brief Parses the autotools makefile Makefile.am.
@@ -258,5 +257,4 @@ private:
     QTextStream m_textStream;   ///< Textstream that represents the makefile
 };
 
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

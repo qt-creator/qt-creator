@@ -11,7 +11,7 @@ namespace Internal {
 
 DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager,
                                        Timeline::TimelineModelAggregator *parent) :
-    QmlProfilerTimelineModel(manager, DebugMessage, MaximumRangeType, ProfileDebugMessages, parent),
+    QmlProfilerTimelineModel(manager, DebugMessage, UndefinedRangeType, ProfileDebugMessages, parent),
     m_maximumMsgType(-1)
 {
 }

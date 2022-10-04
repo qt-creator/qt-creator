@@ -24,8 +24,6 @@ class Protocol;
 
 class PasteView : public QDialog
 {
-    Q_OBJECT
-
 public:
     enum Mode
     {
@@ -83,4 +81,4 @@ private:
     Mode m_mode = DiffChunkMode;
 };
 
-} // namespace CodePaster
+} // CodePaster

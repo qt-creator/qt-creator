@@ -26,7 +26,7 @@
             the value of a property changes, the values of any properties that
             are bound to it are automatically updated accordingly.
 
-        \li \l{Specifying Dynamic Properties}
+        \li \l{Specifying Custom Properties}
 
             Each preset component has a set of preset properties that you
             can specify values for. You can add custom properties that would

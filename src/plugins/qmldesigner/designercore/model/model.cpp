@@ -216,7 +216,7 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeNam
 
     try {
         notifyNodeTypeChanged(node, typeName, majorVersion, minorVersion);
-    } catch (const RewritingException &e) {
+    } catch (const RewritingException &) {
     }
 }
 
@@ -348,7 +348,7 @@ void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &
 
     try {
         notifyNodeIdChanged(node, id, oldId);
-    } catch (const RewritingException &e) {
+    } catch (const RewritingException &) {
     }
 }
 

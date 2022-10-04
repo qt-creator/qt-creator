@@ -49,14 +49,14 @@ static QString linguistBinary(const QtSupport::QtVersion *qtVersion)
 {
     if (qtVersion)
         return qtVersion->linguistFilePath().toString();
-    return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Linguist" : "linguist");
+    return QLatin1String(HostOsInfo::isMacHost() ? "Linguist" : "linguist");
 }
 
 static QString designerBinary(const QtSupport::QtVersion *qtVersion)
 {
     if (qtVersion)
         return qtVersion->designerFilePath().toString();
-    return QLatin1String(Utils::HostOsInfo::isMacHost() ? "Designer" : "designer");
+    return QLatin1String(HostOsInfo::isMacHost() ? "Designer" : "designer");
 }
 
 // Mac: Change the call 'Foo.app/Contents/MacOS/Foo <filelist>' to
@@ -80,7 +80,7 @@ static const char designerDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors",
 static const char linguistDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist");
 
 // -------------- ExternalQtEditor
-ExternalQtEditor::ExternalQtEditor(Utils::Id id,
+ExternalQtEditor::ExternalQtEditor(Id id,
                                    const QString &displayName,
                                    const QString &mimetype,
                                    const CommandForQtVersion &commandForQtVersion)
@@ -101,7 +101,7 @@ ExternalQtEditor *ExternalQtEditor::createLinguistEditor()
 
 ExternalQtEditor *ExternalQtEditor::createDesignerEditor()
 {
-    if (Utils::HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost()) {
         return new ExternalQtEditor(designerIdC,
                                     QLatin1String(designerDisplayName),
                                     QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE),
@@ -124,7 +124,7 @@ static QString findFirstCommand(QVector<QtSupport::QtVersion *> qtVersions,
     return QString();
 }
 
-bool ExternalQtEditor::getEditorLaunchData(const Utils::FilePath &filePath,
+bool ExternalQtEditor::getEditorLaunchData(const FilePath &filePath,
                                            LaunchData *data,
                                            QString *errorMessage) const
 {
@@ -156,7 +156,7 @@ bool ExternalQtEditor::getEditorLaunchData(const Utils::FilePath &filePath,
     // fallback
     if (data->binary.isEmpty()) {
         const QString path = qtcEnvironmentVariable("PATH");
-        data->binary = Utils::QtcProcess::locateBinary(path, m_commandForQtVersion(nullptr));
+        data->binary = QtcProcess::locateBinary(path, m_commandForQtVersion(nullptr));
     }
 
     if (data->binary.isEmpty()) {
@@ -165,14 +165,14 @@ bool ExternalQtEditor::getEditorLaunchData(const Utils::FilePath &filePath,
     }
     // Setup binary + arguments, use Mac Open if appropriate
     data->arguments.push_back(filePath.toString());
-    if (Utils::HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost())
         *data = createMacOpenCommand(*data);
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data->binary << data->arguments;
     return true;
 }
 
-bool ExternalQtEditor::startEditor(const Utils::FilePath &filePath, QString *errorMessage)
+bool ExternalQtEditor::startEditor(const FilePath &filePath, QString *errorMessage)
 {
     LaunchData data;
     return getEditorLaunchData(filePath, &data, errorMessage)
@@ -215,7 +215,7 @@ void DesignerExternalEditor::processTerminated(const QString &binary)
     socket->deleteLater();
 }
 
-bool DesignerExternalEditor::startEditor(const Utils::FilePath &filePath, QString *errorMessage)
+bool DesignerExternalEditor::startEditor(const FilePath &filePath, QString *errorMessage)
 {
     LaunchData data;
     // Find the editor binary

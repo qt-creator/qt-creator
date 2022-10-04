@@ -454,7 +454,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
             if (!sentinel)
                 return;
             if (!name.isEmpty())
-                symbolsToDisplay << qMakePair(prefix + name, link);
+                symbolsToDisplay.push_back({prefix + name, link});
             pendingSymbolInfoRequests.removeOne(reqId);
             virtualFuncAssistProcessor->update();
             if (pendingSymbolInfoRequests.isEmpty() && pendingGotoDefRequests.isEmpty()

@@ -117,12 +117,14 @@ QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element eleme
                                                    const QList<QString> &stereotypes) const
 {
     foreach (const QString &stereotype, stereotypes) {
-        if (d->m_stereotypeToIconIdMap.contains(qMakePair(element, stereotype)))
-            return d->m_stereotypeToIconIdMap.value(qMakePair(element, stereotype));
-        else if (d->m_stereotypeToIconIdMap.contains(qMakePair(StereotypeIcon::ElementAny, stereotype)))
-            return d->m_stereotypeToIconIdMap.value(qMakePair(StereotypeIcon::ElementAny, stereotype));
+        auto it = d->m_stereotypeToIconIdMap.constFind({element, stereotype});
+        if (it != d->m_stereotypeToIconIdMap.constEnd())
+            return it.value();
+        it = d->m_stereotypeToIconIdMap.constFind({StereotypeIcon::ElementAny, stereotype});
+        if (it != d->m_stereotypeToIconIdMap.constEnd())
+            return it.value();
     }
-    return QString();
+    return {};
 }
 
 QList<QString> StereotypeController::filterStereotypesByIconId(const QString &stereotypeIconId,
@@ -232,11 +234,11 @@ void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIco
 {
     if (stereotypeIcon.elements().isEmpty()) {
         foreach (const QString &stereotype, stereotypeIcon.stereotypes())
-            d->m_stereotypeToIconIdMap.insert(qMakePair(StereotypeIcon::ElementAny, stereotype), stereotypeIcon.id());
+            d->m_stereotypeToIconIdMap.insert({StereotypeIcon::ElementAny, stereotype}, stereotypeIcon.id());
     } else {
         foreach (StereotypeIcon::Element element, stereotypeIcon.elements()) {
             foreach (const QString &stereotype, stereotypeIcon.stereotypes())
-                d->m_stereotypeToIconIdMap.insert(qMakePair(element, stereotype), stereotypeIcon.id());
+                d->m_stereotypeToIconIdMap.insert({element, stereotype}, stereotypeIcon.id());
         }
     }
     d->m_iconIdToStereotypeIconsMap.insert(stereotypeIcon.id(), stereotypeIcon);

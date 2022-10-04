@@ -204,92 +204,88 @@ StereotypeDefinitionParser::~StereotypeDefinitionParser()
 void StereotypeDefinitionParser::parse(ITextSource *source)
 {
     TextScanner textScanner;
-    textScanner.setKeywords(
-                QList<QPair<QString, int> >()
-                << qMakePair(QString("icon"), KEYWORD_ICON)
-                << qMakePair(QString("id"), KEYWORD_ID)
-                << qMakePair(QString("title"), KEYWORD_TITLE)
-                << qMakePair(QString("elements"), KEYWORD_ELEMENTS)
-                << qMakePair(QString("stereotype"), KEYWORD_STEREOTYPE)
-                << qMakePair(QString("width"), KEYWORD_WIDTH)
-                << qMakePair(QString("height"), KEYWORD_HEIGHT)
-                << qMakePair(QString("minwidth"), KEYWORD_MINWIDTH)
-                << qMakePair(QString("minheight"), KEYWORD_MINHEIGHT)
-                << qMakePair(QString("locksize"), KEYWORD_LOCK_SIZE)
-                << qMakePair(QString("display"), KEYWORD_DISPLAY)
-                << qMakePair(QString("textalignment"), KEYWORD_TEXTALIGN)
-                << qMakePair(QString("basecolor"), KEYWORD_BASECOLOR)
-                << qMakePair(QString("shape"), KEYWORD_SHAPE)
-                << qMakePair(QString("outline"), KEYWORD_OUTLINE)
-                << qMakePair(QString("circle"), KEYWORD_CIRCLE)
-                << qMakePair(QString("ellipse"), KEYWORD_ELLIPSE)
-                << qMakePair(QString("line"), KEYWORD_LINE)
-                << qMakePair(QString("rect"), KEYWORD_RECT)
-                << qMakePair(QString("roundedrect"), KEYWORD_ROUNDEDRECT)
-                << qMakePair(QString("arc"), KEYWORD_ARC)
-                << qMakePair(QString("moveto"), KEYWORD_MOVETO)
-                << qMakePair(QString("lineto"), KEYWORD_LINETO)
-                << qMakePair(QString("arcmoveto"), KEYWORD_ARCMOVETO)
-                << qMakePair(QString("arcto"), KEYWORD_ARCTO)
-                << qMakePair(QString("close"), KEYWORD_CLOSE)
-                << qMakePair(QString("x"), KEYWORD_X)
-                << qMakePair(QString("y"), KEYWORD_Y)
-                << qMakePair(QString("x0"), KEYWORD_X0)
-                << qMakePair(QString("y0"), KEYWORD_Y0)
-                << qMakePair(QString("x1"), KEYWORD_X1)
-                << qMakePair(QString("y1"), KEYWORD_Y1)
-                << qMakePair(QString("radius"), KEYWORD_RADIUS)
-                << qMakePair(QString("radiusx"), KEYWORD_RADIUS_X)
-                << qMakePair(QString("radiusy"), KEYWORD_RADIUS_Y)
-                << qMakePair(QString("start"), KEYWORD_START)
-                << qMakePair(QString("span"), KEYWORD_SPAN)
-                << qMakePair(QString("toolbar"), KEYWORD_TOOLBAR)
-                << qMakePair(QString("priority"), KEYWORD_PRIORITY)
-                << qMakePair(QString("tools"), KEYWORD_TOOLS)
-                << qMakePair(QString("tool"), KEYWORD_TOOL)
-                << qMakePair(QString("element"), KEYWORD_ELEMENT)
-                << qMakePair(QString("separator"), KEYWORD_SEPARATOR)
-                << qMakePair(QString("relation"), KEYWORD_RELATION)
-                << qMakePair(QString("dependency"), KEYWORD_DEPENDENCY)
-                << qMakePair(QString("inheritance"), KEYWORD_INHERITANCE)
-                << qMakePair(QString("association"), KEYWORD_ASSOCIATION)
-                << qMakePair(QString("name"), KEYWORD_NAME)
-                << qMakePair(QString("direction"), KEYWORD_DIRECTION)
-                << qMakePair(QString("atob"), KEYWORD_ATOB)
-                << qMakePair(QString("btoa"), KEYWORD_BTOA)
-                << qMakePair(QString("bi"), KEYWORD_BI)
-                << qMakePair(QString("end"), KEYWORD_END)
-                << qMakePair(QString("a"), KEYWORD_A)
-                << qMakePair(QString("b"), KEYWORD_B)
-                << qMakePair(QString("role"), KEYWORD_ROLE)
-                << qMakePair(QString("cardinality"), KEYWORD_CARDINALITY)
-                << qMakePair(QString("navigable"), KEYWORD_NAVIGABLE)
-                << qMakePair(QString("relationship"), KEYWORD_RELATIONSHIP)
-                << qMakePair(QString("aggregation"), KEYWORD_AGGREGATION)
-                << qMakePair(QString("composition"), KEYWORD_COMPOSITION)
-                << qMakePair(QString("shaft"), KEYWORD_SHAFT)
-                << qMakePair(QString("head"), KEYWORD_HEAD)
-                << qMakePair(QString("diamond"), KEYWORD_DIAMOND)
-                << qMakePair(QString("triangle"), KEYWORD_TRIANGLE)
-                << qMakePair(QString("filled"), KEYWORD_FILLED)
-                << qMakePair(QString("pattern"), KEYWORD_PATTERN)
-                << qMakePair(QString("solid"), KEYWORD_SOLID)
-                << qMakePair(QString("dot"), KEYWORD_DOT)
-                << qMakePair(QString("dash"), KEYWORD_DASH)
-                << qMakePair(QString("dashdot"), KEYWORD_DASHDOT)
-                << qMakePair(QString("dashdotdot"), KEYWORD_DASHDOTDOT)
-                << qMakePair(QString("color"), KEYWORD_COLOR)
-                );
-    textScanner.setOperators(
-                QList<QPair<QString, int> >()
-                << qMakePair(QString(";"), OPERATOR_SEMICOLON)
-                << qMakePair(QString("{"), OPERATOR_BRACE_OPEN)
-                << qMakePair(QString("}"), OPERATOR_BRACE_CLOSE)
-                << qMakePair(QString(":"), OPERATOR_COLON)
-                << qMakePair(QString(","), OPERATOR_COMMA)
-                << qMakePair(QString("."), OPERATOR_PERIOD)
-                << qMakePair(QString("-"), OPERATOR_MINUS)
-                );
+    textScanner.setKeywords({{"icon", KEYWORD_ICON},
+                             {"id", KEYWORD_ID},
+                             {"title", KEYWORD_TITLE},
+                             {"elements", KEYWORD_ELEMENTS},
+                             {"stereotype", KEYWORD_STEREOTYPE},
+                             {"width", KEYWORD_WIDTH},
+                             {"height", KEYWORD_HEIGHT},
+                             {"minwidth", KEYWORD_MINWIDTH},
+                             {"minheight", KEYWORD_MINHEIGHT},
+                             {"locksize", KEYWORD_LOCK_SIZE},
+                             {"display", KEYWORD_DISPLAY},
+                             {"textalignment", KEYWORD_TEXTALIGN},
+                             {"basecolor", KEYWORD_BASECOLOR},
+                             {"shape", KEYWORD_SHAPE},
+                             {"outline", KEYWORD_OUTLINE},
+                             {"circle", KEYWORD_CIRCLE},
+                             {"ellipse", KEYWORD_ELLIPSE},
+                             {"line", KEYWORD_LINE},
+                             {"rect", KEYWORD_RECT},
+                             {"roundedrect", KEYWORD_ROUNDEDRECT},
+                             {"arc", KEYWORD_ARC},
+                             {"moveto", KEYWORD_MOVETO},
+                             {"lineto", KEYWORD_LINETO},
+                             {"arcmoveto", KEYWORD_ARCMOVETO},
+                             {"arcto", KEYWORD_ARCTO},
+                             {"close", KEYWORD_CLOSE},
+                             {"x", KEYWORD_X},
+                             {"y", KEYWORD_Y},
+                             {"x0", KEYWORD_X0},
+                             {"y0", KEYWORD_Y0},
+                             {"x1", KEYWORD_X1},
+                             {"y1", KEYWORD_Y1},
+                             {"radius", KEYWORD_RADIUS},
+                             {"radiusx", KEYWORD_RADIUS_X},
+                             {"radiusy", KEYWORD_RADIUS_Y},
+                             {"start", KEYWORD_START},
+                             {"span", KEYWORD_SPAN},
+                             {"toolbar", KEYWORD_TOOLBAR},
+                             {"priority", KEYWORD_PRIORITY},
+                             {"tools", KEYWORD_TOOLS},
+                             {"tool", KEYWORD_TOOL},
+                             {"element", KEYWORD_ELEMENT},
+                             {"separator", KEYWORD_SEPARATOR},
+                             {"relation", KEYWORD_RELATION},
+                             {"dependency", KEYWORD_DEPENDENCY},
+                             {"inheritance", KEYWORD_INHERITANCE},
+                             {"association", KEYWORD_ASSOCIATION},
+                             {"name", KEYWORD_NAME},
+                             {"direction", KEYWORD_DIRECTION},
+                             {"atob", KEYWORD_ATOB},
+                             {"btoa", KEYWORD_BTOA},
+                             {"bi", KEYWORD_BI},
+                             {"end", KEYWORD_END},
+                             {"a", KEYWORD_A},
+                             {"b", KEYWORD_B},
+                             {"role", KEYWORD_ROLE},
+                             {"cardinality", KEYWORD_CARDINALITY},
+                             {"navigable", KEYWORD_NAVIGABLE},
+                             {"relationship", KEYWORD_RELATIONSHIP},
+                             {"aggregation", KEYWORD_AGGREGATION},
+                             {"composition", KEYWORD_COMPOSITION},
+                             {"shaft", KEYWORD_SHAFT},
+                             {"head", KEYWORD_HEAD},
+                             {"diamond", KEYWORD_DIAMOND},
+                             {"triangle", KEYWORD_TRIANGLE},
+                             {"filled", KEYWORD_FILLED},
+                             {"pattern", KEYWORD_PATTERN},
+                             {"solid", KEYWORD_SOLID},
+                             {"dot", KEYWORD_DOT},
+                             {"dash", KEYWORD_DASH},
+                             {"dashdot", KEYWORD_DASHDOT},
+                             {"dashdotdot", KEYWORD_DASHDOTDOT},
+                             {"color", KEYWORD_COLOR}});
+
+    textScanner.setOperators({{";", OPERATOR_SEMICOLON},
+                              {"{", OPERATOR_BRACE_OPEN},
+                              {"}", OPERATOR_BRACE_CLOSE},
+                              {":", OPERATOR_COLON},
+                              {",", OPERATOR_COMMA},
+                              {".", OPERATOR_PERIOD},
+                              {"-", OPERATOR_MINUS}});
+
     textScanner.setSource(source);
 
     d->m_scanner = &textScanner;
@@ -342,12 +338,12 @@ void StereotypeDefinitionParser::parseIcon()
             break;
         case KEYWORD_ELEMENTS:
         {
-            const static QHash<QString, StereotypeIcon::Element> elementNames = QHash<QString, StereotypeIcon::Element>()
-                    << qMakePair(QString("package"), StereotypeIcon::ElementPackage)
-                    << qMakePair(QString("component"), StereotypeIcon::ElementComponent)
-                    << qMakePair(QString("class"), StereotypeIcon::ElementClass)
-                    << qMakePair(QString("diagram"), StereotypeIcon::ElementDiagram)
-                    << qMakePair(QString("item"), StereotypeIcon::ElementItem);
+            const static QHash<QString, StereotypeIcon::Element> elementNames
+                    = {{"package", StereotypeIcon::ElementPackage},
+                       {"component", StereotypeIcon::ElementComponent},
+                       {"class", StereotypeIcon::ElementClass},
+                       {"diagram", StereotypeIcon::ElementDiagram},
+                       {"item", StereotypeIcon::ElementItem}};
             parseEnums<StereotypeIcon::Element>(
                         parseIdentifierListProperty(), elementNames, token.sourcePos(),
                         [&](StereotypeIcon::Element element) { elements.insert(element); });
@@ -370,12 +366,12 @@ void StereotypeDefinitionParser::parseIcon()
             break;
         case KEYWORD_LOCK_SIZE:
         {
-            const static QHash<QString, StereotypeIcon::SizeLock> lockNames = QHash<QString, StereotypeIcon::SizeLock>()
-                    << qMakePair(QString("none"), StereotypeIcon::LockNone)
-                    << qMakePair(QString("width"), StereotypeIcon::LockWidth)
-                    << qMakePair(QString("height"), StereotypeIcon::LockHeight)
-                    << qMakePair(QString("size"), StereotypeIcon::LockSize)
-                    << qMakePair(QString("ratio"), StereotypeIcon::LockRatio);
+            const static QHash<QString, StereotypeIcon::SizeLock> lockNames
+                    = {{"none", StereotypeIcon::LockNone},
+                       {"width", StereotypeIcon::LockWidth},
+                       {"height", StereotypeIcon::LockHeight},
+                       {"size", StereotypeIcon::LockSize},
+                       {"ratio", StereotypeIcon::LockRatio}};
             parseEnum<StereotypeIcon::SizeLock>(
                         parseIdentifierProperty(), lockNames, token.sourcePos(),
                         [&](StereotypeIcon::SizeLock lock) { stereotypeIcon.setSizeLock(lock); });
@@ -383,12 +379,12 @@ void StereotypeDefinitionParser::parseIcon()
         }
         case KEYWORD_DISPLAY:
         {
-            const static QHash<QString, StereotypeIcon::Display> displayNames = QHash<QString, StereotypeIcon::Display>()
-                    << qMakePair(QString("none"), StereotypeIcon::DisplayNone)
-                    << qMakePair(QString("label"), StereotypeIcon::DisplayLabel)
-                    << qMakePair(QString("decoration"), StereotypeIcon::DisplayDecoration)
-                    << qMakePair(QString("icon"), StereotypeIcon::DisplayIcon)
-                    << qMakePair(QString("smart"), StereotypeIcon::DisplaySmart);
+            const static QHash<QString, StereotypeIcon::Display> displayNames
+                    = {{"none", StereotypeIcon::DisplayNone},
+                       {"label", StereotypeIcon::DisplayLabel},
+                       {"decoration", StereotypeIcon::DisplayDecoration},
+                       {"icon", StereotypeIcon::DisplayIcon},
+                       {"smart", StereotypeIcon::DisplaySmart}};
             parseEnum<StereotypeIcon::Display>(
                         parseIdentifierProperty(), displayNames, token.sourcePos(),
                         [&](StereotypeIcon::Display display) { stereotypeIcon.setDisplay(display); });
@@ -396,11 +392,11 @@ void StereotypeDefinitionParser::parseIcon()
         }
         case KEYWORD_TEXTALIGN:
         {
-            const static QHash<QString, StereotypeIcon::TextAlignment> alignNames = QHash<QString, StereotypeIcon::TextAlignment>()
-                    << qMakePair(QString("below"), StereotypeIcon::TextalignBelow)
-                    << qMakePair(QString("center"), StereotypeIcon::TextalignCenter)
-                    << qMakePair(QString("none"), StereotypeIcon::TextalignNone)
-                    << qMakePair(QString("top"), StereotypeIcon::TextalignTop);
+            const static QHash<QString, StereotypeIcon::TextAlignment> alignNames
+                    = {{"below", StereotypeIcon::TextalignBelow},
+                       {"center", StereotypeIcon::TextalignCenter},
+                       {"none", StereotypeIcon::TextalignNone},
+                       {"top", StereotypeIcon::TextalignTop}};
             parseEnum<StereotypeIcon::TextAlignment>(
                         parseIdentifierProperty(), alignNames, token.sourcePos(),
                         [&](StereotypeIcon::TextAlignment align) { stereotypeIcon.setTextAlignment(align); });
@@ -434,22 +430,22 @@ void StereotypeDefinitionParser::parseIcon()
 
 QPair<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitionParser::SCALED(int keyword)
 {
-    return qMakePair(keyword, IconCommandParameter(ShapeValueF::UnitScaled));
+    return {keyword, IconCommandParameter(ShapeValueF::UnitScaled)};
 }
 
 QPair<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitionParser::FIX(int keyword)
 {
-    return qMakePair(keyword, IconCommandParameter(ShapeValueF::UnitRelative));
+    return {keyword, IconCommandParameter(ShapeValueF::UnitRelative)};
 }
 
 QPair<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitionParser::ABSOLUTE(int keyword)
 {
-    return qMakePair(keyword, IconCommandParameter(ShapeValueF::UnitAbsolute));
+    return {keyword, IconCommandParameter(ShapeValueF::UnitAbsolute)};
 }
 
 QPair<int, StereotypeDefinitionParser::IconCommandParameter> StereotypeDefinitionParser::BOOLEAN(int keyword)
 {
-    return qMakePair(keyword, IconCommandParameter(IconCommandParameter::Boolean));
+    return {keyword, IconCommandParameter(IconCommandParameter::Boolean)};
 }
 
 IconShape StereotypeDefinitionParser::parseIconShape()
@@ -626,10 +622,10 @@ void StereotypeDefinitionParser::parseRelation(CustomRelation::Element element)
             break;
         case KEYWORD_DIRECTION:
         {
-            const static QHash<QString, CustomRelation::Direction> directionNames = QHash<QString, CustomRelation::Direction>()
-                    << qMakePair(QString("atob"), CustomRelation::Direction::AtoB)
-                    << qMakePair(QString("btoa"), CustomRelation::Direction::BToA)
-                    << qMakePair(QString("bi"), CustomRelation::Direction::Bi);
+            const static QHash<QString, CustomRelation::Direction> directionNames
+                    = {{"atob", CustomRelation::Direction::AtoB},
+                       {"btoa", CustomRelation::Direction::BToA},
+                       {"bi", CustomRelation::Direction::Bi}};
             if (element != CustomRelation::Element::Dependency)
                 throwUnknownPropertyError(token);
             parseEnum<CustomRelation::Direction>(
@@ -639,12 +635,12 @@ void StereotypeDefinitionParser::parseRelation(CustomRelation::Element element)
         }
         case KEYWORD_PATTERN:
         {
-            const static QHash<QString, CustomRelation::ShaftPattern> patternNames = QHash<QString, CustomRelation::ShaftPattern>()
-                    << qMakePair(QString("solid"), CustomRelation::ShaftPattern::Solid)
-                    << qMakePair(QString("dash"), CustomRelation::ShaftPattern::Dash)
-                    << qMakePair(QString("dot"), CustomRelation::ShaftPattern::Dot)
-                    << qMakePair(QString("dashdot"), CustomRelation::ShaftPattern::DashDot)
-                    << qMakePair(QString("dashdotdot"), CustomRelation::ShaftPattern::DashDotDot);
+            const static QHash<QString, CustomRelation::ShaftPattern> patternNames
+                    = {{"solid", CustomRelation::ShaftPattern::Solid},
+                       {"dash", CustomRelation::ShaftPattern::Dash},
+                       {"dot", CustomRelation::ShaftPattern::Dot},
+                       {"dashdot", CustomRelation::ShaftPattern::DashDot},
+                       {"dashdotdot", CustomRelation::ShaftPattern::DashDotDot}};
             if (element != CustomRelation::Element::Relation)
                 throwUnknownPropertyError(token);
             parseEnum<CustomRelation::ShaftPattern>(
@@ -743,10 +739,10 @@ void StereotypeDefinitionParser::parseRelationEnd(CustomRelation *relation)
         {
             if (relation->element() != CustomRelation::Element::Association)
                 throwUnknownPropertyError(token);
-            const static QHash<QString, CustomRelation::Relationship> relationshipNames = QHash<QString, CustomRelation::Relationship>()
-                    << qMakePair(QString("association"), CustomRelation::Relationship::Association)
-                    << qMakePair(QString("aggregation"), CustomRelation::Relationship::Aggregation)
-                    << qMakePair(QString("composition"), CustomRelation::Relationship::Composition);
+            const static QHash<QString, CustomRelation::Relationship> relationshipNames
+                    = {{"association", CustomRelation::Relationship::Association},
+                       {"aggregation", CustomRelation::Relationship::Aggregation},
+                       {"composition", CustomRelation::Relationship::Composition}};
             parseEnum<CustomRelation::Relationship>(
                         parseIdentifierProperty(), relationshipNames, token.sourcePos(),
                         [&](CustomRelation::Relationship relationship) { relationEnd.setRelationship(relationship); });
@@ -756,13 +752,13 @@ void StereotypeDefinitionParser::parseRelationEnd(CustomRelation *relation)
         {
             if (relation->element() != CustomRelation::Element::Relation)
                 throwUnknownPropertyError(token);
-            const static QHash<QString, CustomRelation::Head> headNames = QHash<QString, CustomRelation::Head>()
-                    << qMakePair(QString("none"), CustomRelation::Head::None)
-                    << qMakePair(QString("arrow"), CustomRelation::Head::Arrow)
-                    << qMakePair(QString("triangle"), CustomRelation::Head::Triangle)
-                    << qMakePair(QString("filledtriangle"), CustomRelation::Head::FilledTriangle)
-                    << qMakePair(QString("diamond"), CustomRelation::Head::Diamond)
-                    << qMakePair(QString("filleddiamond"), CustomRelation::Head::FilledDiamond);
+            const static QHash<QString, CustomRelation::Head> headNames
+                    = {{"none", CustomRelation::Head::None},
+                       {"arrow", CustomRelation::Head::Arrow},
+                       {"triangle", CustomRelation::Head::Triangle},
+                       {"filledtriangle", CustomRelation::Head::FilledTriangle},
+                       {"diamond", CustomRelation::Head::Diamond},
+                       {"filleddiamond", CustomRelation::Head::FilledDiamond}};
             parseEnum<CustomRelation::Head>(
                         parseIdentifierProperty(), headNames, token.sourcePos(),
                         [&](CustomRelation::Head head) { relationEnd.setHead(head); });

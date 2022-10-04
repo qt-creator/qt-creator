@@ -3,13 +3,12 @@
 
 #pragma once
 
+#include <vcsbase/vcsbasesubmiteditor.h>
+
 #include <QPair>
 #include <QStringList>
 
-#include <vcsbase/vcsbasesubmiteditor.h>
-
-namespace Cvs {
-namespace Internal {
+namespace Cvs::Internal {
 
 class CvsSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
@@ -33,5 +32,4 @@ private:
     const QString m_msgModified;
 };
 
-} // namespace Internal
-} // namespace Cvs
+} // Cvs::Internal

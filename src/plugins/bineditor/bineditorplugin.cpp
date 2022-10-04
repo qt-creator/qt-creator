@@ -2,26 +2,24 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "bineditorplugin.h"
-#include "bineditorwidget.h"
+
 #include "bineditorconstants.h"
 #include "bineditorservice.h"
+#include "bineditortr.h"
+#include "bineditorwidget.h"
 
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
+
 #include <texteditor/codecchooser.h>
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QTextCodec>
-#include <QVariant>
-
-#include <QMenu>
 #include <QAction>
-#include <QMessageBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMessageBox>
 #include <QRegularExpressionValidator>
+#include <QTextCodec>
 #include <QToolBar>
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -30,6 +28,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/idocument.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/reloadpromptutils.h>
@@ -38,13 +37,16 @@
 using namespace Utils;
 using namespace Core;
 
-namespace BinEditor {
-namespace Internal {
+namespace BinEditor::Internal {
+
+class BinEditorFactory final : public IEditorFactory
+{
+public:
+    BinEditorFactory();
+};
 
 class BinEditorFind : public IFindSupport
 {
-    Q_OBJECT
-
 public:
     BinEditorFind(BinEditorWidget *widget)
     {
@@ -232,31 +234,31 @@ public:
     {
         const qint64 size = filePath.fileSize();
         if (size < 0) {
-            QString msg = tr("Cannot open %1: %2").arg(filePath.toUserOutput(), tr("File Error"));
+            QString msg = Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput(), Tr::tr("File Error"));
             // FIXME: Was: file.errorString(), but we don't have a file anymore.
             if (errorString)
                 *errorString = msg;
             else
-                QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
+                QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
             return OpenResult::ReadError;
         }
 
         if (size == 0) {
-            QString msg = tr("The Binary Editor cannot open empty files.");
+            QString msg = Tr::tr("The Binary Editor cannot open empty files.");
             if (errorString)
                 *errorString = msg;
             else
-                QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
+                QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
             return OpenResult::CannotHandle;
         }
 
         if (size / 16 >= qint64(1) << 31) {
             // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
-            QString msg = tr("The file is too big for the Binary Editor (max. 32GB).");
+            QString msg = Tr::tr("The file is too big for the Binary Editor (max. 32GB).");
             if (errorString)
                 *errorString = msg;
             else
-                QMessageBox::critical(ICore::dialogParent(), tr("File Error"), msg);
+                QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
             return OpenResult::CannotHandle;
         }
 
@@ -279,8 +281,8 @@ public:
         if (dataSize != blockSize)
             data += QByteArray(blockSize - dataSize, 0);
         m_widget->addData(address, data);
-//       QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
-//                             tr("Cannot open %1: %2").arg(
+//       QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"),
+//                             Tr::tr("Cannot open %1: %2").arg(
 //                                   fn.toUserOutput(), file.errorString()));
     }
 
@@ -415,7 +417,7 @@ BinEditorPluginPrivate::BinEditorPluginPrivate()
     ExtensionSystem::PluginManager::addObject(&m_editorFactory);
 
     m_undoAction = new QAction(BinEditorPlugin::tr("&Undo"), this);
-    m_redoAction = new QAction(BinEditorPlugin::tr("&Redo"), this);
+    m_redoAction = new QAction(Tr::tr("&Redo"), this);
     m_copyAction = new QAction(this);
     m_selectAllAction = new QAction(this);
 
@@ -442,7 +444,7 @@ static BinEditorPluginPrivate *dd = nullptr;
 BinEditorFactory::BinEditorFactory()
 {
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_BINEDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Binary Editor"));
     addMimeType(Constants::C_BINEDITOR_MIMETYPE);
 
     setEditorCreator([] {
@@ -510,7 +512,6 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
     return true;
 }
 
-} // namespace Internal
-} // namespace BinEditor
+} // BinEditor::Internal
 
 #include "bineditorplugin.moc"

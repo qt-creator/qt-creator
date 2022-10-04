@@ -493,7 +493,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeInclude(
     for (AssistProposalItemInterface * const item : qAsConst(completions)) {
         QString s = item->text();
         s.replace('/', QChar(0)); // The dir separator should compare less than anything else.
-        completionsForSorting << qMakePair(item, s);
+        completionsForSorting.push_back({item, s});
     }
     Utils::sort(completionsForSorting, [](const auto &left, const auto &right) {
         return left.second < right.second;

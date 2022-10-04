@@ -5,6 +5,7 @@
 
 #include "opensquishsuitesdialog.h"
 #include "squishconstants.h"
+#include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
 #include "suiteconf.h"
@@ -12,22 +13,92 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/session.h>
+#include <utils/algorithm.h>
+#include <utils/aspects.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+#include <QComboBox>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 namespace Squish {
 namespace Internal {
 
+static const char SK_OpenSuites[] = "SquishOpenSuites";
+
 static SquishFileHandler *m_instance = nullptr;
+
+class MappedAutDialog : public QDialog
+{
+public:
+    MappedAutDialog()
+    {
+        auto label = new QLabel(Tr::tr("Application:"), this);
+        aut.addItem(Tr::tr("<No Application>"));
+        arguments.setLabelText(Tr::tr("Arguments:"));
+        arguments.setDisplayStyle(Utils::StringAspect::LineEditDisplay);
+
+        QWidget *widget = new QWidget(this);
+        auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+
+        using namespace Utils::Layouting;
+        Form {
+            label, &aut, br,
+            arguments,
+            st
+        }.attachTo(widget);
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->addWidget(widget);
+        layout->addWidget(buttons);
+        setLayout(layout);
+
+        QPushButton *okButton = buttons->button(QDialogButtonBox::Ok);
+        okButton->setEnabled(false);
+        connect(okButton, &QPushButton::clicked,
+                this, &QDialog::accept);
+        connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
+                this, &QDialog::reject);
+        connect(&aut, &QComboBox::currentIndexChanged,
+                this, [this, okButton] (int index) {
+            okButton->setEnabled(index > 0);
+        });
+        setWindowTitle(Tr::tr("Recording Settings"));
+
+        auto squishTools = SquishTools::instance();
+        connect(squishTools, &SquishTools::queryFinished, this,
+                [this] (const QString &out) {
+            SquishServerSettings s;
+            s.setFromXmlOutput(out);
+            QApplication::restoreOverrideCursor();
+            for (const QString &app : s.mappedAuts.keys())
+                aut.addItem(app);
+        });
+
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        squishTools->queryServerSettings();
+    }
+
+
+    QComboBox aut;
+    Utils::StringAspect arguments;
+};
 
 SquishFileHandler::SquishFileHandler(QObject *parent)
     : QObject(parent)
 {
     m_instance = this;
+    auto sessionManager = ProjectExplorer::SessionManager::instance();
+    connect(sessionManager, &ProjectExplorer::SessionManager::sessionLoaded,
+            this, &SquishFileHandler::onSessionLoaded);
 }
 
 SquishFileHandler *SquishFileHandler::instance()
@@ -191,6 +262,7 @@ void SquishFileHandler::openTestSuites()
         }
     }
     emit suitesOpened();
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
 }
 
 void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath, bool isReopen)
@@ -221,6 +293,7 @@ void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath, bool isR
         m_suites.insert(suiteName, suitePathStr);
         emit testTreeItemCreated(item);
     }
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
 }
 
 void SquishFileHandler::closeTestSuite(const QString &suiteName)
@@ -232,9 +305,16 @@ void SquishFileHandler::closeTestSuite(const QString &suiteName)
     // TODO remove file watcher
     m_suites.remove(suiteName);
     emit suiteTreeItemRemoved(suiteName);
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
 }
 
 void SquishFileHandler::closeAllTestSuites()
+{
+    closeAllInternal();
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
+}
+
+void SquishFileHandler::closeAllInternal()
 {
     // TODO close respective editors if there are any
     // TODO remove file watcher
@@ -315,8 +395,13 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
     SuiteConf conf = SuiteConf::readSuiteConf(
                 Utils::FilePath::fromString(m_suites.value(suiteName)));
     if (conf.aut().isEmpty()) {
-        // provide a choice of apps & args, set aut & args for conf
-        return;
+        MappedAutDialog dialog;
+
+        if (dialog.exec() != QDialog::Accepted)
+            return;
+
+        conf.setAut(dialog.aut.currentText());
+        conf.setArguments(dialog.arguments.value());
     }
 
     SquishTools::instance()->recordTestCase(suitePath.absolutePath(), testCaseName, conf);
@@ -392,6 +477,22 @@ void SquishFileHandler::openObjectsMap(const QString &suiteName)
                                   Tr::tr("Failed to open objects.map file at \"%1\".")
                                       .arg(objectsMapPath.toUserOutput()));
         }
+    }
+}
+
+void SquishFileHandler::onSessionLoaded()
+{
+    // remove currently opened "silently" (without storing into session)
+    closeAllInternal();
+
+    const QVariant variant = ProjectExplorer::SessionManager::value(SK_OpenSuites);
+    const Utils::FilePaths suitePaths = Utils::transform(variant.toStringList(),
+                                                         &Utils::FilePath::fromString);
+
+    // open suites of the old session
+    for (const Utils::FilePath &fp : suitePaths) {
+        if (fp.exists())
+            openTestSuite(fp);
     }
 }
 

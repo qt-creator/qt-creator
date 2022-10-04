@@ -173,13 +173,14 @@ bool CMakeTool::isValid() const
 
 void CMakeTool::runCMake(QtcProcess &cmake, const QStringList &args, int timeoutS) const
 {
+    const FilePath executable = cmakeExecutable();
     cmake.setTimeoutS(timeoutS);
     cmake.setDisableUnixTerminal();
-    Environment env = Environment::systemEnvironment();
+    Environment env = executable.deviceEnvironment();
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
-    cmake.setCommand({cmakeExecutable(), args});
+    cmake.setCommand({executable, args});
     cmake.runBlocking();
 }
 
@@ -541,13 +542,11 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
             const QVariantMap object = r.toMap();
             const QString kind = object.value("kind").toString();
             const QVariantList versionList = object.value("version").toList();
-            std::pair<int, int> highestVersion = std::make_pair(-1, -1);
+            std::pair<int, int> highestVersion{-1, -1};
             for (const QVariant &v : versionList) {
                 const QVariantMap versionObject = v.toMap();
-                const std::pair<int, int> version = std::make_pair(getVersion(versionObject,
-                                                                              "major"),
-                                                                   getVersion(versionObject,
-                                                                              "minor"));
+                const std::pair<int, int> version{getVersion(versionObject, "major"),
+                                                  getVersion(versionObject, "minor")};
                 if (version.first > highestVersion.first
                     || (version.first == highestVersion.first
                         && version.second > highestVersion.second))
@@ -566,9 +565,9 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
 
     // Fix up fileapi support for cmake 3.14:
     if (m_introspection->m_version.major == 3 && m_introspection->m_version.minor == 14) {
-        m_introspection->m_fileApis.append({QString("codemodel"), std::make_pair(2, 0)});
-        m_introspection->m_fileApis.append({QString("cache"), std::make_pair(2, 0)});
-        m_introspection->m_fileApis.append({QString("cmakefiles"), std::make_pair(1, 0)});
+        m_introspection->m_fileApis.append({QString("codemodel"), {2, 0}});
+        m_introspection->m_fileApis.append({QString("cache"), {2, 0}});
+        m_introspection->m_fileApis.append({QString("cmakefiles"), {1, 0}});
     }
 }
 

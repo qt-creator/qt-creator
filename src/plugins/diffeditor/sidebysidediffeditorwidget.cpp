@@ -259,7 +259,7 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
         block = block.next();
     }
 
-    return convertToPlainText(text);
+    return TextDocument::convertToPlainText(text);
 }
 
 SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int progressMin,

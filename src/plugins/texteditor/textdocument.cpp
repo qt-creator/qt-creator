@@ -274,9 +274,34 @@ TextDocument *TextDocument::textDocumentForFilePath(const Utils::FilePath &fileP
     return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(filePath));
 }
 
+QString TextDocument::convertToPlainText(const QString &rawText)
+{
+    // This is basically a copy of QTextDocument::toPlainText but since toRawText returns a
+    // text containing formating characters and toPlainText replaces non breaking spaces, we
+    // provide our own plain text conversion to be able to save and copy document content
+    // containing non breaking spaces.
+
+    QString txt = rawText;
+    QChar *uc = txt.data();
+    QChar *e = uc + txt.size();
+
+    for (; uc != e; ++uc) {
+        switch (uc->unicode()) {
+        case 0xfdd0: // QTextBeginningOfFrame
+        case 0xfdd1: // QTextEndOfFrame
+        case QChar::ParagraphSeparator:
+        case QChar::LineSeparator:
+            *uc = QLatin1Char('\n');
+            break;
+        default:;
+        }
+    }
+    return txt;
+}
+
 QString TextDocument::plainText() const
 {
-    return document()->toPlainText();
+    return convertToPlainText(d->m_document.toRawText());
 }
 
 QString TextDocument::textAt(int pos, int length) const
@@ -638,7 +663,7 @@ bool TextDocument::save(QString *errorString, const FilePath &filePath, bool aut
         }
     }
 
-    const bool ok = write(savePath, saveFormat, d->m_document.toPlainText(), errorString);
+    const bool ok = write(savePath, saveFormat, plainText(), errorString);
 
     // restore text cursor and scroll bar positions
     if (autoSave && undos < d->m_document.availableUndoSteps()) {

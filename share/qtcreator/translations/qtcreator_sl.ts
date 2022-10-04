@@ -109,7 +109,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zaznamek</translation>
@@ -149,13 +149,6 @@
         <source>Add in Folder:</source>
         <translation type="obsolete">Dodaj v mapo:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Zaznamki</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Odstrani</translation>
@@ -165,23 +158,8 @@
         <translation>Izbris mape odstrani tudi njeno vsebino.&lt;br&gt;Ali želite nadaljevati?</translation>
     </message>
     <message>
-        <source>New Folder</source>
-        <translation>Nova mapa</translation>
-    </message>
-    <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation type="obsolete">Nameravate izbrisati mapo, pri čemer bo zbrisana&lt;br&gt;tudi njena vsebina. Ali res želite nadaljevati?</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Izbriši mapo</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Preimenuj mapo</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -202,17 +180,6 @@
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Zaznamki</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -500,7 +467,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Lepljenje kode</translation>
@@ -529,9 +496,6 @@
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Za »%1« je bil prejet prazen izrezek.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Paste:</source>
         <translation>Prilepi:</translation>
@@ -553,9 +517,6 @@
         <source>This protocol does not support listing</source>
         <translation>Protokol ne podpira izpisa seznama</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>Username:</source>
         <translation>Uporabniško ime:</translation>
@@ -11021,7 +10982,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -12286,7 +12247,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>V nastavitvah za CodePaster ni določenega nobenega strežnika.</translation>
@@ -12299,9 +12260,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>No such paste</source>
         <translation>Tak prilepek ne obstaja</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -12383,7 +12341,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>Prevzame skladišče CVS in poskusi naložiti vsebovani projekt.</translation>
@@ -12392,9 +12350,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>CVS Checkout</source>
         <translation>Prevzem iz CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -12407,9 +12362,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Repository:</source>
         <translation>Skladišče:</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>Razčlenjevanje dnevnika ni uspelo.</translation>
@@ -12698,9 +12650,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">CVS se v za to namenjenem času (%1 ms) ni odzval.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Dodana</translation>
@@ -12713,9 +12662,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Modified</source>
         <translation>Spremenjena</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Ukaz CVS</translation>
@@ -13650,7 +13596,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -15686,9 +15632,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Code Pasting</source>
         <translation>Prilepljanje kode</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Ni moč odpreti %1: %2</translation>
@@ -15713,23 +15656,14 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Unable to open a file for writing in %1: %2</source>
         <translation type="obsolete">Datoteke ni moč odpreti za pisanje v %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteBinDotComSettings</name>
     <message>
         <source>Pastebin.com</source>
         <translation>Pastebin.com</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;komentar&gt;</translation>
@@ -15738,9 +15672,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Paste</source>
         <translation>Prilepi</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Napaka pri nastavitvi</translation>
@@ -15964,7 +15895,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditor</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dodaj opombo za revizijo »%1«</translation>
@@ -23090,16 +23021,13 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteBinDotComProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.
 </extracomment>
         <translation>&lt;neznano&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>Preverjanje povezave</translation>
@@ -23242,7 +23170,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>

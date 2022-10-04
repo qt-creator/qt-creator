@@ -27,6 +27,8 @@ using namespace Utils;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+using StringVariantPair = std::pair<const QString, QVariant>;
+
 namespace {
 
 const char OBSOLETE_VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
@@ -331,13 +333,13 @@ UserFileAccessor::merge(const MergingSettingsAccessor::SettingsMergeData &global
         return std::nullopt;
 
     if (isHouseKeepingKey(key) || global.key == USER_STICKY_KEYS_KEY)
-        return qMakePair(key, mainValue);
+        return {{key, mainValue}};
 
     if (!stickyKeys.contains(global.key) && secondaryValue != mainValue && !secondaryValue.isNull())
-        return qMakePair(key, secondaryValue);
+        return {{key, secondaryValue}};
     if (!mainValue.isNull())
-        return qMakePair(key, mainValue);
-    return qMakePair(key, secondaryValue);
+        return {{key, mainValue}};
+    return {{key, secondaryValue}};
 }
 
 // When saving settings...
@@ -360,7 +362,7 @@ SettingsMergeFunction UserFileAccessor::userStickyTrackerFunction(QStringList &s
             return std::nullopt;
 
         if (isHouseKeepingKey(key))
-            return qMakePair(key, main);
+            return {{key, main}};
 
         // Ignore house keeping keys:
         if (key == USER_STICKY_KEYS_KEY)
@@ -369,7 +371,7 @@ SettingsMergeFunction UserFileAccessor::userStickyTrackerFunction(QStringList &s
         // Track keys that changed in main from the value in secondary:
         if (main != secondary && !secondary.isNull() && !stickyKeys.contains(global.key))
             stickyKeys.append(global.key);
-        return qMakePair(key, main);
+        return {{key, main}};
     };
 }
 
@@ -471,15 +473,10 @@ QVariantMap UserFileVersion14Upgrader::upgrade(const QVariantMap &map)
 
 QVariantMap UserFileVersion15Upgrader::upgrade(const QVariantMap &map)
 {
-    QList<Change> changes;
-    changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.Updater.EnvironmentId"),
-                             QLatin1String("EnvironmentId")));
-    // This is actually handled in the SettingsAccessor itself:
-    // changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.Updater.FileVersion"),
-    //                          QLatin1String("Version")));
-    changes.append(qMakePair(QLatin1String("ProjectExplorer.Project.UserStickyKeys"),
-                             QLatin1String("UserStickyKeys")));
-
+    const QList<Change> changes{{QLatin1String("ProjectExplorer.Project.Updater.EnvironmentId"),
+                                 QLatin1String("EnvironmentId")},
+                                {QLatin1String("ProjectExplorer.Project.UserStickyKeys"),
+                                 QLatin1String("UserStickyKeys")}};
     return renameKeys(changes, QVariantMap(map));
 }
 
@@ -744,12 +741,12 @@ QVariant UserFileVersion18Upgrader::process(const QVariant &entry)
         return Utils::transform(entry.toList(), &UserFileVersion18Upgrader::process);
     case QVariant::Map:
         return Utils::transform<QMap<QString, QVariant>>(
-            entry.toMap().toStdMap(), [](const std::pair<const QString, QVariant> &item) {
+            entry.toMap().toStdMap(), [](const StringVariantPair &item) -> StringVariantPair {
                 const QString key = (item.first
                                              == "AutotoolsProjectManager.MakeStep.AdditionalArguments"
                                          ? QString("AutotoolsProjectManager.MakeStep.MakeArguments")
                                          : item.first);
-                return qMakePair(key, UserFileVersion18Upgrader::process(item.second));
+                return {key, UserFileVersion18Upgrader::process(item.second)};
             });
     default:
         return entry;
@@ -798,24 +795,24 @@ QVariant UserFileVersion19Upgrader::process(const QVariant &entry, const QString
         return Utils::transform(entry.toList(),
                                 std::bind(&UserFileVersion19Upgrader::process, std::placeholders::_1, path));
     case QVariant::Map:
-        return Utils::transform<QVariantMap>(
-            entry.toMap().toStdMap(), [&](const std::pair<const QString, QVariant> &item) {
-                if (path.size() == 2 && path.at(1).startsWith("ProjectExplorer.Target.RunConfiguration.")) {
-                    if (argsKeys.contains(item.first))
-                        return qMakePair(QString("RunConfiguration.Arguments"), item.second);
-                    if (wdKeys.contains(item.first))
-                        return qMakePair(QString("RunConfiguration.WorkingDirectory"), item.second);
-                    if (termKeys.contains(item.first))
-                        return qMakePair(QString("RunConfiguration.UseTerminal"), item.second);
-                    if (libsKeys.contains(item.first))
-                        return qMakePair(QString("RunConfiguration.UseLibrarySearchPath"), item.second);
-                    if (dyldKeys.contains(item.first))
-                        return qMakePair(QString("RunConfiguration.UseDyldImageSuffix"), item.second);
-                }
-                QStringList newPath = path;
-                newPath.append(item.first);
-                return qMakePair(item.first, UserFileVersion19Upgrader::process(item.second, newPath));
-            });
+        return Utils::transform<QVariantMap>(entry.toMap().toStdMap(),
+                                             [&](const StringVariantPair &item) -> StringVariantPair {
+            if (path.size() == 2 && path.at(1).startsWith("ProjectExplorer.Target.RunConfiguration.")) {
+                if (argsKeys.contains(item.first))
+                    return {"RunConfiguration.Arguments", item.second};
+                if (wdKeys.contains(item.first))
+                    return {"RunConfiguration.WorkingDirectory", item.second};
+                if (termKeys.contains(item.first))
+                    return {"RunConfiguration.UseTerminal", item.second};
+                if (libsKeys.contains(item.first))
+                    return {"RunConfiguration.UseLibrarySearchPath", item.second};
+                if (dyldKeys.contains(item.first))
+                    return {"RunConfiguration.UseDyldImageSuffix", item.second};
+            }
+            QStringList newPath = path;
+            newPath.append(item.first);
+            return {item.first, UserFileVersion19Upgrader::process(item.second, newPath)};
+        });
     default:
         return entry;
     }
@@ -833,8 +830,8 @@ QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
         return Utils::transform(entry.toList(), &UserFileVersion20Upgrader::process);
     case QVariant::Map:
         return Utils::transform<QMap<QString, QVariant>>(
-            entry.toMap().toStdMap(), [](const std::pair<const QString, QVariant> &item) {
-                auto res = qMakePair(item.first, item.second);
+            entry.toMap().toStdMap(), [](const StringVariantPair &item) {
+                StringVariantPair res = {item.first, item.second};
                 if (item.first == "ProjectExplorer.ProjectConfiguration.Id"
                         && item.second == "Qbs.Deploy")
                     res.second = QVariant("ProjectExplorer.DefaultDeployConfiguration");
@@ -865,8 +862,8 @@ QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
             return entryMap;
         }
         return Utils::transform<QVariantMap>(
-            entryMap.toStdMap(), [](const std::pair<const QString, QVariant> &item) {
-                return qMakePair(item.first, UserFileVersion21Upgrader::process(item.second));
+            entryMap.toStdMap(), [](const StringVariantPair &item) -> StringVariantPair{
+                return {item.first, UserFileVersion21Upgrader::process(item.second)};
             });
     }
     default:

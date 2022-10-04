@@ -43,8 +43,7 @@ RefactoringSelections RefactoringChanges::rangesToSelections(QTextDocument *docu
         start.setKeepPositionOnInsert(true);
         QTextCursor end(document);
         end.setPosition(qMin(range.end, document->characterCount() - 1));
-
-        selections.append(qMakePair(start, end));
+        selections.push_back({start, end});
     }
 
     return selections;

@@ -110,15 +110,21 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
         } else if (m_bundleMaterialToDrag != nullptr) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
+                QByteArray data;
                 QMimeData *mimeData = new QMimeData;
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_MATERIAL, {});
+                QDataStream stream(&data, QIODevice::WriteOnly);
+                stream << m_bundleMaterialToDrag->type();
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_MATERIAL, data);
                 mimeData->removeFormat("text/plain");
 
-                model->startDrag(mimeData, m_bundleMaterialToDrag->icon().toLocalFile());
                 emit bundleMaterialDragStarted(m_bundleMaterialToDrag);
+                model->startDrag(mimeData, m_bundleMaterialToDrag->icon().toLocalFile());
                 m_bundleMaterialToDrag = {};
             }
         }
+    } else if (event->type() == QMouseEvent::MouseButtonRelease) {
+        m_materialToDrag = {};
+        m_bundleMaterialToDrag = {};
     }
 
     return QObject::eventFilter(obj, event);

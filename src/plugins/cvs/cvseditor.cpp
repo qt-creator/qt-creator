@@ -2,23 +2,41 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "cvseditor.h"
+
+#include "cvstr.h"
 #include "cvsutils.h"
 
-#include "annotationhighlighter.h"
-
 #include <utils/qtcassert.h>
+
+#include <vcsbase/baseannotationhighlighter.h>
 #include <vcsbase/diffandloghighlighter.h>
 
 #include <QDebug>
 #include <QTextCursor>
 #include <QTextBlock>
 
-namespace Cvs {
-namespace Internal {
+namespace Cvs::Internal {
 
 // Match a CVS revision ("1.1.1.1")
 #define CVS_REVISION_PATTERN "[\\d\\.]+"
 #define CVS_REVISION_AT_START_PATTERN "^(" CVS_REVISION_PATTERN ") "
+
+// Annotation highlighter for cvs triggering on 'changenumber '
+class CvsAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
+{
+public:
+    explicit CvsAnnotationHighlighter(const ChangeNumbers &changeNumbers,
+                                      QTextDocument *document = nullptr) :
+        VcsBase::BaseAnnotationHighlighter(changeNumbers, document)
+    { }
+
+private:
+    QString changeNumber(const QString &block) const override
+    {
+        const int pos = block.indexOf(QLatin1Char(' '));
+        return pos > 1 ? block.left(pos) : QString();
+    }
+};
 
 CvsEditorWidget::CvsEditorWidget() :
     m_revisionAnnotationPattern(CVS_REVISION_AT_START_PATTERN),
@@ -36,7 +54,7 @@ CvsEditorWidget::CvsEditorWidget() :
     */
     setDiffFilePattern("^[-+]{3} ([^\\t]+)");
     setLogEntryPattern("^revision (.+)$");
-    setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
+    setAnnotateRevisionTextFormat(Tr::tr("Annotate revision \"%1\""));
     setAnnotationEntryPattern("^(" CVS_REVISION_PATTERN ") ");
 }
 
@@ -87,5 +105,4 @@ QStringList CvsEditorWidget::annotationPreviousVersions(const QString &revision)
     return QStringList(previousRevision(revision));
 }
 
-}
-}
+} // Cvs::Internal

@@ -22,7 +22,7 @@ public:
     { insert(Utils::FilePath::fromString(fileName), source, revision); }
 
     void insert(const Utils::FilePath &fileName, const QByteArray &source, unsigned revision = 0)
-    { _elements.insert(fileName, qMakePair(source, revision)); }
+    { _elements.insert(fileName, {source, revision}); }
 
     bool contains(const QString &fileName) const
     { return contains(Utils::FilePath::fromString(fileName)); }

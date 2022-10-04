@@ -14,16 +14,16 @@
 
 enum { debug = 0 };
 
-static const char PASTEBIN_BASE[]="https://pastebin.com/";
-static const char PASTEBIN_API[]="api/api_post.php";
-static const char PASTEBIN_RAW[]="raw/";
-static const char PASTEBIN_ARCHIVE[]="archive";
-
-static const char API_KEY[]="api_dev_key=516686fc461fb7f9341fd7cf2af6f829&"; // user: qtcreator_apikey
-
-static const char PROTOCOL_NAME[] = "Pastebin.Com";
-
 namespace CodePaster {
+
+const char PASTEBIN_BASE[]="https://pastebin.com/";
+const char PASTEBIN_API[]="api/api_post.php";
+const char PASTEBIN_RAW[]="raw/";
+const char PASTEBIN_ARCHIVE[]="archive";
+
+const char API_KEY[]="api_dev_key=516686fc461fb7f9341fd7cf2af6f829&"; // user: qtcreator_apikey
+
+const char PROTOCOL_NAME[] = "Pastebin.Com";
 
 QString PasteBinDotComProtocol::protocolName()
 {
@@ -470,4 +470,4 @@ void PasteBinDotComProtocol::listFinished()
     m_listReply = nullptr;
 }
 
-} // namespace CodePaster
+} // CodePaster

@@ -930,7 +930,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
                                       + startOffset, positions.top() + linePos.y());
                 const QSize linkSize(endOffset - startOffset, linkLine.height());
                 const QRectF linkRect(linkPos, linkSize);
-                m_hrefs << qMakePair(linkRect, range.format.anchorHref());
+                m_hrefs.push_back({linkRect, range.format.anchorHref()});
             }
         }
 

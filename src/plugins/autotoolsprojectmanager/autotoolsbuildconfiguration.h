@@ -5,8 +5,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 class AutotoolsBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
 {
@@ -14,5 +13,4 @@ public:
     AutotoolsBuildConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

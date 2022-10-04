@@ -338,7 +338,7 @@ void TargetSetupWidget::reportIssues(int index)
 QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &info)
 {
     if (m_projectPath.isEmpty() || !info.factory)
-        return qMakePair(Task::Unknown, QString());
+        return {Task::Unknown, {}};
 
     QString buildDir = info.buildDirectory.toString();
     Tasks issues;
@@ -364,7 +364,7 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
     }
     if (!text.isEmpty())
         text = QLatin1String("<nobr>") + text;
-    return qMakePair(highestType, text);
+    return {highestType, text};
 }
 
 TargetSetupWidget::BuildInfoStore::~BuildInfoStore()

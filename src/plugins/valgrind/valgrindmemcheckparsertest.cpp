@@ -284,13 +284,11 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
         expectedErrors << error;
     }
 
-    QVector<QPair<qint64,qint64> > expectedErrorCounts;
-    expectedErrorCounts.push_back(QPair<qint64,qint64>(9, 2));
-
-    QVector<QPair<QString,qint64> > expectedSuppCounts;
-    expectedSuppCounts.push_back(qMakePair(QString("X on SUSE11 writev uninit padding"), static_cast<qint64>(12)));
-    expectedSuppCounts.push_back(qMakePair(QString("dl-hack3-cond-1"), static_cast<qint64>(2)));
-    expectedSuppCounts.push_back(qMakePair(QString("glibc-2.5.x-on-SUSE-10.2-(PPC)-2a"), static_cast<qint64>(2)));
+    const QVector<QPair<qint64,qint64>> expectedErrorCounts{{9, 2}};
+    const QVector<QPair<QString,qint64>> expectedSuppCounts{
+        {QString("X on SUSE11 writev uninit padding"), 12},
+        {QString("dl-hack3-cond-1"), 2},
+        {QString("glibc-2.5.x-on-SUSE-10.2-(PPC)-2a"), 2}};
 
     Parser parser;
     Recorder rec(&parser);

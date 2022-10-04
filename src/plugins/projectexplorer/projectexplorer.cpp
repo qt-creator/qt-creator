@@ -3247,7 +3247,7 @@ QList<QPair<CommandLine, ProcessHandle>> ProjectExplorerPlugin::runningRunContro
     const QList<RunControl *> runControls = allRunControls();
     for (RunControl *rc : runControls) {
         if (rc->isRunning())
-            processes << qMakePair(rc->commandLine(), rc->applicationProcessHandle());
+            processes.push_back({rc->commandLine(), rc->applicationProcessHandle()});
     }
     return processes;
 }
@@ -3420,7 +3420,7 @@ void ProjectExplorerPluginPrivate::addToRecentProjects(const FilePath &filePath,
 
     if (m_recentProjects.count() > m_maxRecentProjects)
         m_recentProjects.removeLast();
-    m_recentProjects.prepend(qMakePair(filePath, displayName));
+    m_recentProjects.push_front({filePath, displayName});
     m_lastOpenDirectory = filePath.absolutePath();
     emit m_instance->recentProjectsChanged();
 }
@@ -3947,10 +3947,10 @@ void ProjectExplorerPluginPrivate::removeFile()
 
     const FilePath filePath = currentNode->filePath();
     using NodeAndPath = QPair<const Node *, FilePath>;
-    QList<NodeAndPath> filesToRemove{qMakePair(currentNode, currentNode->filePath())};
+    QList<NodeAndPath> filesToRemove{{currentNode, currentNode->filePath()}};
     QList<NodeAndPath> siblings;
     for (const Node * const n : ProjectTree::siblingsWithSameBaseName(currentNode))
-        siblings << qMakePair(n, n->filePath());
+        siblings.push_back({n, n->filePath()});
 
     RemoveFileDialog removeFileDialog(filePath, ICore::dialogParent());
     if (removeFileDialog.exec() != QDialog::Accepted)

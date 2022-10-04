@@ -4,6 +4,7 @@
 #include "pasteview.h"
 
 #include "columnindicatortextedit.h"
+#include "cpastertr.h"
 #include "protocol.h"
 
 #include <coreplugin/icore.h>
@@ -26,36 +27,36 @@
 #include <QStackedWidget>
 #include <QTextEdit>
 
+namespace CodePaster {
+
 const char groupC[] = "CPaster";
 const char heightKeyC[] = "PasteViewHeight";
 const char widthKeyC[] = "PasteViewWidth";
-
-namespace CodePaster {
 
 PasteView::PasteView(const QList<Protocol *> &protocols,
                      const QString &mt,
                      QWidget *parent) :
     QDialog(parent),
     m_protocols(protocols),
-    m_commentPlaceHolder(tr("<Comment>")),
+    m_commentPlaceHolder(Tr::tr("<Comment>")),
     m_mimeType(mt)
 {
     resize(670, 678);
-    setWindowTitle(tr("Send to Codepaster"));
+    setWindowTitle(Tr::tr("Send to Codepaster"));
 
     m_protocolBox = new QComboBox;
     for (const Protocol *p : protocols)
         m_protocolBox->addItem(p->name());
 
     m_expirySpinBox = new QSpinBox;
-    m_expirySpinBox->setSuffix(tr(" Days"));
+    m_expirySpinBox->setSuffix(Tr::tr(" Days"));
     m_expirySpinBox->setRange(1, 365);
 
     m_uiUsername = new QLineEdit(this);
-    m_uiUsername->setPlaceholderText(tr("<Username>"));
+    m_uiUsername->setPlaceholderText(Tr::tr("<Username>"));
 
     m_uiDescription = new QLineEdit(this);
-    m_uiDescription->setPlaceholderText(tr("<Description>"));
+    m_uiDescription->setPlaceholderText(Tr::tr("<Description>"));
 
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -78,7 +79,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     m_uiPatchView->setFont(font);
     m_uiPatchView->setReadOnly(true);
 
-    auto groupBox = new QGroupBox(tr("Parts to Send to Server"));
+    auto groupBox = new QGroupBox(Tr::tr("Parts to Send to Server"));
     groupBox->setFlat(true);
 
     m_plainTextEdit = new QPlainTextEdit;
@@ -89,7 +90,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     m_stackedWidget->setCurrentIndex(0);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-    buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Paste"));
+    buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Paste"));
 
     const bool __sortingEnabled = m_uiPatchList->isSortingEnabled();
     m_uiPatchList->setSortingEnabled(false);
@@ -104,10 +105,10 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
 
     Column {
         Form {
-            tr("Protocol:"), m_protocolBox, br,
-            tr("&Expires after:"), m_expirySpinBox, br,
-            tr("&Username:"), m_uiUsername, br,
-            tr("&Description:"), m_uiDescription,
+            Tr::tr("Protocol:"), m_protocolBox, br,
+            Tr::tr("&Expires after:"), m_expirySpinBox, br,
+            Tr::tr("&Username:"), m_uiUsername, br,
+            Tr::tr("&Description:"), m_uiDescription,
         },
         m_uiComment,
         m_stackedWidget,

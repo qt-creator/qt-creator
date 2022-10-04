@@ -23,6 +23,6 @@ public:
     QString toolTip;
 };
 
-} // namespace BinEditor
+} // BinEditor
 
 Q_DECLARE_METATYPE(BinEditor::Markup)

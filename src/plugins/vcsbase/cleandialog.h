@@ -11,6 +11,8 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 QT_END_NAMESPACE
 
+namespace Utils { class FilePath; }
+
 namespace VcsBase {
 
 namespace Internal { class CleanDialogPrivate; }
@@ -23,7 +25,7 @@ public:
     explicit CleanDialog(QWidget *parent = nullptr);
     ~CleanDialog() override;
 
-    void setFileList(const QString &workingDirectory, const QStringList &files,
+    void setFileList(const Utils::FilePath &workingDirectory, const QStringList &files,
                      const QStringList &ignoredFiles);
 
 public slots:
@@ -36,7 +38,7 @@ private:
 
     QStringList checkedFiles() const;
     bool promptToDelete();
-    void addFile(const QString &workingDirectory, QString fileName, bool checked);
+    void addFile(const Utils::FilePath &workingDirectory, const QString &fileName, bool checked);
 
     Internal::CleanDialogPrivate *const d;
 };

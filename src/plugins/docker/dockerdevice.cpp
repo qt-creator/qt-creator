@@ -128,6 +128,8 @@ public:
     bool runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
     QByteArray outputForRunInShell(const CommandLine &cmd);
 
+    std::optional<QByteArray> fileContents(const FilePath &filePath, qint64 limit, qint64 offset);
+
     void updateContainerAccess();
     void changeMounts(QStringList newMounts);
     bool ensureReachable(const FilePath &other);
@@ -665,6 +667,11 @@ DeviceEnvironmentFetcher::Ptr DockerDevice::environmentFetcher() const
     return DeviceEnvironmentFetcher::Ptr();
 }
 
+bool DockerDevice::usableAsBuildDevice() const
+{
+    return true;
+}
+
 FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 {
     if (pathOnDevice.needsDevice()) {
@@ -1010,25 +1017,7 @@ std::optional<QByteArray> DockerDevice::fileContents(const FilePath &filePath,
                                                      qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    updateContainerAccess();
-
-    QStringList args = {"if=" + filePath.path(), "status=none"};
-    if (limit > 0 || offset > 0) {
-        const qint64 gcd = std::gcd(limit, offset);
-        args += {QString("bs=%1").arg(gcd),
-                 QString("count=%1").arg(limit / gcd),
-                 QString("seek=%1").arg(offset / gcd)};
-    }
-
-    QtcProcess proc;
-    proc.setCommand(d->withDockerExecCmd({"dd", args}));
-    proc.start();
-    proc.waitForFinished();
-
-    if (proc.result() != ProcessResult::FinishedWithSuccess)
-        return {};
-    QByteArray output = proc.readAllStandardOutput();
-    return output;
+    return d->fileContents(filePath, limit, offset);
 }
 
 bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
@@ -1046,6 +1035,28 @@ void DockerDevice::aboutToBeRemoved() const
 {
     KitDetector detector(sharedFromThis());
     detector.undoAutoDetect(id().toString());
+}
+
+std::optional<QByteArray> DockerDevicePrivate::fileContents(const FilePath &filePath,
+                                                     qint64 limit,
+                                                     qint64 offset)
+{
+    updateContainerAccess();
+
+    QStringList args = {"if=" + filePath.path(), "status=none"};
+    if (limit > 0 || offset > 0) {
+        const qint64 gcd = std::gcd(limit, offset);
+        args += {QString("bs=%1").arg(gcd),
+                 QString("count=%1").arg(limit / gcd),
+                 QString("seek=%1").arg(offset / gcd)};
+    }
+
+    const ContainerShell::RunResult r = m_shell->outputForRunInShell({"dd", args});
+
+    if (r.exitCode != 0)
+        return {};
+
+    return r.stdOut;
 }
 
 void DockerDevicePrivate::fetchSystemEnviroment()

@@ -4,10 +4,12 @@
 #include "squishwizardpages.h"
 
 #include "squishfilehandler.h"
+#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtools.h"
 #include "squishtr.h"
 
+#include <utils/infolabel.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -47,7 +49,7 @@ SquishToolkitsPage::SquishToolkitsPage()
     resize(400, 300);
     setTitle(Tr::tr("Create New Squish Test Suite"));
 
-    auto layout = new QHBoxLayout(this);
+    auto layout = new QVBoxLayout(this);
     auto groupBox = new QGroupBox(Tr::tr("Available GUI toolkits:"), this);
     auto buttonLayout = new QVBoxLayout(groupBox);
 
@@ -63,6 +65,15 @@ SquishToolkitsPage::SquishToolkitsPage()
     }
     groupBox->setLayout(buttonLayout);
     layout->addWidget(groupBox);
+
+    m_errorLabel = new Utils::InfoLabel(Tr::tr("Invalid Squish settings. Configure Squish "
+                                               "installation path inside "
+                                               "Preferences... > Squish > General to use "
+                                               "this wizard."),
+                                        Utils::InfoLabel::Error, this);
+    m_errorLabel->setVisible(false);
+    layout->addWidget(m_errorLabel);
+
     auto hiddenLineEdit = new QLineEdit(this);
     hiddenLineEdit->setVisible(false);
     layout->addWidget(hiddenLineEdit);
@@ -99,7 +110,13 @@ bool SquishToolkitsPage::handleReject()
 
 void SquishToolkitsPage::delayedInitialize()
 {
-    fetchServerSettings();
+    const auto s = SquishPlugin::squishSettings();
+    const Utils::FilePath server = s->squishPath.filePath().pathAppended(
+                Utils::HostOsInfo::withExecutableSuffix("bin/squishserver"));
+    if (server.isExecutableFile())
+        fetchServerSettings();
+    else
+        m_errorLabel->setVisible(true);
 }
 
 void SquishToolkitsPage::fetchServerSettings()
@@ -311,6 +328,8 @@ Core::GeneratedFiles SquishFileGenerator::fileList(Utils::MacroExpander *expande
     QString aut = expander->expand(QString{"%{AUT}"});
     if (aut == Tr::tr("<None>"))
         aut.clear();
+    if (aut.contains(' '))
+        aut = QString('"' + aut + '"');
     const QString lang = expander->expand(QString{"%{Language}"});
     const QString toolkit = expander->expand(QString{"%{Toolkit}"});;
     const Utils::FilePath suiteConf = projectDir.pathAppended("suite.conf");

@@ -31,8 +31,7 @@ using namespace Utils;
 
 using namespace Bookmarks::Constants;
 
-namespace Bookmarks {
-namespace Internal {
+namespace Bookmarks::Internal {
 
 class BookmarksPluginPrivate : public QObject
 {
@@ -225,5 +224,4 @@ void BookmarksPluginPrivate::requestContextMenu(TextEditorWidget *widget,
         menu->addAction(&m_editBookmarkAction);
 }
 
-} // namespace Internal
-} // namespace Bookmarks
+} // Bookmarks::Internal

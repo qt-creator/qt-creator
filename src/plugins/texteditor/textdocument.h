@@ -53,6 +53,7 @@ public:
     static QMap<Utils::FilePath, QTextCodec *> openedTextDocumentEncodings();
     static TextDocument *currentTextDocument();
     static TextDocument *textDocumentForFilePath(const Utils::FilePath &filePath);
+    static QString convertToPlainText(const QString &rawText);
 
     virtual QString plainText() const;
     virtual QString textAt(int pos, int length) const;

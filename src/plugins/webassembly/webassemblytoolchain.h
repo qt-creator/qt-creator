@@ -12,8 +12,6 @@ namespace Internal {
 
 class WebAssemblyToolChain final : public ProjectExplorer::GccToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyToolChain)
-
 public:
     WebAssemblyToolChain();
 

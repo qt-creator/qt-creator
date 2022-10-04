@@ -9,7 +9,6 @@ namespace CodePaster {
 
 class PasteBinDotComProtocol : public NetworkProtocol
 {
-    Q_OBJECT
 public:
     static QString protocolName();
     QString name() const override { return protocolName(); }
@@ -39,4 +38,4 @@ private:
     bool m_hostChecked = false;
 };
 
-} // namespace CodePaster
+} // CodePaster

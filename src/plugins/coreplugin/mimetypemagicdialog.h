@@ -75,7 +75,6 @@ private:
     QSpinBox *m_prioritySpinBox;
     QSpinBox *m_startRangeSpinBox;
     QSpinBox *m_endRangeSpinBox;
-    QSpacerItem *verticalSpacer;
 };
 
 } // Core::Internal

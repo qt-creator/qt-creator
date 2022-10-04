@@ -2829,8 +2829,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 if (it.key().startsWith('(')) {
                     const QString expanded = rp.macroExpander->expand(it.value());
                     if (!expanded.isEmpty())
-                        globalRegExpSourceMap.push_back(
-                            qMakePair(QRegularExpression(it.key()), expanded));
+                        globalRegExpSourceMap.push_back({QRegularExpression(it.key()), expanded});
                 }
             }
             if (globalRegExpSourceMap.isEmpty())

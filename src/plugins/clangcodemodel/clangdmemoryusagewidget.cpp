@@ -39,7 +39,7 @@ public:
         for (auto it = obj.begin(); it != obj.end(); ++it) {
             if (it.key() == totalKey() || it.key() == selfKey())
                 continue;
-            components << std::make_pair(MemoryTree(it.value()), it.key());
+            components.push_back({MemoryTree(it.value()), it.key()});
         }
         return components;
     }
@@ -81,11 +81,9 @@ private:
 
     QString memString() const
     {
-        static const QList<std::pair<int, QString>> factors{
-            std::make_pair(1000000000, QString("GB")),
-            std::make_pair(1000000, QString("MB")),
-            std::make_pair(1000, QString("KB")),
-        };
+        static const QList<std::pair<int, QString>> factors{{1000000000, "GB"},
+                                                            {1000000, "MB"},
+                                                            {1000, "KB"}};
         for (const auto &factor : factors) {
             if (m_bytesUsed > factor.first)
                 return QString::number(qint64(std::round(double(m_bytesUsed) / factor.first)))

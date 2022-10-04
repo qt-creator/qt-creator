@@ -4,6 +4,7 @@
 #include "autogenstep.h"
 
 #include "autotoolsprojectconstants.h"
+#include "autotoolsprojectmanagertr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -19,8 +20,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 // AutogenStep
 
@@ -35,8 +35,6 @@ namespace Internal {
 
 class AutogenStep final : public AbstractProcessStep
 {
-    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutogenStep)
-
 public:
     AutogenStep(BuildStepList *bsl, Id id);
 
@@ -50,7 +48,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, i
 {
     auto arguments = addAspect<StringAspect>();
     arguments->setSettingsKey("AutotoolsProjectManager.AutogenStep.AdditionalArguments");
-    arguments->setLabelText(tr("Arguments:"));
+    arguments->setLabelText(Tr::tr("Arguments:"));
     arguments->setDisplayStyle(StringAspect::LineEditDisplay);
     arguments->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
 
@@ -86,7 +84,8 @@ void AutogenStep::doRun()
     }
 
     if (!m_runAutogen) {
-        emit addOutput(tr("Configuration unchanged, skipping autogen step."), BuildStep::OutputFormat::NormalMessage);
+        emit addOutput(Tr::tr("Configuration unchanged, skipping autogen step."),
+                       OutputFormat::NormalMessage);
         emit finished(true);
         return;
     }
@@ -106,10 +105,9 @@ void AutogenStep::doRun()
 AutogenStepFactory::AutogenStepFactory()
 {
     registerStep<AutogenStep>(Constants::AUTOGEN_STEP_ID);
-    setDisplayName(AutogenStep::tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
+    setDisplayName(Tr::tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
-} // Internal
-} // AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

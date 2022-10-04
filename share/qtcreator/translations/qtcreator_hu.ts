@@ -77,7 +77,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Künyvjelző hozzáadása</translation>
@@ -110,13 +110,6 @@
         <source>Rename Folder</source>
         <translation>Dosszié átnevezése</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Könyvjelzők</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Eltávolítás</translation>
@@ -125,13 +118,6 @@
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation>Egy olyan irattárat fog törölni, mely &lt;br&gt;törölni fogja annak tartalmát is. Biztos benne, hogy folytatni szeretné?</translation>
     </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Új dosszié</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
     <message>
         <source>Delete Folder</source>
         <translation>Irattár törlése</translation>
@@ -165,19 +151,8 @@
         <translation>Hozzáadás</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
         <source>&amp;Remove Bookmark</source>
         <translation type="obsolete">Könyvjelző &amp;eltávolítása</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Könyvjelzők</translation>
     </message>
     <message>
         <source>Remove all Bookmarks</source>
@@ -540,7 +515,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsPlugin</name>
+    <name>Cvs</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>A log kimenet elemzése nem sikerült</translation>
@@ -731,9 +706,6 @@
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation>A CVS nem válaszolt az időtúllépési korláton belül (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Hozzáadva</translation>
@@ -750,9 +722,6 @@
         <source>CVS Submit</source>
         <translation>CVS feltöltés</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation>Egy projekt megnézése egy CVS tárolóból.</translation>
@@ -761,9 +730,6 @@
         <source>CVS Checkout</source>
         <translation>CVS megnézés</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository and path.</source>
         <translation>Határozza meg a tárolót és az útvonalat.</translation>
@@ -772,9 +738,6 @@
         <source>Repository:</source>
         <translation>Tároló:</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Feltöltési prompt</translation>
@@ -803,16 +766,10 @@
         <source>CVS</source>
         <translation>CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS parancs</translation>
     </message>
-</context>
-<context>
-    <name>CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation>&apos;%1&apos; tárolóra nem található</translation>
@@ -896,7 +853,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::0</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation type="obsolete">&amp;KódBeillesztő</translation>
@@ -961,9 +918,6 @@
         <source>CodePaster</source>
         <translation type="obsolete">KódBeillesztés</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterProtocol</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>Nincsen szerver definiálva a KódBeillesztő beállításokban.</translation>
@@ -976,9 +930,6 @@
         <source>No such paste</source>
         <translation>Nincs ilyen beillesztés</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>KódBeillesztés</translation>
@@ -995,9 +946,6 @@
         <source>Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).</source>
         <translation>Megjegyzés: Határozza meg a hosz nevet a KódBeillesztő szolgáltatás számára. (például codepaster.mycompany.com).</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Kód beillesztés</translation>
@@ -1026,9 +974,6 @@
         <source>Waiting for items</source>
         <translation>Elemekre várakozás</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokoll:</translation>
@@ -1037,9 +982,6 @@
         <source>Paste:</source>
         <translation>Beillesztés:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Általános</translation>
@@ -1047,10 +989,6 @@
     <message>
         <source>Default Protocol:</source>
         <translation>Alapértelmezett protokoll:</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <translation>KódBeillesztés</translation>
     </message>
     <message>
         <source>Pastebin.ca</source>
@@ -1071,10 +1009,6 @@
     <message>
         <source>Display Output Pane after sending a post</source>
         <translation>Kimeneti panel kijelzése egy küldés után</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation>Kód beillesztés</translation>
     </message>
 </context>
 <context>

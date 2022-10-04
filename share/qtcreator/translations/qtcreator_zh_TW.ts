@@ -32,7 +32,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>新增書籤</translation>
@@ -65,13 +65,6 @@
         <source>Add in folder:</source>
         <translation>新增到資料夾:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>書籤</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>移除</translation>
@@ -79,21 +72,6 @@
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>刪除資料夾會同時移除它的內容。&lt;br&gt;您確定要繼續嗎?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>新資料夾</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>刪除資料夾</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>重新命名資料夾</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -114,17 +92,6 @@
     <message>
         <source>Add</source>
         <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>書籤</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -379,7 +346,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>貼上代碼(&amp;C)</translation>
@@ -428,9 +395,6 @@
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>接收到 &quot;%1&quot; 的空片段。</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>刷新</translation>
@@ -443,9 +407,6 @@
         <source>This protocol does not support listing</source>
         <translation>此協定不支援列表</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -10221,7 +10182,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -10742,7 +10703,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>在 CodePaster 喜好設定中沒有定義伺服器。</translation>
@@ -10755,9 +10716,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>No such paste</source>
         <translation>沒有相關貼上內容</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -10821,7 +10779,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>從 CVS 主目錄中取出，並試著載入裡面包含的專案。</translation>
@@ -10830,9 +10788,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>CVS Checkout</source>
         <translation>CVS 取出</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -10845,9 +10800,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Repository:</source>
         <translation>主目錄：</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>剖析紀錄輸出失敗</translation>
@@ -11108,9 +11060,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>No cvs executable specified!</source>
         <translation>未指定 cvs 的執行檔！</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>已新增</translation>
@@ -11123,9 +11072,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Modified</source>
         <translation>已變更</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS 指令</translation>
@@ -13079,7 +13025,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteView</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;註解&gt;</translation>
@@ -13240,7 +13186,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditor</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
@@ -14743,7 +14689,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>無法開啟 %1：%2</translation>
@@ -14764,16 +14710,10 @@ with a password, which you can enter below.</source>
         <source>Pasted: %1</source>
         <translation>已貼上：%1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>檔案共享</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - 設置錯誤</translation>
@@ -16107,7 +16047,7 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::NetworkProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>正在檢查連線</translation>
@@ -22371,7 +22311,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -26350,7 +26290,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -26372,13 +26312,6 @@ Filter: %2
         <source>entries</source>
         <translation>條目</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation type="unfinished">&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; 允許傳送主題到自定義子域名，(比如. creator.pastebin.com). 輸入你希望的前綴.</translation>
@@ -26391,9 +26324,6 @@ Filter: %2
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;注意：外掛程式將會使用此項來發佈與抓取。&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>協定：</translation>
@@ -26402,16 +26332,9 @@ Filter: %2
         <source>Paste:</source>
         <translation>貼上：</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>傳送至 CodePaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>協定：</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -26453,9 +26376,6 @@ p, li { white-space: pre-wrap; }
         <source>Patch 2</source>
         <translation>Patch 2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>發送後顯示輸出窗格</translation>
@@ -28156,15 +28076,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -28173,9 +28090,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>設置未變更，跳過 autogen 步驟。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>參數：</translation>
@@ -28185,17 +28099,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -28204,21 +28112,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>設置未變更，跳過 autoreconf 步驟。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>參數：</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation>建置</translation>
@@ -28231,9 +28129,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>New configuration name:</source>
         <translation>新設置名稱：</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>建置目錄：</translation>
@@ -28246,9 +28141,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&lt;Invalid tool chain&gt;</source>
         <translation type="obsolete">&lt;無效的工具鍊&gt;</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案檔不存在</translation>
@@ -28257,47 +28149,28 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案已經被開啟</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotools 精靈</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>請輸入您想建置專案的目錄。Qt Creator 建議您不要直接用源碼的目錄來做建置。這樣可以保持源碼目錄的乾淨，並且可以讓您用不同的設定進行多個建置。</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>建置目錄：</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>建置位置</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Autotools Default target display name</comment>
         <translation type="obsolete">桌面</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>設置</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>設置</translation>
@@ -28306,21 +28179,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>設置未變更，跳過設置步驟。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>參數：</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>設置</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>在目錄 %2 剖析 %1 中</translation>
@@ -28329,17 +28192,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Parsing directory %1</source>
         <translation>剖析目錄 %1 中</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -28351,13 +28208,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>參數：</translation>
     </message>
     <message>
         <source>Make</source>

@@ -10,8 +10,6 @@ namespace Internal {
 
 class WebAssemblyDevice final : public ProjectExplorer::DesktopDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyDevice)
-
 public:
     static ProjectExplorer::IDevice::Ptr create();
 

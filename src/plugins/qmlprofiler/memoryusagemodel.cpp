@@ -13,7 +13,7 @@ namespace Internal {
 
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,
                                    Timeline::TimelineModelAggregator *parent) :
-    QmlProfilerTimelineModel(manager, MemoryAllocation, MaximumRangeType, ProfileMemory, parent)
+    QmlProfilerTimelineModel(manager, MemoryAllocation, UndefinedRangeType, ProfileMemory, parent)
 {
     // Register additional features. The base class already registers the main feature.
     // Don't register initializer, finalizer, or clearer as the base class has done so already.
@@ -121,7 +121,7 @@ QVariantMap MemoryUsageModel::details(int index) const
 void MemoryUsageModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
     if (type.message() != MemoryAllocation) {
-        if (type.rangeType() != MaximumRangeType) {
+        if (type.rangeType() != UndefinedRangeType) {
             m_continuation = ContinueNothing;
             if (event.rangeStage() == RangeStart)
                 m_rangeStack.push(RangeStackFrame(event.typeIndex(), event.timestamp()));

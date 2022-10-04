@@ -163,7 +163,7 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
         if (repo.isFile())  {
             menu->addSeparator();
             openAction = menu->addAction(VcsOutputWindow::tr("Open \"%1\"").arg(repo.nativePath()));
-            openAction->setData(repo.absoluteFilePath().toString());
+            openAction->setData(repo.absoluteFilePath().toVariant());
         }
     }
     QAction *clearAction = nullptr;

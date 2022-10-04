@@ -44,7 +44,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Přidat záložku</translation>
@@ -81,13 +81,6 @@
         <source>Add in folder:</source>
         <translation>Přidat do složky:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Záložky</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Odstranit</translation>
@@ -99,21 +92,6 @@
     <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation type="obsolete">Chystáte se smazat složku, přičemž se smaže&lt;br&gt;i její obsah. Jste si jistý, že přesto chcete pokračovat?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nová složka</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Smazat složku</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Přejmenovat složku</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -142,17 +120,6 @@
     <message>
         <source>Add</source>
         <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Záložky</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -560,7 +527,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Vkládání kódu</translation>
@@ -610,25 +577,6 @@
         <translation>Přijat prázdný úryvek pro &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>This protocol supports no listing</source>
-        <translation type="obsolete">Tento protokol nepodporuje výpisy</translation>
-    </message>
-    <message>
-        <source>Waiting for items</source>
-        <translation type="obsolete">Čeká se na data</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
-    <message>
-        <source>Paste:</source>
-        <translation type="obsolete">Vložit:</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation type="obsolete">Protokol:</translation>
-    </message>
-    <message>
         <source>Refresh</source>
         <translation>Obnovit</translation>
     </message>
@@ -639,13 +587,6 @@
     <message>
         <source>This protocol does not support listing</source>
         <translation>Tento protokol nepodporuje výpisy</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Uživatelské jméno:</translation>
     </message>
     <message>
         <source>Copy Paste URL to clipboard</source>
@@ -658,38 +599,6 @@
     <message>
         <source>General</source>
         <translation>Obecné</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="obsolete">CodePaster</translation>
-    </message>
-    <message>
-        <source>Default Protocol:</source>
-        <translation type="obsolete">Výchozí protokol:</translation>
-    </message>
-    <message>
-        <source>Pastebin.ca</source>
-        <translation type="obsolete">Pastebin.ca</translation>
-    </message>
-    <message>
-        <source>Pastebin.com</source>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Vkládání kódu</translation>
-    </message>
-    <message>
-        <source>Display Output pane after sending a post</source>
-        <translation type="obsolete">Po odeslání ukázat výstupní tabulku</translation>
-    </message>
-    <message>
-        <source>Copy-paste URL to clipboard</source>
-        <translation type="obsolete">Kopírovat URL do schránky</translation>
-    </message>
-    <message>
-        <source>Default protocol:</source>
-        <translation type="obsolete">Výchozí protokol:</translation>
     </message>
 </context>
 <context>
@@ -16766,7 +16675,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Potvrdit předložení</translation>
@@ -18464,7 +18373,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>V nastavení ke CodePaster nebyl stanoven žádný server.</translation>
@@ -18477,9 +18386,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>No such paste</source>
         <translation>Požadované vložení neexistuje</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -18487,10 +18393,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>&lt;i&gt;Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).&lt;/i&gt;</source>
         <translation>&lt;i&gt;Poznámka: Zadejte název hostitelského počítače (serveru) pro službu CodePaster bez protokolové předpony (například: codepaster.mycompany.com).&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Vkládání kódu</translation>
     </message>
     <message>
         <source>Server:</source>
@@ -18635,7 +18537,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">Odhlásí projekt ze skladiště CVS.</translation>
@@ -18648,9 +18550,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>CVS Checkout</source>
         <translation>Získání (checkout) skladiště CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -18663,16 +18562,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Repository:</source>
         <translation>Skladiště:</translation>
     </message>
-</context>
-<context>
-    <name>CvsPlugin</name>
-    <message>
-        <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation type="obsolete">Nelze najít skladiště pro &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>Nepodařilo se vyhodnotit výstup záznamu</translation>
@@ -18998,9 +18887,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">Žádná odpověď od CVS v rámci časového omezení (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Přidáno</translation>
@@ -19017,9 +18903,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>CVS Submit</source>
         <translation type="obsolete">Předložení CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Příkaz CVS</translation>
@@ -21203,25 +21086,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Reset to default</source>
         <translation type="obsolete">Nastavit znovu výchozí</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>&amp;Display:</source>
-        <translation type="obsolete">&amp;Zobrazit:</translation>
-    </message>
-    <message>
-        <source>entries</source>
-        <translation type="obsolete">Záznamy</translation>
-    </message>
-    <message>
-        <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
-        <translation type="obsolete">Protokol vložení založený na sdílení souborů umožňuje sdílení kousků kódu pomocí jednoduchých souborů na sdílené síťové diskové jednotce. Soubory nejsou nikdy mazány.</translation>
     </message>
 </context>
 <context>
@@ -24270,9 +24134,6 @@ heslem, jež můžete zadat níže.</translation>
         <source>Code Pasting</source>
         <translation>Úryvky kódu</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Nelze otevřít soubor &apos;%1&apos;: %2</translation>
@@ -24297,23 +24158,10 @@ heslem, jež můžete zadat níže.</translation>
         <source>Pasted: %1</source>
         <translation>Vloženo: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Sdílení souboru</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteBinDotComSettings</name>
-    <message>
-        <source>Pastebin.com</source>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Poznámka&gt;</translation>
@@ -24322,9 +24170,6 @@ heslem, jež můžete zadat níže.</translation>
         <source>Paste</source>
         <translation>Vložit</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Chyba v nastavení</translation>
@@ -24628,7 +24473,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditor</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Opatřit anotacemi revizi &quot;%1&quot;</translation>
@@ -33605,15 +33450,12 @@ správy verzí (%2)</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteBinDotComProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.</extracomment>
         <translation type="obsolete">&lt;Neznámý&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>Ověření spojení</translation>
@@ -33845,7 +33687,7 @@ Příznaky: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -44421,7 +44263,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -44442,13 +44284,6 @@ p, li { white-space: pre-wrap; }
         <source>entries</source>
         <translation>záznamů</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; dovoluje posílání uživatelsky stanovených subdomén (například creator.pastebin.com). Zadejte požadovanou předponu.</translation>
@@ -44461,9 +44296,6 @@ p, li { white-space: pre-wrap; }
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Poznámka: Přídavný modul toto použije pro posílání a stejně tak natahování.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokol:</translation>
@@ -44472,16 +44304,9 @@ p, li { white-space: pre-wrap; }
         <source>Paste:</source>
         <translation>Vložení:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Poslat na CodePaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokol:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -44531,9 +44356,6 @@ p, li { white-space: pre-wrap; }
         <source>&amp;Expires after:</source>
         <translation>&amp;Vyprší po:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Po odeslání ukázat výstupní tabulku</translation>
@@ -44549,14 +44371,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Výchozí protokol:</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Vyprší po:</translation>
-    </message>
-    <message>
-        <source>Days</source>
-        <translation>dnech</translation>
     </message>
 </context>
 <context>
@@ -47485,15 +47299,12 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -47502,9 +47313,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Nastavení nezměněno. Přeskakuje se krok autogen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
@@ -47514,17 +47322,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -47533,21 +47335,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Nastavení nezměněno. Přeskakuje se krok autoreconf.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -47565,9 +47357,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>New configuration name:</source>
         <translation>Název nového nastavení:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Adresář pro sestavování:</translation>
@@ -47584,9 +47373,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>&lt;Invalid tool chain&gt;</source>
         <translation type="obsolete">&lt;Neplatná sada nástrojů&gt;</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation type="obsolete">Projekt %1 se nepodařil otevřít: Soubor s projektem neexistuje</translation>
@@ -47599,54 +47385,32 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Průvodce Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Zadejte, prosím, adresář, ve kterém chcete vytvořit svůj projekt.. Doporučuje se, nepoužívat pro vytvoření projektu zdrojový adresář. Tím se zajistí, že zdrojový adresář zůstane volný, a umožní různá sestavení s rozdílnými nastaveními.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Adresář pro sestavování:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Umístění sestavování</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Autotools Default target display name</comment>
         <translation type="obsolete">Stolní počítač</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsTargetFactory</name>
     <message>
         <source>Default Build</source>
         <translation type="obsolete">Výchozí sestavení</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Configure</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Configure</translation>
@@ -47655,21 +47419,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Nastavení nezměněno, přeskakuje se krok nastavení.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Nastavit</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Zpracovává se %1 v adresáři %2</translation>
@@ -47678,17 +47432,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Parsing directory %1</source>
         <translation>Zpracovává se adresář %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -47700,13 +47448,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Nastavení je chybné. Prověřte, prosím, pohled na potíže kvůli podrobnostem.</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
     </message>
     <message>
         <source>Make</source>
@@ -56824,7 +56565,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>Ú&amp;pravy</translation>

@@ -416,8 +416,8 @@ void DiffEditor::prepareForReload()
 
     if (m_entriesComboBox->count() > 0) {
         m_currentFileChunk
-                = qMakePair(m_entriesComboBox->itemData(m_currentDiffFileIndex, Qt::UserRole).toString(),
-                            m_entriesComboBox->itemData(m_currentDiffFileIndex, Qt::UserRole + 1).toString());
+              = {m_entriesComboBox->itemData(m_currentDiffFileIndex, Qt::UserRole).toString(),
+                 m_entriesComboBox->itemData(m_currentDiffFileIndex, Qt::UserRole + 1).toString()};
     } else {
         m_currentFileChunk = {};
     }

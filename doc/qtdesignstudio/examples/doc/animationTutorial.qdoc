@@ -1,0 +1,245 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \page animation-tutorial.html
+    \ingroup gstutorials
+    \sa {Creating Timeline Animations}
+
+    \title Timeline Animation Tutorial
+    \brief Illustrates how to create timeline animations and bind them to
+    properties in \QDS.
+
+    \image animation-tutorial.gif
+
+    The \e{Timeline Animation} tutorial illustrates how to create timeline animations
+    and bind them to properties in \QDS. First you create a keyframe animation
+    which you control the running state of with a switch in the UI. Next, you
+    create another keyframe animation where you use a slider in the UI to
+    control the position of the playhead.
+
+    The starting point of this tutorial is the Animation Tutorial project,
+    you can download it from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/animation-tutorial/AnimationTutorial/Start}
+    {here}.
+
+    You can download the completed project from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/animation-tutorial/AnimationTutorial/Completed}
+    {here}.
+
+    This tutorial requires that you know the basics of \QDS, see
+    \l{Getting Started}.
+
+    \section1 Creating a Timeline Animation
+
+    First, you create an animation where the ball bearing continuously rotates
+    around its Y axis.
+
+    \section2 Adding a Timeline and an Animation
+
+    To add a timeline to your project:
+
+    \list 1
+      \li In the \uicontrol Timeline view, select
+      \inlineimage icons/plus.png
+      .
+      This creates a timeline and one animation.
+      \li On the \uicontrol {Animation Settings} tab in the
+      \uicontrol {Timeline Settings} dialog:
+          \list
+            \li Set \uicontrol Duration to 7500.
+                This sets the duration of the animation in milliseconds.
+            \li Select \uicontrol {Contiunous}.
+                This sets the animation to start over again when it reaches the
+                end.
+          \endlist
+      \image animation-tutorial-timeline-1.png
+      \li Select \uicontrol {Close}.
+    \endlist
+
+    You can see the timeline in the \uicontrol Timeline and
+    \uicontrol Navigator views.
+
+    \section2 Adding Keyframes
+
+    Next, you add keyframes to animate the rotation of the ball bearing:
+
+    \list 1
+      \li In the \uicontrol Navigator view, select \e {ballbearing1}.
+      \li In the \uicontrol Properties view, select
+      \inlineimage icons/action-icon.png (Actions)
+      next to \uicontrol Rotation > \uicontrol {Y}.
+      \li Select \uicontrol {Insert Keyframe}.
+      \image animation-tutorial-insert-keyframe.png
+      \li In the \uicontrol Timeline view, select the
+      \uicontrol {Per Property Recording} button to start recording property
+      changes.
+      \image animation-tutorial-per-property-recording.png
+      \li In the \uicontrol Timeline view, move the playhead to the end of the
+      animation (frame 1000).
+      \li In the \uicontrol Properties view, set \uicontrol Rotation >
+      \uicontrol Z to 360.
+      This creates a second keyframe.
+      \li Select the \uicontrol {Per Property Recording} button to end the per
+      property recording. To preview the animation, drag the playhead along the
+      timeline.
+    \endlist
+
+    \section2 Controlling the Running State of the Animation
+
+    There is a toggle switch in the UI of this project. To use this switch to
+    control the running state of the animation:
+
+    \list 1
+      \li In the \uicontrol Navigator view, select \e {timelineAnimation}.
+      \li In the \uicontrol Connections view, go to the \uicontrol Bindings tab.
+      \li Select \inlineimage icons/plus.png
+      to create a binding.
+      \li For the binding you created, set:
+        \list
+          \li \uicontrol Property to \e {paused}.
+          \li \uicontrol {Source Item} to \e {switch1}.
+          \li \uicontrol {Source Property} to \e {checked}.
+        \endlist
+      \image animation-tutorial-binding.png
+    \endlist
+
+    You can preview the animation and try the toggle switch in the live preview.
+    To run the live preview, select \key Alt + \key{P}.
+
+    \section1 Creating a Timeline and Binding it to a Property
+
+    Next, you create the exploded view animation of the ball bearing. You don't
+    want this animation to run automatically but instead you want to control it
+    with a slider in the UI.
+
+    \section2 Adding a Timeline Inside a Component
+
+    You create this animation inside the ball bearing component, to do this:
+
+    \list 1
+      \li In the \uicontrol Navigator view, select \e {ballBearing1}.
+      \li Select \key {F2} to go into the component.
+      \li In the \uicontrol Timeline view, select
+      \inlineimage icons/plus.png
+      to add a timeline and open the \uicontrol {Timeline Settings} dialog.
+      \li Select \inlineimage icons/minus.png
+      next to the \uicontrol {Animation Settings} tab to remove the animation
+      in this timeline.
+      You do not need an animation when you bind the timeline to a property.
+      \li Select \uicontrol {Close}.
+    \endlist
+
+    \image animation-tutorial-timeline-2.png
+
+    \section2 Adding Keyframes
+
+    Now, you add keyframes for the different parts of the ball bearing:
+
+    \list 1
+      \li In the \uicontrol{Navigator} view, select \e{inner_race}.
+      \li In the \uicontrol Properties view, select
+      \inlineimage icons/action-icon.png (Actions)
+      next to \uicontrol Translation > \uicontrol Y.
+      \li Select \uicontrol {Insert Keyframe}.
+      \li In the \uicontrol Timeline view, select the
+      \uicontrol {Per Property Recording} button to start recording property
+      changes.
+      \li In the \uicontrol Timeline view, move the playhead to the end of the
+      animation (frame 1000).
+      \li In the \uicontrol Properties view, set \uicontrol Translation >
+      \uicontrol Y to 0,50.
+      \li Select the \uicontrol {Per Property Recording} button to end the per
+      property recording.
+      \li Next, you set the keyframe values for the other parts of the ball
+      bearing. For the following parts, set the \uicontrol Translation >
+      \uicontrol Y value for frame 1000:
+        \list
+          \li \e balls to 1,00.
+          \li \e retainer to 1,50.
+          \li \e shield_left to 1,80.
+          \li \e shield_right to -0,30.
+        \endlist
+      \image animation-tutorial-ballbearing-animation.png
+    \endlist
+
+    You can preview the animation by dragging the playhead in the
+    \uicontrol Timeline view.
+
+    \section2 Controlling the Animation with a Slider
+
+    Now, you use the slider on the main screen to control the exploded
+    view animation that you created.
+
+    To do this, you first need to define a property for the slider:
+
+    \list 1
+      \li In the \uicontrol Navigator view, select \e Node.
+      \li On the \uicontrol Properties tab in the \uicontrol Connections view,
+      select \inlineimage icons/plus.png
+      .
+      \li In the \uicontrol {Property Type} field, enter \e {Item}.
+      This field is a drop-down list, but you can also type text.
+      \li In the \uicontrol {Property Value} field, enter \e {null}.
+    \endlist
+    \image animation-tutorial-property.png
+
+    Next, you set the property you just created to control the timeline
+    animation:
+
+    \list 1
+      \li In the \uicontrol {Timeline} view, select
+      \inlineimage icons/animation.png
+      .
+      \li In the \uicontrol {Expression binding field}, enter
+      \c {property0.value}.
+      \li Select \uicontrol {Close}.
+    \endlist
+
+    Next, you go out from the component back to the main project and bind the
+    property to the slider:
+
+    \list 1
+      \li In the toolbar, select the \e {Screen01.ui.qml} breadcrumb.
+      \image animation-tutorial-breadcrumb.png
+      \li In the \uicontrol {Navigator} view, select \e {ballbearing1}.
+      \li In the \uicontrol {Connections} view, go to the
+      \uicontrol {Bindings} tab.
+      \li Select \inlineimage icons/plus.png
+      .
+      \li For the binding you just created:
+        \list
+          \li Set \uicontrol {Source Item} to \e {slider}.
+          \li Remove the value from \uicontrol {Source Property}.
+        \endlist
+      \image animation-tutorial-binding-2.png
+    \endlist
+
+    \section1 Previewing
+
+    Now, the animations are done. To preview and test your application,
+    select \key Alt + \key{P}.
+
+*/

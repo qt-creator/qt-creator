@@ -6,6 +6,7 @@
 #include "webassemblyoptionspage.h"
 #include "webassemblyqtversion.h"
 #include "webassemblytoolchain.h"
+#include "webassemblytr.h"
 
 #include <coreplugin/icore.h>
 #include <utils/environment.h>
@@ -24,8 +25,6 @@ namespace Internal {
 
 class WebAssemblyOptionsWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyOptionsWidget)
-
 public:
     WebAssemblyOptionsWidget();
 
@@ -47,18 +46,16 @@ WebAssemblyOptionsWidget::WebAssemblyOptionsWidget()
     auto mainLayout = new QVBoxLayout(this);
 
     {
-        auto pathChooserBox = new QGroupBox(tr("Emscripten SDK path:"));
+        auto pathChooserBox = new QGroupBox(Tr::tr("Emscripten SDK path:"));
         pathChooserBox->setFlat(true);
         auto layout = new QVBoxLayout(pathChooserBox);
         auto instruction = new QLabel(
-                    tr("Select the root directory of an "
-                       "<a href=\"https://emscripten.org/docs/getting_started/downloads.html\">"
-                       "installed Emscripten SDK</a>. Ensure that the activated SDK version is "
-                       "compatible with the "
-                       "<a href=\"https://doc.qt.io/qt-5/wasm.html#install-emscripten\">Qt 5</a> "
-                       "or "
-                       "<a href=\"https://doc.qt.io/qt-6/wasm.html#install-emscripten\">Qt 6</a> "
-                       "version that you plan to develop against."));
+                    Tr::tr("Select the root directory of an installed %1. "
+                           "Ensure that the activated SDK version is compatible with the %2 "
+                           "or %3 version that you plan to develop against.")
+                    .arg(R"(<a href="https://emscripten.org/docs/getting_started/downloads.html">Emscripten SDK</a>)")
+                    .arg(R"(<a href="https://doc.qt.io/qt-5/wasm.html#install-emscripten">Qt 5</a>)")
+                    .arg(R"(<a href="https://doc.qt.io/qt-6/wasm.html#install-emscripten">Qt 6</a>)"));
 
         instruction->setOpenExternalLinks(true);
         instruction->setWordWrap(true);
@@ -78,7 +75,7 @@ WebAssemblyOptionsWidget::WebAssemblyOptionsWidget()
     }
 
     {
-        m_emSdkEnvGroupBox = new QGroupBox(tr("Emscripten SDK environment:"));
+        m_emSdkEnvGroupBox = new QGroupBox(Tr::tr("Emscripten SDK environment:"));
         m_emSdkEnvGroupBox->setFlat(true);
         m_emSdkEnvGroupBox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::MinimumExpanding);
         auto layout = new QVBoxLayout(m_emSdkEnvGroupBox);
@@ -95,8 +92,8 @@ WebAssemblyOptionsWidget::WebAssemblyOptionsWidget()
         const QString minimumSupportedQtVersion =
                 WebAssemblyQtVersion::minimumSupportedQtVersion().toString();
         m_qtVersionDisplay = new InfoLabel(
-                    tr("Note: %1 supports Qt %2 for WebAssembly and higher. "
-                       "Your installed lower version(s) are not supported.")
+                    Tr::tr("Note: %1 supports Qt %2 for WebAssembly and higher. "
+                           "Your installed lower Qt version(s) are not supported.")
                     .arg(Core::ICore::versionString(), minimumSupportedQtVersion),
                     InfoLabel::Warning);
         m_qtVersionDisplay->setElideMode(Qt::ElideNone);
@@ -110,9 +107,10 @@ static QString environmentDisplay(const FilePath &sdkRoot)
     Environment env;
     WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
     QString result;
-    result.append(WebAssemblyOptionsWidget::tr("<h4>Adding directories to PATH:</h4>"));
+    auto h4 = [](const QString &text) { return QString("<h4>" + text + "</h4>"); };
+    result.append(h4(Tr::tr("Adding directories to PATH:")));
     result.append(env.value("PATH").replace(OsSpecificAspects::pathListSeparator(sdkRoot.osType()), "<br/>"));
-    result.append(WebAssemblyOptionsWidget::tr("<h4>Setting environment variables:</h4>"));
+    result.append(h4(Tr::tr("Setting environment variables:")));
     for (const QString &envVar : env.toStringList()) {
         if (!envVar.startsWith("PATH")) // Path was already printed out above
             result.append(envVar + "<br/>");
@@ -135,12 +133,15 @@ void WebAssemblyOptionsWidget::updateStatus()
         const QVersionNumber minVersion = WebAssemblyToolChain::minimumSupportedEmSdkVersion();
         const bool versionTooLow = sdkVersion < minVersion;
         m_emSdkVersionDisplay->setType(versionTooLow ? InfoLabel::NotOk : InfoLabel::Ok);
+        auto bold = [](const QString &text) { return QString("<b>" + text + "</b>"); };
         m_emSdkVersionDisplay->setText(
-                    versionTooLow ? tr("The activated version <b>%1</b> is not supported by %2."
-                                       "<br/>Activate version <b>%3</b> or higher.")
-                                    .arg(sdkVersion.toString(), Core::ICore::versionString(),
-                                         minVersion.toString())
-                                  : tr("Activated version: <b>%1</b>").arg(sdkVersion.toString()));
+                    versionTooLow ? Tr::tr("The activated version %1 is not supported by %2. "
+                                           "Activate version %3 or higher.")
+                                    .arg(bold(sdkVersion.toString()))
+                                    .arg(bold(Core::ICore::versionString()))
+                                    .arg(bold(minVersion.toString()))
+                                  : Tr::tr("Activated version: %1")
+                                    .arg(bold(sdkVersion.toString())));
         m_emSdkEnvDisplay->setText(environmentDisplay(sdkPath));
     }
 
@@ -165,7 +166,7 @@ void WebAssemblyOptionsWidget::apply()
 WebAssemblyOptionsPage::WebAssemblyOptionsPage()
 {
     setId(Id(Constants::SETTINGS_ID));
-    setDisplayName(WebAssemblyOptionsWidget::tr("WebAssembly"));
+    setDisplayName(Tr::tr("WebAssembly"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new WebAssemblyOptionsWidget; });
 }

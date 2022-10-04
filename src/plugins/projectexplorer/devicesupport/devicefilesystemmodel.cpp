@@ -236,7 +236,7 @@ static void dirEntries(QFutureInterface<ResultType> &futureInterface, const File
     for (const FilePath &entry : entries) {
         if (futureInterface.isCanceled())
             return;
-        result.append(qMakePair(entry, fileType(entry)));
+        result.push_back({entry, fileType(entry)});
     }
     futureInterface.reportResult(result);
 }

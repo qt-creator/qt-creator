@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "webassemblyrunconfigurationaspects.h"
+#include "webassemblytr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/runcontrol.h>
@@ -34,7 +35,7 @@ static WebBrowserEntries parseEmrunOutput(const QByteArray &output)
     while (ts.readLineInto(&line)) {
         const QRegularExpressionMatch match = regExp.match(line);
         if (match.hasMatch())
-            result << qMakePair(match.captured(1), match.captured(2).trimmed());
+            result.push_back({match.captured(1), match.captured(2).trimmed()});
     }
     return result;
 }
@@ -42,7 +43,7 @@ static WebBrowserEntries parseEmrunOutput(const QByteArray &output)
 static WebBrowserEntries emrunBrowsers(ProjectExplorer::Target *target)
 {
     WebBrowserEntries result;
-    result.append(qMakePair(QString(), WebBrowserSelectionAspect::tr("Default Browser")));
+    result.append(qMakePair(QString(), Tr::tr("Default Browser")));
     if (auto bc = target->activeBuildConfiguration()) {
         const Utils::Environment environment = bc->environment();
         const Utils::FilePath emrunPath = environment.searchInPath("emrun");
@@ -65,7 +66,7 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
         const int defaultIndex = qBound(0, m_availableBrowsers.count() - 1, 1);
         m_currentBrowser = m_availableBrowsers.at(defaultIndex).first;
     }
-    setDisplayName(tr("Web Browser"));
+    setDisplayName(Tr::tr("Web Browser"));
     setId("WebBrowserAspect");
     setSettingsKey("RunConfiguration.WebBrowser");
 
@@ -83,7 +84,7 @@ void WebBrowserSelectionAspect::addToLayout(LayoutBuilder &builder)
         m_currentBrowser = m_webBrowserComboBox->currentData().toString();
         emit changed();
     });
-    builder.addItems({tr("Web browser:"), m_webBrowserComboBox});
+    builder.addItems({Tr::tr("Web browser:"), m_webBrowserComboBox});
 }
 
 void WebBrowserSelectionAspect::fromMap(const QVariantMap &map)
@@ -134,8 +135,8 @@ Even if your browser was not detected, you can use --browser /path/to/browser/ex
 
 )")
             << WebBrowserEntries({
-                qMakePair(QLatin1String("firefox"), QLatin1String("Mozilla Firefox")),
-                qMakePair(QLatin1String("chrome"), QLatin1String("Google Chrome"))});
+                {QLatin1String("firefox"), QLatin1String("Mozilla Firefox")},
+                {QLatin1String("chrome"), QLatin1String("Google Chrome")}});
 
     QTest::newRow("emsdk 2.0.14")
             << QByteArray(
@@ -149,8 +150,8 @@ Even if your browser was not detected, you can use --browser /path/to/browser/ex
 
 )")
             << WebBrowserEntries({
-                qMakePair(QLatin1String("firefox"), QLatin1String("Mozilla Firefox 96.0.0.8041")),
-                qMakePair(QLatin1String("chrome"), QLatin1String("Google Chrome 97.0.4692.71"))});
+                {QLatin1String("firefox"), QLatin1String("Mozilla Firefox 96.0.0.8041")},
+                {QLatin1String("chrome"), QLatin1String("Google Chrome 97.0.4692.71")}});
 }
 
 #endif // WITH_TESTS

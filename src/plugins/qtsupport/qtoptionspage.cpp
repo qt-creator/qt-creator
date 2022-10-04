@@ -629,14 +629,14 @@ void QtOptionsPageWidget::addQtDir()
     if (BuildableHelperLibrary::isQtChooser(qtVersion))
         qtVersion = BuildableHelperLibrary::qtChooserToQmakePath(qtVersion.symLinkTarget());
 
-    auto checkAlreadyExists = [qtVersion](TreeItem *parent) {
+    auto checkAlreadyExists = [qtVersion](TreeItem *parent) -> QPair<bool, QString> {
         for (int i = 0; i < parent->childCount(); ++i) {
             auto item = static_cast<QtVersionItem *>(parent->childAt(i));
             if (item->version()->qmakeFilePath() == qtVersion) {
-                return std::make_pair(true, item->version()->displayName());
+                return {true, item->version()->displayName()};
             }
         }
-        return std::make_pair(false, QString());
+        return {false, {}};
     };
 
     bool alreadyExists;

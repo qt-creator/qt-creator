@@ -25,7 +25,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Lesezeichen hinzufügen</translation>
@@ -58,13 +58,6 @@
         <source>Add in folder:</source>
         <translation>Im Verzeichnis:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Lesezeichen</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
@@ -74,23 +67,8 @@
         <translation>Beim Löschen eines Verzeichnisses wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortsetzen?</translation>
     </message>
     <message>
-        <source>New Folder</source>
-        <translation>Neues Verzeichnis</translation>
-    </message>
-    <message>
         <source>Bookmark</source>
         <translation>Lesezeichen</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Verzeichnis löschen</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Verzeichnis umbenennen</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -107,13 +85,6 @@
     <message>
         <source>Rename Bookmark</source>
         <translation>Lesezeichen umbenennen</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Lesezeichen</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -292,7 +263,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsPlugin</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
@@ -553,9 +524,6 @@
         <source>The initial revision %1 cannot be described.</source>
         <translation>Die erste Version (%1) kann nicht weiter beschrieben werden.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Hinzugefügt</translation>
@@ -568,9 +536,6 @@
         <source>Modified</source>
         <translation>Geändert</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -611,9 +576,6 @@
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
         <translation>Wenn die Option aktiviert ist, werden beim Klick auf die Revisionsnummer in der Annotationsansicht alle Dateien angezeigt, die zu einem Commit gehören (mittels Commit-ID bestimmt). Ansonsten wird nur die betreffende Datei angezeigt.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS-Kommando</translation>
@@ -624,7 +586,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Code Pasting</translation>
@@ -669,9 +631,6 @@
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Leeren Text für &quot;%1&quot; erhalten.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Aktualisieren</translation>
@@ -684,9 +643,6 @@
         <source>This protocol does not support listing</source>
         <translation>Dieses Protokoll stellt keine Liste zur Verfügung</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -10613,7 +10569,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteView</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Kommentar&gt;</translation>
@@ -10771,7 +10727,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Die Datei %1 kann nicht geöffnet werden: %2</translation>
@@ -10792,16 +10748,10 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
         <source>Pasted: %1</source>
         <translation>Ausschnitt: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Dateibasiert</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Konfigurationsfehler</translation>
@@ -11432,7 +11382,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::NetworkProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>Prüfe Verbindung</translation>
@@ -17150,7 +17100,7 @@ Außer: %3
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Das dateibasierte Paster-Protokoll dient zum Austausch von Textauschnitten mittels einfacher Dateien auf einem Netzlaufwerk. Die Dateien werden nicht gelöscht.</translation>
@@ -17167,9 +17117,6 @@ Außer: %3
         <source>entries</source>
         <translation>Einträge</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; erlaubt das Senden an benutzerdefinierte Subdomänen (zum Beispiel creator.pastebin.com). Geben Sie das gewünschte Präfix an.</translation>
@@ -17182,9 +17129,6 @@ Außer: %3
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Hinweis: Es wird sowohl zum Senden als auch zum Abholen verwendet.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokoll:</translation>
@@ -17193,16 +17137,9 @@ Außer: %3
         <source>Paste:</source>
         <translation>Ausschnitt:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>An CodePaster senden</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokoll:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -17256,9 +17193,6 @@ p, li { white-space: pre-wrap; }
         <source>Make public:</source>
         <translation>Öffentlich machen:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Ausgabebereich nach Senden anzeigen</translation>
@@ -17274,14 +17208,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Vorgabeprotokoll:</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Verfällt nach:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> Tagen</translation>
     </message>
     <message>
         <source>Make pasted content public by default</source>
@@ -18139,7 +18065,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -18157,9 +18083,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Unveränderte Konfiguration, autogen-Schritt wird übersprungen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
@@ -18170,23 +18093,13 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Autoreconf</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Unveränderte Konfiguration, autoreconf-Schritt wird übersprungen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotools-Assistent</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. It is not recommended to use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Bitte geben Sie das Verzeichnis ein, in dem das Projekt erstellt werden soll. Es wird empfohlen, nicht das Quellverzeichnis zum Erstellen zu verwenden. Das ermöglicht es, das Projekt mehrmals mit verschiedenen Einstellungen zu erstellen.</translation>
@@ -18199,9 +18112,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Build Location</source>
         <translation>Build-Verzeichnis</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
@@ -18212,16 +18122,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Konfigurieren</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Unveränderte Konfiguration, configure-Schritt wird übersprungen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Werte %1 im Verzeichnis %2 aus</translation>
@@ -28198,7 +28101,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Der Binäreditor kann keine leeren Dateien öffnen.</translation>
@@ -28705,7 +28608,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Annotation für Revision &quot;%1&quot;</translation>
@@ -37503,7 +37406,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Speicher bei 0x%1</translation>
@@ -37614,7 +37517,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Vergrößerung: %1%</translation>
@@ -42534,7 +42437,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
+    <name>BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgängig</translation>
@@ -44782,7 +44685,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autotools Manager</source>
         <translation>Autotools-Verwaltung</translation>
@@ -48863,7 +48766,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>CodePaster::DPasteDotComProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>

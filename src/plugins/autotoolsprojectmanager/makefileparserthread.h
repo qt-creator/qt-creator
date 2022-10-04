@@ -13,8 +13,7 @@
 #include <QThread>
 #include <QVector>
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 /**
  * @brief Executes the makefile parser in the thread.
@@ -129,5 +128,4 @@ private:
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
 };
 
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

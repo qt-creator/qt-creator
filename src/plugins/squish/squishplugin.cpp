@@ -105,6 +105,7 @@ void SquishPluginPrivate::initializeMenuEntries()
 bool SquishPlugin::initialize(const QStringList &, QString *)
 {
     dd = new SquishPluginPrivate;
+    ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
     return true;
 }
 

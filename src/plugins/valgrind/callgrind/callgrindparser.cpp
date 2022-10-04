@@ -320,11 +320,11 @@ Parser::Private::NamePair Parser::Private::parseName(const char *begin, const ch
     if (*current == '(') {
         current++;
         if ((nameShorthand = parseNameShorthand(&current, end)) == -1)
-            return qMakePair(qint64(-1), QString()); // error
+            return {qint64(-1), {}}; // error
     }
 
     skipSpace(&current, end);
-    return qMakePair(nameShorthand, QString::fromUtf8(QByteArray(current, end - current)));
+    return {nameShorthand, QString::fromUtf8(QByteArray(current, end - current))};
 }
 
 /*

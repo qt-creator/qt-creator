@@ -23,6 +23,8 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace QmakeProjectManager::Internal {
 
 const char qt_file_dialog_filter_reg_exp[] =
@@ -38,8 +40,8 @@ static QStringList qt_clean_filter_list(const QString &filter)
     return f.split(QLatin1Char(' '), Qt::SkipEmptyParts);
 }
 
-static bool validateLibraryPath(const Utils::FilePath &filePath,
-                                const Utils::PathChooser *pathChooser,
+static bool validateLibraryPath(const FilePath &filePath,
+                                const PathChooser *pathChooser,
                                 QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
@@ -49,7 +51,7 @@ static bool validateLibraryPath(const Utils::FilePath &filePath,
     const QString fileName = filePath.fileName();
 
     QRegularExpression::PatternOption option =
-        Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive
+        HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive
             ? QRegularExpression::CaseInsensitiveOption
             : QRegularExpression::NoPatternOption;
 
@@ -63,8 +65,9 @@ static bool validateLibraryPath(const Utils::FilePath &filePath,
     return false;
 }
 
-AddLibraryWizard::AddLibraryWizard(const Utils::FilePath &proFile, QWidget *parent) :
-    Utils::Wizard(parent), m_proFile(proFile)
+AddLibraryWizard::AddLibraryWizard(const FilePath &proFile, QWidget *parent)
+    : Wizard(parent)
+    , m_proFile(proFile)
 {
     setWindowTitle(Tr::tr("Add Library"));
     m_libraryTypePage = new LibraryTypePage(this);
@@ -77,7 +80,7 @@ AddLibraryWizard::AddLibraryWizard(const Utils::FilePath &proFile, QWidget *pare
 
 AddLibraryWizard::~AddLibraryWizard() = default;
 
-Utils::FilePath AddLibraryWizard::proFile() const
+FilePath AddLibraryWizard::proFile() const
 {
     return m_proFile;
 }
@@ -147,7 +150,7 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     packageLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(packageLabel);
 
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         m_packageRadio->setVisible(false);
         packageLabel->setVisible(false);
     }
@@ -155,7 +158,7 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     // select the default
     m_internalRadio->setChecked(true);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Type"));
+    setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Type"));
 }
 
 AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
@@ -177,16 +180,16 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
     m_libraryDetailsWidget = new LibraryDetailsWidget(this);
     resize(456, 438);
 
-    Utils::PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
+    PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
     libPathChooser->setHistoryCompleter("Qmake.LibDir.History");
 
-    const auto pathValidator = [libPathChooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
+    const auto pathValidator = [libPathChooser](FancyLineEdit *edit, QString *errorMessage) {
         return libPathChooser->defaultValidationFunction()(edit, errorMessage)
                 && validateLibraryPath(libPathChooser->filePath(),
                                        libPathChooser, errorMessage);
     };
     libPathChooser->setValidationFunction(pathValidator);
-    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Details"));
+    setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Details"));
 }
 
 bool DetailsPage::isComplete() const
@@ -272,7 +275,7 @@ SummaryPage::SummaryPage(AddLibraryWizard *parent)
     m_snippetLabel->setTextFormat(Qt::RichText);
     m_snippetLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Summary"));
+    setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Summary"));
 }
 
 void SummaryPage::initializePage()
@@ -302,16 +305,11 @@ QString SummaryPage::snippet() const
 
 LibraryDetailsWidget::LibraryDetailsWidget(QWidget *parent)
 {
-    includePathChooser = new Utils::PathChooser(parent);
-
+    includePathChooser = new PathChooser(parent);
     packageLineEdit = new QLineEdit(parent);
-
-    libraryPathChooser = new Utils::PathChooser(parent);
-
+    libraryPathChooser = new PathChooser(parent);
     libraryComboBox = new QComboBox(parent);
-
     libraryTypeComboBox = new QComboBox(parent);
-
 
     platformGroupBox = new QGroupBox(Tr::tr("Platform:"));
     platformGroupBox->setFlat(true);
@@ -324,7 +322,6 @@ LibraryDetailsWidget::LibraryDetailsWidget(QWidget *parent)
 
     winGroupBox = new QGroupBox(Tr::tr("Windows:"));
     winGroupBox->setFlat(true);
-
 
     linCheckBox = new QCheckBox(Tr::tr("Linux"));
     linCheckBox->setChecked(true);
@@ -348,7 +345,7 @@ LibraryDetailsWidget::LibraryDetailsWidget(QWidget *parent)
     addSuffixCheckBox = new QCheckBox(Tr::tr("Add \"d\" suffix for debug version"), winGroupBox);
     removeSuffixCheckBox = new QCheckBox(Tr::tr("Remove \"d\" suffix for release version"), winGroupBox);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column { linCheckBox, macCheckBox, winCheckBox, st }.attachTo(platformGroupBox);
 

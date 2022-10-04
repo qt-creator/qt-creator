@@ -197,7 +197,7 @@
         \li \l{Preset Components}
         \li \l{Specifying Component Properties}
         \li \l{Adding Bindings Between Properties}
-        \li \l{Specifying Dynamic Properties}
+        \li \l{Specifying Custom Properties}
     \endlist
 
     \section1 Signal
@@ -294,7 +294,7 @@
     deploys it to the \l{glossary-device}{device} specified in the
     selected \l{glossary-buildandrun-kit}{kit}, and runs it there. However,
     if you have not made any changes to the project since you last deployed
-    it, \QC simply runs it again.
+    it, \QDS simply runs it again.
 
     \endomit
 */

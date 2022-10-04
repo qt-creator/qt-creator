@@ -43,7 +43,7 @@ public:
 
     static void resetVersionControlForDirectory(const Utils::FilePath &inputDirectory);
     static IVersionControl *findVersionControlForDirectory(const Utils::FilePath &directory,
-                                                           QString *topLevelDirectory = nullptr);
+                                                           Utils::FilePath *topLevelDirectory = nullptr);
     static Utils::FilePath findTopLevelForDirectory(const Utils::FilePath &directory);
 
     static QStringList repositories(const IVersionControl *);

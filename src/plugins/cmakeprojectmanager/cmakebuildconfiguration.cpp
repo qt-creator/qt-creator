@@ -1168,7 +1168,8 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
 static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArguments,
                                                       const CMakeProject *project,
                                                       const Kit *k,
-                                                      const Utils::Environment &env)
+                                                      const Utils::Environment &env,
+                                                      const Utils::FilePath &buildDirectory)
 
 {
     const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
@@ -1229,6 +1230,11 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
         if (configurePreset.debug.value().output && configurePreset.debug.value().output.value())
             initialArguments.append("--debug-output");
     }
+
+    CMakePresets::Macros::updateToolchainFile(configurePreset,
+                                              env,
+                                              project->projectDirectory(),
+                                              buildDirectory);
 
     // Merge the presets cache variables
     CMakeConfig cache;
@@ -1547,15 +1553,16 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         CMakeProject *cmakeProject = static_cast<CMakeProject *>(target->project());
         setUserConfigureEnvironmentChanges(getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k));
+        updateAndEmitConfigureEnvironmentChanged();
 
         QStringList initialCMakeArguments = cmd.splitArguments();
         addCMakeConfigurePresetToInitialArguments(initialCMakeArguments,
                                                   cmakeProject,
                                                   k,
-                                                  configureEnvironment());
+                                                  configureEnvironment(),
+                                                  info.buildDirectory);
         m_buildSystem->setInitialCMakeArguments(initialCMakeArguments);
         m_buildSystem->setCMakeBuildType(buildType);
-        updateAndEmitConfigureEnvironmentChanged();
 
         setBuildPresetToBuildSteps(target);
     });
@@ -1825,24 +1832,31 @@ void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const ProjectExplorer
     const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
         target->kit());
 
+    int buildSteps = 1;
     if (!presetItem.isNull()) {
         const QString presetName = presetItem.expandedValue(target->kit());
         const CMakeProject *project = static_cast<const CMakeProject *>(target->project());
 
         const auto buildPresets = project->presetsData().buildPresets;
-        const int count = std::count_if(buildPresets.begin(),
-                                        buildPresets.end(),
-                                        [presetName](const PresetsDetails::BuildPreset &preset) {
-                                            return preset.configurePreset == presetName
-                                                   && !preset.hidden.value();
-                                        });
+        const int count
+            = std::count_if(buildPresets.begin(),
+                            buildPresets.end(),
+                            [presetName, project](const PresetsDetails::BuildPreset &preset) {
+                                bool enabled = true;
+                                if (preset.condition)
+                                    enabled = CMakePresets::Macros::evaluatePresetCondition(
+                                        preset, project->projectDirectory());
 
-        for (int i = 0; i < count; ++i)
-            appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
-
-    } else {
-        appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
+                                return preset.configurePreset == presetName
+                                       && !preset.hidden.value() && enabled;
+                            });
+        if (count != 0)
+            buildSteps = count;
     }
+
+    for (int i = 0; i < buildSteps; ++i)
+        appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
+
     appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
 }
 
@@ -1858,10 +1872,15 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
     const CMakeProject *project = static_cast<const CMakeProject *>(target->project());
 
     const auto allBuildPresets = project->presetsData().buildPresets;
-    const auto buildPresets
-        = Utils::filtered(allBuildPresets, [presetName](const PresetsDetails::BuildPreset &preset) {
-              return preset.configurePreset == presetName && !preset.hidden.value();
-          });
+    const auto buildPresets = Utils::filtered(
+        allBuildPresets, [presetName, project](const PresetsDetails::BuildPreset &preset) {
+            bool enabled = true;
+            if (preset.condition)
+                enabled = CMakePresets::Macros::evaluatePresetCondition(preset,
+                                                                        project->projectDirectory());
+
+            return preset.configurePreset == presetName && !preset.hidden.value() && enabled;
+        });
 
     const QList<BuildStep *> buildStepList
         = Utils::filtered(buildSteps()->steps(), [](const BuildStep *bs) {

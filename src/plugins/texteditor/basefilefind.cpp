@@ -379,8 +379,7 @@ QList<QPair<QWidget *, QWidget *>> BaseFileFind::createPatternWidgets()
     d->m_exclusionCombo->setToolTip(msgFilePatternToolTip());
     exclusionLabel->setBuddy(d->m_exclusionCombo);
     syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
-    return { qMakePair(filterLabel,    d->m_filterCombo),
-             qMakePair(exclusionLabel, d->m_exclusionCombo) };
+    return {{filterLabel, d->m_filterCombo}, {exclusionLabel, d->m_exclusionCombo}};
 }
 
 void BaseFileFind::writeCommonSettings(QSettings *settings)
@@ -508,10 +507,9 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
 
         ChangeSet changeSet;
         RefactoringFilePtr file = refactoring.file(filePath);
-        QSet<QPair<int, int> > processed;
+        QSet<QPair<int, int>> processed;
         for (const SearchResultItem &item : changeItems) {
-            const QPair<int, int> &p = qMakePair(item.mainRange().begin.line,
-                                                 item.mainRange().begin.column);
+            const QPair<int, int> p{item.mainRange().begin.line, item.mainRange().begin.column};
             if (processed.contains(p))
                 continue;
             processed.insert(p);

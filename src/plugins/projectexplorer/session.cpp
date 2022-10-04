@@ -635,7 +635,7 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
                 return p->projectFilePath().toString() == proPath;
             });
         });
-        unordered << qMakePair(proName, depList);
+        unordered.push_back({proName, depList});
     }
 
     while (!unordered.isEmpty()) {

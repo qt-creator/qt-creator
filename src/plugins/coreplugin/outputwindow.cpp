@@ -465,7 +465,7 @@ int OutputWindow::maxCharCount() const
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
     if (d->queuedOutput.isEmpty() || d->queuedOutput.last().second != format)
-        d->queuedOutput << qMakePair(output, format);
+        d->queuedOutput.push_back({output, format});
     else
         d->queuedOutput.last().first.append(output);
     if (!d->queueTimer.isActive())
@@ -482,7 +482,7 @@ void OutputWindow::registerPositionOf(unsigned taskId, int linkedOutputLines, in
     const int firstLine = blocknumber - linkedOutputLines - skipLines;
     const int lastLine = firstLine + linkedOutputLines - 1;
 
-    d->taskPositions.insert(taskId, qMakePair(firstLine, lastLine));
+    d->taskPositions.insert(taskId, {firstLine, lastLine});
 }
 
 bool OutputWindow::knowsPositionOf(unsigned taskId) const

@@ -207,7 +207,7 @@ public:
     virtual QVariantMap upgrade(const QVariantMap &data) = 0;
 
 protected:
-    using Change = QPair<QLatin1String,QLatin1String>;
+    using Change = QPair<QLatin1String, QLatin1String>;
     QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map) const;
 
 private:

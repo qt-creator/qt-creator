@@ -8,7 +8,8 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
-#include <QDir>
+#include <utils/filepath.h>
+
 #include <QRegularExpression>
 
 #include <optional>
@@ -21,17 +22,18 @@ class CMAKE_EXPORT CMakeParser : public ProjectExplorer::OutputTaskParser
 
 public:
     explicit CMakeParser();
-    void setSourceDirectory(const QString &sourceDir);
+    void setSourceDirectory(const Utils::FilePath &sourceDir);
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
     void flush() override;
+    Utils::FilePath resolvePath(const QString &path) const;
 
     enum TripleLineError { NONE, LINE_LOCATION, LINE_DESCRIPTION, LINE_DESCRIPTION2 };
 
     TripleLineError m_expectTripleLineErrorData = NONE;
 
-    std::optional<QDir> m_sourceDirectory;
+    std::optional<Utils::FilePath> m_sourceDirectory;
     ProjectExplorer::Task m_lastTask;
     QRegularExpression m_commonError;
     QRegularExpression m_nextSubError;
@@ -41,4 +43,4 @@ private:
     int m_lines = 0;
 };
 
-} // namespace CMakeProjectManager
+} // CMakeProjectManager

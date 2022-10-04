@@ -48,7 +48,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Ajouter un signet</translation>
@@ -85,16 +85,9 @@
         <source>Add in folder:</source>
         <translation>Ajouter dans le dossier :</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
     <message>
         <source>Bookmark</source>
         <translation type="obsolete">Signet</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Signets</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -107,21 +100,6 @@
     <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation type="obsolete">Vous allez supprimer un dossier et tout ce qu&apos;il contient.&lt;br&gt;Êtes vous sûr de vouloir continuer ?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nouveau dossier</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Supprimer le dossier</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Renommer le dossier</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -150,17 +128,6 @@
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Signets</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -592,7 +559,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation type="obsolete">&amp;CodePaster</translation>
@@ -651,13 +618,6 @@
         <translation type="obsolete">Ce protocole ne prend en charge le listage</translation>
     </message>
     <message>
-        <source>Waiting for items</source>
-        <translation type="obsolete">En attente des éléments</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::CustomFetcher</name>
-    <message>
         <source>CodePaster Error</source>
         <translation type="obsolete">Erreur dans CodePaster</translation>
     </message>
@@ -665,28 +625,9 @@
         <source>Could not fetch code</source>
         <translation type="obsolete">Impossible de récuperer le code</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CustomPoster</name>
-    <message>
-        <source>CodePaster Error</source>
-        <translation type="obsolete">Erreur dans CodePaster</translation>
-    </message>
     <message>
         <source>Some error occured while posting</source>
         <translation type="obsolete">Une erreur s&apos;est produite lors de la publication</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
-    <message>
-        <source>Paste:</source>
-        <translatorcomment>quelque chose de plus français pour la référence de paste?</translatorcomment>
-        <translation type="obsolete">Collage :</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation type="obsolete">Protocole :</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -700,60 +641,9 @@
         <source>This protocol does not support listing</source>
         <translation>Ce protocole ne prend en charge le listage</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Général</translation>
-    </message>
-    <message>
-        <source>CodePaster Server:</source>
-        <translation type="obsolete">Serveur CodePaster :</translation>
-    </message>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Nom d&apos;utilisateur :</translation>
-    </message>
-    <message>
-        <source>Copy Paste URL to clipboard</source>
-        <translation type="obsolete">Copier l&apos;URL dans le presse papier</translation>
-    </message>
-    <message>
-        <source>Display Output Pane after sending a post</source>
-        <translation type="obsolete">Afficher le résultat après publication</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="obsolete">CodePaster</translation>
-    </message>
-    <message>
-        <source>Default Protocol:</source>
-        <translation type="obsolete">Protocole par défaut :</translation>
-    </message>
-    <message>
-        <source>Pastebin.ca</source>
-        <translation type="obsolete">Pastebin.ca</translation>
-    </message>
-    <message>
-        <source>Pastebin.com</source>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Collage de code</translation>
-    </message>
-    <message>
-        <source>Display Output pane after sending a post</source>
-        <translation type="obsolete">Afficher le résultat après publication</translation>
-    </message>
-    <message>
-        <source>Copy-paste URL to clipboard</source>
-        <translation type="obsolete">Copier l&apos;URL dans le presse papier</translation>
-    </message>
-    <message>
-        <source>Default protocol:</source>
-        <translation type="obsolete">Protocole par défaut :</translation>
     </message>
 </context>
 <context>
@@ -17917,7 +17807,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -19121,7 +19011,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences!</source>
         <translation type="obsolete">Aucun serveur définit dans les préférences CodePaster !</translation>
@@ -19142,9 +19032,6 @@ p, li { white-space: pre-wrap; }
         <source>No such paste</source>
         <translation>Aucun collage de ce type</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -19152,10 +19039,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>&lt;i&gt;Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).&lt;/i&gt;</source>
         <translation>&lt;i&gt;Note : spécifier le nom d&apos;hôte pour le service CodePaster sans aucun protocole (par exemple, codepaster.mycompany.com).&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Collage de code</translation>
     </message>
     <message>
         <source>Server:</source>
@@ -19227,7 +19110,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">Obtient un projet à partir d&apos;un dépôt CVS.</translation>
@@ -19240,9 +19123,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS Checkout</source>
         <translation>Import CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -19255,16 +19135,6 @@ p, li { white-space: pre-wrap; }
         <source>Repository:</source>
         <translation>Dépôt :</translation>
     </message>
-</context>
-<context>
-    <name>CvsPlugin</name>
-    <message>
-        <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation type="obsolete">Impossible de trouver le dépot de &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>Échec de l&apos;analyse de la sortie </translation>
@@ -19590,9 +19460,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">CVS n&apos;a pas répondu dans le temps imparti (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Ajouté</translation>
@@ -19609,9 +19476,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS Submit</source>
         <translation type="obsolete">CVS Submit</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS Command</translation>
@@ -21414,31 +21278,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Reset to default</source>
         <translation type="obsolete">Restaurer les paramètres par défaut</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>&amp;Path:</source>
-        <translation type="obsolete">Che&amp;min :</translation>
-    </message>
-    <message>
-        <source>&amp;Display:</source>
-        <translation type="obsolete">&amp;Afficher :</translation>
-    </message>
-    <message>
-        <source>entries</source>
-        <translation type="obsolete">Entrées</translation>
-    </message>
-    <message>
-        <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
-        <translatorcomment>J&apos;ai traduis &quot;fileshare&quot;. Mais la phrase me semble lourde...
-cédric : je pense qu&apos;il faut laisser comme ça moi ou alors carrément enlever &quot;basé sur le partage de fichiers&quot; mais du coup on en perd en route ... (j&apos;ai changé &quot;Les fichiers&quot; en &quot;Ces fichiers&quot;, je trouve que ça fait moins pompeux.</translatorcomment>
-        <translation type="obsolete">Le protocole de collage basé sur le partage de fichier permet de partager des fragments de code en utilisant de simples fichiers sur un disque réseau partagé. Ces fichiers ne sont jamais effacés.</translation>
     </message>
 </context>
 <context>
@@ -24395,9 +24234,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Code Pasting</source>
         <translation>Collage de code</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Imposible d&apos;ouvrir %1 : %2</translation>
@@ -24422,23 +24258,10 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Pasted: %1</source>
         <translation>Copié : %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteBinDotComSettings</name>
-    <message>
-        <source>Pastebin.com</source>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Commentaire&gt;</translation>
@@ -24447,9 +24270,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Paste</source>
         <translation>Coller</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Erreur de configuration</translation>
@@ -24762,7 +24582,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditor</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Révision annotée &quot;%1&quot;</translation>
@@ -29220,7 +29040,7 @@ La liste du serveur était %2.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::NetworkProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>Vérification de la connexion</translation>
@@ -38822,7 +38642,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteBinDotComProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.</extracomment>
@@ -38862,7 +38682,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -43134,7 +42954,7 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -43155,13 +42975,6 @@ Filtre : %2
         <source>entries</source>
         <translation>Entrées</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; permet d&apos;envoyer d&apos;envoyer des messages à des sous-domaines personnalisés (comme creator.pastebin.com). Remplissez le préfixe désiré. </translation>
@@ -43174,9 +42987,6 @@ Filtre : %2
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Note : le plug-in utilisera ceci pour poster et récupérer. &lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protocole :</translation>
@@ -43185,16 +42995,9 @@ Filtre : %2
         <source>Paste:</source>
         <translation>Collage :</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Envoyer sur Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protocole :</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -43244,9 +43047,6 @@ p, li { white-space: pre-wrap; }
         <source>&amp;Expires after:</source>
         <translation>&amp;Expire après :</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Afficher le résultat après publication</translation>
@@ -43262,14 +43062,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Protocole par défaut :</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Expire après :</translation>
-    </message>
-    <message>
-        <source>Days</source>
-        <translation>Jours</translation>
     </message>
 </context>
 <context>
@@ -45153,15 +44945,12 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -45170,9 +44959,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Configuration inchangée, étape autogen ignorée.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
@@ -45182,17 +44968,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -45201,21 +44981,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Configuration inchangée, étape autoreconf ignorée.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Arguments :</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -45233,9 +45003,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>New configuration name:</source>
         <translation>Nom de la nouvelle configuration :</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Répertoire de compilation :</translation>
@@ -45252,9 +45019,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>&lt;Invalid tool chain&gt;</source>
         <translation type="obsolete">&lt;Chaîne d&apos;outils invalide&gt;</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation type="obsolete">Échec de l&apos;ouverture du projet &quot;%1&apos; : le fichier du projet n&quot;existe pas</translation>
@@ -45267,47 +45031,28 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Échec de l&apos;ouverture du projet &quot;%1&quot; : le projet n&apos;est pas un fichier</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Assistant Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. Qt Creator recommande de ne pas utiliser le répertoire source pour la compilation. Cela garantit que le répertoire source reste propre et permet des compilations multiples avec différents paramètres.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Répertoire de compilation :</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Emplacement de compilation</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Autotools Default target display name</comment>
         <translation type="obsolete">Desktop</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Configurer</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Configurer</translation>
@@ -45317,21 +45062,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translatorcomment>ignorée ?</translatorcomment>
         <translation>Configuration inchangée, étape de configuration sautée.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Arguments :</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Configurer</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translatorcomment>Analyse, car c&apos;est une action en court</translatorcomment>
@@ -45341,17 +45076,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Parsing directory %1</source>
         <translation>Analyse du répertoire %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -45363,13 +45092,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>La configuration est défectueuse, veuillez vérifier la vue des problèmes pour les détails.</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Arguments :</translation>
     </message>
     <message>
         <source>Make</source>
@@ -53656,7 +53378,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Édition</translation>

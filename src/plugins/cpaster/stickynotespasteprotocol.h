@@ -9,7 +9,6 @@ namespace CodePaster {
 
 class StickyNotesPasteProtocol : public NetworkProtocol
 {
-    Q_OBJECT
 public:
     unsigned capabilities() const override;
 
@@ -22,15 +21,12 @@ public:
                const QString &description = QString()) override;
     void list() override;
 
-
-
     QString hostUrl() const { return m_hostUrl; }
     void setHostUrl(const QString &hostUrl);
 
-protected:
+private:
     bool checkConfiguration(QString *errorMessage = nullptr) override;
 
-private:
     void fetchFinished();
     void pasteFinished();
     void listFinished();
@@ -46,4 +42,4 @@ private:
     bool m_hostChecked = false;
 };
 
-} // namespace CodePaster
+} // CodePaster

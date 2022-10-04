@@ -3543,7 +3543,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -3561,9 +3561,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Конфигурация не изменилась, этап autogen пропускается.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
@@ -3574,30 +3571,17 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>Autoreconf</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation>Параметры:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Конфигурация не изменилась, этап autoreconf пропускается.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration</name>
     <message>
         <source>Autotools Manager</source>
         <translation>Управление Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Мастер Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. It is not recommended to use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Укажите каталог, в котором желаете собирать проект. Рекомендуется не использовать каталог с исходниками для сборки. Это позволит поддерживать каталог с исходниками в чистоте, а также даст возможность делать несколько сборок с различными настройками.</translation>
@@ -3610,9 +3594,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Build Location</source>
         <translation>Каталог сборки</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
@@ -3623,16 +3604,9 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>Configure</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation>Параметры:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Конфигурация не изменилась, этап configure пропускается.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Обрабатывается %1 в каталоге %2</translation>
@@ -5455,7 +5429,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Двоичный редактор не может открывать пустые файлы.</translation>
@@ -5472,9 +5446,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Cannot open %1: %2</source>
         <translation>Не удалось открыть %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Отменить</translation>
@@ -5483,9 +5454,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>&amp;Redo</source>
         <translation>&amp;Повторить</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Память с 0x%1</translation>
@@ -5596,14 +5564,14 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Масштаб: %1%</translation>
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Добавить закладку</translation>
@@ -5636,13 +5604,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Add in folder:</source>
         <translation>Добавить в папку:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
@@ -5652,23 +5613,8 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Удаление папки приведёт к удалению её содержимого.&lt;br&gt;Желаете продолжить?</translation>
     </message>
     <message>
-        <source>New Folder</source>
-        <translation>Новая папка</translation>
-    </message>
-    <message>
         <source>Bookmark</source>
         <translation>Закладка</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Удалить папку</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Переименовать папку</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -5685,13 +5631,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Rename Bookmark</source>
         <translation>Переименовать закладку</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
     </message>
     <message>
         <source>Edit Bookmark</source>
@@ -8412,9 +8351,6 @@ Set a valid executable first.</source>
         <source>Code Pasting</source>
         <translation>Вставка кода</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>Вставка &amp;Кода</translation>
@@ -8459,16 +8395,10 @@ Set a valid executable first.</source>
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Для «%1» получен пустой фрагмент.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::DPasteDotComProtocol</name>
     <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Не удалось открыть %1: %2</translation>
@@ -8489,16 +8419,10 @@ Set a valid executable first.</source>
         <source>Pasted: %1</source>
         <translation>Вставлен: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Общие файлы</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Протокол на базе общих файлов позволяет публиковать фрагменты кода используя обычные файлы на общем сетевом диске. Файлы никогда не удаляются.</translation>
@@ -8515,9 +8439,6 @@ Set a valid executable first.</source>
         <source>entries</source>
         <translation> записей</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; позволяет отправлять данные на пользовательские субдомены (например, creator.pastebin.com). Поэтому укажите желаемый префикс.</translation>
@@ -8530,9 +8451,6 @@ Set a valid executable first.</source>
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Модуль будет использовать префикс, как для отправки, так и для получения.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Протокол:</translation>
@@ -8541,9 +8459,6 @@ Set a valid executable first.</source>
         <source>Paste:</source>
         <translation>Вставить:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Отправив данные, показать окно вывода</translation>
@@ -8572,16 +8487,9 @@ Set a valid executable first.</source>
         <source>Make pasted content public by default</source>
         <translation>По умолчанию публиковать вставляемую информацию</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Отправить в Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Протокол:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -8622,20 +8530,9 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Истекает через:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> дней</translation>
-    </message>
-    <message>
         <source>Make public:</source>
         <translation>Публиковать:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>Проверка соединения</translation>
@@ -8644,9 +8541,6 @@ p, li { white-space: pre-wrap; }
         <source>Connecting to %1...</source>
         <translation>Подключение к %1...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Обновить</translation>
@@ -8659,9 +8553,6 @@ p, li { white-space: pre-wrap; }
         <source>This protocol does not support listing</source>
         <translation>Данный протокол не поддерживает получение списка</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>Paste</source>
         <translation>Вставить</translation>
@@ -8670,16 +8561,10 @@ p, li { white-space: pre-wrap; }
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Комментарий&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - ошибка конфигурации</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -13882,14 +13767,11 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Аннотация ревизии «%1»</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
@@ -14150,9 +14032,6 @@ Do you want to display them anyway?</source>
         <source>The initial revision %1 cannot be described.</source>
         <translation>Невозможно описать начальную ревизию %1.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Добавлен</translation>
@@ -14165,9 +14044,6 @@ Do you want to display them anyway?</source>
         <source>Modified</source>
         <translation>Изменён</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Настройка</translation>
@@ -14208,9 +14084,6 @@ Do you want to display them anyway?</source>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
         <translation>Если включено, по щелчку на номере ревизии при просмотре аннотации (полученной по идентификатору фиксации) будут отображаться все зафиксированные файлы. В противном случае, только соответствующий файл.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Команда CVS</translation>
@@ -52313,7 +52186,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>WebAssembly::Internal::EmrunRunConfigurationFactory</name>
+    <name>WebAssembly</name>
     <message>
         <source>Effective emrun call:</source>
         <translation>Команда запуска emrun:</translation>
@@ -52322,9 +52195,6 @@ What do you want to do?</source>
         <source>Launch with emrun</source>
         <translation>Запустить через emrun</translation>
     </message>
-</context>
-<context>
-    <name>WebAssembly::Internal::WebAssemblyDevice</name>
     <message>
         <source>Web Browser</source>
         <translation>Браузер</translation>
@@ -52333,9 +52203,6 @@ What do you want to do?</source>
         <source>WebAssembly Runtime</source>
         <translation>Среда WebAssembly</translation>
     </message>
-</context>
-<context>
-    <name>WebAssembly::Internal::WebAssemblyToolChain</name>
     <message>
         <source>Emscripten Compiler</source>
         <translation>Компилятор Emscripten</translation>
@@ -52344,9 +52211,6 @@ What do you want to do?</source>
         <source>WebAssembly</source>
         <translation>WebAssembly</translation>
     </message>
-</context>
-<context>
-    <name>WebAssembly::Internal::WebBrowserSelectionAspect</name>
     <message>
         <source>Web browser</source>
         <translation>Браузер</translation>
@@ -52355,9 +52219,6 @@ What do you want to do?</source>
         <source>Web browser:</source>
         <translation>Браузер:</translation>
     </message>
-</context>
-<context>
-    <name>WebAssemblyPlugin</name>
     <message>
         <source>WebAssembly</source>
         <comment>Qt Version is meant for WebAssembly</comment>

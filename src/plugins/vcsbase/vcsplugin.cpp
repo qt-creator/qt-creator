@@ -95,10 +95,10 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
         tr("The current version control topic (branch or tag) identification of the current project."),
         []() -> QString {
             IVersionControl *vc = nullptr;
-            QString topLevel;
+            FilePath topLevel;
             if (Project *project = ProjectTree::currentProject())
                 vc = VcsManager::findVersionControlForDirectory(project->projectDirectory(), &topLevel);
-            return vc ? vc->vcsTopic(FilePath::fromString(topLevel)) : QString();
+            return vc ? vc->vcsTopic(topLevel) : QString();
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,

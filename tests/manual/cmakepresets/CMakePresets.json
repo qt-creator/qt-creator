@@ -1,8 +1,8 @@
 {
-  "version": 2,
+  "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 20,
+    "minor": 21,
     "patch": 0
   },
   "configurePresets": [
@@ -14,6 +14,11 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/mingw_64"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       },
       "environment": {
         "PATH": "c:/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
@@ -36,8 +41,29 @@
       "architecture" : {
         "value": "x64"
       },
-      "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/msvc2019_64"
+      "toolchainFile" : "c:/Qt/6.3.2/msvc2019_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "condition" : {
+        "type": "not",
+        "condition": {
+          "type": "notEquals",
+          "lhs": "${hostSystemName}",
+          "rhs": "$env{HOST_SYSTEM_NAME}"
+        }
+      },
+      "environment" : {
+        "HOST_SYSTEM_NAME": "Windows"
+      }
+    },
+    {
+      "name": "linux-gcc",
+      "displayName": "Linux GCC",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-${presetName}",
+      "toolchainFile" : "$penv{HOME}/Qt/6.3.2/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "condition" : {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
       }
     }
   ],

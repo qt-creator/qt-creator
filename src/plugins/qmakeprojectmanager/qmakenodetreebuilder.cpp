@@ -89,14 +89,13 @@ QmakeStaticData::QmakeStaticData()
     for (const FileTypeDataStorage &fileType : fileTypeDataStorage) {
         const QString desc = QmakeProjectManager::Tr::tr(fileType.typeName);
         const QString filter = QString::fromUtf8(fileType.addFileFilter);
-        fileTypeData.push_back(QmakeStaticData::FileTypeData(fileType.type,
-                                                             desc, filter,
-                                                             Utils::FileIconProvider::directoryIcon(QLatin1String(fileType.icon))));
+        fileTypeData.push_back(QmakeStaticData::FileTypeData(fileType.type, desc, filter,
+                               FileIconProvider::directoryIcon(QLatin1String(fileType.icon))));
     }
     // Project icon
-    projectIcon = Utils::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
-    productIcon = Utils::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT);
-    groupIcon = Utils::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_GROUP);
+    projectIcon = FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
+    productIcon = FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT);
+    groupIcon = FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_GROUP);
 
     qAddPostRoutine(clearQmakeStaticData);
 }
@@ -141,7 +140,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
         const SourceFiles &newFilePaths = Utils::filtered(pri->files(type), [&toExclude](const SourceFile &fn) {
-            return !Utils::contains(toExclude, [&fn](const Utils::FilePath &ex) { return fn.first.isChildOf(ex); });
+            return !Utils::contains(toExclude, [&fn](const FilePath &ex) { return fn.first.isChildOf(ex); });
         });
         if (proFile) {
             for (const SourceFile &fp : newFilePaths) {

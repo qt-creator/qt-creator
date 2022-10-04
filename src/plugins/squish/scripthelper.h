@@ -21,7 +21,7 @@ public:
     bool writeScriptFile(const Utils::FilePath &outScriptFile,
                          const Utils::FilePath &snippetFile,
                          const QString &application,
-                         const QStringList &arguments) const;
+                         const QString &arguments) const;
 private:
     Language m_language;
 };

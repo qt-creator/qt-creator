@@ -7,13 +7,10 @@
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
-namespace Cvs {
-namespace Internal {
+namespace Cvs::Internal {
 
 class CvsSettings : public VcsBase::VcsBaseSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(Cvs::Internal::SettingsPage)
-
 public:
     Utils::StringAspect cvsRoot;
     Utils::StringAspect diffOptions;
@@ -32,5 +29,4 @@ public:
     explicit CvsSettingsPage(CvsSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Cvs
+} // Cvs::Internal

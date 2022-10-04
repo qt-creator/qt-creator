@@ -3847,10 +3847,10 @@ FilePath GitClient::fileWorkingDirectory(const QString &file)
 IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QString &ref,
                                    const QString &path, ShowEditor showSetting)
 {
-    QString topLevel;
-    VcsManager::findVersionControlForDirectory(workingDirectory, &topLevel);
-    const QString relativePath = QDir(topLevel).relativeFilePath(path);
-    const QByteArray content = synchronousShow(FilePath::fromString(topLevel), ref + ":" + relativePath);
+    const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
+    const QString topLevelString = topLevel.toString();
+    const QString relativePath = QDir(topLevelString).relativeFilePath(path);
+    const QByteArray content = synchronousShow(topLevel, ref + ":" + relativePath);
     if (showSetting == ShowEditor::OnlyIfDifferent) {
         if (content.isEmpty())
             return nullptr;
@@ -3866,7 +3866,7 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
     }
 
     const QString documentId = QLatin1String(Git::Constants::GIT_PLUGIN)
-            + QLatin1String(".GitShow.") + topLevel
+            + QLatin1String(".GitShow.") + topLevelString
             + QLatin1String(".") + relativePath;
     QString title = tr("Git Show %1:%2").arg(ref).arg(relativePath);
     IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,

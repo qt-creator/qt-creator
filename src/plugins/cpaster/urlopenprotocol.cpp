@@ -7,7 +7,7 @@
 
 #include <QNetworkReply>
 
-using namespace CodePaster;
+namespace CodePaster {
 
 QString UrlOpenProtocol::name() const
 {
@@ -45,3 +45,5 @@ void UrlOpenProtocol::paste(const QString &, ContentType, int, const QString &,
                             const QString &, const QString &)
 {
 }
+
+} // CodePaster

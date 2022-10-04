@@ -2,25 +2,26 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "bookmark.h"
+
 #include "bookmarkmanager.h"
 #include "bookmarks_global.h"
+#include "bookmarkstr.h"
 
 #include <utils/utilsicons.h>
 
-#include <QApplication>
-#include <QFileInfo>
 #include <QTextBlock>
 
-using namespace Bookmarks::Internal;
 using namespace Utils;
+
+namespace Bookmarks::Internal {
 
 Bookmark::Bookmark(int lineNumber, BookmarkManager *manager) :
     TextMark(FilePath(), lineNumber, Constants::BOOKMARKS_TEXT_MARK_CATEGORY),
     m_manager(manager)
 {
-    setColor(Utils::Theme::Bookmarks_TextMarkColor);
-    setIcon(Utils::Icons::BOOKMARK_TEXTEDITOR.icon());
-    setDefaultToolTip(QApplication::translate("BookmarkManager", "Bookmark"));
+    setColor(Theme::Bookmarks_TextMarkColor);
+    setIcon(Icons::BOOKMARK_TEXTEDITOR.icon());
+    setDefaultToolTip(Tr::tr("Bookmark"));
     setPriority(TextEditor::TextMark::NormalPriority);
 }
 
@@ -94,3 +95,5 @@ QString Bookmark::note() const
 {
     return toolTip();
 }
+
+} // Bookmarks::Internal

@@ -70,6 +70,7 @@ public:
 
     ToolChain::MacrosCache m_predefinedMacrosCache;
     ToolChain::HeaderPathsCache m_headerPathsCache;
+    std::optional<bool> m_isValid;
 };
 
 
@@ -185,9 +186,10 @@ Abis ToolChain::supportedAbis() const
 
 bool ToolChain::isValid() const
 {
-    if (compilerCommand().isEmpty())
-        return false;
-    return compilerCommand().isExecutableFile();
+    if (!d->m_isValid.has_value())
+        d->m_isValid = !compilerCommand().isEmpty() && compilerCommand().isExecutableFile();
+
+    return d->m_isValid.value_or(false);
 }
 
 QStringList ToolChain::includedFiles(const QStringList &flags, const QString &directory) const
@@ -315,6 +317,8 @@ FilePath ToolChain::compilerCommand() const
 
 void ToolChain::setCompilerCommand(const FilePath &command)
 {
+    d->m_isValid.reset();
+
     if (command == d->m_compilerCommand)
         return;
     d->m_compilerCommand = command;
@@ -379,6 +383,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
         d->m_targetAbi = Abi::fromString(data.value(d->m_targetAbiKey).toString());
 
     d->m_compilerCommand = FilePath::fromVariant(data.value(d->m_compilerCommandKey));
+    d->m_isValid.reset();
 
     return true;
 }
@@ -591,7 +596,7 @@ static QPair<QString, QString> rawIdData(const QVariantMap &data)
     const QString raw = data.value(QLatin1String(ID_KEY)).toString();
     const int pos = raw.indexOf(QLatin1Char(':'));
     QTC_ASSERT(pos > 0, return qMakePair(QString::fromLatin1("unknown"), QString::fromLatin1("unknown")));
-    return qMakePair(raw.mid(0, pos), raw.mid(pos + 1));
+    return {raw.mid(0, pos), raw.mid(pos + 1)};
 }
 
 QByteArray ToolChainFactory::idFromMap(const QVariantMap &data)
@@ -680,11 +685,9 @@ static QString badToolchainTimestampKey() { return {"Timestamp"}; }
 
 QVariantMap BadToolchain::toMap() const
 {
-    return {
-        std::make_pair(badToolchainFilePathKey(), filePath.toVariant()),
-        std::make_pair(badToolchainSymlinkTargetKey(), symlinkTarget.toVariant()),
-        std::make_pair(badToolchainTimestampKey(), timestamp.toMSecsSinceEpoch()),
-    };
+    return {{badToolchainFilePathKey(), filePath.toVariant()},
+            {badToolchainSymlinkTargetKey(), symlinkTarget.toVariant()},
+            {badToolchainTimestampKey(), timestamp.toMSecsSinceEpoch()}};
 }
 
 BadToolchain BadToolchain::fromMap(const QVariantMap &map)

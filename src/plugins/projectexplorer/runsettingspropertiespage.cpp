@@ -486,7 +486,7 @@ void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
     l->addWidget(label, l->rowCount(), 0, 1, -1);
     l->addWidget(widget, l->rowCount(), 0, 1, -1);
 
-    m_subWidgets.append(qMakePair(widget, label));
+    m_subWidgets.push_back({widget, label});
 }
 
 void RunSettingsWidget::removeSubWidgets()

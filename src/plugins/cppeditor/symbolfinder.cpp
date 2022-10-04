@@ -256,13 +256,13 @@ Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snaps
             for (const LookupItem &item : items) {
                 if (item.declaration() == symbol)
                     addFallback = false;
-                candidates << qMakePair(item.declaration(),
-                                        context.lookupType(item.declaration()) == enclosingType);
+                candidates.push_back({item.declaration(),
+                                      context.lookupType(item.declaration()) == enclosingType});
             }
             // TODO: This is a workaround for static member definitions not being found by
             //       the lookup() function.
             if (addFallback)
-                fallbacks << qMakePair(symbol, context.lookupType(symbol) == enclosingType);
+                fallbacks.push_back({symbol, context.lookupType(symbol) == enclosingType});
         }
     }
 

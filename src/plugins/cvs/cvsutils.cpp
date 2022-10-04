@@ -8,8 +8,7 @@
 #include <QRegularExpression>
 #include <QStringList>
 
-namespace Cvs {
-namespace Internal {
+namespace Cvs::Internal {
 
 CvsRevision::CvsRevision(const QString &rev) : revision(rev)
 { }
@@ -161,7 +160,7 @@ StateList parseStatusOutput(const QString &directory, const QString &output)
     QString path = directory;
     if (!path.isEmpty())
         path += slash;
-    foreach (const QString &l, list) {
+    for (const QString &l : list) {
         // Status line containing file
         if (l.startsWith(fileKeyword)) {
             // Parse state
@@ -210,5 +209,4 @@ bool isFirstRevision(const QString &r)
     return r.endsWith(QLatin1String(".1"));
 }
 
-} // namespace Internal
-} // namespace Cvs
+} // Cvs::Internal

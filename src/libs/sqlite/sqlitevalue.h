@@ -333,7 +333,7 @@ private:
         if (value.isNull())
             return VariantType{NullValue{}};
 
-        switch (value.type()) {
+        switch (value.userType()) {
         case QVariant::Int:
             return VariantType{static_cast<long long>(value.toInt())};
         case QVariant::LongLong:

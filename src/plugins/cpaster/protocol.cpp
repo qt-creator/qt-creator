@@ -3,6 +3,8 @@
 
 #include "protocol.h"
 
+#include "cpastertr.h"
+
 #include <utils/networkaccessmanager.h>
 
 #include <cppeditor/cppeditorconstants.h>
@@ -13,18 +15,16 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QApplication>
+#include <QDebug>
+#include <QMessageBox>
 #include <QNetworkCookie>
 #include <QNetworkCookieJar>
-#include <QNetworkRequest>
 #include <QNetworkReply>
-
-#include <QUrl>
-#include <QDebug>
-#include <QVariant>
-
-#include <QMessageBox>
-#include <QApplication>
+#include <QNetworkRequest>
 #include <QPushButton>
+#include <QUrl>
+#include <QVariant>
 
 #include <memory>
 
@@ -140,7 +140,7 @@ bool Protocol::showConfigurationError(const Protocol *p,
 
     if (!parent)
         parent = Core::ICore::dialogParent();
-    const QString title = tr("%1 - Configuration Error").arg(p->name());
+    const QString title = Tr::tr("%1 - Configuration Error").arg(p->name());
     QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, parent);
     QPushButton *settingsButton = nullptr;
     if (showConfig)
@@ -197,8 +197,8 @@ bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHtt
     }
     std::unique_ptr<QNetworkReply> reply(httpGet(url));
     QMessageBox box(QMessageBox::Information,
-                    tr("Checking connection"),
-                    tr("Connecting to %1...").arg(url),
+                    Tr::tr("Checking connection"),
+                    Tr::tr("Connecting to %1...").arg(url),
                     QMessageBox::Cancel,
                     Core::ICore::dialogParent());
     connect(reply.get(), &QNetworkReply::finished, &box, &QWidget::close);
@@ -219,4 +219,4 @@ bool NetworkProtocol::httpStatus(QString url, QString *errorMessage, bool useHtt
     return false;
 }
 
-} //namespace CodePaster
+} // CodePaster

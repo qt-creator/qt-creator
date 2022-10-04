@@ -76,17 +76,17 @@ public:
     inline bool hasProject() const  { return !currentProjectTopLevel.isEmpty(); }
     inline bool isEmpty() const     { return !hasFile() && !hasProject(); }
 
-    QString currentFile;
+    FilePath currentFile;
     QString currentFileName;
-    QString currentPatchFile;
+    FilePath currentPatchFile;
     QString currentPatchFileDisplayName;
 
-    QString currentFileDirectory;
-    QString currentFileTopLevel;
+    FilePath currentFileDirectory;
+    FilePath currentFileTopLevel;
 
-    QString currentProjectPath;
+    FilePath currentProjectPath;
     QString currentProjectName;
-    QString currentProjectTopLevel;
+    FilePath currentProjectTopLevel;
 };
 
 void State::clearFile()
@@ -218,15 +218,15 @@ QString StateListener::windowTitleVcsTopic(const FilePath &filePath)
     }
     if (searchPath.isEmpty())
         return QString();
-    QString topLevelPath;
+    FilePath topLevelPath;
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(
                 searchPath, &topLevelPath);
-    return (vc && !topLevelPath.isEmpty()) ? vc->vcsTopic(FilePath::fromString(topLevelPath)) : QString();
+    return (vc && !topLevelPath.isEmpty()) ? vc->vcsTopic(topLevelPath) : QString();
 }
 
-static inline QString displayNameOfEditor(const QString &fileName)
+static inline QString displayNameOfEditor(const FilePath &fileName)
 {
-    IDocument *document = DocumentModel::documentForFilePath(FilePath::fromString(fileName));
+    IDocument *document = DocumentModel::documentForFilePath(fileName);
     if (document)
         return document->displayName();
     return QString();
@@ -240,18 +240,16 @@ void StateListener::slotStateChanged()
     State state;
     IDocument *currentDocument = EditorManager::currentDocument();
     if (currentDocument) {
-        state.currentFile = currentDocument->filePath().toString();
+        state.currentFile = currentDocument->filePath();
         if (state.currentFile.isEmpty() || currentDocument->isTemporary())
-            state.currentFile = VcsBase::source(currentDocument);
+            state.currentFile = FilePath::fromString(VcsBase::source(currentDocument));
     }
 
     // Get the file and its control. Do not use the file unless we find one
     IVersionControl *fileControl = nullptr;
 
     if (!state.currentFile.isEmpty()) {
-        QFileInfo currentFi(state.currentFile);
-
-        if (currentFi.exists()) {
+        if (state.currentFile.exists()) {
             // Quick check: Does it look like a patch?
             const bool isPatch = state.currentFile.endsWith(".patch")
                     || state.currentFile.endsWith(".diff");
@@ -261,18 +259,18 @@ void StateListener::slotStateChanged()
                 state.currentPatchFile = state.currentFile;
                 state.currentPatchFileDisplayName = displayNameOfEditor(state.currentPatchFile);
                 if (state.currentPatchFileDisplayName.isEmpty())
-                    state.currentPatchFileDisplayName = currentFi.fileName();
+                    state.currentPatchFileDisplayName = state.currentFile.fileName();
             }
 
-            if (currentFi.isDir()) {
+            if (state.currentFile.isDir()) {
                 state.currentFile.clear();
-                state.currentFileDirectory = currentFi.absoluteFilePath();
+                state.currentFileDirectory = state.currentFile.absoluteFilePath();
             } else {
-                state.currentFileDirectory = currentFi.absolutePath();
-                state.currentFileName = currentFi.fileName();
+                state.currentFileDirectory = state.currentFile.absolutePath();
+                state.currentFileName = state.currentFile.fileName();
             }
             fileControl = VcsManager::findVersionControlForDirectory(
-                FilePath::fromString(state.currentFileDirectory), &state.currentFileTopLevel);
+                state.currentFileDirectory, &state.currentFileTopLevel);
         }
 
         if (!fileControl)
@@ -286,10 +284,10 @@ void StateListener::slotStateChanged()
         currentProject = SessionManager::startupProject();
 
     if (currentProject) {
-        state.currentProjectPath = currentProject->projectDirectory().toString();
+        state.currentProjectPath = currentProject->projectDirectory();
         state.currentProjectName = currentProject->displayName();
         projectControl = VcsManager::findVersionControlForDirectory(
-            FilePath::fromString(state.currentProjectPath), &state.currentProjectTopLevel);
+            state.currentProjectPath, &state.currentProjectTopLevel);
         if (projectControl) {
             // If we have both, let the file's one take preference
             if (fileControl && projectControl != fileControl)
@@ -353,7 +351,7 @@ VcsBasePluginState &VcsBasePluginState::operator=(const VcsBasePluginState &rhs)
 
 QString VcsBasePluginState::currentFile() const
 {
-    return data->m_state.currentFile;
+    return data->m_state.currentFile.toString();
 }
 
 QString VcsBasePluginState::currentFileName() const
@@ -363,23 +361,23 @@ QString VcsBasePluginState::currentFileName() const
 
 FilePath VcsBasePluginState::currentFileTopLevel() const
 {
-    return FilePath::fromString(data->m_state.currentFileTopLevel);
+    return data->m_state.currentFileTopLevel;
 }
 
 FilePath VcsBasePluginState::currentFileDirectory() const
 {
-    return FilePath::fromString(data->m_state.currentFileDirectory);
+    return data->m_state.currentFileDirectory;
 }
 
 QString VcsBasePluginState::relativeCurrentFile() const
 {
-    QTC_ASSERT(hasFile(), return QString());
-    return QDir(data->m_state.currentFileTopLevel).relativeFilePath(data->m_state.currentFile);
+    QTC_ASSERT(hasFile(), return {});
+    return data->m_state.currentFile.relativePath(data->m_state.currentFileTopLevel).toString();
 }
 
 QString VcsBasePluginState::currentPatchFile() const
 {
-    return data->m_state.currentPatchFile;
+    return data->m_state.currentPatchFile.toString();
 }
 
 QString VcsBasePluginState::currentPatchFileDisplayName() const
@@ -389,7 +387,7 @@ QString VcsBasePluginState::currentPatchFileDisplayName() const
 
 FilePath VcsBasePluginState::currentProjectPath() const
 {
-    return FilePath::fromString(data->m_state.currentProjectPath);
+    return data->m_state.currentProjectPath;
 }
 
 QString VcsBasePluginState::currentProjectName() const
@@ -399,15 +397,15 @@ QString VcsBasePluginState::currentProjectName() const
 
 FilePath VcsBasePluginState::currentProjectTopLevel() const
 {
-    return FilePath::fromString(data->m_state.currentProjectTopLevel);
+    return data->m_state.currentProjectTopLevel;
 }
 
 QString VcsBasePluginState::relativeCurrentProject() const
 {
     QTC_ASSERT(hasProject(), return QString());
-    if (data->m_state.currentProjectTopLevel != data->m_state.currentProjectPath)
-        return QDir(data->m_state.currentProjectTopLevel).relativeFilePath(data->m_state.currentProjectPath);
-    return QString();
+    if (data->m_state.currentProjectTopLevel == data->m_state.currentProjectPath)
+        return {};
+    return data->m_state.currentProjectPath.relativePath(data->m_state.currentProjectTopLevel).toString();
 }
 
 bool VcsBasePluginState::hasTopLevel() const
@@ -417,7 +415,7 @@ bool VcsBasePluginState::hasTopLevel() const
 
 FilePath VcsBasePluginState::topLevel() const
 {
-    return FilePath::fromString(hasFile() ? data->m_state.currentFileTopLevel : data->m_state.currentProjectTopLevel);
+    return hasFile() ? data->m_state.currentFileTopLevel : data->m_state.currentProjectTopLevel;
 }
 
 bool VcsBasePluginState::equals(const Internal::State &rhs) const

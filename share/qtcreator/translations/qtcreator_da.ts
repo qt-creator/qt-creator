@@ -2406,7 +2406,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -2415,9 +2415,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Konfiguration uændret, springer autogen-trin over.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenter:</translation>
@@ -2427,17 +2424,11 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -2446,29 +2437,16 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Konfiguration uændret, springer autoreconf-trin over.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenter:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -2478,9 +2456,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Build</source>
         <translation>Byg</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Bygmappe:</translation>
@@ -2489,31 +2464,18 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Autotools Manager</source>
         <translation>Autotools-håndtering</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotools-assistent</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. It is not recommended to use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Indtast venligst mappen hvor du vil bygge dit projekt. Det anbefaler ikke at bruge kildemappen til bygning. Dette sikre at kildemappen forbliver ren og muliggør flere bygninger med forskellige indstillinger.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Bygmappe:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Bygplacering</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Konfigurer</translation>
@@ -2522,56 +2484,30 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Konfiguration uændret, springer konfigurationstrin over.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenter:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Konfigurer</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Konfigurer</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenter:</translation>
     </message>
     <message>
         <source>Make</source>
         <comment>AutotoolsProjectManager::MakeStepConfigWidget display name.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Parser %1 i mappen %2</translation>
@@ -3818,7 +3754,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binær-redigeringen kan ikke åbne tomme filer.</translation>
@@ -3835,9 +3771,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Cannot open %1: %2</source>
         <translation>Kan ikke åbne %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Hukommelse ved 0x%1</translation>
@@ -3940,14 +3873,14 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zoom: %1%</translation>
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Tilføj bogmærke</translation>
@@ -3980,13 +3913,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Rename Folder</source>
         <translation>Omdøb mappe</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Bogmærker</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Fjern</translation>
@@ -3996,23 +3922,8 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Sletning af en mappe fjerner også alt dens indhold.&lt;br&gt;Vil du fortsætte?</translation>
     </message>
     <message>
-        <source>New Folder</source>
-        <translation>Ny mappe</translation>
-    </message>
-    <message>
         <source>Bookmark</source>
         <translation>Bogmærke</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Slet mappe</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Omdøb mappe</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -4030,9 +3941,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Rename Bookmark</source>
         <translation>Omdøb bogmærke</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks</name>
     <message>
         <source>Edit Bookmark</source>
         <translation>Rediger bogmærke</translation>
@@ -4044,10 +3952,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Line number:</source>
         <translation>Linjenummer:</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Bogmærker</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -5706,9 +5610,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Code Pasting</source>
         <translation>Kodeindsætning</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::AuthenticationDialog</name>
     <message>
         <source>Username:</source>
         <translation>Brugernavn:</translation>
@@ -5717,9 +5618,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Password:</source>
         <translation>Adgangskode:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Kodeindsætning</translation>
@@ -5764,9 +5662,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Tom snippet modtaget fra &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Kan ikke åbne %1: %2</translation>
@@ -5787,16 +5682,10 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Pasted: %1</source>
         <translation>Indsatte: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fildeling</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Den fildelingsbaseret indsætter-protokol giver mulighed for at dele kode-snippets ved brug af simple filer på et delt netværksdrev. Filer slettes aldrig.</translation>
@@ -5813,9 +5702,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>entries</source>
         <translation>poster</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; giver mulighed for at sende poster til brugerdefineret underdomæner (f.eks. creator.pastebin.com). Udfyld det ønsket præfiks.</translation>
@@ -5828,9 +5714,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Bemærk: pluginet bruger dette til både at sende og hente.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokol:</translation>
@@ -5839,9 +5722,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Paste:</source>
         <translation>Indsæt:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Copy-paste URL to clipboard</source>
         <translation>Kopiér-indsæt URL til udklipsholder</translation>
@@ -5859,23 +5739,12 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <translation>Vis outputrude efter afsendelse af en post</translation>
     </message>
     <message>
-        <source>Username:</source>
-        <translation>Brugernavn:</translation>
-    </message>
-    <message>
         <source> Days</source>
         <translation> dag(e)</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Send til kodeindsætter</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokol:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -5892,14 +5761,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     <message>
         <source>&lt;Description&gt;</source>
         <translation>&lt;beskrivelse&gt;</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> dag(e)</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Udløber efter:</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -5925,9 +5786,6 @@ p, li { white-space: pre-wrap; }
         <source>Patch 2</source>
         <translation>Patch 2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::KdePasteProtocol</name>
     <message>
         <source>Pasting to KDE paster needs authentication.&lt;br/&gt;Enter your KDE Identity credentials to continue.</source>
         <translation>Indsætning til KDE-indsætter kræver autentifikation.&lt;br/&gt;Indtast din KDE-identitetslegitimationsoplysninger for at fortsætte.</translation>
@@ -5936,9 +5794,6 @@ p, li { white-space: pre-wrap; }
         <source>Login failed</source>
         <translation>Indlogning mislykkedes</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Pasting needs authentication.&lt;br/&gt;Enter your identity credentials to continue.</source>
         <translation>Indsætning kræver autentifikation.&lt;br/&gt;Indtast din identitetslegitimationsoplysninger for at fortsætte.</translation>
@@ -5955,9 +5810,6 @@ p, li { white-space: pre-wrap; }
         <source>Connecting to %1...</source>
         <translation>Opretter forbindelse til %1...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Genindlæs</translation>
@@ -5970,9 +5822,6 @@ p, li { white-space: pre-wrap; }
         <source>This protocol does not support listing</source>
         <translation>Denne protokol understøtter ikke visning</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;kommentar&gt;</translation>
@@ -5981,16 +5830,10 @@ p, li { white-space: pre-wrap; }
         <source>Paste</source>
         <translation>Indsæt</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - konfigurationsfejl</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -10278,7 +10121,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Rediger</translation>
@@ -10287,9 +10130,6 @@ Flag: %3</translation>
         <source>CVS Checkout</source>
         <translation>CVS checkout</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignorer blanktegn</translation>
@@ -10298,16 +10138,10 @@ Flag: %3</translation>
         <source>Ignore Blank Lines</source>
         <translation>Ignorer tomme linjer</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Annotate revision &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &quot;%1&quot;.</source>
         <translation>Kan ikke finde repository for &quot;%1&quot;.</translation>
@@ -10576,9 +10410,6 @@ Flag: %3</translation>
         <source>No CVS executable specified.</source>
         <translation>Ingen CVS-eksekverbar angivet.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Tilføjet</translation>
@@ -10591,9 +10422,6 @@ Flag: %3</translation>
         <source>Modified</source>
         <translation>Ændret</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -10638,9 +10466,6 @@ Flag: %3</translation>
         <source>CVS</source>
         <translation>CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS-kommando</translation>
@@ -43009,7 +42834,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorPluginPrivate</name>
+    <name>BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Fortryd</translation>

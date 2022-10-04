@@ -6,10 +6,8 @@
 #include "bineditorservice.h"
 
 #include <extensionsystem/iplugin.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace BinEditor {
-namespace Internal {
+namespace BinEditor::Internal {
 
 class BinEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -22,12 +20,6 @@ class BinEditorPlugin : public ExtensionSystem::IPlugin
     void extensionsInitialized() final {}
 };
 
-class BinEditorFactory final : public Core::IEditorFactory
-{
-public:
-    BinEditorFactory();
-};
-
 class FactoryServiceImpl : public QObject, public FactoryService
 {
     Q_OBJECT
@@ -37,5 +29,4 @@ public:
     EditorService *createEditorService(const QString &title0, bool wantsEditor) final;
 };
 
-} // namespace Internal
-} // namespace BinEditor
+} // BinEditor::Internal

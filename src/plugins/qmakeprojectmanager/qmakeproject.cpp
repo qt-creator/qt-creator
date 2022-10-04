@@ -81,7 +81,7 @@ static Q_LOGGING_CATEGORY(qmakeBuildSystemLog, "qtc.qmake.buildsystem", QtWarnin
 class QmakePriFileDocument : public Core::IDocument
 {
 public:
-    QmakePriFileDocument(QmakePriFile *qmakePriFile, const Utils::FilePath &filePath) :
+    QmakePriFileDocument(QmakePriFile *qmakePriFile, const FilePath &filePath) :
         IDocument(nullptr), m_priFile(qmakePriFile)
     {
         setId("Qmake.PriFile");
@@ -362,7 +362,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         if (pro->variableValue(Variable::Config).contains(QLatin1String("qt")))
             rpp.setQtVersion(kitInfo.projectPartQtVersion);
         else
-            rpp.setQtVersion(Utils::QtMajorVersion::None);
+            rpp.setQtVersion(QtMajorVersion::None);
 
         // Header paths
         ProjectExplorer::HeaderPaths headerPaths;
@@ -381,7 +381,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         QStringList fileList = pro->variableValue(Variable::ExactSource) + cumulativeSourceFiles;
         QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
         foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
-            ec->forEachTarget([&](const Utils::FilePath &generatedFile) {
+            ec->forEachTarget([&](const FilePath &generatedFile) {
                 fileList += generatedFile.toString();
             });
         }
@@ -421,7 +421,7 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
         const QStringList &cumulativeResources = file->variableValue(Variable::CumulativeResource);
         QString errorMessage;
         for (const QString &rc : exactResources) {
-            Utils::FilePath rcPath = Utils::FilePath::fromString(rc);
+            FilePath rcPath = FilePath::fromString(rc);
             projectInfo.activeResourceFiles.append(rcPath);
             projectInfo.allResourceFiles.append(rcPath);
             QString contents;
@@ -430,7 +430,7 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
                 projectInfo.resourceFileContents[rcPath] = contents;
         }
         for (const QString &rc : cumulativeResources) {
-            Utils::FilePath rcPath = Utils::FilePath::fromString(rc);
+            FilePath rcPath = FilePath::fromString(rc);
             projectInfo.allResourceFiles.append(rcPath);
             QString contents;
             int id = m_qmakeVfs->idForFileName(rc, QMakeVfs::VfsCumulative);
@@ -1358,8 +1358,8 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
     }
 }
 
-static Utils::FilePath getFullPathOf(const QmakeProFile *pro, Variable variable,
-                                     const BuildConfiguration *bc)
+static FilePath getFullPathOf(const QmakeProFile *pro, Variable variable,
+                              const BuildConfiguration *bc)
 {
     // Take last non-flag value, to cover e.g. '@echo $< && $$QMAKE_CC' or 'ccache gcc'
     const QStringList values = Utils::filtered(pro->variableValue(variable),
@@ -1367,12 +1367,12 @@ static Utils::FilePath getFullPathOf(const QmakeProFile *pro, Variable variable,
         return !value.startsWith('-');
     });
     if (values.isEmpty())
-        return Utils::FilePath();
+        return {};
     const QString exe = values.last();
-    QTC_ASSERT(bc, return Utils::FilePath::fromUserInput(exe));
+    QTC_ASSERT(bc, return FilePath::fromUserInput(exe));
     QFileInfo fi(exe);
     if (fi.isAbsolute())
-        return Utils::FilePath::fromUserInput(exe);
+        return FilePath::fromUserInput(exe);
 
     return bc->environment().searchInPath(exe);
 }
@@ -1382,12 +1382,12 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
     if (!tc || path.isEmpty())
         return;
 
-    const Utils::FilePath expected = tc->compilerCommand();
+    const FilePath expected = tc->compilerCommand();
     Environment env = buildConfiguration()->environment();
 
     if (tc->matchesCompilerCommand(expected, env))
         return;
-    const QPair<Utils::FilePath, Utils::FilePath> pair = qMakePair(expected, path);
+    const QPair<FilePath, FilePath> pair{expected, path};
     if (m_toolChainWarnings.contains(pair))
         return;
     // Suppress warnings on Apple machines where compilers in /usr/bin point into Xcode.
@@ -1478,7 +1478,7 @@ FilePaths QmakeBuildSystem::filesGeneratedFrom(const FilePath &input) const
     return {};
 }
 
-QVariant QmakeBuildSystem::additionalData(Utils::Id id) const
+QVariant QmakeBuildSystem::additionalData(Id id) const
 {
     if (id == "QmlDesignerImportPath")
         return m_rootProFile->variableValue(Variable::QmlDesignerImportPath);

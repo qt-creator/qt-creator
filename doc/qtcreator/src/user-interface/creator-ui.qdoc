@@ -86,6 +86,11 @@
     QML code by debugging or profiling it.
     \endif
 
+    \section1 What's New?
+
+    For information about new features and bug fixes in each \QC release,
+    select \uicontrol Help > \uicontrol {Change Log}.
+
     \section1 For \macos Users
 
     \QC uses standard names and locations for standard features, such as

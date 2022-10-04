@@ -1,9 +1,10 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "webassemblytoolchain.h"
 #include "webassemblyconstants.h"
 #include "webassemblyemsdk.h"
+#include "webassemblytoolchain.h"
+#include "webassemblytr.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -58,7 +59,7 @@ WebAssemblyToolChain::WebAssemblyToolChain() :
 {
     setSupportedAbis({toolChainAbi()});
     setTargetAbi(toolChainAbi());
-    setTypeDisplayName(tr("Emscripten Compiler"));
+    setTypeDisplayName(Tr::tr("Emscripten Compiler"));
 }
 
 FilePath WebAssemblyToolChain::makeCommand(const Environment &environment) const
@@ -117,7 +118,7 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
         const FilePath scriptFile = sdk.withNewPath(script).searchInDirectories(env.path());
         toolChain->setCompilerCommand(scriptFile);
 
-        const QString displayName = WebAssemblyToolChain::tr("Emscripten Compiler %1 for %2")
+        const QString displayName = Tr::tr("Emscripten Compiler %1 for %2")
                 .arg(toolChain->version(), QLatin1String(cLanguage ? "C" : "C++"));
         toolChain->setDisplayName(displayName);
         result.append(toolChain);
@@ -159,7 +160,7 @@ bool WebAssemblyToolChain::areToolChainsRegistered()
 
 WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
 {
-    setDisplayName(WebAssemblyToolChain::tr("Emscripten"));
+    setDisplayName(Tr::tr("Emscripten"));
     setSupportedToolChainType(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});

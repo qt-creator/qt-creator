@@ -3,6 +3,7 @@
 
 #include "webassemblyconstants.h"
 #include "webassemblydevice.h"
+#include "webassemblytr.h"
 
 #include <projectexplorer/runcontrol.h>
 
@@ -16,7 +17,7 @@ WebAssemblyDevice::WebAssemblyDevice()
 {
     setupId(IDevice::AutoDetected, Constants::WEBASSEMBLY_DEVICE_DEVICE_ID);
     setType(Constants::WEBASSEMBLY_DEVICE_TYPE);
-    const QString displayNameAndType = tr("Web Browser");
+    const QString displayNameAndType = Tr::tr("Web Browser");
     setDefaultDisplayName(displayNameAndType);
     setDisplayType(displayNameAndType);
     setDeviceState(IDevice::DeviceStateUnknown);
@@ -26,13 +27,13 @@ WebAssemblyDevice::WebAssemblyDevice()
 
 IDevice::Ptr WebAssemblyDevice::create()
 {
-    return IDevice::Ptr(new WebAssemblyDevice);
+    return IDevicePtr(new WebAssemblyDevice);
 }
 
 WebAssemblyDeviceFactory::WebAssemblyDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::WEBASSEMBLY_DEVICE_TYPE)
 {
-    setDisplayName(WebAssemblyDevice::tr("WebAssembly Runtime"));
+    setDisplayName(Tr::tr("WebAssembly Runtime"));
     setCombinedIcon(":/webassembly/images/webassemblydevicesmall.png",
                     ":/webassembly/images/webassemblydevice.png");
     setConstructionFunction(&WebAssemblyDevice::create);

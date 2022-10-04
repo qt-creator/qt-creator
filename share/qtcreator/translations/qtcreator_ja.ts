@@ -1814,7 +1814,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -1835,13 +1835,6 @@ Local pulls are not applied to the master branch.</source>
         <source>entries</source>
         <translation>エントリ</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; は、独自のサブドメイン(例:creator.pastebin.com)に送信する事もできます。希望するプレフィックスを入力してください。</translation>
@@ -1854,9 +1847,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;注意: プラグインは受信時だけでなく送信時にも、この設定を使用します。&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>プロトコル:</translation>
@@ -1865,16 +1855,9 @@ Local pulls are not applied to the master branch.</source>
         <source>Paste:</source>
         <translation>貼り付け:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Codepaster に送る</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>プロトコル:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -1928,9 +1911,6 @@ p, li { white-space: pre-wrap; }
         <source>Make public:</source>
         <translation>公開する:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Copy-paste URL to clipboard</source>
         <translation>貼り付けた URL をクリップボードにコピーする</translation>
@@ -1940,20 +1920,12 @@ p, li { white-space: pre-wrap; }
         <translation>既定のプロトコル:</translation>
     </message>
     <message>
-        <source>&amp;Expires after:</source>
-        <translation>有効期間(&amp;E):</translation>
-    </message>
-    <message>
         <source>Display Output pane after sending a post</source>
         <translation>送信後にアウトプットペインを表示する</translation>
     </message>
     <message>
         <source>Username:</source>
         <translation>ユーザー名:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> 日</translation>
     </message>
     <message>
         <source>Make pasted content public by default</source>
@@ -2535,7 +2507,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -7513,7 +7485,7 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>ブックマークの追加</translation>
@@ -12297,15 +12269,12 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -12320,39 +12289,17 @@ in the system&apos;s browser for manual download.</source>
     </message>
     <message>
         <source>Autogen</source>
-        <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
-        <translation>Autogen</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
-    </message>
-    <message>
-        <source>Autogen</source>
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
@@ -12360,24 +12307,9 @@ in the system&apos;s browser for manual download.</source>
     </message>
     <message>
         <source>Autoreconf</source>
-        <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
-        <translation>Autoreconf</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
-    </message>
-    <message>
-        <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -12387,9 +12319,6 @@ in the system&apos;s browser for manual download.</source>
         <source>Build</source>
         <translation>ビルド</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
@@ -12398,23 +12327,14 @@ in the system&apos;s browser for manual download.</source>
         <source>Autotools Manager</source>
         <translation>Autotools マネージャ</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotools ウィザード</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>プロジェクトをビルドするディレクトリを指定してください。Qt Creator ではソースディレクトリ内でのビルドは推奨していません。ソースディレクトリとビルドディレクトリを分ける事でソースをきれいに保ち、異なる設定での複数のビルドを行う事ができます。</translation>
@@ -12424,31 +12344,17 @@ in the system&apos;s browser for manual download.</source>
         <translation>プロジェクトをビルドするためのディレクトリを入力してください。ビルドにソースディレクトリを使用することはお勧めしません。これにより、ソース・ディレクトリがクリーンな状態に保たれ、異なる設定での複数回のビルドが可能になります。</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>ビルドディレクトリ:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>ビルドパス</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>設定する</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>設定する</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping configure step.</source>
@@ -12456,24 +12362,9 @@ in the system&apos;s browser for manual download.</source>
     </message>
     <message>
         <source>Configure</source>
-        <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
-        <translation>設定する</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
-    </message>
-    <message>
-        <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>設定する</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>ディレクトリ %2 の %1 を解析中</translation>
@@ -12482,27 +12373,14 @@ in the system&apos;s browser for manual download.</source>
         <source>Parsing directory %1</source>
         <translation>ディレクトリ %1 を解析中</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
     </message>
     <message>
         <source>Make</source>
@@ -12971,10 +12849,6 @@ in the system&apos;s browser for manual download.</source>
 </context>
 <context>
     <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>ブックマーク</translation>
-    </message>
     <message>
         <source>Move Up</source>
         <translation>上に移動</translation>
@@ -14925,9 +14799,6 @@ to version control (%2)
         <source>Code Pasting</source>
         <translation>コード貼り付け</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>コード貼り付け(&amp;C)</translation>
@@ -14972,9 +14843,6 @@ to version control (%2)
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; から空のテンプレートを受信しました。</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>%1 を開けません: %2</translation>
@@ -14995,16 +14863,10 @@ to version control (%2)
         <source>Pasted: %1</source>
         <translation>貼り付け: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>更新</translation>
@@ -15017,9 +14879,6 @@ to version control (%2)
         <source>This protocol does not support listing</source>
         <translation>このプロトコルは一覧表示をサポートしていません</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;コメント&gt;</translation>
@@ -15028,16 +14887,10 @@ to version control (%2)
         <source>Paste</source>
         <translation>貼り付け</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - 設定エラー</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>接続の確認</translation>
@@ -15046,9 +14899,6 @@ to version control (%2)
         <source>Connecting to %1...</source>
         <translation>%1 に接続中...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -15935,7 +15785,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>編集(&amp;E)</translation>
@@ -15944,9 +15794,6 @@ Flags: %3</source>
         <source>CVS Checkout</source>
         <translation>CVS チェックアウト</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; にリポジトリが見つかりません。</translation>
@@ -15966,14 +15813,6 @@ Flags: %3</source>
     <message>
         <source>Ignore Blank Lines</source>
         <translation>空行を無視</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation>編集(&amp;E)</translation>
-    </message>
-    <message>
-        <source>CVS Checkout</source>
-        <translation>CVS チェックアウト</translation>
     </message>
     <message>
         <source>Diff Current File</source>
@@ -16235,20 +16074,6 @@ Flags: %3</source>
         <source>The initial revision %1 cannot be described.</source>
         <translation>初期リビジョン %1 に説明はありません。</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>空白を無視</translation>
-    </message>
-    <message>
-        <source>Ignore Blank Lines</source>
-        <translation>空行を無視</translation>
-    </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>追加</translation>
@@ -16261,16 +16086,9 @@ Flags: %3</source>
         <source>Modified</source>
         <translation>変更</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS コマンド</translation>
-    </message>
-    <message>
-        <source>CVS</source>
-        <translation>CVS</translation>
     </message>
 </context>
 <context>
@@ -33495,15 +33313,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>フォルダを削除する</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>フォルダ名の変更</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>ブックマークを開く</translation>
@@ -33520,13 +33330,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Rename Bookmark</source>
         <translation>ブックマークの名前変更</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>ブックマーク</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>削除</translation>
@@ -33534,10 +33337,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>フォルダを削除すると中身も削除されます。&lt;br&gt;続行しますか？</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>新しいフォルダ</translation>
     </message>
     <message>
         <source>Bookmark</source>
@@ -38791,7 +38590,7 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     </message>
 </context>
 <context>
-    <name>BinEditor::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>0x%1 のメモリ</translation>
@@ -38892,9 +38691,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Jump to Address 0x%1 in New Window</source>
         <translation>新規ウィンドウでアドレス 0x%1 に移動</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>バイナリエディタでは空のファイルを開けません。</translation>
@@ -38911,9 +38707,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Cannot open %1: %2</source>
         <translation>%1 を開けません: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
@@ -40116,7 +39909,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>リビジョン &quot;%1&quot; のアノテーション</translation>
@@ -48088,11 +47881,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration</name>
-    <message>
-        <source>Autotools Manager</source>
-        <translation>Autotools マネージャ</translation>
-    </message>
+    <name>AutotoolsProjectManager</name>
 </context>
 <context>
     <name>BuildConfiguration</name>
@@ -49026,118 +48815,18 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
-    <message>
-        <source>Memory at 0x%1</source>
-        <translation>0x%1 のメモリ</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>符号無し10進数:</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>符号付き10進数:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>直前の符号無し10進数:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>直前の符号付き10進数:</translation>
-    </message>
-    <message>
-        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation>%1 ビット整数型</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation>リトルエンディアン</translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation>ビッグエンディアン</translation>
-    </message>
-    <message>
-        <source>Binary&amp;nbsp;value:</source>
-        <translation>2進数:</translation>
-    </message>
-    <message>
-        <source>Octal&amp;nbsp;value:</source>
-        <translation>8進数:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation>直前の2進数:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation>直前の8進数:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;倍精度浮動小数点&lt;/i&gt;数:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>直前の&lt;i&gt;倍精度浮動小数点&lt;/i&gt;数:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;単精度浮動小数点&lt;/i&gt;数:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>直前の&lt;i&gt;単精度浮動小数点&lt;/i&gt;数:</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation>コピー失敗</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation>4MB より大きなバイナリデータはコピーできません。</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation>選択内容を ASCII 文字列としてコピーする</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation>選択内容を16進数の値としてコピーする</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation>選択した箇所にデータブレークポイントを設定</translation>
-    </message>
+    <name>BinEditor</name>
     <message>
         <source>Copy 0x%1</source>
         <translation>0x%1をコピー</translation>
     </message>
     <message>
-        <source>Jump to Address in This Window</source>
-        <translation>ウィンドウ内でアドレスに移動</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation>新規ウィンドウでアドレスに移動</translation>
-    </message>
-    <message>
         <source>Copy Value</source>
         <translation>値をコピー</translation>
     </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation>ウィンドウ内でアドレス 0x%1 に移動</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation>新規ウィンドウでアドレス 0x%1 に移動</translation>
-    </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>

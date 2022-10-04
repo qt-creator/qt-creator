@@ -806,7 +806,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Додати закладку</translation>
@@ -839,13 +839,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Add in folder:</source>
         <translation>Додати в теку:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Видалити</translation>
@@ -853,21 +846,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>Видалення теки призводить до видалення її вмісту.&lt;br&gt;Бажаєте продовжити?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Нова тека</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Видалити теку</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Перейменувати теку</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -888,17 +866,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Add</source>
         <translation type="vanished">Додати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Видалити</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -1347,9 +1314,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Code Pasting</source>
         <translation>Вставка коду</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterProtocol</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation type="vanished">Не вказано сервер в налаштуваннях CodePaster.</translation>
@@ -1362,9 +1326,6 @@ Local pulls are not applied to the master branch.</source>
         <source>No such paste</source>
         <translation type="vanished">Немає такої вставки</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation type="vanished">CodePaster</translation>
@@ -1377,9 +1338,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&lt;i&gt;Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).&lt;/i&gt;</source>
         <translation type="vanished">&lt;i&gt;Примітка: Задайте назву вузла сервісу, не вказуючи протокол (наприклад. codepaster.mycompany.com).&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>Вставка &amp;коду</translation>
@@ -1428,9 +1386,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Отримано порожній фрагмент для &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Неможливо відкрити %1: %2</translation>
@@ -1451,16 +1406,10 @@ Local pulls are not applied to the master branch.</source>
         <source>Pasted: %1</source>
         <translation>Вставлено: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>Перевірка підключення</translation>
@@ -1469,9 +1418,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Connecting to %1...</source>
         <translation>Підключення до %1...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Оновити</translation>
@@ -1484,9 +1430,6 @@ Local pulls are not applied to the master branch.</source>
         <source>This protocol does not support listing</source>
         <translation>Цей протокол не підтримує отримання списку</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Коментар&gt;</translation>
@@ -1495,9 +1438,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Paste</source>
         <translation>Вставити</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - помилка конфігурації</translation>
@@ -1506,9 +1446,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Settings...</source>
         <translation type="vanished">Налаштування...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Загальне</translation>
@@ -24762,7 +24699,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -24783,13 +24720,6 @@ With cache simulation, further event counters are enabled:
         <source>entries</source>
         <translation> елементів</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; дозволяє надсилати дані до піддоменів користувача (наприклад. creator.pastebin.com). Вкажіть бажаний префікс.</translation>
@@ -24802,9 +24732,6 @@ With cache simulation, further event counters are enabled:
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Примітка: Додаток буде використовувати цей префікс і для отримання даних.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Протокол:</translation>
@@ -24813,16 +24740,9 @@ With cache simulation, further event counters are enabled:
         <source>Paste:</source>
         <translation>Вставка:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Надіслати до Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Протокол:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -24876,9 +24796,6 @@ p, li { white-space: pre-wrap; }
         <source> Days</source>
         <translation> днів</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Показати панель виведення після надсилання</translation>
@@ -24894,18 +24811,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Типовий протокол:</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Застаріє через:</translation>
-    </message>
-    <message>
-        <source>Days</source>
-        <translation type="vanished"> днів</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> днів</translation>
     </message>
 </context>
 <context>
@@ -25008,7 +24913,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -26355,19 +26260,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-    <message>
-        <source>Autogen</source>
-        <translation type="vanished">Autogen</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -26376,9 +26274,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Конфігурація не змінилась, пропускаємо крок autogen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Аргументи:</translation>
@@ -26389,24 +26284,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Autogen</translation>
     </message>
     <message>
-        <source>Autogen</source>
-        <translation type="vanished">Autogen</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
-    <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-    <message>
-        <source>Autoreconf</source>
-        <translation type="vanished">Autoreconf</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -26415,25 +26296,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Конфігурація не змінилась, пропускаємо крок autoreconf.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Аргументи:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-    <message>
-        <source>Autoreconf</source>
-        <translation type="vanished">Autoreconf</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -26451,9 +26318,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>New configuration name:</source>
         <translation type="vanished">Назва нової конфігурації:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Тека збірки:</translation>
@@ -26462,9 +26326,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Autotools Manager</source>
         <translation>Управління Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation type="vanished">Збій відкриття проекту &apos;%1&apos;: Проект не є файлом</translation>
@@ -26473,43 +26334,23 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
         <translation>Збій відкриття проекту &quot;%1&quot;: Проект не є файлом</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Майстер Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Будь ласка, введіть теку, в якій ви хочете зібрати ваш проект. Qt Creator рекомендує не використовувати теку з кодом для збірки. Це гарантуватиме, що тека з кодом лишатиметься чистою, та дозволить здійснювати декілька збірок з різними налаштуваннями.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Тека збірки:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Розташування збірки</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Configure</translation>
     </message>
-    <message>
-        <source>Configure</source>
-        <translation type="vanished">Configure</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Configure</translation>
@@ -26518,25 +26359,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Конфігурація не змінилась, пропускаємо крок configure.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Аргументи:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Configure</translation>
     </message>
-    <message>
-        <source>Configure</source>
-        <translation type="vanished">Configure</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Розбір %1 в теці %2</translation>
@@ -26545,21 +26372,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Parsing directory %1</source>
         <translation>Розбір теки %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -26572,21 +26389,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation type="vanished">Конфігурація збійна. Перевірте вид &quot;Проблеми&quot; для деталей.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Аргументи:</translation>
-    </message>
     <message>
         <source>Make</source>
         <comment>AutotoolsProjectManager::MakeStepConfigWidget display name.</comment>
         <translation>Make</translation>
-    </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
     </message>
 </context>
 <context>
@@ -26697,7 +26503,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
+    <name>Cvs</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -26710,9 +26516,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Repository:</source>
         <translation type="vanished">Сховище:</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation type="vanished">Неможливо знайти сховище для &apos;%1&apos;</translation>
@@ -27001,9 +26804,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>No cvs executable specified!</source>
         <translation type="vanished">Виконуваний модуль cvs не вказано!</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation type="vanished">Ігнорувати пропуски</translation>
@@ -27020,9 +26820,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Ignore Blank Lines</source>
         <translation>Ігнорувати порожні рядки</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Додано</translation>
@@ -27035,9 +26832,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Modified</source>
         <translation>Змінено</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Команда CVS</translation>
@@ -36186,7 +35980,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Редагувати</translation>
@@ -44036,7 +43830,7 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Пам&apos;ять в  0x%1</translation>
@@ -44137,9 +43931,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
         <source>Jump to Address 0x%1 in New Window</source>
         <translation>Перейти до адреси 0x%1 в новому вікні</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Двійковий редактор не може відкривати порожні файли.</translation>
@@ -44156,9 +43947,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
         <source>Cannot open %1: %2</source>
         <translation>Неможливо відкрити %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Повернути</translation>
@@ -44700,7 +44488,7 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>

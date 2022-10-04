@@ -1321,7 +1321,7 @@ void CppEditorWidget::abortDeclDefLink()
 
 void CppEditorWidget::showPreProcessorWidget()
 {
-    const QString filePath = textDocument()->filePath().toString();
+    const FilePath filePath = textDocument()->filePath();
 
     CppPreProcessorDialog dialog(filePath, this);
     if (dialog.exec() == QDialog::Accepted) {

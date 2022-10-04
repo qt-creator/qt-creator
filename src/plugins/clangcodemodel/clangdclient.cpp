@@ -212,7 +212,7 @@ template<typename DocType, typename DataType> class VersionedDataCache
 public:
     void insert(const DocType &doc, const DataType &data)
     {
-        m_data.emplace(std::make_pair(doc, VersionedDocData(doc, data)));
+        m_data.emplace(doc, VersionedDocData(doc, data));
     }
     void remove(const DocType &doc) { m_data.erase(doc); }
     std::optional<VersionedDocData<DocType, DataType>> take(const DocType &doc)
@@ -531,7 +531,7 @@ QTextCursor ClangdClient::adjustedCursorForHighlighting(const QTextCursor &curso
 
 const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInspectorTabs()
 {
-    return {std::make_pair(new ClangdMemoryUsageWidget(this), tr("Memory Usage"))};
+    return {{new ClangdMemoryUsageWidget(this), tr("Memory Usage")}};
 }
 
 class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
@@ -1332,9 +1332,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         data->previousTokens.first = tokens;
         data->previousTokens.second = version;
     } else {
-        HighlightingData data;
-        data.previousTokens = qMakePair(tokens, version);
-        highlightingData.insert(doc, data);
+        highlightingData.insert(doc, {{tokens, version}, {}});
     }
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type

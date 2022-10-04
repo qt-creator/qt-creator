@@ -3,7 +3,6 @@
 
 #include "theme.h"
 #include "theme_p.h"
-#include "../algorithm.h"
 #include "../hostosinfo.h"
 #include "../qtcassert.h"
 #ifdef Q_OS_MACOS
@@ -11,7 +10,6 @@
 #endif
 
 #include <QApplication>
-#include <QFileInfo>
 #include <QMetaEnum>
 #include <QPalette>
 #include <QSettings>
@@ -133,17 +131,18 @@ QString Theme::imageFile(Theme::ImageFile imageFile, const QString &fallBack) co
 
 QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
 {
-    if (d->palette.contains(color))
-        return qMakePair(d->palette[color], color);
+    const auto it = d->palette.constFind(color);
+    if (it != d->palette.constEnd())
+        return {it.value(), color};
     if (color == QLatin1String("style"))
-        return qMakePair(QColor(), QString());
+        return {};
 
     const QColor col('#' + color);
     if (!col.isValid()) {
         qWarning("Color \"%s\" is neither a named color nor a valid color", qPrintable(color));
-        return qMakePair(Qt::black, QString());
+        return {Qt::black, {}};
     }
-    return qMakePair(col, QString());
+    return {col, {}};
 }
 
 QString Theme::filePath() const
@@ -222,11 +221,13 @@ bool Theme::systemUsesDarkMode()
         constexpr char regkey[]
             = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
         bool ok;
-        const auto setting = QSettings(regkey, QSettings::NativeFormat).value("AppsUseLightTheme").toInt(&ok);
+        const int setting = QSettings(regkey, QSettings::NativeFormat).value("AppsUseLightTheme").toInt(&ok);
         return ok && setting == 0;
-    } else if (HostOsInfo::isMacHost()) {
-        return macOSSystemIsDark();
     }
+
+    if (HostOsInfo::isMacHost())
+        return macOSSystemIsDark();
+
     return false;
 }
 

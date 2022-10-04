@@ -122,7 +122,6 @@ public slots:
     void removeState(int nodeId);
 
 private:
-    StatesEditorWidget *statesEditorWidget() const;
     void resetModel();
     void resetPropertyChangesModels();
     void resetExtend();

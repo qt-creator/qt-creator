@@ -706,7 +706,7 @@ QPair<SystemImage *, int> SdkManagerOutputParser::parseSystemImage(const QString
         image->setDisplayText(packageData.description);
         image->setDescriptionText(packageData.description);
         image->setApiLevel(apiLevel);
-        result = qMakePair(image, apiLevel);
+        result = {image, apiLevel};
     } else {
         qCDebug(sdkManagerLog) << "System-image: Minimum required data unavailable: "<< data;
     }

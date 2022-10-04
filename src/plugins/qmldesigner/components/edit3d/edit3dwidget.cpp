@@ -315,6 +315,8 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 
 void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 {
+    const QPointF pos = m_canvas->mapFrom(this, dropEvent->position());
+
     // handle dropping materials
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
         QByteArray data = dropEvent->mimeData()->data(Constants::MIME_TYPE_MATERIAL);
@@ -323,13 +325,13 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
         stream >> internalId;
 
         if (ModelNode matNode = m_view->modelNodeForInternalId(internalId))
-            m_view->dropMaterial(matNode, dropEvent->position());
+            m_view->dropMaterial(matNode, pos);
         return;
     }
 
     // handle dropping bundle materials
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
-        m_view->dropBundleMaterial(dropEvent->position());
+        m_view->dropBundleMaterial(pos);
         return;
     }
 

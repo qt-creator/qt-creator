@@ -498,6 +498,7 @@ void tst_fileutils::fromString_data()
     QTest::newRow("single-colon") << D(":", "", "", ":");
     QTest::newRow("single-slash") << D("/", "", "", "/");
     QTest::newRow("single-char") << D("a", "", "", "a");
+    QTest::newRow("relative") << D("./rel", "", "", "./rel");
     QTest::newRow("qrc") << D(":/test.txt", "", "", ":/test.txt");
     QTest::newRow("qrc-no-slash") << D(":test.txt", "", "", ":test.txt");
 
@@ -520,6 +521,7 @@ void tst_fileutils::fromString_data()
     QTest::newRow("docker-root-url") << D("docker://1234/", "docker", "1234", "/");
     QTest::newRow("docker-root-url-special-linux") << D("/__qtc_devices__/docker/1234/", "docker", "1234", "/");
     QTest::newRow("docker-root-url-special-win") << D("c:/__qtc_devices__/docker/1234/", "docker", "1234", "/");
+    QTest::newRow("docker-relative-path") << D("docker://1234/./rel", "docker", "1234", "rel");
 
     QTest::newRow("qtc-dev-linux") << D("/__qtc_devices__", "", "", "/__qtc_devices__");
     QTest::newRow("qtc-dev-win") << D("c:/__qtc_devices__", "", "", "c:/__qtc_devices__");

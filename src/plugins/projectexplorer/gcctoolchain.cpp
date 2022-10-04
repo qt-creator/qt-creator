@@ -616,7 +616,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
     if (!originalTargetTriple.isEmpty())
         arguments << "-target" << originalTargetTriple;
 
-    const std::optional<HeaderPaths> cachedPaths = headerCache->check(qMakePair(env, arguments));
+    const std::optional<HeaderPaths> cachedPaths = headerCache->check({env, arguments});
     if (cachedPaths)
         return cachedPaths.value();
 
@@ -624,7 +624,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
                                        arguments,
                                        env);
     extraHeaderPathsFunction(paths);
-    headerCache->insert(qMakePair(env, arguments), paths);
+    headerCache->insert({env, arguments}, paths);
 
     qCDebug(gccLog) << "Reporting header paths to code model:";
     for (const HeaderPath &hp : qAsConst(paths)) {

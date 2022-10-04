@@ -82,8 +82,6 @@ protected:
 
 class NetworkProtocol : public Protocol
 {
-    Q_OBJECT
-
 public:
     NetworkProtocol() = default;
 

@@ -197,8 +197,7 @@ void QbsSession::initialize()
 
 void QbsSession::sendQuitPacket()
 {
-    d->qbsProcess->writeRaw(Packet::createPacket(QJsonObject{qMakePair(QString("type"),
-                                                             QJsonValue("quit"))}));
+    d->qbsProcess->writeRaw(Packet::createPacket({{"type", "quit"}}));
 }
 
 QbsSession::~QbsSession()
@@ -262,7 +261,7 @@ void QbsSession::sendRequest(const QJsonObject &request)
 void QbsSession::cancelCurrentJob()
 {
     if (d->state == State::Active)
-        sendRequest(QJsonObject{qMakePair(QString("type"), QJsonValue("cancel-job"))});
+        sendRequest({{"type", "cancel-job"}});
 }
 
 void QbsSession::requestFilesGeneratedFrom(const QHash<QString, QStringList> &sourceFilesPerProduct)
@@ -275,7 +274,7 @@ void QbsSession::requestFilesGeneratedFrom(const QHash<QString, QStringList> &so
         product.insert("full-display-name", it.key());
         QJsonArray requests;
         for (const QString &sourceFile : it.value())
-            requests << QJsonObject({qMakePair(QString("source-file"), sourceFile)});
+            requests << QJsonObject({{"source-file", sourceFile}});
         product.insert("requests", requests);
         products << product;
     }

@@ -8,7 +8,9 @@
 
     \title Searching with the Locator
 
-    You can find the locator in the bottom left of the \QC window.
+    By default, you can find the locator in the bottom left of the \QC window.
+    To open it as a centered popup, click \inlineimage icons/magnifier.png
+    (\uicontrol Options) in it and select \uicontrol {Open as Centered Popup}.
 
     \image qtcreator-locator.png "List of locator filters"
 
@@ -57,8 +59,8 @@
 
     It is also possible to enter only a part of a search string. As you type,
     the locator shows the occurrences of that string regardless of where in the
-    name of an component it appears. Some locator filters, such as colon and
-    \c m, support \e fuzzy matching, which means that you can enter the
+    name of an component it appears. Some locator filters, such as colon, \c m,
+    and \c t, support \e fuzzy matching, which means that you can enter the
     uppercase letters to locate a symbol when using camel case or the letters
     after the underscore when using snake case.
 
@@ -125,7 +127,7 @@
             (\c {git}). For more information, see \l{Using Git}.
             \endif
 
-        \li Triggering menu items from the main menu (\c {t})
+        \li Triggering actions (\c {t})
 
         \li Searching for issues from the \l{https://bugreports.qt.io/}
             {Qt Project Bug Tracker} (\c bug).

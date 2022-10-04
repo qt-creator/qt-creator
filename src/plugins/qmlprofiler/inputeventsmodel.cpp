@@ -17,7 +17,7 @@ namespace Internal {
 
 InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager,
                                    Timeline::TimelineModelAggregator *parent) :
-    QmlProfilerTimelineModel(manager, Event, MaximumRangeType, ProfileInputEvents, parent),
+    QmlProfilerTimelineModel(manager, Event, UndefinedRangeType, ProfileInputEvents, parent),
     m_keyTypeId(-1), m_mouseTypeId(-1)
 {
 }
@@ -128,6 +128,8 @@ int InputEventsModel::collapsedRow(int index) const
 
 void InputEventsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
+    if (type.detailType() >= MaximumInputEventType)
+        return;
     m_data.insert(insert(event.timestamp(), 0, type.detailType()),
                   Item(static_cast<InputEventType>(event.number<qint32>(0)),
                              event.number<qint32>(1), event.number<qint32>(2)));

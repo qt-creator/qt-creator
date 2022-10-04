@@ -40,7 +40,7 @@ class ProFileEditorWidget : public TextEditorWidget
 {
 private:
     void findLinkAt(const QTextCursor &,
-                    const Utils::LinkHandler &processLinkCallback,
+                    const LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
     void contextMenuEvent(QContextMenuEvent *) override;
@@ -207,7 +207,7 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
     QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
-    if (Utils::HostOsInfo::isWindowsHost() && fileName.startsWith("//")) {
+    if (HostOsInfo::isWindowsHost() && fileName.startsWith("//")) {
         // Windows network paths are not supported here since checking for their existence can
         // lock the gui thread. See: QTCREATORBUG-26579
     } else if (fi.exists()) {
@@ -219,9 +219,9 @@ void ProFileEditorWidget::findLinkAt(const QTextCursor &cursor,
             else
                 return processLinkCallback(link);
         }
-        link.targetFilePath = Utils::FilePath::fromString(QDir::cleanPath(fileName));
+        link.targetFilePath = FilePath::fromString(QDir::cleanPath(fileName));
     } else {
-        link.targetFilePath = Utils::FilePath::fromString(checkForPrfFile(buffer));
+        link.targetFilePath = FilePath::fromString(checkForPrfFile(buffer));
     }
     if (!link.targetFilePath.isEmpty()) {
         link.linkTextStart = cursor.position() - positionInBlock + beginPos + 1;
@@ -268,7 +268,7 @@ ProFileEditorFactory::ProFileEditorFactory()
     completionAssistProvider->setDynamicCompletionFunction(&TextEditor::pathComplete);
     setCompletionAssistProvider(completionAssistProvider);
 
-    setCommentDefinition(Utils::CommentDefinition::HashStyle);
+    setCommentDefinition(CommentDefinition::HashStyle);
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
                 | TextEditorActionHandler::JumpToFileUnderCursor);
 
@@ -276,11 +276,11 @@ ProFileEditorFactory::ProFileEditorFactory()
     setSyntaxHighlighterCreator([]() { return new ProFileHighlighter; });
 
     const QString defaultOverlay = QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QT);
-    Utils::FileIconProvider::registerIconOverlayForSuffix(
+    FileIconProvider::registerIconOverlayForSuffix(
                 creatorTheme()->imageFile(Theme::IconOverlayPro, defaultOverlay), "pro");
-    Utils::FileIconProvider::registerIconOverlayForSuffix(
+    FileIconProvider::registerIconOverlayForSuffix(
                 creatorTheme()->imageFile(Theme::IconOverlayPri, defaultOverlay), "pri");
-    Utils::FileIconProvider::registerIconOverlayForSuffix(
+    FileIconProvider::registerIconOverlayForSuffix(
                 creatorTheme()->imageFile(Theme::IconOverlayPrf, defaultOverlay), "prf");
 }
 

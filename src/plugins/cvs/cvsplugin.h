@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Cvs {
-namespace Internal {
+namespace Cvs::Internal {
 
 class CvsPlugin final : public ExtensionSystem::IPlugin
 {
@@ -26,5 +25,4 @@ private slots:
 #endif
 };
 
-} // namespace Cvs
-} // namespace Internal
+} // namespace Cvs::Internal

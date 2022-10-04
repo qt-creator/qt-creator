@@ -14,23 +14,36 @@
 #include <coreplugin/icontext.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
-AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName)
-    : Project(Constants::MAKEFILE_MIMETYPE, fileName)
+/**
+ * @brief Implementation of the ProjectExplorer::Project interface.
+ *
+ * Loads the autotools project and embeds it into the QtCreator project tree.
+ * The class AutotoolsProject is the core of the autotools project plugin.
+ * It is responsible to parse the Makefile.am files and do trigger project
+ * updates if a Makefile.am file or a configure.ac file has been changed.
+ */
+class AutotoolsProject : public ProjectExplorer::Project
 {
-    setId(Constants::AUTOTOOLS_PROJECT_ID);
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setDisplayName(projectDirectory().fileName());
+public:
+    explicit AutotoolsProject(const Utils::FilePath &fileName)
+        : Project(Constants::MAKEFILE_MIMETYPE, fileName)
+    {
+        setId(Constants::AUTOTOOLS_PROJECT_ID);
+        setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+        setDisplayName(projectDirectory().fileName());
 
-    setHasMakeInstallEquivalent(true);
+        setHasMakeInstallEquivalent(true);
 
-    setBuildSystemCreator([](ProjectExplorer::Target *t) { return new AutotoolsBuildSystem(t); });
-}
+        setBuildSystemCreator([](ProjectExplorer::Target *t) { return new AutotoolsBuildSystem(t); });
+    }
+};
+
 
 class AutotoolsProjectPluginPrivate
 {
@@ -50,8 +63,7 @@ AutotoolsProjectPlugin::~AutotoolsProjectPlugin()
 void AutotoolsProjectPlugin::extensionsInitialized()
 { }
 
-bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
-                                        QString *errorString)
+bool AutotoolsProjectPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
@@ -62,5 +74,4 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
     return true;
 }
 
-} // namespace Internal
-} // AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

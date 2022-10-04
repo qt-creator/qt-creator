@@ -154,7 +154,7 @@ void CppClass::lookupBases(QFutureInterfaceBase &futureInterface,
         QSet<ClassOrNamespace *> visited;
 
         QQueue<Data> q;
-        q.enqueue(qMakePair(clazz, this));
+        q.enqueue({clazz, this});
         while (!q.isEmpty()) {
             if (futureInterface.isCanceled())
                 return;
@@ -171,7 +171,7 @@ void CppClass::lookupBases(QFutureInterfaceBase &futureInterface,
                         CppClass baseCppClass(symbol);
                         CppClass *cppClass = current.second;
                         cppClass->bases.append(baseCppClass);
-                        q.enqueue(qMakePair(clazz, &cppClass->bases.last()));
+                        q.enqueue({clazz, &cppClass->bases.last()});
                     }
                 }
             }
@@ -191,7 +191,7 @@ void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
             = TypeHierarchyBuilder::buildDerivedTypeHierarchy(futureInterface, declaration, snapshot);
 
     QQueue<Data> q;
-    q.enqueue(qMakePair(this, completeHierarchy));
+    q.enqueue({this, completeHierarchy});
     while (!q.isEmpty()) {
         if (futureInterface.isCanceled())
             return;
@@ -201,7 +201,7 @@ void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
         const QList<TypeHierarchy> hierarchy = classHierarchy.hierarchy();
         for (const TypeHierarchy &derivedHierarchy : hierarchy) {
             clazz->derived.append(CppClass(derivedHierarchy.symbol()));
-            q.enqueue(qMakePair(&clazz->derived.last(), derivedHierarchy));
+            q.enqueue({&clazz->derived.last(), derivedHierarchy});
         }
     }
 }

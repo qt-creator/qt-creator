@@ -198,7 +198,7 @@ static bool isGitDirectory(const FilePath &path)
 {
     static IVersionControl *gitVc = VcsManager::versionControl(VcsBase::Constants::VCS_ID_GIT);
     QTC_ASSERT(gitVc, return false);
-    return gitVc == VcsManager::findVersionControlForDirectory(path, nullptr);
+    return gitVc == VcsManager::findVersionControlForDirectory(path);
 }
 
 GitGrep::GitGrep(GitClient *client)

@@ -95,6 +95,7 @@ void StatesEditorModel::reset()
     QAbstractListModel::endResetModel();
 
     evaluateExtend();
+    emit baseStateChanged();
 }
 
 QVariant StatesEditorModel::data(const QModelIndex &index, int role) const

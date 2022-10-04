@@ -305,7 +305,7 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
             const QStringList remoteBranches =
                     GitClient::instance()->synchronousRepositoryBranches(remoteName, m_workingDir);
             for (const QString &branch : remoteBranches)
-                m_remoteBranches.insertMulti(remoteName, qMakePair(branch, QDate()));
+                m_remoteBranches.insertMulti(remoteName, {branch, {}});
             if (remoteBranches.isEmpty()) {
                 m_ui->targetBranchComboBox->setEditable(true);
                 m_ui->targetBranchComboBox->setToolTip(
