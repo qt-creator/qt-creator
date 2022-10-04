@@ -12,12 +12,10 @@
 
 #include <QTimer>
 
-namespace MesonProjectManager {
-namespace Internal {
-
-namespace Ui { class MesonBuildSettingsWidget; }
+namespace MesonProjectManager::Internal {
 
 class MesonBuildConfiguration;
+
 class MesonBuildSettingsWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
@@ -27,12 +25,10 @@ public:
     ~MesonBuildSettingsWidget();
 
 private:
-    Ui::MesonBuildSettingsWidget *ui;
     BuidOptionsModel m_optionsModel;
     Utils::CategorySortFilterModel m_optionsFilter;
     Utils::ProgressIndicator m_progressIndicator;
     QTimer m_showProgressTimer;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

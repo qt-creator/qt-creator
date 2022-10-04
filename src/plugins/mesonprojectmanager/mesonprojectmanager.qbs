@@ -49,7 +49,6 @@ Project {
             "mesonprojectplugin.h",
             "project/buildoptions/mesonbuildsettingswidget.cpp",
             "project/buildoptions/mesonbuildsettingswidget.h",
-            "project/buildoptions/mesonbuildsettingswidget.ui",
             "project/buildoptions/optionsmodel/arrayoptionlineedit.cpp",
             "project/buildoptions/optionsmodel/arrayoptionlineedit.h",
             "project/buildoptions/optionsmodel/buildoptionsmodel.cpp",
