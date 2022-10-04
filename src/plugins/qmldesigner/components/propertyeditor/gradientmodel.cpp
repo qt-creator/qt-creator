@@ -446,7 +446,7 @@ QmlDesigner::AbstractView *GradientModel::view() const
 
 void GradientModel::resetPuppet()
 {
-    QTimer::singleShot(1000, [this]() { view()->resetPuppet(); });
+    QTimer::singleShot(1000, view(), &QmlDesigner::AbstractView::resetPuppet);
 }
 
 QmlDesigner::ModelNode GradientModel::createGradientNode()

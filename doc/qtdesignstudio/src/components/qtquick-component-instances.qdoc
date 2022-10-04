@@ -29,7 +29,7 @@
             custom properties on the \uicontrol {Properties} tab in the
             \l {Connections} view.
             \image qmldesigner-dynamicprops.png "Connections View Properties tab"
-            For more information, see \l{Specifying Dynamic Properties}.
+            For more information, see \l{Specifying Custom Properties}.
         \li To enable users to interact with the component instances, connect
             the instances to signals on the \uicontrol Connections tab in the
             \uicontrol {Connections} view. For example, you can specify what

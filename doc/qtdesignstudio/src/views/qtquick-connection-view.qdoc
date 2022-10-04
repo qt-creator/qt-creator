@@ -63,7 +63,7 @@
         \li \uicontrol Properties
         \li Add custom properties that would not otherwise exist for a
             particular preset component or your own custom component.
-        \li \l{Specifying Dynamic Properties}
+        \li \l{Specifying Custom Properties}
     \if defined(qtcreator)
     \row
         \li \uicontrol Backends

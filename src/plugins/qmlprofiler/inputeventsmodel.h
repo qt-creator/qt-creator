@@ -14,7 +14,7 @@ class InputEventsModel : public QmlProfilerTimelineModel
 
 public:
     struct Item {
-        Item(InputEventType type = MaximumInputEventType, int a = 0, int b = 0);
+        Item(InputEventType type = UndefinedInputEventType, int a = 0, int b = 0);
         InputEventType type;
         int a;
         int b;

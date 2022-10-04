@@ -20,8 +20,8 @@ static InputEventType inputType(int i)
 InputEventsModelTest::InputEventsModelTest(QObject *parent) :
     QObject(parent), model(&manager, &aggregator)
 {
-    keyTypeId = manager.appendEventType(QmlEventType(Event, MaximumRangeType, Key));
-    mouseTypeId = manager.appendEventType(QmlEventType(Event, MaximumRangeType, Mouse));
+    keyTypeId = manager.appendEventType(QmlEventType(Event, UndefinedRangeType, Key));
+    mouseTypeId = manager.appendEventType(QmlEventType(Event, UndefinedRangeType, Mouse));
 }
 
 void InputEventsModelTest::initTestCase()

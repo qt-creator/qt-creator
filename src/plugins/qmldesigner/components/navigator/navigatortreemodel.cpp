@@ -443,6 +443,7 @@ QStringList NavigatorTreeModel::mimeTypes() const
     const static QStringList types({Constants::MIME_TYPE_MODELNODE_LIST,
                                     Constants::MIME_TYPE_ITEM_LIBRARY_INFO,
                                     Constants::MIME_TYPE_MATERIAL,
+                                    Constants::MIME_TYPE_BUNDLE_MATERIAL,
                                     Constants::MIME_TYPE_ASSETS});
 
     return types;
@@ -540,6 +541,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             handleItemLibraryItemDrop(mimeData, rowNumber, dropModelIndex);
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
             handleMaterialDrop(mimeData, rowNumber, dropModelIndex);
+        } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
+            ModelNode targetNode(modelNodeForIndex(dropModelIndex));
+            if (targetNode.isValid())
+                m_view->emitCustomNotification("drop_bundle_material", {targetNode}); // To MaterialBrowserView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
             const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
             NodeAbstractProperty targetProperty;

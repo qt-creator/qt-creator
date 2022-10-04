@@ -22,6 +22,26 @@
 
     \image qmldesigner-element-properties.png "Rectangle and Text properties"
 
+    \section1 Custom Properties
+
+    Custom Properties are properties that the user has added to the component.
+
+    There are two types of custom properties:
+
+    \table
+      \header
+        \li Custom Property Type
+        \li Description
+      \row
+        \li Local Custom Property
+        \li A property that has been added for a \l{Preset Components}{preset component}.
+      \row
+        \li Exposed Custom Property
+        \li A property that has been added inside a component.
+    \endtable
+
+    \image custom-properties.png
+
     \section1 Summary of Properties View Buttons
 
     The following table lists the \uicontrol Properties view buttons:

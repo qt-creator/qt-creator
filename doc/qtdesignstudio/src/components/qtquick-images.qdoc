@@ -28,7 +28,7 @@
     \image qtquick-designer-image-type.png "Image component in different views"
 
     When you drag-and-drop an image file from \uicontrol Assets to \l Navigator
-    or the \l {2D} view, \QC automatically
+    or the \l {2D} view, \QDS automatically
     creates an instance of the Image component for you with the path to the
     image file set as the value of the \uicontrol Source field in
     \uicontrol Properties.

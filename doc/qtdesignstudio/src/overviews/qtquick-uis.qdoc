@@ -20,14 +20,14 @@
                 components, and states, you need. Create a descriptive wireframe
                 and acquire a detailed UI specification before you start to make
                 the process of creating the UI more efficient.
-                \QC enables you to turn your UI concept into a wireframe with
+                \QDS enables you to turn your UI concept into a wireframe with
                 a scalable layout where all your screens and controls are in
                 place. You can present your wireframe to developers and other
                 stakeholders for discussion, review, and approval before
                 continuing into the prototyping phase.
     \endtable
 
-    In \QC, you build UIs around the behavior of \l{glossary-component}
+    In \QDS, you build UIs around the behavior of \l{glossary-component}
     {components} and how they connect with one another. You can use preset
     components available in the \l Components view or combine them to create
     your own components. You can specify values for the \e properties of a

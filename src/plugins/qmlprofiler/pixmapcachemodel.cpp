@@ -13,7 +13,7 @@ namespace Internal {
 
 PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager,
                                    Timeline::TimelineModelAggregator *parent) :
-    QmlProfilerTimelineModel(manager, PixmapCacheEvent, MaximumRangeType, ProfilePixmapCache,
+    QmlProfilerTimelineModel(manager, PixmapCacheEvent, UndefinedRangeType, ProfilePixmapCache,
                              parent)
 {
 }

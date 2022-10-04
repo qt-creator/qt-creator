@@ -59,7 +59,7 @@ Q_STATIC_ASSERT(sizeof(MESSAGE_STRINGS) == MaximumMessage * sizeof(const char *)
 
 static QPair<Message, RangeType> qmlTypeAsEnum(const QString &typeString)
 {
-    QPair<Message, RangeType> ret(MaximumMessage, MaximumRangeType);
+    QPair<Message, RangeType> ret(UndefinedMessage, UndefinedRangeType);
 
     for (int i = 0; i < MaximumMessage; ++i) {
         if (typeString == _(MESSAGE_STRINGS[i])) {
@@ -75,7 +75,7 @@ static QPair<Message, RangeType> qmlTypeAsEnum(const QString &typeString)
         }
     }
 
-    if (ret.first == MaximumMessage && ret.second == MaximumRangeType) {
+    if (ret.first == UndefinedMessage && ret.second == UndefinedRangeType) {
         bool isNumber = false;
         int type = typeString.toUInt(&isNumber);
         if (isNumber && type < MaximumRangeType)
@@ -288,7 +288,7 @@ void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
 
     int typeIndex = -1;
 
-    QPair<Message, RangeType> messageAndRange(MaximumMessage, MaximumRangeType);
+    QPair<Message, RangeType> messageAndRange(UndefinedMessage, UndefinedRangeType);
     int detailType = -1;
     QString displayName;
     QString data;
@@ -296,7 +296,7 @@ void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
     int line = 0, column = 0;
 
     auto clearType = [&](){
-        messageAndRange = QPair<Message, RangeType>(MaximumMessage, MaximumRangeType);
+        messageAndRange = QPair<Message, RangeType>(UndefinedMessage, UndefinedRangeType);
         detailType = -1;
         displayName.clear();
         data.clear();
@@ -368,7 +368,7 @@ void QmlProfilerTraceFile::loadEventTypes(QXmlStreamReader &stream)
                 // confusing), even though they clearly aren't ranges. Convert that to something
                 // sane here.
                 if (detailType == 4) {
-                    messageAndRange = QPair<Message, RangeType>(Event, MaximumRangeType);
+                    messageAndRange = QPair<Message, RangeType>(Event, UndefinedRangeType);
                     detailType = AnimationFrame;
                 }
             }
@@ -674,13 +674,13 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
     QStack<QmlEvent> stack;
     qint64 lastProgressTimestamp = traceStart();
     modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
-        if (type.rangeType() != MaximumRangeType && event.rangeStage() == RangeStart) {
+        if (type.rangeType() != UndefinedRangeType && event.rangeStage() == RangeStart) {
             stack.push(event);
             return;
         }
 
         stream.writeStartElement(_("range"));
-        if (type.rangeType() != MaximumRangeType && event.rangeStage() == RangeEnd) {
+        if (type.rangeType() != UndefinedRangeType && event.rangeStage() == RangeEnd) {
             QmlEvent start = stack.pop();
             stream.writeAttribute(_("startTime"), QString::number(start.timestamp()));
             stream.writeAttribute(_("duration"),

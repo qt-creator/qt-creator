@@ -148,7 +148,7 @@ void QmlProfilerTraceClientPrivate::processCurrentEvent()
     // all ranges are perfectly nested. This is why we can defer the type resolution until either
     // the range ends or a child range starts. With only the information in RangeStart we wouldn't
     // be able to uniquely identify the event type.
-    Message rangeStage = currentEvent.type.rangeType() == MaximumRangeType ?
+    Message rangeStage = currentEvent.type.rangeType() == UndefinedRangeType ?
                 currentEvent.type.message() : currentEvent.event.rangeStage();
     switch (rangeStage) {
     case RangeStart:
@@ -311,7 +311,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
             d->currentEvent.event.setTimestamp(context.timestamp > 0 ? context.timestamp : 0);
             d->currentEvent.event.setTypeIndex(-1);
             d->currentEvent.event.setString(text);
-            d->currentEvent.type = QmlEventType(DebugMessage, MaximumRangeType, type,
+            d->currentEvent.type = QmlEventType(DebugMessage, UndefinedRangeType, type,
                                                 QmlEventLocation(context.file, context.line, 1));
             d->currentEvent.serverTypeId = 0;
             d->processCurrentEvent();
@@ -328,6 +328,8 @@ void QmlProfilerTraceClient::setFlushInterval(quint32 flushInterval)
 
 bool QmlProfilerTraceClientPrivate::updateFeatures(quint8 feature)
 {
+    if (feature == UndefinedProfileFeature)
+        return true;
     quint64 flag = 1ULL << feature;
     if (!(requestedFeatures & flag))
         return false;

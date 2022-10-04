@@ -139,7 +139,7 @@
     When you add a \l{GridView}{Grid View}, \l{ListView}{List View}, or
     \l{PathView}{Path View}, the ListModel and the delegate component that
     creates an instance for each item in the model are added automatically.
-    For grid and list views, you can edit the list model in \QC.
+    For grid and list views, you can edit the list model in \QDS.
 
     \image qtquick-designer-listview-preview.png "Preview of a list view"
 
