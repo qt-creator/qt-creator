@@ -16,7 +16,6 @@ QtcPlugin {
         "annotationhighlighter.h",
         "authenticationdialog.cpp",
         "authenticationdialog.h",
-        "authenticationdialog.ui",
         "commiteditor.cpp",
         "commiteditor.h",
         "constants.h",
