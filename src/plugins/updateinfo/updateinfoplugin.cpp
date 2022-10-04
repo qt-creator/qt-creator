@@ -140,7 +140,8 @@ void UpdateInfoPlugin::doAutoCheckForUpdates()
 
 void UpdateInfoPlugin::startCheckForUpdates()
 {
-    stopCheckForUpdates();
+    if (d->m_maintenanceToolProcess)
+        return; // do not trigger while update task is already running
 
     QFutureInterface<void> futureIf;
     FutureProgress *futureProgress
