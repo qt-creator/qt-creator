@@ -5,6 +5,7 @@
 
 #include "opensquishsuitesdialog.h"
 #include "squishconstants.h"
+#include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
 #include "suiteconf.h"
@@ -14,12 +15,19 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/session.h>
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+#include <QComboBox>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 namespace Squish {
 namespace Internal {
@@ -27,6 +35,62 @@ namespace Internal {
 static const char SK_OpenSuites[] = "SquishOpenSuites";
 
 static SquishFileHandler *m_instance = nullptr;
+
+class MappedAutDialog : public QDialog
+{
+public:
+    MappedAutDialog()
+    {
+        auto label = new QLabel(Tr::tr("Application:"), this);
+        aut.addItem(Tr::tr("<No Application>"));
+        arguments.setLabelText(Tr::tr("Arguments:"));
+        arguments.setDisplayStyle(Utils::StringAspect::LineEditDisplay);
+
+        QWidget *widget = new QWidget(this);
+        auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+
+        using namespace Utils::Layouting;
+        Form {
+            label, &aut, br,
+            arguments,
+            st
+        }.attachTo(widget);
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->addWidget(widget);
+        layout->addWidget(buttons);
+        setLayout(layout);
+
+        QPushButton *okButton = buttons->button(QDialogButtonBox::Ok);
+        okButton->setEnabled(false);
+        connect(okButton, &QPushButton::clicked,
+                this, &QDialog::accept);
+        connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
+                this, &QDialog::reject);
+        connect(&aut, &QComboBox::currentIndexChanged,
+                this, [this, okButton] (int index) {
+            okButton->setEnabled(index > 0);
+        });
+        setWindowTitle(Tr::tr("Recording Settings"));
+
+        auto squishTools = SquishTools::instance();
+        connect(squishTools, &SquishTools::queryFinished, this,
+                [this] (const QString &out) {
+            SquishServerSettings s;
+            s.setFromXmlOutput(out);
+            QApplication::restoreOverrideCursor();
+            for (const QString &app : s.mappedAuts.keys())
+                aut.addItem(app);
+        });
+
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        squishTools->queryServerSettings();
+    }
+
+
+    QComboBox aut;
+    Utils::StringAspect arguments;
+};
 
 SquishFileHandler::SquishFileHandler(QObject *parent)
     : QObject(parent)
@@ -331,8 +395,13 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
     SuiteConf conf = SuiteConf::readSuiteConf(
                 Utils::FilePath::fromString(m_suites.value(suiteName)));
     if (conf.aut().isEmpty()) {
-        // provide a choice of apps & args, set aut & args for conf
-        return;
+        MappedAutDialog dialog;
+
+        if (dialog.exec() != QDialog::Accepted)
+            return;
+
+        conf.setAut(dialog.aut.currentText());
+        conf.setArguments(dialog.arguments.value());
     }
 
     SquishTools::instance()->recordTestCase(suitePath.absolutePath(), testCaseName, conf);
