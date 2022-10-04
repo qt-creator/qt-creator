@@ -7,49 +7,20 @@
 #include <QMessageBox>
 #include <QProcess>
 
-namespace QmlDesigner {
+namespace QmlDesigner::PuppetStarter {
 
-PuppetStarter::PuppetStarter(ProjectExplorer::Target *target, const Model *model)
-
-    : m_target(target)
-    , m_availablePuppetType(FallbackPuppet)
-    , m_model(model)
-{
-}
-
-QProcessUniquePointer PuppetStarter::createPuppetProcess(
-    const PuppetStartData &data,
-    const QString &puppetMode,
-    const QString &socketToken,
-    std::function<void()> processOutputCallback,
-    std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
-    const QStringList &customOptions) const
-{
-    return puppetProcess(data.puppetPath,
-                         data.workingDirectoryPath,
-                         data.forwardOutput,
-                         data.freeTypeOption,
-                         data.debugPuppet,
-                         data.environment,
-                         puppetMode,
-                         socketToken,
-                         processOutputCallback,
-                         processFinishCallback,
-                         customOptions);
-}
-
-QProcessUniquePointer PuppetStarter::puppetProcess(
-    const QString &puppetPath,
-    const QString &workingDirectory,
-    const QString &forwardOutput,
-    const QString &freeTypeOption,
-    const QString &debugPuppet,
-    const QProcessEnvironment &processEnvironment,
-    const QString &puppetMode,
-    const QString &socketToken,
-    std::function<void()> processOutputCallback,
-    std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
-    const QStringList &customOptions) const
+namespace {
+QProcessUniquePointer puppetProcess(const QString &puppetPath,
+                                    const QString &workingDirectory,
+                                    const QString &forwardOutput,
+                                    const QString &freeTypeOption,
+                                    const QString &debugPuppet,
+                                    const QProcessEnvironment &processEnvironment,
+                                    const QString &puppetMode,
+                                    const QString &socketToken,
+                                    std::function<void()> processOutputCallback,
+                                    std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
+                                    const QStringList &customOptions)
 {
     QProcessUniquePointer puppetProcess{new QProcess};
     puppetProcess->setObjectName(puppetMode);
@@ -93,4 +64,26 @@ QProcessUniquePointer PuppetStarter::puppetProcess(
     return puppetProcess;
 }
 
-} // namespace QmlDesigner
+} // namespace
+
+QProcessUniquePointer createPuppetProcess(const PuppetStartData &data,
+                                          const QString &puppetMode,
+                                          const QString &socketToken,
+                                          std::function<void()> processOutputCallback,
+                                          std::function<void(int, QProcess::ExitStatus)> processFinishCallback,
+                                          const QStringList &customOptions)
+{
+    return puppetProcess(data.puppetPath,
+                         data.workingDirectoryPath,
+                         data.forwardOutput,
+                         data.freeTypeOption,
+                         data.debugPuppet,
+                         data.environment,
+                         puppetMode,
+                         socketToken,
+                         processOutputCallback,
+                         processFinishCallback,
+                         customOptions);
+}
+
+} // namespace QmlDesigner::PuppetStarter
