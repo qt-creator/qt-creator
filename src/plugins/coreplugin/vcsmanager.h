@@ -46,7 +46,7 @@ public:
                                                            Utils::FilePath *topLevelDirectory = nullptr);
     static Utils::FilePath findTopLevelForDirectory(const Utils::FilePath &directory);
 
-    static QStringList repositories(const IVersionControl *);
+    static Utils::FilePaths repositories(const IVersionControl *versionControl);
 
     // Shows a confirmation dialog, whether the files should also be deleted
     // from revision control. Calls vcsDelete on the files. Returns the list

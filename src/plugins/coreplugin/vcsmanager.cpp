@@ -45,7 +45,7 @@ public:
     class VcsInfo {
     public:
         IVersionControl *versionControl = nullptr;
-        QString topLevel;
+        FilePath topLevel;
     };
 
     std::optional<VcsInfo> findInCache(const QString &dir) const
@@ -77,18 +77,19 @@ public:
         }
     }
 
-    void cache(IVersionControl *vc, const QString &topLevel, const QString &dir)
+    void cache(IVersionControl *vc, const FilePath &topLevel, const QString &dir)
     {
         QTC_ASSERT(QDir(dir).isAbsolute(), return);
         QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return);
         QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return);
-        QTC_ASSERT(dir.startsWith(topLevel + QLatin1Char('/'))
-                   || topLevel == dir || topLevel.isEmpty(), return);
+        const QString topLevelString = topLevel.toString();
+        QTC_ASSERT(FilePath::fromString(dir).isChildOf(topLevel)
+                   || topLevelString == dir || topLevel.isEmpty(), return);
         QTC_ASSERT((topLevel.isEmpty() && !vc) || (!topLevel.isEmpty() && vc), return);
 
         QString tmpDir = dir;
         const QChar slash = QLatin1Char('/');
-        while (tmpDir.count() >= topLevel.count() && !tmpDir.isEmpty()) {
+        while (tmpDir.count() >= topLevelString.count() && !tmpDir.isEmpty()) {
             m_cachedMatches.insert(tmpDir, {vc, topLevel});
             // if no vc was found, this might mean we're inside a repo internal directory (.git)
             // Cache only input directory, not parents
@@ -188,8 +189,8 @@ void VcsManager::resetVersionControlForDirectory(const FilePath &inputDirectory)
 IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inputDirectory,
                                                             FilePath *topLevelDirectory)
 {
-    using StringVersionControlPair = QPair<QString, IVersionControl *>;
-    using StringVersionControlPairs = QList<StringVersionControlPair>;
+    using FilePathVersionControlPair = QPair<FilePath, IVersionControl *>;
+    using FilePathVersionControlPairs = QList<FilePathVersionControlPair>;
     if (inputDirectory.isEmpty()) {
         if (topLevelDirectory)
             topLevelDirectory->clear();
@@ -207,29 +208,29 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     auto cachedData = d->findInCache(directory);
     if (cachedData) {
         if (topLevelDirectory)
-            *topLevelDirectory = FilePath::fromString(cachedData->topLevel);
+            *topLevelDirectory = cachedData->topLevel;
         return cachedData->versionControl;
     }
 
     // Nothing: ask the IVersionControls directly.
-    StringVersionControlPairs allThatCanManage;
+    FilePathVersionControlPairs allThatCanManage;
 
     const QList<IVersionControl *> versionControlList = versionControls();
     for (IVersionControl *versionControl : versionControlList) {
         FilePath topLevel;
         if (versionControl->managesDirectory(FilePath::fromString(directory), &topLevel))
-            allThatCanManage.push_back(StringVersionControlPair(topLevel.toString(), versionControl));
+            allThatCanManage.push_back({topLevel, versionControl});
     }
 
     // To properly find a nested repository (say, git checkout inside SVN),
     // we need to select the version control with the longest toplevel pathname.
-    Utils::sort(allThatCanManage, [](const StringVersionControlPair &l,
-                                     const StringVersionControlPair &r) {
-        return l.first.size() > r.first.size();
+    Utils::sort(allThatCanManage, [](const FilePathVersionControlPair &l,
+                                     const FilePathVersionControlPair &r) {
+        return l.first.toString().size() > r.first.toString().size();
     });
 
     if (allThatCanManage.isEmpty()) {
-        d->cache(nullptr, QString(), directory); // register that nothing was found!
+        d->cache(nullptr, {}, directory); // register that nothing was found!
 
         // report result;
         if (topLevelDirectory)
@@ -248,13 +249,13 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     // In this case, don't cache it.
     if (!tmpDir.isEmpty()) {
         const QChar slash = QLatin1Char('/');
-        const StringVersionControlPairs::const_iterator cend = allThatCanManage.constEnd();
-        for (StringVersionControlPairs::const_iterator i = allThatCanManage.constBegin(); i != cend; ++i) {
+        for (auto i = allThatCanManage.constBegin(); i != allThatCanManage.constEnd(); ++i) {
+            const QString firstString = i->first.toString();
             // If topLevel was already cached for another VC, skip this one
-            if (tmpDir.count() < i->first.count())
+            if (tmpDir.count() < firstString.count())
                 continue;
             d->cache(i->second, i->first, tmpDir);
-            tmpDir = i->first;
+            tmpDir = firstString;
             const int slashPos = tmpDir.lastIndexOf(slash);
             if (slashPos >= 0)
                 tmpDir.truncate(slashPos);
@@ -263,7 +264,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
 
     // return result
     if (topLevelDirectory)
-        *topLevelDirectory = FilePath::fromString(allThatCanManage.first().first);
+        *topLevelDirectory = allThatCanManage.first().first;
     IVersionControl *versionControl = allThatCanManage.first().second;
     const bool isVcsConfigured = versionControl->isConfigured();
     if (!isVcsConfigured || d->m_unconfiguredVcs) {
@@ -303,11 +304,11 @@ FilePath VcsManager::findTopLevelForDirectory(const FilePath &directory)
     return result;
 }
 
-QStringList VcsManager::repositories(const IVersionControl *vc)
+FilePaths VcsManager::repositories(const IVersionControl *versionControl)
 {
-    QStringList result;
+    FilePaths result;
     for (auto it = d->m_cachedMatches.constBegin(); it != d->m_cachedMatches.constEnd(); ++it) {
-        if (it.value().versionControl == vc)
+        if (it.value().versionControl == versionControl)
             result.append(it.value().topLevel);
     }
     return result;
