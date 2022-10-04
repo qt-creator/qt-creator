@@ -20,7 +20,7 @@ static QByteArray startApplication(Language language,
                                                   : application;
     QStringList parameters;
     parameters << app;
-    if (args.isEmpty())
+    if (!args.isEmpty())
         parameters << QString(args).replace('"', "\\\"");
 
     switch (language) {
