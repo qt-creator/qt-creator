@@ -132,10 +132,14 @@
             to run in parallel to make the analysis faster on multi-core
             processors.
 
-        \li In the \uicontrol {Diagnostic Configuration} group, select
-            \uicontrol Manage to create or edit a custom configuration.
+        \li The \uicontrol {Diagnostic configuration} field shows the
+            checks to perform. Click the value of the field to open the
+            \uicontrol {Diagnostic Configurations} dialog, where you can
+            select and edit the checks to perform.
 
-        \li Select \uicontrol Copy to create a custom Clang configuration.
+            \image qtcreator-clang-tools-diagnostics-configuration.png "Diagnostics Configuration dialog"
+
+        \li Select \uicontrol Copy to copy the selected diagnostics for editing.
 
             \image qtcreator-clang-copy-diagnostic-configuration.png "Copy Diagnostic Configuration dialog"
 
@@ -147,8 +151,6 @@
             to forward diagnostic flags, such as warning flags, from the build
             system to the Clang code model for displaying annotations in the
             code editor.
-
-            \image qtcreator-clang-tools-diagnostics-configuration.png "Diagnostics Configuration dialog"
 
         \li In the \uicontrol {Clang-Tidy Checks} tab, select
             \uicontrol {Select Checks} to select the checks to perform.
