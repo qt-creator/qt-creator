@@ -32,7 +32,6 @@ QtcPlugin {
         "revertdialog.cpp",
         "revertdialog.h",
         "srcdestdialog.cpp",
-        "srcdestdialog.h",
-        "srcdestdialog.ui",
+        "srcdestdialog.h"
     ]
 }

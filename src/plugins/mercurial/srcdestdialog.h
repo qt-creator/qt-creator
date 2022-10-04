@@ -4,13 +4,18 @@
 #pragma once
 
 #include <utils/pathchooser.h>
+
 #include <vcsbase/vcsbaseplugin.h>
+
 #include <QDialog>
 
-namespace Mercurial {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLineEdit;
+class QRadioButton;
+QT_END_NAMESPACE
 
-namespace Ui { class SrcDestDialog; }
+namespace Mercurial::Internal {
 
 class SrcDestDialog : public QDialog
 {
@@ -18,6 +23,7 @@ class SrcDestDialog : public QDialog
 
 public:
     enum Direction { outgoing, incoming };
+
     explicit SrcDestDialog(const VcsBase::VcsBasePluginState &state, Direction dir, QWidget *parent = nullptr);
     ~SrcDestDialog() override;
 
@@ -28,12 +34,15 @@ public:
 private:
     QUrl getRepoUrl() const;
 
-private:
-    Ui::SrcDestDialog *m_ui;
     Direction m_direction;
     mutable QString m_workingdir;
     VcsBase::VcsBasePluginState m_state;
+
+    QRadioButton *m_defaultButton;
+    QRadioButton *m_localButton;
+    Utils::PathChooser *m_localPathChooser;
+    QLineEdit *m_urlLineEdit;
+    QCheckBox *m_promptForCredentials;
 };
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

@@ -11,5 +11,5 @@ add_qtc_plugin(Mercurial
     mercurialplugin.cpp mercurialplugin.h
     mercurialsettings.cpp mercurialsettings.h
     revertdialog.cpp revertdialog.h
-    srcdestdialog.cpp srcdestdialog.h srcdestdialog.ui
+    srcdestdialog.cpp srcdestdialog.h
 )
