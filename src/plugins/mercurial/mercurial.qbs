@@ -21,7 +21,6 @@ QtcPlugin {
         "constants.h",
         "mercurialclient.cpp",
         "mercurialclient.h",
-        "mercurialcommitpanel.ui",
         "mercurialcommitwidget.cpp",
         "mercurialcommitwidget.h",
         "mercurialeditor.cpp",

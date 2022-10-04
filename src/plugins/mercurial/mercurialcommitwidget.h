@@ -3,12 +3,11 @@
 
 #pragma once
 
-#include "ui_mercurialcommitpanel.h"
-
 #include <vcsbase/submiteditorwidget.h>
 
-namespace Mercurial {
-namespace Internal {
+namespace Mercurial::Internal {
+
+class MercurialCommitPanel;
 
 /*submit editor widget based on git SubmitEditor
   Some extra fields have been added to the standard SubmitEditorWidget,
@@ -22,16 +21,13 @@ public:
     void setFields(const QString &repositoryRoot, const QString &branch,
                    const QString &userName, const QString &email);
 
-    QString committer();
-    QString repoRoot();
+    QString committer() const;
+    QString repoRoot() const;
 
 protected:
     QString cleanupDescription(const QString &input) const override;
 
-private:
-    QWidget *mercurialCommitPanel;
-    Ui::MercurialCommitPanel mercurialCommitPanelUi;
+    MercurialCommitPanel *mercurialCommitPanel;
 };
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal
