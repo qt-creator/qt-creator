@@ -311,9 +311,9 @@ void ProjectTree::updateFileWarning(Core::IDocument *document, const QString &te
         if (filePath.canonicalPath().isChildOf(projectDir.canonicalPath()))
             return;
         // External file. Test if it under the same VCS
-        QString topLevel;
+        FilePath topLevel;
         if (Core::VcsManager::findVersionControlForDirectory(projectDir, &topLevel)
-                && filePath.isChildOf(FilePath::fromString(topLevel))) {
+                && filePath.isChildOf(topLevel)) {
             return;
         }
     }

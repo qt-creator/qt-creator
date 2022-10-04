@@ -721,7 +721,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
 
     struct VcsInfo {
         Core::IVersionControl *vcs = nullptr;
-        QString repoDir;
+        FilePath repoDir;
         bool operator==(const VcsInfo &other) const {
             return vcs == other.vcs && repoDir == other.repoDir;
         }

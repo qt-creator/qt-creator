@@ -196,7 +196,7 @@ void VcsManager::resetVersionControlForDirectory(const FilePath &inputDirectory)
 }
 
 IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inputDirectory,
-                                                            QString *topLevelDirectory)
+                                                            FilePath *topLevelDirectory)
 {
     using StringVersionControlPair = QPair<QString, IVersionControl *>;
     using StringVersionControlPairs = QList<StringVersionControlPair>;
@@ -217,7 +217,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     auto cachedData = d->findInCache(directory);
     if (cachedData) {
         if (topLevelDirectory)
-            *topLevelDirectory = cachedData->topLevel;
+            *topLevelDirectory = FilePath::fromString(cachedData->topLevel);
         return cachedData->versionControl;
     }
 
@@ -273,7 +273,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
 
     // return result
     if (topLevelDirectory)
-        *topLevelDirectory = allThatCanManage.first().first;
+        *topLevelDirectory = FilePath::fromString(allThatCanManage.first().first);
     IVersionControl *versionControl = allThatCanManage.first().second;
     const bool isVcsConfigured = versionControl->isConfigured();
     if (!isVcsConfigured || d->m_unconfiguredVcs) {
@@ -308,9 +308,9 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
 
 FilePath VcsManager::findTopLevelForDirectory(const FilePath &directory)
 {
-    QString result;
+    FilePath result;
     findVersionControlForDirectory(directory, &result);
-    return FilePath::fromString(result);
+    return result;
 }
 
 QStringList VcsManager::repositories(const IVersionControl *vc)
@@ -568,14 +568,12 @@ void CorePlugin::testVcsManager()
     vcsA->setManagedDirectories(makeHash(dirsVcsA));
     vcsB->setManagedDirectories(makeHash(dirsVcsB));
 
-    QString realTopLevel = QLatin1String("ABC"); // Make sure this gets cleared if needed.
-
     // From VCSes:
     int expectedCount = 0;
     for (const QString &result : qAsConst(results)) {
         // qDebug() << "Expecting:" << result;
 
-        QStringList split = result.split(QLatin1Char(':'));
+        const QStringList split = result.split(QLatin1Char(':'));
         QCOMPARE(split.count(), 4);
         QVERIFY(split.at(3) == QLatin1String("*") || split.at(3) == QLatin1String("-"));
 
@@ -589,9 +587,10 @@ void CorePlugin::testVcsManager()
             ++expectedCount;
 
         IVersionControl *vcs;
+        FilePath realTopLevel;
         vcs = VcsManager::findVersionControlForDirectory(
             FilePath::fromString(makeString(directory)), &realTopLevel);
-        QCOMPARE(realTopLevel, makeString(topLevel));
+        QCOMPARE(realTopLevel.toString(), makeString(topLevel));
         if (vcs)
             QCOMPARE(vcs->id().toString(), vcsId);
         else
