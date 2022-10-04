@@ -10,5 +10,4 @@ add_qtc_plugin(Perforce
     perforcesettings.cpp perforcesettings.h
     perforcesubmiteditor.cpp perforcesubmiteditor.h
     perforcesubmiteditorwidget.cpp perforcesubmiteditorwidget.h
-    submitpanel.ui
 )
