@@ -30,6 +30,7 @@ public:
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
+    bool usableAsBuildDevice() const override;
 
     QString userAtHost() const;
 

@@ -1034,6 +1034,12 @@ DeviceEnvironmentFetcher::Ptr LinuxDevice::environmentFetcher() const
     return DeviceEnvironmentFetcher::Ptr(new LinuxDeviceEnvironmentFetcher(sharedFromThis()));
 }
 
+bool LinuxDevice::usableAsBuildDevice() const
+{
+    const bool isUsable = qtcEnvironmentVariableIntValue("QTC_ALLOW_REMOTE_LINUX_BUILD_DEVICES");
+    return isUsable;
+}
+
 QString LinuxDevice::userAtHost() const
 {
     return sshParameters().userAtHost();
