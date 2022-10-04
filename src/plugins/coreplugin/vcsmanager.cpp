@@ -48,11 +48,9 @@ public:
         FilePath topLevel;
     };
 
-    std::optional<VcsInfo> findInCache(const QString &dir) const
+    std::optional<VcsInfo> findInCache(const FilePath &dir) const
     {
-        QTC_ASSERT(QDir(dir).isAbsolute(), return std::nullopt);
-        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return std::nullopt);
-        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return std::nullopt);
+        QTC_ASSERT(dir.isAbsolutePath(), return std::nullopt);
 
         const auto it = m_cachedMatches.constFind(dir);
         return it == m_cachedMatches.constEnd() ? std::nullopt : std::make_optional(it.value());
@@ -63,48 +61,38 @@ public:
         m_cachedMatches.clear();
     }
 
-    void resetCache(const QString &dir)
+    void resetCache(const FilePath &dir)
     {
-        QTC_ASSERT(QDir(dir).isAbsolute(), return);
-        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return);
-        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return);
+        QTC_ASSERT(dir.isAbsolutePath(), return);
 
-        const QString dirSlash = dir + QLatin1Char('/');
-        const QList<QString> keys = m_cachedMatches.keys();
-        for (const QString &key : keys) {
-            if (key == dir || key.startsWith(dirSlash))
+        const FilePaths keys = m_cachedMatches.keys();
+        for (const FilePath &key : keys) {
+            if (key == dir || key.isChildOf(dir))
                 m_cachedMatches.remove(key);
         }
     }
 
-    void cache(IVersionControl *vc, const FilePath &topLevel, const QString &dir)
+    void cache(IVersionControl *vc, const FilePath &topLevel, const FilePath &dir)
     {
-        QTC_ASSERT(QDir(dir).isAbsolute(), return);
-        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return);
-        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return);
+        QTC_ASSERT(dir.isAbsolutePath(), return);
+
         const QString topLevelString = topLevel.toString();
-        QTC_ASSERT(FilePath::fromString(dir).isChildOf(topLevel)
-                   || topLevelString == dir || topLevel.isEmpty(), return);
+        QTC_ASSERT(dir.isChildOf(topLevel) || topLevel == dir || topLevel.isEmpty(), return);
         QTC_ASSERT((topLevel.isEmpty() && !vc) || (!topLevel.isEmpty() && vc), return);
 
-        QString tmpDir = dir;
-        const QChar slash = QLatin1Char('/');
-        while (tmpDir.count() >= topLevelString.count() && !tmpDir.isEmpty()) {
+        FilePath tmpDir = dir;
+        while (tmpDir.toString().count() >= topLevelString.count() && !tmpDir.isEmpty()) {
             m_cachedMatches.insert(tmpDir, {vc, topLevel});
             // if no vc was found, this might mean we're inside a repo internal directory (.git)
             // Cache only input directory, not parents
             if (!vc)
                 break;
-            const int slashPos = tmpDir.lastIndexOf(slash);
-            if (slashPos >= 0)
-                tmpDir.truncate(slashPos);
-            else
-                tmpDir.clear();
+            tmpDir = tmpDir.parentDir();
         }
     }
 
     QList<IVersionControl *> m_versionControlList;
-    QMap<QString, VcsInfo> m_cachedMatches;
+    QMap<FilePath, VcsInfo> m_cachedMatches;
     IVersionControl *m_unconfiguredVcs = nullptr;
 
     FilePaths m_cachedAdditionalToolsPaths;
@@ -168,23 +156,28 @@ IVersionControl *VcsManager::versionControl(Id id)
     return Utils::findOrDefault(versionControls(), Utils::equal(&Core::IVersionControl::id, id));
 }
 
-static QString absoluteWithNoTrailingSlash(const QString &directory)
-{
-    QString res = QDir(directory).absolutePath();
-    if (res.endsWith(QLatin1Char('/')))
-        res.chop(1);
-    return res;
-}
-
 void VcsManager::resetVersionControlForDirectory(const FilePath &inputDirectory)
 {
     if (inputDirectory.isEmpty())
         return;
 
-    const QString directory = absoluteWithNoTrailingSlash(inputDirectory.toString());
+    const FilePath directory = inputDirectory.absolutePath();
     d->resetCache(directory);
-    emit m_instance->repositoryChanged(FilePath::fromString(directory));
+    emit m_instance->repositoryChanged(directory);
 }
+
+static FilePath fixedDir(const FilePath &directory)
+{
+#ifdef WITH_TESTS
+    const QString directoryString = directory.toString();
+    if (!directoryString.isEmpty() && directoryString[0].isLetter()
+        && directoryString.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1) {
+        return FilePath::fromString(directoryString.mid(2));
+    }
+#endif
+    return directory;
+}
+
 
 IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inputDirectory,
                                                             FilePath *topLevelDirectory)
@@ -198,13 +191,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     }
 
     // Make sure we an absolute path:
-    QString directory = absoluteWithNoTrailingSlash(inputDirectory.toString());
-#ifdef WITH_TESTS
-    if (!directory.isEmpty() && directory[0].isLetter()
-        && directory.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1) {
-        directory = directory.mid(2);
-    }
-#endif
+    const FilePath directory = fixedDir(inputDirectory.absolutePath());
     auto cachedData = d->findInCache(directory);
     if (cachedData) {
         if (topLevelDirectory)
@@ -218,7 +205,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     const QList<IVersionControl *> versionControlList = versionControls();
     for (IVersionControl *versionControl : versionControlList) {
         FilePath topLevel;
-        if (versionControl->managesDirectory(FilePath::fromString(directory), &topLevel))
+        if (versionControl->managesDirectory(directory, &topLevel))
             allThatCanManage.push_back({topLevel, versionControl});
     }
 
@@ -239,26 +226,22 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     }
 
     // Register Vcs(s) with the cache
-    QString tmpDir = absoluteWithNoTrailingSlash(directory);
+    FilePath tmpDir = directory.absolutePath();
 #if defined WITH_TESTS
     // Force caching of test directories (even though they do not exist):
-    if (directory.startsWith(QLatin1String(TEST_PREFIX)))
+    if (directory.startsWith(TEST_PREFIX))
         tmpDir = directory;
 #endif
     // directory might refer to a historical directory which doesn't exist.
     // In this case, don't cache it.
     if (!tmpDir.isEmpty()) {
-        const QChar slash = QLatin1Char('/');
         for (auto i = allThatCanManage.constBegin(); i != allThatCanManage.constEnd(); ++i) {
             const QString firstString = i->first.toString();
             // If topLevel was already cached for another VC, skip this one
-            if (tmpDir.count() < firstString.count())
+            if (tmpDir.toString().count() < firstString.count())
                 continue;
             d->cache(i->second, i->first, tmpDir);
-            tmpDir = firstString;
-            const int slashPos = tmpDir.lastIndexOf(slash);
-            if (slashPos >= 0)
-                tmpDir.truncate(slashPos);
+            tmpDir = i->first.parentDir();
         }
     }
 
@@ -441,10 +424,10 @@ void VcsManager::emitRepositoryChanged(const FilePath &repository)
 
 void VcsManager::clearVersionControlCache()
 {
-    const QStringList repoList = d->m_cachedMatches.keys();
+    const FilePaths repoList = d->m_cachedMatches.keys();
     d->clearCache();
-    for (const QString &repo : repoList)
-        emit m_instance->repositoryChanged(FilePath::fromString(repo));
+    for (const FilePath &repo : repoList)
+        emit m_instance->repositoryChanged(repo);
 }
 
 void VcsManager::handleConfigurationChanges(IVersionControl *vc)
