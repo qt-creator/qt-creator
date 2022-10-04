@@ -138,7 +138,7 @@ QStandardItemModel *VcsPlugin::nickNameModel()
 void VcsPlugin::populateNickNameModel()
 {
     QString errorMessage;
-    if (!NickNameDialog::populateModelFromMailCapFile(settings().nickNameMailMap.value(),
+    if (!NickNameDialog::populateModelFromMailCapFile(settings().nickNameMailMap.filePath(),
                                                       d->m_nickNameModel,
                                                       &errorMessage)) {
         qWarning("%s", qPrintable(errorMessage));
