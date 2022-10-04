@@ -3,25 +3,50 @@
 
 #include "revertdialog.h"
 
-namespace Mercurial {
-namespace Internal  {
+#include <utils/layoutbuilder.h>
 
-RevertDialog::RevertDialog(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::RevertDialog)
+#include <QDialogButtonBox>
+#include <QGroupBox>
+#include <QLineEdit>
+
+using namespace Utils;
+
+namespace Mercurial::Internal {
+
+RevertDialog::RevertDialog(QWidget *parent)
+    : QDialog(parent)
 {
-    m_ui->setupUi(this);
+    resize(400, 162);
+    setWindowTitle(tr("Revert"));
+
+    auto groupBox = new QGroupBox(tr("Specify a revision other than the default?"));
+    groupBox->setCheckable(true);
+    groupBox->setChecked(false);
+
+    m_revisionLineEdit = new QLineEdit;
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    using namespace Layouting;
+
+    Form {
+        tr("Revision:"), m_revisionLineEdit,
+    }.attachTo(groupBox, WithMargins);
+
+    Column {
+        groupBox,
+        buttonBox
+    }.attachTo(this);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-RevertDialog::~RevertDialog()
-{
-    delete m_ui;
-}
+RevertDialog::~RevertDialog() = default;
 
 QString RevertDialog::revision() const
 {
-    return m_ui->revisionLineEdit->text();
+    return m_revisionLineEdit->text();
 }
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal
