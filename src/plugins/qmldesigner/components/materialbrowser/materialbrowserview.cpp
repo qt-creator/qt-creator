@@ -25,7 +25,6 @@
 
 #include "materialbrowserview.h"
 
-#include "bindingproperty.h"
 #include "bundlematerial.h"
 #include "materialbrowserwidget.h"
 #include "materialbrowsermodel.h"
@@ -249,12 +248,12 @@ void MaterialBrowserView::modelAttached(Model *model)
     m_widget->materialBrowserModel()->setHasMaterialRoot(rootModelNode().isSubclassOf("QtQuick3D.Material"));
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
-    loadPropertyGroups();
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
     // before refreshing the model
     QTimer::singleShot(1000, this, [this]() {
         refreshModel(true);
+        loadPropertyGroups(); // Needs the delay because it uses metaInfo
     });
 }
 
