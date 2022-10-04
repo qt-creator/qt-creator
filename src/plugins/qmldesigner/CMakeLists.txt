@@ -37,7 +37,7 @@ add_qtc_plugin(QmlDesigner
     documentwarningwidget.cpp documentwarningwidget.h
     dynamiclicensecheck.h
     generateresource.cpp generateresource.h
-    openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
+    openuiqmlfiledialog.cpp openuiqmlfiledialog.h
     qmldesignerconstants.h
     qmldesignericons.h
     qmldesignerplugin.cpp qmldesignerplugin.h

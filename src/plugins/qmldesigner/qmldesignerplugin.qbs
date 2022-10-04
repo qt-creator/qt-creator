@@ -1147,7 +1147,6 @@ Project {
             "editorproxy.cpp",
             "openuiqmlfiledialog.cpp",
             "openuiqmlfiledialog.h",
-            "openuiqmlfiledialog.ui",
             "qmldesignerconstants.h",
             "qmldesignericons.h",
             "qmldesignerplugin.cpp",
