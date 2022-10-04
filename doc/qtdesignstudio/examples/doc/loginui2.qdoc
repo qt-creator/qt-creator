@@ -98,13 +98,11 @@
             rectangle at the top, while keeping its horizontal center aligned
             with that of the rectangle.
         \li Select \e tagLine in \uicontrol Navigator.
-        \li In \uicontrol Properties > \uicontrol Layout, deselect the
-            \inlineimage icons/anchor-center-vertical.png
-            button to remove the vertical center anchor, and then select the
-            \inlineimage icons/anchor-top.png
-            button to anchor the tag line to
-            \e qt_logo_green_128x128px in the \uicontrol Target field with a
-            40-pixel margin. This attaches the top of the tag line to the
+        \li In \uicontrol Properties > \uicontrol Layout,
+            select the \inlineimage icons/anchor-top.png
+            button and then select \e qt_logo_green_128x128px
+            as \uicontrol Target to anchor \e tagLine with a 40-pixel margin.
+            This attaches the top of the tag line to the
             bottom of the logo, while keeping its horizontal center aligned
             with that of the rectangle.
             \image loginui2-layout-text.png "Text Layout properties"
@@ -122,20 +120,6 @@
     and live preview:
 
     \image loginui2-loginpage.jpg "Login page in the Design mode and live preview"
-
-    \section2 Learn More - Anchors
-
-    In an anchor-based layout, each component instance can be thought of as
-    having a set of invisible \e anchor lines: top, bottom, left, right, fill,
-    horizontal center, vertical center, and baseline.
-
-    Anchors enable placing a component instance either adjacent to or inside of
-    another component instance, by attaching one or more of the instance's
-    anchor lines to the anchor lines of the other component instance. If a
-    component instance changes, the instances that are anchored to it will
-    adjust automatically to maintain the anchoring.
-
-    For more information, see \l{Positioning with Anchors}.
 
     \section1 Using Column Positioners
 
@@ -172,7 +156,7 @@
         \li Select \e fields in \uicontrol Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
             \inlineimage icons/anchor-top.png
-            button to anchor the top of the field column to
+            button to anchor the top of the fields column to
             the bottom of \e tagLine with a 170-pixel margin.
         \li Select the \inlineimage icons/anchor-center-horizontal.png
             button to anchor the column horizontally to its parent.
@@ -192,7 +176,20 @@
 
     \image loginui2-loginpage-ready.jpg "Login page in the Design mode and live preview"
 
-    \section1 Learn More - Positioners
+    \section1 Learn More
+    \section2 Anchors
+    In an anchor-based layout, each component instance can be thought of as
+    having a set of invisible \e anchor lines: top, bottom, left, right, fill,
+    horizontal center, vertical center, and baseline.
+
+    Anchors enable placing a component instance either adjacent to or inside of
+    another component instance, by attaching one or more of the instance's
+    anchor lines to the anchor lines of the other component instance. If a
+    component instance changes, the instances that are anchored to it will
+    adjust automatically to maintain the anchoring.
+
+    For more information, see \l{Positioning with Anchors}.
+    \section2 Positioners
 
     For many use cases, the best positioner to use is a simple grid, row, or
     column, and \QDS provides components that will position children in these
