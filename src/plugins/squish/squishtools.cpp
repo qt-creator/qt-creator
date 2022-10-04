@@ -12,6 +12,7 @@
 
 #include <QDebug> // TODO remove
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <debugger/breakhandler.h>
@@ -637,6 +638,8 @@ void SquishTools::setupAndStartRecorder()
 
     m_recorderProcess.setCommand({toolsSettings.runnerPath, args});
     qCDebug(LOG) << "Recorder starting:" << m_recorderProcess.commandLine().toUserOutput();
+    if (m_suiteConf.objectMapPath().isReadableFile())
+        Core::DocumentManager::expectFileChange(m_suiteConf.objectMapPath());
     m_recorderProcess.start();
 }
 
@@ -737,6 +740,7 @@ void SquishTools::onRecorderFinished()
     const ScriptHelper helper(m_suiteConf.language());
     const Utils::FilePath testFile = m_currentTestCasePath.pathAppended(
                 "test" + m_suiteConf.scriptExtension());
+    Core::DocumentManager::expectFileChange(testFile);
     bool result = helper.writeScriptFile(testFile, m_currentRecorderSnippetFile,
                                          m_suiteConf.aut(),
                                          m_suiteConf.arguments());
