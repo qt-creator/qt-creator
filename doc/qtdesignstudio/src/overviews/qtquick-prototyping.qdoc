@@ -73,7 +73,7 @@
 
         \li \l {Importing 3D Assets}
 
-            You can import exported assets into \QC. For a list of formats
+            You can import exported assets into \QDS. For a list of formats
             supported by each \l{Qt Quick 3D} version, see the module
             documentation.
 

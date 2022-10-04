@@ -8,7 +8,8 @@
 namespace QmlProfiler {
 
 enum Message {
-    Event,
+    UndefinedMessage = 0xff,
+    Event = 0,
     RangeStart,
     RangeData,
     RangeLocation,
@@ -24,7 +25,8 @@ enum Message {
 };
 
 enum EventType {
-    FramePaint, // unused
+    UndefinedEventType = 0xff,
+    FramePaint = 0, // unused
     Mouse,
     Key,
     AnimationFrame, // new Qt5 paint events
@@ -35,7 +37,8 @@ enum EventType {
 };
 
 enum Quick3DEventType {
-    Quick3DRenderFrame,
+    UndefinedQuick3DEventType = 0xff,
+    Quick3DRenderFrame = 0,
     Quick3DSynchronizeFrame,
     Quick3DPrepareFrame,
     Quick3DMeshLoad,
@@ -50,7 +53,8 @@ enum Quick3DEventType {
 };
 
 enum RangeType {
-    Painting, // old Qt4 paint events
+    UndefinedRangeType = 0xff,
+    Painting = 0, // old Qt4 paint events
     Compiling,
     Creating,
     Binding,
@@ -61,7 +65,8 @@ enum RangeType {
 };
 
 enum BindingType {
-    QmlBinding,
+    UndefinedBindingType = 0xff,
+    QmlBinding = 0,
     V8Binding,
     OptimizedBinding,
     QPainterEvent,
@@ -70,7 +75,8 @@ enum BindingType {
 };
 
 enum PixmapEventType {
-    PixmapSizeKnown,
+    UndefinedPixmapEventType = 0xff,
+    PixmapSizeKnown = 0,
     PixmapReferenceCountChanged,
     PixmapCacheCountChanged,
     PixmapLoadingStarted,
@@ -81,7 +87,8 @@ enum PixmapEventType {
 };
 
 enum InputEventType {
-    InputKeyPress,
+    UndefinedInputEventType = 0xff,
+    InputKeyPress = 0,
     InputKeyRelease,
     InputKeyUnknown,
 
@@ -96,7 +103,8 @@ enum InputEventType {
 };
 
 enum SceneGraphFrameType {
-    SceneGraphRendererFrame,        // Render Thread
+    UndefinedSceheGraphFrameType = 0xff,
+    SceneGraphRendererFrame = 0,    // Render Thread
     SceneGraphAdaptationLayerFrame, // Render Thread
     SceneGraphContextFrame,         // Render Thread
     SceneGraphRenderLoopFrame,      // Render Thread
@@ -111,7 +119,8 @@ enum SceneGraphFrameType {
 };
 
 enum MemoryType {
-    HeapPage,
+    UndefinedMemoryType = 0xff,
+    HeapPage = 0,
     LargeItem,
     SmallItem,
 
@@ -119,14 +128,16 @@ enum MemoryType {
 };
 
 enum AnimationThread {
-    GuiThread,
+    UndefinedAnimationThread = 0xff,
+    GuiThread = 0,
     RenderThread,
 
     MaximumAnimationThread
 };
 
 enum ProfileFeature {
-    ProfileJavaScript,
+    UndefinedProfileFeature = 0xff,
+    ProfileJavaScript = 0,
     ProfileMemory,
     ProfilePixmapCache,
     ProfileSceneGraph,
@@ -159,7 +170,7 @@ inline ProfileFeature featureFromRangeType(RangeType range)
         case Javascript:
             return ProfileJavaScript;
         default:
-            return MaximumProfileFeature;
+            return UndefinedProfileFeature;
     }
 }
 

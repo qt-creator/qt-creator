@@ -34,9 +34,8 @@ void DesignerSettings::insert(const QHash<QByteArray, QVariant> &settingsHash)
 
 QVariant DesignerSettings::value(const QByteArray &key, const QVariant &defaultValue) const
 {
-    Q_UNUSED(defaultValue)
     QMutexLocker locker(&m_mutex);
-    return m_cache.value(key);
+    return m_cache.value(key, defaultValue);
 }
 
 void DesignerSettings::restoreValue(QSettings *settings, const QByteArray &key, const QVariant &defaultValue)

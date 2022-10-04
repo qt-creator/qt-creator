@@ -60,7 +60,7 @@ T.Button {
     states: [
         State {
             name: "default"
-            when: !root.down && !root.hovered && !root.checked
+            when: root.enabled && !root.down && !root.hovered && !root.checked
 
             PropertyChanges {
                 target: background
@@ -75,7 +75,7 @@ T.Button {
         },
         State {
             name: "hover"
-            when: root.hovered && !root.checked && !root.down
+            when: root.enabled && root.hovered && !root.checked && !root.down
 
             PropertyChanges {
                 target: background
@@ -88,8 +88,8 @@ T.Button {
             }
         },
         State {
-            name: "pressed"
-            when: root.checked || root.down
+            name: "press"
+            when: root.enabled && (root.checked || root.down)
 
             PropertyChanges {
                 target: background
@@ -99,6 +99,19 @@ T.Button {
             PropertyChanges {
                 target: textItem
                 color: StudioTheme.Values.themeTextColor
+            }
+        },
+        State {
+            name: "disable"
+            when: !root.enabled
+            PropertyChanges {
+                target: background
+                color: StudioTheme.Values.themeControlBackgroundDisabled
+                border.color: StudioTheme.Values.themeControlOutlineDisabled
+            }
+            PropertyChanges {
+                target: textItem
+                color: StudioTheme.Values.themeTextColorDisabled
             }
         }
     ]

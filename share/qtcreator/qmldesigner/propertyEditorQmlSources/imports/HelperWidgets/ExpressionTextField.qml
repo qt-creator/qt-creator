@@ -11,8 +11,6 @@ import StudioTheme 1.0 as StudioTheme
 StudioControls.TextField {
     id: textField
 
-    signal rejected
-
     translationIndicator.visible: false
     actionIndicator.visible: false
 
@@ -136,6 +134,11 @@ StudioControls.TextField {
 
     onPressed: listView.model = null
 
+    onRejected: {
+        if (textField.completionActive)
+            listView.model = null
+    }
+
     Keys.priority: Keys.BeforeItem
     Keys.onPressed: function(event) {
         var text = textField.text
@@ -219,15 +222,6 @@ StudioControls.TextField {
         if (textField.completionActive) {
             textField.commitCompletion()
             event.accepted = true
-        }
-    }
-
-    Keys.onEscapePressed: function(event) {
-        event.accepted = true
-        if (textField.completionActive) {
-            listView.model = null
-        } else {
-            textField.rejected()
         }
     }
 

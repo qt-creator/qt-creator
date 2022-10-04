@@ -122,7 +122,7 @@
                             \list
                                 \li\l{Connecting Components to Signals}
                                 \li\l{Adding Bindings Between Properties}
-                                \li\l{Specifying Dynamic Properties}
+                                \li\l{Specifying Custom Properties}
                             \endlist
                         \li \l{Adding States}
                     \endlist

@@ -56,7 +56,7 @@ Q_STATIC_ASSERT(sizeof(StageLabels) ==
 
 SceneGraphTimelineModel::SceneGraphTimelineModel(QmlProfilerModelManager *manager,
                                                  Timeline::TimelineModelAggregator *parent) :
-    QmlProfilerTimelineModel(manager, SceneGraphFrame, MaximumRangeType, ProfileSceneGraph, parent)
+    QmlProfilerTimelineModel(manager, SceneGraphFrame, UndefinedRangeType, ProfileSceneGraph, parent)
 {
 }
 

@@ -57,9 +57,13 @@ void QmlProfilerTraceClientTest::testMessageReceived()
 
         modelManager.replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
             qint64 timestamp;
-            qint32 message;
-            qint32 rangeType;
+            quint8 message;
+            quint8 rangeType;
             checkStream >> timestamp >> message >> rangeType;
+            QVERIFY(message != MaximumMessage);
+            QVERIFY(rangeType != MaximumRangeType);
+            QVERIFY(type.message() != MaximumMessage);
+            QVERIFY(type.rangeType() != MaximumRangeType);
             QCOMPARE(event.timestamp(), timestamp);
             QCOMPARE(type.message(), static_cast<Message>(message));
             QCOMPARE(type.rangeType(), static_cast<RangeType>(rangeType));

@@ -73,7 +73,7 @@
     For more information on the JavaScript environment provided, see
     \l{Integrating QML and JavaScript}.
 
-    Bindings are a black box for \QC and using them might have a
+    Bindings are a black box for \QDS and using them might have a
     negative impact on performance, so consider setting anchors and margins for
     components, instead. For example, instead of setting \c {parent.width} for a
     component, you could anchor the component to its sibling components on the
@@ -342,7 +342,7 @@
     to right and top to bottom. Each component is positioned at the top-left
     corner of its cell with position (0, 0).
 
-    \QC generates the grid based on the positions of the child components in
+    \QDS generates the grid based on the positions of the child components in
     the \l {2D} view. You can modify the number of rows and columns in the
     \uicontrol Rows and \uicontrol Columns fields.
 

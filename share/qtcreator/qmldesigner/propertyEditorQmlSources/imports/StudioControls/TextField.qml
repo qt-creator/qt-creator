@@ -30,6 +30,8 @@ T.TextField {
 
     property bool contextMenuAboutToShow: false
 
+    signal rejected
+
     horizontalAlignment: Qt.AlignLeft
     verticalAlignment: Qt.AlignVCenter
 
@@ -225,10 +227,10 @@ T.TextField {
         }
     ]
 
-    Keys.onPressed: function(event) {
-        if (event.key === Qt.Key_Escape) {
-            root.text = root.preFocusText
-            root.focus = false
-        }
+    Keys.onEscapePressed: function(event) {
+        event.accepted = true
+        root.text = root.preFocusText
+        root.rejected()
+        root.focus = false
     }
 }

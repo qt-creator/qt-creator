@@ -240,6 +240,9 @@ bool AndroidDeployQtStep::init()
 
             m_androiddeployqtArgs.addArg("--gradle");
 
+            if (buildType() == BuildConfiguration::Release)
+                m_androiddeployqtArgs.addArgs({"--release"});
+
             if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
                 // The androiddeployqt tool is not really written to do stand-alone installations.
                 // This hack forces it to use the correct filename for the apk file when installing
