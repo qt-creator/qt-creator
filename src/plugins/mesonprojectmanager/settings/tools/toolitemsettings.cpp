@@ -4,38 +4,44 @@
 #include "toolitemsettings.h"
 
 #include "tooltreeitem.h"
-#include "ui_toolitemsettings.h"
 
-namespace MesonProjectManager {
-namespace Internal {
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
+
+#include <QLineEdit>
+
+using namespace Utils;
+
+namespace MesonProjectManager::Internal {
 
 ToolItemSettings::ToolItemSettings(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::ToolItemSettings)
 {
-    ui->setupUi(this);
-    ui->mesonPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    ui->mesonPathChooser->setHistoryCompleter(QLatin1String("Meson.Command.History"));
-    connect(ui->mesonPathChooser,
-            &Utils::PathChooser::rawPathChanged,
-            this,
-            &ToolItemSettings::store);
-    connect(ui->mesonNameLineEdit, &QLineEdit::textChanged, this, &ToolItemSettings::store);
-}
+    m_mesonNameLineEdit = new QLineEdit;
 
-ToolItemSettings::~ToolItemSettings()
-{
-    delete ui;
+    m_mesonPathChooser = new PathChooser;
+    m_mesonPathChooser->setExpectedKind(PathChooser::ExistingCommand);
+    m_mesonPathChooser->setHistoryCompleter(QLatin1String("Meson.Command.History"));
+
+    using namespace Layouting;
+
+    Form {
+        tr("Name:"), m_mesonNameLineEdit, br,
+        tr("Path:"), m_mesonPathChooser, br,
+    }.attachTo(this, WithoutMargins);
+
+    connect(m_mesonPathChooser, &PathChooser::rawPathChanged, this, &ToolItemSettings::store);
+    connect(m_mesonNameLineEdit, &QLineEdit::textChanged, this, &ToolItemSettings::store);
 }
 
 void ToolItemSettings::load(ToolTreeItem *item)
 {
     if (item) {
         m_currentId = std::nullopt;
-        ui->mesonNameLineEdit->setDisabled(item->isAutoDetected());
-        ui->mesonNameLineEdit->setText(item->name());
-        ui->mesonPathChooser->setDisabled(item->isAutoDetected());
-        ui->mesonPathChooser->setFilePath(item->executable());
+        m_mesonNameLineEdit->setDisabled(item->isAutoDetected());
+        m_mesonNameLineEdit->setText(item->name());
+        m_mesonPathChooser->setDisabled(item->isAutoDetected());
+        m_mesonPathChooser->setFilePath(item->executable());
         m_currentId = item->id();
     } else {
         m_currentId = std::nullopt;
@@ -46,9 +52,8 @@ void ToolItemSettings::store()
 {
     if (m_currentId)
         emit applyChanges(*m_currentId,
-                          ui->mesonNameLineEdit->text(),
-                          ui->mesonPathChooser->filePath());
+                          m_mesonNameLineEdit->text(),
+                          m_mesonPathChooser->filePath());
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

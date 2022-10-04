@@ -88,7 +88,6 @@ Project {
             "settings/tools/kitaspect/toolkitaspectwidget.h",
             "settings/tools/toolitemsettings.cpp",
             "settings/tools/toolitemsettings.h",
-            "settings/tools/toolitemsettings.ui",
             "settings/tools/toolsmodel.cpp",
             "settings/tools/toolsmodel.h",
             "settings/tools/toolssettingsaccessor.cpp",

@@ -4,16 +4,21 @@
 #pragma once
 
 #include <utils/id.h>
-#include <utils/fileutils.h>
 
 #include <QWidget>
 
 #include <optional>
 
-namespace MesonProjectManager {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
 
-namespace Ui { class ToolItemSettings; }
+namespace Utils {
+class FilePath;
+class PathChooser;
+}
+
+namespace MesonProjectManager::Internal {
 
 class ToolTreeItem;
 
@@ -23,15 +28,16 @@ class ToolItemSettings : public QWidget
 
 public:
     explicit ToolItemSettings(QWidget *parent = nullptr);
-    ~ToolItemSettings();
     void load(ToolTreeItem *item);
     void store();
-    Q_SIGNAL void applyChanges(Utils::Id itemId, const QString &name, const Utils::FilePath &exe);
+
+signals:
+    void applyChanges(Utils::Id itemId, const QString &name, const Utils::FilePath &exe);
 
 private:
-    Ui::ToolItemSettings *ui;
     std::optional<Utils::Id> m_currentId{std::nullopt};
+    QLineEdit *m_mesonNameLineEdit;
+    Utils::PathChooser *m_mesonPathChooser;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal
