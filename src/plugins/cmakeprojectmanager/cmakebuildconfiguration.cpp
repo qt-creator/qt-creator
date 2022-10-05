@@ -40,6 +40,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -1952,6 +1953,22 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
         QList<BuildInfo> result;
 
         FilePath path = forSetup ? Project::projectDirectory(projectPath) : projectPath;
+
+        // Skip the default shadow build directories for build types if we have presets
+        const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+        if (!presetItem.isNull()) {
+            const QString presetName = presetItem.expandedValue(k);
+            const auto project = qobject_cast<CMakeProject *>(SessionManager::startupProject());
+
+            PresetsDetails::ConfigurePreset configurePreset
+                = Utils::findOrDefault(project->presetsData().configurePresets,
+                                       [&presetName] (const PresetsDetails::ConfigurePreset &preset) {
+                                           return preset.name == presetName;
+                                       });
+
+            if (configurePreset.binaryDir)
+                return result;
+        }
 
         for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
             BuildInfo info = createBuildInfo(BuildType(type));
