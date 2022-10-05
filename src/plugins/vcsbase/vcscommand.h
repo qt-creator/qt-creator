@@ -90,11 +90,9 @@ public:
         SuppressCommandLogging = 0x10, // No command log entry.
         ShowSuccessMessage = 0x20, // Show message about successful completion of command.
         ForceCLocale = 0x40, // Force C-locale for commands whose output is parsed.
-        FullySynchronously = 0x80, // Suppress local event loop (in case UI actions are
-                                   // triggered by file watchers).
-        SilentOutput = 0x100, // Suppress user notifications about the output happening.
-        NoFullySync = 0x200, // Avoid fully synchronous execution even in UI thread.
-        ExpectRepoChanges = 0x400, // Expect changes in repository by the command
+        SilentOutput = 0x80, // Suppress user notifications about the output happening.
+        UseEventLoop = 0x100, // Use event loop when executed in UI thread.
+        ExpectRepoChanges = 0x200, // Expect changes in repository by the command
         NoOutput = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
     };
 

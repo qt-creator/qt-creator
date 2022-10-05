@@ -86,7 +86,7 @@ public:
     void cleanup();
     void setupProcess(QtcProcess *process, const Job &job);
     void installStdCallbacks(QtcProcess *process);
-    bool isFullySynchronous() const;
+    EventLoopMode eventLoopMode() const;
     void handleDone(QtcProcess *process);
     void startAll();
     void startNextJob();
@@ -214,10 +214,11 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 //    m_process->setTimeOutMessageBoxEnabled(true);
 }
 
-bool VcsCommandPrivate::isFullySynchronous() const
+EventLoopMode VcsCommandPrivate::eventLoopMode() const
 {
-    return (m_flags & VcsCommand::FullySynchronously) || (!(m_flags & VcsCommand::NoFullySync)
-            && QThread::currentThread() == QCoreApplication::instance()->thread());
+    if ((m_flags & VcsCommand::UseEventLoop) && QThread::currentThread() == qApp->thread())
+        return EventLoopMode::On;
+    return EventLoopMode::Off;
 }
 
 void VcsCommandPrivate::handleDone(QtcProcess *process)
@@ -392,9 +393,8 @@ CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
 
     d->setupProcess(&process, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
 
-    EventLoopMode eventLoopMode = EventLoopMode::Off;
-    if (!d->isFullySynchronous()) {
-        eventLoopMode = EventLoopMode::On;
+    const EventLoopMode eventLoopMode = d->eventLoopMode();
+    if (eventLoopMode == EventLoopMode::On) {
         connect(this, &VcsCommand::terminate, &process, [&process] {
             process.stop();
             process.waitForFinished();

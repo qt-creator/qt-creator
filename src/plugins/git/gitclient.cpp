@@ -2967,7 +2967,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     }
 
     const CommandResult result = vcsSynchronousExec(repositoryDirectory, arguments,
-                                                    VcsCommand::NoFullySync);
+                                                    VcsCommand::UseEventLoop);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
         GitPlugin::updateCurrentBranch();

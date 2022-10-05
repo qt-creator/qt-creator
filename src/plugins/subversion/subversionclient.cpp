@@ -69,7 +69,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
          << commitMessageFile
          << escapeFiles(files);
     const CommandResult result = vcsSynchronousExec(repositoryRoot, args,
-                                 VcsCommand::ShowStdOut | VcsCommand::NoFullySync);
+                                 VcsCommand::ShowStdOut | VcsCommand::UseEventLoop);
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
