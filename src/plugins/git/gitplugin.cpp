@@ -1867,7 +1867,7 @@ VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
     args << extraArgs << url << localName;
 
     auto command = VcsBaseClient::createVcsCommand(baseDirectory, m_gitClient.processEnvironment());
-    command->addFlags(VcsCommand::SuppressStdErr);
+    command->addFlags(RunFlags::SuppressStdErr);
     command->addJob({m_gitClient.vcsBinary(), args}, -1);
     return command;
 }

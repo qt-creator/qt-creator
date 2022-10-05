@@ -323,7 +323,7 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
         const CommandResult result = client->vcsSynchronousExec({}, {p.ssh, arguments},
-                                                                VcsCommand::NoOutput);
+                                                                RunFlags::NoOutput);
         QString stdOut = result.cleanedStdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
@@ -332,7 +332,7 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
         const CommandResult result = client->vcsSynchronousExec({}, {curlBinary, arguments},
-                                                                VcsCommand::NoOutput);
+                                                                RunFlags::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.
         if (result.result() == ProcessResult::FinishedWithSuccess) {

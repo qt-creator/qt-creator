@@ -60,6 +60,7 @@ QtcPlugin {
         "vcsbasesubmiteditor.h",
         "vcscommand.cpp",
         "vcscommand.h",
+        "vcsenums.h",
         "vcsoutputformatter.cpp",
         "vcsoutputformatter.h",
         "vcsoutputwindow.cpp",

@@ -50,7 +50,7 @@ public:
 void MercurialDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
 {
     // at this moment, don't ignore any errors
-    VcsBaseDiffEditorController::runCommand(args, 0u, codec);
+    VcsBaseDiffEditorController::runCommand(args, RunFlags::None, codec);
 }
 
 QStringList MercurialDiffEditorController::addConfigurationArguments(const QStringList &args) const
@@ -96,7 +96,7 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
 {
     Q_UNUSED(srcLocation)
     Q_UNUSED(extraOptions)
-    const unsigned flags = VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
+    const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         // Let's make first init
@@ -142,7 +142,7 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
 
     const CommandResult result = vcsSynchronousExec(workingDir, args,
-          VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage | VcsCommand::ForceCLocale);
+          RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage | RunFlags::ForceCLocale);
 
     parsePullOutput(result.cleanedStdOut().trimmed());
     return result.result() == ProcessResult::FinishedWithSuccess;

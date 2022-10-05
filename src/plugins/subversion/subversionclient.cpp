@@ -69,7 +69,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
          << commitMessageFile
          << escapeFiles(files);
     const CommandResult result = vcsSynchronousExec(repositoryRoot, args,
-                                 VcsCommand::ShowStdOut | VcsCommand::UseEventLoop);
+                                 RunFlags::ShowStdOut | RunFlags::UseEventLoop);
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -197,7 +197,7 @@ void SubversionDiffEditorController::requestDescription()
     args << m_authenticationOptions;
     args << QLatin1String("-r");
     args << QString::number(m_changeNumber);
-    runCommand(QList<QStringList>() << args, 0);
+    runCommand(QList<QStringList>() << args, RunFlags::None);
 }
 
 void SubversionDiffEditorController::requestDiff()
@@ -216,7 +216,7 @@ void SubversionDiffEditorController::requestDiff()
     } else {
         args << m_filesList;
     }
-    runCommand(QList<QStringList>() << args, 0);
+    runCommand(QList<QStringList>() << args, RunFlags::None);
 }
 
 void SubversionDiffEditorController::processCommandOutput(const QString &output)

@@ -257,8 +257,8 @@ private:
     CommandResult runCleartoolProc(const FilePath &workingDir,
                                    const QStringList &arguments) const;
     CommandResult runCleartool(const FilePath &workingDir, const QStringList &arguments,
-                               unsigned flags = 0, QTextCodec *codec = nullptr,
-                               int timeoutMultiplier = 1) const;
+                               VcsBase::RunFlags flags = VcsBase::RunFlags::None,
+                               QTextCodec *codec = nullptr, int timeoutMultiplier = 1) const;
     static void sync(QFutureInterface<void> &future, QStringList files);
 
     void history(const FilePath &workingDir,
@@ -1086,7 +1086,7 @@ bool ClearCasePluginPrivate::vcsUndoCheckOut(const FilePath &workingDir, const Q
     args << QLatin1String(keep ? "-keep" : "-rm");
     args << QDir::toNativeSeparators(fileName);
 
-    const CommandResult result = runCleartool(workingDir, args, VcsCommand::ShowStdOut);
+    const CommandResult result = runCleartool(workingDir, args, RunFlags::ShowStdOut);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
 
@@ -1116,7 +1116,7 @@ bool ClearCasePluginPrivate::vcsUndoHijack(const FilePath &workingDir, const QSt
     args << QLatin1String("/dev/null");
     args << QDir::toNativeSeparators(fileName);
 
-    const CommandResult result = runCleartool(workingDir, args, VcsCommand::ShowStdOut);
+    const CommandResult result = runCleartool(workingDir, args, RunFlags::ShowStdOut);
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return false;
 
@@ -1451,7 +1451,7 @@ void ClearCasePluginPrivate::history(const FilePath &workingDir,
     for (const QString &file : files)
         args.append(QDir::toNativeSeparators(file));
 
-    const CommandResult result = runCleartool(workingDir, args, 0, codec);
+    const CommandResult result = runCleartool(workingDir, args, RunFlags::None, codec);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return;
 
@@ -1511,8 +1511,7 @@ void ClearCasePluginPrivate::ccUpdate(const FilePath &workingDir, const QStringL
     args << QLatin1String("-noverwrite");
     if (!relativePaths.isEmpty())
         args.append(relativePaths);
-    const CommandResult result = runCleartool(workingDir, args, VcsCommand::ShowStdOut, nullptr,
-                                              10);
+    const CommandResult result = runCleartool(workingDir, args, RunFlags::ShowStdOut, nullptr, 10);
     if (result.result() == ProcessResult::FinishedWithSuccess)
         emit repositoryChanged(workingDir);
 }
@@ -1544,7 +1543,7 @@ void ClearCasePluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, const
     args << QLatin1String("-out") << QLatin1String("-");
     args.append(QDir::toNativeSeparators(id));
 
-    const CommandResult result = runCleartool(workingDir, args, 0, codec);
+    const CommandResult result = runCleartool(workingDir, args, RunFlags::None, codec);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return;
 
@@ -1593,7 +1592,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
     QStringList args(QLatin1String("describe"));
     args.push_back(id);
     QTextCodec *codec = VcsBaseEditor::getCodec(source.toString());
-    const CommandResult result = runCleartool(topLevel, args, 0, codec);
+    const CommandResult result = runCleartool(topLevel, args, RunFlags::None, codec);
     description = result.cleanedStdOut();
     if (m_settings.extDiffAvailable)
         description += diffExternal(id);
@@ -1637,7 +1636,7 @@ CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDi
 
 CommandResult ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
                                                    const QStringList &arguments,
-                                                   unsigned flags,
+                                                   RunFlags flags,
                                                    QTextCodec *codec,
                                                    int timeoutMultiplier) const
 {
@@ -1763,7 +1762,7 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
     }
     args << file;
     CommandResult result = runCleartool(topLevel, args,
-                                        VcsCommand::ShowStdOut | VcsCommand::SuppressStdErr);
+                                        RunFlags::ShowStdOut | RunFlags::SuppressStdErr);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         if (result.cleanedStdErr().contains(QLatin1String("Versions other than the selected version"))) {
             VersionSelector selector(file, result.cleanedStdErr());
@@ -1772,7 +1771,7 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
                     ccUpdate(workingDir, QStringList(file));
                 else
                     args.removeOne(QLatin1String("-query"));
-                result = runCleartool(topLevel, args, VcsCommand::ShowStdOut);
+                result = runCleartool(topLevel, args, RunFlags::ShowStdOut);
             }
         } else {
             VcsOutputWindow::append(result.cleanedStdOut());
@@ -1801,7 +1800,7 @@ bool ClearCasePluginPrivate::vcsSetActivity(const FilePath &workingDir, const QS
 {
     QStringList args;
     args << QLatin1String("setactivity") << activity;
-    const CommandResult result = runCleartool(workingDir, args, VcsCommand::ShowStdOut);
+    const CommandResult result = runCleartool(workingDir, args, RunFlags::ShowStdOut);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         QMessageBox::warning(ICore::dialogParent(), title, Tr::tr("Set current activity failed: %1")
                              .arg(result.exitMessage()), QMessageBox::Ok);
@@ -1847,7 +1846,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
             FilePath::fromString(QFileInfo(m_checkInView.toString(), fileName).canonicalFilePath())));
         blockers.append(fcb);
     }
-    const CommandResult result = runCleartool(m_checkInView, args, VcsCommand::ShowStdOut, nullptr,
+    const CommandResult result = runCleartool(m_checkInView, args, RunFlags::ShowStdOut, nullptr,
                                               10);
     const QRegularExpression checkedIn("Checked in \\\"([^\"]*)\\\"");
     QRegularExpressionMatch match = checkedIn.match(result.cleanedStdOut());
@@ -1915,7 +1914,7 @@ bool ClearCasePluginPrivate::ccFileOp(const FilePath &workingDir, const QString 
     // check out directory
     QStringList args;
     args << QLatin1String("checkout") << commentArg << dirName;
-    const CommandResult coResult = runCleartool(workingDir, args, VcsCommand::ShowStdOut);
+    const CommandResult coResult = runCleartool(workingDir, args, RunFlags::ShowStdOut);
     if (coResult.result() != ProcessResult::FinishedWithSuccess) {
         if (coResult.cleanedStdErr().contains(QLatin1String("already checked out")))
             noCheckout = true;
@@ -1928,7 +1927,7 @@ bool ClearCasePluginPrivate::ccFileOp(const FilePath &workingDir, const QString 
     args << opArgs << commentArg << file;
     if (!file2.isEmpty())
         args << QDir::toNativeSeparators(file2);
-    const CommandResult opResult = runCleartool(workingDir, args, VcsCommand::ShowStdOut);
+    const CommandResult opResult = runCleartool(workingDir, args, RunFlags::ShowStdOut);
     if (opResult.result() != ProcessResult::FinishedWithSuccess) {
         // on failure - undo checkout for the directory
         if (!noCheckout)
@@ -1942,7 +1941,7 @@ bool ClearCasePluginPrivate::ccFileOp(const FilePath &workingDir, const QString 
     // check in the directory
     args.clear();
     args << QLatin1String("checkin") << commentArg << dirName;
-    const CommandResult ciResult = runCleartool(workingDir, args, VcsCommand::ShowStdOut);
+    const CommandResult ciResult = runCleartool(workingDir, args, RunFlags::ShowStdOut);
     return ciResult.result() == ProcessResult::FinishedWithSuccess;
 }
 

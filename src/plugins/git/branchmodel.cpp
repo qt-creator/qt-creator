@@ -670,7 +670,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     } else {
         const QStringList arguments({"-n1", "--format=%H %ct"});
         if (d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
-                                      VcsCommand::SuppressCommandLogging)) {
+                                      RunFlags::SuppressCommandLogging)) {
             const QStringList values = output.split(' ');
             startSha = values[0];
             branchDateTime = QDateTime::fromSecsSinceEpoch(values[1].toLongLong());
@@ -919,7 +919,7 @@ QString BranchModel::toolTip(const QString &sha) const
     QStringList arguments("-n1");
     arguments << sha;
     if (!d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
-                                   VcsCommand::SuppressCommandLogging)) {
+                                   RunFlags::SuppressCommandLogging)) {
         return errorMessage;
     }
     return output;

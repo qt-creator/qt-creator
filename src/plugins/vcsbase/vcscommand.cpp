@@ -71,7 +71,7 @@ public:
 
     Environment environment()
     {
-        if (!(m_flags & VcsCommand::ForceCLocale))
+        if (!(m_flags & RunFlags::ForceCLocale))
             return m_environment;
 
         m_environment.set("LANG", "C");
@@ -109,7 +109,7 @@ public:
     ProcessResult m_result = ProcessResult::StartFailed;
     QFutureInterface<void> m_futureInterface;
 
-    unsigned m_flags = 0;
+    RunFlags m_flags = RunFlags::None;
 
     bool m_progressiveOutput = false;
 };
@@ -140,7 +140,7 @@ int VcsCommandPrivate::timeoutS() const
 void VcsCommandPrivate::setup()
 {
     m_futureInterface.reportStarted();
-    if (m_flags & VcsCommand::ExpectRepoChanges) {
+    if (m_flags & RunFlags::ExpectRepoChanges) {
         QMetaObject::invokeMethod(GlobalFileChangeBlocker::instance(), [] {
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
         });
@@ -153,7 +153,7 @@ void VcsCommandPrivate::cleanup()
 {
     QTC_ASSERT(m_futureInterface.isRunning(), return);
     m_futureInterface.reportFinished();
-    if (m_flags & VcsCommand::ExpectRepoChanges) {
+    if (m_flags & RunFlags::ExpectRepoChanges) {
         QMetaObject::invokeMethod(GlobalFileChangeBlocker::instance(), [] {
             GlobalFileChangeBlocker::instance()->forceBlocked(false);
         });
@@ -169,12 +169,12 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
     process->setTimeoutS(job.timeoutS);
     if (!job.workingDirectory.isEmpty())
         process->setWorkingDirectory(job.workingDirectory);
-    if (!(m_flags & VcsCommand::SuppressCommandLogging))
+    if (!(m_flags & RunFlags::SuppressCommandLogging))
         emit q->appendCommand(job.workingDirectory, job.command);
     process->setCommand(job.command);
     process->setDisableUnixTerminal();
     process->setEnvironment(environment());
-    if (m_flags & VcsCommand::MergeOutputChannels)
+    if (m_flags & RunFlags::MergeOutputChannels)
         process->setProcessChannelMode(QProcess::MergedChannels);
     if (m_codec)
         process->setCodec(m_codec);
@@ -184,24 +184,24 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
 
 void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 {
-    if (!(m_flags & VcsCommand::MergeOutputChannels)
-            && (m_progressiveOutput || !(m_flags & VcsCommand::SuppressStdErr))) {
+    if (!(m_flags & RunFlags::MergeOutputChannels)
+            && (m_progressiveOutput || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setStdErrCallback([this](const QString &text) {
             if (m_progressParser)
                 m_progressParser->parseProgress(text);
-            if (!(m_flags & VcsCommand::SuppressStdErr))
+            if (!(m_flags & RunFlags::SuppressStdErr))
                 emit q->appendError(text);
             if (m_progressiveOutput)
                 emit q->stdErrText(text);
         });
     }
     // connect stdout to the output window if desired
-    if (m_progressParser || m_progressiveOutput || (m_flags & VcsCommand::ShowStdOut)) {
+    if (m_progressParser || m_progressiveOutput || (m_flags & RunFlags::ShowStdOut)) {
         process->setStdOutCallback([this](const QString &text) {
             if (m_progressParser)
                 m_progressParser->parseProgress(text);
-            if (m_flags & VcsCommand::ShowStdOut) {
-                if (m_flags & VcsCommand::SilentOutput)
+            if (m_flags & RunFlags::ShowStdOut) {
+                if (m_flags & RunFlags::SilentOutput)
                     emit q->appendSilently(text);
                 else
                     emit q->append(text);
@@ -216,7 +216,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 
 EventLoopMode VcsCommandPrivate::eventLoopMode() const
 {
-    if ((m_flags & VcsCommand::UseEventLoop) && QThread::currentThread() == qApp->thread())
+    if ((m_flags & RunFlags::UseEventLoop) && QThread::currentThread() == qApp->thread())
         return EventLoopMode::On;
     return EventLoopMode::Off;
 }
@@ -225,9 +225,9 @@ void VcsCommandPrivate::handleDone(QtcProcess *process)
 {
     // Success/Fail message in appropriate window?
     if (process->result() == ProcessResult::FinishedWithSuccess) {
-        if (m_flags & VcsCommand::ShowSuccessMessage)
+        if (m_flags & RunFlags::ShowSuccessMessage)
             emit q->appendMessage(process->exitMessage());
-    } else if (!(m_flags & VcsCommand::SuppressFailMessage)) {
+    } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
         emit q->appendError(process->exitMessage());
     }
     emit q->runCommandFinished(process->workingDirectory());
@@ -303,7 +303,7 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
 
 void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 {
-    if (!(d->m_flags & VcsCommand::ExpectRepoChanges))
+    if (!(d->m_flags & RunFlags::ExpectRepoChanges))
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
@@ -324,7 +324,7 @@ void VcsCommand::setDisplayName(const QString &name)
     d->m_displayName = name;
 }
 
-void VcsCommand::addFlags(unsigned f)
+void VcsCommand::addFlags(RunFlags f)
 {
     d->m_flags |= f;
 }
@@ -345,7 +345,7 @@ void VcsCommand::start()
 
     d->startAll();
     d->m_watcher.setFuture(d->m_futureInterface.future());
-    if ((d->m_flags & VcsCommand::SuppressCommandLogging))
+    if ((d->m_flags & RunFlags::SuppressCommandLogging))
         return;
 
     const QString name = d->displayName();
@@ -385,7 +385,7 @@ ProcessResult VcsCommand::result() const
 
 CommandResult VcsCommand::runBlocking(const Utils::FilePath &workingDirectory,
                                       const Utils::Environment &environment,
-                                      const Utils::CommandLine &command, unsigned flags,
+                                      const Utils::CommandLine &command, RunFlags flags,
                                       int timeoutS, QTextCodec *codec)
 {
     VcsCommand vcsCommand(workingDirectory, environment);

@@ -90,9 +90,9 @@ namespace Internal {
 static GitClient *m_instance = nullptr;
 
 // Suppress git diff warnings about "LF will be replaced by CRLF..." on Windows.
-static unsigned diffExecutionFlags()
+static RunFlags diffExecutionFlags()
 {
-    return HostOsInfo::isWindowsHost() ? unsigned(VcsCommand::SuppressStdErr) : 0u;
+    return HostOsInfo::isWindowsHost() ? RunFlags::SuppressStdErr : RunFlags::None;
 }
 
 static QString branchesDisplay(const QString &prefix, QStringList *branches, bool *first)
@@ -728,7 +728,7 @@ public:
         auto handler = new ConflictHandler(workingDirectory, abortCommand);
         handler->setParent(command); // delete when command goes out of scope
 
-        command->addFlags(VcsCommand::ExpectRepoChanges);
+        command->addFlags(RunFlags::ExpectRepoChanges);
         connect(command, &VcsCommand::done, handler, [handler, command] {
             handler->readStdOut(command->cleanedStdOut());
             handler->readStdErr(command->cleanedStdErr());
@@ -905,7 +905,7 @@ QString GitClient::findGitDirForRepository(const FilePath &repositoryDir) const
 bool GitClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory,
-                                 {"ls-files", "--error-unmatch", fileName}, VcsCommand::NoOutput);
+                                 {"ls-files", "--error-unmatch", fileName}, RunFlags::NoOutput);
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -920,7 +920,7 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
         QStringList args({"ls-files", "-z"});
         const QDir wd(it.key().toString());
         args << transform(it.value(), [&wd](const QString &fp) { return wd.relativeFilePath(fp); });
-        const CommandResult result = vcsSynchronousExec(it.key(), args, VcsCommand::NoOutput);
+        const CommandResult result = vcsSynchronousExec(it.key(), args, RunFlags::NoOutput);
         if (result.result() != ProcessResult::FinishedWithSuccess)
             return filePaths;
         const QStringList managedFilePaths
@@ -1375,7 +1375,7 @@ VcsCommand *GitClient::checkout(const FilePath &workingDirectory, const QString 
     QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
     VcsCommand *command = vcsExec(
                 workingDirectory, arguments, nullptr, true,
-                VcsCommand::ExpectRepoChanges | VcsCommand::ShowSuccessMessage);
+                RunFlags::ExpectRepoChanges | RunFlags::ShowSuccessMessage);
     connect(command, &VcsCommand::done, this, [this, workingDirectory, stashMode, command] {
         if (stashMode == StashMode::TryStash)
             endStashScope(workingDirectory);
@@ -1464,7 +1464,7 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
     if (!commit.isEmpty())
         arguments << commit;
 
-    unsigned flags = VcsCommand::ShowSuccessMessage;
+    RunFlags flags = RunFlags::ShowSuccessMessage;
     if (argument == "--hard") {
         if (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules)) != StatusUnchanged) {
             if (QMessageBox::question(
@@ -1475,7 +1475,7 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
                 return;
             }
         }
-        flags |= VcsCommand::ExpectRepoChanges;
+        flags |= RunFlags::ExpectRepoChanges;
     }
     vcsExec(workingDirectory, arguments, nullptr, true, flags);
 }
@@ -1485,7 +1485,7 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
     const QStringList arguments = {"remote", "prune", remote};
 
     VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
-                                  VcsCommand::ShowSuccessMessage);
+                                  RunFlags::ShowSuccessMessage);
 
     connect(command, &VcsCommand::done, this, [workingDirectory, command] {
         if (command->result() == ProcessResult::FinishedWithSuccess)
@@ -1496,7 +1496,7 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
 void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory, {"ls-files", "--deleted"},
-                                                    VcsCommand::SuppressCommandLogging);
+                                                    RunFlags::SuppressCommandLogging);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         const QString stdOut = result.cleanedStdOut().trimmed();
         if (stdOut.isEmpty()) {
@@ -1515,7 +1515,7 @@ void GitClient::addFile(const FilePath &workingDirectory, const QString &fileNam
 }
 
 bool GitClient::synchronousLog(const FilePath &workingDirectory, const QStringList &arguments,
-                               QString *output, QString *errorMessageIn, unsigned flags)
+                               QString *output, QString *errorMessageIn, RunFlags flags)
 {
     QStringList allArguments = {"log", noColorOption};
 
@@ -1622,7 +1622,7 @@ bool GitClient::synchronousCheckoutFiles(const FilePath &workingDirectory, QStri
         arguments << revision;
     arguments << "--" << files;
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments,
-                                                    VcsCommand::ExpectRepoChanges);
+                                                    RunFlags::ExpectRepoChanges);
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return true;
 
@@ -1673,7 +1673,7 @@ bool GitClient::synchronousRevListCmd(const FilePath &workingDirectory, const QS
                                       QString *output, QString *errorMessage) const
 {
     const QStringList arguments = QStringList({"rev-list", noColorOption}) + extraArguments;
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, VcsCommand::NoOutput);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlags::NoOutput);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), errorMessage);
         return false;
@@ -1737,7 +1737,7 @@ QString GitClient::synchronousCurrentLocalBranch(const FilePath &workingDirector
 {
     QString branch;
     const CommandResult result = vcsSynchronousExec(workingDirectory, {"symbolic-ref", HEAD},
-                                                    VcsCommand::NoOutput);
+                                                    RunFlags::NoOutput);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         branch = result.cleanedStdOut().trimmed();
     } else {
@@ -1761,7 +1761,7 @@ bool GitClient::synchronousHeadRefs(const FilePath &workingDirectory, QStringLis
                                     QString *errorMessage) const
 {
     const QStringList arguments = {"show-ref", "--head", "--abbrev=10", "--dereference"};
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, VcsCommand::NoOutput);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlags::NoOutput);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), errorMessage);
         return false;
@@ -1810,7 +1810,7 @@ QString GitClient::synchronousTopic(const FilePath &workingDirectory) const
 
     // No tag or remote branch - try git describe
     const CommandResult result = vcsSynchronousExec(workingDirectory, QStringList{"describe"},
-                                                    VcsCommand::NoOutput);
+                                                    RunFlags::NoOutput);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         const QString stdOut = result.cleanedStdOut().trimmed();
         if (!stdOut.isEmpty())
@@ -1823,7 +1823,7 @@ bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const Q
                                        QString *output, QString *errorMessage) const
 {
     const QStringList arguments = {"rev-parse", ref};
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, VcsCommand::NoOutput);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlags::NoOutput);
     *output = result.cleanedStdOut().trimmed();
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return true;
@@ -1835,7 +1835,7 @@ bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const Q
 QString GitClient::synchronousTopRevision(const FilePath &workingDirectory, QDateTime *dateTime)
 {
     const QStringList arguments = {"show", "-s", "--pretty=format:%H:%ct", HEAD};
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, VcsCommand::NoOutput);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlags::NoOutput);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return QString();
     const QStringList output = result.cleanedStdOut().trimmed().split(':');
@@ -1850,14 +1850,14 @@ QString GitClient::synchronousTopRevision(const FilePath &workingDirectory, QDat
 bool GitClient::isRemoteCommit(const FilePath &workingDirectory, const QString &commit)
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory,
-                                 {"branch", "-r", "--contains", commit}, VcsCommand::NoOutput);
+                                 {"branch", "-r", "--contains", commit}, RunFlags::NoOutput);
     return !result.rawStdOut().isEmpty();
 }
 
 bool GitClient::isFastForwardMerge(const FilePath &workingDirectory, const QString &branch)
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory,
-                                 {"merge-base", HEAD, branch}, VcsCommand::NoOutput);
+                                 {"merge-base", HEAD, branch}, RunFlags::NoOutput);
     return result.cleanedStdOut().trimmed() == synchronousTopRevision(workingDirectory);
 }
 
@@ -1867,7 +1867,7 @@ QString GitClient::synchronousShortDescription(const FilePath &workingDirectory,
 {
     const QStringList arguments = {"log", noColorOption, ("--pretty=format:" + format),
                                    "--max-count=1", revision};
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, VcsCommand::NoOutput);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlags::NoOutput);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
                         .arg(revision, workingDirectory.toUserOutput(), result.cleanedStdErr()));
@@ -1944,9 +1944,9 @@ bool GitClient::executeSynchronousStash(const FilePath &workingDirectory,
         arguments << "--keep-index";
     if (!message.isEmpty())
         arguments << message;
-    const unsigned flags = VcsCommand::ShowStdOut
-                         | VcsCommand::ExpectRepoChanges
-                         | VcsCommand::ShowSuccessMessage;
+    const RunFlags flags = RunFlags::ShowStdOut
+                         | RunFlags::ExpectRepoChanges
+                         | RunFlags::ShowSuccessMessage;
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, flags);
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return true;
@@ -2008,7 +2008,7 @@ bool GitClient::synchronousForEachRefCmd(const FilePath &workingDirectory, QStri
                                       QString *output, QString *errorMessage) const
 {
     args.push_front("for-each-ref");
-    const CommandResult result = vcsSynchronousExec(workingDirectory, args, VcsCommand::NoOutput);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, args, RunFlags::NoOutput);
     *output = result.cleanedStdOut();
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return true;
@@ -2021,7 +2021,7 @@ bool GitClient::synchronousRemoteCmd(const FilePath &workingDirectory, QStringLi
 {
     remoteArgs.push_front("remote");
     const CommandResult result = vcsSynchronousExec(workingDirectory, remoteArgs,
-                                                    silent ? VcsCommand::NoOutput : 0);
+                                                    silent ? RunFlags::NoOutput : RunFlags::None);
     const QString stdErr = result.cleanedStdErr();
     *errorMessage = stdErr;
     *output = result.cleanedStdOut();
@@ -2063,7 +2063,7 @@ QStringList GitClient::synchronousSubmoduleStatus(const FilePath &workingDirecto
 {
     // get submodule status
     const CommandResult result = vcsSynchronousExec(workingDirectory, {"submodule", "status"},
-                                                    VcsCommand::NoOutput);
+                                                    RunFlags::NoOutput);
 
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         msgCannotRun(tr("Cannot retrieve submodule status of \"%1\": %2")
@@ -2136,7 +2136,7 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
 }
 
 QByteArray GitClient::synchronousShow(const FilePath &workingDirectory, const QString &id,
-                                      unsigned flags) const
+                                      RunFlags flags) const
 {
     if (!canShow(id)) {
         VcsOutputWindow::appendError(msgCannotShow(id));
@@ -2158,7 +2158,7 @@ bool GitClient::cleanList(const FilePath &workingDirectory, const QString &modul
     const FilePath directory = workingDirectory.pathAppended(modulePath);
     const QStringList arguments = {"clean", "--dry-run", flag};
 
-    const CommandResult result = vcsSynchronousExec(directory, arguments, VcsCommand::ForceCLocale);
+    const CommandResult result = vcsSynchronousExec(directory, arguments, RunFlags::ForceCLocale);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         msgCannotRun(arguments, directory, result.cleanedStdErr(), errorMessage);
         return false;
@@ -2315,7 +2315,7 @@ void GitClient::updateSubmodulesIfNeeded(const FilePath &workingDirectory, bool 
     }
 
     VcsCommand *cmd = vcsExec(workingDirectory, {"submodule", "update"}, nullptr, true,
-                              VcsCommand::ExpectRepoChanges);
+                              RunFlags::ExpectRepoChanges);
     connect(cmd, &VcsCommand::done, this, &GitClient::finishSubmoduleUpdate);
 }
 
@@ -2339,7 +2339,7 @@ GitClient::StatusResult GitClient::gitStatus(const FilePath &workingDirectory, S
         arguments << "--ignore-submodules=all";
     arguments << "--porcelain" << "-b";
 
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, VcsCommand::NoOutput);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlags::NoOutput);
     const QString stdOut = result.cleanedStdOut();
 
     if (output)
@@ -2483,7 +2483,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory,
                                  {"ls-remote", repositoryURL, HEAD, "refs/heads/*"},
-                                 VcsCommand::SuppressStdErr | VcsCommand::SuppressFailMessage);
+                                 RunFlags::SuppressStdErr | RunFlags::SuppressFailMessage);
     QStringList branches;
     branches << tr("<Detached HEAD>");
     QString headSha;
@@ -2708,7 +2708,7 @@ bool GitClient::readDataFromCommit(const FilePath &repoDirectory, const QString 
 {
     // Get commit data as "SHA1<lf>author<lf>email<lf>message".
     const QStringList arguments = {"log", "--max-count=1", "--pretty=format:%h\n%an\n%ae\n%B", commit};
-    const CommandResult result = vcsSynchronousExec(repoDirectory, arguments, VcsCommand::NoOutput);
+    const CommandResult result = vcsSynchronousExec(repoDirectory, arguments, RunFlags::NoOutput);
 
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         if (errorMessage) {
@@ -2756,7 +2756,7 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
     QString output;
     if (commitData.commitType == FixupCommit) {
         synchronousLog(repoDirectory, {HEAD, "--not", "--remotes", "-n1"}, &output, errorMessage,
-                       VcsCommand::SuppressCommandLogging);
+                       RunFlags::SuppressCommandLogging);
         if (output.isEmpty()) {
             *errorMessage = msgNoCommits(false);
             return false;
@@ -2967,7 +2967,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     }
 
     const CommandResult result = vcsSynchronousExec(repositoryDirectory, arguments,
-                                                    VcsCommand::UseEventLoop);
+                                                    RunFlags::UseEventLoop);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
         GitPlugin::updateCurrentBranch();
@@ -3091,7 +3091,7 @@ void GitClient::fetch(const FilePath &workingDirectory, const QString &remote)
 {
     QStringList const arguments = {"fetch", (remote.isEmpty() ? "--all" : remote)};
     VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
-                                  VcsCommand::ShowSuccessMessage);
+                                  RunFlags::ShowSuccessMessage);
     connect(command, &VcsCommand::done, this, [workingDirectory, command] {
         if (command->result() == ProcessResult::FinishedWithSuccess)
             GitPlugin::updateBranches(workingDirectory);
@@ -3102,9 +3102,9 @@ bool GitClient::executeAndHandleConflicts(const FilePath &workingDirectory,
                                           const QStringList &arguments,
                                           const QString &abortCommand) const
 {
-    const unsigned flags = VcsCommand::ShowStdOut
-                         | VcsCommand::ExpectRepoChanges
-                         | VcsCommand::ShowSuccessMessage;
+    const RunFlags flags = RunFlags::ShowStdOut
+                         | RunFlags::ExpectRepoChanges
+                         | RunFlags::ShowSuccessMessage;
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, flags);
     // Notify about changed files or abort the rebase.
     ConflictHandler::handleResponse(result, workingDirectory, abortCommand);
@@ -3140,7 +3140,7 @@ void GitClient::synchronousAbortCommand(const FilePath &workingDir, const QStrin
     }
 
     const CommandResult result = vcsSynchronousExec(workingDir, {abortCommand, "--abort"},
-                                 VcsCommand::ExpectRepoChanges | VcsCommand::ShowSuccessMessage);
+                                 RunFlags::ExpectRepoChanges | RunFlags::ShowSuccessMessage);
     VcsOutputWindow::append(result.cleanedStdOut());
 }
 
@@ -3225,7 +3225,7 @@ void GitClient::addFuture(const QFuture<void> &future)
 void GitClient::synchronousSubversionFetch(const FilePath &workingDirectory) const
 {
     vcsSynchronousExec(workingDirectory, {"svn", "fetch"},
-                       VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
+                       RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
 }
 
 void GitClient::subversionLog(const FilePath &workingDirectory) const
@@ -3247,7 +3247,7 @@ void GitClient::subversionLog(const FilePath &workingDirectory) const
 
 void GitClient::subversionDeltaCommit(const FilePath &workingDirectory) const
 {
-    vcsExec(workingDirectory, {"svn", "dcommit"}, nullptr, true, VcsCommand::ShowSuccessMessage);
+    vcsExec(workingDirectory, {"svn", "dcommit"}, nullptr, true, RunFlags::ShowSuccessMessage);
 }
 
 class PushHandler : public QObject
@@ -3257,7 +3257,7 @@ public:
         : m_gitClient(gitClient)
     {
         VcsCommand *command = gitClient->vcsExec(workingDir, QStringList({"push"}) + pushArgs,
-                                                 nullptr, true, VcsCommand::ShowSuccessMessage);
+                                                 nullptr, true, RunFlags::ShowSuccessMessage);
         // Make command a parent of this in order to delete this when command is deleted
         setParent(command);
         connect(command, &VcsCommand::done, this, [=] {
@@ -3284,7 +3284,7 @@ public:
                 }
                 VcsCommand *rePushCommand = m_gitClient->vcsExec(workingDir,
                            QStringList({"push", "--force-with-lease"}) + pushArgs,
-                           nullptr, true, VcsCommand::ShowSuccessMessage);
+                           nullptr, true, RunFlags::ShowSuccessMessage);
                 connect(rePushCommand, &VcsCommand::done, this, [rePushCommand] {
                     if (rePushCommand->result() == ProcessResult::FinishedWithSuccess)
                         GitPlugin::updateCurrentBranch();
@@ -3306,7 +3306,7 @@ public:
             const QStringList fallbackCommandParts =
                     pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
             VcsCommand *rePushCommand = m_gitClient->vcsExec(workingDir,
-                    fallbackCommandParts.mid(1), nullptr, true, VcsCommand::ShowSuccessMessage);
+                    fallbackCommandParts.mid(1), nullptr, true, RunFlags::ShowSuccessMessage);
             connect(rePushCommand, &VcsCommand::done, this, [workingDir, rePushCommand] {
                 if (rePushCommand->result() == ProcessResult::FinishedWithSuccess)
                     GitPlugin::updateBranches(workingDir);
@@ -3398,7 +3398,7 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
     if (abortCommand.isEmpty())
         abortCommand = arguments.at(0);
     VcsCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
-    command->addFlags(VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
+    command->addFlags(RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
     command->addJob({vcsBinary(), arguments}, isRebase ? 0 : vcsTimeoutS());
@@ -3464,7 +3464,7 @@ void GitClient::stashPop(const FilePath &workingDirectory, const QString &stash)
     if (!stash.isEmpty())
         arguments << stash;
     VcsCommand *cmd = vcsExec(workingDirectory, arguments, nullptr, true,
-                              VcsCommand::ExpectRepoChanges);
+                              RunFlags::ExpectRepoChanges);
     ConflictHandler::attachToCommand(cmd, workingDirectory);
 }
 
@@ -3508,7 +3508,7 @@ bool GitClient::synchronousStashList(const FilePath &workingDirectory, QList<Sta
 
     const QStringList arguments = {"stash", "list", noColorOption};
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments,
-                                                    VcsCommand::ForceCLocale);
+                                                    RunFlags::ForceCLocale);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), errorMessage);
         return false;
@@ -3554,7 +3554,7 @@ QString GitClient::readOneLine(const FilePath &workingDirectory, const QStringLi
             : QTextCodec::codecForLocale();
 
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments,
-                                                    VcsCommand::NoOutput, vcsTimeoutS(), codec);
+                                                    RunFlags::NoOutput, vcsTimeoutS(), codec);
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return result.cleanedStdOut().trimmed();
     return {};
@@ -3742,7 +3742,7 @@ QString GitClient::suggestedLocalBranchName(
     } else {
         QString subject;
         instance()->synchronousLog(workingDirectory, {"-n", "1", "--format=%s", target},
-                                   &subject, nullptr, VcsCommand::NoOutput);
+                                   &subject, nullptr, RunFlags::NoOutput);
         initialName = subject.trimmed();
     }
     QString suggestedName = initialName;
