@@ -1084,8 +1084,7 @@ bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString 
     args << SubversionClient::addAuthenticationOptions(m_settings);
     args << QDir::toNativeSeparators(SubversionClient::escapeFile(from))
          << QDir::toNativeSeparators(SubversionClient::escapeFile(to));
-    const auto response = runSvn(workingDir, args,
-                                 VcsCommand::ShowStdOut | VcsCommand::FullySynchronously);
+    const auto response = runSvn(workingDir, args, VcsCommand::ShowStdOut);
     return !response.error;
 }
 
