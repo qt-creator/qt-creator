@@ -70,11 +70,7 @@ private:
     bool m_exists;
 };
 
-class FileList : public QList<File *>
-{
-public:
-    bool containsFile(File *file);
-};
+using FileList = QList<File *>;
 
 /*!
     \class Prefix
