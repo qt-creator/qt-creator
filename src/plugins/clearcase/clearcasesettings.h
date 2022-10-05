@@ -28,8 +28,6 @@ public:
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
 
-    inline int longTimeOutS() const { return timeOutS * 10; }
-
     bool equals(const ClearCaseSettings &s) const;
 
     friend bool operator==(const ClearCaseSettings &p1, const ClearCaseSettings &p2)
