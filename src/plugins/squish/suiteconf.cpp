@@ -189,7 +189,7 @@ Utils::FilePath SuiteConf::objectMapPath() const
     if (m_objectMapStyle == "script")
         return suiteDir.resolvePath("shared/scripts/names" + scriptExtension());
 
-    return suiteDir.resolvePath(m_objectMap);
+    return suiteDir.resolvePath(m_objectMap.isEmpty() ? QString{"objects.map"} : m_objectMap);
 }
 
 QString SuiteConf::scriptExtension() const

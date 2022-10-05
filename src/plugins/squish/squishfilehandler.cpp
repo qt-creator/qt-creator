@@ -465,13 +465,15 @@ void SquishFileHandler::openObjectsMap(const QString &suiteName)
 
     const SuiteConf conf = SuiteConf::readSuiteConf(m_suites.value(suiteName));
     const Utils::FilePath objectsMapPath = conf.objectMapPath();
-    if (objectsMapPath.exists()) {
-        if (!Core::EditorManager::openEditor(objectsMapPath, Constants::OBJECTSMAP_EDITOR_ID)) {
-            QMessageBox::critical(Core::ICore::dialogParent(),
-                                  Tr::tr("Error"),
-                                  Tr::tr("Failed to open objects.map file at \"%1\".")
-                                      .arg(objectsMapPath.toUserOutput()));
-        }
+    QTC_ASSERT(!objectsMapPath.isEmpty(), return);
+
+    QTC_ASSERT(conf.ensureObjectMapExists(), return);
+
+    if (!Core::EditorManager::openEditor(objectsMapPath, Constants::OBJECTSMAP_EDITOR_ID)) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              Tr::tr("Error"),
+                              Tr::tr("Failed to open objects.map file at \"%1\".")
+                                  .arg(objectsMapPath.toUserOutput()));
     }
 }
 
