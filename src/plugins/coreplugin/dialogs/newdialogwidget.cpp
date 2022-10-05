@@ -167,6 +167,7 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
     , m_templateDescription(new QTextBrowser)
 
 {
+    setObjectName("Core.NewDialog");
     setAttribute(Qt::WA_DeleteOnClose);
     ICore::registerWindow(this, Context("Core.NewDialog"));
     resize(880, 520);
