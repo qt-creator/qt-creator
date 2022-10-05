@@ -821,8 +821,7 @@ QString IDevice::defaultPublicKeyFilePath()
 
 bool IDevice::ensureReachable(const FilePath &other) const
 {
-    Q_UNUSED(other)
-    return false;
+    return handlesFile(other); // Some first approximation.
 }
 
 bool IDevice::prepareForBuild(const Target *target)
