@@ -321,7 +321,7 @@ void ResourceTopLevelNode::addInternalNodes()
             QString parentFolderName;
             PrefixFolderLang folderId(prefix, QString(), lang);
             QStringList currentPathList;
-            foreach (const QString &pathElement, pathList) {
+            for (const QString &pathElement : qAsConst(pathList)) {
                 currentPathList << pathElement;
                 const QString folderName = currentPathList.join(QLatin1Char('/'));
                 folderId = PrefixFolderLang(prefix, folderName, lang);
