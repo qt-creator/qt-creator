@@ -13,6 +13,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
@@ -342,6 +343,7 @@ void SquishFileHandler::runTestCase(const QString &suiteName, const QString &tes
         return;
     }
 
+    ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles();
     SquishTools::instance()->runTestCases(suitePath.absolutePath(), QStringList(testCaseName));
 }
 
@@ -371,6 +373,7 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
                                  .arg(suiteName));
         return;
     }
+    ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles();
     SquishTools::instance()->runTestCases(suitePath.absolutePath(), testCases);
 }
 
