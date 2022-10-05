@@ -125,8 +125,6 @@ signals:
     void stdErrText(const QString &);
     void done();
 
-    void terminate(); // Internal
-
     void append(const QString &text);
     void appendSilently(const QString &text);
     void appendError(const QString &text);

@@ -363,11 +363,9 @@ void VcsCommand::cancel()
         // TODO: we may want to call cancel here...
         d->m_process->stop();
         // TODO: we may want to not wait here...
-        // However, VcsBaseDiffEditorController::runCommand() relies on getting finished() signal
         d->m_process->waitForFinished();
         d->m_process.reset();
     }
-    emit terminate();
 }
 
 QString VcsCommand::cleanedStdOut() const
@@ -394,13 +392,7 @@ CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
     d->setupProcess(&process, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
 
     const EventLoopMode eventLoopMode = d->eventLoopMode();
-    if (eventLoopMode == EventLoopMode::On) {
-        connect(this, &VcsCommand::terminate, &process, [&process] {
-            process.stop();
-            process.waitForFinished();
-        });
-        process.setTimeOutMessageBoxEnabled(true);
-    }
+    process.setTimeOutMessageBoxEnabled(eventLoopMode == EventLoopMode::On);
     process.runBlocking(eventLoopMode);
     d->handleDone(&process);
 
