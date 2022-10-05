@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include "filepathinfo.h"
 #include "osspecificaspects.h"
 
 #include <QDir>
@@ -36,7 +37,7 @@ public:
                    const QDir::Filters fileFilters = QDir::NoFilter,
                    const QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags);
 
-    QStringList asFindArguments() const;
+    QStringList asFindArguments(const QString &path) const;
 
     const QStringList nameFilters;
     const QDir::Filters fileFilters = QDir::NoFilter;
@@ -119,6 +120,7 @@ public:
     FilePaths dirEntries(QDir::Filters filters) const;
     std::optional<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
     bool writeFileContents(const QByteArray &data, qint64 offset = 0) const;
+    FilePathInfo filePathInfo() const;
 
     bool operator==(const FilePath &other) const;
     bool operator!=(const FilePath &other) const;
@@ -151,10 +153,17 @@ public:
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
-    void iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
+
+    using IterateDirCallback = std::function<bool(const FilePath &item)>;
+    using IterateDirWithInfoCallback
+        = std::function<bool(const FilePath &item, const FilePathInfo &info)>;
+
+    void iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const;
+    void iterateDirectory(const IterateDirWithInfoCallback &callBack,
                           const FileFilter &filter) const;
+
     static void iterateDirectories(const FilePaths &dirs,
-                                   const std::function<bool(const FilePath &item)> &callBack,
+                                   const IterateDirCallback &callBack,
                                    const FileFilter &filter);
 
     enum PathAmending { AppendToPath, PrependToPath };
@@ -258,8 +267,13 @@ public:
     std::function<FilePath(const FilePath &)> symLinkTarget;
     std::function<QString(const FilePath &)> mapToDevicePath;
     std::function<void(const FilePath &,
-                       const std::function<bool(const FilePath &)> &, // Abort on 'false' return.
-                       const FileFilter &)> iterateDirectory;
+                       const FilePath::IterateDirCallback &, // Abort on 'false' return.
+                       const FileFilter &)>
+        iterateDirectory;
+    std::function<void(const FilePath &,
+                       const FilePath::IterateDirWithInfoCallback &, // Abort on 'false' return.
+                       const FileFilter &)>
+        iterateDirectoryWithInfo;
     std::function<std::optional<QByteArray>(const FilePath &, qint64, qint64)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &, qint64)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
@@ -271,6 +285,7 @@ public:
     std::function<qint64(const FilePath &)> bytesAvailable;
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<bool(const FilePath &, const FilePath &)> isSameDevice;
+    std::function<FilePathInfo(const FilePath &)> filePathInfo;
 
 
     template <class ...Args> using Continuation = std::function<void(Args...)>;

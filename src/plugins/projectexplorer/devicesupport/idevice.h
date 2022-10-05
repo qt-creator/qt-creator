@@ -238,14 +238,20 @@ public:
                                              const Utils::FilePaths &dirs) const;
     virtual Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const;
     virtual void iterateDirectory(const Utils::FilePath &filePath,
-                                  const std::function<bool(const Utils::FilePath &)> &callBack,
+                                  const Utils::FilePath::IterateDirCallback &callBack,
                                   const Utils::FileFilter &filter) const;
+
+    virtual void iterateDirectory(const Utils::FilePath &filePath,
+                                  const Utils::FilePath::IterateDirWithInfoCallback &callBack,
+                                  const Utils::FileFilter &filter) const;
+
     virtual std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
                                                    qint64 limit,
                                                    qint64 offset) const;
     virtual bool writeFileContents(const Utils::FilePath &filePath,
                                    const QByteArray &data,
                                    qint64 offset) const;
+    virtual Utils::FilePathInfo filePathInfo(const Utils::FilePath &filePath) const;
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
     virtual bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const;

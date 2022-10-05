@@ -356,13 +356,22 @@ FilePath IDevice::symLinkTarget(const FilePath &filePath) const
 }
 
 void IDevice::iterateDirectory(const FilePath &filePath,
-                               const std::function<bool(const FilePath &)> &callBack,
+                               const FilePath::IterateDirCallback &callBack,
                                const FileFilter &filter) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(callBack);
     Q_UNUSED(filter);
     QTC_CHECK(false);
+}
+
+void IDevice::iterateDirectory(const FilePath &filePath,
+                               const FilePath::IterateDirWithInfoCallback &callBack,
+                               const FileFilter &filter) const
+{
+    iterateDirectory(filePath, [callBack](const FilePath &path) {
+        return callBack(path, path.filePathInfo());
+    }, filter);
 }
 
 std::optional<QByteArray> IDevice::fileContents(const FilePath &filePath,
@@ -391,6 +400,28 @@ bool IDevice::writeFileContents(const FilePath &filePath, const QByteArray &data
     Q_UNUSED(offset);
     QTC_CHECK(false);
     return {};
+}
+
+FilePathInfo IDevice::filePathInfo(const Utils::FilePath &filePath) const
+{
+    bool exists = filePath.exists();
+    if (!exists)
+        return {};
+
+    FilePathInfo result {
+        filePath.fileSize(),
+        {FilePathInfo::ExistsFlag},
+        filePath.lastModified(),
+    };
+
+    if (filePath.isDir())
+        result.fileFlags |= FilePathInfo::DirectoryType;
+    if (filePath.isFile())
+        result.fileFlags |= FilePathInfo::FileType;
+    if (filePath.isRootPath())
+        result.fileFlags |= FilePathInfo::RootFlag;
+
+    return result;
 }
 
 void IDevice::asyncWriteFileContents(const Continuation<bool> &cont,
