@@ -191,7 +191,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     }
 
     // Make sure we an absolute path:
-    const FilePath directory = fixedDir(inputDirectory.absolutePath());
+    const FilePath directory = fixedDir(inputDirectory.absoluteFilePath());
     auto cachedData = d->findInCache(directory);
     if (cachedData) {
         if (topLevelDirectory)
