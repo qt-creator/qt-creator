@@ -46,6 +46,8 @@ public:
     using WidgetCreator = std::function<IOptionsPageWidget *()>;
     void setWidgetCreator(const WidgetCreator &widgetCreator);
 
+    QStringList keywords() const;
+
     virtual bool matches(const QRegularExpression &regexp) const;
     virtual QWidget *widget();
     virtual void apply();

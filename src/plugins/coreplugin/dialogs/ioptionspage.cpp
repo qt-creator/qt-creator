@@ -92,6 +92,34 @@ void IOptionsPage::setWidgetCreator(const WidgetCreator &widgetCreator)
 }
 
 /*!
+    \fn QStringList Core::IOptionsPage::keywords() const
+
+    Returns a list of ui strings that are used inside the widget.
+*/
+
+QStringList IOptionsPage::keywords() const
+{
+    if (!m_keywordsInitialized) {
+        auto that = const_cast<IOptionsPage *>(this);
+        QWidget *widget = that->widget();
+        if (!widget)
+            return {};
+        // find common subwidgets
+        for (const QLabel *label : widget->findChildren<QLabel *>())
+            m_keywords << Utils::stripAccelerator(label->text());
+        for (const QCheckBox *checkbox : widget->findChildren<QCheckBox *>())
+            m_keywords << Utils::stripAccelerator(checkbox->text());
+        for (const QPushButton *pushButton : widget->findChildren<QPushButton *>())
+            m_keywords << Utils::stripAccelerator(pushButton->text());
+        for (const QGroupBox *groupBox : widget->findChildren<QGroupBox *>())
+            m_keywords << Utils::stripAccelerator(groupBox->title());
+
+        m_keywordsInitialized = true;
+    }
+    return m_keywords;
+}
+
+/*!
     Returns the widget to show in the \uicontrol Options dialog. You should create a widget lazily here,
     and delete it again in the finish() method. This method can be called multiple times, so you
     should only create a new widget if the old one was deleted.
@@ -242,24 +270,7 @@ const QList<IOptionsPage *> IOptionsPage::allOptionsPages()
 */
 bool IOptionsPage::matches(const QRegularExpression &regexp) const
 {
-    if (!m_keywordsInitialized) {
-        auto that = const_cast<IOptionsPage *>(this);
-        QWidget *widget = that->widget();
-        if (!widget)
-            return false;
-        // find common subwidgets
-        for (const QLabel *label : widget->findChildren<QLabel *>())
-            m_keywords << Utils::stripAccelerator(label->text());
-        for (const QCheckBox *checkbox : widget->findChildren<QCheckBox *>())
-            m_keywords << Utils::stripAccelerator(checkbox->text());
-        for (const QPushButton *pushButton : widget->findChildren<QPushButton *>())
-            m_keywords << Utils::stripAccelerator(pushButton->text());
-        for (const QGroupBox *groupBox : widget->findChildren<QGroupBox *>())
-            m_keywords << Utils::stripAccelerator(groupBox->title());
-
-        m_keywordsInitialized = true;
-    }
-    for (const QString &keyword : qAsConst(m_keywords))
+    for (const QString &keyword : keywords())
         if (keyword.contains(regexp))
             return true;
     return false;
