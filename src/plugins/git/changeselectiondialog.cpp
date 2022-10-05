@@ -42,15 +42,18 @@ ChangeSelectionDialog::ChangeSelectionDialog(const FilePath &workingDirectory, I
 
     resize(550, 350);
     setWindowTitle(tr("Select a Git Commit"));
+    setObjectName("Git.ChangeSelectionDialog");
 
     m_workingDirectoryChooser = new PathChooser(this);
 
     m_changeNumberEdit = new CompletingLineEdit(this);
+    m_changeNumberEdit->setObjectName("changeNumberEdit");
     m_changeNumberEdit->setText(tr("HEAD"));
     m_changeNumberEdit->setFocus();
     m_changeNumberEdit->selectAll();
 
     m_detailsText = new QPlainTextEdit(this);
+    m_detailsText->setObjectName("detailsText");
     m_detailsText->setUndoRedoEnabled(false);
     m_detailsText->setLineWrapMode(QPlainTextEdit::NoWrap);
     m_detailsText->setReadOnly(true);
@@ -63,6 +66,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const FilePath &workingDirectory, I
     m_revertButton = new QPushButton(tr("&Revert"));
     m_cherryPickButton = new QPushButton(tr("Cherry &Pick"));
     m_showButton = new QPushButton(tr("&Show"));
+    m_showButton->setObjectName("showButton");
 
     m_workingDirectoryChooser->setExpectedKind(PathChooser::ExistingDirectory);
     m_workingDirectoryChooser->setPromptDialogTitle(tr("Select Git Directory"));
