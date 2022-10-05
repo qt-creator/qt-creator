@@ -136,7 +136,7 @@ QList<TodoItem> LineParser::todoItemsFromKeywordEntries(const QList<KeywordEntry
 {
     QList<TodoItem> todoItems;
 
-    foreach (const KeywordEntry &entry, entries) {
+    for (const KeywordEntry &entry : entries) {
         TodoItem item;
         item.text =  m_keywords.at(entry.keywordIndex).name + entry.text;
         item.color = m_keywords.at(entry.keywordIndex).color;

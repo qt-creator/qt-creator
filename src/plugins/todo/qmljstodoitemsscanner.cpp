@@ -26,7 +26,8 @@ QmlJsTodoItemsScanner::QmlJsTodoItemsScanner(const KeywordList &keywordList, QOb
 bool QmlJsTodoItemsScanner::shouldProcessFile(const Utils::FilePath &fileName)
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    foreach (const QmlJS::ModelManagerInterface::ProjectInfo &info, modelManager->projectInfos()) {
+    const QList<QmlJS::ModelManagerInterface::ProjectInfo> infoList = modelManager->projectInfos();
+    for (const QmlJS::ModelManagerInterface::ProjectInfo &info : infoList) {
         if (info.sourceFiles.contains(fileName))
             return true;
     }
@@ -58,7 +59,8 @@ void QmlJsTodoItemsScanner::processDocument(QmlJS::Document::Ptr doc)
 {
     QList<TodoItem> itemList;
 
-    foreach (const QmlJS::SourceLocation &sourceLocation, doc->engine()->comments()) {
+    const QList<QmlJS::SourceLocation> sourceLocations = doc->engine()->comments();
+    for (const QmlJS::SourceLocation &sourceLocation :  sourceLocations) {
         QString source = doc->source().mid(sourceLocation.begin(), sourceLocation.length).trimmed();
 
         // Process every line
