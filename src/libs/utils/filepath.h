@@ -36,6 +36,8 @@ public:
                    const QDir::Filters fileFilters = QDir::NoFilter,
                    const QDirIterator::IteratorFlags flags = QDirIterator::NoIteratorFlags);
 
+    QStringList asFindArguments() const;
+
     const QStringList nameFilters;
     const QDir::Filters fileFilters = QDir::NoFilter;
     const QDirIterator::IteratorFlags iteratorFlags = QDirIterator::NoIteratorFlags;
