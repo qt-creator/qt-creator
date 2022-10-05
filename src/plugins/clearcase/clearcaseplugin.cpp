@@ -254,7 +254,6 @@ private:
     QString findTopLevel(const FilePath &directory) const;
     IEditor *showOutputInEditor(const QString& title, const QString &output, Id id,
                                 const QString &source, QTextCodec *codec) const;
-    QString runCleartoolSync(const FilePath &workingDir, const QStringList &arguments) const;
     CommandResult runCleartoolProc(const FilePath &workingDir,
                                    const QStringList &arguments) const;
     CommandResult runCleartool(const FilePath &workingDir, const QStringList &arguments,
@@ -428,12 +427,8 @@ FileStatus::Status ClearCasePluginPrivate::getFileStatus(const QString &fileName
     QTC_CHECK(!fileName.isEmpty());
 
     const QDir viewRootDir = QFileInfo(fileName).dir();
-    const QString viewRoot = viewRootDir.path();
-
-    QStringList args(QLatin1String("ls"));
-    args << fileName;
-    QString buffer = runCleartoolSync(FilePath::fromString(viewRoot), args);
-
+    const QString buffer = runCleartoolProc(FilePath::fromString(viewRootDir.path()),
+                                            {"ls", fileName}).cleanedStdOut();
     const int atatpos = buffer.indexOf(QLatin1String("@@"));
     if (atatpos != -1) { // probably a managed file
         const QString absFile =
@@ -1142,8 +1137,8 @@ void ClearCasePluginPrivate::undoHijackCurrent()
     bool keep = false;
     bool askKeep = true;
     if (m_settings.extDiffAvailable) {
-        QString diffres = diffExternal(ccGetFileVersion(state.topLevel(), fileName), fileName);
-        if (diffres.at(0) == QLatin1Char('F')) // Files are identical
+        const QString result = diffExternal(ccGetFileVersion(state.topLevel(), fileName), fileName);
+        if (!result.isEmpty() && result.front() == QLatin1Char('F')) // Files are identical
             askKeep = false;
     }
     if (askKeep) {
@@ -1165,9 +1160,7 @@ void ClearCasePluginPrivate::undoHijackCurrent()
 
 QString ClearCasePluginPrivate::ccGetFileVersion(const FilePath &workingDir, const QString &file) const
 {
-    QStringList args(QLatin1String("ls"));
-    args << QLatin1String("-short") << file;
-    return runCleartoolSync(workingDir, args).trimmed();
+    return runCleartoolProc(workingDir, {"ls", "-short", file}).cleanedStdOut().trimmed();
 }
 
 void ClearCasePluginPrivate::ccDiffWithPred(const FilePath &workingDir, const QStringList &files)
@@ -1625,12 +1618,6 @@ void ClearCasePluginPrivate::commitFromEditor()
     EditorManager::closeDocuments({submitEditor()->document()});
 }
 
-QString ClearCasePluginPrivate::runCleartoolSync(const FilePath &workingDir,
-                                                 const QStringList &arguments) const
-{
-    return runCleartoolProc(workingDir, arguments).cleanedStdOut();
-}
-
 CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDir,
                                                        const QStringList &arguments) const
 {
@@ -2007,10 +1994,8 @@ bool ClearCasePluginPrivate::managesDirectory(const FilePath &directory, FilePat
 
 QString ClearCasePluginPrivate::ccGetCurrentActivity() const
 {
-    QStringList args(QLatin1String("lsactivity"));
-    args << QLatin1String("-cact");
-    args << QLatin1String("-fmt") << QLatin1String("%n");
-    return runCleartoolSync(currentState().topLevel(), args);
+    return runCleartoolProc(currentState().topLevel(), {"lsactivity", "-cact", "-fmt", "%n"})
+            .cleanedStdOut();
 }
 
 QList<QStringPair> ClearCasePluginPrivate::ccGetActivities() const
@@ -2020,9 +2005,8 @@ QList<QStringPair> ClearCasePluginPrivate::ccGetActivities() const
     QStringPair rebaseAct;
     QStringPair deliverAct;
     // Retrieve all activities
-    QStringList args(QLatin1String("lsactivity"));
-    args << QLatin1String("-fmt") << QLatin1String("%n\\t%[headline]p\\n");
-    const QString response = runCleartoolSync(currentState().topLevel(), args);
+    const QString response = runCleartoolProc(currentState().topLevel(),
+                             {"lsactivity", "-fmt", "%n\\t%[headline]p\\n"}).cleanedStdOut();
     const QStringList acts = response.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
     for (const QString &activity : acts) {
         QStringList act = activity.split(QLatin1Char('\t'));
@@ -2102,10 +2086,8 @@ bool ClearCasePluginPrivate::newActivity()
 // check if the view is UCM
 bool ClearCasePluginPrivate::ccCheckUcm(const QString &viewname, const FilePath &workingDir) const
 {
-    QStringList catcsArgs(QLatin1String("catcs"));
-    catcsArgs << QLatin1String("-tag") << viewname;
-    QString catcsData = runCleartoolSync(workingDir, catcsArgs);
-
+    const QString catcsData = runCleartoolProc(workingDir,
+                                               {"catcs", "-tag", viewname}).cleanedStdOut();
     // check output for the word "ucm"
     return catcsData.indexOf(QRegularExpression("(^|\\n)ucm\\n")) != -1;
 }
@@ -2124,9 +2106,7 @@ ViewData ClearCasePluginPrivate::ccGetView(const FilePath &workingDir) const
     bool inCache = viewCache.contains(workingDir);
     ViewData &res = viewCache[workingDir];
     if (!inCache) {
-        QStringList args(QLatin1String("lsview"));
-        args << QLatin1String("-cview");
-        QString data = runCleartoolSync(workingDir, args);
+        const QString data = runCleartoolProc(workingDir, {"lsview", "-cview"}).cleanedStdOut();
         res.isDynamic = !data.isEmpty() && (data.at(0) == QLatin1Char('*'));
         res.name = data.mid(2, data.indexOf(QLatin1Char(' '), 2) - 2);
         res.isUcm = ccCheckUcm(res.name, workingDir);
@@ -2138,20 +2118,17 @@ ViewData ClearCasePluginPrivate::ccGetView(const FilePath &workingDir) const
 
 QString ClearCasePluginPrivate::ccGetComment(const FilePath &workingDir, const QString &fileName) const
 {
-    QStringList args(QLatin1String("describe"));
-    args << QLatin1String("-fmt") << QLatin1String("%c") << fileName;
-    return runCleartoolSync(workingDir, args);
+    return runCleartoolProc(workingDir, {"describe", "-fmt", "%c", fileName}).cleanedStdOut();
 }
 
 void ClearCasePluginPrivate::updateStreamAndView()
 {
-    QStringList args(QLatin1String("lsstream"));
-    args << QLatin1String("-fmt") << QLatin1String("%n\\t%[def_deliver_tgt]Xp");
-    const QString sresponse = runCleartoolSync(m_topLevel, args);
-    int tabPos = sresponse.indexOf(QLatin1Char('\t'));
-    m_stream = sresponse.left(tabPos);
+    const QString result = runCleartoolProc(m_topLevel,
+                           {"lsstream", "-fmt", "%n\\t%[def_deliver_tgt]Xp"}).cleanedStdOut();
+    const int tabPos = result.indexOf(QLatin1Char('\t'));
+    m_stream = result.left(tabPos);
     const QRegularExpression intStreamExp("stream:([^@]*)");
-    const QRegularExpressionMatch match = intStreamExp.match(sresponse.mid(tabPos + 1));
+    const QRegularExpressionMatch match = intStreamExp.match(result.mid(tabPos + 1));
     if (match.hasMatch())
         m_intStream = match.captured(1);
     m_viewData = ccGetView(m_topLevel);
