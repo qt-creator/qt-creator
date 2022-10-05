@@ -22,16 +22,22 @@ function(setup_dependencies_component)
       set(_elfutils_arg "--elfutils \"${_elfutils_path}\"")
     endif()
     install(CODE "
-        set(_ide_app_target \"\${CMAKE_INSTALL_PREFIX}/${IDE_APP_PATH}/${IDE_APP_TARGET}${CMAKE_EXECUTABLE_SUFFIX}\")
+        # DESTDIR is set for e.g. the cpack DEB generator, but is empty in other situations
+        if(DEFINED ENV{DESTDIR})
+          set(DESTDIR_WITH_SEP \"\$ENV{DESTDIR}/\")
+        else()
+          set(DESTDIR_WITH_SEP \"\")
+        endif()
+        set(_default_app_target \"\${DESTDIR_WITH_SEP}\${CMAKE_INSTALL_PREFIX}/${IDE_APP_PATH}/${IDE_APP_TARGET}${CMAKE_EXECUTABLE_SUFFIX}\")
+        set(_ide_app_target \"\${_default_app_target}\")
         if (NOT EXISTS \"\${_ide_app_target}\")
           # The component CPack generators (WIX, NSIS64, IFW) install every component with their own CMAKE_INSTALL_PREFIX
           # directory and since deployqt.py needs the path to IDE_APP_TARGET the line below is needeed
           string(REPLACE \"Dependencies\" \"${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}\" _ide_app_target \"\${_ide_app_target}\")
         endif()
         if (NOT EXISTS \"\${_ide_app_target}\")
-          # On Linux with the DEB generator the CMAKE_INSTALL_PREFIX is relative and the DESTDIR environment variable is needed
-          # to point out to the IDE_APP_TARGET binary
-          set(_ide_app_target \"\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${IDE_APP_PATH}/${IDE_APP_TARGET}${CMAKE_EXECUTABLE_SUFFIX}\")
+          # something went wrong, reset to default and hope for the best
+          set(_ide_app_target \"\${_default_app_target}\")
         endif()
         execute_process(COMMAND
           \"${Python3_EXECUTABLE}\"
