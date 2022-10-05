@@ -250,7 +250,7 @@ void DocSettingsPageWidget::addDocumentation()
             QSet<QString> values = Utils::toSet(m_filesToUnregister.values(nameSpace));
             values.remove(filePath);
             m_filesToUnregister.remove(nameSpace);
-            foreach (const QString &value, values)
+            for (const QString &value : qAsConst(values))
                 m_filesToUnregister.insert(nameSpace, value);
         }
     }
@@ -259,7 +259,8 @@ void DocSettingsPageWidget::addDocumentation()
     if (docsUnableToRegister.contains("UnknownNamespace")) {
         formatedFail += QString::fromLatin1("<ul><li><b>%1</b>")
                             .arg(Tr::tr("Invalid documentation file:"));
-        foreach (const QString &value, docsUnableToRegister.values("UnknownNamespace"))
+        const QStringList values = docsUnableToRegister.values("UnknownNamespace");
+        for (const QString &value : values)
             formatedFail += QString::fromLatin1("<ul><li>%2</li></ul>").arg(value);
         formatedFail += "</li></ul>";
         docsUnableToRegister.remove("UnknownNamespace");
