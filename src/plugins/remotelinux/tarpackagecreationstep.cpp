@@ -379,9 +379,9 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
         return false;
     }
     if (fileInfo.isDir()) {
-        QDir dir(fileInfo.absoluteFilePath());
-        foreach (const QString &fileName,
-                 dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
+        const QDir dir(fileInfo.absoluteFilePath());
+        const QStringList files = dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+        for (const QString &fileName : files) {
             const QString thisLocalFilePath = dir.path() + QLatin1Char('/') + fileName;
             const QString thisRemoteFilePath  = remoteFilePath + QLatin1Char('/') + fileName;
             if (!appendFile(tarFile, QFileInfo(thisLocalFilePath), thisRemoteFilePath))
