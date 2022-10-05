@@ -113,6 +113,8 @@ void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
 
 FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
 {
+    if (dir.needsDevice())
+        return dir;
     if (HostOsInfo::isWindowsHost() && !dir.startsWithDriveLetter())
         return {};
     const QString dirString = dir.toString().toLower();
