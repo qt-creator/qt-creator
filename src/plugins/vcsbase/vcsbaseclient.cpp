@@ -137,11 +137,8 @@ CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
 CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
               const CommandLine &cmdLine, unsigned flags, int timeoutS, QTextCodec *codec) const
 {
-    VcsCommand command(workingDir, processEnvironment());
-    command.addFlags(flags);
-    if (codec)
-        command.setCodec(codec);
-    return command.runCommand(cmdLine, timeoutS > 0 ? timeoutS : vcsTimeoutS());
+    return VcsCommand::runBlocking(workingDir, processEnvironment(), cmdLine, flags,
+                                   timeoutS > 0 ? timeoutS : vcsTimeoutS(), codec);
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const FilePath &workingDir)

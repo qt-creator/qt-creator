@@ -383,7 +383,18 @@ ProcessResult VcsCommand::result() const
     return d->m_result;
 }
 
-CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
+CommandResult VcsCommand::runBlocking(const Utils::FilePath &workingDirectory,
+                                      const Utils::Environment &environment,
+                                      const Utils::CommandLine &command, unsigned flags,
+                                      int timeoutS, QTextCodec *codec)
+{
+    VcsCommand vcsCommand(workingDirectory, environment);
+    vcsCommand.addFlags(flags);
+    vcsCommand.setCodec(codec);
+    return vcsCommand.runBlockingHelper(command, timeoutS);
+}
+
+CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int timeoutS)
 {
     QtcProcess process;
     if (command.executable().isEmpty())

@@ -41,7 +41,6 @@
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
-#include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
@@ -258,7 +257,7 @@ private:
     QString runCleartoolSync(const FilePath &workingDir, const QStringList &arguments) const;
     CommandResult runCleartool(const FilePath &workingDir, const QStringList &arguments,
                                int timeOutS, unsigned flags = 0,
-                               QTextCodec *outputCodec = nullptr) const;
+                               QTextCodec *codec = nullptr) const;
     static void sync(QFutureInterface<void> &future, QStringList files);
 
     void history(const FilePath &workingDir,
@@ -1655,16 +1654,13 @@ CommandResult ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
                                                    const QStringList &arguments,
                                                    int timeOutS,
                                                    unsigned flags,
-                                                   QTextCodec *outputCodec) const
+                                                   QTextCodec *codec) const
 {
     if (m_settings.ccBinaryPath.isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No ClearCase executable specified."));
 
-    std::unique_ptr<VcsCommand> command;
-    command.reset(VcsBaseClient::createVcsCommand(workingDir, Environment::systemEnvironment()));
-    command->addFlags(flags);
-    command->setCodec(outputCodec);
-    return command->runCommand({m_settings.ccBinaryPath, arguments}, timeOutS);
+    return VcsCommand::runBlocking(workingDir, Environment::systemEnvironment(),
+                                   {m_settings.ccBinaryPath, arguments}, flags, timeOutS, codec);
 }
 
 IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const QString &output,

@@ -113,7 +113,10 @@ public:
     void setProgressParser(ProgressParser *parser);
     void setProgressiveOutput(bool progressive);
 
-    CommandResult runCommand(const Utils::CommandLine &command, int timeoutS = 10);
+    static CommandResult runBlocking(const Utils::FilePath &workingDirectory,
+                                     const Utils::Environment &environmentconst,
+                                     const Utils::CommandLine &command, unsigned flags,
+                                     int timeoutS, QTextCodec *codec);
     void cancel();
 
     QString cleanedStdOut() const;
@@ -134,6 +137,7 @@ signals:
     void runCommandFinished(const Utils::FilePath &workingDirectory);
 
 private:
+    CommandResult runBlockingHelper(const Utils::CommandLine &command, int timeoutS);
     void postRunCommand(const Utils::FilePath &workingDirectory);
 
     class Internal::VcsCommandPrivate *const d;
