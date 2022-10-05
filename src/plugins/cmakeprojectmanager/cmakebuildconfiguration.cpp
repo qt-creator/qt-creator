@@ -2079,6 +2079,11 @@ FilePath CMakeBuildConfiguration::sourceDirectory() const
 
 void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
+    const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
+    // The hack further down is only relevant for desktop
+    if (tool && tool->cmakeExecutable().needsDevice())
+        return;
+
     CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
     if (!settings->ninjaPath.filePath().isEmpty()) {
         const Utils::FilePath ninja = settings->ninjaPath.filePath();
