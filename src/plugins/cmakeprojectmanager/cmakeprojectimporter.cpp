@@ -131,6 +131,20 @@ FilePaths CMakeProjectImporter::importCandidates()
         const FilePath configPresetDir = m_presetsTempDir.filePath(configPreset.name);
         configPresetDir.createDir();
         candidates << configPresetDir;
+
+        // If the binaryFilePath exists, do not try to import the existing build, so that
+        // we don't have duplicates, one from the preset and one from the previous configuration.
+        if (configPreset.binaryDir) {
+            Environment env = Environment::systemEnvironment();
+            CMakePresets::Macros::expand(configPreset, env, projectDirectory());
+
+            QString binaryDir = configPreset.binaryDir.value();
+            CMakePresets::Macros::expand(configPreset, env, projectDirectory(), binaryDir);
+
+            const FilePath binaryFilePath = FilePath::fromString(binaryDir);
+            candidates.removeIf(
+                [&binaryFilePath] (const FilePath &path) { return path == binaryFilePath; });
+        }
     }
 
     const FilePaths finalists = Utils::filteredUnique(candidates);
