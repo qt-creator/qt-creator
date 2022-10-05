@@ -689,7 +689,8 @@ void FakeVimExCommandsWidget::initialize()
 {
     QMap<QString, QTreeWidgetItem *> sections;
 
-    foreach (Command *c, ActionManager::commands()) {
+    const QList<Command *> commands = ActionManager::commands();
+    for (Command *c : commands) {
         if (c->action() && c->action()->isSeparator())
             continue;
 
@@ -1881,7 +1882,7 @@ void FakeVimPluginPrivate::documentRenamed(
 
 void FakeVimPluginPrivate::renameFileNameInEditors(const FilePath &oldPath, const FilePath &newPath)
 {
-    foreach (FakeVimHandler *handler, m_editorToHandler.values()) {
+    for (FakeVimHandler *handler : m_editorToHandler) {
         if (handler->currentFileName() == oldPath.toString())
             handler->setCurrentFileName(newPath.toString());
     }
@@ -1902,16 +1903,16 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(FAKEVIM_CONTEXT),
         // Context());
-        foreach (IEditor *editor, m_editorToHandler.keys())
-            m_editorToHandler[editor]->setupWidget();
+        for (FakeVimHandler *handler : m_editorToHandler)
+            handler->setupWidget();
     } else {
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(),
         // Context(FAKEVIM_CONTEXT));
         resetCommandBuffer();
-        foreach (IEditor *editor, m_editorToHandler.keys()) {
-            if (auto textDocument = qobject_cast<const TextDocument *>(editor->document()))
-                m_editorToHandler[editor]->restoreWidget(textDocument->tabSettings().m_tabSize);
+        for (auto it = m_editorToHandler.constBegin(); it != m_editorToHandler.constEnd(); ++it) {
+            if (auto textDocument = qobject_cast<const TextDocument *>(it.key()->document()))
+                it.value()->restoreWidget(textDocument->tabSettings().m_tabSize);
         }
     }
 }
@@ -1919,8 +1920,8 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
 void FakeVimPluginPrivate::setShowRelativeLineNumbers(bool on)
 {
     if (on && fakeVimSettings()->useFakeVim.value()) {
-        foreach (IEditor *editor, m_editorToHandler.keys())
-            createRelativeNumberWidget(editor);
+        for (auto it = m_editorToHandler.constBegin(); it != m_editorToHandler.constEnd(); ++it)
+            createRelativeNumberWidget(it.key());
     }
 }
 
