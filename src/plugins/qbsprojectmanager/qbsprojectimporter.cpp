@@ -181,7 +181,7 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
             tcData << findOrCreateToolChains({bgData->cxxCompilerPath, Constants::CXX_LANGUAGE_ID});
         if (!bgData->cCompilerPath.isEmpty())
             tcData << findOrCreateToolChains({bgData->cCompilerPath, Constants::C_LANGUAGE_ID});
-        foreach (const ToolChainData &tc, tcData) {
+        for (const ToolChainData &tc : qAsConst(tcData)) {
             if (!tc.tcs.isEmpty())
                 ToolChainKitAspect::setToolChain(k, tc.tcs.first());
         }

@@ -841,7 +841,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
 
     QList<Property> properties;
     const MacroExpander * const expander = m_qbsStep->macroExpander();
-    foreach (const QString &rawArg, argList) {
+    for (const QString &rawArg : argList) {
         int pos = rawArg.indexOf(':');
         if (pos > 0) {
             const QString propertyName = rawArg.left(pos);
