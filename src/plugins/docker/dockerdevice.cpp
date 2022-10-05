@@ -143,16 +143,12 @@ public:
     QString repoAndTag() const { return m_data.repoAndTag(); }
     QString dockerImageId() const { return m_data.imageId; }
 
-    bool useFind() const { return m_useFind; }
-    void setUseFind(bool useFind) { m_useFind = useFind; }
-
     Environment environment();
 
     CommandLine withDockerExecCmd(const CommandLine &cmd, bool interactive = false);
 
     bool prepareForBuild(const Target *target);
 
-private:
     bool createContainer();
     void startContainer();
     void stopCurrentContainer();
@@ -895,52 +891,13 @@ bool DockerDevice::ensureReachable(const FilePath &other) const
     return d->ensureReachable(other.parentDir());
 }
 
-void DockerDevice::iterateWithFind(const FilePath &filePath,
-                                   const std::function<bool(const Utils::FilePath &)> &callBack,
-                                   const FileFilter &filter) const
-{
-    QTC_ASSERT(callBack, return);
-    QTC_CHECK(filePath.isAbsolutePath());
-    QStringList arguments{filePath.path()};
-    arguments << filter.asFindArguments();
-
-    const QByteArray output = d->outputForRunInShell({"find", arguments});
-    const QString out = QString::fromUtf8(output.data(), output.size());
-    if (!output.isEmpty() && !out.startsWith(filePath.path())) { // missing find, unknown option
-        qCDebug(dockerDeviceLog) << "Setting 'do not use find'" << out.left(out.indexOf('\n'));
-        d->setUseFind(false);
-        return;
-    }
-
-    const QStringList entries = out.split("\n", Qt::SkipEmptyParts);
-    for (const QString &entry : entries) {
-        if (entry.startsWith("find: "))
-            continue;
-        const FilePath fp = FilePath::fromString(entry);
-
-        if (!callBack(fp.onDevice(filePath)))
-            break;
-    }
-}
-
 void DockerDevice::iterateDirectory(const FilePath &filePath,
                                     const std::function<bool(const FilePath &)> &callBack,
                                     const FileFilter &filter) const
 {
     QTC_ASSERT(handlesFile(filePath), return);
-
-    if (d->useFind()) {
-        iterateWithFind(filePath, callBack, filter);
-        // d->m_useFind will be set to false if 'find' is not found. In this
-        // case fall back to 'ls' below.
-        if (d->useFind())
-            return;
-    }
-
-    // if we do not have find - use ls as fallback
-    const QByteArray output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}});
-    const QStringList entries = QString::fromUtf8(output).split('\n', Qt::SkipEmptyParts);
-    FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
+    auto runInShell = [this](const CommandLine &cmd) { return d->outputForRunInShell(cmd); };
+    FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
 }
 
 std::optional<QByteArray> DockerDevice::fileContents(const FilePath &filePath,

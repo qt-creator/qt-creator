@@ -5,6 +5,7 @@
 #include "savefile.h"
 
 #include "algorithm.h"
+#include "commandline.h"
 #include "qtcassert.h"
 #include "hostosinfo.h"
 
@@ -583,6 +584,8 @@ FilePath FileUtils::getOpenFilePathFromDevice(QWidget *parent,
     return {};
 }
 
+#endif // QT_WIDGETS_LIB
+
 // Used on 'ls' output on unix-like systems.
 void FileUtils::iterateLsOutput(const FilePath &base,
                                 const QStringList &entries,
@@ -619,7 +622,53 @@ void FileUtils::iterateLsOutput(const FilePath &base,
     }
 }
 
-#endif // QT_WIDGETS_LIB
+// returns whether 'find' could be used.
+static bool iterateWithFind(const FilePath &filePath,
+                            const FileFilter &filter,
+                            const std::function<QByteArray(const CommandLine &)> &runInShell,
+                            const std::function<bool(const Utils::FilePath &)> &callBack)
+{
+    QTC_CHECK(filePath.isAbsolutePath());
+    QStringList arguments{filePath.path()};
+    arguments << filter.asFindArguments();
+
+    const QByteArray output = runInShell({"find", arguments});
+    const QString out = QString::fromUtf8(output.data(), output.size());
+    if (!output.isEmpty() && !out.startsWith(filePath.path())) // missing find, unknown option
+        return false;
+
+    const QStringList entries = out.split("\n", Qt::SkipEmptyParts);
+    for (const QString &entry : entries) {
+        if (entry.startsWith("find: ")) {
+            const FilePath fp = FilePath::fromString(entry);
+            if (!callBack(fp.onDevice(filePath)))
+                break;
+        }
+    }
+    return true;
+}
+
+void FileUtils::iterateUnixDirectory(const FilePath &filePath,
+                                     const FileFilter &filter,
+                                     bool *useFind,
+                                     const std::function<QByteArray(const CommandLine &)> &runInShell,
+                                     const std::function<bool(const FilePath &)> &callBack)
+{
+    QTC_ASSERT(callBack, return);
+
+    // We try to use 'find' first, because that can filter better directly.
+    // Unfortunately, it's not installed on all devices by default.
+    if (useFind && *useFind) {
+        if (iterateWithFind(filePath, filter, runInShell, callBack))
+            return;
+        *useFind = false; // remember the failure for the next time and use the 'ls' fallback below.
+    }
+
+    // if we do not have find - use ls as fallback
+    const QByteArray output = runInShell({"ls", {"-1", "-b", "--", filePath.path()}});
+    const QStringList entries = QString::fromUtf8(output).split('\n', Qt::SkipEmptyParts);
+    FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
+}
 
 /*!
   Copies the directory specified by \a srcFilePath recursively to \a tgtFilePath. \a tgtFilePath will contain
