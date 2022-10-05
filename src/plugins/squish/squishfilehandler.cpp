@@ -68,7 +68,7 @@ public:
         connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
                 this, &QDialog::reject);
         connect(&aut, &QComboBox::currentIndexChanged,
-                this, [this, okButton] (int index) {
+                this, [okButton] (int index) {
             okButton->setEnabled(index > 0);
         });
         setWindowTitle(Tr::tr("Recording Settings"));
