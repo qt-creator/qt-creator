@@ -832,7 +832,7 @@ QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
 bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage)
 {
     ProcessArgs::SplitError err;
-    QStringList argList = ProcessArgs::splitArgs(edit->text(), HostOsInfo::hostOs(), false, &err);
+    const QStringList argList = ProcessArgs::splitArgs(edit->text(), HostOsInfo::hostOs(), false, &err);
     if (err != ProcessArgs::SplitOk) {
         if (errorMessage)
             *errorMessage = QbsProjectManager::Tr::tr("Could not split properties.");

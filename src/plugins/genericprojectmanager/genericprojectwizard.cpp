@@ -107,10 +107,9 @@ Core::BaseFileWizard *GenericProjectWizard::create(QWidget *parent,
                                                    const Core::WizardDialogParameters &parameters) const
 {
     auto wizard = new GenericProjectWizardDialog(this, parent);
-
     wizard->setFilePath(parameters.defaultPath());
-
-    foreach (QWizardPage *p, wizard->extensionPages())
+    const QList<QWizardPage *> pages = wizard->extensionPages();
+    for (QWizardPage *p : pages)
         wizard->addPage(p);
 
     return wizard;
@@ -138,7 +137,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
 
     QStringList includePaths;
     const QDir dir(projectPath.toString());
-    foreach (const QString &path, paths) {
+    for (const QString &path : paths) {
         QFileInfo fileInfo(path);
         QDir thisDir(fileInfo.absoluteFilePath());
 

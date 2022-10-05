@@ -258,7 +258,7 @@ void AbstractSettings::save()
         return;
 
     // remove old files and possible subfolder
-    foreach (const QString &key, m_stylesToRemove) {
+    for (const QString &key : qAsConst(m_stylesToRemove)) {
         const QFileInfo fi(styleFileName(key));
         QFile::remove(fi.absoluteFilePath());
         if (fi.absoluteDir() != m_styleDir)

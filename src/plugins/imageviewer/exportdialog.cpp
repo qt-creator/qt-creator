@@ -35,7 +35,8 @@ QString ExportDialog::imageNameFilterString()
     if (result.isEmpty()) {
         QMimeDatabase mimeDatabase;
         const QString separator = ";;";
-        foreach (const QByteArray &mimeType, QImageWriter::supportedMimeTypes()) {
+        const QList<QByteArray> mimeTypes = QImageWriter::supportedMimeTypes();
+        for (const QByteArray &mimeType : mimeTypes) {
             const QString filter = mimeDatabase.mimeTypeForName(QLatin1String(mimeType)).filterString();
             if (!filter.isEmpty()) {
                 if (mimeType == QByteArrayLiteral("image/png")) {
