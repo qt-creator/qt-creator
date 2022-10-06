@@ -358,14 +358,14 @@ void VcsCommandPage::start(VcsCommand *command)
 
     QTC_ASSERT(m_state != Running, return);
     m_command = command;
-    command->setProgressiveOutput(true);
-    connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
+    m_command->addFlags(RunFlags::ProgressiveOutput);
+    connect(m_command, &VcsCommand::stdOutText, this, [this](const QString &text) {
         m_formatter->appendMessage(text, StdOutFormat);
     });
-    connect(command, &VcsCommand::stdErrText, this, [this](const QString &text) {
+    connect(m_command, &VcsCommand::stdErrText, this, [this](const QString &text) {
         m_formatter->appendMessage(text, StdErrFormat);
     });
-    connect(command, &VcsCommand::done, this, [this] {
+    connect(m_command, &VcsCommand::done, this, [this] {
         finished(m_command->result() == ProcessResult::FinishedWithSuccess);
     });
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -374,7 +374,7 @@ void VcsCommandPage::start(VcsCommand *command)
     m_statusLabel->setText(m_startedStatus);
     m_statusLabel->setPalette(QPalette());
     m_state = Running;
-    command->start();
+    m_command->start();
 
     wizard()->button(QWizard::BackButton)->setEnabled(false);
 }

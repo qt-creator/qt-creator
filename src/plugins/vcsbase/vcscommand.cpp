@@ -110,8 +110,6 @@ public:
     QFutureInterface<void> m_futureInterface;
 
     RunFlags m_flags = RunFlags::None;
-
-    bool m_progressiveOutput = false;
 };
 
 QString VcsCommandPrivate::displayName() const
@@ -184,19 +182,20 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
 
 void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 {
-    if (!(m_flags & RunFlags::MergeOutputChannels)
-            && (m_progressiveOutput || !(m_flags & RunFlags::SuppressStdErr))) {
+    if (!(m_flags & RunFlags::MergeOutputChannels) && (m_flags & RunFlags::ProgressiveOutput
+                                                  || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setStdErrCallback([this](const QString &text) {
             if (m_progressParser)
                 m_progressParser->parseProgress(text);
             if (!(m_flags & RunFlags::SuppressStdErr))
                 emit q->appendError(text);
-            if (m_progressiveOutput)
+            if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdErrText(text);
         });
     }
     // connect stdout to the output window if desired
-    if (m_progressParser || m_progressiveOutput || (m_flags & RunFlags::ShowStdOut)) {
+    if (m_progressParser || m_flags & RunFlags::ProgressiveOutput
+                         || m_flags & RunFlags::ShowStdOut) {
         process->setStdOutCallback([this](const QString &text) {
             if (m_progressParser)
                 m_progressParser->parseProgress(text);
@@ -206,7 +205,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
                 else
                     emit q->append(text);
             }
-            if (m_progressiveOutput)
+            if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdOutText(text);
         });
     }
@@ -420,11 +419,6 @@ void VcsCommand::setProgressParser(ProgressParser *parser)
 {
     QTC_ASSERT(!d->m_progressParser, return);
     d->m_progressParser = parser;
-}
-
-void VcsCommand::setProgressiveOutput(bool progressive)
-{
-    d->m_progressiveOutput = progressive;
 }
 
 ProgressParser::ProgressParser() :

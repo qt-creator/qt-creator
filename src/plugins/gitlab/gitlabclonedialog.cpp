@@ -138,7 +138,7 @@ void GitLabCloneDialog::cloneProject()
                                                  m_pathChooser->absoluteFilePath(),
                                                  m_directoryLE->text(), extraArgs);
     const FilePath workingDirectory = m_pathChooser->absoluteFilePath();
-    m_command->setProgressiveOutput(true);
+    m_command->addFlags(RunFlags::ProgressiveOutput);
     connect(m_command, &VcsCommand::stdOutText, this, [this](const QString &text) {
         m_cloneOutput->appendPlainText(text);
     });

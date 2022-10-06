@@ -97,7 +97,6 @@ public:
     void setCodec(QTextCodec *codec);
 
     void setProgressParser(ProgressParser *parser);
-    void setProgressiveOutput(bool progressive);
 
     static CommandResult runBlocking(const Utils::FilePath &workingDirectory,
                                      const Utils::Environment &environmentconst,
