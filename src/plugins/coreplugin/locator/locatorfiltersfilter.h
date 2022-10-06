@@ -34,6 +34,7 @@ private:
     QStringList m_filterShortcutStrings;
     QStringList m_filterDisplayNames;
     QStringList m_filterDescriptions;
+    QStringList m_filterKeyboardShortcuts;
     QIcon m_icon;
 };
 

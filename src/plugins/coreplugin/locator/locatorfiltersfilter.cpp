@@ -9,6 +9,8 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <actionmanager/actionmanager.h>
+
 using namespace Core;
 using namespace Core::Internal;
 
@@ -45,6 +47,10 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
             m_filterShortcutStrings.append(filter->shortcutString());
             m_filterDisplayNames.append(filter->displayName());
             m_filterDescriptions.append(filter->description());
+            QString keyboardShortcut;
+            if (auto command = ActionManager::command(filter->actionId()))
+                keyboardShortcut = command->keySequence().toString(QKeySequence::NativeText);
+            m_filterKeyboardShortcuts.append(keyboardShortcut);
         }
     }
 }
@@ -62,6 +68,7 @@ QList<LocatorFilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Loca
                                 m_icon);
         filterEntry.extraInfo = m_filterDisplayNames.at(i);
         filterEntry.toolTip = m_filterDescriptions.at(i);
+        filterEntry.displayExtra = m_filterKeyboardShortcuts.at(i);
         entries.append(filterEntry);
     }
     return entries;
