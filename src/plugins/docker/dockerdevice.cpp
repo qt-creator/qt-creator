@@ -149,6 +149,7 @@ public:
     CommandLine withDockerExecCmd(const CommandLine &cmd, bool interactive = false);
 
     bool prepareForBuild(const Target *target);
+    Tasks validateMounts() const;
 
     bool createContainer();
     void startContainer();
@@ -156,6 +157,8 @@ public:
     void fetchSystemEnviroment();
 
     bool addTemporaryMount(const FilePath &path, const FilePath &containerPath);
+
+    QStringList createMountArgs() const;
 
     DockerDevice *const q;
     DockerDeviceData m_data;
@@ -315,14 +318,21 @@ IDeviceWidget *DockerDevice::createWidget()
 
 Tasks DockerDevice::validate() const
 {
+    return d->validateMounts();
+}
+
+Tasks DockerDevicePrivate::validateMounts() const
+{
     Tasks result;
-    if (d->data().mounts.isEmpty()) {
-        result << Task(Task::Error,
-                       Tr::tr("The docker device has not set up shared directories."
-                              "This will not work for building."),
-                       {},
-                       -1,
-                       {});
+
+    for (const QString &mount : m_data.mounts) {
+        const FilePath path = FilePath::fromUserInput(mount);
+        if (!path.isDir()) {
+            const QString message = Tr::tr("Path \"%1\" is not a directory or does not exist.")
+                                        .arg(mount);
+
+            result.append(Task(Task::Error, message, {}, -1, {}));
+        }
     }
     return result;
 }
@@ -460,6 +470,60 @@ bool DockerDevicePrivate::prepareForBuild(const Target *target)
            && ensureReachable(target->activeBuildConfiguration()->buildDirectory());
 }
 
+QString escapeMountPathUnix(const FilePath &fp)
+{
+    return fp.nativePath().replace('\"', "\"\"");
+}
+
+QString escapeMountPathWin(const FilePath &fp)
+{
+    QString result = fp.nativePath().replace('\"', "\"\"").replace('\\', '/');
+    if (result.size() >= 2 && result[1] == ':')
+        result = "/" + result[0] + "/" + result.mid(3);
+    return result;
+}
+
+QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
+{
+    QString escapedPath;
+    QString escapedContainerPath;
+
+    if (HostOsInfo::isWindowsHost()) {
+        escapedPath = escapeMountPathWin(mi.path);
+        escapedContainerPath = escapeMountPathWin(mi.containerPath);
+    } else {
+        escapedPath = escapeMountPathUnix(mi.path);
+        escapedContainerPath = escapeMountPathUnix(mi.containerPath);
+    }
+
+    const QString mountArg = QString(R"(type=bind,"source=%1","destination=%2")")
+                                 .arg(escapedPath)
+                                 .arg(escapedContainerPath);
+
+    return QStringList{"--mount", mountArg};
+}
+
+bool isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
+{
+    return !mi.path.isEmpty() && !mi.containerPath.isEmpty() && mi.path.isAbsolutePath()
+           && mi.containerPath.isAbsolutePath();
+}
+
+QStringList DockerDevicePrivate::createMountArgs() const
+{
+    QStringList cmds;
+    QList<TemporaryMountInfo> mounts = m_temporaryMounts;
+    for (const QString &m : m_data.mounts)
+        mounts.append({FilePath::fromUserInput(m), FilePath::fromUserInput(m)});
+
+    for (const TemporaryMountInfo &mi : mounts) {
+        if (isValidMountInfo(mi))
+            cmds += toMountArg(mi);
+    }
+
+    return cmds;
+}
+
 bool DockerDevicePrivate::createContainer()
 {
     if (!m_settings)
@@ -483,28 +547,18 @@ bool DockerDevicePrivate::createContainer()
     if (m_data.useLocalUidGid)
         dockerCreate.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
-
-    for (QString mount : std::as_const(m_data.mounts)) {
-        if (mount.isEmpty())
-            continue;
-        mount = q->mapToDevicePath(FilePath::fromUserInput(mount));
-        dockerCreate.addArgs({"-v", mount + ':' + mount});
-    }
     FilePath dumperPath = FilePath::fromString("/tmp/qtcreator/debugger");
     addTemporaryMount(Core::ICore::resourcePath("debugger/"), dumperPath);
     q->setDebugDumperPath(dumperPath);
 
-    for (const auto &[path, containerPath] : std::as_const(m_temporaryMounts)) {
-        if (path.isEmpty())
-            continue;
-        dockerCreate.addArgs({"-v", path.nativePath() + ':' + containerPath.nativePath()});
-    }
+    dockerCreate.addArgs(createMountArgs());
+
     if (!m_data.keepEntryPoint)
         dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
 
     dockerCreate.addArg(m_data.repoAndTag());
 
-    qCDebug(dockerDeviceLog) << "RUNNING: " << dockerCreate.toUserOutput();
+    qCDebug(dockerDeviceLog).noquote() << "RUNNING: " << dockerCreate.toUserOutput();
     QtcProcess createProcess;
     createProcess.setCommand(dockerCreate);
     createProcess.runBlocking();
