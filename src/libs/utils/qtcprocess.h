@@ -177,8 +177,9 @@ public:
     QString toStandaloneCommandLine() const;
 
 signals:
-    void started();
-    void done();
+    void starting(); // On NotRunning -> Starting state transition
+    void started();  // On Starting -> Running state transition
+    void done();     // On Starting | Running -> NotRunning state transition
     void readyReadStandardOutput();
     void readyReadStandardError();
 

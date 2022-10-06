@@ -704,6 +704,7 @@ public:
     void handleDone(const ProcessResultData &data);
     void clearForRun();
 
+    void emitStarting();
     void emitStarted();
     void emitDone();
     void emitReadyReadStandardOutput();
@@ -1149,6 +1150,7 @@ void QtcProcess::start()
         // Pass a dynamic property with info about blocking type
         d->m_process->setProperty(QTC_PROCESS_BLOCKING_TYPE, property(QTC_PROCESS_BLOCKING_TYPE));
     }
+    d->emitStarting();
     d->m_process->start();
 }
 
@@ -2029,6 +2031,12 @@ void QtcProcessPrivate::handleDone(const ProcessResultData &data)
     emitDone();
     m_processId = 0;
     m_applicationMainThreadId = 0;
+}
+
+void QtcProcessPrivate::emitStarting()
+{
+    GuardLocker locker(m_guard);
+    emit q->starting();
 }
 
 void QtcProcessPrivate::emitStarted()
