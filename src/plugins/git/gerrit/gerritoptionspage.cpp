@@ -4,7 +4,7 @@
 #include "gerritoptionspage.h"
 #include "gerritparameters.h"
 #include "gerritserver.h"
-#include "gittr.h"
+#include "../gittr.h"
 
 #include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
