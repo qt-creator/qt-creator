@@ -284,9 +284,9 @@ private:
 
     CvsResponse runCvs(const FilePath &workingDirectory,
                        const QStringList &arguments,
-                       int timeOutS,
                        RunFlags flags = RunFlags::None,
-                       QTextCodec *outputCodec = nullptr) const;
+                       QTextCodec *outputCodec = nullptr,
+                       int timeoutMultiplier = 1) const;
 
     void annotate(const FilePath &workingDir, const QString &file,
                   const QString &revision = QString(), int lineNumber= -1);
@@ -847,8 +847,7 @@ void CvsPluginPrivate::revertAll()
         return;
     QStringList args;
     args << QLatin1String("update") << QLatin1String("-C") << state.topLevel().toString();
-    const auto revertResponse = runCvs(state.topLevel(), args, m_settings.timeout.value(),
-                                       RunFlags::ShowStdOut);
+    const auto revertResponse = runCvs(state.topLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result == CvsResponse::Ok)
         emit repositoryChanged(state.topLevel());
     else
@@ -862,8 +861,7 @@ void CvsPluginPrivate::revertCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
     QStringList args;
     args << QLatin1String("diff") << state.relativeCurrentFile();
-    const CvsResponse diffResponse =
-            runCvs(state.currentFileTopLevel(), args, m_settings.timeout.value());
+    const CvsResponse diffResponse = runCvs(state.currentFileTopLevel(), args);
     switch (diffResponse.result) {
     case CvsResponse::Ok:
         return; // Not modified, diff exit code 0
@@ -884,8 +882,7 @@ void CvsPluginPrivate::revertCurrentFile()
     // revert
     args.clear();
     args << QLatin1String("update") << QLatin1String("-C") << state.relativeCurrentFile();
-    const auto revertResponse = runCvs(state.currentFileTopLevel(), args,
-                                       m_settings.timeout.value(), RunFlags::ShowStdOut);
+    const auto revertResponse = runCvs(state.currentFileTopLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result == CvsResponse::Ok)
         emit filesChanged(QStringList(state.currentFile()));
 }
@@ -948,8 +945,7 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
     // We need the "Examining <subdir>" stderr output to tell
     // where we are, so, have stdout/stderr channels merged.
     QStringList args = QStringList(QLatin1String("status"));
-    const CvsResponse response =
-            runCvs(workingDir, args, m_settings.timeout.value(), RunFlags::MergeOutputChannels);
+    const CvsResponse response = runCvs(workingDir, args, RunFlags::MergeOutputChannels);
     if (response.result != CvsResponse::Ok)
         return;
     // Get list of added/modified/deleted files and purge out undesired ones
@@ -994,8 +990,7 @@ bool CvsPluginPrivate::commit(const QString &messageFile,
     QStringList args = QStringList(QLatin1String("commit"));
     args << QLatin1String("-F") << messageFile;
     args.append(fileList);
-    const auto response = runCvs(m_commitRepository, args, 10 * m_settings.timeout.value(),
-                                 RunFlags::ShowStdOut);
+    const auto response = runCvs(m_commitRepository, args, RunFlags::ShowStdOut, nullptr, 10);
     return response.result == CvsResponse::Ok ;
 }
 
@@ -1031,8 +1026,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
     QStringList args;
     args << QLatin1String("log");
     args.append(file);
-    const CvsResponse response =
-            runCvs(workingDir, args, m_settings.timeout.value(), RunFlags::None, codec);
+    const CvsResponse response = runCvs(workingDir, args, RunFlags::None, codec);
     if (response.result != CvsResponse::Ok)
         return;
 
@@ -1071,7 +1065,7 @@ bool CvsPluginPrivate::update(const FilePath &topLevel, const QString &file)
     args.push_back(QLatin1String("-dR"));
     if (!file.isEmpty())
         args.append(file);
-    const auto response = runCvs(topLevel, args, 10 * m_settings.timeout.value(), RunFlags::ShowStdOut);
+    const auto response = runCvs(topLevel, args, RunFlags::ShowStdOut, nullptr, 10);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
         emit repositoryChanged(topLevel);
@@ -1116,7 +1110,7 @@ bool CvsPluginPrivate::edit(const FilePath &topLevel, const QStringList &files)
 {
     QStringList args(QLatin1String("edit"));
     args.append(files);
-    const auto response = runCvs(topLevel, args, m_settings.timeout.value(), RunFlags::ShowStdOut);
+    const auto response = runCvs(topLevel, args, RunFlags::ShowStdOut);
     return response.result == CvsResponse::Ok;
 }
 
@@ -1127,7 +1121,7 @@ bool CvsPluginPrivate::diffCheckModified(const FilePath &topLevel, const QString
     QStringList args(QLatin1String("-q"));
     args << QLatin1String("diff");
     args.append(files);
-    const CvsResponse response = runCvs(topLevel, args, m_settings.timeout.value());
+    const CvsResponse response = runCvs(topLevel, args);
     if (response.result == CvsResponse::OtherError)
         return false;
     *modified = response.result == CvsResponse::NonNullExitCode;
@@ -1154,7 +1148,7 @@ bool CvsPluginPrivate::unedit(const FilePath &topLevel, const QStringList &files
     if (modified)
         args.append(QLatin1String("-y"));
     args.append(files);
-    const auto response = runCvs(topLevel, args, m_settings.timeout.value(), RunFlags::ShowStdOut);
+    const auto response = runCvs(topLevel, args, RunFlags::ShowStdOut);
     return response.result == CvsResponse::Ok;
 }
 
@@ -1171,8 +1165,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     if (!revision.isEmpty())
         args << QLatin1String("-r") << revision;
     args << file;
-    const CvsResponse response = runCvs(workingDir, args, m_settings.timeout.value(),
-                                        RunFlags::None, codec);
+    const CvsResponse response = runCvs(workingDir, args, RunFlags::None, codec);
     if (response.result != CvsResponse::Ok)
         return;
 
@@ -1199,7 +1192,7 @@ bool CvsPluginPrivate::status(const FilePath &topLevel, const QString &file, con
     QStringList args(QLatin1String("status"));
     if (!file.isEmpty())
         args.append(file);
-    const CvsResponse response = runCvs(topLevel, args, m_settings.timeout.value());
+    const CvsResponse response = runCvs(topLevel, args);
     const bool ok = response.result == CvsResponse::Ok;
     if (ok)
         showOutputInEditor(title, response.stdOut, commandLogEditorParameters.id, topLevel.toString(), nullptr);
@@ -1272,7 +1265,7 @@ bool CvsPluginPrivate::describe(const FilePath &toplevel, const QString &file, c
     // Run log to obtain commit id and details
     QStringList args;
     args << QLatin1String("log") << (QLatin1String("-r") + changeNr) << file;
-    const CvsResponse logResponse = runCvs(toplevel, args, m_settings.timeout.value());
+    const CvsResponse logResponse = runCvs(toplevel, args);
     if (logResponse.result != CvsResponse::Ok) {
         *errorMessage = logResponse.message;
         return false;
@@ -1293,7 +1286,7 @@ bool CvsPluginPrivate::describe(const FilePath &toplevel, const QString &file, c
         args.clear();
         args << QLatin1String("log") << QLatin1String("-d") << (dateS  + QLatin1Char('<') + nextDayS);
 
-        const CvsResponse repoLogResponse = runCvs(toplevel, args, 10 * m_settings.timeout.value());
+        const CvsResponse repoLogResponse = runCvs(toplevel, args, RunFlags::None, nullptr, 10);
         if (repoLogResponse.result != CvsResponse::Ok) {
             *errorMessage = repoLogResponse.message;
             return false;
@@ -1329,7 +1322,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
         // Run log
         QStringList args(QLatin1String("log"));
         args << (QLatin1String("-r") + it->revisions.front().revision) << it->file;
-        const CvsResponse logResponse = runCvs(repositoryPath, args, m_settings.timeout.value());
+        const CvsResponse logResponse = runCvs(repositoryPath, args);
         if (logResponse.result != CvsResponse::Ok) {
             *errorMessage =  logResponse.message;
             return false;
@@ -1345,8 +1338,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
             args << m_settings.diffOptions.value()
                  << QLatin1String("-r") << previousRev << QLatin1String("-r")
                  << it->revisions.front().revision << it->file;
-            const CvsResponse diffResponse =
-                    runCvs(repositoryPath, args, m_settings.timeout.value(), RunFlags::None, codec);
+            const CvsResponse diffResponse = runCvs(repositoryPath, args, RunFlags::None, codec);
             switch (diffResponse.result) {
             case CvsResponse::Ok:
             case CvsResponse::NonNullExitCode: // Diff exit code != 0
@@ -1390,9 +1382,9 @@ void CvsPluginPrivate::commitFromEditor()
 // the working directory (see above).
 CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
                                      const QStringList &arguments,
-                                     int timeOutS,
                                      RunFlags flags,
-                                     QTextCodec *outputCodec) const
+                                     QTextCodec *outputCodec,
+                                     int timeoutMultiplier) const
 {
     const FilePath executable = m_settings.binaryPath.filePath();
     CvsResponse response;
@@ -1402,9 +1394,10 @@ CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
         return response;
     }
 
+    const int timeoutS = m_settings.timeout.value() * timeoutMultiplier;
     const CommandResult result = m_client->vcsSynchronousExec(workingDirectory,
                                  {executable, m_settings.addOptions(arguments)},
-                                 flags, timeOutS, outputCodec);
+                                 flags, timeoutS, outputCodec);
     response.result = CvsResponse::OtherError;
     response.stdErr = result.cleanedStdErr();
     response.stdOut = result.cleanedStdOut();
@@ -1451,7 +1444,7 @@ bool CvsPluginPrivate::vcsAdd(const FilePath &workingDir, const QString &rawFile
 {
     QStringList args;
     args << QLatin1String("add") << rawFileName;
-    const auto response = runCvs(workingDir, args, m_settings.timeout.value(), RunFlags::ShowStdOut);
+    const auto response = runCvs(workingDir, args, RunFlags::ShowStdOut);
     return response.result == CvsResponse::Ok;
 }
 
@@ -1459,7 +1452,7 @@ bool CvsPluginPrivate::vcsDelete(const FilePath &workingDir, const QString &rawF
 {
     QStringList args;
     args << QLatin1String("remove") << QLatin1String("-f") << rawFileName;
-    const auto response = runCvs(workingDir, args, m_settings.timeout.value(), RunFlags::ShowStdOut);
+    const auto response = runCvs(workingDir, args, RunFlags::ShowStdOut);
     return response.result == CvsResponse::Ok;
 }
 
@@ -1498,8 +1491,7 @@ bool CvsPluginPrivate::managesFile(const FilePath &workingDirectory, const QStri
 {
     QStringList args;
     args << QLatin1String("status") << fileName;
-    const CvsResponse response =
-            runCvs(workingDirectory, args, m_settings.timeout.value());
+    const CvsResponse response = runCvs(workingDirectory, args);
     if (response.result != CvsResponse::Ok)
         return false;
     return !response.stdOut.contains(QLatin1String("Status: Unknown"));
