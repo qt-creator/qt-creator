@@ -253,6 +253,10 @@ Rectangle {
     property bool tinyMode: Constants.thumbnailSize <= Constants.thumbnailBreak
 
     property int currentStateInternalId: 0
+    // Using an int instead of a bool, because when opening a menu on one state and without closing
+    // opening a menu on another state will first trigger the open of the new popup and afterwards
+    // the close of the old popup. Using an int keeps track of number of opened popups.
+    property int menuOpen: 0
 
     // This timer is used to delay the current state animation as it didn't work due to the
     // repeaters item not being positioned in time resulting in 0 x and y position if the grids
@@ -797,9 +801,17 @@ Rectangle {
 
                                     hasWhenCondition: delegateRoot.hasWhenCondition
 
-                                    scrollViewActive: horizontalBar.active || verticalBar.active
+                                    blockDragHandler: horizontalBar.active || verticalBar.active
+                                                        || root.menuOpen
 
                                     dragParent: scrollView
+
+                                    onMenuOpenChanged: {
+                                        if (stateThumbnail.menuOpen)
+                                            root.menuOpen++
+                                        else
+                                            root.menuOpen--
+                                    }
 
                                     // Fix ScrollView taking over the dragging event
                                     onGrabbing: {

@@ -55,7 +55,8 @@ Item {
 
     property bool hasWhenCondition: false
 
-    property bool scrollViewActive: false
+    property bool menuOpen: stateMenu.opened
+    property bool blockDragHandler: false
 
     property Item dragParent
 
@@ -91,7 +92,7 @@ Item {
 
     DragHandler {
         id: dragHandler
-        enabled: !root.baseState && !root.extendedState && !root.scrollViewActive
+        enabled: !root.baseState && !root.extendedState && !root.blockDragHandler
         onGrabChanged: function (transition, point) {
             if (transition === PointerDevice.GrabPassive
                     || transition === PointerDevice.GrabExclusive)
