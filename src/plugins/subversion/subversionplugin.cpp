@@ -223,8 +223,8 @@ public:
     QString monitorFile(const FilePath &repository) const;
     QString synchronousTopic(const FilePath &repository) const;
     SubversionResponse runSvn(const FilePath &workingDir, const QStringList &arguments,
-                              RunFlags flags = RunFlags::None, int defaultTimeoutMutiplier = 1,
-                              QTextCodec *outputCodec = nullptr) const;
+                              RunFlags flags = RunFlags::None, QTextCodec *outputCodec = nullptr,
+                              int timeoutMutiplier = 1) const;
     void vcsAnnotateHelper(const FilePath &workingDir, const QString &file,
                            const QString &revision = {}, int lineNumber = -1);
 
@@ -876,7 +876,7 @@ void SubversionPluginPrivate::svnUpdate(const FilePath &workingDir, const QStrin
     args.push_back(QLatin1String(Constants::NON_INTERACTIVE_OPTION));
     if (!relativePath.isEmpty())
         args.append(relativePath);
-    const auto response = runSvn(workingDir, args, RunFlags::ShowStdOut, 10);
+    const auto response = runSvn(workingDir, args, RunFlags::ShowStdOut, nullptr, 10);
     if (!response.error)
         emit repositoryChanged(workingDir);
 }
@@ -904,7 +904,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     args.push_back(QLatin1String("-v"));
     args.append(QDir::toNativeSeparators(SubversionClient::escapeFile(file)));
 
-    const auto response = runSvn(workingDir, args, RunFlags::ForceCLocale, 1, codec);
+    const auto response = runSvn(workingDir, args, RunFlags::ForceCLocale, codec);
     if (response.error)
         return;
 
@@ -984,8 +984,8 @@ void SubversionPluginPrivate::commitFromEditor()
 
 SubversionResponse SubversionPluginPrivate::runSvn(const FilePath &workingDir,
                                                    const QStringList &arguments,
-                                                   RunFlags flags, int defaultTimeoutMutiplier,
-                                                   QTextCodec *outputCodec) const
+                                                   RunFlags flags, QTextCodec *outputCodec,
+                                                   int timeoutMutiplier) const
 {
     SubversionResponse response;
     if (m_settings.binaryPath.value().isEmpty()) {
@@ -994,8 +994,9 @@ SubversionResponse SubversionPluginPrivate::runSvn(const FilePath &workingDir,
         return response;
     }
 
+    const int timeoutS = m_settings.timeout.value() * timeoutMutiplier;
     const CommandResult result = m_client->vcsSynchronousExec(workingDir, arguments, flags,
-                        m_settings.timeout.value() * defaultTimeoutMutiplier, outputCodec);
+                                                              timeoutS, outputCodec);
 
     response.error = result.result() != ProcessResult::FinishedWithSuccess;
     if (response.error)
@@ -1110,7 +1111,7 @@ bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByte
 
     args << QLatin1String(tempUrl.toEncoded()) << directory.toString();
 
-    const auto response = runSvn(directory, args, RunFlags::None, 10);
+    const auto response = runSvn(directory, args, RunFlags::None, nullptr, 10);
     return !response.error;
 
 }
