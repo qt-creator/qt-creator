@@ -16521,7 +16521,7 @@ Se også Google-test-indstillinger.</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
+    <name>Git</name>
     <message>
         <source>Authentication</source>
         <translation>Autentifikation</translation>
@@ -16546,9 +16546,6 @@ Se også Google-test-indstillinger.</translation>
         <source>Anonymous</source>
         <translation>Anonym</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Henter fra Gerrit</translation>
@@ -16565,9 +16562,6 @@ Se også Google-test-indstillinger.</translation>
         <source>Error running %1: %2</source>
         <translation>Fejl ved kørsel af %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Changes</source>
         <translation>Ændringer</translation>
@@ -16624,16 +16618,9 @@ Note: This can expose you to man-in-the-middle attack.</source>
 Vil du deaktivere SSL-verifikation for denne server?
 Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (kladde)</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation>Emne</translation>
     </message>
     <message>
         <source>Owner</source>
@@ -16683,16 +16670,6 @@ Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>Parse-fejl: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -16700,10 +16677,6 @@ Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
     <message>
         <source>&amp;Host:</source>
         <translation>&amp;Vært:</translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>&amp;Bruger:</translation>
     </message>
     <message>
         <source>&amp;ssh:</source>
@@ -16729,9 +16702,6 @@ Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
 &quot;canonicalWebUrl&quot; ikke er konfigureret i filen
 &quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -16774,9 +16744,6 @@ blev ikke verificeret blandt fjerne i %3. Vælg anden mappe?</translation>
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>Indtast lokal repository for &quot;%1&quot; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Push til Gerrit</translation>
@@ -16883,9 +16850,6 @@ Delvist tilvalg - Ændr ikke aktuelle tilstand.</translation>
         <source>&amp;Work-in-progress</source>
         <translation>&amp;Igangværende arbejde</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritRemoteChooser</name>
     <message>
         <source>Refresh Remote Servers</source>
         <translation>Genopfrisk fjern-servere</translation>
@@ -16894,24 +16858,9 @@ Delvist tilvalg - Ændr ikke aktuelle tilstand.</translation>
         <source>Fallback</source>
         <translation>Fallback</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Anmoder Gerrit</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Fejl ved kørsel af %1: %2</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 holdt op med at virke.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 returnerede %2.</translation>
     </message>
     <message>
         <source>Timeout</source>
@@ -16933,9 +16882,6 @@ Vil du terminere den?</translation>
         <source>Keep Running</source>
         <translation>Fortsæt kørsel</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Patience</source>
         <translation>Patience</translation>
@@ -16952,9 +16898,6 @@ Vil du terminere den?</translation>
         <source>Ignore whitespace only changes.</source>
         <translation>Ignorer ændringer som kun består af mellemrum.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchAddDialog</name>
     <message>
         <source>Branch Name:</source>
         <translation>Grennavn:</translation>
@@ -16979,9 +16922,6 @@ Vil du terminere den?</translation>
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Spor lokal grenen &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Lokale ændringer fundet. Vælg handling:</translation>
@@ -16993,10 +16933,6 @@ Vil du terminere den?</translation>
     <message>
         <source>Discard Local Changes</source>
         <translation>Forkast lokale ændringer</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Afkrydsningsboks</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -17018,9 +16954,6 @@ Vil du terminere den?</translation>
         <source>Create Branch Stash for Current Branch</source>
         <translation>Opret gren-stash for aktuel gren</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Branches</source>
         <translation>Grene</translation>
@@ -17093,20 +17026,9 @@ Vil du terminere den?</translation>
         <translation>Inkluder &amp;tags</translation>
     </message>
     <message>
-        <source>C&amp;heckout</source>
-        <translation>C&amp;heckout</translation>
-    </message>
-    <message>
         <source>Re&amp;set</source>
         <translation>&amp;Nulstil</translation>
     </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry &amp;pick</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::BranchModel</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokale grene</translation>
@@ -17119,9 +17041,6 @@ Vil du terminere den?</translation>
         <source>Tags</source>
         <translation>Tags</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
         <translation>Vælg et Git-commit</translation>
@@ -17155,14 +17074,6 @@ Vil du terminere den?</translation>
         <translation>&amp;Tilbagefør</translation>
     </message>
     <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry &amp;pick</translation>
-    </message>
-    <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Vis</translation>
-    </message>
-    <message>
         <source>Select Git Directory</source>
         <translation>Vælg Git-mappe</translation>
     </message>
@@ -17186,9 +17097,6 @@ Vil du terminere den?</translation>
         <source>Fetching commit data...</source>
         <translation>Henter commit-data...</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CommitData</name>
     <message>
         <source>untracked</source>
         <translation>untracked</translation>
@@ -17233,9 +17141,6 @@ Vil du terminere den?</translation>
         <source> by them</source>
         <translation> af dem</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Omit Date</source>
         <translation>Udelad dato</translation>
@@ -17245,20 +17150,9 @@ Vil du terminere den?</translation>
         <translation>Skjul ændringsdatoen fra outputtet.</translation>
     </message>
     <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignorer blanktegn</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Ignorer ændringer som kun består af mellemrum.</translation>
-    </message>
-    <message>
         <source>Reload</source>
         <translation>Genindlæs</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Cannot determine the repository for &quot;%1&quot;.</source>
         <translation>Kan ikke beslutte repository&apos;et for &quot;%1&quot;.</translation>
@@ -17647,9 +17541,6 @@ Commit nu?</translation>
         <source>Cancel %1.</source>
         <translation>Annuller %1.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditorWidget</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation>&amp;Blame %1</translation>
@@ -17657,10 +17548,6 @@ Commit nu?</translation>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
         <translation>Blame &amp;forælder revision %1</translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
-        <translation>Bid staged</translation>
     </message>
     <message>
         <source>Stage Chunk...</source>
@@ -17702,9 +17589,6 @@ Commit nu?</translation>
         <source>&amp;Soft</source>
         <translation>&amp;Blødt</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Vis forskel</translation>
@@ -17729,13 +17613,6 @@ Commit nu?</translation>
         <source>Show textual graph log.</source>
         <translation>Vis textual graph log.</translation>
     </message>
-    <message>
-        <source>Reload</source>
-        <translation>Genindlæs</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&lt;No repository&gt;</source>
         <translation>&lt;intet repository&gt;</translation>
@@ -17913,10 +17790,6 @@ Commit nu?</translation>
         <translation>Clean...</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Status</translation>
-    </message>
-    <message>
         <source>Commit...</source>
         <translation>Commit...</translation>
     </message>
@@ -17969,20 +17842,12 @@ Commit nu?</translation>
         <translation>Afbryd revert</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Fortsæt rebase</translation>
-    </message>
-    <message>
         <source>Skip Rebase</source>
         <translation>Spring rebase over</translation>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
         <translation>Fortsæt cherry pick</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Fortsæt revert</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -18011,10 +17876,6 @@ Commit nu?</translation>
     <message>
         <source>Stashes...</source>
         <translation>Stashes...</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
@@ -18137,10 +17998,6 @@ Commit nu?</translation>
         <translation>Opret repository...</translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation>Commit</translation>
-    </message>
-    <message>
         <source>Diff &amp;Selected Files</source>
         <translation>Diff &amp;valgte filer</translation>
     </message>
@@ -18216,30 +18073,17 @@ Commit nu?</translation>
         <source>Patch %1 successfully applied to %2</source>
         <translation>Patch %1 anvendt på %2 med succes</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>Binæren &quot;%1&quot; kunne ikke findes i stien &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation>Genindlæser commit-data</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation>Giv en gyldig e-mail for at commit.</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Afkoblet HEAD</translation>
     </message>
     <message>
         <source>Select Change</source>
@@ -18269,9 +18113,6 @@ Commit nu?</translation>
         <source>&amp;Commit</source>
         <translation>&amp;Commit</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Generel information</translation>
@@ -18312,9 +18153,6 @@ Commit nu?</translation>
         <source>Sign off</source>
         <translation>Sign off</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Nulstil til:</translation>
@@ -18339,9 +18177,6 @@ Commit nu?</translation>
         <source>Soft</source>
         <translation>Blødt</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
     <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
@@ -18350,9 +18185,6 @@ Commit nu?</translation>
         <source>Subject</source>
         <translation>Subjekt</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
     <message>
         <source>Normal</source>
         <translation>Normal</translation>
@@ -18441,9 +18273,6 @@ Fjern: %4</translation>
         <source>Merge tool process terminated with exit code %1</source>
         <translation>Merge-værktøj-proces termineret med afslutningskode %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Tilføj fjern</translation>
@@ -18456,20 +18285,9 @@ Fjern: %4</translation>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Fjern</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Genindlæs</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Tilføj...</translation>
     </message>
     <message>
         <source>F&amp;etch</source>
@@ -18478,10 +18296,6 @@ Fjern: %4</translation>
     <message>
         <source>&amp;Push</source>
         <translation>&amp;Push</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>&amp;Fjern</translation>
     </message>
     <message>
         <source>A remote with the name &quot;%1&quot; already exists.</source>
@@ -18499,20 +18313,10 @@ Fjern: %4</translation>
         <source>Would you like to delete the remote &quot;%1&quot;?</source>
         <translation>Vil du slette fjernen &quot;%1&quot;?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
     <message>
         <source>Name</source>
         <translation>Navn</translation>
     </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -18558,16 +18362,8 @@ Fjern: %4</translation>
         <translation>Bemærk at kæmpe mængder af commits kan tage noget tid.</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Argumenter:</translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Repositorybrowser</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -18581,9 +18377,6 @@ Fjern: %4</translation>
         <source>Git Settings</source>
         <translation>Git-indstillinger</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
@@ -18606,16 +18399,9 @@ i stedet for i dens installationsmappe når der køres udenfor git bash.</transl
         <source>Git Repository Browser Command</source>
         <translation>Git repositorybrowser-kommando</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
         <translation>Stashes</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Navn</translation>
     </message>
     <message>
         <source>Branch</source>
@@ -18634,10 +18420,6 @@ i stedet for i dens installationsmappe når der køres udenfor git bash.</transl
         <translation>&amp;Slet...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Vis</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>&amp;Genskab...</translation>
     </message>
@@ -18645,10 +18427,6 @@ i stedet for i dens installationsmappe når der køres udenfor git bash.</transl
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Genskab til &amp;gren...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Genindlæs</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -18676,20 +18454,8 @@ You can choose between stashing the changes or discarding them.</source>
 Du kan vælge mellem stashing af ændringerne eller forkaste dem.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Forkast</translation>
-    </message>
-    <message>
         <source>Restore Stash to Branch</source>
         <translation>Genskab stash til gren</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Gren:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -18703,9 +18469,6 @@ Du kan vælge mellem stashing af ændringerne eller forkaste dem.</translation>
         <source>Error restoring %1</source>
         <translation>Fejl ved genskabelse af %1</translation>
     </message>
-</context>
-<context>
-    <name>GitGrep</name>
     <message>
         <source>Tree (optional)</source>
         <translation>Træ (valgfrit)</translation>
@@ -43281,7 +43044,7 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchUtils</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation>Checkout</translation>
@@ -43322,9 +43085,6 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
         <source>Hard reset branch &quot;%1&quot; to &quot;%2&quot;?</source>
         <translation>Hard reset gren &quot;%1&quot; til &quot;%2&quot;?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitDiffEditorController</name>
     <message>
         <source>&lt;None&gt;</source>
         <translation>&lt;intet&gt;</translation>

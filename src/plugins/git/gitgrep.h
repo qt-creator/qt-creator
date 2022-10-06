@@ -5,24 +5,20 @@
 
 #include <texteditor/basefilefind.h>
 
-#include <QCoreApplication>
-
 QT_FORWARD_DECLARE_CLASS(QCheckBox);
 
 namespace Utils { class FancyLineEdit; }
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class GitClient;
 
 class GitGrep : public TextEditor::SearchEngine
 {
-    Q_DECLARE_TR_FUNCTIONS(GitGrep)
-
 public:
     explicit GitGrep(GitClient *client);
     ~GitGrep() override;
+
     QString title() const override;
     QString toolTip() const override;
     QWidget *widget() const override;
@@ -42,5 +38,4 @@ private:
     QCheckBox *m_recurseSubmodules = nullptr;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

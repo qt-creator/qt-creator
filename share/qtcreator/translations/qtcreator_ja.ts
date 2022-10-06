@@ -2842,7 +2842,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>ブランチ名:</translation>
@@ -2887,9 +2887,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Checkout new branch</source>
         <translation>新しいブランチをチェックアウト</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>ローカルの変更が見つかりました。以下のアクションから選択してください:</translation>
@@ -2901,10 +2898,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
     <message>
         <source>Discard Local Changes</source>
         <translation>ローカルの変更を破棄する</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>チェックボックス</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -2926,9 +2919,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Create Branch Stash for Current Branch</source>
         <translation>現在のブランチをスタッシュする</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Branches</source>
         <translation>ブランチ</translation>
@@ -3012,14 +3002,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <translation>タグを削除</translation>
     </message>
     <message>
-        <source>Delete Branch</source>
-        <translation>ブランチの削除</translation>
-    </message>
-    <message>
-        <source>Rename Tag</source>
-        <translation>タグ名の変更</translation>
-    </message>
-    <message>
         <source>Git Reset</source>
         <translation>Git リセット</translation>
     </message>
@@ -3047,9 +3029,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>&amp;Include old entries</source>
         <translation>古いエントリを含む(&amp;I)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Working directory:</source>
         <translation>作業ディレクトリ:</translation>
@@ -3118,9 +3097,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>&amp;Archive...</source>
         <translation>アーカイブする(&amp;A)...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Gerrit へプッシュ</translation>
@@ -3231,9 +3207,6 @@ Partially checked - Do not change current state.</source>
         <source>&amp;Work-in-progress</source>
         <translation>作業中(&amp;WIP)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>概要</translation>
@@ -3279,9 +3252,6 @@ Partially checked - Do not change current state.</source>
         <source>Sign off</source>
         <translation>サインオフ</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>リモートを追加</translation>
@@ -3294,20 +3264,9 @@ Partially checked - Do not change current state.</source>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>リモート</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>更新(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>追加(&amp;A)...</translation>
     </message>
     <message>
         <source>F&amp;etch</source>
@@ -3316,10 +3275,6 @@ Partially checked - Do not change current state.</source>
     <message>
         <source>&amp;Push</source>
         <translation>プッシュ(&amp;P)</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>削除(&amp;R)</translation>
     </message>
     <message>
         <source>A remote with the name &quot;%1&quot; already exists.</source>
@@ -3337,9 +3292,6 @@ Partially checked - Do not change current state.</source>
         <source>Would you like to delete the remote &quot;%1&quot;?</source>
         <translation>リモート &quot;%1&quot; を削除しますか？</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -3389,10 +3341,6 @@ Partially checked - Do not change current state.</source>
         <translation>ブランチダイアログにタグを表示する</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>引数:</translation>
     </message>
@@ -3412,9 +3360,6 @@ Partially checked - Do not change current state.</source>
         <source>Git Settings</source>
         <translation>Git の設定</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
         <translation>スタッシュ</translation>
@@ -3440,10 +3385,6 @@ Partially checked - Do not change current state.</source>
         <translation>削除(&amp;D)...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>表示(&amp;S)</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>復元(&amp;E)...</translation>
     </message>
@@ -3451,10 +3392,6 @@ Partially checked - Do not change current state.</source>
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>ブランチに復元(&amp;B)...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>更新(&amp;F)</translation>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
@@ -3489,20 +3426,12 @@ You can choose between stashing the changes or discarding them.</source>
 変更内容をスタッシュするか破棄するかを選択してください。</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>スタッシュ</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>破棄</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>スタッシュをブランチに復元</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>ブランチ:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -20246,7 +20175,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>ローカルブランチ</translation>
@@ -20263,9 +20192,6 @@ Rebuilding the project might help.</source>
         <source>Tags</source>
         <translation>タグ</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CommitData</name>
     <message>
         <source>untracked</source>
         <translation>未トラック</translation>
@@ -20310,9 +20236,6 @@ Rebuilding the project might help.</source>
         <source> by them</source>
         <translation> リモート側</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Apply in:</source>
         <translation>適用先:</translation>
@@ -20346,14 +20269,6 @@ Rebuilding the project might help.</source>
         <translation>更新(&amp;R)</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>表示(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>チェリーピック(&amp;P)</translation>
-    </message>
-    <message>
         <source>Fetching &quot;%1&quot;...</source>
         <translation>&quot;%1 を取得中...</translation>
     </message>
@@ -20377,9 +20292,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
 このサーバーの SSL 認証を無効にしますか？
 注意：これにより、中間者攻撃(man-in-the-middle attack)を受ける可能性があります。</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (下書き)</translation>
@@ -20403,10 +20315,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <message>
         <source>Approvals</source>
         <translation>承認者</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>ステータス</translation>
     </message>
     <message>
         <source>Number</source>
@@ -20436,9 +20344,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>解析エラー: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Gerrit へ問い合わせ中</translation>
@@ -20475,16 +20380,6 @@ Would you like to terminate it?</source>
         <source>Keep Running</source>
         <translation>そのままにする</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -20523,28 +20418,10 @@ Would you like to terminate it?</source>
 &quot;gerrit.config&quot;.</source>
         <translation>&quot;gerrit.config&quot; ファイルに &quot;canonicalWebUrl&quot; が設定されていない場合に、URL に使用されるプロトコルを指定します。</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Gerrit から取得中</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 がクラッシュしました。</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 は %2 で終了しました。</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>%1 実行中のエラー: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -20591,9 +20468,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>&quot;%1&quot; (%2) のローカルリポジトリを入力</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Patience</source>
         <translation>Patience</translation>
@@ -20610,9 +20484,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Ignore whitespace only changes.</source>
         <translation>空白だけの変更を無視します。</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Omit Date</source>
         <translation>日付を省略</translation>
@@ -20620,14 +20491,6 @@ were not verified among remotes in %3. Select different folder?</source>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>変更点を出力する際に日付を表示しません。</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>空白を無視</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>空白だけの変更を無視します。</translation>
     </message>
     <message>
         <source>No Move Detection</source>
@@ -20649,9 +20512,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Move detection</source>
         <translation>移動検出</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>差分表示</translation>
@@ -20692,9 +20552,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Show log also for previous names of the file.</source>
         <translation>以前のファイル名についてもログを表示する。</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Cannot determine the repository for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; のリポジトリを特定できません。</translation>
@@ -20822,10 +20679,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <translation>不正なリビジョン</translation>
     </message>
     <message>
-        <source>Detached HEAD</source>
-        <translation>デタッチされた HEAD</translation>
-    </message>
-    <message>
         <source>Cannot describe revision &quot;%1&quot; in &quot;%2&quot;: %3</source>
         <translation>&quot;%2&quot; (リビジョン: &quot;%1&quot;) を表示できません: %3</translation>
     </message>
@@ -20907,10 +20760,6 @@ Commit now?</source>
 コミットしますか？</translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation>コミット</translation>
-    </message>
-    <message>
         <source>Continue Revert</source>
         <translation>コミットの打ち消しの続行</translation>
     </message>
@@ -20969,10 +20818,6 @@ Commit now?</source>
     <message>
         <source>Cherr&amp;y-Pick Change %1</source>
         <translation>コミット %1 をチェリーピック(&amp;Y)</translation>
-    </message>
-    <message>
-        <source>Re&amp;vert Change %1</source>
-        <translation>コミット %1 をリバート(&amp;V)</translation>
     </message>
     <message>
         <source>C&amp;heckout Change %1</source>
@@ -21192,16 +21037,8 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <translation>ローカルの変更をスタッシュして %1 の完了後に復元します。</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>スタッシュ</translation>
-    </message>
-    <message>
         <source>Stash local changes and execute %1.</source>
         <translation>ローカルの変更をスタッシュして %1 を実行します。</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>破棄</translation>
     </message>
     <message>
         <source>Discard (reset) local changes and execute %1.</source>
@@ -21215,13 +21052,6 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <source>Cancel %1.</source>
         <translation>%1 をキャンセルします。</translation>
     </message>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -21443,16 +21273,8 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <translation>コミット打ち消しの中止</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>リベースの続行</translation>
-    </message>
-    <message>
         <source>Continue Cherry Pick</source>
         <translation>チェリーピックの続行</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>コミットの打ち消しの続行</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -21473,10 +21295,6 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
     <message>
         <source>Apply from File...</source>
         <translation>ファイルから適用...</translation>
-    </message>
-    <message>
-        <source>&amp;Stash</source>
-        <translation>スタッシュ  (&amp;Stash)</translation>
     </message>
     <message>
         <source>Stashes...</source>
@@ -21591,10 +21409,6 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <translation>Git GUI</translation>
     </message>
     <message>
-        <source>Repository Browser</source>
-        <translation>リポジトリブラウザ</translation>
-    </message>
-    <message>
         <source>Merge Tool</source>
         <translation>マージツール</translation>
     </message>
@@ -21687,30 +21501,12 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <translation>パッチ %1 を %2 に適用しました</translation>
     </message>
     <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;リポジトリなし&gt;</translation>
-    </message>
-    <message>
-        <source>Repository: %1</source>
-        <translation>リポジトリ: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
-    <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>パス &quot;%2&quot; から実行ファイル &quot;%1&quot; が見つかりませんでした</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation>コミットするには有効なメールアドレスが必要です。</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>デタッチされた HEAD</translation>
     </message>
     <message>
         <source>Select Change</source>
@@ -21752,20 +21548,10 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <source>&amp;Commit</source>
         <translation>コミット(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
     <message>
         <source>Sha1</source>
         <translation>SHA1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>件名</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>リセット:</translation>
@@ -21790,9 +21576,6 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <source>Soft</source>
         <translation>ソフト</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
     <message>
         <source>Normal</source>
         <translation>ノーマル</translation>
@@ -21874,10 +21657,6 @@ Remote: %4</source>
         <translation>他の未解決なパスのマージを継続しますか？</translation>
     </message>
     <message>
-        <source>Merge Tool</source>
-        <translation>マージツール</translation>
-    </message>
-    <message>
         <source>Merge tool is not configured.</source>
         <translation>マージツールが設定されていません。</translation>
     </message>
@@ -21893,9 +21672,6 @@ Remote: %4</source>
         <source>Merge tool process terminated with exit code %1</source>
         <translation>マージツールプロセスは終了コード %1 で終了しました</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
@@ -21927,10 +21703,6 @@ instead of its installation directory when run outside git bash.</source>
     <message>
         <source>Git Repository Browser Command</source>
         <translation>Git リポジトリブラウザコマンド</translation>
-    </message>
-    <message>
-        <source>Git</source>
-        <translation>Git</translation>
     </message>
 </context>
 <context>
@@ -35551,21 +35323,10 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditor</name>
+    <name>Git</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation>コミットデータのリフレッシュ中</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -42178,7 +41939,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditorWidget</name>
+    <name>Git</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation>&quot;%1&quot; の編集者を表示(&amp;B)</translation>
@@ -42186,10 +41947,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
         <translation>親リビジョン %1 の編集者を表示(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
-        <translation>チャンクをステージに追加しました</translation>
     </message>
     <message>
         <source>Stage Chunk...</source>
@@ -42200,40 +41957,9 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>チャンクをステージから削除...</translation>
     </message>
     <message>
-        <source>Cherr&amp;y-Pick Change %1</source>
-        <translation>コミット %1 をチェリーピック(&amp;Y)</translation>
-    </message>
-    <message>
         <source>Re&amp;vert Change %1</source>
         <translation>コミット %1 を打ち消す(&amp;V)</translation>
     </message>
-    <message>
-        <source>C&amp;heckout Change %1</source>
-        <translation>コミット %1 をチェックアウト(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;Log for Change %1</source>
-        <translation>コミット %1 のログ(&amp;L)</translation>
-    </message>
-    <message>
-        <source>&amp;Reset to Change %1</source>
-        <translation>コミット %1 へリセット(&amp;R)</translation>
-    </message>
-    <message>
-        <source>&amp;Hard</source>
-        <translation>ハード(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;Mixed</source>
-        <translation>混在(&amp;M)</translation>
-    </message>
-    <message>
-        <source>&amp;Soft</source>
-        <translation>ソフト(&amp;S)</translation>
-    </message>
-</context>
-<context>
-    <name>GitGrep</name>
     <message>
         <source>&amp;Use Git Grep</source>
         <translation>Git Grep を使用する(&amp;U)</translation>
@@ -42261,10 +41987,6 @@ Leave empty to search through the file system.</source>
 %2</source>
         <translation>リファレンス: %1
 %2</translation>
-    </message>
-    <message>
-        <source>Git Show %1:%2</source>
-        <translation>Git Show %1:%2</translation>
     </message>
 </context>
 <context>
@@ -46332,14 +46054,10 @@ Output:
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
+    <name>Git</name>
     <message>
         <source>Authentication</source>
         <translation>認証情報</translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>ユーザー(&amp;U):</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
@@ -50078,135 +49796,30 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchView</name>
+    <name>Git</name>
     <message>
         <source>Refresh</source>
         <translation>更新</translation>
-    </message>
-    <message numerus="yes">
-        <source>Include branches and tags that have not been active for %n days.</source>
-        <translation>
-            <numerusform>直近の %n 日にアクティブではないブランチやタグを含みます。</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;リポジトリなし&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>追加(&amp;A)...</translation>
-    </message>
-    <message>
-        <source>&amp;Checkout</source>
-        <translation>チェックアウト(&amp;C)</translation>
-    </message>
-    <message>
-        <source>&amp;Diff</source>
-        <translation>差分表示(&amp;D)</translation>
-    </message>
-    <message>
-        <source>&amp;Log</source>
-        <translation>ログ表示(&amp;L)</translation>
-    </message>
-    <message>
-        <source>&amp;Hard</source>
-        <translation>ハード(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;Mixed</source>
-        <translation>混在(&amp;M)</translation>
-    </message>
-    <message>
-        <source>&amp;Soft</source>
-        <translation>ソフト(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>チェリーピック(&amp;P)</translation>
-    </message>
-    <message>
-        <source>&amp;Track</source>
-        <translation>トラック(&amp;T)</translation>
-    </message>
-    <message>
-        <source>&amp;Push</source>
-        <translation>プッシュ(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Would you like to delete the tag &quot;%1&quot;?</source>
-        <translation>タグ &quot;%1&quot; を削除しますか？</translation>
-    </message>
-    <message>
-        <source>Would you like to delete the branch &quot;%1&quot;?</source>
-        <translation>ブランチ &quot;%1&quot; を削除しますか？</translation>
-    </message>
-    <message>
-        <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &quot;%1&quot;?</source>
-        <translation>&lt;b&gt;マージされていない&lt;/b&gt;ブランチ ”%1&quot; を削除しますか？</translation>
-    </message>
-    <message>
-        <source>Delete Tag</source>
-        <translation>タグを削除</translation>
     </message>
     <message>
         <source>Delete Branch</source>
         <translation>ブランチを削除する</translation>
     </message>
     <message>
-        <source>Git Reset</source>
-        <translation>Git リセット</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::BranchViewFactory</name>
-    <message>
         <source>Filter</source>
         <translation>フィルタ</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBaseDiffEditorController</name>
     <message>
         <source>&lt;None&gt;</source>
         <translation>&lt;なし&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitLogArgumentsWidget</name>
-    <message>
-        <source>Show difference.</source>
-        <translation>差分を表示します。</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation>フィルタ</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogFilterWidget</name>
     <message>
         <source>Filter:</source>
         <translation>フィルタ:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPluginPrivate</name>
     <message>
         <source>&amp;Describe Change %1</source>
         <translation>変更 %1 の説明(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Git Settings</source>
-        <translation>Git の設定</translation>
-    </message>
-    <message>
-        <source>&amp;Git</source>
-        <translation>&amp;Git</translation>
-    </message>
-    <message>
-        <source>Current &amp;File</source>
-        <translation>現在のファイル(&amp;F)</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
@@ -50214,25 +49827,9 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>&quot;%1&quot; の差分表示 (Diff)</translation>
     </message>
     <message>
-        <source>Meta+G,Meta+D</source>
-        <translation>Meta+G,Meta+D</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+D</source>
-        <translation>Alt+G,Alt+D</translation>
-    </message>
-    <message>
         <source>Log of &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
         <translation>&quot;%1&quot; のログ (Log)</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+L</source>
-        <translation>Meta+G,Meta+L</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+L</source>
-        <translation>Alt+G,Alt+L</translation>
     </message>
     <message>
         <source>Blame Current File</source>
@@ -50245,85 +49842,9 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>&quot;%1&quot; の編集者を表示 (Blame)</translation>
     </message>
     <message>
-        <source>Meta+G,Meta+B</source>
-        <translation>Meta+G,Meta+B</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+B</source>
-        <translation>Alt+G,Alt+B</translation>
-    </message>
-    <message>
-        <source>Stage File for Commit</source>
-        <translation>ファイルをステージ(コミット予定)に追加 (Add)</translation>
-    </message>
-    <message>
-        <source>Stage &quot;%1&quot; for Commit</source>
-        <translation>&quot;%1&quot; をステージ(コミット予定)に追加 (Add)</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+A</source>
-        <translation>Meta+G,Meta+A</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+A</source>
-        <translation>Alt+G,Alt+A</translation>
-    </message>
-    <message>
-        <source>Unstage File from Commit</source>
-        <translation>ファイルをステージ(コミット予定)から削除 (Reset)</translation>
-    </message>
-    <message>
-        <source>Unstage &quot;%1&quot; from Commit</source>
-        <translation>&quot;%1&quot; をステージ(コミット予定)から削除 (Reset)</translation>
-    </message>
-    <message>
-        <source>Undo Unstaged Changes</source>
-        <translation>ステージに無い変更を元に戻す</translation>
-    </message>
-    <message>
-        <source>Undo Unstaged Changes for &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のステージに無い変更を元に戻す</translation>
-    </message>
-    <message>
-        <source>Undo Uncommitted Changes</source>
-        <translation>コミットされていない変更を元に戻す</translation>
-    </message>
-    <message>
-        <source>Undo Uncommitted Changes for &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のコミットされていない変更を元に戻す</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+U</source>
-        <translation>Meta+G,Meta+U</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+U</source>
-        <translation>Alt+G,Alt+U</translation>
-    </message>
-    <message>
-        <source>Current &amp;Project</source>
-        <translation>現在のプロジェクト(&amp;P)</translation>
-    </message>
-    <message>
         <source>Diff Current Project</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
         <translation>現在のプロジェクトの差分表示 (Diff)</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+Shift+D</source>
-        <translation>Meta+G,Meta+Shift+D</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+Shift+D</source>
-        <translation>Alt+G,Alt+Shift+D</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+K</source>
-        <translation>Meta+G,Meta+K</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+K</source>
-        <translation>Alt+G,Alt+K</translation>
     </message>
     <message>
         <source>Clean Project...</source>
@@ -50334,18 +49855,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Clean Project &quot;%1&quot;...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
         <translation>プロジェクト &quot;%1&quot; をクリーン (Clean)...</translation>
-    </message>
-    <message>
-        <source>&amp;Local Repository</source>
-        <translation>ローカルリポジトリ(&amp;L)</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+C</source>
-        <translation>Meta+G,Meta+C</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+C</source>
-        <translation>Alt+G,Alt+C</translation>
     </message>
     <message>
         <source>Amend Last Commit...</source>
@@ -50361,10 +49870,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Interactive Rebase...</source>
         <comment>Avoid translating &quot;Rebase&quot;</comment>
         <translation>対話的なリベース (Rebase)...</translation>
-    </message>
-    <message>
-        <source>Update Submodules</source>
-        <translation>サブモジュールを更新</translation>
     </message>
     <message>
         <source>Abort Merge</source>
@@ -50387,44 +49892,8 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>コミット打ち消しの中止</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>リベースの続行</translation>
-    </message>
-    <message>
-        <source>Continue Cherry Pick</source>
-        <translation>チェリーピックの続行</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>コミットの打ち消しの続行</translation>
-    </message>
-    <message>
-        <source>Branches...</source>
-        <translation>ブランチ (Branch)...</translation>
-    </message>
-    <message>
-        <source>&amp;Patch</source>
-        <translation>パッチ(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Apply from Editor</source>
-        <translation>エディタから適用</translation>
-    </message>
-    <message>
-        <source>Apply &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の適用</translation>
-    </message>
-    <message>
-        <source>Apply from File...</source>
-        <translation>ファイルから適用...</translation>
-    </message>
-    <message>
         <source>&amp;Stash</source>
         <translation>スタッシュ (&amp;Stash)</translation>
-    </message>
-    <message>
-        <source>Saves the current state of your work and resets the repository.</source>
-        <translation>現在の状態を保持し、リポジトリを元の状態に戻します。</translation>
     </message>
     <message>
         <source>Stash Unstaged Files</source>
@@ -50432,125 +49901,9 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>ステージにないファイルをスタッシュ (Stash)</translation>
     </message>
     <message>
-        <source>Saves the current state of your unstaged files and resets the repository to its staged state.</source>
-        <translation>ステージにないファイルの現在の状態を保存してリポジトリをステージ状態にリセットします。</translation>
-    </message>
-    <message>
-        <source>Take Snapshot...</source>
-        <translation>スナップショットを取る...</translation>
-    </message>
-    <message>
-        <source>Saves the current state of your work.</source>
-        <translation>現在の作業状況を保存します。</translation>
-    </message>
-    <message>
         <source>Stash Pop</source>
         <comment>Avoid translating &quot;Stash&quot;</comment>
         <translation>スタッシュのポップ (Stash Pop)</translation>
-    </message>
-    <message>
-        <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
-        <translation>&quot;スタッシュ (Stash)&quot;で保存させた作業状況を復元します。</translation>
-    </message>
-    <message>
-        <source>&amp;Remote Repository</source>
-        <translation>リモートリポジトリ(&amp;R)</translation>
-    </message>
-    <message>
-        <source>&amp;Subversion</source>
-        <translation>&amp;Subversion</translation>
-    </message>
-    <message>
-        <source>Manage Remotes...</source>
-        <translation>リモートの管理...</translation>
-    </message>
-    <message>
-        <source>Git &amp;Tools</source>
-        <translation>Git ツール(&amp;T)</translation>
-    </message>
-    <message>
-        <source>Gitk Current File</source>
-        <translation>現在のファイルを Gitk で表示する</translation>
-    </message>
-    <message>
-        <source>Gitk of &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; を Gitk で表示する</translation>
-    </message>
-    <message>
-        <source>Gitk for folder of Current File</source>
-        <translation>現在のファイルのフォルダーを Gitk で表示する</translation>
-    </message>
-    <message>
-        <source>Gitk for folder of &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のフォルダーを Gitk で表示する</translation>
-    </message>
-    <message>
-        <source>Git Gui</source>
-        <translation>Git GUI</translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>リポジトリブラウザ</translation>
-    </message>
-    <message>
-        <source>Merge Tool</source>
-        <translation>マージツール</translation>
-    </message>
-    <message>
-        <source>Actions on Commits...</source>
-        <translation>コミット時のアクション...</translation>
-    </message>
-    <message>
-        <source>Create Repository...</source>
-        <translation>リポジトリの作成...</translation>
-    </message>
-    <message>
-        <source>Undo Changes to %1</source>
-        <translation>コミット %1 まで元に戻す</translation>
-    </message>
-    <message>
-        <source>Interactive Rebase</source>
-        <translation>対話的なリベース</translation>
-    </message>
-    <message>
-        <source>Another submit is currently being executed.</source>
-        <translation>別のサブミットが実行中です。</translation>
-    </message>
-    <message>
-        <source>Unsupported version of Git found. Git %1 or later required.</source>
-        <translation>サポート対象外のバージョンの Git が見つかりました。Git %1 以降が必要です。</translation>
-    </message>
-    <message>
-        <source>Amend %1</source>
-        <translation>%1 のログを修正する</translation>
-    </message>
-    <message>
-        <source>Git Fixup Commit</source>
-        <translation>Git コミットの Fixup</translation>
-    </message>
-    <message>
-        <source>Git Commit</source>
-        <translation>Git コミット</translation>
-    </message>
-    <message>
-        <source>Repository Clean</source>
-        <translation>リポジトリをクリーン</translation>
-    </message>
-    <message>
-        <source>The repository is clean.</source>
-        <translation>リポジトリは変更されていません。</translation>
-    </message>
-    <message>
-        <source>Patches (*.patch *.diff)</source>
-        <translation>パッチ (*.patch *.diff)</translation>
-    </message>
-    <message>
-        <source>Choose Patch</source>
-        <translation>パッチの選択</translation>
-    </message>
-    <message>
-        <source>Patch %1 successfully applied to %2</source>
-        <translation>パッチ %1 を %2 に適用しました</translation>
     </message>
 </context>
 <context>

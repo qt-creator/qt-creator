@@ -6,26 +6,18 @@
 #include <utils/filepath.h>
 
 #include <QAbstractListModel>
-#include <QVariant>
 
 #include <optional>
 
 namespace VcsBase { class VcsCommand; }
 
-namespace Git {
-namespace Internal {
-
-class GitClient;
+namespace Git::Internal {
 
 class BranchNode;
+class GitClient;
 
-// --------------------------------------------------------------------------
-// BranchModel:
-// --------------------------------------------------------------------------
-
-class BranchModel : public QAbstractItemModel {
-    Q_OBJECT
-
+class BranchModel : public QAbstractItemModel
+{
 public:
     explicit BranchModel(GitClient *client, QObject *parent = nullptr);
     ~BranchModel() override;
@@ -80,5 +72,4 @@ private:
     Private *d;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

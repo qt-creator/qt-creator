@@ -9,12 +9,12 @@
 #include <QList>
 #include <QVariant>
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class RemoteModel : public QAbstractTableModel
 {
     Q_OBJECT
+
 public:
     explicit RemoteModel(QObject *parent = nullptr);
 
@@ -62,5 +62,4 @@ private:
     RemoteList m_remotes;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

@@ -12,13 +12,10 @@ QT_BEGIN_NAMESPACE
 class QMessageBox;
 QT_END_NAMESPACE
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class MergeTool : public QObject
 {
-    Q_OBJECT
-
     enum FileState {
         UnknownState,
         ModifiedState,
@@ -62,5 +59,4 @@ private:
     QString m_unfinishedLine;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

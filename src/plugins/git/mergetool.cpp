@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "mergetool.h"
+
 #include "gitclient.h"
 #include "gitplugin.h"
+#include "gittr.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -17,8 +19,7 @@
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 MergeTool::MergeTool(QObject *parent) : QObject(parent)
 {
@@ -88,10 +89,10 @@ static MergeTool::MergeType mergeType(const QString &type)
 QString MergeTool::mergeTypeName()
 {
     switch (m_mergeType) {
-    case NormalMerge: return tr("Normal");
-    case SubmoduleMerge: return tr("Submodule");
-    case DeletedMerge: return tr("Deleted");
-    case SymbolicLinkMerge: return tr("Symbolic link");
+    case NormalMerge: return Tr::tr("Normal");
+    case SubmoduleMerge: return Tr::tr("Submodule");
+    case DeletedMerge: return Tr::tr("Deleted");
+    case SymbolicLinkMerge: return Tr::tr("Symbolic link");
     }
     return QString();
 }
@@ -99,11 +100,11 @@ QString MergeTool::mergeTypeName()
 QString MergeTool::stateName(MergeTool::FileState state, const QString &extraInfo)
 {
     switch (state) {
-    case ModifiedState: return tr("Modified");
-    case CreatedState: return tr("Created");
-    case DeletedState: return tr("Deleted");
-    case SubmoduleState: return tr("Submodule commit %1").arg(extraInfo);
-    case SymbolicLinkState: return tr("Symbolic link -> %1").arg(extraInfo);
+    case ModifiedState: return Tr::tr("Modified");
+    case CreatedState: return Tr::tr("Created");
+    case DeletedState: return Tr::tr("Deleted");
+    case SubmoduleState: return Tr::tr("Submodule commit %1").arg(extraInfo);
+    case SymbolicLinkState: return Tr::tr("Symbolic link -> %1").arg(extraInfo);
     default: break;
     }
     return QString();
@@ -114,25 +115,25 @@ void MergeTool::chooseAction()
     if (m_mergeType == NormalMerge)
         return;
     QMessageBox msgBox;
-    msgBox.setWindowTitle(tr("Merge Conflict"));
+    msgBox.setWindowTitle(Tr::tr("Merge Conflict"));
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setStandardButtons(QMessageBox::Abort);
-    msgBox.setText(tr("%1 merge conflict for \"%2\"\nLocal: %3\nRemote: %4")
+    msgBox.setText(Tr::tr("%1 merge conflict for \"%2\"\nLocal: %3\nRemote: %4")
                    .arg(mergeTypeName(), m_fileName,
                         stateName(m_localState, m_localInfo),
                         stateName(m_remoteState, m_remoteInfo)));
     switch (m_mergeType) {
     case SubmoduleMerge:
     case SymbolicLinkMerge:
-        addButton(&msgBox, tr("&Local"), 'l');
-        addButton(&msgBox, tr("&Remote"), 'r');
+        addButton(&msgBox, Tr::tr("&Local"), 'l');
+        addButton(&msgBox, Tr::tr("&Remote"), 'r');
         break;
     case DeletedMerge:
         if (m_localState == CreatedState || m_remoteState == CreatedState)
-            addButton(&msgBox, tr("&Created"), 'c');
+            addButton(&msgBox, Tr::tr("&Created"), 'c');
         else
-            addButton(&msgBox, tr("&Modified"), 'm');
-        addButton(&msgBox, tr("&Deleted"), 'd');
+            addButton(&msgBox, Tr::tr("&Modified"), 'm');
+        addButton(&msgBox, Tr::tr("&Deleted"), 'd');
         break;
     default:
         break;
@@ -182,15 +183,15 @@ void MergeTool::readData()
         data = data.mid(index + 1);
     }
     if (data.startsWith("Was the merge successful")) {
-        prompt(tr("Unchanged File"), tr("Was the merge successful?"));
+        prompt(Tr::tr("Unchanged File"), Tr::tr("Was the merge successful?"));
     } else if (data.startsWith("Continue merging")) {
-        prompt(tr("Continue Merging"), tr("Continue merging other unresolved paths?"));
+        prompt(Tr::tr("Continue Merging"), Tr::tr("Continue merging other unresolved paths?"));
     } else if (data.startsWith("Hit return")) {
         QMessageBox::warning(
-                    Core::ICore::dialogParent(), tr("Merge Tool"),
+                    Core::ICore::dialogParent(), Tr::tr("Merge Tool"),
                     QString("<html><body><p>%1</p>\n<p>%2</p></body></html>").arg(
-                        tr("Merge tool is not configured."),
-                        tr("Run git config --global merge.tool &lt;tool&gt; "
+                        Tr::tr("Merge tool is not configured."),
+                        Tr::tr("Run git config --global merge.tool &lt;tool&gt; "
                            "to configure it, then try again.")));
         m_process.stop();
     } else {
@@ -234,5 +235,4 @@ void MergeTool::write(const QString &str)
     VcsOutputWindow::append(str);
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

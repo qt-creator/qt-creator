@@ -5,6 +5,7 @@
 
 #include "gitclient.h"
 #include "gitplugin.h"
+#include "gittr.h"
 #include "remotemodel.h"
 
 #include <utils/fancylineedit.h>
@@ -27,8 +28,7 @@
 
 using namespace Utils;
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 // --------------------------------------------------------------------------
 // RemoteAdditionDialog:
@@ -65,7 +65,7 @@ public:
 
             if (m_remoteNames.contains(input)) {
                 if (errorMessage)
-                    *errorMessage = RemoteDialog::tr("A remote with the name \"%1\" already exists.").arg(input);
+                    *errorMessage = Tr::tr("A remote with the name \"%1\" already exists.").arg(input);
                 return false;
             }
 
@@ -81,7 +81,7 @@ public:
 
             const GitRemote r(edit->text());
             if (!r.isValid && errorMessage)
-                *errorMessage = RemoteDialog::tr("The URL may not be valid.");
+                *errorMessage = Tr::tr("The URL may not be valid.");
 
             return r.isValid;
         });
@@ -91,8 +91,8 @@ public:
 
         using namespace Layouting;
         Grid {
-            tr("Name:"), m_nameEdit, br,
-            tr("URL:"), m_urlEdit, br,
+            Tr::tr("Name:"), m_nameEdit, br,
+            Tr::tr("URL:"), m_urlEdit, br,
             Span(2, buttonBox)
         }.attachTo(this);
 
@@ -134,11 +134,11 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
 {
     setModal(false);
     setAttribute(Qt::WA_DeleteOnClose, true); // Do not update unnecessarily
-        setWindowTitle(tr("Remotes"));
+        setWindowTitle(Tr::tr("Remotes"));
 
     m_repositoryLabel = new QLabel;
 
-    auto refreshButton = new QPushButton(tr("Re&fresh"));
+    auto refreshButton = new QPushButton(Tr::tr("Re&fresh"));
     refreshButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 
     m_remoteView = new QTreeView;
@@ -151,14 +151,14 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     m_remoteView->setModel(m_remoteModel);
     new HeaderViewStretcher(m_remoteView->header(), 1);
 
-    m_addButton = new QPushButton(tr("&Add..."));
+    m_addButton = new QPushButton(Tr::tr("&Add..."));
     m_addButton->setAutoDefault(false);
 
-    m_fetchButton = new QPushButton(tr("F&etch"));
+    m_fetchButton = new QPushButton(Tr::tr("F&etch"));
 
-    m_pushButton = new QPushButton(tr("&Push"));
+    m_pushButton = new QPushButton(Tr::tr("&Push"));
 
-    m_removeButton = new QPushButton(tr("&Remove"));
+    m_removeButton = new QPushButton(Tr::tr("&Remove"));
     m_removeButton->setAutoDefault(false);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
@@ -169,7 +169,7 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
             Row { m_repositoryLabel, refreshButton }
         },
         Group {
-            title(tr("Remotes")),
+            title(Tr::tr("Remotes")),
             Column {
                 m_remoteView,
                 Row { st, m_addButton, m_fetchButton, m_pushButton, m_removeButton }
@@ -233,8 +233,8 @@ void RemoteDialog::removeRemote()
 
     int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
-    if (QMessageBox::question(this, tr("Delete Remote"),
-                              tr("Would you like to delete the remote \"%1\"?").arg(remoteName),
+    if (QMessageBox::question(this, Tr::tr("Delete Remote"),
+                              Tr::tr("Would you like to delete the remote \"%1\"?").arg(remoteName),
                               QMessageBox::Yes | QMessageBox::No,
                               QMessageBox::Yes) == QMessageBox::Yes) {
         m_remoteModel->removeRemote(row);
@@ -274,5 +274,4 @@ void RemoteDialog::updateButtonState()
     m_removeButton->setEnabled(haveSelection);
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

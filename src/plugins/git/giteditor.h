@@ -12,8 +12,7 @@ class FancyLineEdit;
 class FilePath;
 } // Utils
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class GitLogFilterWidget;
 
@@ -57,5 +56,4 @@ private:
     GitLogFilterWidget *m_logFilterWidget = nullptr;
 };
 
-} // namespace Git
-} // namespace Internal
+} // Git::Internal

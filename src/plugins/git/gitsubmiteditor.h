@@ -14,8 +14,7 @@
 
 namespace VcsBase { class SubmitFileModel; }
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class GitSubmitEditorWidget;
 class GitSubmitEditorPanelData;
@@ -65,5 +64,4 @@ private:
     QFutureWatcher<CommitDataFetchResult> m_fetchWatcher;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

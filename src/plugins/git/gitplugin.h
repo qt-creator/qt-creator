@@ -16,8 +16,7 @@
 
 namespace VcsBase { class VcsBasePluginState; }
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class GitClient;
 
@@ -67,5 +66,4 @@ private slots:
 
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

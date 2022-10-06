@@ -3830,7 +3830,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>Naziv grane:</translation>
@@ -3859,9 +3859,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Prati lokalnu granu &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Nađene su lokalne promjene. Odaberi radnju:</translation>
@@ -3873,10 +3870,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     <message>
         <source>Discard Local Changes</source>
         <translation>Zanemari lokalne promjene</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Potvrdni kvadratić</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -3898,9 +3891,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Create Branch Stash for Current Branch</source>
         <translation>Stvori skladište grane za trenutačnu granu</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
         <translation>Odaberi Git obvezu</translation>
@@ -3965,9 +3955,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Fetching commit data...</source>
         <translation>Dohvaćanje podataka obveze …</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
     <message>
         <source>Authentication</source>
         <translation>Autentifikacija</translation>
@@ -3992,9 +3979,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Anonymous</source>
         <translation>Anonimno</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
@@ -4020,14 +4004,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <translation>Detalji</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Prikaži</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>C&amp;heckout</source>
         <translation>&amp;Odjava</translation>
     </message>
@@ -4051,9 +4027,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
 Želiš li deaktivirati potvrdu SSL-a za ovaj poslužitelj?
 Napomena: To te može izložiti napadu čovjeka-u-sredini.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Gurni na Gerrit</translation>
@@ -4161,9 +4134,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>... Include older branches ...</source>
         <translation>…&#xa0;Uključi starije grane …</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Opće informacije</translation>
@@ -4204,9 +4174,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>Sign off</source>
         <translation>Odjavi se</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Dodaj udaljeni</translation>
@@ -4219,9 +4186,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Udaljeni</translation>
@@ -4262,9 +4226,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>Would you like to delete the remote &quot;%1&quot;?</source>
         <translation>Želiš li ukloniti udaljeni „%1”?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -4333,9 +4294,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>Git Settings</source>
         <translation>Git postavke</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
         <translation>Skladišta</translation>
@@ -4361,10 +4319,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <translation>&amp;Ukloni …</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Prikaži</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>Vrati izvorno stanj&amp;e …</translation>
     </message>
@@ -4372,10 +4326,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Vrati izvorno stanje u &amp;granu …</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Aktualiziraj</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -4404,20 +4354,12 @@ You can choose between stashing the changes or discarding them.</source>
 Možeš birati između skladištenja promjena ili njihovih odbacivanja.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Skladište</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>Odbaci</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>Vrati izvorno stanje skladišta u granu</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Grana:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -24491,7 +24433,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokalne grane</translation>
@@ -24508,9 +24450,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Tags</source>
         <translation>Oznake</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchView</name>
     <message>
         <source>Include Old Entries</source>
         <translation>Uključi stare unose</translation>
@@ -24542,10 +24481,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     <message>
         <source>Add Branch...</source>
         <translation>Dodaj granu …</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Dodaj …</translation>
     </message>
     <message>
         <source>&amp;Fetch</source>
@@ -24596,16 +24531,8 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Izabrano &amp;biranje</translation>
-    </message>
-    <message>
         <source>&amp;Track</source>
         <translation>&amp;Prati</translation>
-    </message>
-    <message>
-        <source>&amp;Push</source>
-        <translation>&amp;Gurni</translation>
     </message>
     <message>
         <source>Would you like to delete the tag &quot;%1&quot;?</source>
@@ -24639,9 +24566,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Hard reset branch &quot;%1&quot; to &quot;%2&quot;?</source>
         <translation>Svakako resetiraj granu &quot;%1&quot; na &quot;%2&quot;?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchViewFactory</name>
     <message>
         <source>Git Branches</source>
         <translation>Git grane</translation>
@@ -24650,9 +24574,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Filter</source>
         <translation>Filtar</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CommitData</name>
     <message>
         <source>untracked</source>
         <translation>nepraćeno</translation>
@@ -24697,9 +24618,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source> by them</source>
         <translation> od njih</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (koncept)</translation>
@@ -24756,9 +24674,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>Greška u obradi: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Pretraživanje Gerrita</translation>
@@ -24795,16 +24710,6 @@ Najvjerojatniji uzrok tome su problemi s SSH autentifikacijom.
         <source>Keep Running</source>
         <translation>Nastavi s pokretanjem</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -24812,10 +24717,6 @@ Najvjerojatniji uzrok tome su problemi s SSH autentifikacijom.
     <message>
         <source>&amp;Host:</source>
         <translation>&amp;Glavno računalo:</translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>K&amp;orisnik:</translation>
     </message>
     <message>
         <source>&amp;ssh:</source>
@@ -24839,28 +24740,10 @@ Najvjerojatniji uzrok tome su problemi s SSH autentifikacijom.
 &quot;gerrit.config&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Dohvaćanje od Gerrita</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 se urušio.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 je vratio %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Greška u pokretanju %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit …</translation>
@@ -24903,9 +24786,6 @@ nisu provjereni između daljinskih u %3. Odabrati jednu drugu mapu?</translation
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>Uđi u lokalno spremište za &quot;%1&quot; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritRemoteChooser</name>
     <message>
         <source>Refresh Remote Servers</source>
         <translation>Obnovi udaljene poslužitelje</translation>
@@ -24914,9 +24794,6 @@ nisu provjereni između daljinskih u %3. Odabrati jednu drugu mapu?</translation
         <source>Fallback</source>
         <translation>Rezerva</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message numerus="yes">
         <source>and %n more</source>
         <extracomment>Displayed after the untranslated message &quot;Branches: branch1, branch2 &apos;and %n more&apos;&quot;</extracomment>
@@ -25049,10 +24926,6 @@ nisu provjereni između daljinskih u %3. Odabrati jednu drugu mapu?</translation
         <translation>Neispravna revizija</translation>
     </message>
     <message>
-        <source>Detached HEAD</source>
-        <translation>Odvojeni HEAD</translation>
-    </message>
-    <message>
         <source>Cannot describe revision &quot;%1&quot; in &quot;%2&quot;: %3</source>
         <translation>Nije moguće  opisati reviziju &quot;%1&quot; u &quot;%2&quot;: %3</translation>
     </message>
@@ -25133,10 +25006,6 @@ Commit now?</source>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -25292,10 +25161,6 @@ Commit now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Discard</source>
-        <translation>Odbaci</translation>
-    </message>
-    <message>
         <source>Discard (reset) local changes and execute %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25307,16 +25172,10 @@ Commit now?</source>
         <source>Cancel %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitDiffEditorController</name>
     <message>
         <source>&lt;None&gt;</source>
         <translation>&lt;bez&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Patience</source>
         <translation>Patience</translation>
@@ -25325,17 +25184,6 @@ Commit now?</source>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>Koristi patience algoritam za izračunavanje razlika.</translation>
     </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Zanemari bjeline</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Zanemari promjene samo u bjelinama.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Omit Date</source>
         <translation>Zanemari datum</translation>
@@ -25372,9 +25220,6 @@ Commit now?</source>
         <source>Reload</source>
         <translation>Učitaj ponovo</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Prikaži razlike</translation>
@@ -25400,22 +25245,11 @@ Commit now?</source>
         <translation>Prikaži log-zapis tekstovnim dijagramom.</translation>
     </message>
     <message>
-        <source>Reload</source>
-        <translation>Učitaj ponovo</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditorWidget</name>
-    <message>
         <source>&amp;Blame %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -25458,9 +25292,6 @@ Commit now?</source>
         <source>&amp;Soft</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GitGrep</name>
     <message>
         <source>Tree (optional)</source>
         <translation type="unfinished"></translation>
@@ -25482,13 +25313,6 @@ Leave empty to search through the file system.</source>
     <message>
         <source>Git Show %1:%2</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
-    <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;Nema spremišta&gt;</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -25663,10 +25487,6 @@ Leave empty to search through the file system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Stanje</translation>
-    </message>
-    <message>
         <source>Commit...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25719,10 +25539,6 @@ Leave empty to search through the file system.</source>
         <translation>Prekini obnavljanje</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Skip Rebase</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25760,10 +25576,6 @@ Leave empty to search through the file system.</source>
     </message>
     <message>
         <source>Stashes...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -25851,10 +25663,6 @@ Leave empty to search through the file system.</source>
         <translation>Git ala&amp;ti</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Gitk Current File</source>
         <translation>Gitk trenutačna datoteka</translation>
     </message>
@@ -25873,10 +25681,6 @@ Leave empty to search through the file system.</source>
     <message>
         <source>Git Gui</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Preglednik spremišta</translation>
     </message>
     <message>
         <source>Merge Tool</source>
@@ -25942,30 +25746,17 @@ Leave empty to search through the file system.</source>
         <source>Patch %1 successfully applied to %2</source>
         <translation>Zakrpa %1 uspješno primijenjena na %2</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Odvojeni HEAD</translation>
     </message>
     <message>
         <source>Select Change</source>
@@ -26007,20 +25798,10 @@ Leave empty to search through the file system.</source>
         <source>&amp;Commit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
     <message>
         <source>Sha1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Predmet</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Resetiraj na:</translation>
@@ -26045,9 +25826,6 @@ Leave empty to search through the file system.</source>
         <source>Soft</source>
         <translation>Meko</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
     <message>
         <source>Normal</source>
         <translation>Normalna</translation>
@@ -26129,10 +25907,6 @@ Udaljeni: %4</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Merge Tool</source>
-        <translation>Alat za sjedinjavanje</translation>
-    </message>
-    <message>
         <source>Merge tool is not configured.</source>
         <translation>Alat za sjedinjavanje nije konfiguriran.</translation>
     </message>
@@ -26148,20 +25922,6 @@ Udaljeni: %4</translation>
         <source>Merge tool process terminated with exit code %1</source>
         <translation>Proces alata za sjedinjavanje je prekinut s izlaznim kodom %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Naziv</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).

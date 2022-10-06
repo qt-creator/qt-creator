@@ -9377,7 +9377,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::CloneWizardPage</name>
+    <name>Git</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -9390,9 +9390,6 @@ These files are preserved.</source>
         <source>Recursive</source>
         <translation type="vanished">Рекурсивно</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Patience</source>
         <translation type="unfinished"></translation>
@@ -9409,9 +9406,6 @@ These files are preserved.</source>
         <source>Ignore whitespace only changes.</source>
         <translation>Ігнорувати зміни в пропусках.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchAddDialog</name>
     <message>
         <source>Branch Name:</source>
         <translation>Назва гілки:</translation>
@@ -9436,9 +9430,6 @@ These files are preserved.</source>
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Відстежувати локальну гілку &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Branches</source>
         <translation>Гілки</translation>
@@ -9556,10 +9547,6 @@ These files are preserved.</source>
         <translation>&amp;Стежити</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Скинути</translation>
-    </message>
-    <message>
         <source>Set current branch to track the selected one.</source>
         <translation>Встановити, щоб поточна гілка стежила за вибраною.</translation>
     </message>
@@ -9567,9 +9554,6 @@ These files are preserved.</source>
         <source>&amp;Include old entries</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchModel</name>
     <message>
         <source>Local Branches</source>
         <translation>Локальні гілки</translation>
@@ -9582,9 +9566,6 @@ These files are preserved.</source>
         <source>Tags</source>
         <translation>Теги</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Browse &amp;Directory...</source>
         <translation type="vanished">Оглянути &amp;теку...</translation>
@@ -9653,9 +9634,6 @@ These files are preserved.</source>
         <source>Select a Git Commit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CloneWizard</name>
     <message>
         <source>Cloning</source>
         <translation type="vanished">Клонування</translation>
@@ -9672,9 +9650,6 @@ These files are preserved.</source>
         <source>Git Repository Clone</source>
         <translation type="vanished">Клонування сховища Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Omit Date</source>
         <translation>Пропускати дату</translation>
@@ -9683,17 +9658,6 @@ These files are preserved.</source>
         <source>Hide the date of a change from the output.</source>
         <translation>Приховати дату зміни у виведенні.</translation>
     </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ігнорувати пропуски</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Ігнорувати зміни в пропусках.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Waiting for data...</source>
         <translation type="vanished">Очікування на дані...</translation>
@@ -9843,14 +9807,6 @@ These files are preserved.</source>
     <message>
         <source>Git Diff Project</source>
         <translation>Зміни в проекті (Git)</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All changes in working directory will be discarded. Are you sure?</source>
-        <translation>Усі зміни в робочій теці будуть відкинуті. Ви впевнені?</translation>
     </message>
     <message>
         <source>Cannot describe revision &quot;%1&quot; in &quot;%2&quot;: %3</source>
@@ -10015,10 +9971,6 @@ Commit now?</source>
         <translation>Неможливо отримати статус: %1</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Продовження перебазування</translation>
-    </message>
-    <message>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
@@ -10097,9 +10049,6 @@ Commit now?</source>
         <source>There are no modified files.</source>
         <translation>Немає змінених файлів.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Reset</source>
         <translation type="vanished">Скидання</translation>
@@ -10108,9 +10057,6 @@ Commit now?</source>
         <source>All changes in working directory will be discarded. Are you sure?</source>
         <translation type="vanished">Усі зміни в робочій теці будуть відкинуті. Ви впевнені?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -10296,10 +10242,6 @@ Commit now?</source>
         <translation>Зберігає поточний стан вашої праці.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Saves the current state of your work and resets the repository.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10353,10 +10295,6 @@ Commit now?</source>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10422,14 +10360,6 @@ Commit now?</source>
     <message>
         <source>Fetch</source>
         <translation>Отримати (fetch)</translation>
-    </message>
-    <message>
-        <source>Clones a Git repository and tries to load the contained project.</source>
-        <translation type="vanished">Клонує сховище Git та намагається завантажити з нього проект.</translation>
-    </message>
-    <message>
-        <source>Git Repository Clone</source>
-        <translation type="vanished">Клонування сховища Git</translation>
     </message>
     <message>
         <source>Reflog</source>
@@ -10524,10 +10454,6 @@ Commit now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Undo</source>
         <translation>&amp;Повернути</translation>
     </message>
@@ -10583,9 +10509,6 @@ Commit now?</source>
         <source>Patch %1 successfully applied to %2</source>
         <translation>Латку %1 було успішно накладено на %2</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation type="vanished">Не вдалось знайти виконуваний модуль &apos;%1&apos; в шляху &apos;%2&apos;</translation>
@@ -10594,9 +10517,6 @@ Commit now?</source>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>Не вдалось знайти виконуваний модуль &quot;%1&quot; в шляху &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Загальна інформація</translation>
@@ -10633,9 +10553,6 @@ Commit now?</source>
         <source>By&amp;pass hooks:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Додавання віддаленого сховища</translation>
@@ -10648,28 +10565,13 @@ Commit now?</source>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Віддалені сховища</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Оновити</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Додати...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>&amp;Отримати</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>&amp;Видалити</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -10683,9 +10585,6 @@ Commit now?</source>
         <source>&amp;Push</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Примітка:&lt;/b&gt;</translation>
@@ -10723,10 +10622,6 @@ Commit now?</source>
         <translation>Встановити змінну середовища &quot;HOME&quot;</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Аргументи:</translation>
     </message>
@@ -10755,13 +10650,6 @@ Commit now?</source>
         <translation>Показувати теги в діалозі &quot;Гілки&quot;</translation>
     </message>
     <message>
-        <source>Repository Browser</source>
-        <translation>Оглядач сховища</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
-    <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
 This causes msysgit to look for the SSH-keys in that location
@@ -10787,9 +10675,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Git Repository Browser Command</source>
         <translation>Команда оглядача сховища Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
         <translation type="unfinished"></translation>
@@ -10835,10 +10720,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation>Ви&amp;далити...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Показати</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10846,10 +10727,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Оновити</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -10865,20 +10742,8 @@ You can choose between stashing the changes or discarding them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Відкинути</translation>
-    </message>
-    <message>
         <source>Restore Stash to Branch</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Гілка:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -26849,7 +26714,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation type="unfinished"></translation>
@@ -26890,9 +26755,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source> by them</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Показати зміни</translation>
@@ -31126,7 +30988,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>Git</name>
     <message>
         <source>Apply in:</source>
         <translation>Застосувати в:</translation>
@@ -31164,20 +31026,9 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="vanished">&amp;Показати...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Показати</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fetching &quot;%1&quot;...</source>
         <translation>Отримання &quot;%1&quot;...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Owner&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Project&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Patch set&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Тема&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Номер&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Власник&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Проект&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Статус&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Набір латок&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -31201,10 +31052,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     <message>
         <source>Approvals</source>
         <translation>Схвалення</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Статус</translation>
     </message>
     <message>
         <source>Number</source>
@@ -31250,13 +31097,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Parse error in line &apos;%1&apos;</source>
         <translation type="vanished">Помилка розбору в рядку&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
-    <message>
-        <source>Gerrit</source>
-        <translation type="vanished">Gerrit</translation>
-    </message>
     <message>
         <source>Querying Gerrit</source>
         <translation>Опитування Gerrit</translation>
@@ -31301,16 +31141,10 @@ Would you like to terminate it?</source>
         <source>Keep Running</source>
         <translation>Продовжувати виконання</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -31355,9 +31189,6 @@ Would you like to terminate it?</source>
 для формування URL у випадку, якщо &quot;canonicalWebUrl&quot;
 не налаштовано в файлі&quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
         <translation type="vanished">Отримати з Gerrit</translation>
@@ -31366,21 +31197,6 @@ Would you like to terminate it?</source>
         <source>Fetching from Gerrit</source>
         <translation>Отримання з Gerrit</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 завершився аварійно.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 повернув %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Помилка запуску %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -31428,15 +31244,8 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation type="vanished">Введіть локальне сховище для &apos;%1&apos; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32775,7 +32584,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Знайдені локальні зміни. Оберіть дію:</translation>
@@ -32787,10 +32596,6 @@ cannot be found in the path.</source>
     <message>
         <source>Discard Local Changes</source>
         <translation>Відкинути локальні зміни</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Прапорець</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -34095,11 +33900,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::MergeTool</name>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
+    <name>Git</name>
     <message>
         <source>Normal</source>
         <translation>Звичайний</translation>
@@ -35238,7 +35039,7 @@ See details for a complete list of files.</source>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
+    <name>Git</name>
     <message>
         <source>Push to Gerrit</source>
         <translation type="unfinished"></translation>
@@ -36088,7 +35889,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffHandler</name>
+    <name>Git</name>
     <message>
         <source>Working tree</source>
         <translation type="vanished">Робоче дерево</translation>
@@ -36098,23 +35899,9 @@ Partial names can be used if they are unambiguous.</source>
         <translation type="vanished">Покажчик</translation>
     </message>
     <message>
-        <source>Waiting for data...</source>
-        <translation type="vanished">Очікування на дані...</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
-    <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Тема</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Скинути до:</translation>
@@ -42395,15 +42182,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizardFactory</name>
-    <message>
-        <source>Clones a Git repository and tries to load the contained project.</source>
-        <translation type="vanished">Клонує сховище Git та намагається завантажити з нього проект.</translation>
-    </message>
-    <message>
-        <source>Git Repository Clone</source>
-        <translation type="vanished">Клонування сховища Git</translation>
-    </message>
+    <name>Git</name>
 </context>
 <context>
     <name>Gitorious::Internal::GitoriousCloneWizardFactory</name>
@@ -42417,21 +42196,10 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditor</name>
+    <name>Git</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Назва</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -45701,21 +45469,13 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditorWidget</name>
+    <name>Git</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All changes in working directory will be discarded. Are you sure?</source>
-        <translation type="vanished">Усі зміни в робочій теці будуть відкинуті. Ви впевнені?</translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -51650,7 +51410,7 @@ Please set a real Clang executable.</source>
     </message>
 </context>
 <context>
-    <name>GitGrep</name>
+    <name>Git</name>
     <message>
         <source>&amp;Use Git Grep</source>
         <translation type="unfinished"></translation>

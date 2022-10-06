@@ -7,8 +7,7 @@
 
 #include <QRegularExpression>
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 enum Format {
     Format_Comment,
@@ -35,6 +34,7 @@ class GitSubmitHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
     explicit GitSubmitHighlighter(QChar commentChar = QChar(), QTextEdit *parent = nullptr);
+
     void highlightBlock(const QString &text) override;
     QChar commentChar() const;
     void setCommentChar(QChar commentChar);
@@ -66,5 +66,4 @@ private:
     QList<RebaseAction> m_actions;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

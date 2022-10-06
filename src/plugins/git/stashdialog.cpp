@@ -5,6 +5,7 @@
 
 #include "gitclient.h"
 #include "gitplugin.h"
+#include "gittr.h"
 #include "gitutils.h"
 
 #include <utils/algorithm.h>
@@ -63,9 +64,7 @@ private:
 StashModel::StashModel(QObject *parent) :
     QStandardItemModel(0, ColumnCount, parent)
 {
-    QStringList headers;
-    headers << StashDialog::tr("Name") << StashDialog::tr("Branch") << StashDialog::tr("Message");
-    setHorizontalHeaderLabels(headers);
+    setHorizontalHeaderLabels({Tr::tr("Name"), Tr::tr("Branch"), Tr::tr("Message")});
 }
 
 void StashModel::setStashes(const QList<Stash> &stashes)
@@ -81,16 +80,16 @@ void StashModel::setStashes(const QList<Stash> &stashes)
 StashDialog::StashDialog(QWidget *parent) : QDialog(parent),
     m_model(new StashModel),
     m_proxyModel(new QSortFilterProxyModel),
-    m_deleteAllButton(new QPushButton(tr("Delete &All..."))),
-    m_deleteSelectionButton(new QPushButton(tr("&Delete..."))),
-    m_showCurrentButton(new QPushButton(tr("&Show"))),
-    m_restoreCurrentButton(new QPushButton(tr("R&estore..."))),
+    m_deleteAllButton(new QPushButton(Tr::tr("Delete &All..."))),
+    m_deleteSelectionButton(new QPushButton(Tr::tr("&Delete..."))),
+    m_showCurrentButton(new QPushButton(Tr::tr("&Show"))),
+    m_restoreCurrentButton(new QPushButton(Tr::tr("R&estore..."))),
     //: Restore a git stash to new branch to be created
-    m_restoreCurrentInBranchButton(new QPushButton(tr("Restore to &Branch..."))),
-    m_refreshButton(new QPushButton(tr("Re&fresh")))
+    m_restoreCurrentInBranchButton(new QPushButton(Tr::tr("Restore to &Branch..."))),
+    m_refreshButton(new QPushButton(Tr::tr("Re&fresh")))
 {
     setAttribute(Qt::WA_DeleteOnClose, true);  // Do not update unnecessarily
-    setWindowTitle(tr("Stashes"));
+    setWindowTitle(Tr::tr("Stashes"));
 
     resize(599, 485);
 
@@ -184,8 +183,8 @@ void StashDialog::refresh(const FilePath &repository, bool force)
 
 void StashDialog::deleteAll()
 {
-    const QString title = tr("Delete Stashes");
-    if (!ask(title, tr("Do you want to delete all stashes?")))
+    const QString title = Tr::tr("Delete Stashes");
+    if (!ask(title, Tr::tr("Do you want to delete all stashes?")))
         return;
     QString errorMessage;
     if (GitClient::instance()->synchronousStashRemove(m_repository, QString(), &errorMessage))
@@ -198,8 +197,8 @@ void StashDialog::deleteSelection()
 {
     const QList<int> rows = selectedRows();
     QTC_ASSERT(!rows.isEmpty(), return);
-    const QString title = tr("Delete Stashes");
-    if (!ask(title, tr("Do you want to delete %n stash(es)?", nullptr, rows.size())))
+    const QString title = Tr::tr("Delete Stashes");
+    if (!ask(title, Tr::tr("Do you want to delete %n stash(es)?", nullptr, rows.size())))
         return;
     QString errorMessage;
     QStringList errors;
@@ -252,12 +251,12 @@ static inline QString nextStash(const QString &stash)
 StashDialog::ModifiedRepositoryAction StashDialog::promptModifiedRepository(const QString &stash)
 {
     QMessageBox box(QMessageBox::Question,
-                    tr("Repository Modified"),
-                    tr("%1 cannot be restored since the repository is modified.\n"
+                    Tr::tr("Repository Modified"),
+                    Tr::tr("%1 cannot be restored since the repository is modified.\n"
                        "You can choose between stashing the changes or discarding them.").arg(stash),
                     QMessageBox::Cancel, this);
-    QPushButton *stashButton = box.addButton(tr("Stash"), QMessageBox::AcceptRole);
-    QPushButton *discardButton = box.addButton(tr("Discard"), QMessageBox::AcceptRole);
+    QPushButton *stashButton = box.addButton(Tr::tr("Stash"), QMessageBox::AcceptRole);
+    QPushButton *discardButton = box.addButton(Tr::tr("Discard"), QMessageBox::AcceptRole);
     box.exec();
     const QAbstractButton *clickedButton = box.clickedButton();
     if (clickedButton == stashButton)
@@ -307,19 +306,19 @@ bool StashDialog::promptForRestore(QString *stash,
     // Prompt for branch or just ask.
     if (branch) {
         *branch = stashRestoreDefaultBranch(*stash);
-        if (!inputText(this, tr("Restore Stash to Branch"), tr("Branch:"), branch)
+        if (!inputText(this, Tr::tr("Restore Stash to Branch"), Tr::tr("Branch:"), branch)
             || branch->isEmpty())
             return false;
     } else {
-        if (!modifiedPromptShown && !ask(tr("Stash Restore"), tr("Would you like to restore %1?").arg(stashIn)))
+        if (!modifiedPromptShown && !ask(Tr::tr("Stash Restore"), Tr::tr("Would you like to restore %1?").arg(stashIn)))
             return false;
     }
     return true;
 }
 
-static inline QString msgRestoreFailedTitle(const QString &stash)
+static QString msgRestoreFailedTitle(const QString &stash)
 {
-    return StashDialog::tr("Error restoring %1").arg(stash);
+    return Tr::tr("Error restoring %1").arg(stash);
 }
 
 void StashDialog::restoreCurrent()

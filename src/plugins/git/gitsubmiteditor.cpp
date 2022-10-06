@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "gitsubmiteditor.h"
+
 #include "gitclient.h"
 #include "gitplugin.h"
 #include "gitsubmiteditorwidget.h"
+#include "gittr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/iversioncontrol.h>
@@ -19,13 +21,12 @@
 #include <QTextCodec>
 #include <QTimer>
 
-static const char TASK_UPDATE_COMMIT[] = "Git.UpdateCommit";
-
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
+
+const char TASK_UPDATE_COMMIT[] = "Git.UpdateCommit";
 
 class GitSubmitFileModel : public SubmitFileModel
 {
@@ -206,7 +207,7 @@ void GitSubmitEditor::updateFileModel()
     w->setUpdateInProgress(true);
     m_fetchWatcher.setFuture(Utils::runAsync(&CommitDataFetchResult::fetch,
                                              m_commitType, m_workingDirectory));
-    Core::ProgressManager::addTask(m_fetchWatcher.future(), tr("Refreshing Commit Data"),
+    Core::ProgressManager::addTask(m_fetchWatcher.future(), Tr::tr("Refreshing Commit Data"),
                                    TASK_UPDATE_COMMIT);
 
     GitClient::instance()->addFuture(QFuture<void>(m_fetchWatcher.future()));
@@ -262,5 +263,4 @@ QByteArray GitSubmitEditor::fileContents() const
     return text.toUtf8();
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

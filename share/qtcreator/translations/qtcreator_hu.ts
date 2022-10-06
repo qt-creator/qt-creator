@@ -7129,7 +7129,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Git::CloneWizardPage</name>
+    <name>Git</name>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
         <translation>Határozza meg a tároló URL-t, megnézési könyvtárat és útvonalat.</translation>
@@ -7138,9 +7138,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Clone URL:</source>
         <translation>Klón URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::0</name>
     <message>
         <source>Checkout</source>
         <translation type="obsolete">Megnézés</translation>
@@ -7677,9 +7674,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Timeout (seconds):</source>
         <translation type="obsolete">Időtúllépés (másodpercek):</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Branches</source>
         <translation>Elágazások</translation>
@@ -7740,9 +7734,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Failed to create a tracking branch</source>
         <translation>Nem sikerült létrehozni egy követő elágazást</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation>Egy Git kommit kiválasztása</translation>
@@ -7759,9 +7750,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Selected directory is not a Git repository</source>
         <translation>A kiválaszott könyvtár nem egy Git tároló</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CloneWizard</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation>Egy projekt klónozása egy git tárolóból.</translation>
@@ -7770,9 +7758,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Git Repository Clone</source>
         <translation>Git Tároló Klónozása</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation>Ne felejtse el, hogy a git beépülő modul a QtCreatorban nem képes még együttmáködni a szerverel. Így, a manuális ssh azonosítás, stb. nem fog működni.</translation>
@@ -7886,9 +7871,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>There are no modified files.</source>
         <translation>Nincsenek módosítások.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -8066,10 +8048,6 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>&amp;Helyrehozás</translation>
     </message>
     <message>
-        <source>Revert</source>
-        <translation>Visszatérés</translation>
-    </message>
-    <message>
         <source>Would you like to revert all pending changes to the project?</source>
         <translation>Vissza szeretné állítani minden függőben levő változtatását a projektre?</translation>
     </message>
@@ -8093,30 +8071,17 @@ on slow machines. In this case, the value should be increased.</source>
         <source>The commit message check failed. Do you want to commit the change?</source>
         <translation>A kommit üzenet ellenőrzése nem sikerült. Kommitolni szeretné a változtatásokat?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>A(z) &apos;%1&apos; binarás nincs telepítve a(z) &apos;%2&apos; útvonalon</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Git Commit</source>
         <translation>Git kommit</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Általános információ</translation>
-    </message>
-    <message>
-        <source>Repository:</source>
-        <translation>Tároló:</translation>
     </message>
     <message>
         <source>repository</source>
@@ -8142,9 +8107,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Email:</source>
         <translation>EMail:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation>&lt;Új elágazás&gt;</translation>
@@ -8153,9 +8115,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Type to create a new branch</source>
         <translation>Gépelje be az új elágazás létrehozásához</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Environment variables</source>
         <translation>Környezeti változók</translation>
@@ -8204,9 +8163,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Git Settings</source>
         <translation>Git beállítások</translation>
     </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).

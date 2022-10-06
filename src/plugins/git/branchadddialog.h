@@ -10,10 +10,9 @@ QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QDialogButtonBox;
 class QLineEdit;
-QT_BEGIN_NAMESPACE
+QT_END_NAMESPACE
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class BranchModel;
 
@@ -30,8 +29,6 @@ private:
 
 class BranchAddDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     enum Type {
         AddBranch,
@@ -62,5 +59,4 @@ private:
     QDialogButtonBox *m_buttonBox;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

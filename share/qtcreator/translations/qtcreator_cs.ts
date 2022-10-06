@@ -6602,7 +6602,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation>Načíst (checkout)</translation>
@@ -6614,14 +6614,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>Unable to find the repository directory for &apos;%1&apos;.</source>
         <translation type="obsolete">Adresář skladiště pro &apos;%1&apos; se nepodařilo najít.</translation>
-    </message>
-    <message>
-        <source>Diff</source>
-        <translation type="obsolete">Rozdíly (diff)</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Obnovit</translation>
     </message>
     <message>
         <source>Delete...</source>
@@ -6716,28 +6708,12 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation type="obsolete">Obecné informace</translation>
     </message>
     <message>
-        <source>Repository:</source>
-        <translation type="obsolete">Skladiště:</translation>
-    </message>
-    <message>
         <source>Remote branches</source>
         <translation type="obsolete">Vzdálené větve</translation>
     </message>
     <message>
-        <source>Remote Branches</source>
-        <translation type="obsolete">Vzdálené větve</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Obnovit</translation>
-    </message>
-    <message>
         <source>&amp;Add...</source>
         <translation>Přid&amp;at...</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>Odst&amp;ranit</translation>
     </message>
     <message>
         <source>&amp;Diff</source>
@@ -6781,16 +6757,9 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation>&amp;Sledovat</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Set current branch to track the selected one.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation type="obsolete">Vyberte odeslání do Git</translation>
@@ -6808,10 +6777,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation type="obsolete">Vyberte skladiště Git</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="obsolete">Chyba</translation>
-    </message>
-    <message>
         <source>Selected directory is not a Git repository.</source>
         <translation type="obsolete">Vybraný adresář není skladištěm Git.</translation>
     </message>
@@ -6826,10 +6791,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>&amp;Show</source>
         <translation>Uká&amp;zat</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry-&amp;Pick</translation>
     </message>
     <message>
         <source>&amp;Revert</source>
@@ -6887,9 +6848,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <source>HEAD</source>
         <translation>HEAD</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation type="obsolete">Upozornění: přídavný modul Git pro QtCreator zatím ještě není schopen spolupracovat se serverem. Tudíž nebude pracovat ani ruční rozpoznání ssh a tak dále.</translation>
@@ -7082,10 +7040,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>Unable to run show: %1: %2</source>
         <translation type="obsolete">Příkaz pro ukázání (show) se nepodařilo provést: %1: %2</translation>
-    </message>
-    <message>
-        <source>Changes</source>
-        <translation type="obsolete">Změny</translation>
     </message>
     <message>
         <source>You have modified files. Would you like to stash your changes?</source>
@@ -7346,16 +7300,8 @@ Chcete nyní zapsat?</translation>
         <translation>Co chcete dělat s následujícími místními změnami:</translation>
     </message>
     <message>
-        <source>Stash &amp;&amp; Pop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Stash local changes and pop when %1 finishes.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Odložit (stash)</translation>
     </message>
     <message>
         <source>Stash local changes and execute %1.</source>
@@ -7376,10 +7322,6 @@ Chcete nyní zapsat?</translation>
     <message>
         <source>Stash local changes and continue.</source>
         <translation>Odložit místní změny a pokračovat.</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Odmítnout</translation>
     </message>
     <message>
         <source>Discard (reset) local changes and continue.</source>
@@ -7447,10 +7389,6 @@ Chcete nyní zapsat?</translation>
         <source>You need to commit changes to finish revert.
 Commit now?</source>
         <translation>Pro dokončení vrácení změn je nutno provést zápis. Chcete nyní zapsat?</translation>
-    </message>
-    <message>
-        <source>Commit</source>
-        <translation>Použít</translation>
     </message>
     <message>
         <source>Create Local Branch</source>
@@ -7546,10 +7484,6 @@ Commit now?</source>
         </translation>
     </message>
     <message>
-        <source>Revert</source>
-        <translation>Vrátit změny (revert)</translation>
-    </message>
-    <message>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Soubor byl změněn. Chcete vrátit změny?</translation>
     </message>
@@ -7605,9 +7539,6 @@ Commit now?</source>
         <source>Cannot determine git version: %1</source>
         <translation>Používanou verzi Gitu se nepodařilo určit. %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -7753,16 +7684,8 @@ Commit now?</source>
         <translation>Zrušit vrácení změn</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Pokračovat v přeskládání</translation>
-    </message>
-    <message>
         <source>Continue Cherry Pick</source>
         <translation>Pokračovat ve výběrovém slučování</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Pokračovat ve vracení změn</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -7901,10 +7824,6 @@ Commit now?</source>
     <message>
         <source>Undo Project Changes</source>
         <translation type="obsolete">Změny v projektu vrátit zpět</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Odložit (stash)</translation>
     </message>
     <message>
         <source>Saves the current state of your work.</source>
@@ -8229,23 +8148,10 @@ Commit now?</source>
         <source>The commit message check failed. Do you want to commit the change?</source>
         <translation type="obsolete">Ověření popisu týkajícího se odeslání se nezdařilo. Přesto chcete odeslání změn provést?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>Spustitelný soubor &apos;%1&apos; se v cestě &apos;%2&apos; nepodařilo najít</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
-    <message>
-        <source>Git Commit</source>
-        <translation type="obsolete">Git Commit</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Obecné informace</translation>
@@ -8282,9 +8188,6 @@ Commit now?</source>
         <source>By&amp;pass hooks</source>
         <translation>O&amp;bejít podmíněné akce (hooks)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation type="obsolete">&lt;Nová větev&gt;</translation>
@@ -8293,9 +8196,6 @@ Commit now?</source>
         <source>Type to create a new branch</source>
         <translation type="obsolete">Zadejte název pro novou větev</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Git</source>
         <translation>Git</translation>
@@ -8385,10 +8285,6 @@ Commit now?</source>
         <translation>Nastavit proměnnou prostředí &quot;HOME&quot;</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
     </message>
@@ -8428,13 +8324,6 @@ Commit now?</source>
         <source>Show diff side-by-side</source>
         <translation>Ukázat změny vedle sebe</translation>
     </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Prohlížeč skladiště</translation>
-    </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -19055,7 +18944,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="obsolete">Vytvoří přesnou kopii projektu ze skladiště jménem Git.</translation>
@@ -19076,9 +18965,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Git Repository Clone</source>
         <translation>Klon skladiště Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -21089,7 +20975,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Odložené změny</translation>
@@ -21109,10 +20995,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Delete all...</source>
         <translation type="obsolete">Smazat vše...</translation>
-    </message>
-    <message>
-        <source>Delete...</source>
-        <translation type="obsolete">Smazat...</translation>
     </message>
     <message>
         <source>Show</source>
@@ -21177,10 +21059,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation>S&amp;mazat...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>Uká&amp;zat</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>&amp;Obnovit...</translation>
     </message>
@@ -21188,10 +21066,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Obnovit jako &amp;větev...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Obnovit</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -21218,10 +21092,6 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>Použít odloženou jako větev</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Větev:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -24706,28 +24576,15 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteBranchModel</name>
+    <name>Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">&lt;žádná větev&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GitClient</name>
-    <message>
-        <source>Unable to determine the repository for %1.</source>
-        <translation type="obsolete">Skladiště pro %1 se nepodařilo určit.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation type="obsolete">Chyba: Překročení času u Gitu po %1s.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
         <translation>Anotace (blame) pro %1</translation>
@@ -29519,7 +29376,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -29527,10 +29384,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Branch Name:</source>
         <translation>Název větve:</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Zaškrtávací okénko</translation>
     </message>
     <message>
         <source>Add Branch</source>
@@ -29548,9 +29401,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Sledovat místní větev &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Přidat vzdálené</translation>
@@ -29563,9 +29413,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <source>URL:</source>
         <translation>Adresa (URL):</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Vzdálené (Remotes)</translation>
@@ -29573,10 +29420,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Re&amp;fresh</source>
         <translation>O&amp;bnovit</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>Přid&amp;at...</translation>
     </message>
     <message>
         <source>F&amp;etch</source>
@@ -34971,7 +34814,7 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Místní větve</translation>
@@ -34984,9 +34827,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <source>Tags</source>
         <translation>Značky</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>Použít algoritmus &quot;patience diff&quot; pro výpočet rozdílů.</translation>
@@ -35003,9 +34843,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <source>Ignore Whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>Select the pretty printing format.</source>
         <translation type="obsolete">Vybrat výstupní formát.</translation>
@@ -35038,9 +34875,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <source>raw</source>
         <translation>nezpracovaný</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>Datum změny ve výstupu neukazovat.</translation>
@@ -35049,17 +34883,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <source>Omit Date</source>
         <translation>Vynechat datum</translation>
     </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Nevšímat si změn bílých znaků.</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Nevšímat si bílých znaků</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -48095,7 +47918,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>neverzováno</translation>
@@ -48140,9 +47963,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>updated</source>
         <translation type="obsolete">aktualizováno</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Gerrit %1@%2</source>
         <translation>Gerrit %1@%2</translation>
@@ -48196,16 +48016,8 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Načíst (checkout)...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>Uká&amp;zat</translation>
-    </message>
-    <message>
         <source>Cherry &amp;Pick</source>
         <translation>&amp;Výběrově sloučit</translation>
-    </message>
-    <message>
-        <source>&amp;Checkout</source>
-        <translation>&amp;Načíst (checkout)</translation>
     </message>
     <message>
         <source>Diff...</source>
@@ -48216,20 +48028,9 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation type="obsolete">Použít...</translation>
     </message>
     <message>
-        <source>Checkout...</source>
-        <translation type="obsolete">Načíst (checkout)...</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Obnovit</translation>
-    </message>
-    <message>
         <source>Fetching &quot;%1&quot;...</source>
         <translation>Natahuje se &quot;%1&quot;...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source>Subject: %1
 Number: %2 Id: %3
@@ -48279,10 +48080,6 @@ Schválení: %12</translation>
         <translation>Schválení</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Stav</translation>
-    </message>
-    <message>
         <source>Parse error: &apos;%1&apos; -&gt; %2</source>
         <translation>Chyba ve zpracování: &apos;%1&apos; -&gt; %2</translation>
     </message>
@@ -48294,9 +48091,6 @@ Schválení: %12</translation>
         <source>Parse error in line &apos;%1&apos;</source>
         <translation>Chyba ve zpracování na řádku: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
@@ -48333,16 +48127,6 @@ Chcete jej ukončit?</translation>
         <source>Keep Running</source>
         <translation>Pokračovat</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -48423,24 +48207,9 @@ asked to confirm the repository path.</source>
 &quot;canonicalWebUrl&quot;není nastavena v souboru
 &quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
         <translation>Gerrit Fetch (přivedení)</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 spadl.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 vrátil %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Chyba při spouštění %1: %2</translation>
     </message>
     <message>
         <source>Error writing to temporary file.</source>
@@ -48454,9 +48223,6 @@ asked to confirm the repository path.</source>
         <source>Cherry-picking %1...</source>
         <translation type="obsolete">Vybírá se %1...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -48507,9 +48273,6 @@ nepatří k ověřeným Remotes v %3. Vybrat jinou složku?</translation>
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation>Vstoupit do místního skladiště pro &apos;%1&apos; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Ukázat rozdíly</translation>
@@ -48525,39 +48288,6 @@ nepatří k ověřeným Remotes v %3. Vybrat jinou složku?</translation>
     <message>
         <source>Show textual graph log.</source>
         <translation>Ukázat graf jako text.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::ResetDialog</name>
-    <message>
-        <source>Sha1</source>
-        <translation type="obsolete">Sha1</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation type="obsolete">Předmět</translation>
-    </message>
-    <message>
-        <source>Reset to:</source>
-        <translation type="obsolete">Nastavit znovu na:</translation>
-    </message>
-    <message>
-        <source>Reset type:</source>
-        <translatorcomment>XXX: neověřeno za běhu</translatorcomment>
-        <translation type="obsolete">Druh znovunastavení:</translation>
-    </message>
-    <message>
-        <source>Hard Reset</source>
-        <translatorcomment>XXX: Včetně pracovního stromu (lepší, ale asi moc dlouhé?); Napevno (hard) </translatorcomment>
-        <translation type="obsolete">I pracovní strom (hard)</translation>
-    </message>
-    <message>
-        <source>Soft Reset</source>
-        <translation type="obsolete">Pouze HEAD (soft)</translation>
-    </message>
-    <message>
-        <source>Undo Changes to %1</source>
-        <translation type="obsolete">Změny pro %1 vrátit zpět</translation>
     </message>
 </context>
 <context>
@@ -51221,11 +50951,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Odpojená HEAD</translation>
-    </message>
+    <name>Git</name>
     <message>
         <source>Select Change</source>
         <translation>Vybrat změnu</translation>
@@ -52582,11 +52308,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
-    </message>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Nalezeny místní změny. Vyberte úkon:</translation>
@@ -54252,11 +53974,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::MergeTool</name>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
+    <name>Git</name>
     <message>
         <source>File input for the merge tool requires Git 1.7.8, or later.</source>
         <translatorcomment>XXX: ověřit?</translatorcomment>
@@ -54340,50 +54058,8 @@ Vzdálený: %4</translation>
         <translation>Nástroj pro slučování doběhl úspěšně.</translation>
     </message>
     <message>
-        <source>No changes found. </source>
-        <translation type="obsolete">Beze změn.</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="obsolete">Přeskočit</translation>
-    </message>
-    <message>
         <source>Merge tool process finished successully.</source>
         <translation>Nástroj pro slučování doběhl úspěšně.</translation>
-    </message>
-    <message>
-        <source>Continue Rebase</source>
-        <translation type="obsolete">Pokračovat v přeskládání</translation>
-    </message>
-    <message>
-        <source>Continue rebase?</source>
-        <translation type="obsolete">Pokračovat v přeskládání?</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Pokračovat</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation type="obsolete">Pokračovat ve vracení změn</translation>
-    </message>
-    <message>
-        <source>You need to commit changes to finish revert.
-Commit now?</source>
-        <translation type="obsolete">Pro dokončení vrácení změn je nutno provést zápis. Chcete nyní zapsat?</translation>
-    </message>
-    <message>
-        <source>Commit</source>
-        <translation type="obsolete">Zapsat (commit)</translation>
-    </message>
-    <message>
-        <source>Continue Cherry-Picking</source>
-        <translation type="obsolete">Pokračovat ve výběrovém slučování</translation>
-    </message>
-    <message>
-        <source>You need to commit changes to finish cherry-picking.
-Commit now?</source>
-        <translation type="obsolete">Pro dokončení výběrového slučování je nutno provést zápis. Chcete nyní zapsat?</translation>
     </message>
     <message>
         <source>Merge tool process terminated with exit code %1</source>
@@ -55565,7 +55241,7 @@ Chcete je nyní načíst?</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
+    <name>Git</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Odvést do Gerritu...</translation>
@@ -56681,7 +56357,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffHandler</name>
+    <name>Git</name>
     <message>
         <source>Working tree</source>
         <translation>Pracovní kopie</translation>
@@ -56691,23 +56367,9 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <translation>Index</translation>
     </message>
     <message>
-        <source>Waiting for data...</source>
-        <translation>Čeká se na data...</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
-    <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Předmět</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Nastavit znovu na:</translation>
@@ -58911,7 +58573,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffSwitcher</name>
+    <name>Git</name>
     <message>
         <source>Switch to Text Diff Editor</source>
         <translation>Přepnout na editor rozdílů v textu</translation>

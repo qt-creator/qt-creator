@@ -37,8 +37,7 @@ class VcsBaseEditorWidget;
 class VcsCommand;
 }
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class CommitData;
 class GitBaseDiffEditorController;
@@ -80,8 +79,6 @@ public:
 
 class GITSHARED_EXPORT GitClient : public VcsBase::VcsBaseClientImpl
 {
-    Q_OBJECT
-
 public:
     enum CommandInProgress { NoCommand, Revert, CherryPick,
                              Rebase, Merge, RebaseMerge };
@@ -406,5 +403,4 @@ public:
     GitRemote(const QString &location);
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

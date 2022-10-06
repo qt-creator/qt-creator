@@ -3,16 +3,16 @@
 
 #include "branchcheckoutdialog.h"
 
+#include "gittr.h"
+
 #include <utils/layoutbuilder.h>
 
-#include <QApplication>
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QRadioButton>
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
                                            const QString &currentBranch,
@@ -22,24 +22,24 @@ BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
     setWindowModality(Qt::WindowModal);
     resize(394, 199);
     setModal(true);
-    setWindowTitle(tr("Checkout branch \"%1\"").arg(nextBranch));
+    setWindowTitle(Tr::tr("Checkout branch \"%1\"").arg(nextBranch));
 
-    m_localChangesGroupBox = new QGroupBox(tr("Local Changes Found. Choose Action:"));
+    m_localChangesGroupBox = new QGroupBox(Tr::tr("Local Changes Found. Choose Action:"));
 
-    m_moveChangesRadioButton = new QRadioButton(tr("Move Local Changes to \"%1\"").arg(nextBranch));
+    m_moveChangesRadioButton = new QRadioButton(Tr::tr("Move Local Changes to \"%1\"").arg(nextBranch));
 
-    m_discardChangesRadioButton = new QRadioButton(tr("Discard Local Changes"));
+    m_discardChangesRadioButton = new QRadioButton(Tr::tr("Discard Local Changes"));
     m_discardChangesRadioButton->setEnabled(true);
 
-    m_popStashCheckBox = new QCheckBox(tr("Pop Stash of \"%1\"").arg(nextBranch));
+    m_popStashCheckBox = new QCheckBox(Tr::tr("Pop Stash of \"%1\"").arg(nextBranch));
     m_popStashCheckBox->setEnabled(false);
 
     m_makeStashRadioButton = new QRadioButton;
     m_makeStashRadioButton->setChecked(true);
     if (!currentBranch.isEmpty()) {
-        m_makeStashRadioButton->setText(tr("Create Branch Stash for \"%1\"").arg(currentBranch));
+        m_makeStashRadioButton->setText(Tr::tr("Create Branch Stash for \"%1\"").arg(currentBranch));
     } else {
-        m_makeStashRadioButton->setText(tr("Create Branch Stash for Current Branch"));
+        m_makeStashRadioButton->setText(Tr::tr("Create Branch Stash for Current Branch"));
         foundNoLocalChanges();
     }
 
@@ -119,6 +119,4 @@ void BranchCheckoutDialog::updatePopStashCheckBox(bool moveChangesChecked)
     m_popStashCheckBox->setEnabled(!moveChangesChecked && m_foundStashForNextBranch);
 }
 
-} // namespace Internal
-} // namespace Git
-
+} // Git::Internal

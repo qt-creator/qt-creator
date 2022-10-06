@@ -8,8 +8,10 @@
 #include "gerritoptionspage.h"
 #include "gerritpushdialog.h"
 
-#include "../gitplugin.h"
 #include "../gitclient.h"
+#include "../gitplugin.h"
+#include "../gittr.h"
+
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 
@@ -139,7 +141,7 @@ FetchContext::~FetchContext()
 void FetchContext::start()
 {
     m_progress.setProgressRange(0, 2);
-    FutureProgress *fp = ProgressManager::addTask(m_progress.future(), tr("Fetching from Gerrit"),
+    FutureProgress *fp = ProgressManager::addTask(m_progress.future(), Git::Tr::tr("Fetching from Gerrit"),
                                            "gerrit-fetch");
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     m_progress.reportStarted();
@@ -237,14 +239,14 @@ void GerritPlugin::initialize(ActionContainer *ac)
 {
     m_parameters->fromSettings(ICore::settings());
 
-    QAction *openViewAction = new QAction(tr("Gerrit..."), this);
+    QAction *openViewAction = new QAction(Git::Tr::tr("Gerrit..."), this);
 
     m_gerritCommand =
         ActionManager::registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW);
     connect(openViewAction, &QAction::triggered, this, &GerritPlugin::openView);
     ac->addAction(m_gerritCommand);
 
-    QAction *pushAction = new QAction(tr("Push to Gerrit..."), this);
+    QAction *pushAction = new QAction(Git::Tr::tr("Push to Gerrit..."), this);
 
     m_pushToGerritCommand =
         ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH);
@@ -281,7 +283,7 @@ void GerritPlugin::push(const FilePath &topLevel)
 
     const QString initErrorMessage = dialog.initErrorMessage();
     if (!initErrorMessage.isEmpty()) {
-        QMessageBox::warning(ICore::dialogParent(), tr("Initialization Failed"), initErrorMessage);
+        QMessageBox::warning(ICore::dialogParent(), Git::Tr::tr("Initialization Failed"), initErrorMessage);
         return;
     }
 
@@ -303,8 +305,8 @@ void GerritPlugin::openView()
 {
     if (m_dialog.isNull()) {
         while (!m_parameters->isValid()) {
-            QMessageBox::warning(Core::ICore::dialogParent(), tr("Error"),
-                                 tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
+            QMessageBox::warning(Core::ICore::dialogParent(), Git::Tr::tr("Error"),
+                                 Git::Tr::tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
             if (!ICore::showOptionsDialog("Gerrit"))
                 return;
         }
@@ -352,7 +354,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
     // Locate git.
     const Utils::FilePath git = GitClient::instance()->vcsBinary();
     if (git.isEmpty()) {
-        VcsBase::VcsOutputWindow::appendError(tr("Git is not available."));
+        VcsBase::VcsOutputWindow::appendError(Git::Tr::tr("Git is not available."));
         return;
     }
 
@@ -392,8 +394,8 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 
             if (!verifiedRepository) {
                 QMessageBox::StandardButton answer = QMessageBox::question(
-                            ICore::dialogParent(), tr("Remote Not Verified"),
-                            tr("Change host %1\nand project %2\n\nwere not verified among remotes"
+                            ICore::dialogParent(), Git::Tr::tr("Remote Not Verified"),
+                            Git::Tr::tr("Change host %1\nand project %2\n\nwere not verified among remotes"
                                " in %3. Select different folder?")
                             .arg(m_server->host,
                                  change->project,
@@ -416,7 +418,7 @@ void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
     if (!verifiedRepository) {
         // Ask the user for a repository to retrieve the change.
         const QString title =
-                tr("Enter Local Repository for \"%1\" (%2)").arg(change->project, change->branch);
+                Git::Tr::tr("Enter Local Repository for \"%1\" (%2)").arg(change->project, change->branch);
         const FilePath suggestedRespository = findLocalRepository(change->project, change->branch);
         repository = FileUtils::getExistingDirectory(m_dialog.data(), title, suggestedRespository);
     }

@@ -5119,7 +5119,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &apos;%1&apos;?</source>
         <translation>Ali želite izbrisati &lt;b&gt;nezdruženo&lt;/b&gt; vejo »%1«?</translation>
@@ -5171,18 +5171,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation type="obsolete">Prevzemi</translation>
     </message>
     <message>
-        <source>Diff</source>
-        <translation type="obsolete">Razlike</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Osveži</translation>
-    </message>
-    <message>
-        <source>Delete...</source>
-        <translation type="obsolete">Izbriši …</translation>
-    </message>
-    <message>
         <source>Failed to delete branch</source>
         <translation type="obsolete">Izbris veje ni uspel</translation>
     </message>
@@ -5214,9 +5202,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Remote Branches</source>
         <translation type="obsolete">Oddaljene veje</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
         <translation>Izberite zapis Git</translation>
@@ -5233,9 +5218,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Selected directory is not a Git repository</source>
         <translation>Izbrana mapa ni skladišče Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Waiting for data...</source>
         <translation>Čakanje na podatke …</translation>
@@ -5462,10 +5444,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
             <numerusform>%n datotek ni moč zapisati: %1</numerusform>
             <numerusform>%n datotek ni moč zapisati: %1</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Revert</source>
-        <translation>Povrni</translation>
     </message>
     <message>
         <source>The file has been changed. Do you want to revert it?</source>
@@ -5698,9 +5676,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
 </numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -5846,10 +5821,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Amend %1</source>
         <translation>Sprememba %1</translation>
-    </message>
-    <message>
-        <source>Git Commit</source>
-        <translation>Zapis v Git</translation>
     </message>
     <message>
         <source>Closing Git Editor</source>
@@ -6073,16 +6044,10 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Undo Changes for &quot;%1&quot;</source>
         <translation type="obsolete">Razveljavi spremembe v »%1«</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>Izvršljive datoteke »%1« na poti »%2« ni bilo moč najti</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
@@ -6096,11 +6061,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <location/>
         <source>repository</source>
         <translation>skladišče</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Branch:</source>
-        <translation>Veja:</translation>
     </message>
     <message>
         <location/>
@@ -6122,9 +6082,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Email:</source>
         <translation>E-pošta:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Git</source>
         <translation>Git</translation>
@@ -6219,9 +6176,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Use &quot;patience diff&quot; algorithm</source>
         <translation type="obsolete">Uporabi algoritem za razlike po pasjansi</translation>
     </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -12714,7 +12668,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
         <translation>Sklonira skladišče Git in poskusi naložiti vsebovani projekt.</translation>
@@ -12723,9 +12677,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Git Repository Clone</source>
         <translation>Klon skladišča Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -13623,7 +13574,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Zapisi na strani</translation>
@@ -13700,10 +13651,6 @@ Razlog: %2</translation>
 You can choose between stashing the changes or discarding them.</source>
         <translation>%1 ni moč obnoviti, ker je bilo skladišče spremenjeno.
 Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Zapiši na stran</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -16057,14 +16004,11 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitCommand</name>
+    <name>Git</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation>Napaka: po %1 s je Git-u potekel čas.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
         <translation>Odgovornost za %1</translation>
@@ -19361,7 +19305,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -19384,9 +19328,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Spremljaj krajevno vejo »%1«</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Dodajanje oddaljene</translation>
@@ -19401,32 +19342,14 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Oddaljene</translation>
     </message>
     <message>
         <location/>
-        <source>Re&amp;fresh</source>
-        <translation>Os&amp;veži</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&amp;Add...</source>
-        <translation>&amp;Dodaj ...</translation>
-    </message>
-    <message>
-        <location/>
         <source>F&amp;etch</source>
         <translation>&amp;Pridobi</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&amp;Remove</source>
-        <translation>&amp;Odstrani</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -24415,14 +24338,11 @@ Datoteke se ohrani.</numerusform>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Krajevne veje</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>Za ugotovitev razlik uporabi potrpežljiv algoritem.</translation>
@@ -24439,9 +24359,6 @@ Datoteke se ohrani.</numerusform>
         <source>Ignore Whitespace</source>
         <translation>Prezri praznine</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>Select the pretty printing format.</source>
         <translation>Izberite obliko lepega izpisa.</translation>
@@ -24474,9 +24391,6 @@ Datoteke se ohrani.</numerusform>
         <source>raw</source>
         <translation>surovo</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>V izhodu skrij datum spremembe.</translation>
@@ -24485,17 +24399,6 @@ Datoteke se ohrani.</numerusform>
         <source>Omit Date</source>
         <translation>Izpusti datum</translation>
     </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Prezri spremembe s samimi prazninami.</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Prezri praznine</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -30144,14 +30047,11 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditor</name>
+    <name>Git</name>
     <message>
         <source>Git Commit</source>
         <translation type="obsolete">Git – zapis</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation type="obsolete">&lt;nova veja&gt;</translation>
@@ -32317,7 +32217,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteBranchModel</name>
+    <name>Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">(brez vej)</translation>

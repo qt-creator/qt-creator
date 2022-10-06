@@ -9,10 +9,10 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
-class Stash {
+class Stash
+{
 public:
     void clear();
     bool parseStashLine(const QString &l);
@@ -33,5 +33,4 @@ inline unsigned version(unsigned major, unsigned minor, unsigned patch)
 
 QString versionString(unsigned ver);
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

@@ -4101,7 +4101,7 @@ Grund: %3</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
+    <name>Git</name>
     <message>
         <source>Browse &amp;History...</source>
         <translation>Von &amp;History...</translation>
@@ -4170,9 +4170,6 @@ Grund: %3</translation>
         <source>&amp;Archive...</source>
         <translation>&amp;Archiv erzeugen...</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Invalid revision</source>
         <translation>Ungültige Revision</translation>
@@ -4260,10 +4257,6 @@ Jetzt Commit ausführen?</translation>
     <message>
         <source>Stash local changes and execute %1.</source>
         <translation>Stash der lokalen Änderungen anlegen und %1 ausführen.</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Verwerfen</translation>
     </message>
     <message>
         <source>Git SVN Log</source>
@@ -4671,9 +4664,6 @@ Jetzt Commit ausführen?</translation>
         <source>What would you like to do with local changes in:</source>
         <translation>Wie möchten Sie die folgenden lokalen Änderungen behandeln:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&lt;No repository&gt;</source>
         <translation>&lt;Kein Repository&gt;</translation>
@@ -4682,16 +4672,10 @@ Jetzt Commit ausführen?</translation>
         <source>Repository: %1</source>
         <translation>Repository: %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>Die ausführbare Datei &quot;%1&quot; konnte nicht im Pfad &quot;%2&quot; gefunden werden</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Allgemeine Informationen</translation>
@@ -4732,9 +4716,6 @@ Jetzt Commit ausführen?</translation>
         <source>Sign off</source>
         <translation>Unterschreiben</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Hinweis:&lt;/b&gt;</translation>
@@ -4790,10 +4771,6 @@ Jetzt Commit ausführen?</translation>
     <message>
         <source>Command:</source>
         <translation>Kommando:</translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Repository Browser</translation>
     </message>
 </context>
 <context>
@@ -8576,7 +8553,7 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Stashes</translation>
@@ -8613,10 +8590,6 @@ Was möchten Sie tun?</translation>
         <translation>&amp;Löschen...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Anzeigen</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>&amp;Wiederherstellen...</translation>
     </message>
@@ -8644,20 +8617,12 @@ You can choose between stashing the changes or discarding them.</source>
 Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>Als Branch wiederherstellen</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Branch:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -11590,7 +11555,7 @@ Wenn Sie %2 aus den Quelltexten erstellen und eine ausführbare CDB-Datei mit ei
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
@@ -12743,7 +12708,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>&quot;patience diff&quot;-Algorithmus verwenden.</translation>
@@ -12760,9 +12725,6 @@ Soll es noch einmal versucht werden?</translation>
         <source>Ignore Whitespace</source>
         <translation>Leerzeichen ignorieren</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>Datum der Änderung in Ausgabe nicht anzeigen.</translation>
@@ -12770,10 +12732,6 @@ Soll es noch einmal versucht werden?</translation>
     <message>
         <source>Omit Date</source>
         <translation>Datum weglassen</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Änderungen der Leerzeichen ignorieren.</translation>
     </message>
     <message>
         <source>No Move Detection</source>
@@ -12794,10 +12752,6 @@ Soll es noch einmal versucht werden?</translation>
     <message>
         <source>Move detection</source>
         <translation>Verschobene Daten erkennen</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Leerzeichen ignorieren</translation>
     </message>
 </context>
 <context>
@@ -14262,7 +14216,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
+    <name>Git</name>
     <message>
         <source>Add Remote</source>
         <translation>Git Remote hinzufügen</translation>
@@ -14275,16 +14229,9 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Git Remotes</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Aktualisieren</translation>
     </message>
     <message>
         <source>&amp;Add...</source>
@@ -15958,7 +15905,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>Branch:</translation>
@@ -16004,7 +15951,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokale Branches</translation>
@@ -16012,10 +15959,6 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     <message>
         <source>Remote Branches</source>
         <translation>Remote Branches</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Detached HEAD</translation>
     </message>
     <message>
         <source>Tags</source>
@@ -18151,7 +18094,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>nicht unter Versionskontrolle</translation>
@@ -18196,9 +18139,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source> by them</source>
         <translation> von ihnen</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>First Parent</source>
         <translation>Erster Eltern-Commit</translation>
@@ -19324,7 +19264,7 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>Git</name>
     <message>
         <source>Changes</source>
         <translation>Änderungen</translation>
@@ -19350,14 +19290,6 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
         <translation>&amp;Aktualisieren</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>An&amp;zeigen</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry-&amp;Pick</translation>
-    </message>
-    <message>
         <source>Fetching &quot;%1&quot;...</source>
         <translation>Hole &quot;%1&quot;...</translation>
     </message>
@@ -19381,9 +19313,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (Entwurf)</translation>
@@ -19440,9 +19369,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>Fehler bei Auswertung: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Anfrage an Gerrit</translation>
@@ -19479,16 +19405,6 @@ Möchten Sie ihn beenden?</translation>
         <source>Terminate</source>
         <translation>Beenden</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -19525,28 +19441,10 @@ Möchten Sie ihn beenden?</translation>
 &quot;canonicalWebUrl&quot; in der Datei &quot;gerrit.config&quot;
 nicht konfiguriert ist.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Hole von Gerrit</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 ist abgestürzt.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 gab %2 zurück.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Fehler bei Ausführung von %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -19589,16 +19487,9 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>Geben Sie das lokale Repository für &quot;%1&quot; an (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation>Geben Sie eine gültige Email-Adresse für Commits an.</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Detached HEAD</translation>
     </message>
     <message>
         <source>Select Change</source>
@@ -20621,7 +20512,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Es wurden lokale Änderungen festgestellt: Wählen Sie eine Aktion:</translation>
@@ -20829,7 +20720,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
 </context>
 <context>
-    <name>Git::Internal::MergeTool</name>
+    <name>Git</name>
     <message>
         <source>Normal</source>
         <translation>Normal</translation>
@@ -22419,7 +22310,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
+    <name>Git</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Push zu Gerrit</translation>
@@ -22617,7 +22508,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::LogChangeDialog</name>
+    <name>Git</name>
     <message>
         <source>Reset to:</source>
         <translation>Zurücksetzen auf:</translation>
@@ -22878,14 +22769,10 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::LogChangeWidget</name>
+    <name>Git</name>
     <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation>Titel</translation>
     </message>
 </context>
 <context>
@@ -27398,21 +27285,10 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditor</name>
+    <name>Git</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation>Aktualisiere Commit-Daten</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -30535,7 +30411,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditorWidget</name>
+    <name>Git</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation>&amp;Blame %1</translation>
@@ -30543,10 +30419,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Blame &amp;Parent Revision %1</source>
         <translation>Blame der über&amp;geordneten Revision %1</translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
-        <translation>Chunk wurde für Commit vorgesehen</translation>
     </message>
     <message>
         <source>Stage Chunk...</source>
@@ -35025,7 +34897,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
 </context>
 <context>
-    <name>GitGrep</name>
+    <name>Git</name>
     <message>
         <source>Tree (optional)</source>
         <translation>Baum (optional)</translation>
@@ -36532,7 +36404,7 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
+    <name>Git</name>
     <message>
         <source>Authentication</source>
         <translation>Authentifizierung</translation>
@@ -36540,10 +36412,6 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gerrit server with HTTP was detected, but you need to set up credentials for it.&lt;/p&gt;&lt;p&gt;To get your password, &lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;click here&lt;/span&gt;&lt;/a&gt; (sign in if needed). Click Generate Password if the password is blank, and copy the user name and password to this form.&lt;/p&gt;&lt;p&gt;Choose Anonymous if you do not want authentication for this server. In this case, changes that require authentication (like draft changes or private projects) will not be displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ein Gerrit-Server mit HTTP wurde erkannt, aber Sie müssen Zugangsdaten angeben.&lt;/p&gt;&lt;p&gt;Um Ihr Passwort zu erhalten, &lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;klicken Sie hier&lt;/span&gt;&lt;/a&gt;. (Melden Sie sich an, wenn nötig.). Wenn das Passwortfeld leer ist, klicken Sie &quot;Generate Password&quot; und kopieren den Benutzernamen und das Passwort in dieses Formular.&lt;/p&gt;&lt;p&gt;Wählen Sie &quot;Anonym&quot;, wenn Sie keine Authentifizierung für diesen Server wünschen. In diesem Fall werden Änderungen, die eine Authentifizierung benötigen (wie &quot;Drafts&quot; oder private Projekte), nicht angezeigt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>&amp;Benutzer:</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
@@ -37947,7 +37815,7 @@ Einzelschritt in das Modul und das Setzen von Haltepunkten nach Datei und Zeilen
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritRemoteChooser</name>
+    <name>Git</name>
     <message>
         <source>Refresh Remote Servers</source>
         <translation>Remote-Server aktualisieren</translation>
@@ -42068,7 +41936,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchView</name>
+    <name>Git</name>
     <message>
         <source>Include Old Entries</source>
         <translation>Alte Einträge einschließen</translation>
@@ -42089,20 +41957,12 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         </translation>
     </message>
     <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;Kein Repository&gt;</translation>
-    </message>
-    <message>
         <source>Create Git Repository...</source>
         <translation>Git-Repository erzeugen...</translation>
     </message>
     <message>
         <source>Add Branch...</source>
         <translation>Branch hinzufügen...</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Hinzufügen...</translation>
     </message>
     <message>
         <source>&amp;Fetch</source>
@@ -42137,18 +41997,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>Zurück&amp;setzen</translation>
     </message>
     <message>
-        <source>&amp;Hard</source>
-        <translation>&amp;Hard</translation>
-    </message>
-    <message>
-        <source>&amp;Mixed</source>
-        <translation>&amp;Mixed</translation>
-    </message>
-    <message>
-        <source>&amp;Soft</source>
-        <translation>&amp;Soft</translation>
-    </message>
-    <message>
         <source>&amp;Merge (Fast-Forward)</source>
         <translation>&amp;Merge (Fast-Forward)</translation>
     </message>
@@ -42165,16 +42013,8 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>&amp;Rebase</translation>
     </message>
     <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry-&amp;Pick</translation>
-    </message>
-    <message>
         <source>&amp;Track</source>
         <translation>&amp;Folgen</translation>
-    </message>
-    <message>
-        <source>&amp;Push</source>
-        <translation>&amp;Push</translation>
     </message>
     <message>
         <source>Would you like to delete the tag &quot;%1&quot;?</source>
@@ -42200,9 +42040,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>Git Reset</source>
         <translation>Git Reset</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchViewFactory</name>
     <message>
         <source>Git Branches</source>
         <translation>Git Branches</translation>
@@ -46328,7 +46165,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitLogArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Diff</source>
         <translation>Diff</translation>
@@ -46338,13 +46175,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Änderung anzeigen.</translation>
     </message>
     <message>
-        <source>Filter</source>
-        <translation>Filter</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogFilterWidget</name>
-    <message>
         <source>Filter:</source>
         <translation>Filter:</translation>
     </message>
@@ -46352,9 +46182,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Case Sensitive</source>
         <translation>Groß-/Kleinschreibung</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPluginPrivate</name>
     <message>
         <source>&amp;Copy &quot;%1&quot;</source>
         <translation>&quot;%1&quot; &amp;Kopieren</translation>
@@ -46520,10 +46347,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>&amp;Lokales Repository</translation>
     </message>
     <message>
-        <source>Diff</source>
-        <translation>Diff</translation>
-    </message>
-    <message>
         <source>Log</source>
         <translation>Log</translation>
     </message>
@@ -46534,10 +46357,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Clean...</source>
         <translation>Repository bereinigen...</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Status</translation>
     </message>
     <message>
         <source>Commit...</source>
@@ -46592,20 +46411,12 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Revert abbrechen</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Rebase fortsetzen</translation>
-    </message>
-    <message>
         <source>Skip Rebase</source>
         <translation>Rebase überspringen</translation>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
         <translation>Cherry-Pick fortsetzen</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Revert fortsetzen</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -46634,10 +46445,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Stashes...</source>
         <translation>Stashes...</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
@@ -46728,10 +46535,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Git-&amp;Werkzeuge</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Gitk Current File</source>
         <translation>Gitk mit Datei</translation>
     </message>
@@ -46754,10 +46557,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Repository Browser</source>
         <translation>Repository-Browser</translation>
-    </message>
-    <message>
-        <source>Merge Tool</source>
-        <translation>Merge-Tool</translation>
     </message>
     <message>
         <source>Git Bash</source>

@@ -21,8 +21,7 @@ class PathChooser;
 class QtcProcess;
 } // Utils
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 enum ChangeCommand {
     NoCommand,
@@ -35,7 +34,6 @@ enum ChangeCommand {
 
 class ChangeSelectionDialog : public QDialog
 {
-    Q_OBJECT
 public:
     ChangeSelectionDialog(const Utils::FilePath &workingDirectory, Utils::Id id, QWidget *parent);
     ~ChangeSelectionDialog() override;
@@ -71,5 +69,4 @@ private:
     QPushButton *m_showButton;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

@@ -8,6 +8,7 @@
 #include "gerritremotechooser.h"
 
 #include "../gitplugin.h"
+#include "../gittr.h"
 
 #include <coreplugin/icore.h>
 
@@ -54,7 +55,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_model(new GerritModel(p, this))
     , m_queryModel(new QStringListModel(this))
 {
-    setWindowTitle(tr("Gerrit"));
+    setWindowTitle(Git::Tr::tr("Gerrit"));
     resize(950, 706);
 
     m_repositoryLabel = new QLabel(this);
@@ -64,12 +65,12 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_remoteComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     m_remoteComboBox->setMinimumSize(QSize(40, 0));
 
-    auto changesGroup = new QGroupBox(tr("Changes"));
+    auto changesGroup = new QGroupBox(Git::Tr::tr("Changes"));
     changesGroup->setMinimumSize(QSize(0, 350));
 
     m_queryLineEdit = new FancyLineEdit(changesGroup);
     m_queryLineEdit->setMinimumSize(QSize(400, 0));
-    m_queryLineEdit->setPlaceholderText(tr("Change #, SHA-1, tr:id, owner:email or reviewer:email"));
+    m_queryLineEdit->setPlaceholderText(Git::Tr::tr("Change #, SHA-1, tr:id, owner:email or reviewer:email"));
     m_queryLineEdit->setSpecialCompleter(new QCompleter(m_queryModel, this));
     m_queryLineEdit->setValidationFunction(
         [this](FancyLineEdit *, QString *) { return m_model->state() != GerritModel::Error; });
@@ -84,7 +85,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_treeView->setUniformRowHeights(true);
     m_treeView->setSortingEnabled(true);
 
-    auto detailsGroup = new QGroupBox(tr("Details"));
+    auto detailsGroup = new QGroupBox(Git::Tr::tr("Details"));
     detailsGroup->setMinimumSize(QSize(0, 175));
 
     m_detailsBrowser = new QTextBrowser(detailsGroup);
@@ -92,7 +93,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
 
-    auto queryLabel = new QLabel(tr("&Query:"), changesGroup);
+    auto queryLabel = new QLabel(Git::Tr::tr("&Query:"), changesGroup);
     queryLabel->setBuddy(m_queryLineEdit);
 
     m_remoteComboBox->setParameters(m_parameters);
@@ -113,10 +114,10 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_progressIndicator->attachToWidget(m_treeView->viewport());
     m_progressIndicator->hide();
 
-    m_displayButton = addActionButton(tr("&Show"), [this]() { slotFetchDisplay(); });
-    m_cherryPickButton = addActionButton(tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
-    m_checkoutButton = addActionButton(tr("C&heckout"), [this]() { slotFetchCheckout(); });
-    m_refreshButton = addActionButton(tr("&Refresh"), [this]() { refresh(); });
+    m_displayButton = addActionButton(Git::Tr::tr("&Show"), [this]() { slotFetchDisplay(); });
+    m_cherryPickButton = addActionButton(Git::Tr::tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
+    m_checkoutButton = addActionButton(Git::Tr::tr("C&heckout"), [this]() { slotFetchCheckout(); });
+    m_refreshButton = addActionButton(Git::Tr::tr("&Refresh"), [this]() { refresh(); });
     m_refreshButton->setDefault(true);
 
     using namespace Layouting;
@@ -142,7 +143,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     splitter->addWidget(detailsGroup);
 
     Column {
-        Row { m_repositoryLabel, st, tr("Remote:"),  m_remoteComboBox },
+        Row { m_repositoryLabel, st, Git::Tr::tr("Remote:"),  m_remoteComboBox },
         splitter,
         m_buttonBox
     }.attachTo(this);
@@ -340,7 +341,7 @@ void GerritDialog::fetchStarted(const QSharedPointer<GerritChange> &change)
     // Disable buttons to prevent parallel gerrit operations which can cause mix-ups.
     m_fetchRunning = true;
     updateButtons();
-    const QString toolTip = tr("Fetching \"%1\"...").arg(change->title);
+    const QString toolTip = Git::Tr::tr("Fetching \"%1\"...").arg(change->title);
     m_displayButton->setToolTip(toolTip);
     m_cherryPickButton->setToolTip(toolTip);
     m_checkoutButton->setToolTip(toolTip);

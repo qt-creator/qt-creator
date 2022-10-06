@@ -5,6 +5,7 @@
 #include "gerritparameters.h"
 #include "gerritserver.h"
 #include "../gitclient.h"
+#include "../gittr.h"
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -34,7 +35,7 @@ GerritRemoteChooser::GerritRemoteChooser(QWidget *parent) :
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
     m_resetRemoteButton = new QToolButton(this);
-    m_resetRemoteButton->setToolTip(tr("Refresh Remote Servers"));
+    m_resetRemoteButton->setToolTip(Git::Tr::tr("Refresh Remote Servers"));
 
     horizontalLayout->addWidget(m_resetRemoteButton);
 
@@ -92,7 +93,7 @@ bool GerritRemoteChooser::updateRemotes(bool forceReload)
         addRemote(server, mapIt.key());
     }
     if (m_enableFallback)
-        addRemote(m_parameters->server, tr("Fallback"));
+        addRemote(m_parameters->server, Git::Tr::tr("Fallback"));
     m_remoteComboBox->setEnabled(m_remoteComboBox->count() > 1);
     m_updatingRemotes = false;
     handleRemoteChanged();

@@ -12,15 +12,12 @@ QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class RemoteModel;
 
 class RemoteDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit RemoteDialog(QWidget *parent = nullptr);
     ~RemoteDialog() override;
@@ -46,5 +43,4 @@ private:
     QPushButton *m_removeButton;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

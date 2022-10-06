@@ -7,6 +7,7 @@
 
 #include "../gitclient.h"
 #include "../gitconstants.h"
+#include "../gittr.h"
 
 #include <utils/icon.h>
 #include <utils/stringutils.h>
@@ -120,7 +121,7 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir, const QStr
     initRemoteBranches();
 
     if (m_ui->remoteComboBox->isEmpty()) {
-        m_initErrorMessage = tr("Cannot find a Gerrit remote. Add one and try again.");
+        m_initErrorMessage = Git::Tr::tr("Cannot find a Gerrit remote. Add one and try again.");
         return;
     }
 
@@ -190,14 +191,14 @@ void GerritPushDialog::setChangeRange()
     }
     m_ui->infoLabel->show();
     const QString remote = selectedRemoteName() + '/' + remoteBranchName;
-    QString labelText = tr("Number of commits between %1 and %2: %3").arg(branch, remote, range);
+    QString labelText = Git::Tr::tr("Number of commits between %1 and %2: %3").arg(branch, remote, range);
     const int currentRange = range.toInt();
     QPalette palette = QApplication::palette();
     if (currentRange > ReasonableDistance) {
         const QColor errorColor = Utils::creatorTheme()->color(Utils::Theme::TextColorError);
         palette.setColor(QPalette::WindowText, errorColor);
         palette.setColor(QPalette::ButtonText, errorColor);
-        labelText.append("\n" + tr("Are you sure you selected the right target branch?"));
+        labelText.append("\n" + Git::Tr::tr("Are you sure you selected the right target branch?"));
     }
     m_ui->infoLabel->setPalette(palette);
     m_ui->targetBranchComboBox->setPalette(palette);
@@ -226,21 +227,21 @@ void GerritPushDialog::onRemoteChanged(bool force)
     m_currentSupportsWip = supportsWip;
     m_ui->wipCheckBox->setEnabled(supportsWip);
     if (supportsWip) {
-        m_ui->wipCheckBox->setToolTip(tr("Checked - Mark change as WIP.\n"
+        m_ui->wipCheckBox->setToolTip(Git::Tr::tr("Checked - Mark change as WIP.\n"
                                          "Unchecked - Mark change as ready for review.\n"
                                          "Partially checked - Do not change current state."));
         m_ui->draftCheckBox->setTristate(true);
         if (m_ui->draftCheckBox->checkState() != Qt::Checked)
             m_ui->draftCheckBox->setCheckState(Qt::PartiallyChecked);
-        m_ui->draftCheckBox->setToolTip(tr("Checked - Mark change as private.\n"
+        m_ui->draftCheckBox->setToolTip(Git::Tr::tr("Checked - Mark change as private.\n"
                                            "Unchecked - Remove mark.\n"
                                            "Partially checked - Do not change current state."));
     } else {
-        m_ui->wipCheckBox->setToolTip(tr("Supported on Gerrit 2.15 and later."));
+        m_ui->wipCheckBox->setToolTip(Git::Tr::tr("Supported on Gerrit 2.15 and later."));
         m_ui->draftCheckBox->setTristate(false);
         if (m_ui->draftCheckBox->checkState() != Qt::Checked)
             m_ui->draftCheckBox->setCheckState(Qt::Unchecked);
-        m_ui->draftCheckBox->setToolTip(tr("Checked - The change is a draft.\n"
+        m_ui->draftCheckBox->setToolTip(Git::Tr::tr("Checked - The change is a draft.\n"
                                            "Unchecked - The change is not a draft."));
     }
 }
@@ -309,9 +310,9 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
             if (remoteBranches.isEmpty()) {
                 m_ui->targetBranchComboBox->setEditable(true);
                 m_ui->targetBranchComboBox->setToolTip(
-                            tr("No remote branches found. This is probably the initial commit."));
+                            Git::Tr::tr("No remote branches found. This is probably the initial commit."));
                 if (QLineEdit *lineEdit = m_ui->targetBranchComboBox->lineEdit())
-                    lineEdit->setPlaceholderText(tr("Branch name"));
+                    lineEdit->setPlaceholderText(Git::Tr::tr("Branch name"));
             }
         }
 
@@ -331,7 +332,7 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
             }
         }
         if (excluded)
-            m_ui->targetBranchComboBox->addItem(tr("... Include older branches ..."), 1);
+            m_ui->targetBranchComboBox->addItem(Git::Tr::tr("... Include older branches ..."), 1);
         setChangeRange();
     }
     validate();

@@ -4875,7 +4875,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation type="unfinished">取出</translation>
@@ -4924,9 +4924,6 @@ Reason: %3</source>
         <source>&amp;Checkout</source>
         <translation>取出(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
         <translation>選擇一個 Git 提交紀錄</translation>
@@ -4955,9 +4952,6 @@ Reason: %3</source>
         <source>Change:</source>
         <translation>變更：</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Waiting for data...</source>
         <translation>等待資料中...</translation>
@@ -5207,9 +5201,6 @@ Reason: %3</source>
         <source>Cannot determine git version: %1</source>
         <translation>無法決定 git 的版本：%1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>Git(&amp;G)</translation>
@@ -5549,16 +5540,10 @@ Reason: %3</source>
         <source>Do you want to commit the change?</source>
         <translation>您要提交此變更嗎？</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>在路徑 &apos;%2&apos; 中找不到執行檔 &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
@@ -5595,9 +5580,6 @@ Reason: %3</source>
         <source>By&amp;pass hooks</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;注意：&lt;/b&gt;</translation>
@@ -11104,7 +11086,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
         <translation>複製一個 Git 主目錄，並試著載入裡面包含的專案。</translation>
@@ -11113,9 +11095,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Git Repository Clone</source>
         <translation>Git 主目錄複製</translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -12503,7 +12482,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>暫存檔</translation>
@@ -12578,20 +12557,12 @@ You can choose between stashing the changes or discarding them.</source>
 您可以選擇要暫存或是丟棄變更。</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>暫存</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>丟棄</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>還原暫存內容到分支</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>分支：</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -13281,7 +13252,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditor</name>
+    <name>Git</name>
     <message>
         <source>Blame %1</source>
         <translation>&quot;%1&quot; 的提交紀錄</translation>
@@ -16830,7 +16801,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -20126,7 +20097,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>使用 patience 演算法來計算差異。</translation>
@@ -20143,9 +20114,6 @@ Do you want to retry?</source>
         <source>Ignore Whitespace</source>
         <translation>忽略空白</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>oneline</source>
         <translation>一行</translation>
@@ -20174,9 +20142,6 @@ Do you want to retry?</source>
         <source>raw</source>
         <translation>原始</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>在輸出隱藏變更日期。</translation>
@@ -20184,14 +20149,6 @@ Do you want to retry?</source>
     <message>
         <source>Omit Date</source>
         <translation>省略日期</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>忽略只有空白的變更。</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>忽略空白</translation>
     </message>
 </context>
 <context>
@@ -21764,7 +21721,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -21785,9 +21742,6 @@ if (a &amp;&amp;
         <source>Track local branch &apos;%1&apos;</source>
         <translation>追蹤本地分支 &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>新增遠端</translation>
@@ -21800,28 +21754,13 @@ if (a &amp;&amp;
         <source>URL:</source>
         <translation>網址：</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>遠端</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>刷新(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>新增(&amp;A)...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>抓取(&amp;E)</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>移除(&amp;R)</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -22417,7 +22356,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>本地分支</translation>
@@ -28431,7 +28370,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>未追蹤的</translation>
@@ -28464,9 +28403,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>updated</source>
         <translation>已更新</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>顯示差異</translation>
@@ -31877,14 +31813,10 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>Git</name>
     <message>
         <source>Gerrit %1@%2</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changes</source>
-        <translation type="unfinished">變更</translation>
     </message>
     <message>
         <source>&amp;Query:</source>
@@ -31911,13 +31843,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation type="unfinished">刷新</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Owner&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Project&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Patch set&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -31942,10 +31867,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation type="unfinished">狀態</translation>
-    </message>
-    <message>
         <source>Parse error: &apos;%1&apos; -&gt; %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -31957,9 +31878,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Parse error in line &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
         <translation type="unfinished"></translation>
@@ -31976,16 +31894,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>%1 returned %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation type="unfinished"></translation>
@@ -32016,23 +31924,8 @@ Stepping into the module or setting breakpoints by file and is expected to work.
 &quot;gerrit.config&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32047,9 +31940,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Cherry-picking %1...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation type="unfinished"></translation>
@@ -32062,22 +31952,12 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Detached HEAD</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ResetDialog</name>
     <message>
         <source>Sha1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Subject</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

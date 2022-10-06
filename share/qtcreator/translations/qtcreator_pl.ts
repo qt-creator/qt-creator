@@ -402,7 +402,7 @@
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Branches</source>
         <translation>Gałęzie</translation>
@@ -527,9 +527,6 @@
         <source>Cherry &amp;Pick</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Ogólne informacje</translation>
@@ -570,9 +567,6 @@
         <source>Sign off</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Uwaga:&lt;/b&gt;</translation>
@@ -5541,7 +5535,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
+    <name>Git</name>
     <message>
         <source>Browse &amp;History...</source>
         <translation>Przeglądaj &amp;historię...</translation>
@@ -5549,10 +5543,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>&amp;Show</source>
         <translation>&amp;Pokaż</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Revert</source>
@@ -5606,9 +5596,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <source>HEAD</source>
         <translation>HEAD</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Would you like to create a local branch?</source>
         <translation>Czy utworzyć lokalną gałąź?</translation>
@@ -5694,10 +5681,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>MERGING</source>
         <translation>SCALANIE</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation type="unfinished">Odłączony HEAD</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -5808,14 +5791,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>Stash local changes and pop when %1 finishes.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Odłóż zmiany</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Porzuć</translation>
     </message>
     <message>
         <source>There were warnings while applying &quot;%1&quot; to &quot;%2&quot;:
@@ -5996,9 +5971,6 @@ Commit now?</source>
         <source>Cancel %1.</source>
         <translation>Anuluj %1.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -6252,20 +6224,12 @@ Commit now?</source>
         <translation>Przerwij odwracanie</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Skip Rebase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Kontynuuj odwracanie</translation>
     </message>
     <message>
         <source>&amp;Patch</source>
@@ -6324,10 +6288,6 @@ Commit now?</source>
         <translation>Narzędzia Gi&amp;ta</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Gitk Current File</source>
         <translation>Gitk dla bieżącego pliku</translation>
     </message>
@@ -6346,10 +6306,6 @@ Commit now?</source>
     <message>
         <source>Git Gui</source>
         <translation>Git Gui</translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Przeglądarka repozytorium</translation>
     </message>
     <message>
         <source>Merge Tool</source>
@@ -6456,10 +6412,6 @@ Commit now?</source>
         <translation>Meta+G,Meta+C</translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation>Utwórz poprawkę</translation>
-    </message>
-    <message>
         <source>&amp;Undo</source>
         <translation>&amp;Cofnij</translation>
     </message>
@@ -6475,9 +6427,6 @@ Commit now?</source>
         <source>Do you want to commit the change?</source>
         <translation>Czy utworzyć poprawkę?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>Nie można odnaleźć pliku binarnego &quot;%1&quot; w ścieżce &quot;%2&quot;</translation>
@@ -10095,7 +10044,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Odłożone zmiany</translation>
@@ -10133,10 +10082,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
         <translation>&amp;Usuń...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Pokaż</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>P&amp;rzywróć...</translation>
     </message>
@@ -10144,10 +10089,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Przywróć do &amp;gałęzi...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Odśwież</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -10164,20 +10105,12 @@ You can choose between stashing the changes or discarding them.</source>
 Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Odłóż zmiany</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>Odrzuć</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>Przywróć odłożone zmiany w gałęzi</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Gałąź:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -13406,7 +13339,7 @@ Możesz zostać poproszony o podzielenie się zawartością tego loga podczas tw
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
@@ -15713,7 +15646,7 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>Użyj algorytmu &quot;patience&quot; przy pokazywaniu różnic.</translation>
@@ -15730,9 +15663,6 @@ Ponowić próbę?</translation>
         <source>Ignore Whitespace</source>
         <translation>Ignoruj białe znaki</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>Ukrywa datę zmiany na wyjściu.</translation>
@@ -15740,14 +15670,6 @@ Ponowić próbę?</translation>
     <message>
         <source>Omit Date</source>
         <translation>Pomiń datę</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Ignoruj zmiany w białych znakach.</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignoruj białe znaki</translation>
     </message>
 </context>
 <context>
@@ -16382,7 +16304,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
+    <name>Git</name>
     <message>
         <source>Add Remote</source>
         <translation>Dodaj zdalne repozytorium</translation>
@@ -16403,28 +16325,13 @@ if (a &amp;&amp;
         <source>The URL may not be valid.</source>
         <translation>Podany URL może nie być poprawny.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Zdalne repozytoria</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Odśwież</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Dodaj...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>Po&amp;bierz</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>&amp;Usuń</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -17982,7 +17889,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>Nazwa gałęzi:</translation>
@@ -18067,7 +17974,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokalne gałęzie</translation>
@@ -21691,7 +21598,7 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>nieśledzony</translation>
@@ -21736,9 +21643,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source> by them</source>
         <translation> przez nich</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Changes</source>
         <translation>Zmiany</translation>
@@ -21756,20 +21660,8 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <translation>Szczegóły</translation>
     </message>
     <message>
-        <source>C&amp;heckout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Refresh</source>
         <translation>&amp;Odśwież</translation>
-    </message>
-    <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Pokaż</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Fetching &quot;%1&quot;...</source>
@@ -21793,9 +21685,6 @@ Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (wersja robocza)</translation>
@@ -21819,10 +21708,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <message>
         <source>Approvals</source>
         <translation>Zatwierdzenia</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Stan</translation>
     </message>
     <message>
         <source>Number</source>
@@ -21852,9 +21737,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>Błąd parsowania: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Komunikacja z Gerritem</translation>
@@ -21891,16 +21773,6 @@ Czy zakończyć proces?</translation>
         <source>Keep Running</source>
         <translation>Pozostaw uruchomionym</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -21935,28 +21807,10 @@ Czy zakończyć proces?</translation>
 &quot;gerrit.config&quot;.</source>
         <translation>Określa protokół użyty do formowania URL w przypadku braku konfiguracji &quot;canonicalWebUrl&quot; w pliku &quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Pobieranie danych z Gerrita</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 przerwał pracę.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 zwrócił %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Błąd podczas uruchamiania %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -22000,9 +21854,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>Podaj lokalne repozytorium dla &quot;%1&quot; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Pokaż różnice</translation>
@@ -22027,9 +21878,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Show textual graph log.</source>
         <translation>Pokazuj log grafu tekstowego.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation>Podaj poprawny e-mail używany przy tworzeniu poprawek.</translation>
@@ -23874,7 +23722,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Wykryto lokalne zmiany. Wybierz akcję:</translation>
@@ -23886,10 +23734,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>Discard Local Changes</source>
         <translation>Porzuć lokalne zmiany</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Przycisk wyboru</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -23911,9 +23755,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Create Branch Stash for Current Branch</source>
         <translation>Utwórz gałąź z odłożoną zmianą dla bieżącej gałęzi</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Wyślij do Gerrita</translation>
@@ -25440,18 +25281,11 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Git::Internal::LogChangeWidget</name>
+    <name>Git</name>
     <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Temat</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Zresetuj do:</translation>
@@ -25476,9 +25310,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Soft</source>
         <translation>Soft</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
     <message>
         <source>Normal</source>
         <translation>Normalny</translation>
@@ -32446,17 +32277,13 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditorWidget</name>
+    <name>Git</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32499,23 +32326,9 @@ Use this only if you are prototyping. You cannot create a full application with 
         <source>&amp;Soft</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation>Odświeżanie danych poprawki</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Nazwa</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -37986,7 +37799,7 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
     </message>
 </context>
 <context>
-    <name>GitGrep</name>
+    <name>Git</name>
     <message>
         <source>Tree (optional)</source>
         <translation>Drzewo (opcjonalnie)</translation>
@@ -40977,7 +40790,7 @@ Wiersz: %4, kolumna: %5
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
+    <name>Git</name>
     <message>
         <source>Authentication</source>
         <translation>Autoryzacja</translation>
@@ -40985,10 +40798,6 @@ Wiersz: %4, kolumna: %5
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gerrit server with HTTP was detected, but you need to set up credentials for it.&lt;/p&gt;&lt;p&gt;To get your password, &lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;click here&lt;/span&gt;&lt;/a&gt; (sign in if needed). Click Generate Password if the password is blank, and copy the user name and password to this form.&lt;/p&gt;&lt;p&gt;Choose Anonymous if you do not want authentication for this server. In this case, changes that require authentication (like draft changes or private projects) will not be displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>&amp;Użytkownik:</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
@@ -42605,7 +42414,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritRemoteChooser</name>
+    <name>Git</name>
     <message>
         <source>Refresh Remote Servers</source>
         <translation>Odśwież zdalne serwery</translation>

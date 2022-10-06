@@ -5152,7 +5152,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Branches</source>
         <translation>Rami</translation>
@@ -5216,9 +5216,6 @@ Causa: %3</translation>
         <source>Failed to create a tracking branch</source>
         <translation>Creazione del ramo con traccia non riuscita</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation>Selezionare un commit Git</translation>
@@ -5235,9 +5232,6 @@ Causa: %3</translation>
         <source>Selected directory is not a Git repository</source>
         <translation>La cartella selezionata non è un deposito Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation>Il plugin git di Qt Creator non è ancora in grado di interagire con il server. Perciò l&apos;identificazione ssh manuale e cose simili non funzioneranno.</translation>
@@ -5368,9 +5362,6 @@ Causa: %3</translation>
         <source>There are no modified files.</source>
         <translation>Non ci sono file modificati.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitOutputWindow</name>
     <message>
         <source>Git Output</source>
         <translation type="obsolete">Output di Git</translation>
@@ -5379,9 +5370,6 @@ Causa: %3</translation>
         <source>Git</source>
         <translation type="obsolete">Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -5602,31 +5590,17 @@ Causa: %3</translation>
         <source>The commit message check failed. Do you want to commit the change?</source>
         <translation>Il controllo sul messaggio della nuova revisione è fallito. Vuoi creare la revisione?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>Impossibile trovare il binario &apos;%1&apos; nel percorso &apos;%2&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Git Commit</source>
         <translation>Nuova revisione git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Informazioni Generali</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Repository:</source>
-        <translation>Deposito:</translation>
     </message>
     <message>
         <location/>
@@ -5658,9 +5632,6 @@ Causa: %3</translation>
         <source>Email:</source>
         <translation>Email:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation>&lt;nuovo branch&gt;</translation>
@@ -5669,9 +5640,6 @@ Causa: %3</translation>
         <source>Type to create a new branch</source>
         <translation>Scrivi il nome del nuovo ramo</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Environment variables</source>
         <translation>Variabili d&apos;ambiente</translation>
@@ -5728,9 +5696,6 @@ Causa: %3</translation>
         <source>Omit date from annotation output</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -12438,7 +12403,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="unfinished"></translation>
@@ -12447,9 +12412,6 @@ p, li { white-space: pre-wrap; }
         <source>Git Repository Clone</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
         <translation type="unfinished"></translation>

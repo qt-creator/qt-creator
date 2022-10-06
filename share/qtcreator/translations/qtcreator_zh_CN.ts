@@ -7192,34 +7192,10 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation>Checkout</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">删除</translation>
-    </message>
-    <message>
-        <source>Unable to find the repository directory for &apos;%1&apos;.</source>
-        <translation type="obsolete">无法找到仓库目录&apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Diff</source>
-        <translation type="obsolete">Diff</translation>
-    </message>
-    <message>
-        <source>Log</source>
-        <translation type="obsolete">日志</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">刷新</translation>
-    </message>
-    <message>
-        <source>Delete...</source>
-        <translation type="obsolete">删除...</translation>
     </message>
     <message>
         <source>Checkout branch?</source>
@@ -7271,10 +7247,6 @@ on slow machines. In this case, the value should be increased.</source>
         <translation type="obsolete">概要</translation>
     </message>
     <message>
-        <source>Repository:</source>
-        <translation type="obsolete">仓库:</translation>
-    </message>
-    <message>
         <source>Remote branches</source>
         <translation type="obsolete">远程 branches</translation>
     </message>
@@ -7306,9 +7278,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>&amp;Checkout</source>
         <translation>检出(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation type="obsolete">选择一个 Git commit</translation>
@@ -7349,16 +7318,9 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Change:</source>
         <translation>更改:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation type="obsolete">请注意 git 插件无法与服务器交互，所以类似于“手动ssh身份认证”之类将无法工作。</translation>
-    </message>
-    <message>
-        <source>Unable to determine the repository for %1.</source>
-        <translation type="obsolete">无法为%1定位代码仓库.</translation>
     </message>
     <message>
         <source>Waiting for data...</source>
@@ -7717,10 +7679,6 @@ on slow machines. In this case, the value should be increased.</source>
         </translation>
     </message>
     <message>
-        <source>Revert</source>
-        <translation>还原</translation>
-    </message>
-    <message>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>文件被改变，您想要还原它吗？</translation>
     </message>
@@ -7764,9 +7722,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Cannot determine git version: %1</source>
         <translation>无法确定git 的版本: %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -7884,10 +7839,6 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Amend %1</source>
         <translation>增订 %1</translation>
-    </message>
-    <message>
-        <source>Git Commit</source>
-        <translation>Git Commit</translation>
     </message>
     <message>
         <source>Closing Git Editor</source>
@@ -8201,23 +8152,14 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Do you want to commit the change?</source>
         <translation>您想提交此修改吗？</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>无法在路径 &apos;%2&apos; 定位二进制档 &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Git Commit</source>
         <translation type="obsolete">Git Commit</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -8229,10 +8171,6 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>repository</source>
         <translation>代码仓库</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>分支:</translation>
     </message>
     <message>
         <source>branch</source>
@@ -8254,9 +8192,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>By&amp;pass hooks</source>
         <translation>跳过hook(&amp;P)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation type="obsolete">&lt;新的分支&gt;</translation>
@@ -8265,9 +8200,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Type to create a new branch</source>
         <translation type="obsolete">创建新分支</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Environment variables</source>
         <translation type="obsolete">环境变量</translation>
@@ -8388,9 +8320,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Command:</source>
         <translation>命令:</translation>
     </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -18220,7 +18149,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="obsolete">从 Git 仓库中 clone 一个项目。</translation>
@@ -18233,9 +18162,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Git Repository Clone</source>
         <translation>Git仓库的克隆 </translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -20525,7 +20451,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Stash列表</translation>
@@ -20615,10 +20541,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
 You can choose between stashing the changes or discarding them.</source>
         <translation>%1 不能被还原，因为仓库已经变更。
 您可以选择 stash 修改的内容或者丢弃修改。</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -22520,28 +22442,19 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteBranchModel</name>
+    <name>Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">(没有分支)</translation>
     </message>
-</context>
-<context>
-    <name>GitClient</name>
     <message>
         <source>Unable to determine the repository for %1.</source>
         <translation type="obsolete">无法为 %1 决定仓库。</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation type="obsolete">错误: Git 在 %1秒后超时.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
         <translation>Blame %1</translation>
@@ -28618,7 +28531,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -33021,7 +32934,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the diff</source>
         <translation type="obsolete">使用耐心算法来计算差异</translation>
@@ -33046,9 +32959,6 @@ Do you want to retry?</source>
         <source>Ignore Whitespace</source>
         <translation>忽略空白</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>Select the pretty printing format</source>
         <translation type="obsolete">选择一个漂亮的输出格式</translation>
@@ -33085,9 +32995,6 @@ Do you want to retry?</source>
         <source>raw</source>
         <translation>raw</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Do not show the date a change was made in the output</source>
         <translation type="obsolete">输出改变了不要显示日期</translation>
@@ -33099,18 +33006,6 @@ Do you want to retry?</source>
     <message>
         <source>Omit Date</source>
         <translation>忽略日期</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>忽略仅为空白的修改。</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes</source>
-        <translation type="obsolete">忽略空白仅关注改变</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>忽略空白</translation>
     </message>
 </context>
 <context>
@@ -35026,7 +34921,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
@@ -35047,9 +34942,6 @@ if (a &amp;&amp;
         <source>Track local branch &apos;%1&apos;</source>
         <translation>跟踪本地分支&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>添加远程</translation>
@@ -35062,28 +34954,13 @@ if (a &amp;&amp;
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>远程</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>刷新(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>添加(&amp;A)...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>F&amp;etch</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>删除(&amp;R)</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -36064,7 +35941,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>本地分支</translation>
@@ -46052,7 +45929,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>untracked</translation>
@@ -46085,16 +45962,9 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>updated</source>
         <translation>已更新</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Gerrit %1@%2</source>
         <translation>Gerrit %1@%2</translation>
-    </message>
-    <message>
-        <source>Changes</source>
-        <translation>修改</translation>
     </message>
     <message>
         <source>&amp;Query:</source>
@@ -46121,13 +45991,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation>Checkout...</translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation>刷新</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Owner&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Project&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Patch set&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;标题&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;数字&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;所有者&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;项目&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;状态&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;补丁集&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -46152,10 +46015,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation>审批</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>状态</translation>
-    </message>
-    <message>
         <source>Parse error: &apos;%1&apos; -&gt; %2</source>
         <translation>解析错误: &apos;%1&apos; -&gt; %2</translation>
     </message>
@@ -46167,9 +46026,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Parse error in line &apos;%1&apos;</source>
         <translation>在行 &apos;%1&apos;发生解析错误</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
@@ -46186,16 +46042,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>%1 returned %2.</source>
         <translation>%1 返回了 %2。</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -46227,24 +46073,9 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation>当文件&quot;gerrit.config&quot;没有配置&quot;canonicalWebUrl&quot;时
 从URL推测使用的协议。</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
         <translation>Gerrit Fetch</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>&quot;%1&quot; 崩溃。</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 返回了 %2。</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>运行%1发生错误: %2</translation>
     </message>
     <message>
         <source>Error writing to temporary file.</source>
@@ -46258,9 +46089,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Cherry-picking %1...</source>
         <translation>正在cherry-pick %1...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -46273,9 +46101,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation>输入 &apos;%1&apos; (%2) 的本地代码仓库</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>显示Diff</translation>
@@ -46284,23 +46109,13 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Show difference.</source>
         <translation>显示差异。</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Detached HEAD</source>
         <translation>已经detach HEAD</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ResetDialog</name>
     <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation>标题</translation>
     </message>
     <message>
         <source>Reset to:</source>

@@ -5247,7 +5247,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation>Recuperar (Checkout)</translation>
@@ -5311,9 +5311,6 @@ Razón: %3</translation>
         <source>Remote branches</source>
         <translation>Ramas remotas</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation>Seleccione un commit de Git</translation>
@@ -5330,9 +5327,6 @@ Razón: %3</translation>
         <source>Selected directory is not a Git repository</source>
         <translation>El directorio seleccionado no es un repositorio de Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation>Tenga en cuenta que el plugin Git para Qt Creator no es capaz de interactuar con un servidor Git por ahora. Por lo tanto, identificación manual mediante ssh etc. no funcionará.</translation>
@@ -5465,16 +5459,10 @@ Razón: %3</translation>
         <source>There are no modified files.</source>
         <translation>No hay archivos modificados.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitOutputWindow</name>
     <message>
         <source>Git Output</source>
         <translation type="obsolete">Salida de Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation></translation>
@@ -5664,10 +5652,6 @@ Razón: %3</translation>
         <translation>No se pudo encontrar el directorio de trabajo</translation>
     </message>
     <message>
-        <source>Revert</source>
-        <translation type="unfinished">Revertir</translation>
-    </message>
-    <message>
         <source>Would you like to revert all pending changes to the project?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5695,31 +5679,17 @@ Razón: %3</translation>
         <source>The commit message check failed. Do you want to commit the change?</source>
         <translation>La comprobación del mensaje de commit ha fallado. ¿Quiere realizar un commit con los cambios de todos modos?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>El binario &apos;%1&apos; no pudo ser localizado en la ruta &apos;%2&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Git Commit</source>
         <translation>Commit de Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Información general</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Repository:</source>
-        <translation>Repositorio:</translation>
     </message>
     <message>
         <location/>
@@ -5751,9 +5721,6 @@ Razón: %3</translation>
         <source>Email:</source>
         <translation>Email:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation>&lt;Nueva rama&gt;</translation>
@@ -5762,9 +5729,6 @@ Razón: %3</translation>
         <source>Type to create a new branch</source>
         <translation>Nombre para la nueva rama</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Git</source>
         <translation></translation>
@@ -5822,9 +5786,6 @@ Razón: %3</translation>
         <source>Omit date from annotation output</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -12672,7 +12633,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="unfinished"></translation>
@@ -12681,9 +12642,6 @@ p, li { white-space: pre-wrap; }
         <source>Git Repository Clone</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
         <translation type="unfinished"></translation>

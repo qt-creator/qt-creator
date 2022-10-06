@@ -7289,7 +7289,7 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Branches</source>
         <translation>Branches</translation>
@@ -7297,10 +7297,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>General information</source>
         <translation type="obsolete">Informations générales</translation>
-    </message>
-    <message>
-        <source>Repository:</source>
-        <translation type="obsolete">Dépôt :</translation>
     </message>
     <message>
         <source>Remote branches</source>
@@ -7318,14 +7314,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>Unable to find the repository directory for &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible de trouver le dépôt de &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Diff</source>
-        <translation type="obsolete">Diff</translation>
-    </message>
-    <message>
-        <source>Log</source>
-        <translation type="obsolete">Log</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -7401,10 +7389,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation type="obsolete">Échec de la création d&apos;une branche de suivi</translation>
     </message>
     <message>
-        <source>Remote Branches</source>
-        <translation type="obsolete">Branches distantes</translation>
-    </message>
-    <message>
         <source>Re&amp;fresh</source>
         <translation>Ra&amp;fraîchir</translation>
     </message>
@@ -7423,10 +7407,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>&amp;Log</source>
         <translation>&amp;Log</translation>
-    </message>
-    <message>
-        <source>&amp;Checkout</source>
-        <translation>Import (&amp;C)</translation>
     </message>
     <message>
         <source>Re&amp;name</source>
@@ -7456,9 +7436,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>&amp;Track</source>
         <translation>&amp;Suivre</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation type="obsolete">Sélectionner un commit Git</translation>
@@ -7478,10 +7455,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>&amp;Show</source>
         <translation>&amp;Montrer</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>I&amp;mportation sélective</translation>
     </message>
     <message>
         <source>&amp;Revert</source>
@@ -7551,9 +7524,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>HEAD</source>
         <translation>HEAD</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translatorcomment>marchera ou marcheront ? Le etc laisse sous-entendre qu&apos;il y aurait d&apos;autres choses qui ne marcheraient pas.</translatorcomment>
@@ -7774,10 +7744,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation type="obsolete">Impossible d&apos;exécuter show : %1 : %2</translation>
     </message>
     <message>
-        <source>Changes</source>
-        <translation type="obsolete">Modifications</translation>
-    </message>
-    <message>
         <source>You have modified files. Would you like to stash your changes?</source>
         <translation type="obsolete">Vous avez modifié des fichiers. Souhaitez-vous mettre vos changements dans le stash ?</translation>
     </message>
@@ -7932,10 +7898,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>MERGING</source>
         <translation>FUSIONNEMENT</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>HEAD détaché</translation>
     </message>
     <message>
         <source>Cannot retrieve top revision of &quot;%1&quot;: %2</source>
@@ -8113,10 +8075,6 @@ Valider maintenant ?</translation>
         <translation>Remiser les changements locaux, puis les récupérer lorsque %1 est terminé.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Remise</translation>
-    </message>
-    <message>
         <source>Stash local changes and continue.</source>
         <translation type="obsolete">Remiser les changements locaux et continuer.</translation>
     </message>
@@ -8224,10 +8182,6 @@ Valider maintenant ?</translation>
         </translation>
     </message>
     <message>
-        <source>Revert</source>
-        <translation>Rétablir</translation>
-    </message>
-    <message>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Le fichier a été modifié. Voulez-vous le rétablir ?</translation>
     </message>
@@ -8283,9 +8237,6 @@ Valider maintenant ?</translation>
         <source>Cannot determine git version: %1</source>
         <translation>Impossible de déterminer la version de git : %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -8568,16 +8519,8 @@ Valider maintenant ?</translation>
         <translation>Annuler le rétablissement</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Continuer le rebasement</translation>
-    </message>
-    <message>
         <source>Continue Cherry Pick</source>
         <translation>Continuer l&apos;importation sélective</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Continuer le rétablissement</translation>
     </message>
     <message>
         <source>&amp;Patch</source>
@@ -8821,14 +8764,6 @@ Valider maintenant ?</translation>
         <translation>Actions sur les soumissions...</translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation>Faire un commit</translation>
-    </message>
-    <message>
-        <source>Undo Changes to %1</source>
-        <translation>Annuler les changements jusqu&apos;à %1</translation>
-    </message>
-    <message>
         <source>Interactive Rebase</source>
         <translation>Changement de base interactif</translation>
     </message>
@@ -8861,10 +8796,6 @@ Valider maintenant ?</translation>
     <message>
         <source>Git Fixup Commit</source>
         <translation>Soumission de correction Git</translation>
-    </message>
-    <message>
-        <source>Git Commit</source>
-        <translation>Soumission Git</translation>
     </message>
     <message>
         <source>Closing Git Editor</source>
@@ -8914,23 +8845,14 @@ Valider maintenant ?</translation>
         <source>The commit message check failed. Do you want to commit the change?</source>
         <translation type="obsolete">La vérification du message de commit a échoué. Voulez-vous soumettre vos modifications ?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>Le binaire &apos;%1&apos; n&apos;a pas pu être trouvé dans le chemin &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Git Commit</source>
         <translation type="obsolete">Git commit</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Informations générales</translation>
@@ -8968,9 +8890,6 @@ Valider maintenant ?</translation>
         <translatorcomment>contexte ? -&gt; Les hooks dans git (ou SVN) sont des checks faites avant et après un commit. D&apos;ailleurs, le projet Qt utilise les hooks :P . Dans le livre suivant, j&apos;ai trouvé : http://git-scm.com/book/fr/Personnalisation-de-Git-Crochets-Git </translatorcomment>
         <translation>&amp;Éviter les crochets</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation type="obsolete">&lt;Nouvelle branche&gt;</translation>
@@ -8980,9 +8899,6 @@ Valider maintenant ?</translation>
         <translatorcomment>Type pas facile à traduire dans ce contexte... Taper ?</translatorcomment>
         <translation type="obsolete">Saisir pour créer une nouvelle branche</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Environment variables</source>
         <translation type="obsolete">Variables d&apos;environnement</translation>
@@ -9076,10 +8992,6 @@ Valider maintenant ?</translation>
         <translation type="obsolete">Ignorer les changements relatifs aux espaces dans les annotations et le diff</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
     </message>
@@ -9115,13 +9027,6 @@ Valider maintenant ?</translation>
         <source>Show tags in Branches dialog</source>
         <translation>Montrer les tags dans le dialogue des branches</translation>
     </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Explorateur de dépôt</translation>
-    </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -19620,7 +19525,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="obsolete">Clone un projet à partir d&apos;un dépôt git.</translation>
@@ -19641,9 +19546,6 @@ p, li { white-space: pre-wrap; }
         <source>Git Repository Clone</source>
         <translation>Clone du dépôt git</translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -21281,7 +21183,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Remises</translation>
@@ -21303,10 +21205,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation type="obsolete">Tout supprimer...</translation>
     </message>
     <message>
-        <source>Delete...</source>
-        <translation type="obsolete">Supprimer…</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation type="obsolete">Afficher</translation>
     </message>
@@ -21318,10 +21216,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Restore to branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation type="obsolete">Restaurer la branche...</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Rafraîchir</translation>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
@@ -21368,10 +21262,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation>&amp;Supprimer...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Montrer</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>R&amp;estaurer...</translation>
     </message>
@@ -21379,10 +21269,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Restaurer dans la &amp;branche...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>Ra&amp;fraîchir</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -21399,20 +21285,8 @@ You can choose between stashing the changes or discarding them.</source>
 Vous pouvez choisir entre mettre les changements dans une remise ou de les abandonner.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Remise</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Abandonner</translation>
-    </message>
-    <message>
         <source>Restore Stash to Branch</source>
         <translation>Restaurer la remise dans la branche</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Branche :</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -24790,28 +24664,15 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteBranchModel</name>
+    <name>Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">(aucune banche)</translation>
     </message>
-</context>
-<context>
-    <name>GitClient</name>
-    <message>
-        <source>Unable to determine the repository for %1.</source>
-        <translation type="obsolete">Impossible de déterminer le dépôt de %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation type="obsolete">Erreur :Git est arrivé à échéance après %1s.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
         <translation>Blame %1</translation>
@@ -29891,7 +29752,7 @@ Details: %3</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -35036,7 +34897,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the diff</source>
         <translation type="obsolete">Utiliser l&apos;algorithme patience pour calculer le diff</translation>
@@ -35061,9 +34922,6 @@ Do you want to retry?</source>
         <source>Ignore Whitespace</source>
         <translation>Ignorer les espaces</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>Select the pretty printing format</source>
         <translation type="obsolete">Sélectionner le format d&apos;affichage </translation>
@@ -35100,9 +34958,6 @@ Do you want to retry?</source>
         <source>raw</source>
         <translation>brut</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Do not show the date a change was made in the output</source>
         <translation type="obsolete">Ne pas afficher à qu&apos;elle date un changement a été fait sur la sortie</translation>
@@ -35114,18 +34969,6 @@ Do you want to retry?</source>
     <message>
         <source>Omit Date</source>
         <translation>Omettre la date</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Ignorer les changement relatifs aux espaces.</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes</source>
-        <translation type="obsolete">Ignorer les changement relatifs aux espaces</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignorer les espaces</translation>
     </message>
 </context>
 <context>
@@ -37036,7 +36879,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -37065,9 +36908,6 @@ if (a &amp;&amp;
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Pister la branche locale &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Ajouter distant</translation>
@@ -37080,28 +36920,13 @@ if (a &amp;&amp;
         <source>URL:</source>
         <translation>URL : </translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Distants</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>Ra&amp;fraîchir</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Ajouter...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>Récupér&amp;er</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>&amp;Supprimer</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -38805,7 +38630,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Branches locales</translation>
@@ -45297,7 +45122,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>non suivi</translation>
@@ -45343,9 +45168,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>updated</source>
         <translation type="obsolete">mis à jour</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Montrer les différences</translation>
@@ -49370,7 +49192,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>Git</name>
     <message>
         <source>Apply in: </source>
         <translation>Appliquer dans :</translation>
@@ -49417,10 +49239,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <translation>&amp;Importer...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Afficher</translation>
-    </message>
-    <message>
         <source>Cherry &amp;Pick</source>
         <translation>Im&amp;porter la sélection</translation>
     </message>
@@ -49440,17 +49258,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Apply...</source>
         <translation type="obsolete">Appliquer...</translation>
     </message>
-    <message>
-        <source>Checkout...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Rafraîchir</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Owner&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Project&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Patch set&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Sujet&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Numéro&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Propriétaire&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projet&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Statut&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ensemble de patchs&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -49476,10 +49283,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <translation>Approbations</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Statut</translation>
-    </message>
-    <message>
         <source>Parse error: &apos;%1&apos; -&gt; %2</source>
         <translation>Erreur d&apos;analyse : &quot;%1&quot; -&gt; %2</translation>
     </message>
@@ -49491,9 +49294,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Parse error in line &apos;%1&apos;</source>
         <translation>Erreur d&apos;analyse à la ligne &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
@@ -49530,16 +49330,6 @@ Souhaitez-vous le terminer ?</translation>
         <source>Keep Running</source>
         <translation>Continuer l&apos;exécution</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -49594,25 +49384,10 @@ asked to confirm the repository path.</source>
 dans le cas où &quot;canonicalWebUrl&quot; n&apos;est pas configuré 
 dans le fichier &quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
         <translatorcomment>Traduire fetch ?</translatorcomment>
         <translation>Gerrit fetch</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 a crashé.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 a retourné %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Erreur lors de l&apos;exécution de %1 : %2</translation>
     </message>
     <message>
         <source>Error writing to temporary file.</source>
@@ -49626,9 +49401,6 @@ dans le fichier &quot;gerrit.config&quot;.</translation>
         <source>Cherry-picking %1...</source>
         <translation type="obsolete">Sélectionner %1...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -49672,9 +49444,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation>Entrer un dépôt local pour &quot;%1&quot; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Detached HEAD</source>
         <translation>HEAD détachée</translation>
@@ -49706,21 +49475,6 @@ were not verified among remotes in %3. Select different folder?</source>
     <message>
         <source>&amp;Commit</source>
         <translation>&amp;Soumettre</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::ResetDialog</name>
-    <message>
-        <source>Sha1</source>
-        <translation type="obsolete">SHA1</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation type="obsolete">Sujet</translation>
-    </message>
-    <message>
-        <source>Reset to:</source>
-        <translation type="obsolete">Réinitaliser à :</translation>
     </message>
     <message>
         <source>Undo Changes to %1</source>
@@ -51130,7 +50884,7 @@ Souhaitez-vous les importer maintenant ?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Changements locaux trouvés. Choisissez une action :</translation>
@@ -51142,10 +50896,6 @@ Souhaitez-vous les importer maintenant ?</translation>
     <message>
         <source>Discard Local Changes</source>
         <translation>Annuler les changements locaux</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Case à cocher</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -51167,9 +50917,6 @@ Souhaitez-vous les importer maintenant ?</translation>
         <source>Create Branch Stash for Current Branch</source>
         <translation>Créer une branche remise pour la branche courante</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Pousser sur Gerrit</translation>
@@ -53674,7 +53421,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffHandler</name>
+    <name>Git</name>
     <message>
         <source>Working tree</source>
         <translation>Arbre de travail</translation>
@@ -53684,23 +53431,9 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Index</translation>
     </message>
     <message>
-        <source>Waiting for data...</source>
-        <translation>En attente de données...</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
-    <message>
         <source>Sha1</source>
         <translation>SHA1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Sujet</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Réinitaliser à :</translation>
@@ -53724,13 +53457,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Soft</source>
         <translation>Soft</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
     </message>
     <message>
         <source>File input for the merge tool requires Git 1.7.8, or later.</source>
@@ -56882,7 +56608,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffSwitcher</name>
+    <name>Git</name>
     <message>
         <source>Switch to Text Diff Editor</source>
         <translation>Basculer vers l&apos;éditeur texte de différences</translation>

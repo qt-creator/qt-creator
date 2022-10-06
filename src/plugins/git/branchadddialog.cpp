@@ -5,6 +5,7 @@
 
 #include "branchmodel.h"
 #include "gitplugin.h"
+#include "gittr.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
@@ -19,8 +20,7 @@
 #include <QRegularExpression>
 #include <QValidator>
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 /*!
  * \brief The BranchNameValidator class validates the corresponding string as
@@ -94,12 +94,12 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, Type type, QW
 {
     resize(590, 138);
 
-    auto branchNameLabel = new QLabel(tr("Branch Name:"));
+    auto branchNameLabel = new QLabel(Tr::tr("Branch Name:"));
 
     m_branchNameEdit = new QLineEdit(this);
     m_branchNameEdit->setValidator(new BranchNameValidator(localBranches, this));
 
-    m_checkoutCheckBox = new QCheckBox(tr("Checkout new branch"));
+    m_checkoutCheckBox = new QCheckBox(Tr::tr("Checkout new branch"));
 
     m_trackingCheckBox = new QCheckBox(this);
     m_trackingCheckBox->setVisible(false);
@@ -110,18 +110,18 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, Type type, QW
 
     switch (type) {
     case BranchAddDialog::AddBranch:
-        setWindowTitle(tr("Add Branch"));
+        setWindowTitle(Tr::tr("Add Branch"));
         break;
     case BranchAddDialog::RenameBranch:
-        setWindowTitle(tr("Rename Branch"));
+        setWindowTitle(Tr::tr("Rename Branch"));
         break;
     case BranchAddDialog::AddTag:
-        setWindowTitle(tr("Add Tag"));
-        branchNameLabel->setText(tr("Tag name:"));
+        setWindowTitle(Tr::tr("Add Tag"));
+        branchNameLabel->setText(Tr::tr("Tag name:"));
         break;
     case BranchAddDialog::RenameTag:
-        setWindowTitle(tr("Rename Tag"));
-        branchNameLabel->setText(tr("Tag name:"));
+        setWindowTitle(Tr::tr("Rename Tag"));
+        branchNameLabel->setText(Tr::tr("Tag name:"));
         break;
     }
 
@@ -159,8 +159,8 @@ void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)
         m_trackingCheckBox->setVisible(false);
         m_trackingCheckBox->setChecked(false);
     } else {
-        m_trackingCheckBox->setText(remote ? tr("Track remote branch \"%1\"").arg(name)
-                                           : tr("Track local branch \"%1\"").arg(name));
+        m_trackingCheckBox->setText(remote ? Tr::tr("Track remote branch \"%1\"").arg(name)
+                                           : Tr::tr("Track local branch \"%1\"").arg(name));
         m_trackingCheckBox->setVisible(true);
         m_trackingCheckBox->setChecked(remote);
     }
@@ -188,5 +188,4 @@ void BranchAddDialog::updateButtonStatus()
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_branchNameEdit->hasAcceptableInput());
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

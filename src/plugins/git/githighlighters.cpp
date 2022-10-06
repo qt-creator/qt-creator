@@ -8,10 +8,9 @@
 #include "gitconstants.h"
 #include "githighlighters.h"
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
-static const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
+const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
 
 GitSubmitHighlighter::GitSubmitHighlighter(QChar commentChar, QTextEdit * parent) :
     TextEditor::SyntaxHighlighter(parent),
@@ -159,5 +158,4 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
     formatSpaces(text);
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal
