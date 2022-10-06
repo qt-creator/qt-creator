@@ -198,7 +198,8 @@ public:
         QStringList args;
 
         // split "-t val" => "-t" "val"
-        foreach (const QString &arg, VcsBaseEditorConfig::arguments()) {
+        const QStringList arguments = VcsBaseEditorConfig::arguments();
+        for (const QString &arg : arguments) {
             if (arg.startsWith("-t")) {
                 args << arg.split(' ');
 

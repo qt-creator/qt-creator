@@ -80,7 +80,7 @@ void CommitEditor::setFields(const QString &repositoryRoot, const BranchInfo &br
                 [](const VcsBase::VcsBaseClient::StatusItem &item)
     { return item.flags != Constants::FSTATUS_UNKNOWN; });
     for (const VcsBase::VcsBaseClient::StatusItem &item : toAdd)
-            m_fileModel->addFile(item.file, item.flags);
+        m_fileModel->addFile(item.file, item.flags);
 
     setFileModel(m_fileModel);
 }

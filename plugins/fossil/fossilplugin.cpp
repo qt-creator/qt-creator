@@ -853,7 +853,8 @@ bool FossilPluginPrivate::submitEditorAboutToClose()
             extraOptions << "--branch" << enquotedBranch;
         }
         // Tags
-        foreach (QString tag, commitWidget->tags()) {
+        const QStringList tags = commitWidget->tags();
+        for (const QString &tag : tags) {
             extraOptions << "--tag" << tag;
         }
 
@@ -886,7 +887,7 @@ void FossilPluginPrivate::updateActions(VcsBase::VcsBasePluginPrivate::ActionSta
     m_revertFile->setParameter(filename);
     m_statusFile->setParameter(filename);
 
-    foreach (QAction *repoAction, m_repositoryActionList)
+    for (QAction *repoAction : qAsConst(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
 }
 
