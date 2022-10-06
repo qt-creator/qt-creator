@@ -1595,10 +1595,8 @@ void VcsBaseEditorWidget::slotApplyDiffChunk(const DiffChunk &chunk, PatchAction
 }
 
 // Tagging of editors for re-use.
-QString VcsBaseEditor::editorTag(EditorContentType t,
-                                 const QString &workingDirectory,
-                                 const QStringList &files,
-                                 const QString &revision)
+QString VcsBaseEditor::editorTag(EditorContentType t, const FilePath &workingDirectory,
+                                 const QStringList &files, const QString &revision)
 {
     const QChar colon = QLatin1Char(':');
     QString rc = QString::number(t);
@@ -1607,7 +1605,7 @@ QString VcsBaseEditor::editorTag(EditorContentType t,
         rc += revision;
         rc += colon;
     }
-    rc += workingDirectory;
+    rc += workingDirectory.toString();
     if (!files.isEmpty()) {
         rc += colon;
         rc += files.join(QString(colon));

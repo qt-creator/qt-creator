@@ -253,7 +253,8 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     return controller;
 }
 
-void SubversionClient::diff(const FilePath &workingDirectory, const QStringList &files, const QStringList &extraOptions)
+void SubversionClient::diff(const FilePath &workingDirectory, const QStringList &files,
+                            const QStringList &extraOptions)
 {
     Q_UNUSED(extraOptions)
 
@@ -268,10 +269,8 @@ void SubversionClient::diff(const FilePath &workingDirectory, const QStringList 
     controller->requestReload();
 }
 
-void SubversionClient::log(const FilePath &workingDir,
-                           const QStringList &files,
-                           const QStringList &extraOptions,
-                           bool enableAnnotationContextMenu)
+void SubversionClient::log(const FilePath &workingDir, const QStringList &files,
+                           const QStringList &extraOptions, bool enableAnnotationContextMenu)
 {
     auto &settings = static_cast<SubversionSettings &>(this->settings());
     const int logCount = settings.logCount.value();
@@ -285,16 +284,15 @@ void SubversionClient::log(const FilePath &workingDir,
     VcsBaseClient::log(workingDir, escapeFiles(files), svnExtraOptions, enableAnnotationContextMenu);
 }
 
-void SubversionClient::describe(const FilePath &workingDirectory, int changeNumber, const QString &title)
+void SubversionClient::describe(const FilePath &workingDirectory, int changeNumber,
+                                const QString &title)
 {
     const QString documentId = QLatin1String(Constants::SUBVERSION_PLUGIN)
-            + QLatin1String(".Describe.") + VcsBaseEditor::editorTag(DiffOutput,
-                                                        workingDirectory.toString(),
-                                                        QStringList(),
-                                                        QString::number(changeNumber));
+        + QLatin1String(".Describe.") + VcsBaseEditor::editorTag(DiffOutput,
+                                        workingDirectory, {}, QString::number(changeNumber));
 
-    SubversionDiffEditorController *controller =
-            findOrCreateDiffEditor(documentId, workingDirectory.toString(), title, workingDirectory);
+    SubversionDiffEditorController *controller = findOrCreateDiffEditor(documentId,
+                                    workingDirectory.toString(), title, workingDirectory);
     controller->setChangeNumber(changeNumber);
     controller->requestReload();
 }

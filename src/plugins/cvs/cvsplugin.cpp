@@ -1011,7 +1011,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBaseEditor::editorTag(LogOutput, workingDir.toString(), QStringList(file));
+    const QString tag = VcsBaseEditor::editorTag(LogOutput, workingDir, {file});
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(response.cleanedStdOut().toUtf8());
         EditorManager::activateEditor(editor);
@@ -1150,7 +1150,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     if (lineNumber < 1)
         lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(file);
 
-    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir.toString(), QStringList(file), revision);
+    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir, {file}, revision);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(response.cleanedStdOut().toUtf8());
         VcsBaseEditor::gotoLineOfEditor(editor, lineNumber);

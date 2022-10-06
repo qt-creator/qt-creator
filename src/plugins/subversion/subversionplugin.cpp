@@ -906,7 +906,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     // Determine id
     const QStringList files = QStringList(file);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files, revision);
-    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir.toString(), files);
+    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir, files);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(response.cleanedStdOut().toUtf8());
         VcsBaseEditor::gotoLineOfEditor(editor, lineNumber);

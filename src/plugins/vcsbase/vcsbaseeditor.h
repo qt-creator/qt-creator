@@ -104,8 +104,8 @@ public:
      * the editor, they get a 'tag' containing type and parameters (dynamic property string). */
     static void tagEditor(Core::IEditor *e, const QString &tag);
     static Core::IEditor* locateEditorByTag(const QString &tag);
-    static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
-                             const QString &revision = QString());
+    static QString editorTag(EditorContentType t, const Utils::FilePath &workingDirectory,
+                             const QStringList &files, const QString &revision = {});
     void finalizeInitialization() override;
 };
 

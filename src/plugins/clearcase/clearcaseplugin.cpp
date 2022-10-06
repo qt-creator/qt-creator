@@ -1197,7 +1197,7 @@ void ClearCasePluginPrivate::ccDiffWithPred(const FilePath &workingDir, const QS
 
     // diff of a single file? re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBaseEditor::editorTag(DiffOutput, workingDir.toString(), files);
+    const QString tag = VcsBaseEditor::editorTag(DiffOutput, workingDir, files);
     if (files.count() == 1) {
         // Show in the same editor if diff has been executed before
         if (IEditor *existingEditor = VcsBaseEditor::locateEditorByTag(tag)) {
@@ -1459,7 +1459,7 @@ void ClearCasePluginPrivate::history(const FilePath &workingDir,
     // the common usage pattern of continuously changing and diffing a file
 
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
-    const QString tag = VcsBaseEditor::editorTag(LogOutput, workingDir.toString(), files);
+    const QString tag = VcsBaseEditor::editorTag(LogOutput, workingDir, files);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(result.cleanedStdOut().toUtf8());
         EditorManager::activateEditor(editor);
@@ -1563,7 +1563,7 @@ void ClearCasePluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, const
     stream << result.cleanedStdOut().mid(dataStart) << headerSep << QLatin1Char('\n')
            << headerSep << QLatin1Char('\n') << result.cleanedStdOut().left(pos);
     const QStringList files = QStringList(file);
-    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir.toString(), files);
+    const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir, files);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(res.toUtf8());
         VcsBaseEditor::gotoLineOfEditor(editor, lineNumber);
@@ -1599,7 +1599,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBaseEditor::editorTag(DiffOutput, source.toString(), QStringList(), changeNr);
+    const QString tag = VcsBaseEditor::editorTag(DiffOutput, source, {}, changeNr);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
         editor->document()->setContents(description.toUtf8());
         EditorManager::activateEditor(editor);
