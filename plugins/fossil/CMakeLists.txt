@@ -12,7 +12,7 @@ add_qtc_plugin(Fossil
   DEPENDS Qt5::Widgets QtCreator::ExtensionSystem QtCreator::Utils
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
-    branchinfo.cpp branchinfo.h
+    branchinfo.h
     commiteditor.cpp commiteditor.h
     configuredialog.cpp configuredialog.h configuredialog.ui
     constants.h
@@ -25,6 +25,6 @@ add_qtc_plugin(Fossil
     fossilsettings.cpp fossilsettings.h
     pullorpushdialog.cpp pullorpushdialog.h pullorpushdialog.ui
     revertdialog.ui
-    revisioninfo.cpp revisioninfo.h
+    revisioninfo.h
     wizard/fossiljsextension.cpp wizard/fossiljsextension.h
 )

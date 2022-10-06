@@ -44,7 +44,7 @@ QString FossilAnnotationHighlighter::changeNumber(const QString &block) const
     QRegularExpressionMatch changesetIdMatch = m_changesetIdPattern.match(block);
     if (changesetIdMatch.hasMatch())
         return changesetIdMatch.captured(1);
-    return QString();
+    return {};
 }
 
 } // namespace Internal

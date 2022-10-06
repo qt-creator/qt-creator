@@ -420,7 +420,7 @@ void FossilPluginPrivate::annotateCurrentFile()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     const int lineNumber = VcsBase::VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
-    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), lineNumber);
+    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), {}, lineNumber);
 }
 
 void FossilPluginPrivate::diffCurrentFile()
@@ -524,7 +524,7 @@ void FossilPluginPrivate::logRepository()
     if (features.testFlag(FossilClient::TimelineWidthFeature))
         extraOptions << "-W" << QString::number(m_client.settings().timelineWidth.value());
 
-    m_client.log(state.topLevel(), QStringList(), extraOptions);
+    m_client.log(state.topLevel(), {}, extraOptions);
 }
 
 void FossilPluginPrivate::revertAll()
@@ -738,7 +738,7 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::S
     const QString currentUser = m_client.synchronousUserDefaultQuery(m_submitRepository);
     QStringList tags = m_client.synchronousTagQuery(m_submitRepository, currentRevision.id);
     // Fossil includes branch name in tag list -- remove.
-    tags.removeAll(currentBranch.name());
+    tags.removeAll(currentBranch.name);
     commitEditor->setFields(m_submitRepository.toString(), currentBranch, tags, currentUser, status);
 
     connect(commitEditor, &VcsBase::VcsBaseSubmitEditor::diffSelectedFiles,
@@ -979,8 +979,7 @@ bool FossilPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return m_client.synchronousMove(from.absolutePath(),
-                                    fromInfo.absoluteFilePath(),
+    return m_client.synchronousMove(from.absolutePath(), fromInfo.absoluteFilePath(),
                                     toInfo.absoluteFilePath());
 }
 
@@ -991,10 +990,13 @@ bool FossilPluginPrivate::vcsCreateRepository(const FilePath &directory)
 
 void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_client.annotate(filePath.absolutePath(), filePath.fileName(), QString(), line);
+    m_client.annotate(filePath.absolutePath(), filePath.fileName(), {}, line);
 }
 
-void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id) { m_client.view(source.toString(), id); }
+void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id)
+{
+    m_client.view(source.toString(), id);
+}
 
 VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
                                                               const FilePath &baseDirectory,

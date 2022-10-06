@@ -40,17 +40,10 @@ public:
     };
     Q_DECLARE_FLAGS(BranchFlags, BranchFlag)
 
-    explicit BranchInfo(const QString &name = QString(), BranchFlags flags = {});
+    bool isCurrent() const { return flags.testFlag(Current); }
 
-public:
-    const QString &name() const;
-    bool isCurrent() const;
-    bool isClosed() const;
-    bool isPrivate() const;
-
-private:
-    QString m_name;
-    BranchFlags m_flags;
+    QString name;
+    BranchFlags flags;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(BranchInfo::BranchFlags)

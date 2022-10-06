@@ -287,11 +287,13 @@ QList<BranchInfo> FossilClient::branchListFromOutput(const QString &output, cons
     // Branch list format:
     // "  branch-name"
     // "* current-branch"
-    return Utils::transform(output.split('\n', Qt::SkipEmptyParts), [=](const QString &l) {
+    return Utils::transform(output.split('\n', Qt::SkipEmptyParts),
+                            [=](const QString &l) -> BranchInfo {
         const QString &name = l.mid(2);
-        QTC_ASSERT(!name.isEmpty(), return BranchInfo());
-        const BranchInfo::BranchFlags flags = (l.startsWith("* ") ? defaultFlags | BranchInfo::Current : defaultFlags);
-        return BranchInfo(name, flags);
+        QTC_ASSERT(!name.isEmpty(), return {});
+        const BranchInfo::BranchFlags flags = (l.startsWith("* ")
+                                               ? defaultFlags | BranchInfo::Current : defaultFlags);
+        return {name, flags};
     });
 }
 
@@ -351,7 +353,7 @@ QList<BranchInfo> FossilClient::synchronousBranchQuery(const FilePath &workingDi
     branches.append(branchListFromOutput(output, BranchInfo::Closed));
 
     std::sort(branches.begin(), branches.end(),
-          [](const BranchInfo &a, const BranchInfo &b) { return a.name() < b.name(); });
+          [](const BranchInfo &a, const BranchInfo &b) { return a.name < b.name; });
     return branches;
 }
 
@@ -377,7 +379,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
     // Query details of the given revision/check-out id,
     // if none specified, provide information about current revision
     if (workingDirectory.isEmpty())
-        return RevisionInfo();
+        return {};
 
     QStringList args("info");
     if (!id.isEmpty())
@@ -386,7 +388,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
     const CommandResult result = vcsSynchronousExec(workingDirectory, args,
                                                     RunFlags::SuppressCommandLogging);
     if (result.result() != ProcessResult::FinishedWithSuccess)
-        return RevisionInfo();
+        return {};
 
     const QString output = sanitizeFossilOutput(result.cleanedStdOut());
 
@@ -397,7 +399,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
     QString committer;
 
     const QRegularExpression idRx("([0-9a-f]{5,40})");
-    QTC_ASSERT(idRx.isValid(), return RevisionInfo());
+    QTC_ASSERT(idRx.isValid(), return {});
 
     const QString hashToken =
             QString::fromUtf8(supportedFeatures().testFlag(InfoHashFeature) ? "hash: " : "uuid: ");
@@ -406,7 +408,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
         if (l.startsWith("checkout: ", Qt::CaseInsensitive)
             || l.startsWith(hashToken, Qt::CaseInsensitive)) {
             const QRegularExpressionMatch idMatch = idRx.match(l);
-            QTC_ASSERT(idMatch.hasMatch(), return RevisionInfo());
+            QTC_ASSERT(idMatch.hasMatch(), return {});
             revisionId = idMatch.captured(1);
 
         } else if (l.startsWith("parent: ", Qt::CaseInsensitive)){
@@ -425,12 +427,12 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
     }
 
     // make sure id at least partially matches the retrieved revisionId
-    QTC_ASSERT(revisionId.startsWith(id, Qt::CaseInsensitive), return RevisionInfo());
+    QTC_ASSERT(revisionId.startsWith(id, Qt::CaseInsensitive), return {});
 
     if (parentId.isEmpty())
         parentId = revisionId;  // root
 
-    return RevisionInfo(revisionId, parentId, mergeParentIds, commentMsg, committer);
+    return {revisionId, parentId, mergeParentIds, commentMsg, committer};
 }
 
 QStringList FossilClient::synchronousTagQuery(const FilePath &workingDirectory, const QString &id)
@@ -609,12 +611,7 @@ QString FossilClient::synchronousTopic(const FilePath &workingDirectory)
         return {};
 
     // return current branch name
-
-    const BranchInfo branchInfo = synchronousCurrentBranch(workingDirectory);
-    if (branchInfo.name().isEmpty())
-        return {};
-
-    return branchInfo.name();
+    return synchronousCurrentBranch(workingDirectory).name;
 }
 
 bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory, const QStringList &extraOptions)
@@ -868,18 +865,11 @@ FossilClient::SupportedFeatures FossilClient::supportedFeatures() const
 
 void FossilClient::view(const QString &source, const QString &id, const QStringList &extraOptions)
 {
-    QStringList args("diff");
-
     const FilePath fPath = FilePath::fromString(source);
     const FilePath workingDirectory = fPath.isFile() ? fPath.absolutePath() : fPath;
 
-    RevisionInfo revisionInfo = synchronousRevisionQuery(workingDirectory,id);
-
-    args << "--from" << revisionInfo.parentId
-         << "--to" << revisionInfo.id
-         << "-v"
-         << extraOptions;
-
+    const RevisionInfo revisionInfo = synchronousRevisionQuery(workingDirectory,id);
+    const QStringList args{"diff", "--from", revisionInfo.parentId, "--to", revisionInfo.id, "-v"};
     const Id kind = vcsEditorKind(DiffCommand);
     const QString title = vcsEditorTitle(vcsCommandString(DiffCommand), id);
 
@@ -887,7 +877,7 @@ void FossilClient::view(const QString &source, const QString &id, const QStringL
                                                   VcsBaseEditor::getCodec(source), "view", id);
     editor->setWorkingDirectory(workingDirectory);
 
-    enqueueJob(createCommand(workingDirectory, editor), args);
+    enqueueJob(createCommand(workingDirectory, editor), args + extraOptions);
 }
 
 class FossilLogHighlighter : QSyntaxHighlighter
