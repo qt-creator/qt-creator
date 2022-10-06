@@ -126,7 +126,7 @@ private:
                      hitThisMainField, totalThisMainField, hitAllMainField, totalAllMainField);
         qDebug("%s", qPrintable(totalString));
     }
-    static QString formatField(int number, int fieldWidth, const QString &suffix = QString())
+    static QString formatField(int number, int fieldWidth, const QString &suffix = {})
     {
         return QString("%1%2").arg(number, fieldWidth - suffix.count()).arg(suffix);
     }
@@ -1338,10 +1338,10 @@ static QString checkBinary(const QDir &dir, const QString &binary)
     // Does the OS have some weird extension concept or does the
     // binary have a 3 letter extension?
     if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-        return QString();
+        return {};
     const int dotIndex = binary.lastIndexOf(QLatin1Char('.'));
     if (dotIndex != -1 && dotIndex == binary.size() - 4)
-        return  QString();
+        return {};
 
     switch (HostOsInfo::hostOs()) {
     case OsTypeLinux:
@@ -1373,7 +1373,7 @@ static QString checkBinary(const QDir &dir, const QString &binary)
         }
         break;
     }
-    return QString();
+    return {};
 }
 
 QString QtcProcess::locateBinary(const QString &path, const QString &binary)
@@ -1392,7 +1392,7 @@ QString QtcProcess::locateBinary(const QString &path, const QString &binary)
 
     const QStringList paths = path.split(HostOsInfo::pathListSeparator());
     if (paths.empty())
-        return QString();
+        return {};
     const QStringList::const_iterator cend = paths.constEnd();
     for (QStringList::const_iterator it = paths.constBegin(); it != cend; ++it) {
         const QDir dir(*it);
@@ -1400,7 +1400,7 @@ QString QtcProcess::locateBinary(const QString &path, const QString &binary)
         if (!rc.isEmpty())
             return rc;
     }
-    return QString();
+    return {};
 }
 
 Environment QtcProcess::systemEnvironmentForBinary(const FilePath &filePath)
@@ -1584,7 +1584,7 @@ QString QtcProcess::exitMessage() const
         return QtcProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
             .arg(fullCmd).arg(d->m_maxHangTimerCount);
     }
-    return QString();
+    return {};
 }
 
 QByteArray QtcProcess::allRawOutput() const
