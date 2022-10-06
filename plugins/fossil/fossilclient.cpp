@@ -57,8 +57,7 @@ using namespace VcsBase;
 namespace Fossil {
 namespace Internal {
 
-const unsigned s_pullFlags = VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
-
+const RunFlags s_pullFlags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class FossilDiffConfig : public VcsBaseEditorConfig
@@ -265,9 +264,7 @@ unsigned int FossilClient::synchronousBinaryVersion() const
     if (settings().binaryPath.value().isEmpty())
         return 0;
 
-    QStringList args("version");
-
-    const CommandResult result = vcsSynchronousExec(FilePath(), args);
+    const CommandResult result = vcsSynchronousExec({}, QStringList{"version"});
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return 0;
 
@@ -315,7 +312,8 @@ BranchInfo FossilClient::synchronousCurrentBranch(const FilePath &workingDirecto
 
     if (!currentBranch.isCurrent()) {
         // If not available from open branches, request it from the list of closed branches.
-        const CommandResult result = vcsSynchronousExec(workingDirectory, {"branch", "list", "--closed"});
+        const CommandResult result = vcsSynchronousExec(workingDirectory,
+                                                        {"branch", "list", "--closed"});
         if (result.result() != ProcessResult::FinishedWithSuccess)
             return BranchInfo();
 
@@ -334,12 +332,12 @@ QList<BranchInfo> FossilClient::synchronousBranchQuery(const FilePath &workingDi
     // Sort the list by branch name.
 
     if (workingDirectory.isEmpty())
-        return QList<BranchInfo>();
+        return {};
 
     // First get list of open branches
     CommandResult result = vcsSynchronousExec(workingDirectory, {"branch", "list"});
     if (result.result() != ProcessResult::FinishedWithSuccess)
-        return QList<BranchInfo>();
+        return {};
 
     QString output = sanitizeFossilOutput(result.cleanedStdOut());
     QList<BranchInfo> branches = branchListFromOutput(output);
@@ -347,7 +345,7 @@ QList<BranchInfo> FossilClient::synchronousBranchQuery(const FilePath &workingDi
     // Append a list of closed branches.
     result = vcsSynchronousExec(workingDirectory, {"branch", "list", "--closed"});
     if (result.result() != ProcessResult::FinishedWithSuccess)
-        return QList<BranchInfo>();
+        return {};
 
     output = sanitizeFossilOutput(result.cleanedStdOut());
     branches.append(branchListFromOutput(output, BranchInfo::Closed));
@@ -363,13 +361,13 @@ QStringList FossilClient::parseRevisionCommentLine(const QString &commentLine)
 
     const QRegularExpression commentRx("^comment:\\s+(.*)\\s\\(user:\\s(.*)\\)$",
                                        QRegularExpression::CaseInsensitiveOption);
-    QTC_ASSERT(commentRx.isValid(), return QStringList());
+    QTC_ASSERT(commentRx.isValid(), return {});
 
     const QRegularExpressionMatch match = commentRx.match(commentLine);
     if (!match.hasMatch())
-        return QStringList();
+        return {};
 
-    return QStringList({match.captured(1), match.captured(2)});
+    return {match.captured(1), match.captured(2)};
 }
 
 RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirectory,
@@ -386,7 +384,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
         args << id;
 
     const CommandResult result = vcsSynchronousExec(workingDirectory, args,
-                                                         VcsCommand::SuppressCommandLogging);
+                                                    RunFlags::SuppressCommandLogging);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return RevisionInfo();
 
@@ -442,40 +440,32 @@ QStringList FossilClient::synchronousTagQuery(const FilePath &workingDirectory, 
     // Tag list includes branch names.
 
     if (workingDirectory.isEmpty())
-        return QStringList();
+        return {};
 
     QStringList args({"tag", "list"});
-
     if (!id.isEmpty())
         args << id;
-
     const CommandResult result = vcsSynchronousExec(workingDirectory, args);
     if (result.result() != ProcessResult::FinishedWithSuccess)
-        return QStringList();
+        return {};
 
-    const QString output = sanitizeFossilOutput(result.cleanedStdOut());
-
-    return output.split('\n', Qt::SkipEmptyParts);
+    return sanitizeFossilOutput(result.cleanedStdOut()).split('\n', Qt::SkipEmptyParts);
 }
 
 RepositorySettings FossilClient::synchronousSettingsQuery(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        return RepositorySettings();
+        return {};
+
+    const CommandResult result = vcsSynchronousExec(workingDirectory, QStringList{"settings"});
+    if (result.result() != ProcessResult::FinishedWithSuccess)
+        return {};
+    const QString output = sanitizeFossilOutput(result.cleanedStdOut());
 
     RepositorySettings repoSettings;
-
     repoSettings.user = synchronousUserDefaultQuery(workingDirectory);
     if (repoSettings.user.isEmpty())
         repoSettings.user = settings().userName.value();
-
-    const QStringList args("settings");
-
-    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
-    if (result.result() != ProcessResult::FinishedWithSuccess)
-        return RepositorySettings();
-
-    const QString output = sanitizeFossilOutput(result.cleanedStdOut());
 
     for (const QString &line : output.split('\n', Qt::SkipEmptyParts)) {
         // parse settings line:
@@ -507,8 +497,8 @@ RepositorySettings FossilClient::synchronousSettingsQuery(const FilePath &workin
     return repoSettings;
 }
 
-bool FossilClient::synchronousSetSetting(const FilePath &workingDirectory,
-                                         const QString &property, const QString &value, bool isGlobal)
+bool FossilClient::synchronousSetSetting(const FilePath &workingDirectory, const QString &property,
+                                         const QString &value, bool isGlobal)
 {
     // set a repository property to the given value
     // if no value is given, unset the property
@@ -528,7 +518,6 @@ bool FossilClient::synchronousSetSetting(const FilePath &workingDirectory,
     return vcsSynchronousExec(workingDirectory, args).result()
             == ProcessResult::FinishedWithSuccess;
 }
-
 
 bool FossilClient::synchronousConfigureRepository(const FilePath &workingDirectory, const RepositorySettings &newSettings,
                                                   const RepositorySettings &currentSettings)
@@ -577,17 +566,13 @@ bool FossilClient::synchronousConfigureRepository(const FilePath &workingDirecto
 QString FossilClient::synchronousUserDefaultQuery(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        return QString();
+        return {};
 
-    const QStringList args({"user", "default"});
-
-    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, {"user", "default"});
     if (result.result() != ProcessResult::FinishedWithSuccess)
-        return QString();
+        return {};
 
-    QString output = sanitizeFossilOutput(result.cleanedStdOut());
-
-    return output.trimmed();
+    return sanitizeFossilOutput(result.cleanedStdOut()).trimmed();
 }
 
 bool FossilClient::synchronousSetUserDefault(const FilePath &workingDirectory, const QString &userName)
@@ -604,19 +589,16 @@ bool FossilClient::synchronousSetUserDefault(const FilePath &workingDirectory, c
 QString FossilClient::synchronousGetRepositoryURL(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        return QString();
+        return {};
 
-    const QStringList args("remote-url");
-
-    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, QStringList{"remote-url"});
     if (result.result() != ProcessResult::FinishedWithSuccess)
-        return QString();
-
+        return {};
     const QString output = sanitizeFossilOutput(result.cleanedStdOut()).trimmed();
 
     // Fossil returns "off" when no remote-url is set.
-    if (output.isEmpty() || output.toLower() == "off")
-        return QString();
+    if (output.toLower() == "off")
+        return {};
 
     return output;
 }
@@ -624,13 +606,13 @@ QString FossilClient::synchronousGetRepositoryURL(const FilePath &workingDirecto
 QString FossilClient::synchronousTopic(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        return QString();
+        return {};
 
     // return current branch name
 
     const BranchInfo branchInfo = synchronousCurrentBranch(workingDirectory);
     if (branchInfo.name().isEmpty())
-        return QString();
+        return {};
 
     return branchInfo.name();
 }
@@ -663,40 +645,24 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     CommandResult result = vcsSynchronousExec(workingDirectory, args);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
-
-    QString output = sanitizeFossilOutput(result.cleanedStdOut());
-    outputWindow->append(output);
+    outputWindow->append(sanitizeFossilOutput(result.cleanedStdOut()));
 
     // check out the created repository file into the working directory
-
-    args.clear();
-    output.clear();
-
-    args << "open" << repoFilePath.toUserOutput();
-    result = vcsSynchronousExec(workingDirectory, args);
+    result = vcsSynchronousExec(workingDirectory, {"open", repoFilePath.toUserOutput()});
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
-
-    output = sanitizeFossilOutput(result.cleanedStdOut());
-    outputWindow->append(output);
+    outputWindow->append(sanitizeFossilOutput(result.cleanedStdOut()));
 
     // set user default to admin if specified
-
     if (!adminUser.isEmpty()) {
-        args.clear();
-        output.clear();
-
-        args << "user" << "default" << adminUser << "--user" << adminUser;
-        result = vcsSynchronousExec(workingDirectory, args);
+        result = vcsSynchronousExec(workingDirectory,
+                                    {"user", "default", adminUser, "--user", adminUser});
         if (result.result() != ProcessResult::FinishedWithSuccess)
             return false;
-
-        QString output = sanitizeFossilOutput(result.cleanedStdOut());
-        outputWindow->append(output);
+        outputWindow->append(sanitizeFossilOutput(result.cleanedStdOut()));
     }
 
     resetCachedVcsInfo(workingDirectory);
-
     return true;
 }
 
@@ -833,8 +799,7 @@ FilePath FossilClient::findTopLevelForFile(const FilePath &file) const
 
 bool FossilClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    const QStringList args({"finfo", fileName});
-    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, {"finfo", fileName});
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
     QString output = sanitizeFossilOutput(result.cleanedStdOut());
@@ -1146,10 +1111,9 @@ QString FossilClient::vcsCommandString(VcsCommandTag cmd) const
     // otherwise return baseclient command
 
     switch (cmd) {
-    case RemoveCommand: return QString("rm");
-    case MoveCommand: return QString("mv");
-    case LogCommand: return QString("timeline");
-
+    case RemoveCommand: return "rm";
+    case MoveCommand: return "mv";
+    case LogCommand: return "timeline";
     default: return VcsBaseClient::vcsCommandString(cmd);
     }
 }
@@ -1164,7 +1128,7 @@ Id FossilClient::vcsEditorKind(VcsCommandTag cmd) const
     case LogCommand:
         return Constants::FILELOG_ID;
     default:
-        return Id();
+        return {};
     }
 }
 
@@ -1192,7 +1156,7 @@ FossilClient::StatusItem FossilClient::parseStatusLine(const QString &line) cons
     int pos = line.indexOf(' ');
 
     if (line.isEmpty() || pos < 1)
-        return StatusItem();
+        return {};
 
     QString label(line.left(pos));
     QString flags;
@@ -1230,7 +1194,7 @@ FossilClient::StatusItem FossilClient::parseStatusLine(const QString &line) cons
 
 
     if (flags.isEmpty())
-        return StatusItem();
+        return {};
 
     // adjust the position to the last space before the file name
     for (int size = line.size(); (pos+1) < size && line[pos+1].isSpace(); ++pos) {}
