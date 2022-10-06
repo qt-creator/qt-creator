@@ -640,7 +640,12 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
     else
         defaultPathString = cmakeEntry["defaultValue"].toString();
 
-    return {cmakeEntry["label"].toString(),
+    QString label = cmakeEntry["label"].toString();
+
+    //Apply translations
+    label = McuPackage::packageLabelTranslations.value(label, label);
+
+    return {label,
             cmakeEntry["envVar"].toString(),
             cmakeEntry["cmakeVar"].toString(),
             cmakeEntry["description"].toString(),

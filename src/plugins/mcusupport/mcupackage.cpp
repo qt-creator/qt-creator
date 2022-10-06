@@ -4,6 +4,7 @@
 #include "mcupackage.h"
 #include "mcusupportversiondetection.h"
 #include "settingshandler.h"
+#include "mcusupporttr.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
@@ -175,7 +176,7 @@ void McuPackage::updateStatusUi()
 QString McuPackage::statusText() const
 {
     const QString displayPackagePath = m_path.toUserOutput();
-    const QString displayVersions = m_versions.join(" or ");
+    const QString displayVersions = m_versions.join(tr(" or "));
     const QString outDetectionPath = m_detectionPath.toUserOutput();
     const QString displayRequiredPath = m_versions.empty() ? outDetectionPath
                                                            : QString("%1 %2").arg(outDetectionPath,
@@ -265,6 +266,43 @@ QWidget *McuPackage::widget()
     updateStatus();
     return widget;
 }
+
+const QMap<QString, QString> McuPackage::packageLabelTranslations {
+    //Board SDKs
+    {"Board SDK for MIMXRT1050-EVK",                        Tr::tr("Board SDK for MIMXRT1050-EVK")},
+    {"Board SDK MIMXRT1060-EVK",                            Tr::tr("Board SDK MIMXRT1060-EVK")},
+    {"Board SDK for MIMXRT1060-EVK",                        Tr::tr("Board SDK for MIMXRT1060-EVK")},
+    {"Board SDK for MIMXRT1064-EVK",                        Tr::tr("Board SDK for MIMXRT1064-EVK")},
+    {"Board SDK for MIMXRT1170-EVK",                        Tr::tr("Board SDK for MIMXRT1170-EVK")},
+    {"Board SDK for STM32F469I-Discovery",                  Tr::tr("Board SDK for STM32F469I-Discovery")},
+    {"Board SDK for STM32F769I-Discovery",                  Tr::tr("Board SDK for STM32F769I-Discovery")},
+    {"Board SDK for STM32H750B-Discovery",                  Tr::tr("Board SDK for STM32H750B-Discovery")},
+    {"Board SDK",                                           Tr::tr("Board SDK")},
+    {"Flexible Software Package for Renesas RA MCU Family", Tr::tr("Flexible Software Package for Renesas RA MCU Family")},
+    {"Graphics Driver for Traveo II Cluster Series",        Tr::tr("Graphics Driver for Traveo II Cluster Series")},
+    {"Renesas Graphics Library",                            Tr::tr("Renesas Graphics Library")},
+    //Flashing tools
+    {"Cypress Auto Flash Utility",                          Tr::tr("Cypress Auto Flash Utility")},
+    {"MCUXpresso IDE",                                      Tr::tr("MCUXpresso IDE")},
+    {"Path to SEGGER J-Link",                               Tr::tr("Path to SEGGER J-Link")},
+    {"Path to Renesas Flash Programmer",                    Tr::tr("Path to Renesas Flash Programmer")},
+    {"STM32CubeProgrammer",                                 Tr::tr("STM32CubeProgrammer")},
+    //Compilers/Toolchains
+    {"Green Hills Compiler for ARM",                        Tr::tr("Green Hills Compiler for ARM")},
+    {"IAR ARM Compiler",                                    Tr::tr("IAR ARM Compiler")},
+    {"Green Hills Compiler",                                Tr::tr("Green Hills Compiler")},
+    {"GNU Arm Embedded Toolchain",                          Tr::tr("GNU Arm Embedded Toolchain")},
+    {"GNU Toolchain",                                       Tr::tr("GNU Toolchain")},
+    {"MSVC Toolchain",                                      Tr::tr("MSVC Toolchain")},
+    //FreeRTOS
+    {"FreeRTOS SDK for MIMXRT1050-EVK",                     Tr::tr("FreeRTOS SDK for MIMXRT1050-EVK")},
+    {"FreeRTOS SDK for MIMXRT1064-EVK",                     Tr::tr("FreeRTOS SDK for MIMXRT1064-EVK")},
+    {"FreeRTOS SDK for MIMXRT1170-EVK",                     Tr::tr("FreeRTOS SDK for MIMXRT1170-EVK")},
+    {"FreeRTOS SDK for EK-RA6M3G",                          Tr::tr("FreeRTOS SDK for EK-RA6M3G")},
+    {"FreeRTOS SDK for STM32F769I-Discovery",               Tr::tr("FreeRTOS SDK for STM32F769I-Discovery")},
+    //Other
+    {"Path to project for Renesas e2 Studio",               Tr::tr("Path to project for Renesas e2 Studio")}
+};
 
 McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                          const QString &label,

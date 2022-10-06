@@ -45,6 +45,8 @@ public:
 
     ~McuPackage() override = default;
 
+    static const QMap<QString, QString> packageLabelTranslations;
+
     QString label() const override;
     QString cmakeVariableName() const override;
     QString environmentVariableName() const override;

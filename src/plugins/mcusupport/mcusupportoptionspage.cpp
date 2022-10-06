@@ -225,8 +225,8 @@ void McuSupportOptionsWidget::updateStatus()
                                      : tr("A kit for the selected target can be created."));
         } else {
             m_kitCreationInfoLabel->setType(Utils::InfoLabel::NotOk);
-            m_kitCreationInfoLabel->setText("Provide the package paths in order to create a kit "
-                                            "for your target.");
+            m_kitCreationInfoLabel->setText(tr("Provide the package paths in order to create a kit "
+                                            "for your target."));
         }
     }
 
@@ -238,8 +238,8 @@ void McuSupportOptionsWidget::updateStatus()
         m_statusInfoLabel->setVisible(!cMakeAvailable);
         if (m_statusInfoLabel->isVisible()) {
             m_statusInfoLabel->setType(Utils::InfoLabel::NotOk);
-            m_statusInfoLabel->setText("No CMake tool was detected. Add a CMake tool in the "
-                                       "<a href=\"cmake\">CMake options</a> and press Apply.");
+            m_statusInfoLabel->setText(tr("No CMake tool was detected. Add a CMake tool in the "
+                                       "<a href=\"cmake\">CMake options</a> and press Apply."));
         }
     }
 }
