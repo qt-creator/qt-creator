@@ -704,11 +704,10 @@ public:
     void handleDone(const ProcessResultData &data);
     void clearForRun();
 
-    void emitStarting();
-    void emitStarted();
-    void emitDone();
-    void emitReadyReadStandardOutput();
-    void emitReadyReadStandardError();
+    void emitGuardedSignal(void (QtcProcess::* signalName)()) {
+        GuardLocker locker(m_guard);
+        emit (q->*signalName)();
+    }
 
     ProcessResult interpretExitCode(int exitCode);
 
@@ -1150,7 +1149,7 @@ void QtcProcess::start()
         // Pass a dynamic property with info about blocking type
         d->m_process->setProperty(QTC_PROCESS_BLOCKING_TYPE, property(QTC_PROCESS_BLOCKING_TYPE));
     }
-    d->emitStarting();
+    d->emitGuardedSignal(&QtcProcess::starting);
     d->m_process->start();
 }
 
@@ -1946,7 +1945,7 @@ void QtcProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainTh
 
     m_processId = processId;
     m_applicationMainThreadId = applicationMainThreadId;
-    emitStarted();
+    emitGuardedSignal(&QtcProcess::started);
 }
 
 void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteArray &errorData)
@@ -1964,7 +1963,7 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
             std::cout << outputData.constData() << std::flush;
         } else {
             m_stdOut.append(outputData);
-            emitReadyReadStandardOutput();
+            emitGuardedSignal(&QtcProcess::readyReadStandardOutput);
         }
     }
     if (!errorData.isEmpty()) {
@@ -1973,7 +1972,7 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
             std::cerr << errorData.constData() << std::flush;
         } else {
             m_stdErr.append(errorData);
-            emitReadyReadStandardError();
+            emitGuardedSignal(&QtcProcess::readyReadStandardError);
         }
     }
 }
@@ -2028,39 +2027,9 @@ void QtcProcessPrivate::handleDone(const ProcessResultData &data)
     m_stdOut.handleRest();
     m_stdErr.handleRest();
 
-    emitDone();
+    emitGuardedSignal(&QtcProcess::done);
     m_processId = 0;
     m_applicationMainThreadId = 0;
-}
-
-void QtcProcessPrivate::emitStarting()
-{
-    GuardLocker locker(m_guard);
-    emit q->starting();
-}
-
-void QtcProcessPrivate::emitStarted()
-{
-    GuardLocker locker(m_guard);
-    emit q->started();
-}
-
-void QtcProcessPrivate::emitDone()
-{
-    GuardLocker locker(m_guard);
-    emit q->done();
-}
-
-void QtcProcessPrivate::emitReadyReadStandardOutput()
-{
-    GuardLocker locker(m_guard);
-    emit q->readyReadStandardOutput();
-}
-
-void QtcProcessPrivate::emitReadyReadStandardError()
-{
-    GuardLocker locker(m_guard);
-    emit q->readyReadStandardError();
 }
 
 } // namespace Utils
