@@ -43,6 +43,10 @@
     is de-activated and the image resources are displayed in the \QD
     \uicontrol {Resource Browser}.
 
+    To open resource files from the code editor, select
+    \uicontrol {Follow Symbol Under Cursor} in the context menu
+    or press \key F2 when the cursor is over a string literal.
+
     \section1 Specifying Settings for Qt Designer
 
     You can drag and drop the views in \QD to new positions on the screen.
