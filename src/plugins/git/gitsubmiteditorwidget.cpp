@@ -43,15 +43,19 @@ public:
         showHeadLabel = new QLabel(Tr::tr("<a href=\"head\">Show HEAD</a>")); // FIXME: Simplify string in tr()
 
         authorLineEdit = new QLineEdit;
+        authorLineEdit->setObjectName("authorLineEdit");
         authorLineEdit->setMinimumSize(QSize(200, 0));
 
         invalidAuthorLabel = new QLabel;
+        invalidAuthorLabel->setObjectName("invalidAuthorLabel");
         invalidAuthorLabel->setMinimumSize(QSize(20, 20));
 
         emailLineEdit = new QLineEdit;
+        emailLineEdit->setObjectName("emailLineEdit");
         emailLineEdit->setMinimumSize(QSize(200, 0));
 
         invalidEmailLabel = new QLabel;
+        invalidEmailLabel->setObjectName("invalidEmailLabel");
         invalidEmailLabel->setMinimumSize(QSize(20, 20));
 
         bypassHooksCheckBox = new QCheckBox(Tr::tr("By&pass hooks"));

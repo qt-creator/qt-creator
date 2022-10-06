@@ -268,7 +268,9 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     : WizardPage(parent)
 {
     m_projectLabel = new QLabel;
+    m_projectLabel->setObjectName("projectLabel");
     m_projectComboBox = new Utils::TreeViewComboBox;
+    m_projectComboBox->setObjectName("projectComboBox");
     m_additionalInfo = new QLabel;
     m_addToVersionControlLabel = new QLabel(tr("Add to &version control:"));
     m_addToVersionControlComboBox = new QComboBox;

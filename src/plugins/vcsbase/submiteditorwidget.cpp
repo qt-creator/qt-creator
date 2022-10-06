@@ -131,6 +131,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     scrollAreaWidgetContents->setMinimumSize(QSize(400, 400));
 
     d->descriptionBox = new QGroupBox(tr("Descriptio&n"));
+    d->descriptionBox->setObjectName("descriptionBox");
     d->descriptionBox->setFlat(true);
 
     d->descriptionHint = new QLabel(d->descriptionBox);
@@ -140,6 +141,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->descriptionLayout->addWidget(d->descriptionHint);
 
     d->description = new CompletingTextEdit(d->descriptionBox);
+    d->description->setObjectName("description");
     d->description->setAcceptRichText(false);
     d->description->setContextMenuPolicy(Qt::CustomContextMenu);
     d->description->setLineWrapMode(QTextEdit::NoWrap);
@@ -148,12 +150,15 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->descriptionLayout->addWidget(d->description);
 
     auto groupBox = new QGroupBox(tr("F&iles"));
+    groupBox->setObjectName("groupBox");
     groupBox->setFlat(true);
 
     d->checkAllCheckBox = new QCheckBox(tr("Select a&ll"));
+    d->checkAllCheckBox->setObjectName("checkAllCheckBox");
     d->checkAllCheckBox->setTristate(false);
 
     d->fileView = new QTreeView(groupBox);
+    d->fileView->setObjectName("fileView");
     d->fileView->setContextMenuPolicy(Qt::CustomContextMenu);
     d->fileView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     d->fileView->setRootIsDecorated(false);
@@ -163,6 +168,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     verticalLayout_2->addWidget(d->fileView);
 
     d->splitter = new Core::MiniSplitter(scrollAreaWidgetContents);
+    d->splitter->setObjectName("splitter");
     d->splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     d->splitter->setOrientation(Qt::Horizontal);
     d->splitter->addWidget(d->descriptionBox);
