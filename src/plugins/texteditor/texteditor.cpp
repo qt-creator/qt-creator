@@ -6080,6 +6080,7 @@ void TextEditorWidgetPrivate::handleHomeKey(bool anchor, bool block)
             if (QTextLayout *layout = c.block().layout();
                 layout->lineForTextPosition(initpos - pos).lineNumber() != 0) {
                 c.movePosition(QTextCursor::StartOfLine, mode);
+                continue;
             }
         }
 
