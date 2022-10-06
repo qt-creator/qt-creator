@@ -3,17 +3,17 @@
 
 #include "mesonprojectplugin.h"
 
-#include "machinefiles/machinefilemanager.h"
-#include "mesonactionsmanager/mesonactionsmanager.h"
-#include "project/mesonbuildconfiguration.h"
-#include "project/mesonproject.h"
-#include "project/mesonrunconfiguration.h"
-#include "project/ninjabuildstep.h"
-#include "settings/general/settings.h"
-#include "settings/tools/kitaspect/mesontoolkitaspect.h"
-#include "settings/tools/kitaspect/ninjatoolkitaspect.h"
-#include "settings/tools/toolssettingsaccessor.h"
-#include "settings/tools/toolssettingspage.h"
+#include "machinefilemanager.h"
+#include "mesonactionsmanager.h"
+#include "mesonbuildconfiguration.h"
+#include "mesonproject.h"
+#include "mesonrunconfiguration.h"
+#include "mesontoolkitaspect.h"
+#include "ninjabuildstep.h"
+#include "ninjatoolkitaspect.h"
+#include "settings.h"
+#include "toolssettingsaccessor.h"
+#include "toolssettingspage.h"
 
 #include <coreplugin/icore.h>
 

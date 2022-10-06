@@ -1,8 +1,8 @@
 // Copyright (C) 2020 Alexis Jeandet.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "exewrappers/mesonwrapper.h"
-#include "mesoninfoparser/mesoninfoparser.h"
+#include "mesonwrapper.h"
+#include "mesoninfoparser.h"
 
 #include <utils/launcherinterface.h>
 #include <utils/singleton.h>

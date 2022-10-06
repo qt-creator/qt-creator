@@ -1,7 +1,7 @@
 // Copyright (C) 2020 Alexis Jeandet.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "project/outputparsers/ninjaparser.h"
+#include "../ninjaparser.h"
 
 #include <QDir>
 #include <QObject>
