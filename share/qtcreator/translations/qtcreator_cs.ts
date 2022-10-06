@@ -42706,7 +42706,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>Vytvořit nový AVD</translation>
@@ -42731,9 +42731,6 @@ Filtr: %2
         <source>Kit:</source>
         <translation>Sada:</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a cetificate</source>
         <translation type="obsolete">Vytvořit úložiště pro klíč a certifikát</translation>
@@ -42830,9 +42827,6 @@ Filtr: %2
         <source>Use Keystore password</source>
         <translation>Použít heslo pro úložiště klíče</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -42977,9 +42971,6 @@ The APK will not be usable on any other device.</source>
         <translation>Zkopíruje místní knihovny Qt na zařízení. Knihovny Qt musíte mít přeloženy pro tuto platformu.
 Toto APK nelze použít na žádném jiném zařízení.</translation>
     </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
         <translation type="obsolete">Manifest</translation>
@@ -43149,40 +43140,12 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ikona programu:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Select low dpi icon</source>
-        <translation type="obsolete">Vybrat ikonu s nízkým dpi</translation>
-    </message>
-    <message>
-        <source>Select medium dpi icon</source>
-        <translation type="obsolete">Vybrat ikonu se středním dpi</translation>
-    </message>
-    <message>
-        <source>Select high dpi icon</source>
-        <translation type="obsolete">Vybrat ikonu s vysokým dpi</translation>
-    </message>
-    <message>
-        <source>Permissions</source>
-        <translation type="obsolete">Oprávnění</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation type="obsolete">Uložit</translation>
     </message>
     <message>
         <source>Discard</source>
         <translation type="obsolete">Zahodit</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_CHECKIN_PROPERTIES</source>
@@ -43776,9 +43739,6 @@ p, li { white-space: pre-wrap; }
         <source>Automatically check required Qt libraries from compiled application.</source>
         <translation>Automaticky ověřit požadované knihovny Qt ze sestaveného programu.</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Nastavení pro Android</translation>
@@ -43786,10 +43746,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Android SDK location:</source>
         <translation>Umístění SDK pro Android:</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Procházet</translation>
     </message>
     <message>
         <source>Android NDK location:</source>
@@ -46234,7 +46190,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
+    <name>Android</name>
     <message>
         <source>Create AVD error</source>
         <translation type="obsolete">Chyba při vytváření AVD</translation>
@@ -46270,13 +46226,6 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     <message>
         <source>Android for %1 (GCC %2, Qt %3)</source>
         <translation>Android pro %1 (GCC %2, Qt %3)</translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
     </message>
 </context>
 <context>
@@ -46323,11 +46272,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je příliš krátké&lt;/span&gt;</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo neodpovídá&lt;/span&gt;</translation>
@@ -46372,23 +46317,10 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Poslat na zařízení Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>Poslat na Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
@@ -46495,7 +46427,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
+    <name>Android</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Nastavení nasazení&lt;/b&gt;</translation>
@@ -46521,7 +46453,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
+    <name>Android</name>
     <message>
         <source>Packaging for Android</source>
         <translation>Vytvoření balíčku pro Android</translation>
@@ -46563,10 +46495,6 @@ Please make sure your application is built successfully and is selected in Appli
 Ujistěte se, prosím, že váš program je sestaven úspěšně a je vybrán na kartě s programy (&apos;Volba pro spuštění&apos;).</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
-    <message>
         <source>Failed to run keytool</source>
         <translation>Nepodařilo se spustit nástroj klíče</translation>
     </message>
@@ -46603,52 +46531,17 @@ Ujistěte se, prosím, že váš program je sestaven úspěšně a je vybrán na
         <translation>Soubor s balíčkem byl vytvořen.</translation>
     </message>
     <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Nasazení balíčku: Spouští se příkaz &apos;%1 %2&apos;.</translation>
-    </message>
-    <message>
         <source>Packaging failed.</source>
         <translation>Vytvoření balíčku se nezdařilo.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1 %2&apos;: Důvod %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Chyba při vytváření balíčku: Příkaz &apos;%1 %2&apos; se nepodařilo provést.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Důvod: %1</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation>Důvod: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Kód ukončení: %1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Úložiště pro klíč</translation>
     </message>
     <message>
         <source>Keystore password:</source>
         <translation>Heslo pro úložiště klíče:</translation>
     </message>
     <message>
-        <source>Certificate</source>
-        <translation>Certifikát</translation>
-    </message>
-    <message>
         <source>Certificate password (%1):</source>
         <translation>Heslo k certifikátu (%1):</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid package name</source>
         <translation type="obsolete">Neplatný název balíčku</translation>
@@ -46660,20 +46553,8 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.example.myapplication&quot;).</translation>
     </message>
     <message>
-        <source>Choose High DPI Icon</source>
-        <translation type="obsolete">Vybrat ikonu s vysokým dpi</translation>
-    </message>
-    <message>
         <source>png images (*.png)</source>
         <translation type="obsolete">Soubory s obrázky PNG (*.png)</translation>
-    </message>
-    <message>
-        <source>Choose Medium DPI Icon</source>
-        <translation type="obsolete">Vybrat ikonu se středním dpi</translation>
-    </message>
-    <message>
-        <source>Choose Low DPI Icon</source>
-        <translation type="obsolete">Vybrat ikonu s nízkým dpi</translation>
     </message>
     <message>
         <source>&lt; type or choose a permission &gt;</source>
@@ -46682,10 +46563,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     <message>
         <source>Invalid Package Name</source>
         <translation type="obsolete">Neplatný název balíčku</translation>
-    </message>
-    <message>
-        <source>PNG images (*.png)</source>
-        <translation type="obsolete">Soubory s obrázky PNG (*.png)</translation>
     </message>
     <message>
         <source>&lt; Type or choose a permission &gt;</source>
@@ -46699,10 +46576,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Select keystore file</source>
         <translation>Vybrat soubor úložiště klíče</translation>
     </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Soubory úložiště klíče (*.keystore *.jks)</translation>
-    </message>
 </context>
 <context>
     <name>QmakeProjectManager</name>
@@ -46712,7 +46585,7 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
+    <name>Android</name>
     <message>
         <source>Copy application data</source>
         <translation>Kopírovat data programu</translation>
@@ -46725,9 +46598,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Current target is not an android target</source>
         <translation type="obsolete">Nynější cíl není cílem Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
         <translation>Soubor .pro &apos;%1&apos; se právě zpracovává.</translation>
@@ -46736,9 +46606,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Run on Android device</source>
         <translation>Spustit na zařízení Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process ...</source>
         <translation type="obsolete">Spouští se vzdálený proces...</translation>
@@ -46747,9 +46614,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Starting remote process.</source>
         <translation>Spouští se vzdálený proces.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device/emulator</source>
         <translation type="obsolete">Spustit na zařízení/emulátor Android</translation>
@@ -46758,9 +46622,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Run on Android device or emulator.</source>
         <translation type="obsolete">Spustit na zařízení nebo emulátoru Androida.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>
 
@@ -46865,31 +46726,10 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
 
 &apos;%1&apos; ukončen.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Nastavení pro Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AVDModel</name>
-    <message>
-        <source>AVD Name</source>
-        <translation type="obsolete">Název AVD</translation>
-    </message>
-    <message>
-        <source>AVD Target</source>
-        <translation type="obsolete">Cíl AVD</translation>
-    </message>
-    <message>
-        <source>CPU/ABI</source>
-        <translation type="obsolete">CPU/ABI</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
         <translation>Složka SDK pro Android</translation>
@@ -46994,38 +46834,6 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
         <source>Select OpenJDK path</source>
         <translation type="obsolete">Vybrat cestu pro OpenJDK</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidTarget</name>
-    <message>
-        <source>Error creating Android directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Chyba při vytváření adresáře Android &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>No Qt for Android SDKs were found.
-Please install at least one SDK.</source>
-        <translation type="obsolete">Nepodařilo se najít žádné Qt pro SDK Android.
-Nainstalujte, prosím, alespoň jedno SDK.</translation>
-    </message>
-    <message>
-        <source>Android files have been updated automatically</source>
-        <translation type="obsolete">Soubory Android byly zaktualizovány automaticky</translation>
-    </message>
-    <message>
-        <source>Can&apos;t parse &apos;%1&apos;</source>
-        <translation type="obsolete">Nelze zpracovat &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Can&apos;t open &apos;%1&apos;</source>
-        <translation type="obsolete">Nelze otevřít &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Error creating Android templates</source>
-        <translation type="obsolete">Chyba při vytváření předloh Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidTargetFactory</name>
     <message>
         <source>Debug</source>
         <translation type="obsolete">Ladění</translation>
@@ -47034,9 +46842,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Release</source>
         <translation type="obsolete">Vydání</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>GCC Android</translation>
@@ -47053,9 +46858,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Android GCC (%1-%2)</source>
         <translation type="obsolete">GCC Android  (%1-%2)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root: %1</source>
         <translation type="obsolete">Kořen (root) NDK: %1</translation>
@@ -47064,9 +46866,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>NDK Root:</source>
         <translation>Kořen (root) NDK:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -49817,32 +49616,15 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
-    <message>
-        <source>Deploy to Android device or emulator</source>
-        <translation>Nasadit na zařízení nebo emulátor Android.</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
+    <name>Android</name>
     <message>
         <source>Run on Android</source>
         <translation>Spustit na Androidu</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation>Zařízení Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation>Chyba při vytváření adresáře Android &apos;%1&apos;.</translation>
@@ -49897,23 +49679,14 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation>Nelze otevřít &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation>Vytvořit balíček pro Android (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
     <message>
         <source>Deploy to device</source>
         <translation>Nasadit na zařízení</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>ABI(s) verze Qt se nepodařilo určit.</translation>
@@ -49923,9 +49696,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -53606,14 +53376,11 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
+    <name>Android</name>
     <message>
         <source>GDB server</source>
         <translation>Server GDB:</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Spravovat...</translation>
@@ -55615,14 +55382,11 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAnalyzeSupport</name>
+    <name>Android</name>
     <message>
         <source>No analyzer tool selected.</source>
         <translation>Nevybrán žádný nástroj pro rozbor.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Obecné</translation>
@@ -55631,16 +55395,10 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>XML Source</source>
         <translation>Zdroj XML</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Editor manifestu pro Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Balíček</translation>
@@ -55694,10 +55452,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     <message>
         <source>Target SDK:</source>
         <translation>SDK cíle:</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Program</translation>
     </message>
     <message>
         <source>Application name:</source>
@@ -55764,14 +55518,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <translation>Oprávnění</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>The structure of the android manifest file is corrupt. Expected a top level &apos;manifest&apos; node.</source>
         <translation>Stavba souboru s manifestem pro Android je neplatná. Očekáván uzel &apos;manifest&apos; na nejhornější úrovni.</translation>
     </message>
@@ -55807,9 +55553,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Choose High DPI Icon</source>
         <translation>Vybrat ikonu s vysokým dpi</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPlugin</name>
     <message>
         <source>Android Manifest file</source>
         <translation>Soubor s manifestem pro Android</translation>
@@ -56951,77 +56694,14 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
-    <message>
-        <source>Create new AVD</source>
-        <translation>Vytvořit nový AVD</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Target API:</source>
         <translation>Cílové API:</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
-    </message>
-    <message>
-        <source>SD card size:</source>
-        <translation>Velikost karty SD:</translation>
-    </message>
-    <message>
-        <source> MiB</source>
-        <translation> MiB</translation>
-    </message>
-    <message>
         <source>ABI:</source>
         <translation>ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Sign package</source>
-        <translation>Podepsat balíček</translation>
-    </message>
-    <message>
-        <source>Keystore:</source>
-        <translation>Úložiště pro klíč:</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Vytvoření</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Procházet</translation>
-    </message>
-    <message>
-        <source>Signing a debug package</source>
-        <translation>Podepsání balíčku ladění</translation>
-    </message>
-    <message>
-        <source>Certificate alias:</source>
-        <translation>Alias certifikátu:</translation>
-    </message>
-    <message>
-        <source>Advanced Actions</source>
-        <translation>Pokročilé činnosti</translation>
-    </message>
-    <message>
-        <source>Clean Temporary Libraries Directory on Device</source>
-        <translation>Vyprázdnit adresář s dočasnými knihovnami na zařízení</translation>
-    </message>
-    <message>
-        <source>Install Ministro from APK</source>
-        <translation>Instalovat Ministro z APK</translation>
-    </message>
-    <message>
-        <source>Reset Default Devices</source>
-        <translation>Nastavit výchozí zařízení znovu</translation>
     </message>
     <message>
         <source>Open package location after build</source>
@@ -57036,10 +56716,6 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
         <translation>Vytvořit AndroidManifest.xml</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation>Program</translation>
-    </message>
-    <message>
         <source>Android target SDK:</source>
         <translation>SDK pro Android:</translation>
     </message>
@@ -57050,36 +56726,6 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     <message>
         <source>Qt no longer uses the folder &quot;android&quot; in the project&apos;s source directory.</source>
         <translation>Qt už nadále nepoužívá složku &quot;android&quot; v adresáři projektu se zdroji.</translation>
-    </message>
-    <message>
-        <source>Qt Deployment</source>
-        <translation>Nasazení Qt</translation>
-    </message>
-    <message>
-        <source>Use the external Ministro application to download and maintain Qt libraries.</source>
-        <translation>Použít externí program Ministro ke stažení a správě knihoven Qt.</translation>
-    </message>
-    <message>
-        <source>Use Ministro service to install Qt</source>
-        <translation>Použít službu Ministro k nainstalování Qt</translation>
-    </message>
-    <message>
-        <source>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation>Zkopírovat místní knihovny Qt na zařízení. Knihovny Qt musíte mít přeloženy pro tuto platformu.
-Toto APK nelze použít na žádném jiném zařízení.</translation>
-    </message>
-    <message>
-        <source>Deploy local Qt libraries to temporary directory</source>
-        <translation>Zkopírovat místní knihovny Qt do dočasného adresáře</translation>
-    </message>
-    <message>
-        <source>Creates a standalone APK.</source>
-        <translation>Vytvoří samostatné APK.</translation>
-    </message>
-    <message>
-        <source>Bundle Qt libraries in APK</source>
-        <translation>Knihovny Qt zabalit do APK</translation>
     </message>
     <message>
         <source>Additional Libraries</source>
@@ -57094,16 +56740,8 @@ Toto APK nelze použít na žádném jiném zařízení.</translation>
         <translation>Vybrat knihovnu k zahrnutí v balíčku.</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>Odstranit nyní vybranou knihovnu ze seznamu.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>Create...</source>
@@ -57113,23 +56751,6 @@ Toto APK nelze použít na žádném jiném zařízení.</translation>
         <source>Android build SDK:</source>
         <translation>SDK pro sestavení pro Android:</translation>
     </message>
-    <message>
-        <source>Uses the external Ministro application to download and maintain Qt libraries.</source>
-        <translation>Používá externí program Ministro ke stažení a správě knihoven Qt.</translation>
-    </message>
-    <message>
-        <source>Pushes local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation>Zkopíruje místní knihovny Qt na zařízení. Knihovny Qt musíte mít přeloženy pro tuto platformu.
-Toto APK nelze použít na žádném jiném zařízení.</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Vybrat zařízení Android</translation>
@@ -57145,10 +56766,6 @@ Toto APK nelze použít na žádném jiném zařízení.</translation>
     <message>
         <source>Always use this device for architecture %1</source>
         <translation>Vždy používat toto zařízení pro architekturu %1</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -57983,18 +57600,10 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Nasadit na zařízení nebo emulátor Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <extracomment>AndroidDeployQtStep default display name</extracomment>
-        <translation>Poslat na zařízení Android</translation>
     </message>
     <message>
         <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
@@ -58005,44 +57614,12 @@ monitor reset</source>
         <translation>Podle souboru .pro nenastaven žádný archiv Android.</translation>
     </message>
     <message>
-        <source>Warning: Signing a debug package.</source>
-        <translation>Varování: Podepsání balíčku ladění.</translation>
-    </message>
-    <message>
         <source>Internal Error: Could not find .pro file.</source>
         <translation>Vnitřní chyba: Nepodařilo se najít soubor .pro.</translation>
     </message>
     <message>
         <source>Internal Error: Unknown Android deployment JSON file location.</source>
         <translation>Vnitřní chyba: Neznámé umístění souboru JSON nasazení Androidu.</translation>
-    </message>
-    <message>
-        <source>Pulling files necessary for debugging.</source>
-        <translation>Nahrávají se soubory nezbytné pro ladění.</translation>
-    </message>
-    <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Nasazení balíčku: Spouští se příkaz &apos;%1 %2&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1 %2&apos;: Důvod %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Chyba při vytváření balíčku: Příkaz &apos;%1 %2&apos; se nepodařilo provést.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Důvod: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Kód ukončení: %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
     </message>
     <message>
         <source>Failed to run keytool.</source>
@@ -58053,45 +57630,6 @@ monitor reset</source>
         <translation>Neplatné heslo.</translation>
     </message>
     <message>
-        <source>Keystore</source>
-        <translation>Úložiště pro klíč</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Heslo pro úložiště klíče:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Certifikát</translation>
-    </message>
-    <message>
-        <source>Certificate password (%1):</source>
-        <translation>Heslo k certifikátu (%1):</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
-    <message>
-        <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Nastavení nasazení&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Qt Android Smart Installer</source>
-        <translation>Chytrý instalátor pro Qt Android</translation>
-    </message>
-    <message>
-        <source>Android package (*.apk)</source>
-        <translation>Balíček pro Android (*.apk)</translation>
-    </message>
-    <message>
-        <source>Select keystore file</source>
-        <translation>Vybrat soubor úložiště klíče</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Soubory úložiště klíče (*.keystore *.jks)</translation>
-    </message>
-    <message>
         <source>Select additional libraries</source>
         <translation>Vybrat dodatečné knihovny</translation>
     </message>
@@ -58099,9 +57637,6 @@ monitor reset</source>
         <source>Libraries (*.so)</source>
         <translation>Knihovny (*.so)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: Chyba při instalaci SDK 0x%1</translation>
@@ -58142,9 +57677,6 @@ monitor reset</source>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: Neznámá chyba 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install&lt;/b&gt;</source>
         <translation>&lt;b&gt;Make install&lt;/b&gt;</translation>
@@ -58153,9 +57685,6 @@ monitor reset</source>
         <source>Make install</source>
         <translation>Make install</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>Qt Creator needs additional settings to enable Android support.You can configure those settings in the Options dialog.</source>
         <translation>Qt Creator potřebuje dodatečná nastavení pro povolení podpory pro Android. Tato nastavení můžete nastavit v dialogu s volbami.</translation>
@@ -58168,9 +57697,6 @@ monitor reset</source>
         <source>Qt Creator needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>Qt Creator potřebuje dodatečná nastavení pro povolení podpory pro Android. Tato nastavení můžete nastavit v dialogu s volbami.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>V tomto projektu nebyl nalezen žádný soubor .pro aplikace.</translation>
@@ -58179,9 +57705,6 @@ monitor reset</source>
         <source>No Application .pro File</source>
         <translation>Žádný soubor .pro aplikace</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create an AndroidManifest.xml file.</source>
         <translation>vyberte soubor .pro, pro který chcete vytvořit soubor AndroidManifest.xml.</translation>
@@ -58194,9 +57717,6 @@ monitor reset</source>
         <source>Select a .pro File</source>
         <translation>Vybrat soubor .pro</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseDirectoryPage</name>
     <message>
         <source>The Android package source directory can not be the same as the project directory.</source>
         <translation>Zdrojový adresář balíčku pro Android nemůže být týž jako projektový adresář.</translation>
@@ -58221,9 +57741,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>The Android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Soubor s manifestem pro Android bude vytvořen v ANDROID_PACKAGE_SOURCE_DIR nastaveném v souboru .pro.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Manifest Wizard</source>
         <translation>Vytvořit průvodce manifestem pro Android</translation>
@@ -60266,45 +59783,15 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>AndroidConfiguration</name>
-    <message>
-        <source>Could not run: %1</source>
-        <translation>Nepodařilo se spustit: %1</translation>
-    </message>
-    <message>
-        <source>No devices found in output of: %1</source>
-        <translation>Nenalezena žádná zařízení ve výstupu: %1</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
-    <message>
-        <source>Error Creating AVD</source>
-        <translation>Chyba při vytváření AVD</translation>
-    </message>
-    <message>
-        <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
-Please install an SDK of at least API version %1.</source>
-        <translation>Nelze vytvořit nové AVD. Není dostupné dostačně nedávné SDK pro Android.
-Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
+    <name>Android</name>
     <message>
         <source>Configure Android...</source>
         <translation>Nastavit Android...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation>Editor Javy</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaFileWizard</name>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
         <translation>Vytvoří soubor Java s kódem se standardním textem.</translation>

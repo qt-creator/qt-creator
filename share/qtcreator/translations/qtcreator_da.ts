@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="da">
 <context>
-    <name>AdbCommandsWidget</name>
+    <name>Android</name>
     <message>
         <source>Widget</source>
         <translation>Widget</translation>
@@ -152,7 +152,7 @@
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -192,9 +192,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>Failed to run keytool.</source>
         <translation>Kunne ikke køre keytool.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidBuildApkWidget</name>
     <message>
         <source>Keystore files (*.keystore *.jks)</source>
         <translation>Keystore-filer (*.keystore *.jks)</translation>
@@ -207,9 +204,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>&lt;b&gt;Build Android APK&lt;/b&gt;</source>
         <translation>&lt;b&gt;Byg Android APK&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Android Debugger for %1</source>
         <translation>Android-fejlretter for %1</translation>
@@ -218,9 +212,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>Android for %1 (GCC %2, %3)</source>
         <translation>Android for %1 (GCC %2, %3)</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Ukendt Android version. API-niveau: %1</translation>
@@ -237,9 +228,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>Starting Android virtual device failed.</source>
         <translation>Start af Android virtuel-enhed mislykkedes.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AddNewAVDDialog</name>
     <message>
         <source>Create new AVD</source>
         <translation>Opret ny AVD</translation>
@@ -264,9 +252,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source> MiB</source>
         <translation> MiB</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Keystore password is too short.</source>
         <translation>Keystore adgangskode er for kort.</translation>
@@ -295,24 +280,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>Keystore Filename</source>
         <translation>Keystore-filnavn</translation>
     </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Keystore-filer (*.keystore *.jks)</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fejl</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Udsend til Android-enhed</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployQtStep default display name</extracomment>
@@ -394,16 +361,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Package deploy: Running command &quot;%1 %2&quot;.</source>
         <translation>Pakkeudsendelse: kører kommandoen &quot;%1 %2&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Udsend til Android-enhed eller emulator</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Udsend-konfigurationer&lt;/b&gt;</translation>
@@ -416,20 +377,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Android package (*.apk)</source>
         <translation>Android-pakke (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation>Kør på Android</translation>
     </message>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Vælg Android-enhed</translation>
@@ -457,10 +408,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
     <message>
         <source>Refresh Device List</source>
         <translation>Genopfrisk enhedsliste</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -502,16 +449,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Looking for default device &lt;b&gt;%1&lt;/b&gt;.</source>
         <translation>Kig efter standardenhed &lt;b&gt;%1&lt;/b&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
     <message>
         <source>Android Device</source>
         <translation>Android-enhed</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL aktiveret</translation>
@@ -520,9 +461,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>OpenGL disabled</source>
         <translation>OpenGL deaktiveret</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: SDK installationsfejl 0x%1</translation>
@@ -563,16 +501,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: ukendt fejl 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
         <source>GDB server</source>
         <translation>GDB-server</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Håndter...</translation>
@@ -601,9 +533,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>GDB-server for &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -612,16 +541,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>XML Source</source>
         <translation>XML-kilde</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Android Manifest-redigering</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Pakke</translation>
@@ -758,23 +681,14 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Choose High DPI Icon</source>
         <translation>Vælg høj-DPI-ikon</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Konfigurer Android...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>%1 har brug for yderligere indstillinger for at aktivere Android-understøttelse. Kan du konfigurere sådanne indstillinger i dialogen Valgmuligheder.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Kunne ikke detektere ABI&apos;erne brugt af Qt versionen.</translation>
@@ -784,16 +698,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation>&quot;%1&quot; termineret.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Ingen ledige porte tilgængelige på vært til QML-fejlretning.</translation>
@@ -838,9 +746,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>&quot;%1&quot; died.</source>
         <translation>&quot;%1&quot; dødede.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManager</name>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
         <translation>Handlingen kræver indgriben fra brugeren. Brug kommandolinjeværktøjet &quot;sdkmanager&quot;.</translation>
@@ -853,9 +758,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
 
 </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
     <message>
         <source>Android SDK Manager</source>
         <translation>Android SDK manager</translation>
@@ -899,10 +801,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
     <message>
         <source>Native SDK Manager...</source>
         <translation>Native SDK manager...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuller</translation>
     </message>
     <message>
         <source>Do you want to accept the Android SDK license?</source>
@@ -1011,13 +909,6 @@ Cancelling pending operations...
 Annullerer afventende handlinger...
 </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
-        <translation>Pakke</translation>
-    </message>
     <message>
         <source>Revision</source>
         <translation>Revision</translation>
@@ -1050,16 +941,6 @@ Annullerer afventende handlinger...
         <source>Install</source>
         <translation>Installation</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>JDK path exists.</source>
         <translation>JDK-sti findes.</translation>
@@ -1170,23 +1051,14 @@ Vælg Valgmuligheder &gt; Byg &amp; kør &gt; Qt versioner, for at tilføje Qt v
         <source>AVD manager UI tool is not available in the installed SDK tools(version %1). Use the command line tool &quot;avdmanager&quot; for advanced AVD management.</source>
         <translation>AVD manager UI-værktøj er ikke tilgængelig i de installerede SDK-værktøjer (version %1). Brug kommandolinjeværktøjet &quot;avdmanager&quot; for avanceret håndtering af AVD.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>NDK-rod:</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>Android GCC</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdDialog</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -1201,9 +1073,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Allowed characters are: a-z A-Z 0-9 and . _ -</source>
         <translation>Tilladte tegn er: a-z A-Z 0-9 og . _ -</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -1217,16 +1086,10 @@ Installer en SDK af mindst API version %1.</translation>
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation>Java-redigering</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::OptionsDialog</name>
     <message>
         <source>SDK Manager Arguments</source>
         <translation>SDK manager-argumenter</translation>
@@ -1243,9 +1106,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Available arguments:</source>
         <translation>Tilgængelige argumenter:</translation>
     </message>
-</context>
-<context>
-    <name>Android::PasswordInputDialog</name>
     <message>
         <source>Incorrect password.</source>
         <translation>Ukorrekt adgangskode.</translation>
@@ -1266,9 +1126,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Enter certificate password</source>
         <translation>Indtast certifikat-adgangskode</translation>
     </message>
-</context>
-<context>
-    <name>AndroidAvdManager</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation>Kan ikke oprette AVD. Ugyldigt input.</translation>
@@ -1285,9 +1142,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Cannot create AVD. Command timed out.</source>
         <translation>Kan ikke oprette AVD. Kommando fik timeout.</translation>
     </message>
-</context>
-<context>
-    <name>AndroidBuildApkWidget</name>
     <message>
         <source>Sign package</source>
         <translation>Signér pakke</translation>
@@ -1307,10 +1161,6 @@ Installer en SDK af mindst API version %1.</translation>
     <message>
         <source>Certificate alias:</source>
         <translation>Certifikat alias:</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Program</translation>
     </message>
     <message>
         <source>Android build SDK:</source>
@@ -1344,16 +1194,10 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Add debug server</source>
         <translation>Tilføj fejlret-server</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Fejl ved oprettelse af AVD</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfiguration</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Kunne ikke kører: %1</translation>
@@ -1362,9 +1206,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>No devices found in output of: %1</source>
         <translation>Ingen enheder fundet i output af: %1</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>Opret en keystore og et certifikat</translation>
@@ -1398,10 +1239,6 @@ Installer en SDK af mindst API version %1.</translation>
         <translation>Sprogkode på to bogstaver for denne enhed (f.eks. RO):</translation>
     </message>
     <message>
-        <source>Certificate</source>
-        <translation>Certifikat</translation>
-    </message>
-    <message>
         <source>Show password</source>
         <translation>Vis adgangskode</translation>
     </message>
@@ -1430,13 +1267,6 @@ Installer en SDK af mindst API version %1.</translation>
         <translation>Brug keystore adgangskode</translation>
     </message>
     <message>
-        <source>Keystore</source>
-        <translation>Keystore</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
-    <message>
         <source>Deploy options</source>
         <translation>Udsend-valgmuligheder</translation>
     </message>
@@ -1456,9 +1286,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Install Ministro from APK</source>
         <translation>Installer Ministro fra APK</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Updating installed packages.</source>
         <translation>Opdaterer installerede pakker.</translation>
@@ -1487,9 +1314,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Failed</source>
         <translation>Mislykkedes</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android-konfiguration</translation>
@@ -1539,10 +1363,6 @@ Installer en SDK af mindst API version %1.</translation>
         <translation> Mb</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
-    </message>
-    <message>
         <source>Add...</source>
         <translation>Tilføj...</translation>
     </message>
@@ -1561,13 +1381,6 @@ Installer en SDK af mindst API version %1.</translation>
     <message>
         <source>SDK Manager</source>
         <translation>SDK manager</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidToolManager</name>
-    <message>
-        <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation>Kunne ikke starte processen &quot;%1 %2&quot;</translation>
     </message>
 </context>
 <context>
@@ -2406,7 +2219,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -28394,7 +28207,7 @@ Udløbsdato: %3</translation>
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::ChooseDirectoryPage</name>
+    <name>Android</name>
     <message>
         <source>Android package source directory:</source>
         <translation>Android-pakke kildemappe:</translation>
@@ -28423,9 +28236,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Android-skabelon-filerne vil blive oprettet i ANDROID_PACKAGE_SOURCE_DIR sæt i .pro-filen.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Vælg .pro-filen til hvilke du vil oprette Android-skabelon-filerne.</translation>
@@ -28438,9 +28248,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>Select a .pro File</source>
         <translation>Vælg en .pro-fil</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Opret Android-skabelon-filer-assistent</translation>
@@ -28469,9 +28276,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>Could not update the .pro file %1.</source>
         <translation>Kunne ikke opdatere .pro-filen %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>Ingen program .pro-fil fundet i dette projekt.</translation>
@@ -28480,13 +28284,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>No Application .pro File</source>
         <translation>Ingen program .pro-fil</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStep</name>
-    <message>
-        <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
-        <translation>Fandt gammel &quot;android&quot;-mappe i kildemappe. Qt 5.2 bruger ikke den mappe som standard.</translation>
-    </message>
     <message>
         <source>Android build SDK not defined. Check Android settings.</source>
         <translation>Android-byg SDK ikke defineret. Tjek Android-indstillinger.</translation>
@@ -28494,24 +28291,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     <message>
         <source>No application .pro file found, not building an APK.</source>
         <translation>Ingen program .pro-fil fundet, bygger ikke en APK.</translation>
-    </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
-        <translation>Starter: &quot;%1&quot; %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStepFactory</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation>Byg Android APK</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkWidget</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
     </message>
     <message>
         <source>Create Templates</source>
@@ -28530,16 +28309,8 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <translation>Vælg bibliotek som skal inkluderes i pakke.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Tilføj...</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>Fjern aktuelt valgt bibliotek fra liste.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
@@ -28548,10 +28319,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     <message>
         <source>Libraries (*.so)</source>
         <translation>Biblioteker (*.so)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Build Android APK&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Byg Android APK&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -42462,7 +42229,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>AVD Start Error</source>
         <translation>Fejl ved start af AVD</translation>
@@ -42475,9 +42242,6 @@ Spordataene er tabt.</translation>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
         <translation>Installer det manglende emulatorværktøj (%1) til det installerede Android SDK.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Kopiér programdata</translation>
@@ -42486,23 +42250,14 @@ Spordataene er tabt.</translation>
         <source>Removing directory %1</source>
         <translation>Fjerner mappen %1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>Make install</source>
         <translation>Make install</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
     <message>
         <source>Deploy to device</source>
         <translation>Udsend til enhed</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
     <message>
         <source>Activity manager start options:</source>
         <translation>Aktivitetshåndteringer start-valgmuligheder:</translation>

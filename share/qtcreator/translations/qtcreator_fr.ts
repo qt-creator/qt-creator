@@ -44717,7 +44717,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -45791,7 +45791,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>Créer un nouvel AVD</translation>
@@ -45808,13 +45808,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <source>SD card size:</source>
         <translation>Taille de la carte SD :</translation>
     </message>
-    <message>
-        <source> MiB</source>
-        <translation>Mio</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>Crée un classeur de clés et un certificat</translation>
@@ -45896,9 +45889,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <source>Use Keystore password</source>
         <translation>Utilise le mot de passe du trousseau de clés</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -45945,14 +45935,6 @@ Cette option est utile lorsque vous voulez essayer votre applications sur les p�
         <translation type="obsolete">Choisir l&apos;APK</translation>
     </message>
     <message>
-        <source>Qt Deployment</source>
-        <translation>Déploiement Qt</translation>
-    </message>
-    <message>
-        <source>Use the external Ministro application to download and maintain Qt libraries.</source>
-        <translation>Utiliser l&apos;application Ministro externe pour télécharger et maintenant les bibliothèques Qt.</translation>
-    </message>
-    <message>
         <source>Use Ministro service to install Qt</source>
         <translation>Utiliser le service Ministro pour installer Qt</translation>
     </message>
@@ -45990,9 +45972,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <source>Reset Default Devices</source>
         <translation>Restaurer les périphériques par défaut</translation>
     </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
         <translation type="obsolete">Fichier manifest</translation>
@@ -46044,40 +46023,12 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation type="obsolete">&lt;b&gt;Icône de l&apos;application :&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>Select low dpi icon</source>
-        <translation type="obsolete">Sélectionner une icône basse résolution</translation>
-    </message>
-    <message>
-        <source>Select medium dpi icon</source>
-        <translation type="obsolete">Sélectionner une icône moyenne résolution</translation>
-    </message>
-    <message>
-        <source>Select high dpi icon</source>
-        <translation type="obsolete">Sélectionner une icône haute résolution</translation>
-    </message>
-    <message>
-        <source>Permissions</source>
-        <translation type="obsolete">Permissions</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation type="obsolete">Enregistrer</translation>
     </message>
     <message>
         <source>Discard</source>
         <translation type="obsolete">Abandonner</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
         <source>Libraries</source>
@@ -46134,23 +46085,12 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Alias de certificat :</translation>
     </message>
     <message>
-        <source>Signing a debug package</source>
-        <translation>Authentification un paquet Debug</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
-    <message>
         <source>Android Configuration</source>
         <translation>Configuration Android</translation>
     </message>
     <message>
         <source>Android SDK location:</source>
         <translation>Emplacement du SDK Android :</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Parcourir</translation>
     </message>
     <message>
         <source>Android NDK location:</source>
@@ -47000,7 +46940,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
+    <name>Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Impossible de démarrer : %1</translation>
@@ -47026,20 +46966,6 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
     <message>
         <source>Android for %1 (GCC %2, Qt %3)</source>
         <translation>Android pour %1 (GCC %2, Qt %3)</translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Le mot de passe est trop court&lt;/span&gt;</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
@@ -47085,23 +47011,10 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Déployer sur périphérique Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>Déployer sur Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
@@ -47126,10 +47039,6 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
     <message>
         <source>adb finished with exit code %1.</source>
         <translation>adb s&apos;est terminé en retournant %1.</translation>
-    </message>
-    <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Déployement de paquet : exécution de la commande &quot;%1 %2&quot;.</translation>
     </message>
     <message>
         <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
@@ -47176,16 +47085,6 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
         <source>Pulling files necessary for debugging.</source>
         <translation>Envoie des fichiers nécessaires au débogage.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
-    <message>
-        <source>Deploy to Android device or emulator</source>
-        <translation>Déploiement sur un périphérique Android ou un émulateur</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Configurations de déploiement&lt;/b&gt;</translation>
@@ -47198,27 +47097,14 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
         <source>Android package (*.apk)</source>
         <translation>Paquet Android (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation>Exécuter sur Android</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation>Périphérique Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation>Error lors de la création du répertoire Android &quot;%1&quot;.</translation>
@@ -47270,16 +47156,10 @@ Veuillez installer au moins un SDK. </translation>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation>Impossible d&apos;ouvrir &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation>Créer un paquet Android (.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
     <message>
         <source>Packaging for Android</source>
         <translation>Paquetage pour Android</translation>
@@ -47305,10 +47185,6 @@ Veuillez installer au moins un SDK. </translation>
 Please make sure your application is built successfully and is selected in Application tab (&apos;Run option&apos;).</source>
         <translation>Impossible de trouver &quot;%1&quot;.
 Veuillez vous assurer que votre application est compilée et sélectionnée dans l&apos;onglet Application (&quot;Option d&apos;exécution&quot;).</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
     </message>
     <message>
         <source>Failed to run keytool</source>
@@ -47355,44 +47231,13 @@ Veuillez vous assurer que votre application est compilée et sélectionnée dans
         <translation>Échec lors de la création du paquet.</translation>
     </message>
     <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Erreur de paquetage : impossible de lancer la commande &quot;%1 %2&quot;. Raison : %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Erreur de paquetage : la commande &quot;%1 %2&quot; a échoué.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Raison : %1</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation>Raison : %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Code de sortie : %1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Trousseau de clés</translation>
-    </message>
-    <message>
         <source>Keystore password:</source>
         <translation>Mot de passe du trousseau de clés :</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Certificat</translation>
     </message>
     <message>
         <source>Certificate password (%1):</source>
         <translation>Mot de passe du certificat (%1) :</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid Package Name</source>
         <translation type="obsolete">Nom de paquet invalide</translation>
@@ -47402,22 +47247,6 @@ Veuillez vous assurer que votre application est compilée et sélectionnée dans
 Please choose a valid package name for your application (e.g. &quot;org.example.myapplication&quot;).</source>
         <translation type="obsolete">Le nom du paquet &quot;%1&quot; n&apos;est pas valide.
 Veuillez choisir un nom de paquet valide pour votre application (par exemple &quot;org.exemple.monapplication&quot;).</translation>
-    </message>
-    <message>
-        <source>Choose High DPI Icon</source>
-        <translation type="obsolete">Choisir une icône haute résolution</translation>
-    </message>
-    <message>
-        <source>PNG images (*.png)</source>
-        <translation type="obsolete">Images PNG (*.png)</translation>
-    </message>
-    <message>
-        <source>Choose Medium DPI Icon</source>
-        <translation type="obsolete">Choisir une icône moyenne résolution</translation>
-    </message>
-    <message>
-        <source>Choose Low DPI Icon</source>
-        <translation type="obsolete">Choisir une icône basse résolution</translation>
     </message>
     <message>
         <source>&lt; Type or choose a permission &gt;</source>
@@ -47432,19 +47261,9 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <translation>Sélectionner un fichier de trousseau de clés</translation>
     </message>
     <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Fichiers de trousseau de clés (*.keystore *.jks)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
-    <message>
         <source>Deploy to device</source>
         <translation>Déployer sur le périphérique</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Copie des données de l&apos;application</translation>
@@ -47453,9 +47272,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Removing directory %1</source>
         <translation>Supprimer le répertoire %1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Échec de la détection de l&apos;ABI utilisée par la version de Qt.</translation>
@@ -47465,9 +47281,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
         <translation>Le fichier de projet &quot;%1&quot; est en cours d&apos;analyse.</translation>
@@ -47476,23 +47289,14 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Run on Android device</source>
         <translation>Exécuter sur le périphérique Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Démarrage des processus distants.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device or emulator.</source>
         <translation type="obsolete">Exécuter sur un périphérique Android ou un émulateur.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Aucun port libre n&apos;est disponible sur l&apos;hôte pour le débogage.QML.</translation>
@@ -47550,16 +47354,10 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
 
 &quot;%1&quot; tué.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Configurations Android </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -47573,9 +47371,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
         <translation>Dossier du SDK Android</translation>
@@ -47632,9 +47427,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Select OpenJDK Path</source>
         <translation>Sélectionner le chemin d&apos;OpenJDK</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>GCC Android</translation>
@@ -47647,9 +47439,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Android GCC (%1-%2)</source>
         <translation type="obsolete">GCC Android (%1 %2)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>Racine du NDK :</translation>
@@ -52450,21 +52239,15 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAnalyzeSupport</name>
+    <name>Android</name>
     <message>
         <source>No analyzer tool selected.</source>
         <translation>Pas d&apos;outil d&apos;analyse sélectionné.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
         <source>GDB server</source>
         <translation>Serveur GDB</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Gérer...</translation>
@@ -52493,9 +52276,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>Le serveur GDB pour &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Général</translation>
@@ -52504,16 +52284,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>XML Source</source>
         <translation>Source XML</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Éditeur de manifest Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Paquet</translation>
@@ -52561,10 +52335,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Target SDK:</source>
         <translation>SDK cible :</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Application</translation>
     </message>
     <message>
         <source>Application name:</source>
@@ -52627,14 +52397,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Permissions</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>The structure of the android manifest file is corrupt. Expected a top level &apos;manifest&apos; node.</source>
         <translation>La structure du fichier manifest Android est corrompue. Un nœud de premier niveau &quot;manifest&quot; est attendu.</translation>
     </message>
@@ -52670,9 +52432,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Choose High DPI Icon</source>
         <translation>Choisir une icône haute résolution</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPlugin</name>
     <message>
         <source>Android Manifest file</source>
         <translation>Fichier manifest Android</translation>
@@ -55061,22 +54820,10 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
-    <message>
-        <source>Create new AVD</source>
-        <translation>Créer un nouvel AVD</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Target API:</source>
         <translation>API cible :</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Nom :</translation>
-    </message>
-    <message>
-        <source>SD card size:</source>
-        <translation>Taille de la carte SD :</translation>
     </message>
     <message>
         <source> MiB</source>
@@ -55086,52 +54833,9 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>ABI:</source>
         <translation>ABI :</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
-        <source>Sign package</source>
-        <translation>Authentifier un paquet</translation>
-    </message>
-    <message>
-        <source>Keystore:</source>
-        <translation>Trousseau de clés :</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Créer</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Parcourir</translation>
-    </message>
     <message>
         <source>Signing a debug package</source>
         <translation>Authentifier un paquet Debug</translation>
-    </message>
-    <message>
-        <source>Certificate alias:</source>
-        <translation>Alias de certificat :</translation>
-    </message>
-    <message>
-        <source>Advanced Actions</source>
-        <translation>Actions avancées</translation>
-    </message>
-    <message>
-        <source>Clean Temporary Libraries Directory on Device</source>
-        <translation>Nettoyer le répertoire temporaire des bibliothèques sur le périphérique</translation>
-    </message>
-    <message>
-        <source>Install Ministro from APK</source>
-        <translation>Installer Ministro à partir du fichier APK</translation>
-    </message>
-    <message>
-        <source>Reset Default Devices</source>
-        <translation>Restaurer les périphériques par défaut</translation>
     </message>
     <message>
         <source>Open package location after build</source>
@@ -55144,10 +54848,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     <message>
         <source>Create AndroidManifest.xml</source>
         <translation>Créer le fichier AndroidManifest.xml</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Application</translation>
     </message>
     <message>
         <source>Android target SDK:</source>
@@ -55170,28 +54870,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <translation>Utiliser l&apos;application externe Ministro pour télécharger et mettre à jour les bibliothèques Qt.</translation>
     </message>
     <message>
-        <source>Use Ministro service to install Qt</source>
-        <translation>Utiliser le service Ministro pour installer Qt</translation>
-    </message>
-    <message>
-        <source>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation>Envoyer les bibliothèques Qt locales sur le périphérique. Vous devez avoir les bibliothèques Qt compilés pour cette plateforme.
-Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</translation>
-    </message>
-    <message>
-        <source>Deploy local Qt libraries to temporary directory</source>
-        <translation>Déployer les bibliothèques Qt locales dans un répertoire temporaire</translation>
-    </message>
-    <message>
-        <source>Creates a standalone APK.</source>
-        <translation>Créer un standalone APK.</translation>
-    </message>
-    <message>
-        <source>Bundle Qt libraries in APK</source>
-        <translation>Empaqueter les bibliothèques Qt dans le fichier APK</translation>
-    </message>
-    <message>
         <source>Additional Libraries</source>
         <translation>Bibliothèques supplémentaires</translation>
     </message>
@@ -55204,20 +54882,9 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Sélectionner la bibliothèque à inclure dans le paquet.</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>Supprimer de la liste la bibliothèque actuellement sélectionnée.</translation>
     </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Sélectionner un périphérique Android</translation>
@@ -55233,10 +54900,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     <message>
         <source>Always use this device for architecture %1</source>
         <translation>Toujours utiliser ce périphérique pour l&apos;architecture %1</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI :</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -56016,18 +55679,10 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Déployer sur un périphérique Android ou un émulateur</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <extracomment>AndroidDeployQtStep default display name</extracomment>
-        <translation>Déployer sur périphérique Android</translation>
     </message>
     <message>
         <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
@@ -56038,83 +55693,12 @@ réinitialisation du moniteur</translation>
         <translation>Aucun architecture Android n&apos;est définie dans le fichier .pro.</translation>
     </message>
     <message>
-        <source>Warning: Signing a debug package.</source>
-        <translation>Avertissement : authentification d&apos;un paquet Debug.</translation>
-    </message>
-    <message>
-        <source>Pulling files necessary for debugging.</source>
-        <translation>Envoie des fichiers nécessaires au débogage.</translation>
-    </message>
-    <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Déployement de paquet : exécution de la commande &quot;%1 %2&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Erreur de paquetage : impossible de lancer la commande &quot;%1 %2&quot;. Raison : %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Erreur de paquetage : la commande &quot;%1 %2&quot; a échoué.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Raison : %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Code de sortie : %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message>
         <source>Failed to run keytool.</source>
         <translation>Échec d&apos;exécution de keytool.</translation>
     </message>
     <message>
         <source>Invalid password.</source>
         <translation>Mot de passe invalide.</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Trousseau de clés</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Mot de passe du trousseau de clés :</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Certificat</translation>
-    </message>
-    <message>
-        <source>Certificate password (%1):</source>
-        <translation>Mot de passe du certificat (%1) :</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
-    <message>
-        <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Configurations de déploiement&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Qt Android Smart Installer</source>
-        <translation>Qt Android Smart Installer</translation>
-    </message>
-    <message>
-        <source>Android package (*.apk)</source>
-        <translation>Paquet Android (*.apk)</translation>
-    </message>
-    <message>
-        <source>Select keystore file</source>
-        <translation>Sélectionner un fichier de trousseau de clés</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Fichier de trousseau de clés (*.keystore *.jks)</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
@@ -56124,9 +55708,6 @@ réinitialisation du moniteur</translation>
         <source>Libraries (*.so)</source>
         <translation>Bibliothèques (*.so)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android : erreur d&apos;installation du SDK 0x%1</translation>
@@ -56167,9 +55748,6 @@ réinitialisation du moniteur</translation>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android : errreur inconnue 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install&lt;/b&gt;</source>
         <translation>&lt;b&gt;Installation de make&lt;/b&gt;</translation>
@@ -56178,9 +55756,6 @@ réinitialisation du moniteur</translation>
         <source>Make install</source>
         <translation>Installation de make</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>Qt Creator needs additional settings to enable Android support.You can configure those settings in the Options dialog.</source>
         <translation>Qt Creator a besoin de paramètres supplémentaires pour activer le support Android. Vous pouvez configurer ces paramètres dans le dialogue Options.</translation>
@@ -56189,9 +55764,6 @@ réinitialisation du moniteur</translation>
         <source>Open Settings</source>
         <translation>Ouvrir les préférences</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>Aucun fichier d&apos;application .pro n&apos;a été trouvé dans ce projet.</translation>
@@ -56200,9 +55772,6 @@ réinitialisation du moniteur</translation>
         <source>No Application .pro File</source>
         <translation>Aucun ficher d&apos;application .pro</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create an AndroidManifest.xml file.</source>
         <translation>Sélectionner un fichier .pro pour lequel vous souhaitez créer un fichier AndroidManifest.xml.</translation>
@@ -56215,9 +55784,6 @@ réinitialisation du moniteur</translation>
         <source>Select a .pro File</source>
         <translation>Sélectionner un fichier .pro</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseDirectoryPage</name>
     <message>
         <source>Android package source directory:</source>
         <translation>Répertoire des sources du paquet Android :</translation>
@@ -56230,9 +55796,6 @@ réinitialisation du moniteur</translation>
         <source>The Android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Le fichier manifest Android sera créé dans le répertoire défini dans le fichier .pro par le paramètre ANDROID_PACKAGE_SOURCE_DIR.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Manifest Wizard</source>
         <translation>Créer l&apos;assistant pour le manifest Android</translation>

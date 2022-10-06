@@ -1,11 +1,11 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "javalanguageserver.h"
-
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidmanager.h"
+#include "androidtr.h"
+#include "javalanguageserver.h"
 
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>
@@ -34,7 +34,6 @@ namespace Internal {
 
 class JLSSettingsWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(JLSSettingsWidget)
 public:
     JLSSettingsWidget(const JLSSettings *settings, QWidget *parent);
 
@@ -56,19 +55,19 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
 {
     int row = 0;
     auto *mainLayout = new QGridLayout;
-    mainLayout->addWidget(new QLabel(tr("Name:")), row, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Name:")), row, 0);
     mainLayout->addWidget(m_name, row, 1);
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_name);
 
-    mainLayout->addWidget(new QLabel(tr("Java:")), ++row, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Java:")), ++row, 0);
     m_java->setExpectedKind(PathChooser::ExistingCommand);
     m_java->setFilePath(settings->m_executable);
     mainLayout->addWidget(m_java, row, 1);
 
-    mainLayout->addWidget(new QLabel(tr("Java Language Server:")), ++row, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Java Language Server:")), ++row, 0);
     m_ls->setExpectedKind(PathChooser::File);
-    m_ls->lineEdit()->setPlaceholderText(tr("Path to equinox launcher jar"));
+    m_ls->lineEdit()->setPlaceholderText(Tr::tr("Path to equinox launcher jar"));
     m_ls->setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
     m_ls->setFilePath(settings->m_languageServer);
     mainLayout->addWidget(m_ls, row, 1);

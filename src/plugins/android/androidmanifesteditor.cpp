@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidmanifesteditor.h"
-#include "androidmanifestdocument.h"
-#include "androidmanifesteditorwidget.h"
 #include "androidconstants.h"
+#include "androidmanifestdocument.h"
+#include "androidmanifesteditor.h"
+#include "androidmanifesteditorwidget.h"
+#include "androidtr.h"
 
 #include <texteditor/texteditorconstants.h>
 
@@ -23,12 +24,12 @@ AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editor
     connect(m_actionGroup, &QActionGroup::triggered,
             this, &AndroidManifestEditor::changeEditorPage);
 
-    QAction *generalAction = m_toolBar->addAction(tr("General"));
+    QAction *generalAction = m_toolBar->addAction(Tr::tr("General"));
     generalAction->setData(AndroidManifestEditorWidget::General);
     generalAction->setCheckable(true);
     m_actionGroup->addAction(generalAction);
 
-    QAction *sourceAction = m_toolBar->addAction(tr("XML Source"));
+    QAction *sourceAction = m_toolBar->addAction(Tr::tr("XML Source"));
     sourceAction->setData(AndroidManifestEditorWidget::Source);
     sourceAction->setCheckable(true);
     m_actionGroup->addAction(sourceAction);

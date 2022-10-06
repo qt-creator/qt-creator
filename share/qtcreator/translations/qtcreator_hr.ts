@@ -646,14 +646,11 @@
     </message>
 </context>
 <context>
-    <name>AdbCommandsWidget</name>
+    <name>Android</name>
     <message>
         <source>Widget</source>
         <translation>Programčić</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AddNewAVDDialog</name>
     <message>
         <source>Create new AVD</source>
         <translation>Stvori novi AVD</translation>
@@ -678,9 +675,6 @@
         <source> MiB</source>
         <translation> MiB</translation>
     </message>
-</context>
-<context>
-    <name>AndroidBuildApkWidget</name>
     <message>
         <source>Sign package</source>
         <translation>Potpiši paket</translation>
@@ -737,9 +731,6 @@
         <source>Use Ministro service to install Qt</source>
         <translation>Koristi Ministro uslugu za instaliranje Qt-a</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>Stvori spremište ključeva i certifikat</translation>
@@ -808,9 +799,6 @@
         <source>Keystore</source>
         <translation>Spremište ključeva</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Odaberi Android uređaj</translation>
@@ -838,10 +826,6 @@
     <message>
         <source>Refresh Device List</source>
         <translation>Aktualiziraj popis uređaja</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -883,9 +867,6 @@
         <source>Looking for default device &lt;b&gt;%1&lt;/b&gt;.</source>
         <translation>Traženje zadanog uređaja &lt;b&gt;%1&lt;/b&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
     <message>
         <source>Android SDK Manager</source>
         <translation>Upravljač za Android SDK</translation>
@@ -929,10 +910,6 @@
     <message>
         <source>Native SDK Manager...</source>
         <translation>Izvorni upravljač za SDK …</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Odustani</translation>
     </message>
     <message>
         <source>Do you want to accept the Android SDK license?</source>
@@ -1042,9 +1019,6 @@ Cancelling pending operations...
 Odustajanje od izvršavanja neriješenih operacija …
 </translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android konfiguracija</translation>
@@ -13735,7 +13709,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation type="unfinished"></translation>
@@ -13745,16 +13719,9 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot create AVD. Command timed out.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidAvdManager</name>
     <message>
         <source>AVD Start Error</source>
         <translation type="unfinished"></translation>
@@ -13767,9 +13734,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidBuildApkStep</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -13820,20 +13784,9 @@ The minimum API level required by the kit is %1.</source>
         <source>Failed to run keytool.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::PasswordInputDialog</name>
     <message>
         <source>Incorrect password.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation type="unfinished">Certifikat</translation>
     </message>
     <message>
         <source>Enter keystore password</source>
@@ -13843,30 +13796,12 @@ The minimum API level required by the kit is %1.</source>
         <source>Enter certificate password</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidBuildApkInnerWidget</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Keystore files (*.keystore *.jks)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select Keystore File</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidBuildApkWidget</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Android</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13882,16 +13817,8 @@ The minimum API level required by the kit is %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Dodaj …</translation>
-    </message>
-    <message>
         <source>Select library to include in package.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Remove currently selected library from list.</source>
@@ -13905,9 +13832,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Libraries (*.so)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfiguration</name>
     <message>
         <source>Could not run: %1</source>
         <translation type="unfinished"></translation>
@@ -13916,9 +13840,6 @@ The minimum API level required by the kit is %1.</source>
         <source>No devices found in output of: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Android Debugger for %1</source>
         <translation type="unfinished"></translation>
@@ -13927,9 +13848,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Android for %1 (Clang %2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Keystore password is too short.</source>
         <translation type="unfinished"></translation>
@@ -13958,17 +13876,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Keystore Filename</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation type="unfinished"></translation>
@@ -14000,7 +13907,7 @@ The minimum API level required by the kit is %1.</source>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployQtStep default display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Implementiraj za Android uređaj</translation>
     </message>
     <message>
         <source>No Android arch set by the .pro file.</source>
@@ -14032,10 +13939,6 @@ The minimum API level required by the kit is %1.</source>
     </message>
     <message>
         <source>Uninstall previous package %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14078,20 +13981,10 @@ Do you want to uninstall the existing package?</source>
         <source>Package deploy: Running command &quot;%1 %2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
     <message>
         <source>OpenGL enabled</source>
         <translation type="unfinished"></translation>
@@ -14100,23 +13993,14 @@ Do you want to uninstall the existing package?</source>
         <source>OpenGL disabled</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Greška prilikom stvaranja AVD-a</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
     <message>
         <source>Android Device</source>
         <translation>Android uređaj</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation type="unfinished"></translation>
@@ -14157,16 +14041,10 @@ Do you want to uninstall the existing package?</source>
         <source>Android: Unknown error 0x%1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
         <source>GDB server</source>
         <translation>GDB poslužitelj</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation type="unfinished"></translation>
@@ -14195,9 +14073,6 @@ Do you want to uninstall the existing package?</source>
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>GDB poslužitelj za &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Neposznata Android verzija. API razina: %1</translation>
@@ -14224,9 +14099,6 @@ Do you want to uninstall the existing package?</source>
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -14235,16 +14107,10 @@ Do you want to uninstall the existing package?</source>
         <source>XML Source</source>
         <translation>XML izvor</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation type="unfinished"></translation>
@@ -14290,10 +14156,6 @@ Do you want to uninstall the existing package?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation>Aplikacija</translation>
-    </message>
-    <message>
         <source>Application name:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14332,10 +14194,6 @@ Do you want to uninstall the existing package?</source>
     <message>
         <source>Include default features for Qt modules.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Add</source>
@@ -14381,9 +14239,6 @@ Do you want to uninstall the existing package?</source>
         <source>Choose High DPI Icon</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Kopiraj podatke aplikacije</translation>
@@ -14396,37 +14251,18 @@ Do you want to uninstall the existing package?</source>
         <source>Deploy to device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>Make install</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Implementiraj za Android uređaj</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation type="unfinished"></translation>
@@ -14436,9 +14272,6 @@ Do you want to uninstall the existing package?</source>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
     <message>
         <source>Activity manager start options:</source>
         <translation type="unfinished"></translation>
@@ -14471,23 +14304,14 @@ Do you want to uninstall the existing package?</source>
         <source>The project file &quot;%1&quot; could not be parsed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunEnvironmentAspect</name>
     <message>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation type="unfinished"></translation>
@@ -14532,9 +14356,6 @@ Do you want to uninstall the existing package?</source>
         <source>&quot;%1&quot; died.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManager</name>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
         <translation type="unfinished"></translation>
@@ -14545,9 +14366,6 @@ Do you want to uninstall the existing package?</source>
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Updating installed packages.</source>
         <translation type="unfinished"></translation>
@@ -14574,9 +14392,6 @@ Do you want to uninstall the existing package?</source>
         <source>Failed</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::OptionsDialog</name>
     <message>
         <source>SDK Manager Arguments</source>
         <translation type="unfinished"></translation>
@@ -14591,13 +14406,6 @@ Do you want to uninstall the existing package?</source>
     </message>
     <message>
         <source>Available arguments:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14632,16 +14440,6 @@ Do you want to uninstall the existing package?</source>
         <source>Install</source>
         <translation type="unfinished">Instaliraj</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
-    <message>
-        <source>Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -14655,9 +14453,6 @@ Do you want to uninstall the existing package?</source>
         <source>CPU/ABI</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>JDK path exists.</source>
         <translation type="unfinished"></translation>
@@ -14754,23 +14549,14 @@ Do you want to uninstall the existing package?</source>
         <source>AVD manager UI tool is not available in the installed SDK tools(version %1). Use the command line tool &quot;avdmanager&quot; for advanced AVD management.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android Clang</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidToolManager</name>
     <message>
         <source>Could not start process &quot;%1 %2&quot;</source>
         <translation>Nije bilo moguće pokrenuti proces &quot;%1 %2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdDialog</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -14784,9 +14570,6 @@ Install an SDK of at least API version %1.</source>
         <source>Allowed characters are: a-z A-Z 0-9 and . _ -</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation type="unfinished"></translation>
@@ -14795,9 +14578,6 @@ Install an SDK of at least API version %1.</source>
         <source>No Application .pro File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation type="unfinished"></translation>
@@ -14810,9 +14590,6 @@ Install an SDK of at least API version %1.</source>
         <source>Select a .pro File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::ChooseDirectoryPage</name>
     <message>
         <source>Android package source directory:</source>
         <translation type="unfinished"></translation>
@@ -14839,9 +14616,6 @@ The files in the Android package source directory are copied to the build direct
         <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation type="unfinished"></translation>
@@ -14870,9 +14644,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Could not update the project file %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation type="unfinished"></translation>
@@ -15419,7 +15190,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>

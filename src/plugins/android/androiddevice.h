@@ -22,8 +22,6 @@ namespace Internal {
 
 class AndroidDevice final : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidDevice)
-
 public:
     AndroidDevice();
 

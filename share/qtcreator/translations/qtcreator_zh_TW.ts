@@ -27968,7 +27968,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -28907,7 +28907,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation type="unfinished"></translation>
@@ -28928,9 +28928,6 @@ references to elements in other files, loops, etc.)</source>
         <source> MiB</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation type="unfinished"></translation>
@@ -29007,9 +29004,6 @@ references to elements in other files, loops, etc.)</source>
         <source>&gt;AA; </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">表單</translation>
@@ -29052,9 +29046,6 @@ This option is useful when you want to try your application on devices which don
         <source>Choose APK</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
         <translation type="unfinished"></translation>
@@ -29135,10 +29126,6 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished">丟棄</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation type="unfinished">名稱：</translation>
-    </message>
-    <message>
         <source>Libraries</source>
         <translation type="unfinished">函式庫</translation>
     </message>
@@ -29191,19 +29178,12 @@ This option is useful when you want to try your application on devices which don
         <source>Certificate alias:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Android SDK location:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29257,14 +29237,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Start Android AVD Manager</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="unfinished">新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">移除</translation>
     </message>
 </context>
 <context>
@@ -30037,7 +30009,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
+    <name>Android</name>
     <message>
         <source>Error Creating AVD</source>
         <translation type="unfinished"></translation>
@@ -30045,20 +30017,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Please install an SDK of at least API version %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -30081,23 +30039,10 @@ Please install an SDK of at least API version %1.</source>
         <source>Error</source>
         <translation type="unfinished">錯誤</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
@@ -30155,16 +30100,10 @@ Please install an SDK of at least API version %1.</source>
         <source>Pulling files necessary for debugging.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
@@ -30177,27 +30116,14 @@ Please install an SDK of at least API version %1.</source>
         <source>Android package (*.apk)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
@@ -30227,16 +30153,10 @@ Please install at least one SDK.</source>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
     <message>
         <source>Packaging for Android</source>
         <translation type="unfinished"></translation>
@@ -30253,10 +30173,6 @@ Please install at least one SDK.</source>
         <source>Cannot find &apos;%1&apos;.
 Please make sure your application is built successfully and is selected in Application tab (&apos;Run option&apos;).</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">錯誤</translation>
     </message>
     <message>
         <source>Failed to run keytool</source>
@@ -30295,48 +30211,17 @@ Please make sure your application is built successfully and is selected in Appli
         <translation type="unfinished">套件已建立。</translation>
     </message>
     <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packaging failed.</source>
         <translation type="unfinished">打包失敗。</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation type="unfinished">打包錯誤：指令 &apos;%1&apos; 失敗。 {1 %2&apos;?}</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation type="unfinished">原因：%1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="unfinished">離開代碼：%1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Keystore password:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Certificate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Certificate password (%1):</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid Package Name</source>
         <translation type="unfinished"></translation>
@@ -30375,26 +30260,13 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
-    <message>
         <source>Deploy to device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation type="unfinished"></translation>
@@ -30404,30 +30276,18 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>Run on Android device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device or emulator.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>
 
@@ -30468,16 +30328,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 &apos;%1&apos; killed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -30491,9 +30345,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>CPU/ABI</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
         <translation type="unfinished"></translation>
@@ -30530,9 +30381,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Select OpenJDK Path</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation type="unfinished"></translation>
@@ -30545,9 +30393,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Android GCC (%1-%2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation type="unfinished"></translation>

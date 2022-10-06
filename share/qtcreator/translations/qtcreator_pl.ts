@@ -19037,13 +19037,9 @@ Wykluczenia: %3
     </message>
 </context>
 <context>
-    <name>AndroidCreateKeystoreCertificate</name>
+    <name>Android</name>
     <message>
         <source>Create a keystore and a certificate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keystore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -19106,9 +19102,6 @@ Wykluczenia: %3
         <source>Use Keystore password</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Konfiguracja Androida</translation>
@@ -20850,7 +20843,7 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
+    <name>Android</name>
     <message>
         <source>Keystore password is too short.</source>
         <translation type="unfinished"></translation>
@@ -20887,41 +20880,18 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Zainstaluj na urządzeniu Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>Zainstaluj na urządzeniu Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation>Uruchom na androidzie</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation>Urządzenie Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Nie można wykryć ABI użytych przez wersję Qt.</translation>
@@ -20931,23 +20901,10 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation>Zakończono &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -20961,9 +20918,6 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>&quot;%1&quot; does not seem to be an Android SDK top folder.</source>
         <translation>&quot;%1&quot; nie wygląda na katalog główny SDK Androida.</translation>
@@ -21050,16 +21004,10 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Select ant Script</source>
         <translation>Wybierz skrypt &quot;ant&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>Android GCC</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -22704,7 +22652,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
+    <name>Android</name>
     <message>
         <source>NDK Root:</source>
         <translation>Korzeń NDK:</translation>
@@ -24644,14 +24592,11 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
+    <name>Android</name>
     <message>
         <source>GDB server</source>
         <translation>Serwer GDB</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Zarządzaj...</translation>
@@ -24680,9 +24625,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>Serwer GDB dla &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
@@ -24691,16 +24633,10 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>XML Source</source>
         <translation>Źródło XML</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Edytor plików manifest Androida</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Pakiet</translation>
@@ -24800,10 +24736,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     <message>
         <source>Include default features for Qt modules.</source>
         <translation>Ustaw domyślne funkcjonalności dla modułów Qt.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
     </message>
     <message>
         <source>Add</source>
@@ -26229,7 +26161,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>Utwórz nowe AVD</translation>
@@ -26254,9 +26186,6 @@ Zdalny: %4</translation>
         <source>ABI:</source>
         <translation>ABI:</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -26281,9 +26210,6 @@ Zdalny: %4</translation>
         <source>Uninstall previous package</source>
         <translation>Odinstaluj poprzedni pakiet</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Wybierz urządzenie z Androidem</translation>
@@ -26295,10 +26221,6 @@ Zdalny: %4</translation>
     <message>
         <source>Create Android Virtual Device</source>
         <translation>Utwórz wirtualne urządzenie Android</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -26996,14 +26918,11 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Zainstaluj na urządzeniu lub emulatorze Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployQtStep default display name</extracomment>
@@ -27085,9 +27004,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>Pulling files necessary for debugging.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Konfiguracje instalacji&lt;/b&gt;</translation>
@@ -27100,9 +27016,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>Android package (*.apk)</source>
         <translation>Pakiet androida (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: błąd instalacji SDK 0x%1</translation>
@@ -27143,9 +27056,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: nieznany błąd 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>Qt Creator needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>Qt Creator wymaga dodatkowych ustawień do obsługi Androida. Można je skonfigurować w dialogu z opcjami.</translation>
@@ -28481,7 +28391,7 @@ Zbuduj aplikację qmldump na stronie z opcjami wersji Qt.</translation>
     </message>
 </context>
 <context>
-    <name>AndroidConfiguration</name>
+    <name>Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Nie można uruchomić: %1</translation>
@@ -28490,23 +28400,14 @@ Zbuduj aplikację qmldump na stronie z opcjami wersji Qt.</translation>
         <source>No devices found in output of: %1</source>
         <translation>Brak urządzeń na wyjściu %1</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Błąd w trakcie tworzenia AVD</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Konfiguruj Androida...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation>Edytor Java</translation>
@@ -29294,11 +29195,7 @@ Czy przerwać ją?</translation>
     </message>
 </context>
 <context>
-    <name>AndroidBuildApkWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Sign package</source>
         <translation>Podpisz pakiet</translation>
@@ -29319,10 +29216,6 @@ Czy przerwać ją?</translation>
     <message>
         <source>Certificate alias:</source>
         <translation>Alias certyfikatu:</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Aplikacja</translation>
     </message>
     <message>
         <source>Android build SDK:</source>
@@ -29382,10 +29275,6 @@ Instalowanie lokalnych bibliotek Qt nie jest kompatybilne z Androidem 5.</transl
         <translation>Używaj Gradle (Ant jest przestarzały)</translation>
     </message>
     <message>
-        <source>Gradle builds are forced from Android SDK tools version 25.3.0 onwards as Ant scripts are no longer available.</source>
-        <translation>Narzędzia Android SDK, począwszy od wersji 25.3.0, wymagają użycia Gradle, ponieważ skrypty Ant są już niedostępne.</translation>
-    </message>
-    <message>
         <source>Packages debug server with the APK to enable debugging. For the signed APK this option is unchecked by default.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -29421,15 +29310,7 @@ Instalowanie lokalnych bibliotek Qt nie jest kompatybilne z Androidem 5.</transl
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Create Templates</source>
         <translation>Utwórz szablony</translation>
@@ -29447,16 +29328,8 @@ Instalowanie lokalnych bibliotek Qt nie jest kompatybilne z Androidem 5.</transl
         <translation>Wybierz bibliotekę, którą dołączyć do pakietu.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Dodaj...</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>Usuń zaznaczoną bibliotekę z listy.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
@@ -29919,7 +29792,7 @@ Czy kontynuować instalację?</translation>
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -29947,31 +29820,13 @@ The minimum API level required by the kit is %1.</source>
         <translation>Nie można podpisać pakietu. Nie istnieje alias certyfikatu %1.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Błąd</translation>
-    </message>
-    <message>
         <source>Failed to run keytool.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidBuildApkWidget</name>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Pliki z magazynami kluczy (*.keystore *.jks)</translation>
     </message>
     <message>
         <source>Select Keystore File</source>
         <translation>Wybierz plik z magazynem kluczy</translation>
     </message>
-    <message>
-        <source>&lt;b&gt;Build Android APK&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Zbuduj Android APK&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Android Debugger for %1</source>
         <translation>Debugger Androida dla %1</translation>
@@ -29980,9 +29835,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Android for %1 (GCC %2, %3)</source>
         <translation>Android dla %1 (GCC %2, %3)</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Nieznana wersja Androida. Poziom API: %1</translation>
@@ -29999,9 +29851,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Starting Android virtual device failed.</source>
         <translation>Nie można uruchomić wirtualnego urządzenia Android.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdDialog</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -32920,14 +32769,11 @@ do projektu &quot;%2&quot;.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to device</source>
         <translation>Zainstaluj na urządzeniu</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Skopiuj dane aplikacji</translation>
@@ -32936,9 +32782,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>Removing directory %1</source>
         <translation>Usuwanie katalogu %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
@@ -32947,9 +32790,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>Make install</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>Brak pliku .pro aplikacji w tym projekcie.</translation>
@@ -32958,9 +32798,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>No Application .pro File</source>
         <translation>Brak pliku .pro aplikacji</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Wybierz plik .pro dla którego utworzyć pliki szablonu Android.</translation>
@@ -32973,9 +32810,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>Select a .pro File</source>
         <translation>Wybierz plik .pro</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseDirectoryPage</name>
     <message>
         <source>The Android package source directory cannot be the same as the project directory.</source>
         <translation>Katalog ze źródłami pakietu Android nie może być taki sam jak katalog projektu.</translation>
@@ -33004,9 +32838,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Copy the Gradle files to Android directory</source>
         <translation>Skopiuj pliki Gradle do katalogu Android</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Tworzenie kreatora plików szablonowych Androida</translation>
@@ -33035,20 +32866,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Could not update the .pro file %1.</source>
         <translation>Nie można uaktualnić pliku .pro %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStepFactory</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation>Zbuduj Android APK</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStep</name>
-    <message>
-        <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
-        <translation>Odnaleziono folder &quot;android&quot; w katalogu źródłowym. Qt 5.2 domyślnie nie używa tego katalogu.</translation>
-    </message>
     <message>
         <source>Android build SDK not defined. Check Android settings.</source>
         <translation type="unfinished"></translation>
@@ -33057,13 +32874,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>No application .pro file found, not building an APK.</source>
         <translation>Brak pliku .pro aplikacji, budowanie APK wstrzymane.</translation>
     </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
-        <translation>Uruchamianie &quot;%1&quot; %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidRunConfiguration</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
         <translation>Trwa parsowanie pliku .pro &quot;%1&quot;.</translation>
@@ -33575,7 +33385,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
+    <name>Android</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL odblokowany</translation>
@@ -39596,7 +39406,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
+    <name>Android</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Brak wolnych portów w hoście do debugowania QML.</translation>
@@ -41232,7 +41042,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation>Nie można utworzyć AVD. Niepoprawne wejście.</translation>
@@ -41249,9 +41059,6 @@ Błąd: %2</translation>
         <source>Cannot create AVD. Command timed out.</source>
         <translation>Nie można utworzyć AVD. Przekroczono limit czasu oczekiwania.</translation>
     </message>
-</context>
-<context>
-    <name>Android::PasswordInputDialog</name>
     <message>
         <source>Incorrect password.</source>
         <translation>Niepoprawne hasło.</translation>
@@ -41261,23 +41068,12 @@ Błąd: %2</translation>
         <translation>Magazyn kluczy</translation>
     </message>
     <message>
-        <source>Certificate</source>
-        <translation>Certyfikat</translation>
-    </message>
-    <message>
         <source>Enter keystore password</source>
         <translation>Podaj hasło magazynu kluczy</translation>
     </message>
     <message>
         <source>Enter certificate password</source>
         <translation>Wprowadź hasło certyfikatu</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidToolManager</name>
-    <message>
-        <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation>Nie można uruchomić procesu &quot;%1 %2&quot;</translation>
     </message>
 </context>
 <context>
@@ -42116,17 +41912,10 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>AdbCommandsWidget</name>
+    <name>Android</name>
     <message>
         <source>Widget</source>
         <translation>Widżet</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
     </message>
     <message>
         <source>Activity manager start options:</source>

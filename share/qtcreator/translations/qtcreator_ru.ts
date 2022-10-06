@@ -184,7 +184,7 @@
     </message>
 </context>
 <context>
-    <name>AdbCommandsWidget</name>
+    <name>Android</name>
     <message>
         <source>Widget</source>
         <translation></translation>
@@ -499,7 +499,7 @@
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -555,9 +555,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Failed to run keytool.</source>
         <translation>Не удалось запустить keytool.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Custom Android Debugger (%1, NDK %2)</source>
         <translation>Особый отладчик Android (%1, NDK %2)</translation>
@@ -570,9 +567,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Android %1 Clang %2</source>
         <translation>Android %1 Clang %2</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Версия Android неизвестна. API Level: %1</translation>
@@ -595,9 +589,6 @@ The minimum API level required by the kit is %1.</source>
         <translation>Не удалось установить пакет для Android.
 %1</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Копирование данных приложения</translation>
@@ -610,16 +601,10 @@ The minimum API level required by the kit is %1.</source>
         <source>Deploy to device</source>
         <translation>Установка на устройство</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
         <translation>&lt;b&gt;Make install:&lt;/b&gt; Копирование файлов приложения в %1</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
     <message>
         <source>Activity manager start options:</source>
         <translation>Параметры запуска менеджера действий:</translation>
@@ -642,9 +627,6 @@ Qt Creator использует: am start -n &lt;имя_пакета&gt;/&lt;д�
         <source>Clean Environment</source>
         <translation>Чистая среда</translation>
     </message>
-</context>
-<context>
-    <name>Android::ChooseDirectoryPage</name>
     <message>
         <source>Android package source directory:</source>
         <translation>Исходный каталог пакета Android:</translation>
@@ -673,9 +655,6 @@ The files in the Android package source directory are copied to the build direct
         <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Шаблонные файлы для Android будут созданы в каталоге, заданном ANDROID_PACKAGE_SOURCE_DIR в файле .pro.</translation>
     </message>
-</context>
-<context>
-    <name>Android::ChooseProfilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Выберите файл .pro, для которого следует создать шаблоны для Android.</translation>
@@ -688,9 +667,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Select a .pro File</source>
         <translation>Выбор файла .pro</translation>
     </message>
-</context>
-<context>
-    <name>Android::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Мастер создания шаблонов для Android</translation>
@@ -703,16 +679,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Could not update the project file %1.</source>
         <translation>Не удалось обновить файл проекта %1.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal</name>
-    <message>
-        <source>Deploy to Android Device</source>
-        <translation>Развёртывание на устройство Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AddNewAVDDialog</name>
     <message>
         <source>Create new AVD</source>
         <translation>Создание AVD</translation>
@@ -745,9 +711,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Overwrite existing AVD name</source>
         <translation>Перезаписать существующее имя AVD</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidAvdManager</name>
     <message>
         <source>AVD Start Error</source>
         <translation>Ошибка запуска AVD</translation>
@@ -760,9 +723,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
         <translation>Установите утилиту эмуляции (%1) в установленный Android SDK.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidBuildApkWidget</name>
     <message>
         <source>Create Templates</source>
         <translation>Создать шаблоны</translation>
@@ -782,10 +742,6 @@ The files in the Android package source directory are copied to the build direct
     <message>
         <source>Select library to include in package.</source>
         <translation>Выбор библиотеки для включения в пакет.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Убрать</translation>
     </message>
     <message>
         <source>Remove currently selected library from list.</source>
@@ -880,13 +836,6 @@ The files in the Android package source directory are copied to the build direct
         <translation>Полезно для приложений, использующих операции SSL. Путь можно задать в Инструменты &gt; Параметры &gt; Устройства &gt; Android.</translation>
     </message>
     <message>
-        <source>Build Android APK</source>
-        <translation>Сборка Android APK</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
         <source>Keystore password is too short.</source>
         <translation>Пароль связки ключей слишком короткий.</translation>
     </message>
@@ -914,17 +863,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Keystore Filename</source>
         <translation>Имя файла связки ключей</translation>
     </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Файлы связки ключей (*.keystore *.jks)</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Ошибка</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>No Android arch set by the .pro file.</source>
         <translation>Архитектура Android не прописана в файле .pro.</translation>
@@ -1034,24 +972,14 @@ Do you want to uninstall the existing package?</source>
         <source>Package deploy: Running command &quot;%1&quot;.</source>
         <translation>Развёртывание пакета: выполняется команда «%1».</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation>Запуск на Android</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Android Device</source>
         <translation>Устройство Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Выбор устройства Android</translation>
@@ -1128,9 +1056,6 @@ Do you want to uninstall the existing package?</source>
         <source>Always use this device for architecture %1 for this project</source>
         <translation>Всегда использовать это устройство для архитектуры %1 в этом проекте</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL включён</translation>
@@ -1139,9 +1064,6 @@ Do you want to uninstall the existing package?</source>
         <source>OpenGL disabled</source>
         <translation>OpenGL выключен</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: ошибка установки SDK 0x%1</translation>
@@ -1182,9 +1104,6 @@ Do you want to uninstall the existing package?</source>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: неизвестная ошибка 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -1193,9 +1112,6 @@ Do you want to uninstall the existing package?</source>
         <source>XML Source</source>
         <translation>Исходник XML</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorIconContainerWidget</name>
     <message>
         <source>Master icon</source>
         <translation>Основной значок</translation>
@@ -1228,9 +1144,6 @@ Do you want to uninstall the existing package?</source>
         <source>Select high DPI icon.</source>
         <translation>Выбрать значок высокого разрешения.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorIconWidget</name>
     <message>
         <source>Icon scaled up.</source>
         <translation>Значок увеличен.</translation>
@@ -1239,9 +1152,6 @@ Do you want to uninstall the existing package?</source>
         <source>Click to select...</source>
         <translation>Щёлкните для выбора...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Пакет</translation>
@@ -1297,10 +1207,6 @@ Do you want to uninstall the existing package?</source>
     <message>
         <source>Sets the target SDK. Set this to the highest tested version. This disables compatibility behavior of the system for your application.</source>
         <translation>Задаёт целевой SDK. Следует выбирать последнюю протестированную версию. Предотвращает включение системой режима совместимости для приложения.</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Приложение</translation>
     </message>
     <message>
         <source>Application name:</source>
@@ -1386,9 +1292,6 @@ Do you want to uninstall the existing package?</source>
         <source>Android Manifest editor</source>
         <translation>Редактор Android Manifest</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPlugin</name>
     <message>
         <source>Would you like to configure Android options? This will ensure Android kits can be usable and all essential packages are installed. To do it later, select Options &gt; Devices &gt; Android.</source>
         <translation>Настроить Android? Предполагается, что комплекты Android доступны, а необходимые пакеты установлены. Чтобы сделать это позже перейдите в Параметры &gt; Устройства &gt; Android.</translation>
@@ -1397,23 +1300,14 @@ Do you want to uninstall the existing package?</source>
         <source>Configure Android</source>
         <translation>Настроить Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Настроить Android...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>Для включения поддержки Android в %1 требуются дополнительные настройки в диалоге Параметры.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>NDK is not configured in Devices &gt; Android.</source>
         <translation>NDK не настроен в Устройства &gt; Android.</translation>
@@ -1431,16 +1325,10 @@ Do you want to uninstall the existing package?</source>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation>«%1» завершён.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Нет свободных портов на компьютере для отладки QML.</translation>
@@ -1493,9 +1381,6 @@ Do you want to uninstall the existing package?</source>
         <source>&quot;%1&quot; died.</source>
         <translation>«%1» аварийно завершился.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkDownloader</name>
     <message>
         <source>Encountered SSL errors, download is aborted.</source>
         <translation>Возникла ошибка SSL, загрузка прервана.</translation>
@@ -1507,10 +1392,6 @@ Do you want to uninstall the existing package?</source>
     <message>
         <source>Downloading SDK Tools package...</source>
         <translation>Загрузка пакета SDK Tools...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
     </message>
     <message>
         <source>Could not create the SDK folder %1.</source>
@@ -1536,9 +1417,6 @@ Do you want to uninstall the existing package?</source>
         <source>Writing and verifying the integrity of the downloaded file has failed.</source>
         <translation>Не удалось записать и проверить целостность загруженных файлов.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManager</name>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
         <translation>Операция требует вмешательства пользователя. Используйте «sdkmanager» в командной строке.</translation>
@@ -1551,9 +1429,6 @@ Do you want to uninstall the existing package?</source>
 
 </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
     <message>
         <source>Android SDK Manager</source>
         <translation>Android SDK Manager</translation>
@@ -1589,10 +1464,6 @@ Do you want to uninstall the existing package?</source>
     <message>
         <source>Advanced Options...</source>
         <translation>Дополнительно...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
     </message>
     <message>
         <source>Do you want to accept the Android SDK license?</source>
@@ -1704,13 +1575,6 @@ Cancelling pending operations...
 Отмена ожидающих операций...
 </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
-        <translation>Пакет</translation>
-    </message>
     <message>
         <source>Revision</source>
         <translation>Ревизия</translation>
@@ -1743,20 +1607,6 @@ Cancelling pending operations...
         <source>Install</source>
         <translation>Установить</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidServiceWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Добавить</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidServiceWidget::AndroidServiceModel</name>
     <message>
         <source>The name of the class implementing the service.</source>
         <translation>Имя класса, реализующего сервис.</translation>
@@ -1823,9 +1673,6 @@ Prefix with : if the process is private, use a lowercase name if the process is 
         <source>The service arguments must be set for a service not run in an external library</source>
         <translation>Необходимо задать параметры сервиса, не работающего во внешней библиотеке</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Select JDK Path</source>
         <translation>Выбор размещения JDK</translation>
@@ -1845,10 +1692,6 @@ Prefix with : if the process is private, use a lowercase name if the process is 
     <message>
         <source>Cloning OpenSSL prebuilt libraries...</source>
         <translation>Клонирование собранных библиотек OpenSSL...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
     </message>
     <message>
         <source>Remove Android Virtual Device</source>
@@ -1971,10 +1814,6 @@ Prefix with : if the process is private, use a lowercase name if the process is 
         <translation>Загрузить и установить инструменты Android SDK в %1?</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Android settings are OK.</source>
         <translation>Настройки Android в порядке.</translation>
     </message>
@@ -2024,16 +1863,10 @@ in the system&apos;s browser for manual download.</source>
         <source>Android SDK installation is missing necessary packages. Do you want to install the missing packages?</source>
         <translation>В установленном Android SDK отсутствует ряд необходимых пакетов. Доустановить их?</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChain</name>
     <message>
         <source>Android Clang</source>
         <translation>Android Clang</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdDialog</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -2048,17 +1881,10 @@ Install an SDK of at least API version %1.</source>
         <source>Allowed characters are: a-z A-Z 0-9 and . _ -</source>
         <translation>Допустимы символы: a-z A-Z 0-9 . _ -</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
         <translation>Название AVD</translation>
-    </message>
-    <message>
-        <source>API</source>
-        <translation>API</translation>
     </message>
     <message>
         <source>Device Type</source>
@@ -2076,9 +1902,6 @@ Install an SDK of at least API version %1.</source>
         <source>CPU/ABI</source>
         <translation>Процессор/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::OptionsDialog</name>
     <message>
         <source>SDK Manager Arguments</source>
         <translation>Параметры SDK Manager</translation>
@@ -2094,13 +1917,6 @@ Install an SDK of at least API version %1.</source>
     <message>
         <source>Available arguments:</source>
         <translation>Доступные параметры:</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::SplashIconContainerWidget</name>
-    <message>
-        <source>Splash screen</source>
-        <translation>Заставка</translation>
     </message>
     <message>
         <source>Select splash screen image</source>
@@ -2168,9 +1984,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <source>Low DPI splash screen</source>
         <translation>Заставка низкого разрешения</translation>
     </message>
-</context>
-<context>
-    <name>Android::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>Не найден файл .pro приложения в этом проекте.</translation>
@@ -2179,9 +1992,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <source>No Application .pro File</source>
         <translation>Нет файла .pro приложения</translation>
     </message>
-</context>
-<context>
-    <name>Android::PasswordInputDialog</name>
     <message>
         <source>Incorrect password.</source>
         <translation>Неверный пароль.</translation>
@@ -2202,9 +2012,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <source>Enter certificate password</source>
         <translation>Введите пароль сертификата</translation>
     </message>
-</context>
-<context>
-    <name>AndroidAvdManager</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation>Не удалось создать AVD. Неверный ввод.</translation>
@@ -2217,16 +2024,10 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <source>Cannot create AVD. Command timed out.</source>
         <translation>Не удалось создать AVD. Время ожидания команды истекло.</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Ошибка создания AVD</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfiguration</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Невозможно запустить: %1</translation>
@@ -2234,13 +2035,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     <message>
         <source>No devices found in output of: %1</source>
         <translation>Устройства не обнаружены в выводе %1</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>Keystore</source>
-        <translation>Связка ключей</translation>
     </message>
     <message>
         <source>Password:</source>
@@ -2253,10 +2047,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     <message>
         <source>Show password</source>
         <translation>Отображать пароль</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Сертификат</translation>
     </message>
     <message>
         <source>Alias name:</source>
@@ -2306,9 +2096,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <source>Use Keystore password</source>
         <translation>Пароль для связки ключей</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Updating installed packages.</source>
         <translation>Обновление установленных пакетов.</translation>
@@ -2337,9 +2124,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <source>Failed</source>
         <translation>Ошибка</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Конфигурация Android</translation>
@@ -2361,10 +2145,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation> МБ</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
         <source>Automatically create kits for Android tool chains</source>
         <translation>Автоматически создавать комплекты для инструментариев Android</translation>
     </message>
@@ -2375,10 +2155,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     <message>
         <source>Start...</source>
         <translation>Запустить...</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Добавить...</translation>
     </message>
     <message>
         <source>Java Settings</source>
@@ -3543,7 +3319,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>

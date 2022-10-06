@@ -1,8 +1,6 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidmanager.h"
-
 #include "androidavdmanager.h"
 #include "androidbuildapkstep.h"
 #include "androidconfigurations.h"
@@ -10,10 +8,12 @@
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
 #include "androidglobal.h"
+#include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androidrunconfiguration.h"
 #include "androidsdkmanager.h"
 #include "androidtoolchain.h"
+#include "androidtr.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/messagemanager.h>
@@ -505,13 +505,13 @@ QString AndroidManager::androidNameForApiLevel(int x)
     case 33:
         return QLatin1String("Android Tiramisu");
     default:
-        return tr("Unknown Android version. API Level: %1").arg(x);
+        return Tr::tr("Unknown Android version. API Level: %1").arg(x);
     }
 }
 
 static void raiseError(const QString &reason)
 {
-    QMessageBox::critical(nullptr, AndroidManager::tr("Error creating Android templates."), reason);
+    QMessageBox::critical(nullptr, Tr::tr("Error creating Android templates."), reason);
 }
 
 static bool openXmlFile(QDomDocument &doc, const FilePath &fileName)
@@ -521,7 +521,7 @@ static bool openXmlFile(QDomDocument &doc, const FilePath &fileName)
         return false;
 
     if (!doc.setContent(f.readAll())) {
-        raiseError(AndroidManager::tr("Cannot parse \"%1\".").arg(fileName.toUserOutput()));
+        raiseError(Tr::tr("Cannot parse \"%1\".").arg(fileName.toUserOutput()));
         return false;
     }
     return true;
@@ -560,7 +560,7 @@ void AndroidManager::installQASIPackage(Target *target, const FilePath &packageP
     if (info.type == IDevice::Emulator) {
         deviceSerialNumber = AndroidAvdManager().startAvd(info.avdName);
         if (deviceSerialNumber.isEmpty())
-            Core::MessageManager::writeDisrupting(tr("Starting Android virtual device failed."));
+            Core::MessageManager::writeDisrupting(Tr::tr("Starting Android virtual device failed."));
     }
 
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
@@ -568,7 +568,7 @@ void AndroidManager::installQASIPackage(Target *target, const FilePath &packageP
     QString error;
     if (!runAdbCommandDetached(arguments, &error, true))
         Core::MessageManager::writeDisrupting(
-            tr("Android package installation failed.\n%1").arg(error));
+            Tr::tr("Android package installation failed.\n%1").arg(error));
 }
 
 bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd)

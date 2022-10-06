@@ -40796,7 +40796,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>创建新AVD</translation>
@@ -40817,9 +40817,6 @@ Filter: %2
         <source> MiB</source>
         <translation> MiB</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>创建一个密钥存储库和一个证书</translation>
@@ -40897,9 +40894,6 @@ Filter: %2
         <source>&gt;AA; </source>
         <translation>&gt;AA; </translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -40944,9 +40938,6 @@ This option is useful when you want to try your application on devices which don
         <source>Choose APK</source>
         <translation>选择APK</translation>
     </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
         <translation>Manifest</translation>
@@ -41030,10 +41021,6 @@ This option is useful when you want to try your application on devices which don
         <translation>丢弃</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>名称:</translation>
-    </message>
-    <message>
         <source>Libraries</source>
         <translation>库</translation>
     </message>
@@ -41087,9 +41074,6 @@ This option is useful when you want to try your application on devices which don
         <source>Certificate alias:</source>
         <translation>证书别名:</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android配置</translation>
@@ -41097,10 +41081,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Android SDK location:</source>
         <translation>Android SDK的路径:</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>浏览</translation>
     </message>
     <message>
         <source>Android NDK location:</source>
@@ -41153,14 +41133,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Start Android AVD Manager</source>
         <translation>启动Android AVD管理器</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>删除</translation>
     </message>
 </context>
 <context>
@@ -43692,7 +43664,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
+    <name>Android</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>创建AVD错误</translation>
@@ -43702,20 +43674,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
 Please install an SDK of at least API version %1.</source>
         <translation>无法创建一个新的AVD。没有足够新的Android SDK。
 请安装API版本至少为 %1的 SDK。</translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;密码太短&lt;/span&gt;</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
@@ -43737,23 +43695,10 @@ Please install an SDK of at least API version %1.</source>
         <source>Error</source>
         <translation>错误</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>部署到Android设备</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>部署到Android设备</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
@@ -43770,14 +43715,6 @@ Please install an SDK of at least API version %1.</source>
     <message>
         <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
         <translation>包部署: 运行命令 &apos;%1 %2&apos;。</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>打包错误:无法执行命令&apos;%1 %2&apos;。原因&apos;%3&apos;</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>打包错误:命令&apos;%1 %2&apos;失败.。</translation>
     </message>
     <message>
         <source> Reason: %1</source>
@@ -43811,16 +43748,10 @@ Please install an SDK of at least API version %1.</source>
         <source>Pulling files necessary for debugging.</source>
         <translation>正在读取调试需要的文件。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>部署到Android设备或模拟器</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Deploy 配置&lt;/b&gt;</translation>
@@ -43833,27 +43764,14 @@ Please install an SDK of at least API version %1.</source>
         <source>Android package (*.apk)</source>
         <translation>Android包 (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation>在Android上运行</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation>Android设备</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation>创建Android目录 &apos;%1&apos;失败。</translation>
@@ -43884,16 +43802,10 @@ Please install at least one SDK.</source>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation>无法打开 &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation>创建Android (.apk)包</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
     <message>
         <source>Packaging for Android</source>
         <translation>正在为Android打包</translation>
@@ -43911,10 +43823,6 @@ Please install at least one SDK.</source>
 Please make sure your application is built successfully and is selected in Application tab (&apos;Run option&apos;).</source>
         <translation>找不到 &apos;%1&apos;。
 请确保您的程序构建成功，并且在“应用程序”标签(&quot;运行选项&quot;)中选中。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>错误</translation>
     </message>
     <message>
         <source>Failed to run keytool</source>
@@ -43953,10 +43861,6 @@ Please make sure your application is built successfully and is selected in Appli
         <translation>包创建完成。</translation>
     </message>
     <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>部署包: 运行命令 &apos;%1 %2&apos;。</translation>
-    </message>
-    <message>
         <source>Packaging failed.</source>
         <translation>打包失败。</translation>
     </message>
@@ -43969,32 +43873,13 @@ Please make sure your application is built successfully and is selected in Appli
         <translation>打包错误:命令&apos;%1 %2&apos;失败。</translation>
     </message>
     <message>
-        <source> Reason: %1</source>
-        <translation>原因 %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>退出代码: %1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>密钥存储库</translation>
-    </message>
-    <message>
         <source>Keystore password:</source>
         <translation>密钥存储库的密码:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>证书</translation>
     </message>
     <message>
         <source>Certificate password (%1):</source>
         <translation>证书的密码(%1):</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid Package Name</source>
         <translation>非法的包名</translation>
@@ -44034,26 +43919,13 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <translation>选择密钥存储库文件</translation>
     </message>
     <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>密钥存储库文件 (*.keystore *.jks)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
-    <message>
         <source>Deploy to device</source>
         <translation>部署到设备</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>复制应用程序的数据</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>检测Qt版本使用的ABI失败。</translation>
@@ -44063,30 +43935,18 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>Run on Android device</source>
         <translation>在Android设备上运行</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>启动远端进程。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device or emulator.</source>
         <translation>在Android设备或模拟器上运行。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>
 
@@ -44131,16 +43991,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 
 &apos;%1&apos; 被杀死。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Android配置</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -44154,9 +44008,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
         <translation>Android SDK的目录</translation>
@@ -44193,9 +44044,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Select OpenJDK Path</source>
         <translation>选择OpenJDK的路径</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>Android GCC</translation>
@@ -44208,16 +44056,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Android GCC (%1-%2)</source>
         <translation>Android GCC (%1-%2)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>NDK根目录:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>

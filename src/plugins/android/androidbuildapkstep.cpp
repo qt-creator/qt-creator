@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "androidbuildapkstep.h"
-
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidcreatekeystorecertificate.h"
@@ -11,9 +10,9 @@
 #include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androidsdkmanager.h"
+#include "androidtr.h"
 #include "certificatesmodel.h"
 #include "createandroidmanifestwizard.h"
-
 #include "javaparser.h"
 
 #include <coreplugin/fileutils.h>
@@ -76,8 +75,6 @@ const char VerboseOutputKey[] = "VerboseOutput";
 
 class PasswordInputDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidBuildApkStep)
-
 public:
     enum Context{
       KeystorePassword = 1,
@@ -95,7 +92,7 @@ private:
     std::function<bool (const QString &)> verifyCallback = [](const QString &) { return true; };
     QLabel *inputContextlabel = new QLabel(this);
     QLineEdit *inputEdit = new QLineEdit(this);
-    Utils::InfoLabel *warningLabel = new Utils::InfoLabel(tr("Incorrect password."),
+    Utils::InfoLabel *warningLabel = new Utils::InfoLabel(::Android::Tr::tr("Incorrect password."),
                                                           Utils::InfoLabel::Warning, this);
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                                        this);
@@ -105,8 +102,6 @@ private:
 
 class AndroidBuildApkWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidBuildApkStep)
-
 public:
     explicit AndroidBuildApkWidget(AndroidBuildApkStep *step);
 
@@ -162,7 +157,7 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
                                                           filteredSdkPlatforms(minApiSupported));
     targets.removeDuplicates();
 
-    auto group = new QGroupBox(tr("Application"), this);
+    auto group = new QGroupBox(Tr::tr("Application"), this);
 
     auto targetSDKComboBox = new QComboBox();
     targetSDKComboBox->addItems(targets);
@@ -175,17 +170,17 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
    });
 
     auto formLayout = new QFormLayout(group);
-    formLayout->addRow(tr("Android build platform SDK:"), targetSDKComboBox);
+    formLayout->addRow(Tr::tr("Android build platform SDK:"), targetSDKComboBox);
 
-    auto createAndroidTemplatesButton = new QPushButton(tr("Create Templates"));
+    auto createAndroidTemplatesButton = new QPushButton(Tr::tr("Create Templates"));
     createAndroidTemplatesButton->setToolTip(
-        tr("Create an Android package for Custom Java code, assets, and Gradle configurations."));
+        Tr::tr("Create an Android package for Custom Java code, assets, and Gradle configurations."));
     connect(createAndroidTemplatesButton, &QAbstractButton::clicked, this, [this] {
         CreateAndroidManifestWizard wizard(m_step->buildSystem());
         wizard.exec();
     });
 
-    formLayout->addRow(tr("Android customization:"), createAndroidTemplatesButton);
+    formLayout->addRow(Tr::tr("Android customization:"), createAndroidTemplatesButton);
 
     return group;
 }
@@ -196,9 +191,9 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     sizePolicy.setHorizontalStretch(0);
     sizePolicy.setVerticalStretch(0);
 
-    auto group = new QGroupBox(tr("Application Signature"), this);
+    auto group = new QGroupBox(Tr::tr("Application Signature"), this);
 
-    auto keystoreLocationLabel = new QLabel(tr("Keystore:"), group);
+    auto keystoreLocationLabel = new QLabel(Tr::tr("Keystore:"), group);
     keystoreLocationLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
     auto keystoreLocationChooser = new PathChooser(group);
@@ -206,8 +201,8 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     keystoreLocationChooser->lineEdit()->setReadOnly(true);
     keystoreLocationChooser->setFilePath(m_step->keystorePath());
     keystoreLocationChooser->setInitialBrowsePathBackup(FileUtils::homePath());
-    keystoreLocationChooser->setPromptDialogFilter(tr("Keystore files (*.keystore *.jks)"));
-    keystoreLocationChooser->setPromptDialogTitle(tr("Select Keystore File"));
+    keystoreLocationChooser->setPromptDialogFilter(Tr::tr("Keystore files (*.keystore *.jks)"));
+    keystoreLocationChooser->setPromptDialogTitle(Tr::tr("Select Keystore File"));
     connect(keystoreLocationChooser, &PathChooser::textChanged, this, [this, keystoreLocationChooser] {
         const FilePath file = keystoreLocationChooser->rawFilePath();
         m_step->setKeystorePath(file);
@@ -216,7 +211,7 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
             setCertificates();
     });
 
-    auto keystoreCreateButton = new QPushButton(tr("Create..."), group);
+    auto keystoreCreateButton = new QPushButton(Tr::tr("Create..."), group);
     connect(keystoreCreateButton, &QAbstractButton::clicked, this, [this, keystoreLocationChooser] {
         AndroidCreateKeystoreCertificate d;
         if (d.exec() != QDialog::Accepted)
@@ -229,14 +224,14 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
         setCertificates();
     });
 
-    m_signPackageCheckBox = new QCheckBox(tr("Sign package"), group);
+    m_signPackageCheckBox = new QCheckBox(Tr::tr("Sign package"), group);
     m_signPackageCheckBox->setChecked(m_step->signPackage());
 
-    m_signingDebugWarningLabel = new Utils::InfoLabel(tr("Signing a debug package"),
+    m_signingDebugWarningLabel = new Utils::InfoLabel(Tr::tr("Signing a debug package"),
                                                       Utils::InfoLabel::Warning, group);
     m_signingDebugWarningLabel->hide();
 
-    auto certificateAliasLabel = new QLabel(tr("Certificate alias:"), group);
+    auto certificateAliasLabel = new QLabel(Tr::tr("Certificate alias:"), group);
     certificateAliasLabel->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
 
     m_certificatesAliasComboBox = new QComboBox(group);
@@ -267,28 +262,28 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
 
 QWidget *AndroidBuildApkWidget::createAdvancedGroup()
 {
-    auto group = new QGroupBox(tr("Advanced Actions"), this);
+    auto group = new QGroupBox(Tr::tr("Advanced Actions"), this);
 
-    auto openPackageLocationCheckBox = new QCheckBox(tr("Open package location after build"), group);
+    auto openPackageLocationCheckBox = new QCheckBox(Tr::tr("Open package location after build"), group);
     openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());
     connect(openPackageLocationCheckBox, &QAbstractButton::toggled,
             this, [this](bool checked) { m_step->setOpenPackageLocation(checked); });
 
-    m_addDebuggerCheckBox = new QCheckBox(tr("Add debug server"), group);
+    m_addDebuggerCheckBox = new QCheckBox(Tr::tr("Add debug server"), group);
     m_addDebuggerCheckBox->setEnabled(false);
-    m_addDebuggerCheckBox->setToolTip(tr("Packages debug server with "
+    m_addDebuggerCheckBox->setToolTip(Tr::tr("Packages debug server with "
            "the APK to enable debugging. For the signed APK this option is unchecked by default."));
     m_addDebuggerCheckBox->setChecked(m_step->addDebugger());
     connect(m_addDebuggerCheckBox, &QAbstractButton::toggled,
             m_step, &AndroidBuildApkStep::setAddDebugger);
 
-    auto verboseOutputCheckBox = new QCheckBox(tr("Verbose output"), group);
+    auto verboseOutputCheckBox = new QCheckBox(Tr::tr("Verbose output"), group);
     verboseOutputCheckBox->setChecked(m_step->verboseOutput());
 
     auto vbox = new QVBoxLayout(group);
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(m_step->kit());
     if (version && version->qtVersion() >= QVersionNumber(5, 14)) {
-        auto buildAAB = new QCheckBox(tr("Build Android App Bundle (*.aab)"), group);
+        auto buildAAB = new QCheckBox(Tr::tr("Build Android App Bundle (*.aab)"), group);
         buildAAB->setChecked(m_step->buildAAB());
         connect(buildAAB, &QAbstractButton::toggled, m_step, &AndroidBuildApkStep::setBuildAAB);
         vbox->addWidget(buildAAB);
@@ -305,7 +300,7 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
 
 QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()
 {
-    auto group = new QGroupBox(tr("Additional Libraries"));
+    auto group = new QGroupBox(Tr::tr("Additional Libraries"));
     group->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
     auto libsModel = new AndroidExtraLibraryListModel(m_step->buildSystem(), this);
@@ -317,32 +312,32 @@ QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()
 
     auto libsView = new QListView;
     libsView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    libsView->setToolTip(tr("List of extra libraries to include in Android package and load on startup."));
+    libsView->setToolTip(Tr::tr("List of extra libraries to include in Android package and load on startup."));
     libsView->setModel(libsModel);
 
     auto addLibButton = new QPushButton;
-    addLibButton->setText(tr("Add..."));
-    addLibButton->setToolTip(tr("Select library to include in package."));
+    addLibButton->setText(Tr::tr("Add..."));
+    addLibButton->setToolTip(Tr::tr("Select library to include in package."));
     addLibButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     connect(addLibButton, &QAbstractButton::clicked, this, [this, libsModel] {
         QStringList fileNames = QFileDialog::getOpenFileNames(this,
-                                                              tr("Select additional libraries"),
+                                                              Tr::tr("Select additional libraries"),
                                                               QDir::homePath(),
-                                                              tr("Libraries (*.so)"));
+                                                              Tr::tr("Libraries (*.so)"));
         if (!fileNames.isEmpty())
             libsModel->addEntries(fileNames);
     });
 
     auto removeLibButton = new QPushButton;
-    removeLibButton->setText(tr("Remove"));
-    removeLibButton->setToolTip(tr("Remove currently selected library from list."));
+    removeLibButton->setText(Tr::tr("Remove"));
+    removeLibButton->setToolTip(Tr::tr("Remove currently selected library from list."));
     connect(removeLibButton, &QAbstractButton::clicked, this, [libsModel, libsView] {
         QModelIndexList removeList = libsView->selectionModel()->selectedIndexes();
         libsModel->removeEntries(removeList);
     });
 
-    m_openSslCheckBox = new QCheckBox(tr("Include prebuilt OpenSSL libraries"));
-    m_openSslCheckBox->setToolTip(tr("This is useful for apps that use SSL operations. The path "
+    m_openSslCheckBox = new QCheckBox(Tr::tr("Include prebuilt OpenSSL libraries"));
+    m_openSslCheckBox->setToolTip(Tr::tr("This is useful for apps that use SSL operations. The path "
                                      "can be defined in Edit > Preferences > Devices > Android."));
     connect(m_openSslCheckBox, &QAbstractButton::clicked, this,
             &AndroidBuildApkWidget::onOpenSslCheckBoxChanged);
@@ -461,13 +456,13 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
                                          sdkManager()->latestAndroidSdkPlatform()))
 {
     setImmutable(true);
-    setDisplayName(tr("Build Android APK"));
+    setDisplayName(Tr::tr("Build Android APK"));
 }
 
 bool AndroidBuildApkStep::init()
 {
     if (!AbstractProcessStep::init()) {
-        reportWarningOrError(tr("\"%1\" step failed initialization.").arg(displayName()),
+        reportWarningOrError(Tr::tr("\"%1\" step failed initialization.").arg(displayName()),
                              Task::Error);
         return false;
     }
@@ -476,18 +471,18 @@ bool AndroidBuildApkStep::init()
         qCDebug(buildapkstepLog) << "Signing enabled";
         // check keystore and certificate passwords
         if (!verifyKeystorePassword() || !verifyCertificatePassword()) {
-            reportWarningOrError(tr("Keystore/Certificate password verification failed."),
+            reportWarningOrError(Tr::tr("Keystore/Certificate password verification failed."),
                                  Task::Error);
             return false;
         }
 
         if (buildType() != BuildConfiguration::Release)
-            reportWarningOrError(tr("Warning: Signing a debug or profile package."), Task::Warning);
+            reportWarningOrError(Tr::tr("Warning: Signing a debug or profile package."), Task::Warning);
     }
 
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
     if (!version) {
-        reportWarningOrError(tr("The Qt version for kit %1 is invalid.").arg(kit()->displayName()),
+        reportWarningOrError(Tr::tr("The Qt version for kit %1 is invalid.").arg(kit()->displayName()),
                              Task::Error);
         return false;
     }
@@ -497,18 +492,18 @@ bool AndroidBuildApkStep::init()
             && AndroidConfigurations::currentConfig().preCmdlineSdkToolsInstalled()) {
         if (!version->sourcePath().pathAppended("src/3rdparty/gradle").exists()) {
             const QString error
-                = tr("The installed SDK tools version (%1) does not include Gradle "
-                     "scripts. The minimum Qt version required for Gradle build to work "
-                     "is %2")
-                      .arg(sdkToolsVersion.toString())
-                      .arg("5.9.0/5.6.3");
+                    = Tr::tr("The installed SDK tools version (%1) does not include Gradle "
+                             "scripts. The minimum Qt version required for Gradle build to work "
+                             "is %2")
+                    .arg(sdkToolsVersion.toString())
+                    .arg("5.9.0/5.6.3");
             reportWarningOrError(error, Task::Error);
             return false;
         }
     } else if (version->qtVersion() < QVersionNumber(5, 4, 0)) {
-        const QString error = tr("The minimum Qt version required for Gradle build to work is %1. "
-                                 "It is recommended to install the latest Qt version.")
-                                  .arg("5.4.0");
+        const QString error = Tr::tr("The minimum Qt version required for Gradle build to work is %1. "
+                                     "It is recommended to install the latest Qt version.")
+                .arg("5.4.0");
         reportWarningOrError(error, Task::Error);
         return false;
     }
@@ -516,9 +511,9 @@ bool AndroidBuildApkStep::init()
     const int minSDKForKit = AndroidManager::minimumSDK(kit());
     if (AndroidManager::minimumSDK(target()) < minSDKForKit) {
         const QString error
-            = tr("The API level set for the APK is less than the minimum required by the kit."
-                 "\nThe minimum API level required by the kit is %1.")
-                  .arg(minSDKForKit);
+                = Tr::tr("The API level set for the APK is less than the minimum required by the kit."
+                         "\nThe minimum API level required by the kit is %1.")
+                .arg(minSDKForKit);
         reportWarningOrError(error, Task::Error);
         return false;
     }
@@ -542,14 +537,14 @@ bool AndroidBuildApkStep::init()
     m_inputFile = AndroidQtVersion::androidDeploymentSettings(target());
     if (m_inputFile.isEmpty()) {
         m_skipBuilding = true;
-        reportWarningOrError(tr("No valid input file for \"%1\".").arg(target()->activeBuildKey()),
+        reportWarningOrError(Tr::tr("No valid input file for \"%1\".").arg(target()->activeBuildKey()),
                              Task::Warning);
         return true;
     }
     m_skipBuilding = false;
 
     if (m_buildTargetSdk.isEmpty()) {
-        reportWarningOrError(tr("Android build SDK version is not defined. Check Android settings.")
+        reportWarningOrError(Tr::tr("Android build SDK version is not defined. Check Android settings.")
                              , Task::Error);
         return false;
     }
@@ -642,7 +637,7 @@ void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus sta
 bool AndroidBuildApkStep::verifyKeystorePassword()
 {
     if (!m_keystorePath.exists()) {
-        reportWarningOrError(tr("Cannot sign the package. Invalid keystore path (%1).")
+        reportWarningOrError(Tr::tr("Cannot sign the package. Invalid keystore path (%1).")
                              .arg(m_keystorePath.toString()), Task::Error);
         return false;
     }
@@ -662,7 +657,7 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 {
     if (!AndroidManager::checkCertificateExists(m_keystorePath.toString(), m_keystorePasswd,
                                                  m_certificateAlias)) {
-        reportWarningOrError(tr("Cannot sign the package. Certificate alias %1 does not exist.")
+        reportWarningOrError(Tr::tr("Cannot sign the package. Certificate alias %1 does not exist.")
                              .arg(m_certificateAlias), Task::Error);
         return false;
     }
@@ -704,7 +699,7 @@ static bool copyFileIfNewer(const FilePath &sourceFilePath,
 void AndroidBuildApkStep::doRun()
 {
     if (m_skipBuilding) {
-        reportWarningOrError(tr("Android deploy settings file not found, not building an APK."),
+        reportWarningOrError(Tr::tr("Android deploy settings file not found, not building an APK."),
                              Task::Error);
         emit finished(true);
         return;
@@ -716,7 +711,7 @@ void AndroidBuildApkStep::doRun()
 
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
         if (!version) {
-            reportWarningOrError(tr("The Qt version for kit %1 is invalid.")
+            reportWarningOrError(Tr::tr("The Qt version for kit %1 is invalid.")
                                  .arg(kit()->displayName()), Task::Error);
             return false;
         }
@@ -727,8 +722,8 @@ void AndroidBuildApkStep::doRun()
             FilePath androidLibsDir = androidBuildDir / "libs" / abi;
             if (!androidLibsDir.exists()) {
                 if (!androidLibsDir.ensureWritableDir()) {
-                    reportWarningOrError(tr("The Android build folder %1 was not found and could "
-                                            "not be created.").arg(androidLibsDir.toUserOutput()),
+                    reportWarningOrError(Tr::tr("The Android build folder %1 was not found and could "
+                                                "not be created.").arg(androidLibsDir.toUserOutput()),
                                          Task::Error);
                     return false;
                 } else if (version->qtVersion() >= QVersionNumber(6, 0, 0)
@@ -743,7 +738,7 @@ void AndroidBuildApkStep::doRun()
                         continue;
 
                     if (!from.copyFile(to)) {
-                        reportWarningOrError(tr("Cannot copy the target's lib file %1 to the "
+                        reportWarningOrError(Tr::tr("Cannot copy the target's lib file %1 to the "
                                                 "Android build folder %2.")
                                              .arg(fileName, androidLibsDir.toUserOutput()),
                                              Task::Error);
@@ -774,7 +769,7 @@ void AndroidBuildApkStep::doRun()
             for (const FilePath &target : targets) {
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName()))) {
                     reportWarningOrError(
-                                tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
+                                Tr::tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
                                 .arg(target.toUserOutput()).arg(androidLibsDir.toUserOutput()),
                                 Task::Error);
                     return false;
@@ -799,7 +794,7 @@ void AndroidBuildApkStep::doRun()
                         const FilePath destination = androidLibsDir.pathAppended(target.fileName());
                         if (!copyFileIfNewer(target, destination)) {
                             reportWarningOrError(
-                                tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
+                                Tr::tr("Cannot copy file \"%1\" to Android build libs folder \"%2\".")
                                     .arg(target.toUserOutput()).arg(androidLibsDir.toUserOutput()),
                                 Task::Error);
                             return false;
@@ -831,7 +826,7 @@ void AndroidBuildApkStep::doRun()
 
         QFile f{m_inputFile.toString()};
         if (!f.open(QIODevice::WriteOnly)) {
-            reportWarningOrError(tr("Cannot open androiddeployqt input file \"%1\" for writing.")
+            reportWarningOrError(Tr::tr("Cannot open androiddeployqt input file \"%1\" for writing.")
                                  .arg(m_inputFile.toUserOutput()), Task::Error);
             return false;
         }
@@ -840,7 +835,7 @@ void AndroidBuildApkStep::doRun()
     };
 
     if (!setup()) {
-        reportWarningOrError(tr("Cannot set up \"%1\", not building an APK.").arg(displayName()),
+        reportWarningOrError(Tr::tr("Cannot set up \"%1\", not building an APK.").arg(displayName()),
                              Task::Error);
         emit finished(false);
         return;
@@ -858,7 +853,7 @@ void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::Tas
 
 void AndroidBuildApkStep::processStarted()
 {
-    emit addOutput(tr("Starting: \"%1\" %2")
+    emit addOutput(Tr::tr("Starting: \"%1\" %2")
                    .arg(m_command.toUserOutput(), m_argumentsPasswordConcealed),
                    BuildStep::OutputFormat::NormalMessage);
 }
@@ -1026,7 +1021,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
     keytoolProc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), params});
     keytoolProc.runBlocking(EventLoopMode::On);
     if (keytoolProc.result() > ProcessResult::FinishedWithError)
-        QMessageBox::critical(nullptr, tr("Error"), tr("Failed to run keytool."));
+        QMessageBox::critical(nullptr, Tr::tr("Error"), Tr::tr("Failed to run keytool."));
     else
         model = new CertificatesModel(keytoolProc.cleanedStdOut(), this);
 
@@ -1067,13 +1062,13 @@ PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
 
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    setWindowTitle(context == KeystorePassword ? tr("Keystore") : tr("Certificate"));
+    setWindowTitle(context == KeystorePassword ? Tr::tr("Keystore") : Tr::tr("Certificate"));
 
     QString contextStr;
     if (context == KeystorePassword)
-        contextStr = tr("Enter keystore password");
+        contextStr = Tr::tr("Enter keystore password");
     else
-        contextStr = tr("Enter certificate password");
+        contextStr = Tr::tr("Enter certificate password");
 
     contextStr += extraContextStr.isEmpty() ? QStringLiteral(":") :
                                               QStringLiteral(" (%1):").arg(extraContextStr);
@@ -1099,7 +1094,7 @@ AndroidBuildApkStepFactory::AndroidBuildApkStepFactory()
     registerStep<AndroidBuildApkStep>(Constants::ANDROID_BUILD_APK_ID);
     setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    setDisplayName(AndroidBuildApkStep::tr("Build Android APK"));
+    setDisplayName(Tr::tr("Build Android APK"));
     setRepeatable(false);
 }
 

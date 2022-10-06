@@ -1,8 +1,10 @@
 // Copyright (C) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
-#include "androidsdkmodel.h"
+
 #include "androidmanager.h"
 #include "androidsdkmanager.h"
+#include "androidsdkmodel.h"
+#include "androidtr.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -44,13 +46,13 @@ QVariant AndroidSdkModel::headerData(int section, Qt::Orientation orientation, i
     if (role == Qt::DisplayRole) {
         switch (section) {
         case packageNameColumn:
-            data = tr("Package");
+            data = Tr::tr("Package");
             break;
         case packageRevisionColumn:
-            data = tr("Revision");
+            data = Tr::tr("Revision");
             break;
         case apiLevelColumn:
-            data = tr("API");
+            data = Tr::tr("API");
             break;
         default:
             break;
@@ -141,7 +143,7 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
         // Top level tools
         if (index.row() == 0) {
             return role == Qt::DisplayRole && index.column() == packageNameColumn ?
-                        QVariant(tr("Tools")) : QVariant();
+                        QVariant(Tr::tr("Tools")) : QVariant();
         }
         // Top level platforms
         const SdkPlatform *platform = m_sdkPlatforms.at(index.row() - 1);
@@ -171,7 +173,7 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case packageNameColumn:
             return p->type() == AndroidSdkPackage::SdkPlatformPackage ?
-                        tr("SDK Platform") : p->displayText();
+                        Tr::tr("SDK Platform") : p->displayText();
         case packageRevisionColumn:
             return p->revision().toString();
         case apiLevelColumn:

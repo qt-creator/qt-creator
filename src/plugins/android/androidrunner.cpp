@@ -2,8 +2,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidrunner.h"
-
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
@@ -11,7 +9,9 @@
 #include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidrunconfiguration.h"
+#include "androidrunner.h"
 #include "androidrunnerworker.h"
+#include "androidtr.h"
 
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -107,7 +107,7 @@ void AndroidRunner::stop()
 {
     if (m_checkAVDTimer.isActive()) {
         m_checkAVDTimer.stop();
-        appendMessage("\n\n" + tr("\"%1\" terminated.").arg(m_packageName),
+        appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(m_packageName),
                       Utils::NormalMessageFormat);
         return;
     }

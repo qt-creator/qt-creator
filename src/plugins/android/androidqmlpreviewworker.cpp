@@ -1,12 +1,12 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidqmlpreviewworker.h"
-
 #include "androidavdmanager.h"
 #include "androiddevice.h"
 #include "androiddeviceinfo.h"
 #include "androidmanager.h"
+#include "androidqmlpreviewworker.h"
+#include "androidtr.h"
 
 #include <coreplugin/icore.h>
 
@@ -199,7 +199,7 @@ void AndroidQmlPreviewWorker::start()
 void AndroidQmlPreviewWorker::stop()
 {
     if (!isPreviewRunning(m_viewerPid) || stopPreviewApp())
-        appendMessage(tr("%1 has been stopped.").arg(apkInfo()->name), NormalMessageFormat);
+        appendMessage(Tr::tr("%1 has been stopped.").arg(apkInfo()->name), NormalMessageFormat);
     m_viewerPid = -1;
     reportStopped();
 }
@@ -216,29 +216,29 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         using namespace ProjectExplorer;
         const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).data();
         if (!dev) {
-            appendMessage(tr("Selected device is invalid."), ErrorMessageFormat);
+            appendMessage(Tr::tr("Selected device is invalid."), ErrorMessageFormat);
             return false;
         }
         if (dev->deviceState() == IDevice::DeviceDisconnected) {
-            appendMessage(tr("Selected device is disconnected."), ErrorMessageFormat);
+            appendMessage(Tr::tr("Selected device is disconnected."), ErrorMessageFormat);
             return false;
         }
         AndroidDeviceInfo devInfoLocal = AndroidDevice::androidDeviceInfoFromIDevice(dev);
 
         if (devInfoLocal.isValid()) {
             if (dev->machineType() == IDevice::Emulator) {
-                appendMessage(tr("Launching AVD."), NormalMessageFormat);
+                appendMessage(Tr::tr("Launching AVD."), NormalMessageFormat);
                 devInfoLocal.serialNumber = avdMananager.startAvd(devInfoLocal.avdName);
             }
             if (devInfoLocal.serialNumber.isEmpty()) {
-                appendMessage(tr("Could not start AVD."), ErrorMessageFormat);
+                appendMessage(Tr::tr("Could not start AVD."), ErrorMessageFormat);
             } else {
                 m_serialNumber = devInfoLocal.serialNumber;
                 m_avdAbis = m_androidConfig.getAbis(m_serialNumber);
             }
             return !devInfoLocal.serialNumber.isEmpty();
         } else {
-            appendMessage(tr("No valid AVD has been selected."), ErrorMessageFormat);
+            appendMessage(Tr::tr("No valid AVD has been selected."), ErrorMessageFormat);
         }
         return false;
     }
@@ -249,7 +249,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
 bool AndroidQmlPreviewWorker::checkAndInstallPreviewApp()
 {
     const QStringList command {"pm", "list", "packages", apkInfo()->appId};
-    appendMessage(tr("Checking if %1 app is installed.").arg(apkInfo()->name), NormalMessageFormat);
+    appendMessage(Tr::tr("Checking if %1 app is installed.").arg(apkInfo()->name), NormalMessageFormat);
     const SdkToolResult res = runAdbShellCommand(command);
     if (!res.success()) {
         appendMessage(res.stdErr(), ErrorMessageFormat);
@@ -258,19 +258,19 @@ bool AndroidQmlPreviewWorker::checkAndInstallPreviewApp()
 
     if (res.stdOut().isEmpty()) {
         if (m_avdAbis.isEmpty()) {
-            appendMessage(tr("ABI of the selected device is unknown. Cannot install APK."),
+            appendMessage(Tr::tr("ABI of the selected device is unknown. Cannot install APK."),
                           ErrorMessageFormat);
             return false;
         }
         const FilePath apkPath = designViewerApkPath(m_avdAbis.first());
         if (!apkPath.exists()) {
-            appendMessage(tr("Cannot install %1 app for %2 architecture. "
-                             "The appropriate APK was not found in resources folders.").
+            appendMessage(Tr::tr("Cannot install %1 app for %2 architecture. "
+                                 "The appropriate APK was not found in resources folders.").
                           arg(apkInfo()->name, m_avdAbis.first()), ErrorMessageFormat);
             return false;
         }
 
-        appendMessage(tr("Installing %1 APK.").arg(apkInfo()->name), NormalMessageFormat);
+        appendMessage(Tr::tr("Installing %1 APK.").arg(apkInfo()->name), NormalMessageFormat);
 
         const SdkToolResult res = runAdbCommand({"install", apkPath.toString()});
         if (!res.success())
@@ -297,11 +297,11 @@ bool AndroidQmlPreviewWorker::preparePreviewArtefacts()
         });
 
         if (filesToExport.size() > 1) {
-            appendMessage(tr("Too many .qmlproject files in your project. Open directly the "
-                             ".qmlproject file you want to work with and then run the preview."),
+            appendMessage(Tr::tr("Too many .qmlproject files in your project. Open directly the "
+                                 ".qmlproject file you want to work with and then run the preview."),
                           ErrorMessageFormat);
         } else if (filesToExport.size() < 1) {
-            appendMessage(tr("No .qmlproject file found among project files."), ErrorMessageFormat);
+            appendMessage(Tr::tr("No .qmlproject file found among project files."), ErrorMessageFormat);
         } else {
             const FilePath qmlprojectFile = filesToExport.first();
             m_uploadInfo.uploadPackage = m_uploadInfo.projectFolder.resolvePath(
@@ -310,7 +310,7 @@ bool AndroidQmlPreviewWorker::preparePreviewArtefacts()
             return true;
         }
     }
-    appendMessage(tr("Could not gather information on project files."), ErrorMessageFormat);
+    appendMessage(Tr::tr("Could not gather information on project files."), ErrorMessageFormat);
     return false;
 }
 
@@ -332,7 +332,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
         rccProcess.setCommand({rccBinary, args});
         rccProcess.start();
         if (!rccProcess.waitForStarted()) {
-            appendMessage(tr("Could not create file for %1 \"%2\"").
+            appendMessage(Tr::tr("Could not create file for %1 \"%2\"").
                           arg(apkInfo()->name, rccProcess.commandLine().toUserOutput()),
                           StdErrFormat);
             qrcPath.removeFile();
@@ -343,7 +343,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
         if (!rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
             rccProcess.stop();
             rccProcess.waitForFinished();
-            appendMessage(tr("A timeout occurred running \"%1\"").
+            appendMessage(Tr::tr("A timeout occurred running \"%1\"").
                           arg(rccProcess.commandLine().toUserOutput()), StdErrFormat);
             qrcPath.removeFile();
             return {};
@@ -355,14 +355,14 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
             appendMessage(QString::fromLocal8Bit(stdErr), StdErrFormat);
 
         if (rccProcess.exitStatus() != QProcess::NormalExit) {
-            appendMessage(tr("Crash while creating file for %1 \"%2\"").
+            appendMessage(Tr::tr("Crash while creating file for %1 \"%2\"").
                           arg(apkInfo()->name, rccProcess.commandLine().toUserOutput()),
                           StdErrFormat);
             qrcPath.removeFile();
             return {};
         }
         if (rccProcess.exitCode() != 0) {
-            appendMessage(tr("Creating file for %1 failed. \"%2\" (exit code %3).").
+            appendMessage(Tr::tr("Creating file for %1 failed. \"%2\" (exit code %3).").
                           arg(apkInfo()->name).
                           arg(rccProcess.commandLine().toUserOutput()).
                           arg(rccProcess.exitCode()),
@@ -377,7 +377,7 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
 
 bool AndroidQmlPreviewWorker::uploadPreviewArtefacts()
 {
-    appendMessage(tr("Uploading files."), NormalMessageFormat);
+    appendMessage(Tr::tr("Uploading files."), NormalMessageFormat);
     const FilePath qresPath = createQmlrcFile(m_uploadInfo.projectFolder,
                                               m_uploadInfo.uploadPackage.baseName());
     if (!qresPath.exists())
@@ -400,7 +400,7 @@ bool AndroidQmlPreviewWorker::uploadPreviewArtefacts()
 bool AndroidQmlPreviewWorker::startPreviewApp()
 {
     stopPreviewApp();
-    appendMessage(tr("Starting %1.").arg(apkInfo()->name), NormalMessageFormat);
+    appendMessage(Tr::tr("Starting %1.").arg(apkInfo()->name), NormalMessageFormat);
     const QDir destDir(apkInfo()->uploadDir);
     const QString qmlrcPath = destDir.filePath(m_uploadInfo.uploadPackage.baseName()
                                                + packageSuffix);
@@ -414,7 +414,7 @@ bool AndroidQmlPreviewWorker::startPreviewApp()
     };
     const SdkToolResult result = runAdbShellCommand(command);
     if (result.success())
-        appendMessage(tr("%1 is running.").arg(apkInfo()->name), NormalMessageFormat);
+        appendMessage(Tr::tr("%1 is running.").arg(apkInfo()->name), NormalMessageFormat);
     else
         appendMessage(result.stdErr(), ErrorMessageFormat);
 

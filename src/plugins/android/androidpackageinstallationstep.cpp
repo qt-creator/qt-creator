@@ -1,10 +1,10 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidpackageinstallationstep.h"
-
 #include "androidconstants.h"
 #include "androidmanager.h"
+#include "androidpackageinstallationstep.h"
+#include "androidtr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -39,8 +39,6 @@ namespace Internal {
 
 class AndroidPackageInstallationStep final : public AbstractProcessStep
 {
-    Q_DECLARE_TR_FUNCTIONS(Android::AndroidPackageInstallationStep)
-
 public:
     AndroidPackageInstallationStep(BuildStepList *bsl, Id id);
 
@@ -58,11 +56,11 @@ private:
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {
-    setDisplayName(tr("Copy application data"));
+    setDisplayName(Tr::tr("Copy application data"));
     setWidgetExpandedByDefault(false);
     setImmutable(true);
     setSummaryUpdater([this] {
-        return tr("<b>Make install:</b> Copy App Files to %1")
+        return Tr::tr("<b>Make install:</b> Copy App Files to %1")
             .arg(QDir::toNativeSeparators(nativeAndroidBuildPath()));
     });
     setUseEnglishOutput();
@@ -71,13 +69,13 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
 bool AndroidPackageInstallationStep::init()
 {
     if (!AbstractProcessStep::init()) {
-        reportWarningOrError(tr("\"%1\" step failed initialization.").arg(displayName()),
+        reportWarningOrError(Tr::tr("\"%1\" step failed initialization.").arg(displayName()),
                              Task::TaskType::Error);
         return false;
     }
 
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
-    QTC_ASSERT(tc, reportWarningOrError(tr("\"%1\" step has an invalid C++ toolchain.")
+    QTC_ASSERT(tc, reportWarningOrError(Tr::tr("\"%1\" step has an invalid C++ toolchain.")
                                         .arg(displayName()), Task::TaskType::Error);
             return false);
 
@@ -128,10 +126,10 @@ void AndroidPackageInstallationStep::doRun()
     for (const QString &dir : qAsConst(m_androidDirsToClean)) {
         FilePath androidDir = FilePath::fromString(dir);
         if (!dir.isEmpty() && androidDir.exists()) {
-            emit addOutput(tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
+            emit addOutput(Tr::tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
             if (!androidDir.removeRecursively(&error)) {
-                reportWarningOrError(tr("Failed to clean \"%1\" from the previous build, with "
-                                        "error:\n%2").arg(androidDir.toUserOutput()).arg(error),
+                reportWarningOrError(Tr::tr("Failed to clean \"%1\" from the previous build, with "
+                                            "error:\n%2").arg(androidDir.toUserOutput()).arg(error),
                                      Task::TaskType::Error);
                 emit finished(false);
                 return;
@@ -183,7 +181,7 @@ AndroidPackageInstallationFactory::AndroidPackageInstallationFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
     setRepeatable(false);
-    setDisplayName(AndroidPackageInstallationStep::tr("Deploy to device"));
+    setDisplayName(Tr::tr("Deploy to device"));
 }
 
 } // namespace Internal

@@ -11,7 +11,6 @@ namespace Internal {
 
 class AndroidErrorMessage
 {
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidErrorMessage)
 public:
     enum ErrorCode {
         UnknownError = 0x3000,

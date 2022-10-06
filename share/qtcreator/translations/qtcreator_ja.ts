@@ -510,7 +510,7 @@
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>新しい AVD の作成</translation>
@@ -547,9 +547,6 @@
         <source>Overwrite existing AVD name</source>
         <translation>既存の AVD 名を上書きする</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>キーストアと証明書の作成</translation>
@@ -618,9 +615,6 @@
         <source>Keystore</source>
         <translation>キーストア</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -645,9 +639,6 @@
         <source>Uninstall previous package</source>
         <translation>古いパッケージをアンインストールする</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Android デバイスの選択</translation>
@@ -659,10 +650,6 @@
     <message>
         <source>Create Android Virtual Device</source>
         <translation>Android 仮想デバイス(AVD)の作成</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -728,9 +715,6 @@
         <source>Always use this device for architecture %1 for this project</source>
         <translation>このプロジェクトの %1 アーキテクチャでは常にこのデバイスを使用する</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android 設定</translation>
@@ -11272,13 +11256,6 @@ with a password, which you can enter below.</source>
 <context>
     <name>Android</name>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
         <source>Keystore password is too short.</source>
         <translation>キーストアパスワードが短すぎます。</translation>
     </message>
@@ -11320,30 +11297,14 @@ with a password, which you can enter below.</source>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Android デバイスにデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>Android 上でデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Android デバイスまたはエミュレータにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployQtStep default display name</extracomment>
@@ -11471,9 +11432,6 @@ Do you want to uninstall the existing package?</source>
         <source>Pulling files necessary for debugging.</source>
         <translation>デバッグに必要なファイルを取得しています。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;デプロイ設定&lt;/b&gt;</translation>
@@ -11483,34 +11441,13 @@ Do you want to uninstall the existing package?</source>
         <translation>Qt Android スマートインストーラ</translation>
     </message>
     <message>
-        <source>Android package (*.apk)</source>
-        <translation>Android パッケージ (*.apk)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
-    <message>
         <source>Run on Android</source>
         <translation>Android 上で実行</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Android Device</source>
         <translation>Android デバイス</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
-        <source>Android Device</source>
-        <translation>Android デバイス</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: SDK のインストールエラー 0x%1</translation>
@@ -11551,16 +11488,10 @@ Do you want to uninstall the existing package?</source>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: 未知のエラー 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
         <source>GDB server</source>
         <translation>GDB サーバー</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>管理...</translation>
@@ -11589,9 +11520,6 @@ Do you want to uninstall the existing package?</source>
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>&quot;%1&quot; 向け GDB サーバー</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -11600,16 +11528,10 @@ Do you want to uninstall the existing package?</source>
         <source>XML Source</source>
         <translation>XML ソース</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Android Manifest エディタ</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>パッケージ</translation>
@@ -11699,10 +11621,6 @@ Do you want to uninstall the existing package?</source>
         <translation>Qt モジュール用の既定の機能を追加する。</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>Add</source>
         <translation>追加</translation>
     </message>
@@ -11787,13 +11705,6 @@ Do you want to uninstall the existing package?</source>
         <translation>高 DPI アイコンを選択</translation>
     </message>
     <message>
-        <source>Android Manifest editor</source>
-        <translation>Android Manifest エディタ</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
-    <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Qt で使用されている ABI の検出に失敗しました。</translation>
     </message>
@@ -11814,16 +11725,10 @@ Do you want to uninstall the existing package?</source>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>リモートプロセスを起動します。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>ホストに QML デバッグ用の空きポートがありません。</translation>
@@ -11860,16 +11765,10 @@ Do you want to uninstall the existing package?</source>
         <source>&quot;%1&quot; terminated.</source>
         <translation>&quot;%1&quot; が終了しました。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Android 設定</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -11899,9 +11798,6 @@ Do you want to uninstall the existing package?</source>
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>&quot;%1&quot; does not seem to be an Android SDK top folder.</source>
         <translation>&quot;%1&quot; は Android SDK の最上位フォルダとは異なるようです。</translation>
@@ -12095,10 +11991,6 @@ in the system&apos;s browser for manual download.</source>
         <translation>OpenSSL のビルド済みライブラリを複製する...</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-    <message>
         <source>OpenSSL prebuilt libraries cloning failed.</source>
         <translation>OpenSSL のビルド済みライブラリの複製に失敗しました。</translation>
     </message>
@@ -12143,10 +12035,6 @@ in the system&apos;s browser for manual download.</source>
         <translation>Android SDK Tools をダウンロードしてインストールするには: %1?</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Unsupported GDB</source>
         <translation>サポート対象外の GDB</translation>
     </message>
@@ -12166,23 +12054,14 @@ in the system&apos;s browser for manual download.</source>
         <source>Select ant Script</source>
         <translation>ant スクリプトの選択</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>Android GCC</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>NDK ルート:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -33787,7 +33666,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>AndroidConfiguration</name>
+    <name>Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>実行できません: %1</translation>
@@ -33796,9 +33675,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>No devices found in output of: %1</source>
         <translation>以下のコマンドの出力からデバイスが見つかりません: %1</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>AVD 作成中のエラー</translation>
@@ -33807,23 +33683,14 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>Could not start process &quot;%1 %2&quot;</source>
         <translation>プロセス &quot;%1 %2&quot; を起動できませんでした</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Android の設定...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>Qt Creator needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>Android サポートを有効にするには Qt Creator に追加の設定が必要です。オプションダイアログからそれらの設定を行うことができます。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation>Java エディタ</translation>
@@ -35016,7 +34883,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AvdDialog</name>
+    <name>Android</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -35752,11 +35619,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>AndroidBuildApkWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Sign package</source>
         <translation>パッケージに署名する</translation>
@@ -35776,10 +35639,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
     <message>
         <source>Certificate alias:</source>
         <translation>証明書エイリアス:</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>アプリケーション</translation>
     </message>
     <message>
         <source>Android build SDK:</source>
@@ -36295,15 +36154,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Create Templates</source>
         <translation>テンプレートの作成</translation>
@@ -36321,16 +36172,8 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
         <translation>パッケージに同梱するライブラリを選択します。</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>現在選択されているライブラリをリストから削除します。</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
@@ -37570,7 +37413,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -37581,10 +37424,6 @@ the program.</source>
         <translation>警告: デバッグ用あるいはプロファイル用パッケージを署名しています。</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
         <source>Failed to run keytool.</source>
         <translation>keytool の実行に失敗しました。</translation>
     </message>
@@ -37593,39 +37432,17 @@ the program.</source>
         <translation>無効なパスワードです。</translation>
     </message>
     <message>
-        <source>Keystore</source>
-        <translation>キーストア</translation>
-    </message>
-    <message>
         <source>Keystore password:</source>
         <translation>キーストアパスワード:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>証明書</translation>
     </message>
     <message>
         <source>Certificate password (%1):</source>
         <translation>証明書のパスワード(%1):</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidBuildApkWidget</name>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>キーストアファイル (*.keystore *.jks)</translation>
-    </message>
     <message>
         <source>Select Keystore File</source>
         <translation>キーストアファイルの選択</translation>
     </message>
-    <message>
-        <source>&lt;b&gt;Build Android APK&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Android APK のビルド&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Android Debugger for %1</source>
         <translation>%1 向け Android デバッガ</translation>
@@ -37634,9 +37451,6 @@ the program.</source>
         <source>Android for %1 (GCC %2, Qt %3)</source>
         <translation>%1 向け Android (GCC %2, Qt %3)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL 有効</translation>
@@ -37645,9 +37459,6 @@ the program.</source>
         <source>OpenGL disabled</source>
         <translation>OpenGL 無効</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>未知のバージョンの Android です。API レベル: %1</translation>
@@ -42972,14 +42783,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to device</source>
         <translation>デバイスにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>アプリケーションデータのコピー</translation>
@@ -42988,9 +42796,6 @@ These files are preserved.</source>
         <source>Removing directory %1</source>
         <translation>ディレクトリ %1 を削除しています</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install&lt;/b&gt;</source>
         <translation>&lt;b&gt;Make install&lt;/b&gt;</translation>
@@ -42999,9 +42804,6 @@ These files are preserved.</source>
         <source>Make install</source>
         <translation>Make install</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>このプロジェクトにアプリケーション .pro ファイルが見つかりません。</translation>
@@ -43010,9 +42812,6 @@ These files are preserved.</source>
         <source>No Application .pro File</source>
         <translation>アプリケーション .pro ファイルが見つかりません</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Android テンプレートファイルを作成したい .pro ファイルを選択してください。</translation>
@@ -43025,9 +42824,6 @@ These files are preserved.</source>
         <source>Select a .pro File</source>
         <translation>.pro ファイルの選択</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseDirectoryPage</name>
     <message>
         <source>The Android package source directory cannot be the same as the project directory.</source>
         <translation>Android パッケージソースディレクトリをプロジェクトのディレクトリと同じにすることはできません。</translation>
@@ -43056,9 +42852,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Copy the Gradle files to Android directory</source>
         <translation>Gradle のファイルを Android ディレクトリにコピーする</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Android テンプレートファイル作成ウィザード</translation>
@@ -43087,31 +42880,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Could not update the .pro file %1.</source>
         <translation>.pro ファイル %1 を更新できませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStepFactory</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation>Android APK のビルド</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStep</name>
-    <message>
-        <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
-        <translation>ソースディレクトリに古い &quot;android&quot; フォルダを見つけました。Qt 5.2 は既定ではそのフォルダを使用しません。</translation>
-    </message>
     <message>
         <source>No application .pro file found, not building an APK.</source>
         <translation>アプリケーション .pro ファイルが見つからないため、APK をビルドできません。</translation>
     </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
-        <translation>起動中: &quot;%1&quot; %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidRunConfiguration</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
         <translation>.pro ファイル &quot;%1&quot; を現在解析しています。</translation>
@@ -45606,7 +45378,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
+    <name>Android</name>
     <message>
         <source>Expand All</source>
         <translation>すべて展開</translation>
@@ -45626,14 +45398,6 @@ Output:
     <message>
         <source>All</source>
         <translation>すべて</translation>
-    </message>
-    <message>
-        <source>Advanced Options...</source>
-        <translation type="unfinished">詳細オプション...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
     </message>
 </context>
 <context>
@@ -46983,180 +46747,11 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>AndroidAvdManager</name>
-    <message>
-        <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation>プロセス &quot;%1 %2&quot; を起動できませんでした</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidBuildApkStep</name>
-    <message>
-        <source>Application</source>
-        <translation>アプリケーション</translation>
-    </message>
-    <message>
-        <source>Android build SDK:</source>
-        <translation>Android SDK:</translation>
-    </message>
-    <message>
-        <source>Create Templates</source>
-        <translation>テンプレートの作成</translation>
-    </message>
-    <message>
-        <source>Keystore:</source>
-        <translation>キーストア:</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>キーストアファイル (*.keystore *.jks)</translation>
-    </message>
-    <message>
-        <source>Select Keystore File</source>
-        <translation>キーストアファイルの選択</translation>
-    </message>
-    <message>
-        <source>Create...</source>
-        <translation>作成...</translation>
-    </message>
-    <message>
-        <source>Sign package</source>
-        <translation>パッケージに署名する</translation>
-    </message>
-    <message>
-        <source>Signing a debug package</source>
-        <translation>デバッグパッケージに署名する</translation>
-    </message>
-    <message>
-        <source>Certificate alias:</source>
-        <translation>証明書エイリアス:</translation>
-    </message>
-    <message>
-        <source>Advanced Actions</source>
-        <translation>高度なアクション</translation>
-    </message>
-    <message>
-        <source>Open package location after build</source>
-        <translation>ビルド後にパッケージのパスを開く</translation>
-    </message>
-    <message>
-        <source>Verbose output</source>
-        <translation>詳細出力</translation>
-    </message>
-    <message>
-        <source>Additional Libraries</source>
-        <translation>追加ライブラリ</translation>
-    </message>
-    <message>
-        <source>List of extra libraries to include in Android package and load on startup.</source>
-        <translation>Android のパッケージに同梱され起動時に読み込まれる追加ライブラリのリストです。</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
-    </message>
-    <message>
-        <source>Select library to include in package.</source>
-        <translation>パッケージに同梱するライブラリを選択します。</translation>
-    </message>
-    <message>
-        <source>Select additional libraries</source>
-        <translation>追加ライブラリの選択</translation>
-    </message>
-    <message>
-        <source>Libraries (*.so)</source>
-        <translation>ライブラリ (*.so)</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
-        <source>Remove currently selected library from list.</source>
-        <translation>現在選択しているライブラリをリストから削除します。</translation>
-    </message>
-    <message>
-        <source>Build Android APK</source>
-        <translation>Android APK のビルド</translation>
-    </message>
-    <message>
-        <source>Warning: Signing a debug or profile package.</source>
-        <translation>警告: デバッグ用あるいはプロファイル用パッケージを署名しています。</translation>
-    </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
-        <translation>起動中: &quot;%1&quot; %2</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
-        <source>Failed to run keytool.</source>
-        <translation>keytool の実行に失敗しました。</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>キーストア</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>証明書</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorIconWidget</name>
-    <message>
-        <source>Icon scaled up.</source>
-        <translation type="unfinished">アイコンをスケールアップ。</translation>
-    </message>
-    <message>
-        <source>Click to select...</source>
-        <translation type="unfinished">クリックして選択...</translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidPackageInstallationStep</name>
-    <message>
-        <source>Copy application data</source>
-        <translation>アプリケーションデータのコピー</translation>
-    </message>
-    <message>
-        <source>Removing directory %1</source>
-        <translation>ディレクトリ %1 を削除しています</translation>
-    </message>
-    <message>
-        <source>Deploy to device</source>
-        <translation>デバイスにデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
+    <name>Android</name>
     <message>
         <source>Clean Environment</source>
         <translation>環境変数なし</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
-    <message>
-        <source>No free ports available on host for QML debugging.</source>
-        <translation>ホストに QML デバッグ用の空きポートがありません。</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; died.</source>
-        <translation>&quot;%1&quot; は異常終了しました。</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkDownloader</name>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Failed.</source>
         <translation>失敗しました。</translation>
@@ -47165,95 +46760,9 @@ in &quot;%2&quot;.
         <source>Failed</source>
         <translation>失敗</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
-        <translation>パッケージ</translation>
-    </message>
-    <message>
-        <source>API</source>
-        <translation>API</translation>
-    </message>
     <message>
         <source>Install</source>
         <translation>インストールする</translation>
-    </message>
-</context>
-<context>
-    <name>Android::NoApplicationProFilePage</name>
-    <message>
-        <source>No application .pro file found in this project.</source>
-        <translation>このプロジェクトにアプリケーション .pro ファイルが見つかりません。</translation>
-    </message>
-    <message>
-        <source>No Application .pro File</source>
-        <translation>アプリケーション .pro ファイルが見つかりません</translation>
-    </message>
-</context>
-<context>
-    <name>Android::ChooseProfilePage</name>
-    <message>
-        <source>Select the .pro file for which you want to create the Android template files.</source>
-        <translation>Android テンプレートファイルを作成したい .pro ファイルを選択してください。</translation>
-    </message>
-    <message>
-        <source>.pro file:</source>
-        <translation>.pro ファイル:</translation>
-    </message>
-    <message>
-        <source>Select a .pro File</source>
-        <translation>.pro ファイルの選択</translation>
-    </message>
-</context>
-<context>
-    <name>Android::ChooseDirectoryPage</name>
-    <message>
-        <source>Android package source directory:</source>
-        <translation>Android パッケージソースディレクトリ:</translation>
-    </message>
-    <message>
-        <source>The Android package source directory cannot be the same as the project directory.</source>
-        <translation>Android パッケージソースディレクトリをプロジェクトのディレクトリと同じにすることはできません。</translation>
-    </message>
-    <message>
-        <source>Copy the Gradle files to Android directory</source>
-        <translation>Gradle のファイルを Android ディレクトリにコピーする</translation>
-    </message>
-    <message>
-        <source>It is highly recommended if you are planning to extend the Java part of your Qt application.</source>
-        <translation>Qt アプリケーションの Java 部を拡張する際には有効にすることを強く推奨します。</translation>
-    </message>
-    <message>
-        <source>Select the Android package source directory.
-
-The files in the Android package source directory are copied to the build directory&apos;s Android directory and the default files are overwritten.</source>
-        <translation>Android パッケージソースディレクトリを選択してください。
-
-Android パッケージソースディレクトリのファイルはビルドディレクトリの Android ディレクトリに既定のファイルを上書きする形でコピーされます。</translation>
-    </message>
-    <message>
-        <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
-        <translation type="vanished">Android テンプレートファイルは .pro ファイルの ANDROID_PACKAGE_SOURCE_DIR 変数に設定されたパスに作成されます。</translation>
-    </message>
-</context>
-<context>
-    <name>Android::CreateAndroidManifestWizard</name>
-    <message>
-        <source>Create Android Template Files Wizard</source>
-        <translation>Android テンプレートファイル作成ウィザード</translation>
-    </message>
-    <message>
-        <source>Project File not Updated</source>
-        <translation>プロジェクトファイルは未更新です</translation>
-    </message>
-</context>
-<context>
-    <name>JLSSettingsWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
     </message>
     <message>
         <source>Java:</source>
@@ -47267,16 +46776,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Path to equinox launcher jar</source>
         <translation>equinox launcher jarへのパス</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::SplashScreenContainerWidget</name>
-    <message>
-        <source>Splash screen</source>
-        <translation>スプラッシュスクリーン</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::SplashScreenWidget</name>
     <message>
         <source>Icon scaled up.</source>
         <translation>アイコンをスケールアップ。</translation>
@@ -47544,7 +47043,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
 </context>
 <context>
     <name>BuildConfiguration</name>

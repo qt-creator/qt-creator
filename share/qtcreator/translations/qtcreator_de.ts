@@ -17983,7 +17983,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -18611,7 +18611,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AndroidCreateKeystoreCertificate</name>
+    <name>Android</name>
     <message>
         <source>Keystore</source>
         <translation>Keystore</translation>
@@ -18680,9 +18680,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Use Keystore password</source>
         <translation>Keystore-Passwort verwenden</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android-Konfiguration</translation>
@@ -18926,7 +18923,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
+    <name>Android</name>
     <message>
         <source>Keystore password is too short.</source>
         <translation>Das Keystore-Passwort ist zu kurz.</translation>
@@ -18963,16 +18960,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation>&quot;%1&quot; beendet.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Select JDK Path</source>
         <translation>Pfad zum JDK auswählen</translation>
@@ -19152,10 +19143,6 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     <message>
         <source>Missing Android SDK Packages</source>
         <translation>Fehlende Android-SDK-Pakete</translation>
-    </message>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
     </message>
     <message>
         <source>Android settings are OK.</source>
@@ -19720,22 +19707,15 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDevice</name>
+    <name>Android</name>
     <message>
         <source>Run on Android</source>
         <translation>Ausführung auf Android-Gerät</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Android Device</source>
         <translation>Android-Gerät</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>NDK is not configured in Devices &gt; Android.</source>
         <translation>In Geräte &gt; Android ist kein NDK konfiguriert.</translation>
@@ -20085,7 +20065,7 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     </message>
 </context>
 <context>
-    <name>Android::Internal::AvdModel</name>
+    <name>Android</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -22824,7 +22804,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidManifestEditor</name>
+    <name>Android</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -22833,9 +22813,6 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <source>XML Source</source>
         <translation>XML-Quelle</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Paket</translation>
@@ -22931,10 +22908,6 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     <message>
         <source>Include default features for Qt modules.</source>
         <translation>Standard-Features für Qt-Module einschließen.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Add</source>
@@ -23206,7 +23179,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidErrorMessage</name>
+    <name>Android</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: Bei der SDK-Installation trat Fehler 0x%1 auf</translation>
@@ -23393,7 +23366,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translatorcomment>Android Virtual Device</translatorcomment>
@@ -23427,9 +23400,6 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <source>Overwrite existing AVD name</source>
         <translation>Bestehenden AVD-Namen überschreiben</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Android-Gerät auswählen</translation>
@@ -23493,10 +23463,6 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;aaa&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;My device is missing&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;aaa&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;Mein Gerät fehlt&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>This can be later reset in deployment settings in the Projects mode.</source>
@@ -23803,7 +23769,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
+    <name>Android</name>
     <message>
         <source>No Android arch set by the .pro file.</source>
         <translation>Die .pro-Datei setzt keine Android-Architektur.</translation>
@@ -23913,9 +23879,6 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
         <source>Package deploy: Running command &quot;%1&quot;.</source>
         <translation>Paket-Deployment: Führe Kommando &quot;%1&quot; aus.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>%1 benötigt zusätzliche Einstellungen, um die Android-Unterstützung zu aktivieren. Sie können diese im Einstellungsdialog konfigurieren.</translation>
@@ -25913,7 +25876,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
 </context>
 <context>
-    <name>AndroidConfiguration</name>
+    <name>Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Keine Ausführung möglich: %1</translation>
@@ -25922,16 +25885,10 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
         <source>No devices found in output of: %1</source>
         <translation>In der Ausgabe von %1 konnten keine Geräte festgestellt werden</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Fehler beim Erstellen des AVD</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Android konfigurieren...</translation>
@@ -26980,7 +26937,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AvdDialog</name>
+    <name>Android</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -27839,7 +27796,7 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -27888,16 +27845,9 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <translation>Starte: &quot;%1&quot; %2</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-    <message>
         <source>Failed to run keytool.</source>
         <translation>keytool konnte nicht ausgeführt werden.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Custom Android Debugger (%1, NDK %2)</source>
         <translation>Benutzerdefinierter Android-Debugger (%1, NDK %2)</translation>
@@ -27910,9 +27860,6 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <source>Android %1 Clang %2</source>
         <translation>Android %1 Clang %2</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Unbekannte Android-Version. API-Level: %1</translation>
@@ -31456,7 +31403,7 @@ Senden selbst auch Zeit benötigt.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
+    <name>Android</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL aktiviert</translation>
@@ -36211,7 +36158,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>AdbCommandsWidget</name>
+    <name>Android</name>
     <message>
         <source>Widget</source>
         <translation>Widget</translation>
@@ -37080,7 +37027,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation>AVD kann nicht erstellt werden. Ungültige Eingabe.</translation>
@@ -37093,20 +37040,9 @@ Fehler: %5</translation>
         <source>Cannot create AVD. Command timed out.</source>
         <translation>AVD kann nicht erstellt werden. Zeitüberschreitung des Kommandos.</translation>
     </message>
-</context>
-<context>
-    <name>Android::PasswordInputDialog</name>
     <message>
         <source>Incorrect password.</source>
         <translation>Ungültiges Passwort.</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Keystore</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Zertifikat</translation>
     </message>
     <message>
         <source>Enter keystore password</source>
@@ -37116,9 +37052,6 @@ Fehler: %5</translation>
         <source>Enter certificate password</source>
         <translation>Geben Sie das Zertifikatspasswort ein</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Auf dem Host sind nicht genügend freie Ports für das QML-Debuggen vorhanden.</translation>
@@ -39760,7 +39693,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
+    <name>Android</name>
     <message>
         <source>Android SDK Manager</source>
         <translation>Android SDK-Manager</translation>
@@ -39796,10 +39729,6 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     <message>
         <source>Advanced Options...</source>
         <translation>Erweiterte Optionen...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Do you want to accept the Android SDK license?</source>
@@ -39908,9 +39837,6 @@ Cancelling pending operations...
 Breche ausstehende Operationen ab...
 </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManager</name>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
         <translation>Die Operation benötigt Benutzereingaben. Benutzen Sie das Kommandozeilenwerkzeug &quot;sdkmanager&quot;.</translation>
@@ -39923,9 +39849,6 @@ Breche ausstehende Operationen ab...
 
 </translation>
     </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Updating installed packages.</source>
         <translation>Aktualisiere installierte Pakete.</translation>
@@ -39954,9 +39877,6 @@ Breche ausstehende Operationen ab...
         <source>Failed</source>
         <translation>Fehlgeschlagen</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::OptionsDialog</name>
     <message>
         <source>SDK Manager Arguments</source>
         <translation>SDK-Manager-Argumente</translation>
@@ -39973,20 +39893,9 @@ Breche ausstehende Operationen ab...
         <source>Available arguments:</source>
         <translation>Verfügbare Argumente:</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
-        <translation>Paket</translation>
-    </message>
     <message>
         <source>Revision</source>
         <translation>Revision</translation>
-    </message>
-    <message>
-        <source>API</source>
-        <translation>API</translation>
     </message>
     <message>
         <source>Operation</source>
@@ -40203,7 +40112,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>Android::AndroidPackageInstallationStep</name>
+    <name>Android</name>
     <message>
         <source>Copy application data</source>
         <translation>Anwendungsdaten kopieren</translation>
@@ -40681,7 +40590,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>AVD Start Error</source>
         <translation>Fehler beim Start von AVD</translation>
@@ -40694,9 +40603,6 @@ Die Trace-Daten sind verloren.</translation>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
         <translation>Installieren Sie den fehlenden Emulator (%1) im installierten Android-SDK.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
     <message>
         <source>Clean Environment</source>
         <translation>Saubere Umgebung</translation>
@@ -41634,7 +41540,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidBuildApkWidget</name>
+    <name>Android</name>
     <message>
         <source>Create Templates</source>
         <translation>Vorlagen erstellen</translation>
@@ -41648,16 +41554,8 @@ Speichern fehlgeschlagen.</translation>
         <translation>Liste aller zusätzlichen Bibliotheken, die in das Paket aufgenommen und beim Start geladen werden.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Hinzufügen...</translation>
-    </message>
-    <message>
         <source>Select library to include in package.</source>
         <translation>Wählen Sie eine Bibliothek zur Aufnahme in das Paket aus.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Remove currently selected library from list.</source>
@@ -41666,10 +41564,6 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>Select additional libraries</source>
         <translation>Zusätzliche Bibliotheken auswählen</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Anwendung</translation>
     </message>
     <message>
         <source>Android build SDK:</source>
@@ -41682,10 +41576,6 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>Keystore:</source>
         <translation>Keystore:</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Keystore-Dateien (*.keystore *.jks)</translation>
     </message>
     <message>
         <source>Select Keystore File</source>
@@ -41740,13 +41630,6 @@ Speichern fehlgeschlagen.</translation>
         <translation>Dies ist nützlich für Apps, die SSL benutzen. Der Pfad kann in Extras &gt; Einstellungen &gt; Geräte &gt; Android festgelegt werden.</translation>
     </message>
     <message>
-        <source>Build Android APK</source>
-        <translation>Android-APK erstellen</translation>
-    </message>
-</context>
-<context>
-    <name>Android::NoApplicationProFilePage</name>
-    <message>
         <source>No application .pro file found in this project.</source>
         <translation>Die .pro-Datei der Anwendung konnte in diesem Projekt nicht gefunden werden.</translation>
     </message>
@@ -41754,9 +41637,6 @@ Speichern fehlgeschlagen.</translation>
         <source>No Application .pro File</source>
         <translation>Keine .pro-Datei der Anwendung</translation>
     </message>
-</context>
-<context>
-    <name>Android::ChooseDirectoryPage</name>
     <message>
         <source>Android package source directory:</source>
         <translation>Quellverzeichnis des Android-Pakets:</translation>
@@ -41785,9 +41665,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Die Android-Vorlagendateien werden im in der .pro-Datei angegebenen ANDROID_PACKAGE_SOURCE_DIR angelegt.</translation>
     </message>
-</context>
-<context>
-    <name>Android::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Assistent zum Erzeugen von Android-Vorlagendateien</translation>
@@ -42913,13 +42790,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
             <numerusform>ein Element</numerusform>
             <numerusform>%n Elemente</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal</name>
-    <message>
-        <source>Deploy to Android Device</source>
-        <translation>Deployment auf Android-Gerät</translation>
     </message>
 </context>
 <context>
@@ -44348,14 +44218,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidSdkDownloader</name>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-</context>
-<context>
-    <name>Android::ChooseProfilePage</name>
+    <name>Android</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Wählen Sie die .pro-Datei, für die Sie die Android-Vorlagendateien erstellen wollen.</translation>
@@ -44493,7 +44356,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autotools Manager</source>
         <translation>Autotools-Verwaltung</translation>
@@ -48272,7 +48135,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidManifestEditorIconContainerWidget</name>
+    <name>Android</name>
     <message>
         <source>Low DPI icon</source>
         <translation>Symbol mit geringer Auflösung</translation>
@@ -48297,30 +48160,9 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Select high DPI icon.</source>
         <translation>Symbol für hohe Auflösung auswählen.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidServiceWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChain</name>
     <message>
         <source>Android Clang</source>
         <translation>Android Clang</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::SplashIconContainerWidget</name>
-    <message>
-        <source>Splash screen</source>
-        <translation>Startbildschirm</translation>
     </message>
 </context>
 <context>
