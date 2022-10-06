@@ -96,7 +96,6 @@ Project {
             "settings/tools/toolssettingspage.h",
             "settings/tools/toolssettingswidget.cpp",
             "settings/tools/toolssettingswidget.h",
-            "settings/tools/toolssettingswidget.ui",
             "settings/tools/tooltreeitem.cpp",
             "settings/tools/tooltreeitem.h",
             "versionhelper.h",

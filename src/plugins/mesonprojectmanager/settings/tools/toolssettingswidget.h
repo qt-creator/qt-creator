@@ -3,19 +3,16 @@
 
 #pragma once
 
-#include "exewrappers/mesonwrapper.h"
 #include "toolitemsettings.h"
 #include "toolsmodel.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QCoreApplication>
-#include <QTabWidget>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace Utils { class DetailsWidget; }
 
-namespace Ui { class ToolsSettingsWidget; }
+namespace MesonProjectManager::Internal {
 
 class ToolTreeItem;
 class ToolsSettingsWidget final : public Core::IOptionsPageWidget
@@ -31,11 +28,15 @@ private:
     void cloneMesonTool();
     void removeMesonTool();
     void currentMesonToolChanged(const QModelIndex &newCurrent);
-    Ui::ToolsSettingsWidget *ui;
+
     ToolsModel m_model;
     ToolItemSettings *m_itemSettings;
     ToolTreeItem *m_currentItem = nullptr;
+
+    QTreeView *m_mesonList;
+    Utils::DetailsWidget *m_mesonDetails;
+    QPushButton *m_cloneButton;
+    QPushButton *m_removeButton;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

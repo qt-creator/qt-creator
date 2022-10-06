@@ -5,47 +5,80 @@
 
 #include "toolsmodel.h"
 #include "tooltreeitem.h"
-#include "ui_toolssettingswidget.h"
 
-namespace MesonProjectManager {
-namespace Internal {
+#include <utils/detailswidget.h>
+#include <utils/layoutbuilder.h>
+
+#include <QHeaderView>
+#include <QPushButton>
+#include <QTreeView>
+
+using namespace Utils;
+
+namespace MesonProjectManager::Internal {
 
 ToolsSettingsWidget::ToolsSettingsWidget()
     : Core::IOptionsPageWidget()
-    , ui(new Ui::ToolsSettingsWidget)
 {
-    ui->setupUi(this);
-    ui->mesonDetails->setState(Utils::DetailsWidget::NoSummary);
-    ui->mesonDetails->setVisible(false);
+    m_mesonList = new QTreeView;
+    m_mesonList->setModel(&m_model);
+    m_mesonList->expandAll();
+    m_mesonList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_mesonList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+
     m_itemSettings = new ToolItemSettings;
-    ui->mesonDetails->setWidget(m_itemSettings);
 
-    ui->mesonList->setModel(&m_model);
-    ui->mesonList->expandAll();
-    ui->mesonList->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->mesonList->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    m_mesonDetails = new DetailsWidget;
+    m_mesonDetails->setState(DetailsWidget::NoSummary);
+    m_mesonDetails->setVisible(false);
+    m_mesonDetails->setWidget(m_itemSettings);
 
-    connect(ui->mesonList->selectionModel(),
-            &QItemSelectionModel::currentChanged,
-            this,
-            &ToolsSettingsWidget::currentMesonToolChanged);
+    auto addButton = new QPushButton(tr("Add"));
+
+    m_cloneButton = new QPushButton(tr("Clone"));
+    m_cloneButton->setEnabled(false);
+
+    m_removeButton = new QPushButton(tr("Remove"));
+    m_removeButton->setEnabled(false);
+
+    auto makeDefaultButton = new QPushButton(tr("Make Default"));
+    makeDefaultButton->setEnabled(false);
+    makeDefaultButton->setVisible(false);
+    makeDefaultButton->setToolTip(tr("Set as the default Meson executable to use "
+                                     "when creating a new kit or when no value is set."));
+
+    using namespace Layouting;
+
+    Row {
+        Column {
+            m_mesonList,
+            m_mesonDetails
+        },
+        Column {
+            addButton,
+            m_cloneButton,
+            m_removeButton,
+            makeDefaultButton,
+            st
+        }
+    }.attachTo(this);
+
+    connect(m_mesonList->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &ToolsSettingsWidget::currentMesonToolChanged);
     connect(m_itemSettings, &ToolItemSettings::applyChanges, &m_model, &ToolsModel::updateItem);
 
-    connect(ui->addButton, &QPushButton::clicked, &m_model, QOverload<>::of(&ToolsModel::addMesonTool));
-    connect(ui->cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
-    connect(ui->removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
+    connect(addButton, &QPushButton::clicked, &m_model, QOverload<>::of(&ToolsModel::addMesonTool));
+    connect(m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
+    connect(m_removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
 }
 
-ToolsSettingsWidget::~ToolsSettingsWidget()
-{
-    delete ui;
-}
+ToolsSettingsWidget::~ToolsSettingsWidget() = default;
 
 void ToolsSettingsWidget::cloneMesonTool()
 {
     if (m_currentItem) {
         auto newItem = m_model.cloneMesonTool(m_currentItem);
-        ui->mesonList->setCurrentIndex(newItem->index());
+        m_mesonList->setCurrentIndex(newItem->index());
     }
 }
 
@@ -60,9 +93,9 @@ void ToolsSettingsWidget::currentMesonToolChanged(const QModelIndex &newCurrent)
 {
     m_currentItem = m_model.mesoneToolTreeItem(newCurrent);
     m_itemSettings->load(m_currentItem);
-    ui->mesonDetails->setVisible(m_currentItem);
-    ui->cloneButton->setEnabled(m_currentItem);
-    ui->removeButton->setEnabled(m_currentItem && !m_currentItem->isAutoDetected());
+    m_mesonDetails->setVisible(m_currentItem);
+    m_cloneButton->setEnabled(m_currentItem);
+    m_removeButton->setEnabled(m_currentItem && !m_currentItem->isAutoDetected());
 }
 
 void ToolsSettingsWidget::apply()
@@ -70,5 +103,4 @@ void ToolsSettingsWidget::apply()
     m_model.apply();
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

@@ -10,7 +10,6 @@ add_qtc_plugin(MesonProjectManager
   mesonactionsmanager/mesonactionsmanager.cpp
   settings/tools/toolsmodel.cpp
   settings/tools/toolssettingswidget.h
-  settings/tools/toolssettingswidget.ui
   settings/tools/toolssettingswidget.cpp
   settings/tools/toolssettingspage.cpp
   settings/tools/toolssettingspage.h

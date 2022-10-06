@@ -4,7 +4,6 @@
 #pragma once
 
 #include "exewrappers/mesontools.h"
-#include "toolssettingspage.h"
 
 #include <utils/treemodel.h>
 
