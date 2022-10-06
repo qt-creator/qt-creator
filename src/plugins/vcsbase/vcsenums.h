@@ -8,18 +8,21 @@
 namespace VcsBase {
 
 enum class RunFlags {
-    None                   = 0,        // Empty
-    ShowStdOut             = (1 << 0), // Show standard output.
-    MergeOutputChannels    = (1 << 1), // See QProcess: Merge stderr/stdout.
-    SuppressStdErr         = (1 << 2), // Suppress standard error output.
-    SuppressFailMessage    = (1 << 3), // No message about command failure.
-    SuppressCommandLogging = (1 << 4), // No command log entry.
-    ShowSuccessMessage     = (1 << 5), // Show message about successful completion of command.
-    ForceCLocale           = (1 << 6), // Force C-locale for commands whose output is parsed.
-    SilentOutput           = (1 << 7), // Suppress user notifications about the output happening.
-    UseEventLoop           = (1 << 8), // Use event loop when executed in UI thread.
+    None                   = 0,        // Empty.
+    // QtcProcess related
+    MergeOutputChannels    = (1 << 0), // See QProcess::ProcessChannelMode::MergedChannels.
+    ForceCLocale           = (1 << 1), // Force C-locale, sets LANG and LANGUAGE env vars to "C".
+    UseEventLoop           = (1 << 2), // Use event loop when executed in UI thread with
+                                       // runBlocking().
+    // Decorator related
+    SuppressStdErr         = (1 << 3), // Suppress standard error output.
+    SuppressFailMessage    = (1 << 4), // No message about command failure.
+    SuppressCommandLogging = (1 << 5), // No starting command log entry.
+    ShowSuccessMessage     = (1 << 6), // Show message about successful completion of command.
+    ShowStdOut             = (1 << 7), // Show standard output.
+    SilentOutput           = (1 << 8), // Only when ShowStdOut is set to true, outputs silently.
     ExpectRepoChanges      = (1 << 9), // Expect changes in repository by the command
-    NoOutput = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
+    NoOutput               = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
 };
 
 inline void VCSBASE_EXPORT operator|=(RunFlags &p, RunFlags r)
