@@ -71,7 +71,7 @@ static qint64 extractPID(const QString &output, const QString &packageName)
     qint64 pid = -1;
     for (const QString &tuple : output.split('\n')) {
         // Make sure to remove null characters which might be present in the provided output
-        const QStringList parts = tuple.simplified().remove('\0').split(':');
+        const QStringList parts = tuple.simplified().remove(QChar('\0')).split(':');
         if (parts.length() == 2 && parts.first() == packageName) {
             pid = parts.last().toLongLong();
             break;
