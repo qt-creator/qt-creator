@@ -55,7 +55,7 @@ public:
     qint64 applicationMainThreadId() const;
 
     QProcess::ProcessState state() const;
-    virtual ProcessResultData resultData() const;
+    ProcessResultData resultData() const;
 
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
