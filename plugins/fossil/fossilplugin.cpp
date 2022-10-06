@@ -1004,8 +1004,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
                                                               const QString &localName,
                                                               const QStringList &extraArgs)
 {
-    QMap<QString, QString> options;
-    FossilJsExtension::parseArgOptions(extraArgs, options);
+    const QMap<QString, QString> options = FossilJsExtension::parseArgOptions(extraArgs);
 
     // Two operating modes:
     //  1) CloneCheckout:
