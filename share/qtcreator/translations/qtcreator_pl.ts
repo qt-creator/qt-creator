@@ -10126,7 +10126,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Ogólne informacje</translation>
@@ -10159,9 +10159,6 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <source>Email:</source>
         <translation>E-mail:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -10218,9 +10215,6 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>Liczba ostatnich poprawek, wyświetlanych w logu. Wybierz 0 aby ujrzeć wszystkie zmiany.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Odwróć zmiany</translation>
@@ -10233,9 +10227,6 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <source>Revision:</source>
         <translation>Wersja:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -11109,14 +11100,11 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CommitEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation>Edytor poprawek</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Nie można odnaleźć macierzystej wersji dla %1 w %2: %3</translation>
@@ -11133,16 +11121,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>Hg outgoing %1</source>
         <translation>Hg outgoing %1</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation>Me&amp;rcurial</translation>
@@ -11339,9 +11317,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>Message check failed. Do you want to proceed?</source>
         <translation>Błąd sprawdzania opisu. Czy kontynuować?</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Komenda Mercurial</translation>
@@ -23825,11 +23800,7 @@ Można używać nazw częściowych, jeśli są one unikalne.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>Password:</source>
         <translation>Hasło:</translation>
@@ -32459,7 +32430,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>Dołącz &amp;adnotację do %1</translation>
@@ -41758,7 +41729,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffConfig</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignoruj białe znaki</translation>

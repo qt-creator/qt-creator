@@ -19596,7 +19596,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -19629,9 +19629,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Email:</source>
         <translation>电子邮件:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -19700,9 +19697,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>要显示的最近提交的日志数, 选择0 来查看所有项.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>还原</translation>
@@ -19715,9 +19709,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Revision:</source>
         <translation>修订版本:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
@@ -19847,7 +19838,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Clone a Mercurial repository</source>
         <translation type="obsolete">克隆一个 Mercurial 仓库</translation>
@@ -19860,9 +19851,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Mercurial Clone</source>
         <translation>Mercurial 克隆</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -19875,16 +19863,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Clone URL:</source>
         <translation>克隆 URL:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Commit编辑器</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>无法在 %2 找到 %1 的父修订版本: %3</translation>
@@ -19906,16 +19888,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Working...</source>
         <translation type="obsolete">工作中...</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialJobRunner</name>
     <message>
         <source>Executing: %1 %2
 </source>
@@ -19929,13 +19901,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
         <translation type="obsolete">等待 mercurial 进程结束，等待%1 秒后超时。</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -20145,9 +20110,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Message check failed. Do you want to proceed?</source>
         <translation>信息检查失败，您想要继续吗？</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Mercurial 命令</translation>
@@ -22488,7 +22450,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Annotate %1</source>
         <translation>注释 &quot;%1&quot; </translation>
@@ -35967,7 +35929,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>

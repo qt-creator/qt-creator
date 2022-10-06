@@ -9,8 +9,7 @@
 
 namespace VcsBase { class VcsBaseDiffEditorController; }
 
-namespace Mercurial {
-namespace Internal {
+namespace Mercurial::Internal {
 
 class MercurialDiffEditorController;
 
@@ -74,5 +73,4 @@ private:
     void parsePullOutput(const QString &output);
 };
 
-} //namespace Internal
-} //namespace Mercurial
+} // Mercurial::Internal

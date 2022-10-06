@@ -3,6 +3,8 @@
 
 #include "revertdialog.h"
 
+#include "mercurialtr.h"
+
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>
@@ -17,9 +19,9 @@ RevertDialog::RevertDialog(QWidget *parent)
     : QDialog(parent)
 {
     resize(400, 162);
-    setWindowTitle(tr("Revert"));
+    setWindowTitle(Tr::tr("Revert"));
 
-    auto groupBox = new QGroupBox(tr("Specify a revision other than the default?"));
+    auto groupBox = new QGroupBox(Tr::tr("Specify a revision other than the default?"));
     groupBox->setCheckable(true);
     groupBox->setChecked(false);
 
@@ -30,7 +32,7 @@ RevertDialog::RevertDialog(QWidget *parent)
     using namespace Layouting;
 
     Form {
-        tr("Revision:"), m_revisionLineEdit,
+        Tr::tr("Revision:"), m_revisionLineEdit,
     }.attachTo(groupBox, WithMargins);
 
     Column {

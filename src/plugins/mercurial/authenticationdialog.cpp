@@ -3,6 +3,8 @@
 
 #include "authenticationdialog.h"
 
+#include "mercurialtr.h"
+
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>
@@ -26,8 +28,8 @@ AuthenticationDialog::AuthenticationDialog(const QString &username, const QStrin
 
     Column {
         Form {
-            tr("Username:"), m_username, br,
-            tr("Password:"), m_password
+            Tr::tr("Username:"), m_username, br,
+            Tr::tr("Password:"), m_password
         },
         buttonBox
     }.attachTo(this);

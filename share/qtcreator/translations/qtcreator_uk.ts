@@ -12239,7 +12239,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Cloning</source>
         <translation type="vanished">Клонування</translation>
@@ -12252,9 +12252,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation type="vanished">Клонує сховище Mercurial та намагається завантажити з нього проект.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -12263,16 +12260,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Clone URL:</source>
         <translation type="vanished">URL для клонування:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation type="unfinished"></translation>
@@ -12289,9 +12280,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Hg outgoing %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Загальна інформація</translation>
@@ -12324,16 +12312,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Email:</source>
         <translation>Email:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
     <message>
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation type="vanished">Ігнорувати пропуски</translation>
@@ -12349,13 +12331,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Ignore Blank Lines</source>
         <translation>Ігнорувати порожні рядки</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
-    <message>
-        <source>Clones a Mercurial repository and tries to load the contained project.</source>
-        <translation type="vanished">Клонує сховище Mercurial та намагається завантажити з нього проект.</translation>
     </message>
     <message>
         <source>Me&amp;rcurial</source>
@@ -12569,9 +12544,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Message check failed. Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -12621,23 +12593,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation> с</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Команда Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation type="unfinished"></translation>
@@ -12650,9 +12612,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Revision:</source>
         <translation>Ревізія:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Діалог</translation>
@@ -36445,11 +36404,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Діалог</translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>User name:</source>
         <translation type="vanished">Ім&apos;я користувача:</translation>
@@ -42314,11 +42269,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizardFactory</name>
-    <message>
-        <source>Clones a Mercurial repository and tries to load the contained project.</source>
-        <translation type="vanished">Клонує сховище Mercurial та намагається завантажити з нього проект.</translation>
-    </message>
+    <name>Mercurial</name>
 </context>
 <context>
     <name>ProjectExplorer::DeploymentDataModel</name>
@@ -47562,7 +47513,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation type="unfinished"></translation>

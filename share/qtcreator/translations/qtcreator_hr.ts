@@ -5027,7 +5027,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
+    <name>Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -5040,9 +5040,6 @@ Greška: %5</translation>
         <source>Password:</source>
         <translation>Lozinka:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Opće informacije</translation>
@@ -5075,9 +5072,6 @@ Greška: %5</translation>
         <source>Email:</source>
         <translation>E-pošta:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -5127,13 +5121,6 @@ Greška: %5</translation>
         <translation>Broj zapisa:</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
-    <message>
         <source>Revert</source>
         <translation>Vrati natrag</translation>
     </message>
@@ -5144,13 +5131,6 @@ Greška: %5</translation>
     <message>
         <source>Revision:</source>
         <translation>Revizija:</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dijalog</translation>
     </message>
     <message>
         <source>Default Location</source>
@@ -26913,14 +26893,11 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CommitEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation type="unfinished"></translation>
@@ -26945,16 +26922,10 @@ Rok upotrebe: %3</translation>
         <source>Mercurial Diff &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
     <message>
         <source>Mercurial</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation type="unfinished"></translation>
@@ -26963,9 +26934,6 @@ Rok upotrebe: %3</translation>
         <source>Annotate &amp;parent revision %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation type="unfinished"></translation>
@@ -27134,9 +27102,6 @@ Rok upotrebe: %3</translation>
         <source>Commit changes for &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Mercurial naredba</translation>

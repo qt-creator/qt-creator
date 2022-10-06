@@ -19,8 +19,6 @@ namespace Mercurial::Internal {
 
 class SrcDestDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     enum Direction { outgoing, incoming };
 

@@ -10,8 +10,7 @@
 
 namespace VcsBase { class SubmitFileModel; }
 
-namespace Mercurial {
-namespace Internal {
+namespace Mercurial::Internal {
 
 class MercurialCommitWidget;
 
@@ -26,13 +25,12 @@ public:
                    const QString &userName, const QString &email,
                    const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus);
 
-    QString committerInfo();
-    QString repoRoot();
+    QString committerInfo() const;
+    QString repoRoot() const;
 
 private:
-    MercurialCommitWidget *commitWidget();
+    MercurialCommitWidget *commitWidget() const;
     VcsBase::SubmitFileModel *fileModel = nullptr;
 };
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

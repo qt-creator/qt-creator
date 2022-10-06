@@ -4,8 +4,7 @@
 #include "annotationhighlighter.h"
 #include "constants.h"
 
-namespace Mercurial {
-namespace Internal  {
+namespace Mercurial::Internal {
 
 MercurialAnnotationHighlighter::MercurialAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                                QTextDocument *document)
@@ -22,5 +21,4 @@ QString MercurialAnnotationHighlighter::changeNumber(const QString &block) const
     return QString();
 }
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

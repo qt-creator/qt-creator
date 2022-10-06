@@ -13,8 +13,6 @@ namespace Mercurial::Internal {
 
 class RevertDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     RevertDialog(QWidget *parent = nullptr);
     ~RevertDialog() override;

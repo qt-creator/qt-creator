@@ -7,14 +7,12 @@
 
 #include <QRegularExpression>
 
-namespace Mercurial {
-namespace Internal {
+namespace Mercurial::Internal {
 
 class MercurialClient;
 
 class MercurialEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
-    Q_OBJECT
 public:
     explicit MercurialEditorWidget(MercurialClient *client);
 
@@ -32,5 +30,4 @@ private:
     MercurialClient *m_client;
 };
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

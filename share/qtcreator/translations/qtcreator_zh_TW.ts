@@ -11870,7 +11870,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
@@ -11903,9 +11903,6 @@ Reason: %2</source>
         <source>Email:</source>
         <translation>電子郵件：</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -11966,9 +11963,6 @@ Reason: %2</source>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>要顯示的最近提交的紀錄數。選擇 0 表示看全部的紀錄。</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>復原</translation>
@@ -11981,9 +11975,6 @@ Reason: %2</source>
         <source>Revision:</source>
         <translation>版本：</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -12101,7 +12092,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation>複製一個 Mercurial 主目錄，並試著載入裡面包含的專案。</translation>
@@ -12110,9 +12101,6 @@ Reason: %2</source>
         <source>Mercurial Clone</source>
         <translation>Mercurial 複製</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -12125,16 +12113,10 @@ Reason: %2</source>
         <source>Clone URL:</source>
         <translation>複製網址：</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>提交編輯器</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>無法在 %2 找到 %1 的父版本：%3</translation>
@@ -12150,20 +12132,6 @@ Reason: %2</source>
     <message>
         <source>Hg outgoing %1</source>
         <translation>Hg 傳出 %1</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -12361,9 +12329,6 @@ Reason: %2</source>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>訊息檢查失敗。您要繼續嗎？</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Mercurial 指令</translation>
@@ -13286,7 +13251,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Annotate %1</source>
         <translation>最後註記 %1</translation>
@@ -22378,7 +22343,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>

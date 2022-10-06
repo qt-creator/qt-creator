@@ -13,8 +13,6 @@ namespace Mercurial::Internal {
 
 class AuthenticationDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit AuthenticationDialog(const QString &username, const QString &password,
                                   QWidget *parent = nullptr);

@@ -20641,7 +20641,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
+    <name>Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -20654,16 +20654,10 @@ Fejl: %5</translation>
         <source>Password:</source>
         <translation>Adgangskode:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Commit-redigering</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Kunne ikke finde forælder revisioner af %1 i %2: %3</translation>
@@ -20680,9 +20674,6 @@ Fejl: %5</translation>
         <source>Hg outgoing %1</source>
         <translation>Hg udgående %1</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Generel information</translation>
@@ -20715,16 +20706,10 @@ Fejl: %5</translation>
         <source>Email:</source>
         <translation>E-mail:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
     <message>
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignorer blanktegn</translation>
@@ -20733,9 +20718,6 @@ Fejl: %5</translation>
         <source>Ignore Blank Lines</source>
         <translation>Ignorer tomme linjer</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>&amp;Annotate %1</translation>
@@ -20744,9 +20726,6 @@ Fejl: %5</translation>
         <source>Annotate &amp;parent revision %1</source>
         <translation>Annotate &amp;forælder revision %1</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation>Me&amp;rcurial</translation>
@@ -20943,9 +20922,6 @@ Fejl: %5</translation>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>Meddelelsestjek mislykkedes. Vil du fortsætte?</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -20995,19 +20971,9 @@ Fejl: %5</translation>
         <translation>Log antal:</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
-    <message>
         <source>Mercurial Command</source>
         <translation>Mercurial-kommando</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Tilbagefør</translation>
@@ -21019,13 +20985,6 @@ Fejl: %5</translation>
     <message>
         <source>Revision:</source>
         <translation>Revision:</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
     </message>
     <message>
         <source>Default Location</source>

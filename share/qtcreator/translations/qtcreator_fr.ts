@@ -21302,7 +21302,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Informations générales</translation>
@@ -21335,9 +21335,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Email:</source>
         <translation>Email :</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -21395,16 +21392,9 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <translation>Invite lors du submit</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>Le nombre de logs de commit récents à afficher, 0 pour tout afficher. </translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Rétablir</translation>
@@ -21417,9 +21407,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Revision:</source>
         <translation>Révision :</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -24738,7 +24725,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Cloning</source>
         <translation>Cloner</translation>
@@ -24755,9 +24742,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Mercurial Clone</source>
         <translation>Clone de Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -24770,16 +24754,10 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Clone URL:</source>
         <translation>URL de clone :</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Faire un commit de l&apos;éditeur</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Impossible de trouver la révision parente de %1 dans %2 : %3</translation>
@@ -24812,16 +24790,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Working...</source>
         <translation type="obsolete">Travail en cours...</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditor</name>
     <message>
         <source>Annotate %1</source>
         <translation>Annoter %1</translation>
@@ -24830,9 +24798,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Annotate parent revision %1</source>
         <translation>Annoter la révision parente %1</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialJobRunner</name>
     <message>
         <source>Executing: %1 %2
 </source>
@@ -24847,9 +24812,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
         <translation type="obsolete">Interruption après %1s d&apos;attente que le processus mercurial se termine.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Mercurial</source>
         <translation type="obsolete">Mercurial</translation>
@@ -25066,9 +25028,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>Vérification du message échouée. Voulez-vous continuer ?</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Commande Mercurial</translation>
@@ -38664,7 +38623,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -50983,11 +50942,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Boîte de dialogue</translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>User name:</source>
         <translation>Nom d&apos;utilisateur :</translation>

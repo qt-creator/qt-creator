@@ -3,6 +3,8 @@
 
 #include "mercurialcommitwidget.h"
 
+#include "mercurialtr.h"
+
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -12,22 +14,13 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QLabel>
+#include <QLineEdit>
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
 
 //see the git submit widget for details of the syntax Highlighter
-
-#include <QtCore/QVariant>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QFormLayout>
-#include <QtWidgets/QGroupBox>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QWidget>
 
 namespace Mercurial::Internal {
 
@@ -99,8 +92,6 @@ void MercurialSubmitHighlighter::highlightBlock(const QString &text)
 
 class MercurialCommitPanel : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Mercurial::Internal::MercurialCommitPanel)
-
 public:
     MercurialCommitPanel()
     {
@@ -114,18 +105,18 @@ public:
 
         Column {
             Group {
-                title(tr("General Information")),
+                title(Tr::tr("General Information")),
                 Form {
-                    tr("Repository:"), m_repositoryLabel, br,
-                    tr("Branch:"), m_branchLabel,
+                    Tr::tr("Repository:"), m_repositoryLabel, br,
+                    Tr::tr("Branch:"), m_branchLabel,
                 }
             },
             Group {
-                title(tr("Commit Information")),
+                title(Tr::tr("Commit Information")),
                 Row {
                     Form {
-                        tr("Author:"), m_authorLineEdit, br,
-                        tr("Email:"), m_emailLineEdit,
+                        Tr::tr("Author:"), m_authorLineEdit, br,
+                        Tr::tr("Email:"), m_emailLineEdit,
                     },
                 }
             }

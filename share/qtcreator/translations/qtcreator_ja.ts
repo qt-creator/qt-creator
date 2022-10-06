@@ -3836,7 +3836,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
+    <name>Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -3849,9 +3849,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Username:</source>
         <translation>ユーザー名:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>概要</translation>
@@ -3884,9 +3881,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Email:</source>
         <translation>メールアドレス:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -3943,9 +3937,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>元に戻す</translation>
@@ -3957,13 +3948,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Revision:</source>
         <translation>リビジョン:</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Default Location</source>
@@ -22288,14 +22272,11 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CommitEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation>コミットエディタ</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>%2 (リビジョン: %1) の親リビジョンが見つかりません: %3</translation>
@@ -22320,9 +22301,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Mercurial Diff &quot;%1&quot;</source>
         <translation>Mercurial 差分 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>空白を無視</translation>
@@ -22331,16 +22309,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Ignore Blank Lines</source>
         <translation>空行を無視</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation>Me&amp;rcurial</translation>
@@ -22498,10 +22466,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation>サーバーとの差分検出</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-    <message>
         <source>Commit</source>
         <translation>コミット</translation>
     </message>
@@ -22541,16 +22505,9 @@ instead of its installation directory when run outside git bash.</source>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>メッセージチェックに失敗しました。続けて処理しますか？</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Mercurial コマンド</translation>
-    </message>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
     </message>
 </context>
 <context>
@@ -42101,7 +42058,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>%1 のアノテーション(&amp;A)</translation>

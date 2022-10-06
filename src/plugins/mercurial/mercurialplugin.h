@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Mercurial {
-namespace Internal {
+namespace Mercurial::Internal {
 
 class MercurialPlugin final : public ExtensionSystem::IPlugin
 {
@@ -27,5 +26,4 @@ private slots:
 
 };
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

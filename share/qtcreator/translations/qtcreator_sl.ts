@@ -13696,7 +13696,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
@@ -13736,9 +13736,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <source>Email:</source>
         <translation>E-pošta:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -13812,9 +13809,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Povrni</translation>
@@ -13829,9 +13823,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <source>Revision:</source>
         <translation>Revizija:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -16034,7 +16025,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation>Sklonira skladišče Mercurial in poskusi naložiti vsebovani projekt.</translation>
@@ -16043,9 +16034,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Mercurial Clone</source>
         <translation>Klon skladišča Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -16058,16 +16046,10 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Clone URL:</source>
         <translation>URL za kloniranje:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Urejevalnik zapisov</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Ni moč najti starševskih revizij za %1 v %2: %3</translation>
@@ -16100,16 +16082,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Working...</source>
         <translation type="obsolete">Delam …</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditor</name>
     <message>
         <source>Annotate %1</source>
         <translation>Dodaj opombo za %1</translation>
@@ -16117,13 +16089,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <message>
         <source>Annotate parent revision %1</source>
         <translation>Dodaj opombo za starševsko revizijo %1</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -16317,9 +16282,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Close commit editor</source>
         <translation type="obsolete">Zapri urejevalnik za zapise</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Ukaz Mercurial</translation>
@@ -24616,7 +24578,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
@@ -32237,7 +32199,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialJobRunner</name>
+    <name>Mercurial</name>
     <message>
         <source>Executing: %1 %2
 </source>

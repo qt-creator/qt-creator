@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "authenticationdialog.h"
+
+#include "mercurialtr.h"
 #include "srcdestdialog.h"
 
 #include <utils/layoutbuilder.h>
@@ -25,13 +27,13 @@ SrcDestDialog::SrcDestDialog(const VcsBasePluginState &state, Direction dir, QWi
 {
     resize(400, 187);
 
-    m_defaultButton = new QRadioButton(tr("Default Location"));
+    m_defaultButton = new QRadioButton(Tr::tr("Default Location"));
     m_defaultButton->setChecked(true);
 
-    m_localButton = new QRadioButton(tr("Local filesystem:"));
+    m_localButton = new QRadioButton(Tr::tr("Local filesystem:"));
 
-    auto urlButton = new QRadioButton(tr("Specify URL:"));
-    urlButton->setToolTip(tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
+    auto urlButton = new QRadioButton(Tr::tr("Specify URL:"));
+    urlButton->setToolTip(Tr::tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
 
     m_localPathChooser = new Utils::PathChooser;
     m_localPathChooser->setEnabled(false);
@@ -39,14 +41,14 @@ SrcDestDialog::SrcDestDialog(const VcsBasePluginState &state, Direction dir, QWi
     m_localPathChooser->setHistoryCompleter("Hg.SourceDir.History");
 
     m_urlLineEdit = new QLineEdit;
-    m_urlLineEdit->setToolTip(tr("For example: 'https://[user[:pass]@]host[:port]/[path]'.", nullptr));
+    m_urlLineEdit->setToolTip(Tr::tr("For example: 'https://[user[:pass]@]host[:port]/[path]'.", nullptr));
     m_urlLineEdit->setEnabled(false);
 
     QUrl repoUrl = getRepoUrl();
     if (!repoUrl.password().isEmpty())
         repoUrl.setPassword(QLatin1String("***"));
 
-    m_promptForCredentials = new QCheckBox(tr("Prompt for credentials"));
+    m_promptForCredentials = new QCheckBox(Tr::tr("Prompt for credentials"));
     m_promptForCredentials->setChecked(!repoUrl.scheme().isEmpty() && repoUrl.scheme() != QLatin1String("file"));
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);

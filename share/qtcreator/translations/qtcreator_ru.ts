@@ -26411,11 +26411,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation></translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>Password:</source>
         <translation>Пароль:</translation>
@@ -26424,16 +26420,10 @@ Error: %5</translation>
         <source>Username:</source>
         <translation>Имя пользователя:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Редактор фиксаций</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Не удалось найти родительскую ревизию для %1 в %2: %3</translation>
@@ -26458,9 +26448,6 @@ Error: %5</translation>
         <source>Mercurial Diff &quot;%1&quot;</source>
         <translation>Сравнение Mercurial «%1»</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Основная информация</translation>
@@ -26493,9 +26480,6 @@ Error: %5</translation>
         <source>Email:</source>
         <translation>Email:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>&amp;Аннотация %1</translation>
@@ -26504,9 +26488,6 @@ Error: %5</translation>
         <source>Annotate &amp;parent revision %1</source>
         <translation>Аннотация &amp;родительской ревизии %1</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation>Me&amp;rcurial</translation>
@@ -26679,9 +26660,6 @@ Error: %5</translation>
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Настройка</translation>
@@ -26731,20 +26709,10 @@ Error: %5</translation>
         <translation>Количество отображаемых последних сообщений о фиксации,
 выберите 0, чтобы видеть все.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Команда Mercurial</translation>
     </message>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Откатить</translation>
@@ -26757,9 +26725,6 @@ Error: %5</translation>
         <source>Revision:</source>
         <translation>Ревизия:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Диалог</translation>

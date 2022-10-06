@@ -21107,7 +21107,7 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Obecné informace</translation>
@@ -21140,9 +21140,6 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <source>Email:</source>
         <translation>E-mailová adresa:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -21200,16 +21197,9 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <translation>Ptát se na potvrzení</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>Počet nedávných záznamů které se vypisují v historii změn. Při volbě 0 budou vidět všechny záznamy.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Vrátit</translation>
@@ -21222,9 +21212,6 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <source>Revision:</source>
         <translation>Revize:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -24663,7 +24650,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Cloning</source>
         <translation>Klonování</translation>
@@ -24680,9 +24667,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Mercurial Clone</source>
         <translation>Klon Mercurialu</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -24695,16 +24679,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Clone URL:</source>
         <translation>Klonovat z adresy (URL):</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Editor zápisu (commit)</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Nadřazenou revizi %1 ve skladišti %2 se nepodařilo určit: %3</translation>
@@ -24737,16 +24715,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Working...</source>
         <translation type="obsolete">Pracuje...</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditor</name>
     <message>
         <source>Annotate %1</source>
         <translation>Vypsat anotace pro %1</translation>
@@ -24755,9 +24723,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Annotate parent revision %1</source>
         <translation>Vypsat anotace nadřazené revize &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialJobRunner</name>
     <message>
         <source>Executing: %1 %2
 </source>
@@ -24772,9 +24737,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
         <translation type="obsolete">Překročení času %1s při čekání na ukončení Procesu Mercurialu.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Mercurial</source>
         <translation type="obsolete">Mercurial</translation>
@@ -24991,9 +24953,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>Ověření popisu se nezdařilo. Přesto chcete pokračovat?</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Příkaz &apos;Mercurial&apos;</translation>
@@ -35134,7 +35093,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -55320,11 +55279,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>User name:</source>
         <translation>Uživatelské jméno:</translation>
