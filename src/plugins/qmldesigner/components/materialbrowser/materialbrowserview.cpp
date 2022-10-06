@@ -39,6 +39,7 @@
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <qmldesignerconstants.h>
+#include <utils/algorithm.h>
 
 #include <QQuickItem>
 #include <QRegularExpression>
@@ -145,10 +146,10 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         connect(matBrowserBundleModel, &MaterialBrowserBundleModel::applyToSelectedTriggered, this,
                 [&] (BundleMaterial *bundleMat, bool add) {
-            if (!m_selectedModel.isValid())
+            if (m_selectedModels.isEmpty())
                 return;
 
-            m_bundleMaterialDropTarget = m_selectedModel;
+            m_bundleMaterialTargets = m_selectedModels;
             m_bundleMaterialAddToSelected = add;
 
             ModelNode defaultMat = getBundleMaterialDefaultInstance(bundleMat->type());
@@ -201,40 +202,42 @@ void MaterialBrowserView::applyBundleMaterialToDropTarget(const ModelNode &bundl
             newMatNode = bundleMat;
         }
 
-        if (m_bundleMaterialDropTarget.isValid()
-                && m_bundleMaterialDropTarget.isSubclassOf("QtQuick3D.Model")) {
-            QmlObjectNode qmlObjNode(m_bundleMaterialDropTarget);
-            if (m_bundleMaterialAddToSelected) {
-                // TODO: unify this logic as it exist elsewhere also
-                auto expToList = [](const QString &exp) {
-                    QString copy = exp;
-                    copy = copy.remove("[").remove("]");
+        // TODO: unify this logic as it exist elsewhere also
+        auto expToList = [](const QString &exp) {
+            QString copy = exp;
+            copy = copy.remove("[").remove("]");
 
-                    QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
-                    for (QString &str : tmp)
-                        str = str.trimmed();
+            QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
+            for (QString &str : tmp)
+                str = str.trimmed();
 
-                    return tmp;
-                };
+            return tmp;
+        };
 
-                auto listToExp = [](QStringList &stringList) {
-                    if (stringList.size() > 1)
-                        return QString("[" + stringList.join(",") + "]");
+        auto listToExp = [](QStringList &stringList) {
+            if (stringList.size() > 1)
+                return QString("[" + stringList.join(",") + "]");
 
-                    if (stringList.size() == 1)
-                        return stringList.first();
+            if (stringList.size() == 1)
+                return stringList.first();
 
-                    return QString();
-                };
-                QStringList matList = expToList(qmlObjNode.expression("materials"));
-                matList.append(newMatNode.id());
-                QString updatedExp = listToExp(matList);
-                qmlObjNode.setBindingProperty("materials", updatedExp);
-            } else {
-                qmlObjNode.setBindingProperty("materials", newMatNode.id());
+            return QString();
+        };
+
+        for (const ModelNode &target : std::as_const(m_bundleMaterialTargets)) {
+            if (target.isValid() && target.isSubclassOf("QtQuick3D.Model")) {
+                QmlObjectNode qmlObjNode(target);
+                if (m_bundleMaterialAddToSelected) {
+                    QStringList matList = expToList(qmlObjNode.expression("materials"));
+                    matList.append(newMatNode.id());
+                    QString updatedExp = listToExp(matList);
+                    qmlObjNode.setBindingProperty("materials", updatedExp);
+                } else {
+                    qmlObjNode.setBindingProperty("materials", newMatNode.id());
+                }
             }
 
-            m_bundleMaterialDropTarget = {};
+            m_bundleMaterialTargets = {};
             m_bundleMaterialAddToSelected = false;
         }
     });
@@ -301,24 +304,20 @@ void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedN
 {
     Q_UNUSED(lastSelectedNodeList)
 
-    m_selectedModel = {};
+    m_selectedModels = Utils::filtered(selectedNodeList, [](const ModelNode &node) {
+        return node.isSubclassOf("QtQuick3D.Model");
+    });
 
-    for (const ModelNode &node : selectedNodeList) {
-        if (node.isSubclassOf("QtQuick3D.Model")) {
-            m_selectedModel = node;
-            break;
-        }
-    }
+    m_widget->materialBrowserModel()->setHasModelSelection(!m_selectedModels.isEmpty());
 
-    m_widget->materialBrowserModel()->setHasModelSelection(m_selectedModel.isValid());
-
+    // the logic below selects the material of the first selected model if auto selection is on
     if (!m_autoSelectModelMaterial)
         return;
 
-    if (selectedNodeList.size() > 1 || !m_selectedModel.isValid())
+    if (selectedNodeList.size() > 1 || m_selectedModels.isEmpty())
         return;
 
-    QmlObjectNode qmlObjNode(m_selectedModel);
+    QmlObjectNode qmlObjNode(m_selectedModels.at(0));
     QString matExp = qmlObjNode.expression("materials");
     if (matExp.isEmpty())
         return;
@@ -478,7 +477,7 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
     } else if (identifier == "delete_selected_material") {
         m_widget->materialBrowserModel()->deleteSelectedMaterial();
     } else if (identifier == "drop_bundle_material") {
-        m_bundleMaterialDropTarget = nodeList.first();
+        m_bundleMaterialTargets = nodeList;
 
         ModelNode defaultMat = getBundleMaterialDefaultInstance(m_draggedBundleMaterial->type());
         if (defaultMat.isValid())
