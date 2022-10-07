@@ -37,8 +37,12 @@ public:
         rpp.setConfigFileName(projectConfigFile);
         ToolChainInfo tcInfo;
         tcInfo.type = toolchainType;
-        tcInfo.wordWidth = 64;
         tcInfo.targetTriple = targetTriple;
+        tcInfo.abi = Abi::fromString(targetTriple);
+        if (!tcInfo.abi.isValid()) {
+            tcInfo.abi = Abi(Abi::X86Architecture, Abi::DarwinOS, Abi::FreeBsdFlavor,
+                             Abi::MachOFormat, 64);
+        }
         tcInfo.isMsvc2015ToolChain = isMsvc2015;
         tcInfo.extraCodeModelFlags = extraFlags;
         tcInfo.macroInspectionRunner = [this](const QStringList &) {

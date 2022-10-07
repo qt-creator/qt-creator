@@ -141,7 +141,7 @@ public:
     Utils::Id type;
     bool isMsvc2015ToolChain = false;
     bool targetTripleIsAuthoritative = false;
-    unsigned wordWidth = 0;
+    Abi abi;
     QString targetTriple;
     Utils::FilePath compilerFilePath;
     Utils::FilePath installDir;

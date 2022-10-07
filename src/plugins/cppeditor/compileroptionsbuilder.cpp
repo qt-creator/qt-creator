@@ -227,7 +227,9 @@ QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
 
 void CompilerOptionsBuilder::addWordWidth()
 {
-    const QString argument = m_projectPart.toolChainWordWidth == ProjectPart::WordWidth64Bit
+    if (m_projectPart.toolChainAbi.architecture() != Abi::X86Architecture)
+        return;
+    const QString argument = m_projectPart.toolChainAbi.wordWidth() == 64
                                  ? QLatin1String("-m64")
                                  : QLatin1String("-m32");
     add(argument);

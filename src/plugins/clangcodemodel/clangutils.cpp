@@ -78,9 +78,8 @@ static QStringList projectPartArguments(const ProjectPart &projectPart)
     args << "-c";
     if (projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
         args << "--target=" + projectPart.toolChainTargetTriple;
-        args << (projectPart.toolChainWordWidth == ProjectPart::WordWidth64Bit
-                     ? QLatin1String("-m64")
-                     : QLatin1String("-m32"));
+        if (projectPart.toolChainAbi.architecture() == Abi::X86Architecture)
+            args << QLatin1String(projectPart.toolChainAbi.wordWidth() == 64 ? "-m64" : "-m32");
     }
     args << projectPart.compilerFlags;
     for (const ProjectExplorer::HeaderPath &headerPath : projectPart.headerPaths) {
