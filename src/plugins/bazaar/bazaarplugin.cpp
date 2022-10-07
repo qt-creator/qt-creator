@@ -865,7 +865,7 @@ void BazaarPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     m_revertFile->setParameter(filename);
     m_statusFile->setParameter(filename);
 
-    for (QAction *repoAction : qAsConst(m_repositoryActionList))
+    for (QAction *repoAction : std::as_const(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
 }
 

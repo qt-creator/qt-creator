@@ -96,7 +96,7 @@ bool SettingsPageProvider::matches(const QRegularExpression &regex) const
         for (size_t i = 0; i < itemCount; ++i)
             m_keywords << Utils::stripAccelerator(QCoreApplication::translate(uitext[i].context, uitext[i].value));
     }
-    for (const QString &key : qAsConst(m_keywords)) {
+    for (const QString &key : std::as_const(m_keywords)) {
         if (key.contains(regex))
             return true;
     }

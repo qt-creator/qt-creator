@@ -104,7 +104,7 @@ private:
                     [](const CustomParserSettings &s1, const CustomParserSettings &s2) {
             return s1.displayName < s2.displayName;
         });
-        for (const CustomParserSettings &s : qAsConst(m_customParsers)) {
+        for (const CustomParserSettings &s : std::as_const(m_customParsers)) {
             const auto item = new QListWidgetItem(s.displayName);
             item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
             m_parserListView.addItem(item);

@@ -123,13 +123,13 @@ void DriverSelectionModel::fillDrivers(const FilePath &toolsIniFile,
     if (!collectCpuDllsAndDrivers(&f, allCpuDlls, allDrivers))
         return;
 
-    for (const Dll &dll : qAsConst(allDrivers)) {
+    for (const Dll &dll : std::as_const(allDrivers)) {
         if (!supportedDrivers.contains(dll.path))
             continue;
         const auto item = new DriverSelectionItem(dll.index);
         item->m_dll = dll.path;
         item->m_name = dll.content;
-        for (const Dll &cpu : qAsConst(allCpuDlls)) {
+        for (const Dll &cpu : std::as_const(allCpuDlls)) {
             const QStringList mnemonics = cpu.content.split(',');
             if (mnemonics.contains(dll.mnemonic))
                 item->m_cpuDlls.push_back(cpu.path);

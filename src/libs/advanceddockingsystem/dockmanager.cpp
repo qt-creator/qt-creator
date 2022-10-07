@@ -106,13 +106,13 @@ namespace ADS
         void hideFloatingWidgets()
         {
             // Hide updates of floating widgets from user
-            for (auto floatingWidget : qAsConst(m_floatingWidgets))
+            for (auto floatingWidget : std::as_const(m_floatingWidgets))
                 floatingWidget->hide();
         }
 
         void markDockWidgetsDirty()
         {
-            for (auto dockWidget : qAsConst(m_dockWidgetsMap))
+            for (auto dockWidget : std::as_const(m_dockWidgetsMap))
                 dockWidget->setProperty("dirty", true);
         }
 
@@ -216,7 +216,7 @@ namespace ADS
         // function are invisible to the user now and have no assigned dock area
         // They do not belong to any dock container, until the user toggles the
         // toggle view action the next time
-        for (auto dockWidget : qAsConst(m_dockWidgetsMap)) {
+        for (auto dockWidget : std::as_const(m_dockWidgetsMap)) {
             if (dockWidget->property(internal::dirtyProperty).toBool()) {
                 dockWidget->flagAsUnassigned();
                 emit dockWidget->viewToggled(false);
@@ -233,7 +233,7 @@ namespace ADS
         // The dock areas because the previous toggleView() action has changed
         // the dock area index
         int count = 0;
-        for (auto dockContainer : qAsConst(m_containers)) {
+        for (auto dockContainer : std::as_const(m_containers)) {
             count++;
             for (int i = 0; i < dockContainer->dockAreaCount(); ++i) {
                 DockAreaWidget *dockArea = dockContainer->dockArea(i);
@@ -259,7 +259,7 @@ namespace ADS
     {
         // Finally we need to send the topLevelChanged() signals for all dock
         // widgets if top level changed
-        for (auto dockContainer : qAsConst(m_containers)) {
+        for (auto dockContainer : std::as_const(m_containers)) {
             DockWidget *topLevelDockWidget = dockContainer->topLevelDockWidget();
             if (topLevelDockWidget) {
                 topLevelDockWidget->emitTopLevelChanged(true);
@@ -329,7 +329,7 @@ namespace ADS
         // Using a temporal vector since the destructor of
         // FloatingDockWidgetContainer alters d->m_floatingWidgets.
         std::vector<FloatingDockContainer *> aboutToDeletes;
-        for (auto floatingWidget : qAsConst(d->m_floatingWidgets)) {
+        for (auto floatingWidget : std::as_const(d->m_floatingWidgets)) {
             if (floatingWidget)
                 aboutToDeletes.push_back(floatingWidget);
         }
@@ -483,7 +483,7 @@ namespace ADS
         stream.writeAttribute("version", QString::number(CurrentVersion));
         stream.writeAttribute("userVersion", QString::number(version));
         stream.writeAttribute("containers", QString::number(d->m_containers.count()));
-        for (auto container : qAsConst(d->m_containers))
+        for (auto container : std::as_const(d->m_containers))
             container->saveState(stream);
 
         stream.writeEndElement();
@@ -527,7 +527,7 @@ namespace ADS
         if (d->m_uninitializedFloatingWidgets.empty())
             return;
 
-        for (auto floatingWidget : qAsConst(d->m_uninitializedFloatingWidgets))
+        for (auto floatingWidget : std::as_const(d->m_uninitializedFloatingWidgets))
             floatingWidget->show();
 
         d->m_uninitializedFloatingWidgets.clear();

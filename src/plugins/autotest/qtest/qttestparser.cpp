@@ -163,7 +163,7 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
         }
     }
 
-    for (const CPlusPlus::LookupItem &item : qAsConst(lookupItems)) {
+    for (const CPlusPlus::LookupItem &item : std::as_const(lookupItems)) {
         if (CPlusPlus::Symbol *symbol = item.declaration()) {
             if (CPlusPlus::Class *toeClass = symbol->asClass()) {
                 const QString declFileName = QLatin1String(toeClass->fileId()->chars(),

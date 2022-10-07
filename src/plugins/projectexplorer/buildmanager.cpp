@@ -508,7 +508,7 @@ void BuildManager::emitCancelMessage()
 
 void BuildManager::clearBuildQueue()
 {
-    for (BuildStep *bs : qAsConst(d->m_buildQueue)) {
+    for (BuildStep *bs : std::as_const(d->m_buildQueue)) {
         decrementActiveBuildSteps(bs);
         disconnectOutput(bs);
     }

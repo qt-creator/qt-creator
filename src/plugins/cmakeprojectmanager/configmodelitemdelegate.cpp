@@ -44,7 +44,7 @@ QWidget *ConfigModelItemDelegate::createEditor(QWidget *parent, const QStyleOpti
             edit->setAttribute(Qt::WA_MacSmallSize);
             edit->setFocusPolicy(Qt::StrongFocus);
             edit->setAutoFillBackground(true);
-            for (const QString &s : qAsConst(data.values))
+            for (const QString &s : std::as_const(data.values))
                 edit->addItem(s);
             return edit;
         } else if (data.type == ConfigModel::DataItem::BOOLEAN) {

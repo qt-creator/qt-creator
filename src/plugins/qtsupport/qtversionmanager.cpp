@@ -242,7 +242,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Existing Qt versions =======";
-        for (QtVersion *version : qAsConst(m_versions)) {
+        for (QtVersion *version : std::as_const(m_versions)) {
             qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:"<<version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
@@ -318,7 +318,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Before removing outdated sdk versions =======";
-        for (QtVersion *version : qAsConst(m_versions)) {
+        for (QtVersion *version : std::as_const(m_versions)) {
             qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:" << version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
@@ -337,7 +337,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 
     if (log().isDebugEnabled()) {
         qCDebug(log)<< "======= End result =======";
-        for (QtVersion *version : qAsConst(m_versions)) {
+        for (QtVersion *version : std::as_const(m_versions)) {
             qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:" << version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
@@ -356,7 +356,7 @@ static void saveQtVersions()
     data.insert(QTVERSION_FILE_VERSION_KEY, 1);
 
     int count = 0;
-    for (QtVersion *qtv : qAsConst(m_versions)) {
+    for (QtVersion *qtv : std::as_const(m_versions)) {
         QVariantMap tmp = qtv->toMap();
         if (tmp.isEmpty())
             continue;
@@ -417,7 +417,7 @@ static void findSystemQt()
     FilePaths systemQMakes
             = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
     systemQMakes.append(gatherQmakePathsFromQtChooser());
-    for (const FilePath &qmakePath : qAsConst(systemQMakes)) {
+    for (const FilePath &qmakePath : std::as_const(systemQMakes)) {
         if (BuildableHelperLibrary::isQtChooser(qmakePath))
             continue;
         const auto isSameQmake = [qmakePath](const QtVersion *version) {

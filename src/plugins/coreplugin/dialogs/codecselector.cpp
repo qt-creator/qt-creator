@@ -55,15 +55,15 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     QList<int> mibs = QTextCodec::availableMibs();
     Utils::sort(mibs);
     QList<int> sortedMibs;
-    for (const int mib : qAsConst(mibs))
+    for (const int mib : std::as_const(mibs))
         if (mib >= 0)
             sortedMibs += mib;
-    for (const int mib : qAsConst(mibs))
+    for (const int mib : std::as_const(mibs))
         if (mib < 0)
             sortedMibs += mib;
 
     int currentIndex = -1;
-    for (const int mib : qAsConst(sortedMibs)) {
+    for (const int mib : std::as_const(sortedMibs)) {
         QTextCodec *c = QTextCodec::codecForMib(mib);
         if (!doc->supportsCodec(c))
             continue;

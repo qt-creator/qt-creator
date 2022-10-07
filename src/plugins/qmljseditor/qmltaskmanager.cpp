@@ -71,7 +71,7 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
             context = link(&linkMessages);
         }
 
-        for (const Utils::FilePath &fileName : qAsConst(info.sourceFiles)) {
+        for (const Utils::FilePath &fileName : std::as_const(info.sourceFiles)) {
             Document::Ptr document = snapshot.document(fileName);
             if (!document)
                 continue;

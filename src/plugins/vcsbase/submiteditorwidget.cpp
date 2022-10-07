@@ -621,7 +621,7 @@ void SubmitEditorWidget::descriptionTextChanged()
     wrapDescription();
     trimDescription();
     // append field entries
-    for (const SubmitFieldWidget *fw : qAsConst(d->m_fieldWidgets))
+    for (const SubmitFieldWidget *fw : std::as_const(d->m_fieldWidgets))
         d->m_description += fw->fieldValues();
     updateSubmitAction();
 }
@@ -713,7 +713,7 @@ void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
     QScopedPointer<QMenu> menu(d->description->createStandardContextMenu());
     // Extend
     for (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a :
-         qAsConst(d->descriptionEditContextMenuActions)) {
+         std::as_const(d->descriptionEditContextMenuActions)) {
         if (a.second) {
             if (a.first >= 0)
                 menu->insertAction(menu->actions().at(a.first), a.second);

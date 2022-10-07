@@ -227,7 +227,7 @@ void PythonBuildSystem::triggerParsing()
     QList<BuildTargetInfo> appTargets;
 
     auto newRoot = std::make_unique<PythonProjectNode>(projectDirectory());
-    for (const QString &f : qAsConst(m_files)) {
+    for (const QString &f : std::as_const(m_files)) {
         const QString displayName = baseDir.relativeFilePath(f);
         const FilePath filePath = FilePath::fromString(f);
         const FileType fileType = getFileType(filePath);
@@ -252,7 +252,7 @@ void PythonBuildSystem::triggerParsing()
     if (modelManager) {
         auto projectInfo = modelManager->defaultProjectInfoForProject(project());
 
-        for (const QString &importPath : qAsConst(m_qmlImportPaths)) {
+        for (const QString &importPath : std::as_const(m_qmlImportPaths)) {
             const FilePath filePath = FilePath::fromString(importPath);
             projectInfo.importPaths.maybeInsert(filePath, QmlJS::Dialect::Qml);
         }

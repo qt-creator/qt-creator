@@ -113,7 +113,7 @@ void BindingEditorDialog::setupComboBoxes()
     m_comboBoxItem->clear();
     m_comboBoxProperty->clear();
 
-    for (const auto &bind : qAsConst(m_bindings))
+    for (const auto &bind : std::as_const(m_bindings))
         m_comboBoxItem->addItem(bind.item);
 }
 

@@ -269,7 +269,7 @@ QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QByteArray &typeNa
 {
     QList<ItemLibraryEntry> entries;
 
-    for (const ItemLibraryEntry &entry : qAsConst(m_nameToEntryHash)) {
+    for (const ItemLibraryEntry &entry : std::as_const(m_nameToEntryHash)) {
         if (entry.typeName() == typeName)
             entries += entry;
     }

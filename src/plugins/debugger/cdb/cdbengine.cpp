@@ -991,7 +991,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 }
                 QTC_CHECK(argumentSplitPos == arguments.size());
                 int tokenPart = splittedArguments.size();
-                for (QStringView part : qAsConst(splittedArguments))
+                for (QStringView part : std::as_const(splittedArguments))
                     str << prefix << " -t " << token << '.' << --tokenPart << ' ' << part << '\n';
             } else {
                 cmd = prefix;
@@ -2019,7 +2019,7 @@ void CdbEngine::handleSessionIdle(const QString &message)
                elapsedLogTime(), qPrintable(message),
                qPrintable(stateName(state())));
 
-    for (const InterruptCallback &callback : qAsConst(m_interrupCallbacks))
+    for (const InterruptCallback &callback : std::as_const(m_interrupCallbacks))
         callback();
     m_interrupCallbacks.clear();
 

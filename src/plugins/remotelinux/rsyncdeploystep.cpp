@@ -109,7 +109,7 @@ void RsyncDeployService::doDeploy()
 void RsyncDeployService::createRemoteDirectories()
 {
     QStringList remoteDirs;
-    for (const FileToTransfer &file : qAsConst(m_files))
+    for (const FileToTransfer &file : std::as_const(m_files))
         remoteDirs << file.m_target.parentDir().path();
     remoteDirs.sort();
     remoteDirs.removeDuplicates();

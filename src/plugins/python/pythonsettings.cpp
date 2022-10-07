@@ -829,7 +829,7 @@ void PythonSettings::initFromSettings(QSettings *settings)
             m_interpreters << interpreter;
     }
 
-    for (const Interpreter &interpreter : qAsConst(oldSettings)) {
+    for (const Interpreter &interpreter : std::as_const(oldSettings)) {
         if (Utils::anyOf(m_interpreters, Utils::equal(&Interpreter::id, interpreter.id)))
             continue;
         m_interpreters << interpreter;

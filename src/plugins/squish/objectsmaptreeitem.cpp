@@ -90,7 +90,7 @@ QByteArray ObjectsMapTreeItem::propertiesToByteArray() const
          [](const Property &lhs, const Property &rhs) { return lhs.m_name < rhs.m_name; });
 
     result.append('{');
-    for (const Property &property : qAsConst(properties))
+    for (const Property &property : std::as_const(properties))
         result.append(property.toString().toUtf8()).append(' ');
     if (result.at(result.size() - 1) == ' ')
         result.chop(1);

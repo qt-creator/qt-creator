@@ -40,7 +40,7 @@ void LocatorFiltersFilter::prepareSearch(const QString &entry)
         uniqueFilters.insert(filterId, filter);
     }
 
-    for (ILocatorFilter *filter : qAsConst(uniqueFilters)) {
+    for (ILocatorFilter *filter : std::as_const(uniqueFilters)) {
         if (!filter->shortcutString().isEmpty() && !filter->isHidden() && filter->isEnabled()) {
             m_filterShortcutStrings.append(filter->shortcutString());
             m_filterDisplayNames.append(filter->displayName());

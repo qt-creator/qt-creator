@@ -392,7 +392,7 @@ bool BranchView::checkout()
 
     QList<Stash> stashes;
     client->synchronousStashList(m_repository, &stashes);
-    for (const Stash &stash : qAsConst(stashes)) {
+    for (const Stash &stash : std::as_const(stashes)) {
         if (stash.message.startsWith(popMessageStart)) {
             branchCheckoutDialog.foundStashForNextBranch();
             break;
@@ -428,7 +428,7 @@ bool BranchView::checkout()
                     QList<Stash> stashes;
                     QString stashName;
                     client->synchronousStashList(m_repository, &stashes);
-                    for (const Stash &stash : qAsConst(stashes)) {
+                    for (const Stash &stash : std::as_const(stashes)) {
                         if (stash.message.startsWith(popMessageStart)) {
                             stashName = stash.name;
                             break;

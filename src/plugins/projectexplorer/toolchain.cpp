@@ -217,7 +217,7 @@ bool ToolChain::operator == (const ToolChain &tc) const
 
 ToolChain *ToolChain::clone() const
 {
-    for (ToolChainFactory *f : qAsConst(Internal::g_toolChainFactories)) {
+    for (ToolChainFactory *f : std::as_const(Internal::g_toolChainFactories)) {
         if (f->supportedToolChainType() == d->m_typeId) {
             ToolChain *tc = f->create();
             QTC_ASSERT(tc, return nullptr);
@@ -616,7 +616,7 @@ void ToolChainFactory::autoDetectionToMap(QVariantMap &data, bool detected)
 
 ToolChain *ToolChainFactory::createToolChain(Utils::Id toolChainType)
 {
-    for (ToolChainFactory *factory : qAsConst(Internal::g_toolChainFactories)) {
+    for (ToolChainFactory *factory : std::as_const(Internal::g_toolChainFactories)) {
         if (factory->m_supportedToolChainType == toolChainType) {
             if (ToolChain *tc = factory->create()) {
                 tc->d->m_typeId = toolChainType;

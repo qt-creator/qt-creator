@@ -321,7 +321,7 @@ void CMakeToolItemModel::removeCMakeTool(const Id &id)
 
 void CMakeToolItemModel::apply()
 {
-    for (const Id &id : qAsConst(m_removedItems))
+    for (const Id &id : std::as_const(m_removedItems))
         CMakeToolManager::deregisterCMakeTool(id);
 
     QList<CMakeToolTreeItem *> toRegister;
@@ -338,7 +338,7 @@ void CMakeToolItemModel::apply()
         }
     });
 
-    for (CMakeToolTreeItem *item : qAsConst(toRegister)) {
+    for (CMakeToolTreeItem *item : std::as_const(toRegister)) {
         CMakeTool::Detection detection = item->m_autodetected ? CMakeTool::AutoDetection
                                                               : CMakeTool::ManualDetection;
         auto cmake = std::make_unique<CMakeTool>(detection, item->m_id);

@@ -431,7 +431,7 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
                     *accuracyPtr = 100;
                     return candidateByData;
                 }
-                for (const QString &m : qAsConst(candidatesByName.m_allMatchingMimeTypes)) {
+                for (const QString &m : std::as_const(candidatesByName.m_allMatchingMimeTypes)) {
                     if (inherits(m, sniffedMime)) {
                         // We have magic + pattern pointing to this, so it's a pretty good match
                         *accuracyPtr = 100;

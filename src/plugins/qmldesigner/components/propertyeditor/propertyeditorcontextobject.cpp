@@ -243,7 +243,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         if (!incompatibleProperties.empty()) {
             QString detailedText = QString("<b>Incompatible properties:</b><br>");
 
-            for (const auto &p : qAsConst(incompatibleProperties))
+            for (const auto &p : std::as_const(incompatibleProperties))
                 detailedText.append("- " + QString::fromUtf8(p) + "<br>");
 
             detailedText.chop(QString("<br>").size());
@@ -263,7 +263,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             if (msgBox.exec() == QMessageBox::Cancel)
                 return;
 
-            for (const auto &p : qAsConst(incompatibleProperties))
+            for (const auto &p : std::as_const(incompatibleProperties))
                 selectedNode.removeProperty(p);
         }
 

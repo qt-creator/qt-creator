@@ -833,7 +833,7 @@ public:
 
         // If displayless sshParameters don't match the old connections' sshParameters, then stale
         // old connections (don't delete, as the last deref() to each one will delete them).
-        for (SshSharedConnection *connection : qAsConst(m_connections))
+        for (SshSharedConnection *connection : std::as_const(m_connections))
             connection->makeStale();
         m_connections.clear();
         m_displaylessSshParameters = displaylessSshParameters;
@@ -847,7 +847,7 @@ public:
         SshSharedConnection *matchingConnection = nullptr;
 
         // Find the matching connection
-        for (SshSharedConnection *connection : qAsConst(m_connections)) {
+        for (SshSharedConnection *connection : std::as_const(m_connections)) {
             if (connection->sshParameters() == sshParameters) {
                 matchingConnection = connection;
                 break;

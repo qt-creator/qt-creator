@@ -673,7 +673,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 
     // workaround for '????????????' serial numbers:
     // can use "adb -d" when only one usb device attached
-    for (const QString &device : qAsConst(adbDevs)) {
+    for (const QString &device : std::as_const(adbDevs)) {
         const QString serialNo = device.left(device.indexOf('\t')).trimmed();
         const QString deviceType = device.mid(device.indexOf('\t')).trimmed();
         AndroidDeviceInfo dev;
@@ -1538,7 +1538,7 @@ FilePath AndroidConfig::getJdkPath()
             // Look for the highest existing JDK
             allVersions.sort();
             std::reverse(allVersions.begin(), allVersions.end()); // Order descending
-            for (const QString &version : qAsConst(allVersions)) {
+            for (const QString &version : std::as_const(allVersions)) {
                 settings.beginGroup(version);
                 jdkHome = FilePath::fromUserInput(settings.value("JavaHome").toString());
                 settings.endGroup();

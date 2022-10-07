@@ -338,7 +338,7 @@ void TestResultModel::recalculateMaxWidthOfFileName(const QFont &font)
 {
     const QFontMetrics fm(font);
     m_maxWidthOfFileName = 0;
-    for (const QString &fileName : qAsConst(m_fileNames)) {
+    for (const QString &fileName : std::as_const(m_fileNames)) {
         m_maxWidthOfFileName = qMax(m_maxWidthOfFileName, fm.horizontalAdvance(fileName));
     }
 }

@@ -135,7 +135,7 @@ void MacroOptionsWidget::remove()
 void MacroOptionsWidget::apply()
 {
     // Remove macro
-    for (const QString &name : qAsConst(m_macroToRemove)) {
+    for (const QString &name : std::as_const(m_macroToRemove)) {
         MacroManager::instance()->deleteMacro(name);
         m_macroToChange.remove(name);
     }

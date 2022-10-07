@@ -31,7 +31,7 @@ BaseFileWizard::BaseFileWizard(const BaseFileWizardFactory *factory,
     m_extraValues(extraValues),
     m_factory(factory)
 {
-    for (IFileWizardExtension *extension : qAsConst(g_fileWizardExtensions))
+    for (IFileWizardExtension *extension : std::as_const(g_fileWizardExtensions))
         m_extensionPages += extension->extensionPages(factory);
 
     if (!m_extensionPages.empty())
@@ -44,7 +44,7 @@ void BaseFileWizard::initializePage(int id)
     if (page(id) == m_firstExtensionPage) {
         generateFileList();
 
-        for (IFileWizardExtension *ex : qAsConst(g_fileWizardExtensions))
+        for (IFileWizardExtension *ex : std::as_const(g_fileWizardExtensions))
             ex->firstExtensionPageShown(m_files, m_extraValues);
     }
 }
@@ -74,7 +74,7 @@ void BaseFileWizard::accept()
         break;
     }
 
-    for (IFileWizardExtension *ex : qAsConst(g_fileWizardExtensions)) {
+    for (IFileWizardExtension *ex : std::as_const(g_fileWizardExtensions)) {
         for (int i = 0; i < m_files.count(); i++) {
             ex->applyCodeStyle(&m_files[i]);
         }
@@ -89,7 +89,7 @@ void BaseFileWizard::accept()
 
     bool removeOpenProjectAttribute = false;
     // Run the extensions
-    for (IFileWizardExtension *ex : qAsConst(g_fileWizardExtensions)) {
+    for (IFileWizardExtension *ex : std::as_const(g_fileWizardExtensions)) {
         bool remove;
         if (!ex->processFiles(m_files, &remove, &errorMessage)) {
             if (!errorMessage.isEmpty())

@@ -127,7 +127,7 @@ private slots:
         QTest::addColumn<CommandLine>("cmdLine");
         QTest::addColumn<QString>("testData");
 
-        for (const auto &cmdLine : qAsConst(m_availableShells)) {
+        for (const auto &cmdLine : std::as_const(m_availableShells)) {
             QTest::newRow((cmdLine.executable().baseName() + " : simple").toUtf8())
                 << cmdLine << "Hallo Welt!";
             QTest::newRow((cmdLine.executable().baseName() + " : japanese").toUtf8())
@@ -175,7 +175,7 @@ private slots:
         QTest::addColumn<CommandLine>("cmdLine");
         QTest::addColumn<QString>("testData");
 
-        for (const auto &cmdLine : qAsConst(m_availableShells)) {
+        for (const auto &cmdLine : std::as_const(m_availableShells)) {
             QTest::newRow((cmdLine.executable().baseName() + " : simple").toUtf8())
                 << cmdLine << "Hallo Welt!";
             QTest::newRow((cmdLine.executable().baseName() + " : japanese").toUtf8())
@@ -220,7 +220,7 @@ private slots:
     void testAscii_data()
     {
         QTest::addColumn<CommandLine>("cmdLine");
-        for (const auto &cmdLine : qAsConst(m_availableShells)) {
+        for (const auto &cmdLine : std::as_const(m_availableShells)) {
             QTest::newRow(cmdLine.executable().baseName().toUtf8()) << cmdLine;
         }
     }

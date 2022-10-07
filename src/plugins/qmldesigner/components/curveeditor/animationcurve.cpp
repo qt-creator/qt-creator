@@ -363,7 +363,7 @@ void AnimationCurve::analyze()
             m_maxY = e.y();
     }
 
-    for (auto &frame : qAsConst(m_frames)) {
+    for (auto &frame : std::as_const(m_frames)) {
         if (frame.position().y() < m_minY)
             m_minY = frame.position().y();
 

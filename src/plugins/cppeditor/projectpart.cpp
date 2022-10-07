@@ -76,7 +76,7 @@ static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
     // Prevent duplicate include paths.
     // TODO: Do this once when finalizing the raw project part?
     std::set<QString> seenPaths;
-    for (const HeaderPath &p : qAsConst(rpp.headerPaths)) {
+    for (const HeaderPath &p : std::as_const(rpp.headerPaths)) {
         const QString cleanPath = QDir::cleanPath(p.path);
         if (seenPaths.insert(cleanPath).second)
             headerPaths << HeaderPath(cleanPath, p.type);

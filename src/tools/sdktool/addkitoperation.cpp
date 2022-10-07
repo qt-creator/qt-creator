@@ -715,7 +715,7 @@ QVariantMap AddKitData::addKit(const QVariantMap &map,
     data << KeyValuePair(COUNT, QVariant(count + 1));
 
     KeyValuePairList qtExtraList;
-    for (const KeyValuePair &pair : qAsConst(m_extra))
+    for (const KeyValuePair &pair : std::as_const(m_extra))
         qtExtraList << KeyValuePair(QStringList() << kit << pair.key, pair.value);
     data.append(qtExtraList);
 

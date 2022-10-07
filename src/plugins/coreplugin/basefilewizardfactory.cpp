@@ -130,7 +130,7 @@ bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *err
 {
     const GeneratedFile::Attributes noWriteAttributes
         = GeneratedFile::CustomGeneratorAttribute|GeneratedFile::KeepExistingFileAttribute;
-    for (const GeneratedFile &generatedFile : qAsConst(files))
+    for (const GeneratedFile &generatedFile : std::as_const(files))
         if (!(generatedFile.attributes() & noWriteAttributes ))
             if (!generatedFile.write(errorMessage))
                 return false;
@@ -164,7 +164,7 @@ bool BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFi
 
 bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
 {
-    for (const GeneratedFile &file : qAsConst(l)) {
+    for (const GeneratedFile &file : std::as_const(l)) {
         if (file.attributes() & GeneratedFile::OpenEditorAttribute) {
             if (!EditorManager::openEditor(file.filePath(), file.editorId())) {
                 if (errorMessage)
@@ -197,7 +197,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     static const QString directoryMsg = tr("[folder]");
     static const QString symLinkMsg = tr("[symbolic link]");
 
-    for (const GeneratedFile &file : qAsConst(*files)) {
+    for (const GeneratedFile &file : std::as_const(*files)) {
         const FilePath path = file.filePath();
         if (path.exists())
             existingFiles.append(path.toString());
@@ -209,7 +209,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     // Format a file list message as ( "<file1> [readonly], <file2> [folder]").
     const QString commonExistingPath = Utils::commonPath(existingFiles);
     QString fileNamesMsgPart;
-    for (const QString &fileName : qAsConst(existingFiles)) {
+    for (const QString &fileName : std::as_const(existingFiles)) {
         const QFileInfo fi(fileName);
         if (fi.exists()) {
             if (!fileNamesMsgPart.isEmpty())
@@ -243,7 +243,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     PromptOverwriteDialog overwriteDialog;
     // Scripts cannot handle overwrite
     overwriteDialog.setFiles(existingFiles);
-    for (const GeneratedFile &file : qAsConst(*files))
+    for (const GeneratedFile &file : std::as_const(*files))
         if (file.attributes() & GeneratedFile::CustomGeneratorAttribute)
             overwriteDialog.setFileEnabled(file.filePath().toString(), false);
     if (overwriteDialog.exec() != QDialog::Accepted)
@@ -252,7 +252,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     if (existingFilesToKeep.size() == files->size()) // All exist & all unchecked->Cancel.
         return OverwriteCanceled;
     // Set 'keep' attribute in files
-    for (const QString &keepFile : qAsConst(existingFilesToKeep)) {
+    for (const QString &keepFile : std::as_const(existingFilesToKeep)) {
         const int i = indexOfFile(*files, FilePath::fromString(keepFile).cleanPath());
         QTC_ASSERT(i != -1, return OverwriteCanceled);
         GeneratedFile &file = (*files)[i];

@@ -183,7 +183,7 @@ void updateCodeActionRefactoringMarker(Client *client,
                 } else if (std::optional<WorkspaceEdit::Changes> localChanges = edit->changes()) {
                     edits = (*localChanges)[uri];
                 }
-                for (const TextEdit &edit : qAsConst(edits))
+                for (const TextEdit &edit : std::as_const(edits))
                     addMarkerForCursor(action, edit.range());
             }
         }

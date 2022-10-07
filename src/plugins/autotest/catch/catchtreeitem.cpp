@@ -250,7 +250,7 @@ QList<ITestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
     collectFailedTestInfo(this, testCasesForProFile);
 
     for (auto it = testCasesForProFile.begin(), end = testCasesForProFile.end(); it != end; ++it) {
-        for (const QString &target : qAsConst(it.value().internalTargets)) {
+        for (const QString &target : std::as_const(it.value().internalTargets)) {
             CatchConfiguration *tc = new CatchConfiguration(framework());
             tc->setTestCases(it.value().names);
             tc->setProjectFile(it.key());
@@ -321,7 +321,7 @@ QList<ITestConfiguration *> CatchTreeItem::getTestConfigurations(bool ignoreChec
         collectTestInfo(childItem(row), testCasesForProfile, ignoreCheckState);
 
     for (auto it = testCasesForProfile.begin(), end = testCasesForProfile.end(); it != end; ++it) {
-        for (const QString &target : qAsConst(it.value().internalTargets)) {
+        for (const QString &target : std::as_const(it.value().internalTargets)) {
             CatchConfiguration *tc = new CatchConfiguration(framework());
             tc->setTestCases(it.value().names);
             if (ignoreCheckState)

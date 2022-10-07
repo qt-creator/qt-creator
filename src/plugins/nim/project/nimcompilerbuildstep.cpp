@@ -175,7 +175,7 @@ CommandLine NimCompilerBuildStep::commandLine()
     cmd.addArg("--out:" + outFilePath().toString());
     cmd.addArg("--nimCache:" + bc->cacheDirectory().toString());
 
-    for (const QString &arg : qAsConst(m_userCompilerOptions)) {
+    for (const QString &arg : std::as_const(m_userCompilerOptions)) {
         if (!arg.isEmpty())
             cmd.addArg(arg);
     }

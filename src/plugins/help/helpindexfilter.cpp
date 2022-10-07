@@ -84,7 +84,7 @@ QList<LocatorFilterEntry> HelpIndexFilter::matchesFor(QFutureInterface<LocatorFi
 
     const Qt::CaseSensitivity cs = caseSensitivity(entry);
     QList<LocatorFilterEntry> entries;
-    for (const QString &keyword : qAsConst(m_lastIndicesCache)) {
+    for (const QString &keyword : std::as_const(m_lastIndicesCache)) {
         const int index = keyword.indexOf(entry, 0, cs);
         LocatorFilterEntry filterEntry(this, keyword, QVariant(), m_icon);
         filterEntry.highlightInfo = {index, int(entry.length())};

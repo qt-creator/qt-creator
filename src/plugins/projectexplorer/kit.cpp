@@ -516,12 +516,12 @@ QVariantMap Kit::toMap() const
     data.insert(DEVICE_TYPE_FOR_ICON_KEY, d->m_deviceTypeForIcon.toSetting());
 
     QStringList mutableInfo;
-    for (const Id id : qAsConst(d->m_mutable))
+    for (const Id id : std::as_const(d->m_mutable))
         mutableInfo << id.toString();
     data.insert(QLatin1String(MUTABLE_INFO_KEY), mutableInfo);
 
     QStringList stickyInfo;
-    for (const Id id : qAsConst(d->m_sticky))
+    for (const Id id : std::as_const(d->m_sticky))
         stickyInfo << id.toString();
     data.insert(QLatin1String(STICKY_INFO_KEY), stickyInfo);
 

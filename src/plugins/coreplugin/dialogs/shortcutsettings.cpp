@@ -306,7 +306,7 @@ QWidget *ShortcutSettings::widget()
 
 void ShortcutSettingsWidget::apply()
 {
-    for (const ShortcutItem *item : qAsConst(m_scitems))
+    for (const ShortcutItem *item : std::as_const(m_scitems))
         item->m_cmd->setKeySequences(item->m_keys);
 }
 
@@ -474,7 +474,7 @@ void ShortcutSettingsWidget::importAction()
 
         CommandsFile cf(fileName);
         QMap<QString, QList<QKeySequence>> mapping = cf.importCommands();
-        for (ShortcutItem *item : qAsConst(m_scitems)) {
+        for (ShortcutItem *item : std::as_const(m_scitems)) {
             QString sid = item->m_cmd->id().toString();
             if (mapping.contains(sid)) {
                 item->m_keys = mapping.value(sid);
@@ -494,7 +494,7 @@ void ShortcutSettingsWidget::importAction()
 
 void ShortcutSettingsWidget::defaultAction()
 {
-    for (ShortcutItem *item : qAsConst(m_scitems)) {
+    for (ShortcutItem *item : std::as_const(m_scitems)) {
         item->m_keys = item->m_cmd->defaultKeySequences();
         item->m_item->setText(2, keySequencesToNativeString(item->m_keys));
         setModified(item->m_item, false);
@@ -580,7 +580,7 @@ bool ShortcutSettingsWidget::markCollisions(ShortcutItem *item, int index)
         Id globalId(Constants::C_GLOBAL);
         const Context itemContext = item->m_cmd->context();
         const bool itemHasGlobalContext = itemContext.contains(globalId);
-        for (ShortcutItem *currentItem : qAsConst(m_scitems)) {
+        for (ShortcutItem *currentItem : std::as_const(m_scitems)) {
             if (item == currentItem)
                 continue;
             if (!Utils::anyOf(currentItem->m_keys, Utils::equalTo(key)))
@@ -613,7 +613,7 @@ bool ShortcutSettingsWidget::markCollisions(ShortcutItem *item, int index)
 
 void ShortcutSettingsWidget::markAllCollisions()
 {
-    for (ShortcutItem *item : qAsConst(m_scitems))
+    for (ShortcutItem *item : std::as_const(m_scitems))
         for (int i = 0; i < item->m_keys.size(); ++i)
             markCollisions(item, i);
 }

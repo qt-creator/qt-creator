@@ -1157,7 +1157,7 @@ void SquishTools::minimizeQtCreatorWindows()
 
 void SquishTools::restoreQtCreatorWindows()
 {
-    for (QWindow *window : qAsConst(m_lastTopLevelWindows)) {
+    for (QWindow *window : std::as_const(m_lastTopLevelWindows)) {
         window->raise();
         window->requestActivate();
         window->showNormal();

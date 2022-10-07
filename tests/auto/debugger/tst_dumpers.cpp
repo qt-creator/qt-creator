@@ -1711,12 +1711,12 @@ void tst_Dumpers::dumper()
         }
     };
     collectExpandedINames(data.checks);
-    for (const auto &checkset : qAsConst(data.checksets))
+    for (const auto &checkset : std::as_const(data.checksets))
         collectExpandedINames(checkset.checks);
 
     QString expanded;
     QString expandedq;
-    for (const QString &iname : qAsConst(expandedINames)) {
+    for (const QString &iname : std::as_const(expandedINames)) {
         if (!expanded.isEmpty()) {
             expanded.append(',');
             expandedq.append(',');
@@ -2005,7 +2005,7 @@ void tst_Dumpers::dumper()
 
     if (!data.checks.isEmpty()) {
         qCDebug(lcDumpers) << "SOME TESTS NOT EXECUTED: ";
-        for (const Check &check : qAsConst(data.checks)) {
+        for (const Check &check : std::as_const(data.checks)) {
             if (check.optionallyPresent) {
                 qCDebug(lcDumpers) << "  OPTIONAL TEST NOT FOUND: " << check << " IGNORED.";
             } else {

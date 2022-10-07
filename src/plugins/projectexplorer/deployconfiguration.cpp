@@ -175,7 +175,7 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent)
     DeployConfiguration *dc = createDeployConfiguration(parent);
     QTC_ASSERT(dc, return nullptr);
     BuildStepList *stepList = dc->stepList();
-    for (const BuildStepList::StepCreationInfo &info : qAsConst(m_initialSteps)) {
+    for (const BuildStepList::StepCreationInfo &info : std::as_const(m_initialSteps)) {
         if (!info.condition || info.condition(parent))
             stepList->appendStep(info.stepId);
     }

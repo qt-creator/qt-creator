@@ -47,7 +47,7 @@ QString Macro::decoratedName() const
     if (f._functionLike) {
         text += QLatin1Char('(');
         bool first = true;
-        for (const QByteArray &formal : qAsConst(_formals)) {
+        for (const QByteArray &formal : std::as_const(_formals)) {
             if (! first)
                 text += QLatin1String(", ");
             else

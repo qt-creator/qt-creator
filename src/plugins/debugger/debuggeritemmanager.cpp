@@ -651,7 +651,7 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
         }
     }
 
-    for (const FilePath &cdb : qAsConst(cdbs)) {
+    for (const FilePath &cdb : std::as_const(cdbs)) {
         if (DebuggerItemManager::findByCommand(cdb))
             continue;
         DebuggerItem item;
@@ -738,7 +738,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
         path.iterateDirectory(addSuspect, {filters, QDir::Files | QDir::Executable});
 
     QStringList logMessages{Tr::tr("Searching debuggers...")};
-    for (const FilePath &command : qAsConst(suspects)) {
+    for (const FilePath &command : std::as_const(suspects)) {
         const auto commandMatches = [command](const DebuggerTreeItem *titem) {
             return titem->m_item.command() == command;
         };

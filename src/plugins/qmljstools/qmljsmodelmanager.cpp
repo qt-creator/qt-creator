@@ -74,7 +74,7 @@ static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &proje
         for (const Target *t : targets)
             currentKits.insert(t->kit());
         currentKits.remove(activeKit);
-        for (Kit *kit : qAsConst(currentKits)) {
+        for (Kit *kit : std::as_const(currentKits)) {
             for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
                 bp->mergeBundlesForKit(kit, projectInfo.extendedBundle, replacements);
         }

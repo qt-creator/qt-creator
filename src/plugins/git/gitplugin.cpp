@@ -1689,15 +1689,15 @@ void GitPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
     // Note: This menu is visible if there is no repository. Only
     // 'Create Repository'/'Show' actions should be available.
     const QString fileName = Utils::quoteAmpersands(state.currentFileName());
-    for (ParameterAction *fileAction : qAsConst(m_fileActions))
+    for (ParameterAction *fileAction : std::as_const(m_fileActions))
         fileAction->setParameter(fileName);
     // If the current file looks like a patch, offer to apply
     m_applyCurrentFilePatchAction->setParameter(state.currentPatchFileDisplayName());
     const QString projectName = state.currentProjectName();
-    for (ParameterAction *projectAction : qAsConst(m_projectActions))
+    for (ParameterAction *projectAction : std::as_const(m_projectActions))
         projectAction->setParameter(projectName);
 
-    for (QAction *repositoryAction : qAsConst(m_repositoryActions))
+    for (QAction *repositoryAction : std::as_const(m_repositoryActions))
         repositoryAction->setEnabled(repositoryEnabled);
 
     m_submoduleUpdateAction->setVisible(repositoryEnabled

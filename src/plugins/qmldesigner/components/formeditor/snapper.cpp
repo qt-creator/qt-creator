@@ -689,7 +689,7 @@ QList<QGraphicsItem*> Snapper::generateSnappingLines(const QList<QRectF> &boundi
         lineList += mergedVerticalLines(verticalSnappedLines(boundingRect, &snappedBoundingRectList));
     }
 
-    for (const QLineF &line : qAsConst(lineList)) {
+    for (const QLineF &line : std::as_const(lineList)) {
         QLineF lineInTransformationSpace = transform.map(line);
         auto lineItem = new QGraphicsLineItem(lineInTransformationSpace, layerItem);
         lineItem->setZValue(40);

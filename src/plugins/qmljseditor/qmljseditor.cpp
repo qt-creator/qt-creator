@@ -357,7 +357,7 @@ void QmlJSEditorWidget::updateUses()
     Utils::sort(locations, [](const SourceLocation &lhs, const SourceLocation &rhs) {
         return lhs.begin() < rhs.begin();
     });
-    for (const SourceLocation &loc : qAsConst(locations)) {
+    for (const SourceLocation &loc : std::as_const(locations)) {
         if (! loc.isValid())
             continue;
 

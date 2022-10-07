@@ -189,7 +189,7 @@ void ModeManagerPrivate::extensionsInitializedHelper()
     Utils::sort(m_modes, &IMode::priority);
     std::reverse(m_modes.begin(), m_modes.end());
 
-    for (IMode *mode : qAsConst(m_modes))
+    for (IMode *mode : std::as_const(m_modes))
         appendMode(mode);
 
     if (m_pendingFirstActiveMode.isValid())
@@ -279,7 +279,7 @@ void ModeManager::addAction(QAction *action, int priority)
 
     // Count the number of commands with a higher priority
     int index = 0;
-    for (int p : qAsConst(d->m_actions)) {
+    for (int p : std::as_const(d->m_actions)) {
         if (p > priority)
             ++index;
     }

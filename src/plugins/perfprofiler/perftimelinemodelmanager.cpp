@@ -63,7 +63,7 @@ void PerfTimelineModelManager::finalize()
     m_unfinished.clear();
 
     const qint64 frequency = m_traceManager->samplingFrequency();
-    for (PerfTimelineModel *model : qAsConst(finished)) {
+    for (PerfTimelineModel *model : std::as_const(finished)) {
         model->setSamplingFrequency(frequency);
         threads.remove(model->tid());
     }
@@ -84,7 +84,7 @@ void PerfTimelineModelManager::finalize()
     });
 
     QVariantList modelsToAdd;
-    for (PerfTimelineModel *model : qAsConst(finished))
+    for (PerfTimelineModel *model : std::as_const(finished))
         modelsToAdd.append(QVariant::fromValue(model));
     setModels(modelsToAdd);
 }

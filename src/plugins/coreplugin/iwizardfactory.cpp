@@ -173,7 +173,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
         s_areFactoriesLoaded = true;
 
         QHash<Id, IWizardFactory *> sanityCheck;
-        for (const FactoryCreator &fc : qAsConst(s_factoryCreators)) {
+        for (const FactoryCreator &fc : std::as_const(s_factoryCreators)) {
             IWizardFactory *newFactory = fc();
             QTC_ASSERT(newFactory, continue);
             IWizardFactory *existingFactory = sanityCheck.value(newFactory->id());
@@ -308,7 +308,7 @@ void IWizardFactory::registerFactoryCreator(const IWizardFactory::FactoryCreator
 QSet<Id> IWizardFactory::allAvailablePlatforms()
 {
     QSet<Id> platforms;
-    for (const IFeatureProvider *featureManager : qAsConst(s_providerList))
+    for (const IFeatureProvider *featureManager : std::as_const(s_providerList))
         platforms.unite(featureManager->availablePlatforms());
 
     return platforms;
@@ -316,7 +316,7 @@ QSet<Id> IWizardFactory::allAvailablePlatforms()
 
 QString IWizardFactory::displayNameForPlatform(Id i)
 {
-    for (const IFeatureProvider *featureManager : qAsConst(s_providerList)) {
+    for (const IFeatureProvider *featureManager : std::as_const(s_providerList)) {
         const QString displayName = featureManager->displayNameForPlatform(i);
         if (!displayName.isEmpty())
             return displayName;
@@ -361,7 +361,7 @@ void IWizardFactory::destroyFeatureProvider()
 
 void IWizardFactory::clearWizardFactories()
 {
-    for (IWizardFactory *factory : qAsConst(s_allFactories))
+    for (IWizardFactory *factory : std::as_const(s_allFactories))
         ActionManager::unregisterAction(factory->m_action, actionId(factory));
 
     qDeleteAll(s_allFactories);
@@ -388,7 +388,7 @@ QSet<Id> IWizardFactory::availableFeatures(Id platformId)
 {
     QSet<Id> availableFeatures;
 
-    for (const IFeatureProvider *featureManager : qAsConst(s_providerList))
+    for (const IFeatureProvider *featureManager : std::as_const(s_providerList))
         availableFeatures.unite(featureManager->availableFeatures(platformId));
 
     return availableFeatures;

@@ -24,13 +24,13 @@ RotationIndicator::~RotationIndicator()
 
 void RotationIndicator::show()
 {
-    for (RotationController controller : qAsConst(m_itemControllerHash))
+    for (RotationController controller : std::as_const(m_itemControllerHash))
         controller.show();
 }
 
 void RotationIndicator::hide()
 {
-    for (RotationController controller : qAsConst(m_itemControllerHash))
+    for (RotationController controller : std::as_const(m_itemControllerHash))
         controller.hide();
 }
 

@@ -565,7 +565,7 @@ void IosDeviceManagerPrivate::addDevice(AMDeviceRef device)
         m_pendingLookups.remove(devId);
         devices << m_pendingLookups.values(QString());
         m_pendingLookups.remove(QString());
-        for (PendingDeviceLookup *devLookup : qAsConst(devices)) {
+        for (PendingDeviceLookup *devLookup : std::as_const(devices)) {
             qCDebug(loggingCategory) << "found pending op";
             devLookup->timer.stop();
             devLookup->callback(devId, device, devLookup->userData);
@@ -1461,7 +1461,7 @@ void AppOpSession::deviceCallbackReturned()
 int AppOpSession::qmljsDebugPort() const
 {
     const QRegularExpression qmlPortRe(QLatin1String("-qmljsdebugger=port:([0-9]+)"));
-    for (const QString &arg : qAsConst(extraArgs)) {
+    for (const QString &arg : std::as_const(extraArgs)) {
         const QRegularExpressionMatch match = qmlPortRe.match(arg);
         if (match.hasMatch()) {
             bool ok;

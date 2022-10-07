@@ -144,7 +144,7 @@ void ClangdTest::initTestCase()
     QVERIFY(m_client);
 
     // Open cpp documents.
-    for (const QString &sourceFileName : qAsConst(m_sourceFileNames)) {
+    for (const QString &sourceFileName : std::as_const(m_sourceFileNames)) {
         const auto sourceFilePath = Utils::FilePath::fromString(
                     m_projectDir->absolutePath(sourceFileName.toLocal8Bit()));
         QVERIFY2(sourceFilePath.exists(), qPrintable(sourceFilePath.toUserOutput()));
@@ -1854,7 +1854,7 @@ void ClangdTestCompletion::testSignalCompletion()
 
     QVERIFY(proposal);
     QCOMPARE(proposal->size(), expectedSuggestions.size());
-    for (const QString &expectedSuggestion : qAsConst(expectedSuggestions))
+    for (const QString &expectedSuggestion : std::as_const(expectedSuggestions))
         QVERIFY2(hasItem(proposal, ' ' + expectedSuggestion), qPrintable(expectedSuggestion));
 }
 

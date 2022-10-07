@@ -421,7 +421,7 @@ ActionManagerPrivate::ActionManagerPrivate() = default;
 ActionManagerPrivate::~ActionManagerPrivate()
 {
     // first delete containers to avoid them reacting to command deletion
-    for (const ActionContainerPrivate *container : qAsConst(m_idContainerMap))
+    for (const ActionContainerPrivate *container : std::as_const(m_idContainerMap))
         disconnect(container, &QObject::destroyed, this, &ActionManagerPrivate::containerDestroyed);
     qDeleteAll(m_idContainerMap);
     qDeleteAll(m_idCmdMap);

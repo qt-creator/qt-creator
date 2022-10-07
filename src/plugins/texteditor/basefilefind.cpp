@@ -397,7 +397,7 @@ void BaseFileFind::writeCommonSettings(QSettings *settings)
         settings->setValue("currentExclusionFilter",
                            QDir::fromNativeSeparators(d->m_exclusionCombo->currentText()));
 
-    for (const SearchEngine *searchEngine : qAsConst(d->m_searchEngines))
+    for (const SearchEngine *searchEngine : std::as_const(d->m_searchEngines))
         searchEngine->writeSettings(settings);
     settings->setValue("currentSearchEngineIndex", d->m_currentSearchEngineIndex);
 }
@@ -429,7 +429,7 @@ void BaseFileFind::readCommonSettings(QSettings *settings, const QString &defaul
     if (d->m_exclusionCombo)
         syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
 
-    for (SearchEngine* searchEngine : qAsConst(d->m_searchEngines))
+    for (SearchEngine* searchEngine : std::as_const(d->m_searchEngines))
         searchEngine->readSettings(settings);
     const int currentSearchEngineIndex = settings->value("currentSearchEngineIndex", 0).toInt();
     syncSearchEngineCombo(currentSearchEngineIndex);

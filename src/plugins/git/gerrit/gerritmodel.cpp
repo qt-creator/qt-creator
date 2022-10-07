@@ -908,7 +908,7 @@ void GerritModel::resultRetrieved(const QByteArray &output)
     std::stable_sort(changes.begin(), changes.end(), gerritChangeLessThan);
     numberIndexHash.clear();
 
-    for (const GerritChangePtr &c : qAsConst(changes)) {
+    for (const GerritChangePtr &c : std::as_const(changes)) {
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
         if (!itemForNumber(c->number)) {

@@ -173,7 +173,7 @@ void Locator::loadSettings()
     m_refreshTimer.setInterval(settings->value("RefreshInterval", 60).toInt() * 60000);
     m_settings.useCenteredPopup = settings->value(kUseCenteredPopup, def.useCenteredPopup).toBool();
 
-    for (ILocatorFilter *filter : qAsConst(m_filters)) {
+    for (ILocatorFilter *filter : std::as_const(m_filters)) {
         if (settings->contains(filter->id().toString())) {
             const QByteArray state = settings->value(filter->id().toString()).toByteArray();
             if (!state.isEmpty())
@@ -214,7 +214,7 @@ void Locator::updateFilterActions()
     QMap<Id, QAction *> actionCopy = m_filterActionMap;
     m_filterActionMap.clear();
     // register new actions, update existent
-    for (ILocatorFilter *filter : qAsConst(m_filters)) {
+    for (ILocatorFilter *filter : std::as_const(m_filters)) {
         if (filter->shortcutString().isEmpty() || filter->isHidden())
             continue;
         Id filterId = filter->id();

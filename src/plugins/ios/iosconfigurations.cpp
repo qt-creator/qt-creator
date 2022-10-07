@@ -298,7 +298,7 @@ void IosConfigurations::updateAutomaticKitList()
     existingKits.subtract(resultingKits);
     qCDebug(kitSetupLog) << "Removing unused kits:";
     printKits(existingKits);
-    for (Kit *kit : qAsConst(existingKits))
+    for (Kit *kit : std::as_const(existingKits))
         KitManager::deregisterKit(kit);
 }
 
@@ -474,7 +474,7 @@ void IosConfigurations::loadProvisioningData(bool notify)
         return teamInfo1.value(freeTeamTag).toInt() < teamInfo2.value(freeTeamTag).toInt();
     });
 
-    for (auto teamInfo : qAsConst(teams)) {
+    for (auto teamInfo : std::as_const(teams)) {
         auto team = std::make_shared<DevelopmentTeam>();
         team->m_name = teamInfo.value(teamNameTag).toString();
         team->m_email = teamInfo.value(emailTag).toString();
@@ -624,7 +624,7 @@ QDebug &operator<<(QDebug &stream, DevelopmentTeamPtr team)
 {
     QTC_ASSERT(team, return stream);
     stream << team->displayName() << team->identifier() << team->isFreeProfile();
-    for (const auto &profile : qAsConst(team->m_profiles))
+    for (const auto &profile : std::as_const(team->m_profiles))
         stream << "Profile:" << profile;
     return stream;
 }

@@ -13,7 +13,7 @@ using namespace Utils;
 
 JsonMemoryPool::~JsonMemoryPool()
 {
-    for (char *obj : qAsConst(_objs)) {
+    for (char *obj : std::as_const(_objs)) {
         reinterpret_cast<JsonValue *>(obj)->~JsonValue();
         delete[] obj;
     }
@@ -657,7 +657,7 @@ JsonSchemaManager::JsonSchemaManager(const QStringList &searchPaths)
 
 JsonSchemaManager::~JsonSchemaManager()
 {
-    for (const JsonSchemaData &schemaData : qAsConst(m_schemas))
+    for (const JsonSchemaData &schemaData : std::as_const(m_schemas))
         delete schemaData.m_schema;
 }
 

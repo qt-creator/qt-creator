@@ -240,7 +240,7 @@ static void updateEditorText(QPlainTextEdit *editor, const QString &text)
                                               + absoluteVerticalCursorOffset / fontHeight);
     // Restore folded blocks
     const QTextDocument *doc = editor->document();
-    for (int blockId : qAsConst(foldedBlocks)) {
+    for (int blockId : std::as_const(foldedBlocks)) {
         const QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
             TextDocumentLayout::doFoldOrUnfold(block, false);

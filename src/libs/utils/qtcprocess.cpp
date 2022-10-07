@@ -839,7 +839,7 @@ QList<ProcessInterfaceSignal *> GeneralProcessBlockingImpl::takeSignalsFor(Proce
         return takeAllSignals();
 
     QMutexLocker locker(&m_mutex);
-    const QList<ProcessSignalType> storedSignals = transform(qAsConst(m_signals),
+    const QList<ProcessSignalType> storedSignals = transform(std::as_const(m_signals),
                             [](const ProcessInterfaceSignal *aSignal) {
         return aSignal->signalType();
     });
@@ -866,7 +866,7 @@ bool GeneralProcessBlockingImpl::flushSignals(const QList<ProcessInterfaceSignal
                                      ProcessSignalType *signalType)
 {
     bool signalMatched = false;
-    for (const ProcessInterfaceSignal *storedSignal : qAsConst(signalList)) {
+    for (const ProcessInterfaceSignal *storedSignal : std::as_const(signalList)) {
         const ProcessSignalType storedSignalType = storedSignal->signalType();
         if (signalType && storedSignalType == *signalType)
             signalMatched = true;

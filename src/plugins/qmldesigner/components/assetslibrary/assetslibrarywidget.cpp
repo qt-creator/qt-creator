@@ -338,7 +338,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files)
 
         QStringList filters { tr("All Files (%1)").arg("*.*") };
         QString filterTemplate = "%1 (%2)";
-        for (const QString &key : qAsConst(sortedKeys)) {
+        for (const QString &key : std::as_const(sortedKeys)) {
             const QStringList values = map.values(key);
             if (values.contains("*.png")) { // Avoid long filter for images by splitting
                 const QHash<QByteArray, QStringList> imageFormats = allImageFormats();
@@ -373,7 +373,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files)
 
     QMultiMap<QString, QString> categoryFileNames; // filenames grouped by category
 
-    for (const QString &fileName : qAsConst(fileNames)) {
+    for (const QString &fileName : std::as_const(fileNames)) {
         const QString suffix = "*." + QFileInfo(fileName).suffix().toLower();
         const QString category = filterToCategory.value(suffix);
         categoryFileNames.insert(category, fileName);

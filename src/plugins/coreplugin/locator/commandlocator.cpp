@@ -70,7 +70,7 @@ QList<LocatorFilterEntry> CommandLocator::matchesFor(QFutureInterface<LocatorFil
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
-    for (const auto &pair : qAsConst(d->commandsData)) {
+    for (const auto &pair : std::as_const(d->commandsData)) {
         if (future.isCanceled())
             break;
 

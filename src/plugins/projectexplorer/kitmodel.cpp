@@ -290,7 +290,7 @@ void KitModel::updateKit(Kit *)
 void KitModel::removeKit(Kit *k)
 {
     QList<KitNode *> nodes = m_toRemoveList;
-    for (KitNode *n : qAsConst(nodes)) {
+    for (KitNode *n : std::as_const(nodes)) {
         if (n->widget->configures(k)) {
             m_toRemoveList.removeOne(n);
             if (m_defaultNode == n)

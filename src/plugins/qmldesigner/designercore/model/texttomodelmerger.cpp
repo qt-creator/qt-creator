@@ -838,7 +838,7 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         }
     }
 
-    for (const Import &import : qAsConst(existingImports))
+    for (const Import &import : std::as_const(existingImports))
         differenceHandler.importAbsentInQMl(import);
 }
 
@@ -1412,7 +1412,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         }
     }
 
-    for (const PropertyName &modelPropertyName : qAsConst(modelPropertyNames)) {
+    for (const PropertyName &modelPropertyName : std::as_const(modelPropertyNames)) {
         AbstractProperty modelProperty = modelNode.property(modelPropertyName);
 
         // property deleted.

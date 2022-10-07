@@ -170,7 +170,7 @@ void ChooseFromPropertyListDialog::fillList(const QStringList &propNames)
     QString defaultProp = propNames.first();
     QStringList sortedNames = propNames;
     sortedNames.sort();
-    for (const auto &propName : qAsConst(sortedNames)) {
+    for (const auto &propName : std::as_const(sortedNames)) {
         QListWidgetItem *newItem = new QListWidgetItem(propName);
         m_ui->listProps->addItem(newItem);
     }

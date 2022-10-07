@@ -78,7 +78,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QSt
 {
     if (node)
         m_toolTip = node->directory().toString();
-    for (AddNewTree *child : qAsConst(children))
+    for (AddNewTree *child : std::as_const(children))
         appendChild(child);
 }
 
@@ -90,7 +90,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children,
 {
     if (node)
         m_toolTip = node->directory().toString();
-    for (AddNewTree *child : qAsConst(children))
+    for (AddNewTree *child : std::as_const(children))
         appendChild(child);
 }
 
@@ -557,7 +557,7 @@ void ProjectWizardPage::setFiles(const FilePaths &files)
             return filePath1HasDir;
         });
 
-        for (const QString &f : qAsConst(formattedFiles))
+        for (const QString &f : std::as_const(formattedFiles))
             str << QDir::toNativeSeparators(f) << '\n';
 
         str << "</pre>";

@@ -194,7 +194,7 @@ ModelNode TransitionEditorView::addNewTransition()
 
     QHash<QString, QStringList> idPropertyList;
 
-    for (const QmlModelState &state : qAsConst(states)) {
+    for (const QmlModelState &state : std::as_const(states)) {
         for (const QmlPropertyChanges & change : state.propertyChanges()) {
             QStringList locList;
             const ModelNode target = change.target();

@@ -155,7 +155,7 @@ QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilt
     };
 
     QMap<MatchLevel, QList<LocatorFilterEntry>> filtered;
-    const QList<std::optional<FilterResult>> filterResults = Utils::map(qAsConst(m_entries), filter)
+    const QList<std::optional<FilterResult>> filterResults = Utils::map(std::as_const(m_entries), filter)
                                                                  .results();
     for (const std::optional<FilterResult> &filterResult : filterResults) {
         if (filterResult)
@@ -163,7 +163,7 @@ QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilt
     }
 
     QList<LocatorFilterEntry> result;
-    for (const QList<LocatorFilterEntry> &sublist : qAsConst(filtered))
+    for (const QList<LocatorFilterEntry> &sublist : std::as_const(filtered))
         result << sublist;
     return result;
 }
@@ -292,7 +292,7 @@ void ActionsFilter::updateEnabledActionCache()
 {
     m_enabledActions.clear();
     QList<QAction *> queue = menuBarActions();
-    for (QAction *action : qAsConst(queue))
+    for (QAction *action : std::as_const(queue))
         requestMenuUpdate(action);
     while (!queue.isEmpty()) {
         QAction *action = queue.takeFirst();

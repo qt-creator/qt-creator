@@ -118,7 +118,7 @@ void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 
 void FlameGraphModel::finalize()
 {
-    for (FlameGraphData *child : qAsConst(m_stackBottom.children))
+    for (FlameGraphData *child : std::as_const(m_stackBottom.children))
         m_stackBottom.duration += child->duration;
 
     loadNotes(-1, false);

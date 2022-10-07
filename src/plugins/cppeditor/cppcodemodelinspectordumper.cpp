@@ -521,7 +521,7 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
 
             if (!part->files.isEmpty()) {
                 m_out << i3 << "Files:{{{4\n";
-                for (const ProjectFile &projectFile : qAsConst(part->files)) {
+                for (const ProjectFile &projectFile : std::as_const(part->files)) {
                     m_out << i4 << Utils::toString(projectFile.kind) << ": " << projectFile.path;
                     if (!projectFile.active)
                         m_out << " (inactive)";
@@ -546,7 +546,7 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
 
             if (!part->headerPaths.isEmpty()) {
                 m_out << i3 << "Header Paths:{{{4\n";
-                for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(part->headerPaths)) {
+                for (const ProjectExplorer::HeaderPath &headerPath : std::as_const(part->headerPaths)) {
                     m_out << i4 << headerPath.path;
                     printIncludeType(m_out, headerPath.type);
                     m_out << "\n";
@@ -555,7 +555,7 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
 
             if (!part->precompiledHeaders.isEmpty()) {
                 m_out << i3 << "Precompiled Headers:{{{4\n";
-                for (const QString &precompiledHeader : qAsConst(part->precompiledHeaders))
+                for (const QString &precompiledHeader : std::as_const(part->precompiledHeaders))
                     m_out << i4 << precompiledHeader << "\n";
             }
         } // for part

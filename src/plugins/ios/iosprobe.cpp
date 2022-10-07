@@ -103,7 +103,7 @@ void XcodeProbe::setupDefaultToolchains(const QString &devPath)
     }
 
     if (!clangProfile.cCompilerPath.isEmpty() || !clangProfile.cxxCompilerPath.isEmpty()) {
-        for (const QString &arch : qAsConst(allArchitectures)) {
+        for (const QString &arch : std::as_const(allArchitectures)) {
             const QString clangFullName = QString(QLatin1String("Apple Clang (%1)")).arg(arch)
                     + ((devPath != defaultDeveloperPath)
                        ? QString(QLatin1String(" in %1")).arg(devPath)

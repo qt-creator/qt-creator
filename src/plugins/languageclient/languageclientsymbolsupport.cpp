@@ -438,7 +438,7 @@ QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits,
     QMap<Utils::FilePath, QList<ItemData>> rangesInDocument;
     auto documentChanges = edits.documentChanges().value_or(QList<TextDocumentEdit>());
     if (!documentChanges.isEmpty()) {
-        for (const TextDocumentEdit &documentChange : qAsConst(documentChanges)) {
+        for (const TextDocumentEdit &documentChange : std::as_const(documentChanges)) {
             rangesInDocument[documentChange.textDocument().uri().toFilePath()] = convertEdits(
                 documentChange.edits());
         }

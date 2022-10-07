@@ -237,7 +237,7 @@ void ModelToTextMerger::applyChanges()
         textModifier->deactivateChangeSignals();
         textModifier->startGroup();
 
-        for (auto action : qAsConst(m_rewriteActions)) {
+        for (auto action : std::as_const(m_rewriteActions)) {
             if (DebugRewriteActions)
                 qDebug() << "Next rewrite action:" << qPrintable(action->info());
 
@@ -299,7 +299,7 @@ void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
     Utils::sort(offsets);
     TextModifier *textModifier = m_rewriterView->textModifier();
 
-    for (const int offset : qAsConst(offsets)) {
+    for (const int offset : std::as_const(offsets)) {
         const int length = dirtyAreas[offset];
         textModifier->indent(offset, length);
     }
@@ -396,7 +396,7 @@ void ModelToTextMerger::dumpRewriteActions(const QString &msg)
     if (DebugRewriteActions) {
         qDebug() << "---->" << qPrintable(msg);
 
-        for (RewriteAction *action : qAsConst(m_rewriteActions)) {
+        for (RewriteAction *action : std::as_const(m_rewriteActions)) {
             qDebug() << "-----" << qPrintable(action->info());
         }
 

@@ -122,7 +122,7 @@ bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
     ObjectsMapTreeItem *root = new ObjectsMapTreeItem(QString());
 
     QMap<QString, ObjectsMapTreeItem *>::iterator end = itemForName.end();
-    for (ObjectsMapTreeItem *item : qAsConst(itemForName)) {
+    for (ObjectsMapTreeItem *item : std::as_const(itemForName)) {
         const QString &parentName = item->parentName();
         auto parent = itemForName.find(parentName);
         if (parent != end)

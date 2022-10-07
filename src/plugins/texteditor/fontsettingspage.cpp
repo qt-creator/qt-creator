@@ -702,7 +702,7 @@ void FontSettingsPageWidget::refreshColorSchemeList()
 
     int selected = 0;
 
-    for (const FilePath &file : qAsConst(schemeList)) {
+    for (const FilePath &file : std::as_const(schemeList)) {
         if (m_value.colorSchemeFileName() == file)
             selected = colorSchemes.size();
         colorSchemes.append(ColorSchemeEntry(file, true));

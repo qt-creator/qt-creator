@@ -431,7 +431,7 @@ void QmlObjectNode::destroy()
     }
 
     const auto subNodes = modelNode().allSubModelNodesAndThisNode();
-    for (auto &timelineNode : qAsConst(timelineNodes)) {
+    for (auto &timelineNode : std::as_const(timelineNodes)) {
         QmlTimeline timeline(timelineNode);
         for (const auto &subNode : subNodes)
             timeline.destroyKeyframesForTarget(subNode);
@@ -552,7 +552,7 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
     if (QmlVisualNode::isValidQmlVisualNode(view()->rootModelNode()))
         allVisualNodes.append(allQmlVisualNodesRecursive(view()->rootModelNode()));
 
-    for (const QmlVisualNode &node : qAsConst(allVisualNodes))
+    for (const QmlVisualNode &node : std::as_const(allVisualNodes))
         returnList.append(node.states().allStates());
 
     const auto allNodes = view()->allModelNodes();

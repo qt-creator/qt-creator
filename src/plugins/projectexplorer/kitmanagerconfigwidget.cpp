@@ -221,7 +221,7 @@ void KitManagerConfigWidget::setHasUniqueName(bool unique)
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
 {
-    for (KitAspectWidget *w : qAsConst(m_widgets)) {
+    for (KitAspectWidget *w : std::as_const(m_widgets)) {
         if (w->kit()->isSticky(w->kitInformation()->id()))
             w->makeReadOnly();
     }
@@ -272,7 +272,7 @@ void KitManagerConfigWidget::setIcon()
         Utils::sort(allDeviceFactories, less);
     }
     QMenu iconMenu;
-    for (const IDeviceFactory * const factory : qAsConst(allDeviceFactories)) {
+    for (const IDeviceFactory * const factory : std::as_const(allDeviceFactories)) {
         if (factory->icon().isNull())
             continue;
         QAction *action = iconMenu.addAction(factory->icon(),
@@ -332,7 +332,7 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
     k->fix();
     m_fixingKit = false;
 
-    for (KitAspectWidget *w : qAsConst(m_widgets))
+    for (KitAspectWidget *w : std::as_const(m_widgets))
         w->refresh();
 
     m_cachedDisplayName.clear();
@@ -360,7 +360,7 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
 void KitManagerConfigWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
-    for (KitAspectWidget *widget : qAsConst(m_widgets))
+    for (KitAspectWidget *widget : std::as_const(m_widgets))
         widget->refresh();
 }
 

@@ -543,7 +543,7 @@ void CMakeBuildSystem::updateProjectData()
     {
         QSet<QString> res;
         QStringList apps;
-        for (const auto &target : qAsConst(m_buildTargets)) {
+        for (const auto &target : std::as_const(m_buildTargets)) {
             if (target.targetType == DynamicLibraryType) {
                 res.insert(target.executable.parentDir().toString());
                 apps.push_back(target.executable.toUserOutput());
@@ -630,7 +630,7 @@ void CMakeBuildSystem::updateProjectData()
                     QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), false).toBool();
         QStringList extraHeaderPaths;
         QList<QByteArray> moduleMappings;
-        for (const RawProjectPart &rpp : qAsConst(rpps)) {
+        for (const RawProjectPart &rpp : std::as_const(rpps)) {
             FilePath moduleMapFile = buildConfiguration()->buildDirectory()
                     .pathAppended("qml_module_mappings/" + rpp.buildSystemTarget);
             if (moduleMapFile.exists()) {

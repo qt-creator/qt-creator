@@ -62,7 +62,7 @@ static QSet<QString> getSourceFiles(const QVector<ProjectPart::ConstPtr> &projec
 {
     QSet<QString> sourceFiles;
     for (const ProjectPart::ConstPtr &part : projectParts) {
-        for (const ProjectFile &file : qAsConst(part->files))
+        for (const ProjectFile &file : std::as_const(part->files))
             sourceFiles.insert(file.path);
     }
     return sourceFiles;
@@ -83,7 +83,7 @@ static ProjectExplorer::HeaderPaths getHeaderPaths(
 {
     QSet<ProjectExplorer::HeaderPath> uniqueHeaderPaths;
     for (const ProjectPart::ConstPtr &part : projectParts) {
-        for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(part->headerPaths))
+        for (const ProjectExplorer::HeaderPath &headerPath : std::as_const(part->headerPaths))
             uniqueHeaderPaths.insert(headerPath);
     }
     return ProjectExplorer::HeaderPaths(uniqueHeaderPaths.cbegin(), uniqueHeaderPaths.cend());

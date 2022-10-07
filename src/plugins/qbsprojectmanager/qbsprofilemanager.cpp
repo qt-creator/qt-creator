@@ -155,7 +155,7 @@ void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 
     // set up properties:
     QVariantMap data = m_defaultPropertyProvider->properties(k, QVariantMap());
-    for (PropertyProvider *provider : qAsConst(g_propertyProviders)) {
+    for (PropertyProvider *provider : std::as_const(g_propertyProviders)) {
         if (provider->canHandle(k))
             data = provider->properties(k, data);
     }

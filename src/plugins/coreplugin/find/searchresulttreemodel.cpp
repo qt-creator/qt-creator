@@ -457,7 +457,7 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultIte
         itemSet.clear();
     }
     QList<QModelIndex> pathIndices;
-    for (SearchResultTreeItem *item : qAsConst(pathNodes))
+    for (SearchResultTreeItem *item : std::as_const(pathNodes))
         pathIndices << index(item);
     return pathIndices;
 }

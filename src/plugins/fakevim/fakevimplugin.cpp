@@ -1396,7 +1396,7 @@ void FakeVimPluginPrivate::moveSomewhere(FakeVimHandler *handler, DistFunction f
     while (repeat < 0 || repeat-- > 0) {
         editors.removeOne(currentEditor);
         int bestValue = -1;
-        for (IEditor *editor : qAsConst(editors)) {
+        for (IEditor *editor : std::as_const(editors)) {
             QWidget *w = editor->widget();
             QRect editorRect(w->mapToGlobal(w->geometry().topLeft()),
                     w->mapToGlobal(w->geometry().bottomRight()));
@@ -1428,7 +1428,7 @@ void FakeVimPluginPrivate::keepOnlyWindow()
     QList<IEditor *> editors = EditorManager::visibleEditors();
     editors.removeOne(currentEditor);
 
-    for (IEditor *editor : qAsConst(editors)) {
+    for (IEditor *editor : std::as_const(editors)) {
         EditorManager::activateEditor(editor);
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
     }

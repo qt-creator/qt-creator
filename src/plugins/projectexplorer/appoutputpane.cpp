@@ -228,7 +228,7 @@ AppOutputPane::~AppOutputPane()
 {
     qCDebug(appOutputLog) << "AppOutputPane::~AppOutputPane: Entries left" << m_runControlTabs.size();
 
-    for (const RunControlTab &rt : qAsConst(m_runControlTabs)) {
+    for (const RunControlTab &rt : std::as_const(m_runControlTabs)) {
         delete rt.window;
         delete rt.runControl;
     }
@@ -355,7 +355,7 @@ void AppOutputPane::updateFilter()
 const QList<Core::OutputWindow *> AppOutputPane::outputWindows() const
 {
     QList<Core::OutputWindow *> windows;
-    for (const RunControlTab &tab : qAsConst(m_runControlTabs)) {
+    for (const RunControlTab &tab : std::as_const(m_runControlTabs)) {
         if (tab.window)
             windows << tab.window;
     }
@@ -381,7 +381,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     connect(rc, &RunControl::started, this, runControlChanged);
     connect(rc, &RunControl::stopped, this, [this, rc] {
         QTimer::singleShot(0, this, [this, rc] { runControlFinished(rc); });
-        for (const RunControlTab &t : qAsConst(m_runControlTabs)) {
+        for (const RunControlTab &t : std::as_const(m_runControlTabs)) {
             if (t.runControl == rc) {
                 t.window->flush();
                 break;
@@ -451,7 +451,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
 
     connect(ow, &Core::OutputWindow::wheelZoom, this, [this, ow]() {
         float fontZoom = ow->fontZoom();
-        for (const RunControlTab &tab : qAsConst(m_runControlTabs))
+        for (const RunControlTab &tab : std::as_const(m_runControlTabs))
             tab.window->setFontZoom(fontZoom);
     });
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
@@ -476,7 +476,7 @@ void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 
 void AppOutputPane::updateFromSettings()
 {
-    for (const RunControlTab &tab : qAsConst(m_runControlTabs)) {
+    for (const RunControlTab &tab : std::as_const(m_runControlTabs)) {
         tab.window->setWordWrapEnabled(m_settings.wrapOutput);
         tab.window->setMaxCharCount(m_settings.maxCharCount);
     }
@@ -677,19 +677,19 @@ void AppOutputPane::enableDefaultButtons()
 
 void AppOutputPane::zoomIn(int range)
 {
-    for (const RunControlTab &tab : qAsConst(m_runControlTabs))
+    for (const RunControlTab &tab : std::as_const(m_runControlTabs))
         tab.window->zoomIn(range);
 }
 
 void AppOutputPane::zoomOut(int range)
 {
-    for (const RunControlTab &tab : qAsConst(m_runControlTabs))
+    for (const RunControlTab &tab : std::as_const(m_runControlTabs))
         tab.window->zoomOut(range);
 }
 
 void AppOutputPane::resetZoom()
 {
-    for (const RunControlTab &tab : qAsConst(m_runControlTabs))
+    for (const RunControlTab &tab : std::as_const(m_runControlTabs))
         tab.window->resetZoom();
 }
 

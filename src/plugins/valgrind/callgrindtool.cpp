@@ -827,7 +827,7 @@ void CallgrindToolPrivate::editorOpened(IEditor *editor)
 void CallgrindToolPrivate::requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu)
 {
     // Find callgrind text mark that corresponds to this editor's file and line number
-    for (CallgrindTextMark *textMark : qAsConst(m_textMarks)) {
+    for (CallgrindTextMark *textMark : std::as_const(m_textMarks)) {
         if (textMark->fileName() == widget->textDocument()->filePath() && textMark->lineNumber() == line) {
             const Function *func = textMark->function();
             QAction *action = menu->addAction(Tr::tr("Select This Function in the Analyzer Output"));

@@ -415,7 +415,7 @@ void QbsBuildStep::buildingDone(const ErrorInfo &error)
     m_session->disconnect(this);
     m_session = nullptr;
     m_lastWasSuccess = !error.hasError();
-    for (const ErrorInfoItem &item : qAsConst(error.items)) {
+    for (const ErrorInfoItem &item : std::as_const(error.items)) {
         createTaskAndOutput(
                     ProjectExplorer::Task::Error,
                     item.description,
@@ -809,7 +809,7 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
                                              Constants::QBS_INSTALL_ROOT_KEY});
     if (m_qbsStep->m_selectedAbis->isManagedByTarget())
         additionalSpecialKeys << Constants::QBS_ARCHITECTURES;
-    for (const QString &key : qAsConst(additionalSpecialKeys)) {
+    for (const QString &key : std::as_const(additionalSpecialKeys)) {
         const auto it = tmp.constFind(key);
         if (it != tmp.cend())
             data.insert(key, it.value());

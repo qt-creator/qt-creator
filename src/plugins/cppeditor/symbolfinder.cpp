@@ -268,7 +268,7 @@ Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snaps
 
     candidates << fallbacks;
     SymbolWithPriority best;
-    for (const auto &candidate : qAsConst(candidates)) {
+    for (const auto &candidate : std::as_const(candidates)) {
         if (candidate.first == declaration)
             continue;
         if (QLatin1String(candidate.first->fileName()) == declFile

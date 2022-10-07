@@ -109,7 +109,7 @@ public:
 
         sortedPropertiesWithoutId.sort();
 
-        for (const QString &property : qAsConst(sortedPropertiesWithoutId))
+        for (const QString &property : std::as_const(sortedPropertiesWithoutId))
             sourcePreview.append(QLatin1String("    ") + property + QLatin1String(": ") + propertyReader.readAstValue(property));
 
         const bool confirm = ComponentNameDialog::go(&componentName,
@@ -161,7 +161,7 @@ public:
                 if (program->members)
                     astRootNode = program->members->member;
 
-            for (const QString &property : qAsConst(result))
+            for (const QString &property : std::as_const(result))
                 rewriter.removeBindingByName(initializerOfObject(astRootNode), property);
         } else {
             qWarning() << Q_FUNC_INFO << "parsing failed:" << newComponentSource;
@@ -191,7 +191,7 @@ public:
         if (!m_idName.isEmpty())
             replacement += QLatin1String("id: ") + m_idName + QLatin1Char('\n');
 
-        for (const QString &property : qAsConst(result))
+        for (const QString &property : std::as_const(result))
             replacement += property + QLatin1String(": ") + propertyReader.readAstValue(property) + QLatin1Char('\n');
 
         Utils::ChangeSet changes;

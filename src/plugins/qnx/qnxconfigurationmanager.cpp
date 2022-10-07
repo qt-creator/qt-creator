@@ -64,7 +64,7 @@ bool QnxConfigurationManager::addConfiguration(QnxConfiguration *config)
     if (!config || !config->isValid())
         return false;
 
-    for (QnxConfiguration *c : qAsConst(m_configurations)) {
+    for (QnxConfiguration *c : std::as_const(m_configurations)) {
         if (c->envFile() == config->envFile())
             return false;
     }
@@ -90,7 +90,7 @@ void QnxConfigurationManager::saveConfigs()
     QVariantMap data;
     data.insert(QLatin1String(QNXConfigsFileVersionKey), 1);
     int count = 0;
-    for (QnxConfiguration *config : qAsConst(m_configurations)) {
+    for (QnxConfiguration *config : std::as_const(m_configurations)) {
         QVariantMap tmp = config->toMap();
         if (tmp.isEmpty())
             continue;

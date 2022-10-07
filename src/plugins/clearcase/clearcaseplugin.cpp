@@ -523,7 +523,7 @@ QString ClearCasePluginPrivate::ccManagesDirectory(const FilePath &directory) co
     if (vobs.empty())
         vobs = getVobList();
 
-    for (const QString &relativeVobDir : qAsConst(vobs)) {
+    for (const QString &relativeVobDir : std::as_const(vobs)) {
         const QString vobPath = QDir::cleanPath(rootDir + QDir::fromNativeSeparators(relativeVobDir));
         const bool isManaged = (vobPath == directory.toString())
                 || directory.isChildOf(FilePath::fromString(vobPath));

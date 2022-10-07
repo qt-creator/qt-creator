@@ -68,7 +68,7 @@ public:
 
     DocumentClangToolRunner *runnerForFilePath(const Utils::FilePath &filePath)
     {
-        for (DocumentClangToolRunner *runner : qAsConst(documentRunners)) {
+        for (DocumentClangToolRunner *runner : std::as_const(documentRunners)) {
             if (runner->filePath() == filePath)
                 return runner;
         }

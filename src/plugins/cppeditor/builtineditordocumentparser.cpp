@@ -136,7 +136,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     } else {
         // Remove changed files from the snapshot
         QSet<Utils::FilePath> toRemove;
-        for (const Document::Ptr &doc : qAsConst(state.snapshot)) {
+        for (const Document::Ptr &doc : std::as_const(state.snapshot)) {
             const Utils::FilePath fileName = Utils::FilePath::fromString(doc->fileName());
             if (workingCopy.contains(fileName)) {
                 if (workingCopy.get(fileName).second != doc->editorRevision())
@@ -150,7 +150,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
         if (!toRemove.isEmpty()) {
             invalidateSnapshot = true;
-            for (const Utils::FilePath &fileName : qAsConst(toRemove))
+            for (const Utils::FilePath &fileName : std::as_const(toRemove))
                 state.snapshot.remove(fileName);
         }
     }
@@ -189,7 +189,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         sourceProcessor.setLanguageFeatures(features);
         sourceProcessor.run(configurationFileName);
         if (baseConfig.usePrecompiledHeaders) {
-            for (const QString &precompiledHeader : qAsConst(state.precompiledHeaders))
+            for (const QString &precompiledHeader : std::as_const(state.precompiledHeaders))
                 sourceProcessor.run(precompiledHeader);
         }
         if (!baseState.editorDefines.isEmpty())

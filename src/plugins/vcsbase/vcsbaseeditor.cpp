@@ -560,7 +560,7 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *edit
 
 AbstractTextCursorHandler *VcsBaseEditorWidgetPrivate::findTextCursorHandler(const QTextCursor &cursor)
 {
-    for (AbstractTextCursorHandler *handler : qAsConst(m_textCursorHandlers)) {
+    for (AbstractTextCursorHandler *handler : std::as_const(m_textCursorHandlers)) {
         if (handler->findContentsUnderCursor(cursor))
             return handler;
     }

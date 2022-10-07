@@ -1052,7 +1052,7 @@ void AndroidManifestEditorWidget::parseManifest(QXmlStreamReader &reader, QXmlSt
                 writer.writeComment(QLatin1String(" %%INSERT_FEATURES "));
 
             if (!permissions.isEmpty()) {
-                for (const QString &permission : qAsConst(permissions)) {
+                for (const QString &permission : std::as_const(permissions)) {
                     writer.writeEmptyElement(QLatin1String("uses-permission"));
                     writer.writeAttribute(QLatin1String("android:name"), permission);
                 }

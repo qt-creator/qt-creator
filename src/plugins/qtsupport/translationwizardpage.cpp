@@ -92,7 +92,7 @@ TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr)
         return l1.first < l2.first; });
     localeStrings.erase(std::unique(localeStrings.begin(), localeStrings.end()),
                         localeStrings.end());
-    for (const LocalePair &lp : qAsConst(localeStrings))
+    for (const LocalePair &lp : std::as_const(localeStrings))
         m_languageComboBox.addItem(lp.first, lp.second);
     formLayout->addRow(Tr::tr("Language:"), &m_languageComboBox);
     const auto fileNameLayout = new QHBoxLayout;

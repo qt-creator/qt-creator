@@ -579,7 +579,7 @@ QString PluginManager::serializedArguments()
         if (!rc.isEmpty())
             rc += separator;
         rc += QLatin1String(argumentKeywordC);
-        for (const QString &argument : qAsConst(d->arguments))
+        for (const QString &argument : std::as_const(d->arguments))
             rc += separator + argument;
     }
     return rc;
@@ -746,7 +746,7 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
 void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
 {
     // Check plugins for options
-    for (PluginSpec *ps : qAsConst(d->pluginSpecs)) {
+    for (PluginSpec *ps : std::as_const(d->pluginSpecs)) {
         const PluginSpec::PluginArgumentDescriptions pargs = ps->argumentDescriptions();
         if (!pargs.empty()) {
             str << "\nPlugin: " <<  ps->name() << '\n';
@@ -761,7 +761,7 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 */
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
-    for (PluginSpec *ps : qAsConst(d->pluginSpecs))
+    for (PluginSpec *ps : std::as_const(d->pluginSpecs))
         str << "  " << ps->name() << ' ' << ps->version() << ' ' << ps->description() <<  '\n';
 }
 
@@ -993,7 +993,7 @@ void PluginManagerPrivate::writeSettings()
         return;
     QStringList tempDisabledPlugins;
     QStringList tempForceEnabledPlugins;
-    for (PluginSpec *spec : qAsConst(pluginSpecs)) {
+    for (PluginSpec *spec : std::as_const(pluginSpecs)) {
         if (spec->isEnabledByDefault() && !spec->isEnabledBySettings())
             tempDisabledPlugins.append(spec->name());
         if (!spec->isEnabledByDefault() && spec->isEnabledBySettings())
@@ -1203,7 +1203,7 @@ static TestPlan generateCustomTestPlan(IPlugin *plugin,
 
         } else {
             // Add all matching test functions of all remaining test objects
-            for (QObject *testObject : qAsConst(remainingTestObjectsOfPlugin)) {
+            for (QObject *testObject : std::as_const(remainingTestObjectsOfPlugin)) {
                 const QStringList allFunctions = testFunctions(testObject->metaObject());
                 const QStringList matchingFunctions = matchingTestFunctions(allFunctions,
                                                                             matchText);
@@ -1250,7 +1250,7 @@ void PluginManagerPrivate::startTests()
     }
 
     int failedTests = 0;
-    for (const TestSpec &testSpec : qAsConst(testSpecs)) {
+    for (const TestSpec &testSpec : std::as_const(testSpecs)) {
         IPlugin *plugin = testSpec.pluginSpec->plugin();
         if (!plugin)
             continue; // plugin not loaded
@@ -1395,7 +1395,7 @@ void PluginManagerPrivate::shutdown()
 const QVector<PluginSpec *> PluginManagerPrivate::loadQueue()
 {
     QVector<PluginSpec *> queue;
-    for (PluginSpec *spec : qAsConst(pluginSpecs)) {
+    for (PluginSpec *spec : std::as_const(pluginSpecs)) {
         QVector<PluginSpec *> circularityCheckQueue;
         loadQueue(spec, queue, circularityCheckQueue);
     }
@@ -1702,13 +1702,13 @@ void PluginManagerPrivate::readPluginPaths()
 
 void PluginManagerPrivate::resolveDependencies()
 {
-    for (PluginSpec *spec : qAsConst(pluginSpecs))
+    for (PluginSpec *spec : std::as_const(pluginSpecs))
         spec->d->resolveDependencies(pluginSpecs);
 }
 
 void PluginManagerPrivate::enableDependenciesIndirectly()
 {
-    for (PluginSpec *spec : qAsConst(pluginSpecs))
+    for (PluginSpec *spec : std::as_const(pluginSpecs))
         spec->d->enabledIndirectly = false;
     // cannot use reverse loadQueue here, because test dependencies can introduce circles
     QVector<PluginSpec *> queue = Utils::filtered(pluginSpecs, &PluginSpec::isEffectivelyEnabled);
@@ -1723,7 +1723,7 @@ PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *r
 {
     // Look in the plugins for an option
     *requiresArgument = false;
-    for (PluginSpec *spec : qAsConst(pluginSpecs)) {
+    for (PluginSpec *spec : std::as_const(pluginSpecs)) {
         PluginArgumentDescription match = Utils::findOrDefault(spec->argumentDescriptions(),
                                                                [option](PluginArgumentDescription pad) {
                                                                    return pad.name == option;

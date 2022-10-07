@@ -64,7 +64,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
         m_compressionTimer.start(200);
         return;
     }
-    for (const DocumentUri &uri : qAsConst(m_compressedUris)) {
+    for (const DocumentUri &uri : std::as_const(m_compressedUris)) {
         auto entry = m_cache.find(uri);
         if (entry != m_cache.end()) {
             emit gotSymbols(uri, entry.value());

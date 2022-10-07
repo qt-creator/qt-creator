@@ -117,7 +117,7 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
 
     // Ignore *.moc includes if requested
     if (mocIncludeMode == IgnoreMocIncludes) {
-        for (const Document::Include &include : qAsConst(includes)) {
+        for (const Document::Include &include : std::as_const(includes)) {
             if (!include.unresolvedFileName().endsWith(QLatin1String(".moc")))
                 m_includes << include;
         }
@@ -233,7 +233,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
 
     IncludeGroups groupsSameIncludeDir;
     IncludeGroups groupsMixedIncludeDirs;
-    for (const IncludeGroup &group : qAsConst(groupsMatchingIncludeType)) {
+    for (const IncludeGroup &group : std::as_const(groupsMatchingIncludeType)) {
         if (group.hasCommonIncludeDir())
             groupsSameIncludeDir << group;
         else
@@ -241,7 +241,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
     }
 
     IncludeGroups groupsMatchingIncludeDir;
-    for (const IncludeGroup &group : qAsConst(groupsSameIncludeDir)) {
+    for (const IncludeGroup &group : std::as_const(groupsSameIncludeDir)) {
         if (group.commonIncludeDir() == includeDir(pureIncludeFileName))
             groupsMatchingIncludeDir << group;
     }
@@ -251,7 +251,7 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
     if (!groupsMatchingIncludeDir.isEmpty()) {
         // The group with the longest common matching prefix is the best group
         int longestPrefixSoFar = 0;
-        for (const IncludeGroup &group : qAsConst(groupsMatchingIncludeDir)) {
+        for (const IncludeGroup &group : std::as_const(groupsMatchingIncludeDir)) {
             const int groupPrefixLength = group.commonPrefix().length();
             if (groupPrefixLength >= longestPrefixSoFar) {
                 bestGroup = group;
@@ -272,12 +272,12 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
         //       group with mixed include dirs
         } else {
             IncludeGroups groupsIncludeDir;
-            for (const IncludeGroup &group : qAsConst(groupsMixedIncludeDirs)) {
+            for (const IncludeGroup &group : std::as_const(groupsMixedIncludeDirs)) {
                 groupsIncludeDir.append(
                             IncludeGroup::detectIncludeGroupsByIncludeDir(group.includes()));
             }
             IncludeGroup localBestIncludeGroup = IncludeGroup(QList<Include>());
-            for (const IncludeGroup &group : qAsConst(groupsIncludeDir)) {
+            for (const IncludeGroup &group : std::as_const(groupsIncludeDir)) {
                 if (group.commonIncludeDir() == includeDir(pureIncludeFileName))
                     localBestIncludeGroup = group;
             }
@@ -307,7 +307,7 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByNewLines(QList<Document::
     int lastLine = 0;
     QList<Include> currentIncludes;
     bool isFirst = true;
-    for (const Include &include : qAsConst(includes)) {
+    for (const Include &include : std::as_const(includes)) {
         // First include...
         if (isFirst) {
             isFirst = false;
@@ -424,7 +424,7 @@ QList<IncludeGroup> IncludeGroup::filterMixedIncludeGroups(const QList<IncludeGr
 
 bool IncludeGroup::hasOnlyIncludesOfType(Client::IncludeType includeType) const
 {
-    for (const Include &include : qAsConst(m_includes)) {
+    for (const Include &include : std::as_const(m_includes)) {
         if (include.type() != includeType)
             return false;
     }
@@ -467,7 +467,7 @@ int IncludeGroup::lineForNewInclude(const QString &newIncludeFileName,
 QStringList IncludeGroup::filesNames() const
 {
     QStringList names;
-    for (const Include &include : qAsConst(m_includes))
+    for (const Include &include : std::as_const(m_includes))
         names << include.unresolvedFileName();
     return names;
 }

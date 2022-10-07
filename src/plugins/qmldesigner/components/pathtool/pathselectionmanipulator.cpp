@@ -97,13 +97,13 @@ QList<ControlPoint> PathSelectionManipulator::allControlPoints()
 {
     QList<ControlPoint> controlPoints;
 
-    for (const SelectionPoint &selectionPoint : qAsConst(m_singleSelectedPoints))
+    for (const SelectionPoint &selectionPoint : std::as_const(m_singleSelectedPoints))
         controlPoints.append(selectionPoint.controlPoint);
 
-    for (const SelectionPoint &selectionPoint : qAsConst(m_automaticallyAddedSinglePoints))
+    for (const SelectionPoint &selectionPoint : std::as_const(m_automaticallyAddedSinglePoints))
         controlPoints.append(selectionPoint.controlPoint);
 
-    for (const SelectionPoint &selectionPoint : qAsConst(m_multiSelectedPoints))
+    for (const SelectionPoint &selectionPoint : std::as_const(m_multiSelectedPoints))
         controlPoints.append(selectionPoint.controlPoint);
 
     return controlPoints;

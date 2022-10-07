@@ -252,7 +252,7 @@ bool MimeProviderBase::shouldCheck()
 //    const QString lowerFileName = fileName.toLower();
 //    MimeGlobMatchResult result;
 //    // TODO this parses in the order (local, global). Check that it handles "NOGLOBS" correctly.
-//    for (CacheFile *cacheFile : qAsConst(m_cacheFiles)) {
+//    for (CacheFile *cacheFile : std::as_const(m_cacheFiles)) {
 //        matchGlobList(result, cacheFile, cacheFile->getUint32(PosLiteralListOffset), fileName);
 //        matchGlobList(result, cacheFile, cacheFile->getUint32(PosGlobListOffset), fileName);
 //        const int reverseSuffixTreeOffset = cacheFile->getUint32(PosReverseSuffixTreeOffset);
@@ -364,7 +364,7 @@ bool MimeProviderBase::shouldCheck()
 //MimeType MimeBinaryProvider::findByMagic(const QByteArray &data, int *accuracyPtr)
 //{
 //    checkCache();
-//    for (CacheFile *cacheFile : qAsConst(m_cacheFiles)) {
+//    for (CacheFile *cacheFile : std::as_const(m_cacheFiles)) {
 //        const int magicListOffset = cacheFile->getUint32(PosMagicListOffset);
 //        const int numMatches = cacheFile->getUint32(magicListOffset);
 //        //const int maxExtent = cacheFile->getUint32(magicListOffset + 4);
@@ -392,7 +392,7 @@ bool MimeProviderBase::shouldCheck()
 //    checkCache();
 //    const QByteArray mimeStr = mime.toLatin1();
 //    QStringList result;
-//    for (CacheFile *cacheFile : qAsConst(m_cacheFiles)) {
+//    for (CacheFile *cacheFile : std::as_const(m_cacheFiles)) {
 //        const int parentListOffset = cacheFile->getUint32(PosParentListOffset);
 //        const int numEntries = cacheFile->getUint32(parentListOffset);
 
@@ -432,7 +432,7 @@ bool MimeProviderBase::shouldCheck()
 //{
 //    checkCache();
 //    const QByteArray input = name.toLatin1();
-//    for (CacheFile *cacheFile : qAsConst(m_cacheFiles)) {
+//    for (CacheFile *cacheFile : std::as_const(m_cacheFiles)) {
 //        const int aliasListOffset = cacheFile->getUint32(PosAliasListOffset);
 //        const int numEntries = cacheFile->getUint32(aliasListOffset);
 //        int begin = 0;
@@ -463,7 +463,7 @@ bool MimeProviderBase::shouldCheck()
 //    checkCache();
 //    QStringList result;
 //    const QByteArray input = name.toLatin1();
-//    for (CacheFile *cacheFile : qAsConst(m_cacheFiles)) {
+//    for (CacheFile *cacheFile : std::as_const(m_cacheFiles)) {
 //        const int aliasListOffset = cacheFile->getUint32(PosAliasListOffset);
 //        const int numEntries = cacheFile->getUint32(aliasListOffset);
 //        for (int pos = 0; pos < numEntries; ++pos) {
@@ -641,7 +641,7 @@ bool MimeProviderBase::shouldCheck()
 //{
 //    checkCache();
 //    const QByteArray inputMime = data.name.toLatin1();
-//    for (CacheFile *cacheFile : qAsConst(m_cacheFiles)) {
+//    for (CacheFile *cacheFile : std::as_const(m_cacheFiles)) {
 //        const QString icon = iconForMime(cacheFile, PosIconsListOffset, inputMime);
 //        if (!icon.isEmpty()) {
 //            data.iconName = icon;
@@ -654,7 +654,7 @@ bool MimeProviderBase::shouldCheck()
 //{
 //    checkCache();
 //    const QByteArray inputMime = data.name.toLatin1();
-//    for (CacheFile *cacheFile : qAsConst(m_cacheFiles)) {
+//    for (CacheFile *cacheFile : std::as_const(m_cacheFiles)) {
 //        const QString icon = iconForMime(cacheFile, PosGenericIconsListOffset, inputMime);
 //        if (!icon.isEmpty()) {
 //            data.genericIconName = icon;
@@ -696,7 +696,7 @@ MimeType MimeXMLProvider::findByMagic(const QByteArray &data, int *accuracyPtr)
 
     QString candidate;
 
-    for (const MimeMagicRuleMatcher &matcher : qAsConst(m_magicMatchers)) {
+    for (const MimeMagicRuleMatcher &matcher : std::as_const(m_magicMatchers)) {
         if (matcher.matches(data)) {
             const int priority = matcher.priority();
             if (priority > *accuracyPtr) {
@@ -711,7 +711,7 @@ MimeType MimeXMLProvider::findByMagic(const QByteArray &data, int *accuracyPtr)
 QMap<int, QList<MimeMagicRule> > MimeXMLProvider::magicRulesForMimeType(const MimeType &mimeType)
 {
     QMap<int, QList<MimeMagicRule> > result;
-    for (const MimeMagicRuleMatcher &matcher : qAsConst(m_magicMatchers)) {
+    for (const MimeMagicRuleMatcher &matcher : std::as_const(m_magicMatchers)) {
         if (mimeType.matchesName(matcher.mimetype()))
             result[matcher.priority()].append(matcher.magicRules());
     }
@@ -775,7 +775,7 @@ void MimeXMLProvider::ensureLoaded()
             }
         }
 
-        for (const QString &file : qAsConst(allFiles))
+        for (const QString &file : std::as_const(allFiles))
             load(file);
     }
 }

@@ -358,7 +358,7 @@ void Project::setExtraProjectFiles(const QSet<FilePath> &projectDocumentPaths,
         return toRemove.contains(d->filePath());
     });
     if (docUpdater) {
-        for (const auto &doc : qAsConst(d->m_extraProjectDocuments))
+        for (const auto &doc : std::as_const(d->m_extraProjectDocuments))
             docUpdater(doc.get());
     }
     QList<IDocument *> toRegister;
@@ -391,7 +391,7 @@ void Project::updateExtraProjectFiles(const QSet<FilePath> &projectDocumentPaths
 
 void Project::updateExtraProjectFiles(const DocUpdater &docUpdater)
 {
-    for (const auto &doc : qAsConst(d->m_extraProjectDocuments))
+    for (const auto &doc : std::as_const(d->m_extraProjectDocuments))
         docUpdater(doc.get());
 }
 
@@ -625,7 +625,7 @@ FilePaths Project::files(const NodeMatcher &filter) const
         result.append(projectFilePath());
 
     FilePath lastAdded;
-    for (const Node *n : qAsConst(d->m_sortedNodeList)) {
+    for (const Node *n : std::as_const(d->m_sortedNodeList)) {
         if (!filter(n))
             continue;
 

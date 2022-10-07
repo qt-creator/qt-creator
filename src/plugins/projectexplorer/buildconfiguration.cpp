@@ -284,10 +284,10 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
 
     d->m_initialBuildType = info.buildType;
 
-    for (Utils::Id id : qAsConst(d->m_initialBuildSteps))
+    for (Utils::Id id : std::as_const(d->m_initialBuildSteps))
         d->m_buildSteps.appendStep(id);
 
-    for (Utils::Id id : qAsConst(d->m_initialCleanSteps))
+    for (Utils::Id id : std::as_const(d->m_initialCleanSteps))
         d->m_cleanSteps.appendStep(id);
 
     if (d->m_initializer)
@@ -702,7 +702,7 @@ BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const F
 {
     QTC_ASSERT(k, return nullptr);
     const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
-    for (BuildConfigurationFactory *factory : qAsConst(g_buildConfigurationFactories)) {
+    for (BuildConfigurationFactory *factory : std::as_const(g_buildConfigurationFactories)) {
         if (Utils::mimeTypeForFile(projectPath).matchesName(factory->m_supportedProjectMimeTypeName)
             && factory->supportsTargetDeviceType(deviceType))
             return factory;
@@ -713,7 +713,7 @@ BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const F
 // create
 BuildConfigurationFactory * BuildConfigurationFactory::find(Target *parent)
 {
-    for (BuildConfigurationFactory *factory : qAsConst(g_buildConfigurationFactories)) {
+    for (BuildConfigurationFactory *factory : std::as_const(g_buildConfigurationFactories)) {
         if (factory->canHandle(parent))
             return factory;
     }
@@ -775,7 +775,7 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
 BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     const Utils::Id id = idFromMap(map);
-    for (BuildConfigurationFactory *factory : qAsConst(g_buildConfigurationFactories)) {
+    for (BuildConfigurationFactory *factory : std::as_const(g_buildConfigurationFactories)) {
         QTC_ASSERT(factory->m_creator, return nullptr);
         if (!factory->canHandle(parent))
             continue;

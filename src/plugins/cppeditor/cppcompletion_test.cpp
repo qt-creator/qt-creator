@@ -258,7 +258,7 @@ void CompletionTest::testCompletionTemplateFunction()
 
     QStringList actualCompletions = test.getCompletions();
     QString errorPattern(QLatin1String("Completion not found: %1"));
-    for (const QString &completion : qAsConst(expectedCompletions))  {
+    for (const QString &completion : std::as_const(expectedCompletions))  {
         QByteArray errorMessage = errorPattern.arg(completion).toUtf8();
         QVERIFY2(actualCompletions.contains(completion), errorMessage.data());
     }

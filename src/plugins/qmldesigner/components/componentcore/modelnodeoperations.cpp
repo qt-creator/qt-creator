@@ -1052,10 +1052,10 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
     }
     // Defer actual file operations after we have dealt with possible popup dialogs to avoid
     // unnecessarily refreshing file models multiple times during the operation
-    for (const auto &file : qAsConst(removeList))
+    for (const auto &file : std::as_const(removeList))
         QFile::remove(file);
 
-    for (const auto &filePair : qAsConst(copyList)) {
+    for (const auto &filePair : std::as_const(copyList)) {
         const bool success = QFile::copy(filePair.first, filePair.second);
         if (!success)
             return AddFilesResult::Failed;

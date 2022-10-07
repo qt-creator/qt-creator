@@ -140,7 +140,7 @@ void FormEditorStack::updateFormWindowSelectionHandles()
     if (Designer::Constants::Internal::debug)
         qDebug() << "updateFormWindowSelectionHandles";
     QDesignerFormWindowInterface *activeFormWindow = m_designerCore->formWindowManager()->activeFormWindow();
-    for (const EditorData  &fdm : qAsConst(m_formEditors)) {
+    for (const EditorData  &fdm : std::as_const(m_formEditors)) {
         const bool active = activeFormWindow == fdm.widgetHost->formWindow();
         fdm.widgetHost->updateFormWindowSelectionHandles(active);
     }
@@ -168,7 +168,7 @@ void FormEditorStack::modeAboutToChange(Utils::Id mode)
 
     // Sync the editor when entering edit mode
     if (mode == Core::Constants::MODE_EDIT)
-        for (const EditorData &data : qAsConst(m_formEditors))
+        for (const EditorData &data : std::as_const(m_formEditors))
             data.formWindowEditor->formWindowFile()->syncXmlFromFormWindow();
 }
 

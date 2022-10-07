@@ -383,7 +383,7 @@ void Visualization::populateScene()
 
     // add the canvas elements to the scene
     qreal used = sceneHeight * 0.1;
-    for (const Pair &cost : qAsConst(costs)) {
+    for (const Pair &cost : std::as_const(costs)) {
         const QModelIndex &index = cost.first;
         const QString text = index.data().toString();
 

@@ -182,7 +182,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_perspectiveMenu = new QMenu;
     connect(m_perspectiveMenu, &QMenu::aboutToShow, this, [this] {
         m_perspectiveMenu->clear();
-        for (Perspective *perspective : qAsConst(m_perspectives)) {
+        for (Perspective *perspective : std::as_const(m_perspectives)) {
             m_perspectiveMenu->addAction(perspective->d->m_name, perspective, [perspective] {
                 if (auto subPerspective = Perspective::findPerspective(
                         perspective->d->m_lastActiveSubPerspectiveId))
@@ -875,7 +875,7 @@ Context PerspectivePrivate::context() const
 
 PerspectivePrivate::~PerspectivePrivate()
 {
-    for (const DockOperation &op : qAsConst(m_dockOperations))
+    for (const DockOperation &op : std::as_const(m_dockOperations))
         delete op.widget;
 }
 

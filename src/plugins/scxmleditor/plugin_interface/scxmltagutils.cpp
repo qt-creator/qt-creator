@@ -36,7 +36,7 @@ bool checkPaste(const QString &copiedTagTypes, const ScxmlTag *currentTag)
         return false;
 
     QVector<TagType> childTags = allowedChildTypes(currentTag->tagType());
-    for (const TagType &type : qAsConst(tagTypes)) {
+    for (const TagType &type : std::as_const(tagTypes)) {
         if (!childTags.contains(type))
             return false;
     }

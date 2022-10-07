@@ -270,7 +270,7 @@ void ConnectableItem::removeInputTransition(TransitionItem *transition)
 
 void ConnectableItem::updateInputTransitions()
 {
-    for (TransitionItem *transition : qAsConst(m_inputTransitions)) {
+    for (TransitionItem *transition : std::as_const(m_inputTransitions)) {
         transition->updateComponents();
         transition->updateUIProperties();
     }
@@ -279,7 +279,7 @@ void ConnectableItem::updateInputTransitions()
 
 void ConnectableItem::updateOutputTransitions()
 {
-    for (TransitionItem *transition : qAsConst(m_outputTransitions)) {
+    for (TransitionItem *transition : std::as_const(m_outputTransitions)) {
         transition->updateComponents();
         transition->updateUIProperties();
     }
@@ -303,10 +303,10 @@ void ConnectableItem::updateTransitions(bool allChildren)
 
 void ConnectableItem::updateTransitionAttributes(bool allChildren)
 {
-    for (TransitionItem *transition : qAsConst(m_outputTransitions))
+    for (TransitionItem *transition : std::as_const(m_outputTransitions))
         transition->updateTarget();
 
-    for (TransitionItem *transition : qAsConst(m_inputTransitions))
+    for (TransitionItem *transition : std::as_const(m_inputTransitions))
         transition->updateTarget();
 
     if (allChildren) {
@@ -333,7 +333,7 @@ QPointF ConnectableItem::getInternalPosition(const TransitionItem *transition, T
 
     int ind = 0;
     if (type == TransitionItem::InternalNoTarget) {
-        for (TransitionItem *item : qAsConst(m_outputTransitions)) {
+        for (TransitionItem *item : std::as_const(m_outputTransitions)) {
             if (item->targetType() == TransitionItem::InternalSameTarget)
                 ind++;
         }
@@ -565,7 +565,7 @@ void ConnectableItem::updateAttributes()
 {
     BaseItem::updateAttributes();
 
-    for (TransitionItem *transition : qAsConst(m_inputTransitions)) {
+    for (TransitionItem *transition : std::as_const(m_inputTransitions)) {
         if (transition->isEndItem(this))
             transition->setTagValue("target", itemId());
     }
@@ -681,7 +681,7 @@ void ConnectableItem::finalizeCreation()
 
 bool ConnectableItem::hasInputTransitions(const ConnectableItem *parentItem, bool checkChildren) const
 {
-    for (const TransitionItem *it : qAsConst(m_inputTransitions))
+    for (const TransitionItem *it : std::as_const(m_inputTransitions))
         if (!SceneUtils::isChild(parentItem, it->connectedItem(this)))
             return true;
 
@@ -701,7 +701,7 @@ bool ConnectableItem::hasInputTransitions(const ConnectableItem *parentItem, boo
 
 bool ConnectableItem::hasOutputTransitions(const ConnectableItem *parentItem, bool checkChildren) const
 {
-    for (TransitionItem *it : qAsConst(m_outputTransitions))
+    for (TransitionItem *it : std::as_const(m_outputTransitions))
         if (!SceneUtils::isChild(parentItem, it->connectedItem(this)))
             return true;
 
@@ -754,7 +754,7 @@ void ConnectableItem::checkOverlapping()
     }
 
     // Add new overlapped items
-    for (ConnectableItem *it : qAsConst(overlappedItems)) {
+    for (ConnectableItem *it : std::as_const(overlappedItems)) {
         if (!m_overlappedItems.contains(it)) {
             m_overlappedItems << it;
             it->addOverlappingItem(this);

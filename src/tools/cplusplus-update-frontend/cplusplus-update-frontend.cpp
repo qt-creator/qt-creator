@@ -1020,7 +1020,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     StringClassSpecifierASTMap classesNeedingLastToken;
 
     // find all classes with method declarations for firstToken/lastToken
-    for (ClassSpecifierAST *classAST : qAsConst(astNodes.deriveds)) {
+    for (ClassSpecifierAST *classAST : std::as_const(astNodes.deriveds)) {
         const QString className = oo(classAST->symbol->name());
         if (className.isEmpty())
             continue;
@@ -1110,7 +1110,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     const int documentEnd = cpp_document.lastBlock().position() + cpp_document.lastBlock().length() - 1;
 
     Utils::ChangeSet changes;
-    for (GenInfo info : qAsConst(todo)) {
+    for (GenInfo info : std::as_const(todo)) {
         if (info.end > documentEnd)
             info.end = documentEnd;
 
@@ -1318,7 +1318,7 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
     Overview oo;
 
     QStringList castMethods;
-    for (ClassSpecifierAST *classAST : qAsConst(astNodes.deriveds)) {
+    for (ClassSpecifierAST *classAST : std::as_const(astNodes.deriveds)) {
         cursors[classAST] = removeCastMethods(classAST);
         const QString className = oo(classAST->symbol->name());
         const QString methodName = QLatin1String("as") + className.mid(0, className.length() - 3);
@@ -1485,7 +1485,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     Control *control = AST_h_document->control();
     QSet<QString> classesSet;
 
-    for (ClassSpecifierAST *classNode : qAsConst(astNodes.deriveds)) {
+    for (ClassSpecifierAST *classNode : std::as_const(astNodes.deriveds)) {
         Class *klass = classNode->symbol;
 
         const Identifier *match0_id = control->identifier("match0");
@@ -1540,7 +1540,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
             << "    {" << Qt::endl
             << "        " << className << " *ast = new (&pool) " << className << ';' << Qt::endl;
 
-        for (const StringPair &p : qAsConst(args))
+        for (const StringPair &p : std::as_const(args))
             out << "        ast->" << p.second << " = " << p.second << ';' << Qt::endl;
 
         out << "        return ast;" << Qt::endl << "    }" << Qt::endl << Qt::endl;
@@ -1548,7 +1548,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
     QStringList classesList = Utils::toList(classesSet);
     Utils::sort(classesList);
-    for (const QString &className : qAsConst(classesList)) {
+    for (const QString &className : std::as_const(classesList)) {
         const QString methodName = className.left(className.length() - 3);
         const QString elementName = className.left(className.length() - 7) + QLatin1String("AST");
         out << "    " << className << " *" << methodName << "(" << elementName << " *value, "

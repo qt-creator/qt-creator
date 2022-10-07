@@ -122,7 +122,7 @@ void PathItem::writePathToProperty()
             pathNode.variantProperty("startX").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().x());
             pathNode.variantProperty("startY").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().y());
 
-            for (const CubicSegment &cubicSegment : qAsConst(m_cubicSegments)) {
+            for (const CubicSegment &cubicSegment : std::as_const(m_cubicSegments)) {
                 writePathAttributes(pathNode, cubicSegment.attributes());
                 writePathPercent(pathNode, cubicSegment.percent());
 
@@ -157,7 +157,7 @@ void PathItem::writePathAsCubicSegmentsOnly()
                 pathNode.variantProperty("startY").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().y());
 
 
-                for (const CubicSegment &cubicSegment : qAsConst(m_cubicSegments)) {
+                for (const CubicSegment &cubicSegment : std::as_const(m_cubicSegments)) {
                     writePathAttributes(pathNode, cubicSegment.attributes());
                     writePathPercent(pathNode, cubicSegment.percent());
                     writeCubicPath(pathNode, cubicSegment);
@@ -668,7 +668,7 @@ const QList<ControlPoint> PathItem::controlPoints() const
     if (!m_cubicSegments.isEmpty())
         controlPointList.append(m_cubicSegments.constFirst().firstControlPoint());
 
-    for (const CubicSegment &cubicSegment : qAsConst(m_cubicSegments)) {
+    for (const CubicSegment &cubicSegment : std::as_const(m_cubicSegments)) {
         controlPointList.append(cubicSegment.secondControlPoint());
         controlPointList.append(cubicSegment.thirdControlPoint());
         controlPointList.append(cubicSegment.fourthControlPoint());

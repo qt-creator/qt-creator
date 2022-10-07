@@ -108,7 +108,7 @@ ReadOnlyFilesDialogPrivate::ReadOnlyFilesDialogPrivate(ReadOnlyFilesDialog *pare
 
 ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
 {
-    for (const ButtonGroupForFile &groupForFile : qAsConst(buttonGroups))
+    for (const ButtonGroupForFile &groupForFile : std::as_const(buttonGroups))
         delete groupForFile.group;
 }
 
@@ -282,7 +282,7 @@ int ReadOnlyFilesDialog::exec()
     ReadOnlyResult result = RO_Cancel;
     FilePaths failedToMakeWritable;
     for (const ReadOnlyFilesDialogPrivate::ButtonGroupForFile &buttongroup
-         : qAsConst(d->buttonGroups)) {
+         : std::as_const(d->buttonGroups)) {
         result = static_cast<ReadOnlyResult>(buttongroup.group->checkedId());
         switch (result) {
         case RO_MakeWritable:
@@ -356,7 +356,7 @@ void ReadOnlyFilesDialogPrivate::setAll(int index)
 
     // Check for every file if the selected operation is available and change it to the operation.
     for (const ReadOnlyFilesDialogPrivate::ButtonGroupForFile &groupForFile :
-         qAsConst(buttonGroups)) {
+         std::as_const(buttonGroups)) {
         auto radioButton = qobject_cast<QRadioButton *>(groupForFile.group->button(type));
         if (radioButton)
             radioButton->setChecked(true);
@@ -372,7 +372,7 @@ void ReadOnlyFilesDialogPrivate::updateSelectAll()
 {
     int selectedOperation = -1;
     for (const ReadOnlyFilesDialogPrivate::ButtonGroupForFile &groupForFile :
-         qAsConst(buttonGroups)) {
+         std::as_const(buttonGroups)) {
         if (selectedOperation == -1) {
             selectedOperation = groupForFile.group->checkedId();
         } else if (selectedOperation != groupForFile.group->checkedId()) {

@@ -63,13 +63,13 @@ SideBar::SideBar(QList<SideBarItem*> itemList,
     d(new SideBarPrivate)
 {
     setOrientation(Qt::Vertical);
-    for (SideBarItem *item : qAsConst(itemList)) {
+    for (SideBarItem *item : std::as_const(itemList)) {
         d->m_itemMap.insert(item->id(), item);
         d->m_availableItemIds.append(item->id());
         d->m_availableItemTitles.append(item->title());
     }
 
-    for (SideBarItem *item : qAsConst(defaultVisible)) {
+    for (SideBarItem *item : std::as_const(defaultVisible)) {
         if (!itemList.contains(item))
             continue;
         d->m_defaultVisible.append(item->id());
@@ -78,7 +78,7 @@ SideBar::SideBar(QList<SideBarItem*> itemList,
 
 SideBar::~SideBar()
 {
-    for (const QPointer<SideBarItem> &i : qAsConst(d->m_itemMap))
+    for (const QPointer<SideBarItem> &i : std::as_const(d->m_itemMap))
         if (!i.isNull())
             delete i.data();
     delete d;
@@ -138,7 +138,7 @@ void SideBar::makeItemAvailable(SideBarItem *item)
 void SideBar::setUnavailableItemIds(const QStringList &itemIds)
 {
     // re-enable previous items
-    for (const QString &id : qAsConst(d->m_unavailableItemIds)) {
+    for (const QString &id : std::as_const(d->m_unavailableItemIds)) {
         d->m_availableItemIds.append(id);
         d->m_availableItemTitles.append(d->m_itemMap.value(id).data()->title());
     }
@@ -224,7 +224,7 @@ void SideBar::closeSubWidget(Internal::SideBarWidget *widget)
 
 void SideBar::updateWidgets()
 {
-    for (Internal::SideBarWidget *i : qAsConst(d->m_widgets))
+    for (Internal::SideBarWidget *i : std::as_const(d->m_widgets))
         i->updateAvailableItems();
 }
 
@@ -250,7 +250,7 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
 
 void SideBar::closeAllWidgets()
 {
-    for (Internal::SideBarWidget *widget : qAsConst(d->m_widgets))
+    for (Internal::SideBarWidget *widget : std::as_const(d->m_widgets))
         removeSideBarWidget(widget);
 }
 
@@ -273,7 +273,7 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
         }
     }
     if (d->m_widgets.size() == 0) {
-        for (const QString &id : qAsConst(d->m_defaultVisible))
+        for (const QString &id : std::as_const(d->m_defaultVisible))
             insertSideBarWidget(d->m_widgets.count(), id);
     }
 

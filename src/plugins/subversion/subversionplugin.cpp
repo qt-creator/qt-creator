@@ -1019,7 +1019,7 @@ QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
 {
     QTC_ASSERT(!repository.isEmpty(), return QString());
     QDir repoDir(repository.toString());
-    for (const QString &svnDir : qAsConst(m_svnDirectories)) {
+    for (const QString &svnDir : std::as_const(m_svnDirectories)) {
         if (repoDir.exists(svnDir)) {
             QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
             if (fi.exists() && fi.isFile())

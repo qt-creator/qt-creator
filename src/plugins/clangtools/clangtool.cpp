@@ -250,7 +250,7 @@ public:
             QVector<DiagnosticItem *> itemsSchedulable;
 
             // Construct refactoring operations
-            for (DiagnosticItem *diagnosticItem : qAsConst(fileInfo.diagnosticItems)) {
+            for (DiagnosticItem *diagnosticItem : std::as_const(fileInfo.diagnosticItems)) {
                 const FixitStatus fixItStatus = diagnosticItem->fixItStatus();
 
                 const bool isScheduled = fixItStatus == FixitStatus::Scheduled;
@@ -269,7 +269,7 @@ public:
 
             // Collect replacements
             ReplacementOperations ops;
-            for (DiagnosticItem *item : qAsConst(itemsScheduledOrSchedulable))
+            for (DiagnosticItem *item : std::as_const(itemsScheduledOrSchedulable))
                 ops += item->fixitOperations();
 
             if (ops.empty())
@@ -291,11 +291,11 @@ public:
             model->addWatchedPath(ops.first()->fileName);
 
             // Update DiagnosticItem state
-            for (DiagnosticItem *diagnosticItem : qAsConst(itemsScheduled))
+            for (DiagnosticItem *diagnosticItem : std::as_const(itemsScheduled))
                 diagnosticItem->setFixItStatus(FixitStatus::Applied);
-            for (DiagnosticItem *diagnosticItem : qAsConst(itemsFailedToApply))
+            for (DiagnosticItem *diagnosticItem : std::as_const(itemsFailedToApply))
                 diagnosticItem->setFixItStatus(FixitStatus::FailedToApply);
-            for (DiagnosticItem *diagnosticItem : qAsConst(itemsInvalidated))
+            for (DiagnosticItem *diagnosticItem : std::as_const(itemsInvalidated))
                 diagnosticItem->setFixItStatus(FixitStatus::Invalidated);
         }
     }
@@ -313,7 +313,7 @@ static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr>
         if (!projectPart->selectedForBuilding)
             continue;
 
-        for (const CppEditor::ProjectFile &file : qAsConst(projectPart->files)) {
+        for (const CppEditor::ProjectFile &file : std::as_const(projectPart->files)) {
             QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unclassified, continue);
             QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unsupported, continue);
             if (file.path == CppEditor::CppModelManager::configurationFileName())

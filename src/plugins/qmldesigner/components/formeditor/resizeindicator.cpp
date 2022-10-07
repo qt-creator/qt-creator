@@ -20,13 +20,13 @@ ResizeIndicator::~ResizeIndicator()
 
 void ResizeIndicator::show()
 {
-    for (ResizeController controller : qAsConst(m_itemControllerHash))
+    for (ResizeController controller : std::as_const(m_itemControllerHash))
         controller.show();
 }
 
 void ResizeIndicator::hide()
 {
-    for (ResizeController controller : qAsConst(m_itemControllerHash))
+    for (ResizeController controller : std::as_const(m_itemControllerHash))
         controller.hide();
 }
 

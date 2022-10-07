@@ -618,13 +618,13 @@ void QmlJSEditorDocumentPrivate::createTextMarks(const SemanticInfo &info)
         m_semanticMarks.removeAll(mark);
         delete mark;
     };
-    for (const DiagnosticMessage &diagnostic : qAsConst(info.semanticMessages)) {
+    for (const DiagnosticMessage &diagnostic : std::as_const(info.semanticMessages)) {
         auto mark = new QmlJSTextMark(q->filePath(),
                                       diagnostic, onMarkRemoved);
         m_semanticMarks.append(mark);
         q->addMark(mark);
     }
-    for (const QmlJS::StaticAnalysis::Message &message : qAsConst(info.staticAnalysisMessages)) {
+    for (const QmlJS::StaticAnalysis::Message &message : std::as_const(info.staticAnalysisMessages)) {
         auto mark = new QmlJSTextMark(q->filePath(),
                                       message, onMarkRemoved);
         m_semanticMarks.append(mark);

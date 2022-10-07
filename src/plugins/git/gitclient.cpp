@@ -1796,7 +1796,7 @@ QString GitClient::synchronousTopic(const FilePath &workingDirectory) const
     const QString dereference("^{}");
     QString remoteBranch;
 
-    for (const QString &ref : qAsConst(references)) {
+    for (const QString &ref : std::as_const(references)) {
         int derefInd = ref.indexOf(dereference);
         if (ref.startsWith(tagStart))
             return ref.mid(tagStart.size(), (derefInd == -1) ? -1 : derefInd - tagStart.size());
@@ -1968,7 +1968,7 @@ bool GitClient::stashNameFromMessage(const FilePath &workingDirectory,
     QList<Stash> stashes;
     if (!synchronousStashList(workingDirectory, &stashes, errorMessage))
         return false;
-    for (const Stash &s : qAsConst(stashes)) {
+    for (const Stash &s : std::as_const(stashes)) {
         if (s.message == message) {
             *name = s.name;
             return true;
@@ -2321,7 +2321,7 @@ void GitClient::updateSubmodulesIfNeeded(const FilePath &workingDirectory, bool 
 
 void GitClient::finishSubmoduleUpdate()
 {
-    for (const FilePath &submoduleDir : qAsConst(m_updatedSubmodules))
+    for (const FilePath &submoduleDir : std::as_const(m_updatedSubmodules))
         endStashScope(submoduleDir);
     m_updatedSubmodules.clear();
 }

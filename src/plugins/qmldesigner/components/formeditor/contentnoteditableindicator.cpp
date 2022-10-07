@@ -26,7 +26,7 @@ ContentNotEditableIndicator::~ContentNotEditableIndicator()
 
 void ContentNotEditableIndicator::clear()
 {
-    for (const EntryPair &entryPair : qAsConst(m_entryList)) {
+    for (const EntryPair &entryPair : std::as_const(m_entryList)) {
         delete entryPair.second;
         entryPair.first->blurContent(false);
     }
@@ -52,8 +52,8 @@ void ContentNotEditableIndicator::updateItems(const QList<FormEditorItem *> &ite
     for (FormEditorItem *formEditorItem : itemList)
         affectedFormEditorItemItems.unite(Utils::toSet(formEditorItem->offspringFormEditorItems()));
 
-    for (const EntryPair &entryPair : qAsConst(m_entryList)) {
-        for (FormEditorItem *formEditorItem : qAsConst(affectedFormEditorItemItems)) {
+    for (const EntryPair &entryPair : std::as_const(m_entryList)) {
+        for (FormEditorItem *formEditorItem : std::as_const(affectedFormEditorItemItems)) {
             if (formEditorItem == entryPair.first) {
                 QRectF boundingRectangleInSceneSpace
                     = formEditorItem->qmlItemNode().instanceSceneTransform().mapRect(

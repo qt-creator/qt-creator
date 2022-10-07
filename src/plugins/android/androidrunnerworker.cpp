@@ -416,7 +416,7 @@ void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buff
     }
 
     QString pidString = QString::number(m_processPID);
-    for (const QByteArray &msg : qAsConst(lines)) {
+    for (const QByteArray &msg : std::as_const(lines)) {
         const QString line = QString::fromUtf8(msg).trimmed() + QLatin1Char('\n');
         if (!line.contains(pidString))
             continue;
@@ -526,7 +526,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     forceStop();
     asyncStartLogcat();
 
-    for (const QString &entry : qAsConst(m_beforeStartAdbCommands))
+    for (const QString &entry : std::as_const(m_beforeStartAdbCommands))
         runAdb(entry.split(' ', Qt::SkipEmptyParts));
 
     QStringList args({"shell", "am", "start"});
@@ -823,7 +823,7 @@ void AndroidRunnerWorker::onProcessIdChanged(qint64 pid)
         m_debugServerProcess.reset();
 
         // Run adb commands after application quit.
-        for (const QString &entry: qAsConst(m_afterFinishAdbCommands))
+        for (const QString &entry: std::as_const(m_afterFinishAdbCommands))
             runAdb(entry.split(' ', Qt::SkipEmptyParts));
     } else {
         // In debugging cases this will be funneled to the engine to actually start

@@ -168,7 +168,7 @@ void index(QFutureInterface<void> &indexingFuture,
     QStringList headers;
     classifyFiles(params.sourceFiles, &headers, &sources);
 
-    for (const QString &file : qAsConst(params.sourceFiles))
+    for (const QString &file : std::as_const(params.sourceFiles))
         sourceProcessor->removeFromCache(file);
 
     const int sourceCount = sources.size();

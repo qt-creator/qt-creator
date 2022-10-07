@@ -782,7 +782,7 @@ QMenu *PeripheralRegisterHandler::createRegisterGroupsMenu(DebuggerState state)
     const auto groupMenu = new QMenu(Tr::tr("View Groups"));
     const auto actionGroup = new QActionGroup(groupMenu);
     bool hasActions = false;
-    for (const PeripheralRegisterGroup &group : qAsConst(m_peripheralRegisterGroups)) {
+    for (const PeripheralRegisterGroup &group : std::as_const(m_peripheralRegisterGroups)) {
         const QString groupName = group.name;
         const QString actName = QStringLiteral("%1: %2").arg(groupName, group.description);
         QAction *act = groupMenu->addAction(actName);

@@ -271,7 +271,7 @@ void LoggingViewManager::prefillCategories()
 
 void LoggingViewManager::resetFilterRules()
 {
-    for (const FilterRuleSpec &rule : qAsConst(m_originalRules)) {
+    for (const FilterRuleSpec &rule : std::as_const(m_originalRules)) {
         const QString level = rule.level.has_value() ? '.' + levelToString(rule.level.value())
                                                      : QString();
         const QString ruleString = rule.category + level + '=' + (rule.enabled ? "true" : "false");
@@ -285,7 +285,7 @@ bool LoggingViewManager::enabledInOriginalRules(const QMessageLogContext &contex
         return false;
     const QString category = QString::fromUtf8(context.category);
     bool result = false;
-    for (const FilterRuleSpec &rule : qAsConst(m_originalRules)) {
+    for (const FilterRuleSpec &rule : std::as_const(m_originalRules)) {
         const QRegularExpression regex(
                     QRegularExpression::wildcardToRegularExpression(rule.category));
         if (regex.match(category).hasMatch()) {

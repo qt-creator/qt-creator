@@ -121,7 +121,7 @@ bool Macro::save(const QString &fileName, QWidget *parent)
         QDataStream stream(saver.file());
         stream << d->version;
         stream << d->description;
-        for (const MacroEvent &event : qAsConst(d->events)) {
+        for (const MacroEvent &event : std::as_const(d->events)) {
             event.save(stream);
         }
         saver.setResult(&stream);

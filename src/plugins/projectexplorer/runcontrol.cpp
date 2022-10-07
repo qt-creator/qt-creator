@@ -150,10 +150,10 @@ void RunWorkerFactory::dumpAll()
     const QList<Utils::Id> devices =
             Utils::transform(IDeviceFactory::allDeviceFactories(), &IDeviceFactory::deviceType);
 
-    for (Utils::Id runMode : qAsConst(g_runModes)) {
+    for (Utils::Id runMode : std::as_const(g_runModes)) {
         qDebug() << "";
         for (Utils::Id device : devices) {
-            for (Utils::Id runConfig : qAsConst(g_runConfigs)) {
+            for (Utils::Id runConfig : std::as_const(g_runConfigs)) {
                 const auto check = std::bind(&RunWorkerFactory::canRun,
                                              std::placeholders::_1,
                                              runMode,
@@ -520,7 +520,7 @@ bool RunControl::createMainWorker()
 
 bool RunControl::canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId)
 {
-    for (const RunWorkerFactory *factory : qAsConst(g_runWorkerFactories)) {
+    for (const RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
         if (factory->canRun(runMode, deviceType, runConfigId.toString()))
             return true;
     }
@@ -541,7 +541,7 @@ void RunControlPrivate::initiateReStart()
     checkState(RunControlState::Stopped);
 
     // Re-set worked on re-runs.
-    for (RunWorker *worker : qAsConst(m_workers)) {
+    for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker->d->state == RunWorkerState::Done)
             worker->d->state = RunWorkerState::Initialized;
     }
@@ -557,7 +557,7 @@ void RunControlPrivate::continueStart()
     checkState(RunControlState::Starting);
     bool allDone = true;
     debugMessage("Looking for next worker");
-    for (RunWorker *worker : qAsConst(m_workers)) {
+    for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker) {
             const QString &workerId = worker->d->id;
             debugMessage("  Examining worker " + workerId);
@@ -620,7 +620,7 @@ void RunControlPrivate::continueStopOrFinish()
         }
     };
 
-    for (RunWorker *worker : qAsConst(m_workers)) {
+    for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker) {
             const QString &workerId = worker->d->id;
             debugMessage("  Examining worker " + workerId);
@@ -672,7 +672,7 @@ void RunControlPrivate::forceStop()
         debugMessage("Was finished, too late to force Stop");
         return;
     }
-    for (RunWorker *worker : qAsConst(m_workers)) {
+    for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker) {
             const QString &workerId = worker->d->id;
             debugMessage("  Examining worker " + workerId);
@@ -788,7 +788,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
         return;
     }
 
-    for (RunWorker *dependent : qAsConst(worker->d->stopDependencies)) {
+    for (RunWorker *dependent : std::as_const(worker->d->stopDependencies)) {
         switch (dependent->d->state) {
         case RunWorkerState::Done:
             break;
@@ -805,7 +805,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 
     debugMessage("Checking whether all stopped");
     bool allDone = true;
-    for (RunWorker *worker : qAsConst(m_workers)) {
+    for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker) {
             const QString &workerId = worker->d->id;
             debugMessage("  Examining worker " + workerId);
@@ -856,7 +856,7 @@ void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
     QList<Utils::OutputLineParser *> parsers = OutputFormatterFactory::createFormatters(target());
     if (const auto customParsersAspect = aspect<CustomParsersAspect>()) {
-        for (const Id id : qAsConst(customParsersAspect->parsers)) {
+        for (const Id id : std::as_const(customParsersAspect->parsers)) {
             if (CustomParser * const parser = CustomParser::createFromId(id))
                 parsers << parser;
         }
@@ -1879,7 +1879,7 @@ OutputFormatterFactory::~OutputFormatterFactory()
 QList<OutputLineParser *> OutputFormatterFactory::createFormatters(Target *target)
 {
     QList<OutputLineParser *> formatters;
-    for (auto factory : qAsConst(g_outputFormatterFactories))
+    for (auto factory : std::as_const(g_outputFormatterFactories))
         formatters << factory->m_creator(target);
     return formatters;
 }

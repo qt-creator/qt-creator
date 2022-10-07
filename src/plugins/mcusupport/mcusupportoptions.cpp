@@ -100,7 +100,7 @@ void McuSupportOptions::setQulDir(const FilePath &)
         sdkRepository = targetsAndPackages(qtForMCUsSdkPackage, settingsHandler);
     else
         sdkRepository = McuSdkRepository{};
-    for (const auto &package : qAsConst(sdkRepository.packages))
+    for (const auto &package : std::as_const(sdkRepository.packages))
         connect(package.get(),
                 &McuAbstractPackage::changed,
                 this,

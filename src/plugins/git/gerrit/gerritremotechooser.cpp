@@ -103,7 +103,7 @@ bool GerritRemoteChooser::updateRemotes(bool forceReload)
 void GerritRemoteChooser::addRemote(const GerritServer &server, const QString &name)
 {
     if (!m_allowDups) {
-        for (const auto &remote : qAsConst(m_remotes)) {
+        for (const auto &remote : std::as_const(m_remotes)) {
             if (remote.second == server)
                 return;
         }

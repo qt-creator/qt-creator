@@ -185,7 +185,7 @@ QString Suppression::toString() const
     stream << "{\n";
     stream << indent << d->name << '\n';
     stream << indent << d->kind << '\n';
-    for (const SuppressionFrame &frame : qAsConst(d->frames))
+    for (const SuppressionFrame &frame : std::as_const(d->frames))
         stream << indent << frame.toString() << '\n';
     stream << "}\n";
     return ret;

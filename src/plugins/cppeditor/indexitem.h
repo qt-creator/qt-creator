@@ -77,7 +77,7 @@ public:
     VisitorResult visitAllChildren(Visitor callback) const
     {
         VisitorResult result = Recurse;
-        for (const IndexItem::Ptr &child : qAsConst(m_children)) {
+        for (const IndexItem::Ptr &child : std::as_const(m_children)) {
             result = callback(child);
             switch (result) {
             case Break:

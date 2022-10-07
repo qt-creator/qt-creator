@@ -118,7 +118,7 @@ void DesignMode::registerDesignWidget(QWidget *widget,
 void DesignMode::unregisterDesignWidget(QWidget *widget)
 {
     d->m_stackWidget->removeWidget(widget);
-    for (DesignEditorInfo *info : qAsConst(d->m_editors)) {
+    for (DesignEditorInfo *info : std::as_const(d->m_editors)) {
         if (info->widget == widget) {
             d->m_editors.removeAll(info);
             delete info;
@@ -138,7 +138,7 @@ void DesignMode::currentEditorChanged(IEditor *editor)
     if (editor) {
         const QString mimeType = editor->document()->mimeType();
         if (!mimeType.isEmpty()) {
-            for (const DesignEditorInfo *editorInfo : qAsConst(d->m_editors)) {
+            for (const DesignEditorInfo *editorInfo : std::as_const(d->m_editors)) {
                 for (const QString &mime : editorInfo->mimeTypes) {
                     if (mime == mimeType) {
                         d->m_stackWidget->setCurrentIndex(editorInfo->widgetIndex);

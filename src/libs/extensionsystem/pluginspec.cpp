@@ -998,7 +998,7 @@ bool PluginSpecPrivate::resolveDependencies(const QVector<PluginSpec *> &specs)
         return false;
     }
     QHash<PluginDependency, PluginSpec *> resolvedDependencies;
-    for (const PluginDependency &dependency : qAsConst(dependencies)) {
+    for (const PluginDependency &dependency : std::as_const(dependencies)) {
         PluginSpec * const found = Utils::findOrDefault(specs, [&dependency](PluginSpec *spec) {
             return spec->provides(dependency.name, dependency.version);
         });

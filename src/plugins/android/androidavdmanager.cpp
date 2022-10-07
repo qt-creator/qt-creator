@@ -212,11 +212,11 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
         avdErrorPaths.clear();
         avdList = parseAvdList(output, &avdErrorPaths);
         allAvdErrorPaths << avdErrorPaths;
-        for (const QString &avdPathStr : qAsConst(avdErrorPaths))
+        for (const QString &avdPathStr : std::as_const(avdErrorPaths))
             avdConfigEditManufacturerTag(avdPathStr); // comment out manufacturer tag
     } while (!avdErrorPaths.isEmpty());               // try again
 
-    for (const QString &avdPathStr : qAsConst(allAvdErrorPaths))
+    for (const QString &avdPathStr : std::as_const(allAvdErrorPaths))
         avdConfigEditManufacturerTag(avdPathStr, true); // re-add manufacturer tag
 
     return avdList;

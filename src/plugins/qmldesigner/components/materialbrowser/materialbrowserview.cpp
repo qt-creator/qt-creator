@@ -90,7 +90,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                                 propNames.append(changedProp.name());
                         }
                     }
-                    for (const PropertyName &propName : qAsConst(propNames)) {
+                    for (const PropertyName &propName : std::as_const(propNames)) {
                         if (propName != "objectName")
                             mat.removeProperty(propName);
                     }

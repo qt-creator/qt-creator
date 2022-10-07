@@ -358,7 +358,7 @@ void PluginView::updatePlugins()
     }
     Utils::sort(collections, &CollectionItem::m_name);
 
-    for (CollectionItem *collection : qAsConst(collections))
+    for (CollectionItem *collection : std::as_const(collections))
         m_model->rootItem()->appendChild(collection);
 
     emit m_model->layoutChanged();

@@ -234,7 +234,7 @@ void ResourceEditorPlugin::extensionsInitialized()
             }, {}, [](const FolderNode *fn) {
                 return dynamic_cast<const ResourceTopLevelNode *>(fn) == nullptr;
             });
-            for (FileNode *file : qAsConst(toReplace)) {
+            for (FileNode *file : std::as_const(toReplace)) {
                 FolderNode *const pn = file->parentFolderNode();
                 QTC_ASSERT(pn, continue);
                 const Utils::FilePath path = file->filePath();

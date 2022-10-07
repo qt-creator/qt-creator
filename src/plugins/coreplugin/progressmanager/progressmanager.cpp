@@ -515,7 +515,7 @@ void ProgressManagerPrivate::stopFadeOfSummaryProgress()
 
 bool ProgressManagerPrivate::hasError() const
 {
-    for (const FutureProgress *progress : qAsConst(m_taskList))
+    for (const FutureProgress *progress : std::as_const(m_taskList))
         if (progress->hasError())
             return true;
     return false;
@@ -525,7 +525,7 @@ bool ProgressManagerPrivate::isLastFading() const
 {
     if (m_taskList.isEmpty())
         return false;
-    for (const FutureProgress *progress : qAsConst(m_taskList)) {
+    for (const FutureProgress *progress : std::as_const(m_taskList)) {
         if (!progress->isFading()) // we still have progress bars that are not fading
             return false;
     }
@@ -567,7 +567,7 @@ void ProgressManagerPrivate::removeOneOldTask()
         Id type = (*i)->type();
 
         int taskCount = 0;
-        for (const FutureProgress *p : qAsConst(m_taskList))
+        for (const FutureProgress *p : std::as_const(m_taskList))
             if (p->type() == type)
                 ++taskCount;
 

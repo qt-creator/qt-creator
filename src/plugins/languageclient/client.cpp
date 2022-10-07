@@ -203,7 +203,7 @@ public:
             }
             updateEditorToolBar(m_openedDocument.keys());
         }
-        for (IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
+        for (IAssistProcessor *processor : std::as_const(m_runningAssistProcessors))
             processor->setAsyncProposalAvailable(nullptr);
         qDeleteAll(m_documentHighlightsTimer);
         m_documentHighlightsTimer.clear();
@@ -1548,7 +1548,7 @@ bool ClientPrivate::reset()
     // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
     for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
         resetAssistProviders(document);
-    for (TextEditor::IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
+    for (TextEditor::IAssistProcessor *processor : std::as_const(m_runningAssistProcessors))
         processor->setAsyncProposalAvailable(nullptr);
     m_runningAssistProcessors.clear();
     qDeleteAll(m_documentHighlightsTimer);

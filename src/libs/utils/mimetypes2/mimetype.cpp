@@ -234,7 +234,7 @@ QString MimeType::comment() const
     languageList << QLocale().name();
     languageList << QLocale().uiLanguages();
     languageList << QLatin1String("default"); // use the default locale if possible.
-    for (const QString &language : qAsConst(languageList)) {
+    for (const QString &language : std::as_const(languageList)) {
         const QString lang = language == QLatin1String("C") ? QLatin1String("en_US") : language;
         const QString comm = d->localeComments.value(lang);
         if (!comm.isEmpty())
@@ -419,7 +419,7 @@ QStringList MimeType::suffixes() const
     MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
 
     QStringList result;
-    for (const QString &pattern : qAsConst(d->globPatterns)) {
+    for (const QString &pattern : std::as_const(d->globPatterns)) {
         const QString suffix = suffixFromPattern(pattern);
         if (!suffix.isEmpty())
             result.append(suffix);

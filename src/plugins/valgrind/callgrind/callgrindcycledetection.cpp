@@ -28,7 +28,7 @@ QVector<const Function *> CycleDetection::run(const QVector<const Function *> &i
         node->lowlink = -1;
         m_nodes.insert(function, node);
     }
-    for (Node *node : qAsConst(m_nodes)) {
+    for (Node *node : std::as_const(m_nodes)) {
         if (node->dfs == -1)
             tarjan(node);
     }

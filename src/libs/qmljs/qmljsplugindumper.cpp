@@ -151,7 +151,7 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
 
     // watch library qmltypes file
     if (!plugin.typeInfoPaths.isEmpty()) {
-        for (const FilePath &path : qAsConst(plugin.typeInfoPaths)) {
+        for (const FilePath &path : std::as_const(plugin.typeInfoPaths)) {
             if (!path.exists())
                 continue;
             if (!pluginWatcher()->watchesFile(path.toString()))

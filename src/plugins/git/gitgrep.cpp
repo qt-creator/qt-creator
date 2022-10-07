@@ -108,7 +108,7 @@ public:
         }
         single.matchingLine = text;
 
-        for (const auto &match : qAsConst(matches)) {
+        for (const auto &match : std::as_const(matches)) {
             single.matchStart = match.matchStart;
             single.matchLength = match.matchLength;
             single.regexpCapturedTexts = match.regexpCapturedTexts;

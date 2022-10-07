@@ -1081,7 +1081,7 @@ void TextEditorWidgetPrivate::showTextMarksToolTip(const QPoint &pos,
         return mark1->priority() > mark2->priority();
     });
 
-    for (const TextMark *mark : qAsConst(allMarks)) {
+    for (const TextMark *mark : std::as_const(allMarks)) {
         if (mark != mainTextMark)
             mark->addToToolTipLayout(layout);
     }
@@ -1549,7 +1549,7 @@ void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
     const QTextCharFormat matchFormat = m_document->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
 
     QList<QTextEdit::ExtraSelection> extraSelections;
-    for (const QTextCursor &cursor : qAsConst(m_autoCompleteHighlightPos)) {
+    for (const QTextCursor &cursor : std::as_const(m_autoCompleteHighlightPos)) {
         QTextEdit::ExtraSelection sel;
         sel.cursor = cursor;
         sel.format.setBackground(matchFormat.background());
@@ -2873,7 +2873,7 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
     d->m_snippetOverlay->accept();
 
     QList<PositionedPart> positionedParts;
-    for (const ParsedSnippet::Part &part : qAsConst(data.parts)) {
+    for (const ParsedSnippet::Part &part : std::as_const(data.parts)) {
         if (part.variableIndex >= 0) {
             PositionedPart posPart(part);
             posPart.start = cursor.position();
@@ -3202,7 +3202,7 @@ void TextEditorWidget::restoreState(const QByteArray &state)
         stream >> collapsedBlocks;
         QTextDocument *doc = document();
         bool layoutChanged = false;
-        for (const int blockNumber : qAsConst(collapsedBlocks)) {
+        for (const int blockNumber : std::as_const(collapsedBlocks)) {
             QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
             if (block.isValid()) {
                 TextDocumentLayout::doFoldOrUnfold(block, false);
@@ -4070,7 +4070,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         }
     }
 
-    for (const TextMark *mark : qAsConst(marks)) {
+    for (const TextMark *mark : std::as_const(marks)) {
         boundingRect = QRectF(x, boundingRect.top(), q->viewport()->width() - x, boundingRect.height());
         if (boundingRect.isEmpty())
             break;
@@ -5035,7 +5035,7 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
         return;
     }
     size = size / 2;
-    for (const QIcon &icon : qAsConst(icons)) {
+    for (const QIcon &icon : std::as_const(icons)) {
         const QRect r(xoffset, yoffset, size, size);
         icon.paint(&painter, r, Qt::AlignCenter);
         if (xoffset != 0) {
@@ -7160,7 +7160,7 @@ QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Id kind) cons
 
 QString TextEditorWidget::extraSelectionTooltip(int pos) const
 {
-    for (const QList<QTextEdit::ExtraSelection> &sel : qAsConst(d->m_extraSelections)) {
+    for (const QList<QTextEdit::ExtraSelection> &sel : std::as_const(d->m_extraSelections)) {
         for (const QTextEdit::ExtraSelection &s : sel) {
             if (s.cursor.selectionStart() <= pos
                 && s.cursor.selectionEnd() >= pos
@@ -7279,7 +7279,7 @@ void TextEditorWidget::rewrapParagraph()
     // keep the same indentation level as first line in paragraph.
     QString currentWord;
 
-    for (const QChar &ch : qAsConst(selectedText)) {
+    for (const QChar &ch : std::as_const(selectedText)) {
         if (ch.isSpace() && ch != QChar::Nbsp) {
             if (!currentWord.isEmpty()) {
                 currentLength += currentWord.length() + 1;

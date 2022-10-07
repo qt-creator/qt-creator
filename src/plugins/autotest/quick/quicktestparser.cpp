@@ -180,7 +180,7 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Ut
 
     QList<Document::Ptr> foundDocs;
 
-    for (const Utils::FilePath &path : qAsConst(dirs)) {
+    for (const Utils::FilePath &path : std::as_const(dirs)) {
         const QList<Document::Ptr> docs = snapshot.documentsInDirectory(path);
         for (const Document::Ptr &doc : docs) {
             Utils::FilePath fi = doc->fileName();

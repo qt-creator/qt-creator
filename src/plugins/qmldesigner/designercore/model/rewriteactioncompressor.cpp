@@ -80,7 +80,7 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
         }
     }
 
-    for (RewriteAction *action : qAsConst(actionsToRemove)) {
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -106,7 +106,7 @@ void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &
         }
     }
 
-    for (RewriteAction *action : qAsConst(actionsToRemove)) {
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -125,7 +125,7 @@ void RewriteActionCompressor::compressReparentIntoSamePropertyActions(QList<Rewr
         }
     }
 
-    for (RewriteAction *action : qAsConst(actionsToRemove)) {
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -152,7 +152,7 @@ void RewriteActionCompressor::compressReparentIntoNewPropertyActions(QList<Rewri
         }
     }
 
-    for (RewriteAction *action : qAsConst(actionsToRemove)) {
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -209,7 +209,7 @@ void RewriteActionCompressor::compressAddEditRemoveNodeActions(QList<RewriteActi
         }
     }
 
-    for (RewriteAction *action : qAsConst(actionsToRemove)) {
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -256,7 +256,7 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
         }
     }
 
-    for (RewriteAction *action : qAsConst(actionsToRemove)) {
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
@@ -269,7 +269,7 @@ void RewriteActionCompressor::compressAddEditActions(
     QSet<ModelNode> addedNodes;
     QSet<RewriteAction *> dirtyActions;
 
-    for (RewriteAction *action : qAsConst(actions)) {
+    for (RewriteAction *action : std::as_const(actions)) {
         if (action->asAddPropertyRewriteAction() || action->asChangePropertyRewriteAction()) {
             AbstractProperty property;
             ModelNode containedNode;
@@ -305,13 +305,13 @@ void RewriteActionCompressor::compressAddEditActions(
         }
     }
 
-    for (RewriteAction *action : qAsConst(actionsToRemove)) {
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }
 
     QmlTextGenerator gen(m_propertyOrder, tabSettings);
-    for (RewriteAction *action : qAsConst(dirtyActions)) {
+    for (RewriteAction *action : std::as_const(dirtyActions)) {
         RewriteAction *newAction = nullptr;
         if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {
             newAction = new AddPropertyRewriteAction(addAction->property(),
@@ -376,7 +376,7 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
         }
     }
 
-    for (RewriteAction *action : qAsConst(actionsToRemove)) {
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
         actions.removeOne(action);
         delete action;
     }

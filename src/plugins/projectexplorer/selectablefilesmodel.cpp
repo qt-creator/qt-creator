@@ -293,7 +293,7 @@ void SelectableFilesModel::collectPaths(Tree *root, Utils::FilePaths *result)  c
     if (root->checked == Qt::Unchecked)
         return;
     result->append(root->fullPath);
-    for (Tree *t : qAsConst(root->childDirectories))
+    for (Tree *t : std::as_const(root->childDirectories))
         collectPaths(t, result);
 }
 
@@ -318,9 +318,9 @@ void SelectableFilesModel::collectFiles(Tree *root, Utils::FilePaths *result) co
 {
     if (root->checked == Qt::Unchecked)
         return;
-    for (Tree *t : qAsConst(root->childDirectories))
+    for (Tree *t : std::as_const(root->childDirectories))
         collectFiles(t, result);
-    for (Tree *t : qAsConst(root->visibleFiles))
+    for (Tree *t : std::as_const(root->visibleFiles))
         if (t->checked == Qt::Checked)
             result->append(t->fullPath);
 }
@@ -372,10 +372,10 @@ void SelectableFilesModel::selectAllFiles(Tree *root)
 {
     root->checked = Qt::Checked;
 
-    for (Tree *t : qAsConst(root->childDirectories))
+    for (Tree *t : std::as_const(root->childDirectories))
         selectAllFiles(t);
 
-    for (Tree *t : qAsConst(root->visibleFiles))
+    for (Tree *t : std::as_const(root->visibleFiles))
         t->checked = Qt::Checked;
 
     emit checkedFilesChanged();

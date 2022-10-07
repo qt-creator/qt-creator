@@ -112,7 +112,7 @@ QList<double> OneDimensionalCluster::reduceLines(const QList<double> & oneDimens
     clusterList = reduceOneDimensionalClusterList(clusterList, maximumDistance);
 
     QList<double> lineList;
-    for (const OneDimensionalCluster &cluster : qAsConst(clusterList))
+    for (const OneDimensionalCluster &cluster : std::as_const(clusterList))
         lineList.append(cluster.constFirst());
 
     return lineList;

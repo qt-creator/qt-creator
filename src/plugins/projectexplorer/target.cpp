@@ -619,7 +619,7 @@ void Target::updateDefaultDeployConfigurations()
             removeDeployConfiguration(dc);
     }
 
-    for (Utils::Id id : qAsConst(toCreate)) {
+    for (Utils::Id id : std::as_const(toCreate)) {
         for (DeployConfigurationFactory *dcFactory : dcFactories) {
             if (dcFactory->creationId() == id) {
                 DeployConfiguration *dc = dcFactory->create(this);
@@ -658,7 +658,7 @@ void Target::updateDefaultRunConfigurations()
     // that produce already existing RCs
     QList<RunConfiguration *> toRemove;
     QList<RunConfigurationCreationInfo> existing;
-    for (RunConfiguration *rc : qAsConst(existingConfigured)) {
+    for (RunConfiguration *rc : std::as_const(existingConfigured)) {
         bool present = false;
         for (const RunConfigurationCreationInfo &item : creators) {
             QString buildKey = rc->buildKey();
@@ -713,14 +713,14 @@ void Target::updateDefaultRunConfigurations()
     }
 
     // Do actual changes:
-    for (RunConfiguration *rc : qAsConst(newConfigured))
+    for (RunConfiguration *rc : std::as_const(newConfigured))
         addRunConfiguration(rc);
-    for (RunConfiguration *rc : qAsConst(newUnconfigured))
+    for (RunConfiguration *rc : std::as_const(newUnconfigured))
         addRunConfiguration(rc);
 
     // Generate complete list of RCs to remove later:
     QList<RunConfiguration *> removalList;
-    for (RunConfiguration *rc : qAsConst(toRemove)) {
+    for (RunConfiguration *rc : std::as_const(toRemove)) {
         removalList << rc;
         existingConfigured.removeOne(rc); // make sure to also remove them from existingConfigured!
     }
@@ -756,7 +756,7 @@ void Target::updateDefaultRunConfigurations()
     }
 
     // Remove the RCs that are no longer needed:
-    for (RunConfiguration *rc : qAsConst(removalList))
+    for (RunConfiguration *rc : std::as_const(removalList))
         removeRunConfiguration(rc);
 }
 

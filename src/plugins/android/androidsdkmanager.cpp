@@ -536,7 +536,7 @@ void SdkManagerOutputParser::compilePackageAssociations()
     deleteAlreadyInstalled(images);
 
     // Associate the system images with sdk platforms.
-    for (AndroidSdkPackage *image : qAsConst(images)) {
+    for (AndroidSdkPackage *image : std::as_const(images)) {
         int imageApi = m_systemImages[image];
         auto itr = std::find_if(m_packages.begin(), m_packages.end(),
                                 [imageApi](const AndroidSdkPackage *p) {
@@ -651,7 +651,7 @@ bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPa
     keys << installLocationKey << revisionKey << descriptionKey;
     for (const QString &line : input) {
         QString value;
-        for (const auto &key: qAsConst(keys)) {
+        for (const auto &key: std::as_const(keys)) {
             if (valueForKey(key, line, &value)) {
                 if (key == installLocationKey)
                     output.installedLocation = Utils::FilePath::fromUserInput(value);
@@ -1123,7 +1123,7 @@ void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &f
 
 void AndroidSdkManagerPrivate::clearPackages()
 {
-    for (AndroidSdkPackage *p : qAsConst(m_allPackages))
+    for (AndroidSdkPackage *p : std::as_const(m_allPackages))
         delete p;
     m_allPackages.clear();
 }

@@ -310,7 +310,7 @@ void VcsCommandPage::delayedInitialize()
         m_startedStatus = runMessage;
 
     QStringList extraArgs;
-    for (const QString &in : qAsConst(m_arguments)) {
+    for (const QString &in : std::as_const(m_arguments)) {
         const QString tmp = wiz->expander()->expand(in);
         if (tmp.isEmpty())
            continue;
@@ -322,7 +322,7 @@ void VcsCommandPage::delayedInitialize()
     VcsCommand *command = vc->createInitialCheckoutCommand(repo, FilePath::fromString(base),
                                                            name, extraArgs);
 
-    for (const JobData &job : qAsConst(m_additionalJobs)) {
+    for (const JobData &job : std::as_const(m_additionalJobs)) {
         QTC_ASSERT(!job.job.isEmpty(), continue);
 
         if (!JsonWizard::boolFromVariant(job.condition, wiz->expander()))

@@ -480,7 +480,7 @@ bool DockerDevicePrivate::createContainer()
         dockerCreate.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
 
-    for (QString mount : qAsConst(m_data.mounts)) {
+    for (QString mount : std::as_const(m_data.mounts)) {
         if (mount.isEmpty())
             continue;
         mount = q->mapToDevicePath(FilePath::fromUserInput(mount));
@@ -490,7 +490,7 @@ bool DockerDevicePrivate::createContainer()
     addTemporaryMount(Core::ICore::resourcePath("debugger/"), dumperPath);
     q->setDebugDumperPath(dumperPath);
 
-    for (const auto &[path, containerPath] : qAsConst(m_temporaryMounts)) {
+    for (const auto &[path, containerPath] : std::as_const(m_temporaryMounts)) {
         if (path.isEmpty())
             continue;
         dockerCreate.addArgs({"-v", path.nativePath() + ':' + containerPath.nativePath()});

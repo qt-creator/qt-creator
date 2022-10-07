@@ -138,7 +138,7 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
             setFormat(match.capturedStart(), match.capturedLength(), formatForCategory(Format_Change));
         }
     } else {
-        for (const RebaseAction &action : qAsConst(m_actions)) {
+        for (const RebaseAction &action : std::as_const(m_actions)) {
             const QRegularExpressionMatch match = action.exp.match(text);
             if (match.hasMatch()) {
                 const int len = match.capturedLength();

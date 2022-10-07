@@ -239,7 +239,7 @@ void MakefileParser::parseSubDirs()
 
     // Delegate the parsing of all sub directories to a local
     // makefile parser and merge the results
-    for (const QString &subDir : qAsConst(subDirs)) {
+    for (const QString &subDir : std::as_const(subDirs)) {
         const QChar slash = QLatin1Char('/');
         const QString subDirMakefile = path + slash + subDir
                                        + slash + makefileName;

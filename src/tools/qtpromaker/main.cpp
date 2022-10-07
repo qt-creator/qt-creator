@@ -278,17 +278,17 @@ void Project::writeProFile()
     if (m_subdirs.isEmpty()) {
         ts << "TEMPLATE = app\n";
         ts << "TARGET = " << QFileInfo(m_outputFileName).baseName() << "\n";
-        for (const FileClass &fc : qAsConst(m_fileClasses))
+        for (const FileClass &fc : std::as_const(m_fileClasses))
             fc.writeProBlock(ts);
         ts << "\nPATHS *=";
-        for (const QDir dir : qAsConst(m_items))
+        for (const QDir dir : std::as_const(m_items))
             ts << " \\\n    " << dir.path();
         ts << "\n\nDEPENDPATH *= $$PATHS\n";
         ts << "\nINCLUDEPATH *= $$PATHS\n";
     } else {
         ts << "TEMPLATE = subdirs\n";
         ts << "SUBDIRS = ";
-        for (const QString &subdir : qAsConst(m_subdirs))
+        for (const QString &subdir : std::as_const(m_subdirs))
             ts << " \\\n    " << subdir;
         ts << "\n";
     }

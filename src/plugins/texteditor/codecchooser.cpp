@@ -28,7 +28,7 @@ CodecChooser::CodecChooser(Filter filter)
         std::find_if(mibs.begin(), mibs.end(), [](int n) { return n >=0; });
     if (firstNonNegative != mibs.end())
         std::rotate(mibs.begin(), firstNonNegative, mibs.end());
-    for (int mib : qAsConst(mibs)) {
+    for (int mib : std::as_const(mibs)) {
         if (filter == Filter::SingleByte && !isSingleByte(mib))
             continue;
         if (QTextCodec *codec = QTextCodec::codecForMib(mib)) {

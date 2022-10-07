@@ -51,16 +51,16 @@ void ParallelItem::doLayout(int d)
     }
 
     // 2. Adjust sizes
-    for (StateItem *itt : qAsConst(children))
+    for (StateItem *itt : std::as_const(children))
         itt->shrink();
 
     qreal maxw = 0;
-    for (StateItem *itt : qAsConst(children)) {
+    for (StateItem *itt : std::as_const(children)) {
         QRectF rr = itt->boundingRect();
         maxw = qMax(rr.width(), maxw);
     }
 
-    for (StateItem *itt : qAsConst(children)) {
+    for (StateItem *itt : std::as_const(children)) {
         QRectF rr = itt->boundingRect();
         if (!qFuzzyCompare(rr.width(), maxw))
             rr.setWidth(maxw);

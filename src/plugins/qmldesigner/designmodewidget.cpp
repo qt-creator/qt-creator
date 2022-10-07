@@ -97,7 +97,7 @@ DesignModeWidget::DesignModeWidget()
 
 DesignModeWidget::~DesignModeWidget()
 {
-    for (QPointer<QWidget> widget : qAsConst(m_viewWidgets)) {
+    for (QPointer<QWidget> widget : std::as_const(m_viewWidgets)) {
         if (widget)
             widget.clear();
     }
@@ -464,7 +464,7 @@ void DesignModeWidget::aboutToShowWorkspaces()
     auto sortedWorkspaces = m_dockManager->workspaces();
     Utils::sort(sortedWorkspaces);
 
-    for (const auto &workspace : qAsConst(sortedWorkspaces)) {
+    for (const auto &workspace : std::as_const(sortedWorkspaces)) {
         QAction *action = ag->addAction(workspace);
         action->setData(workspace);
         action->setCheckable(true);

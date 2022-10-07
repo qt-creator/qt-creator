@@ -615,7 +615,7 @@ private:
             setKit(m_kit);
         } else {
             // Refresh all widgets if the number of mutable settings did not change
-            for (KitAspectWidget *w : qAsConst(m_widgets))
+            for (KitAspectWidget *w : std::as_const(m_widgets))
                 w->refresh();
         }
     }

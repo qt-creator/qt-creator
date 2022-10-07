@@ -194,7 +194,7 @@ void CppcheckTool::check(const Utils::FilePaths &files)
     }
 
     std::map<CppEditor::ProjectPart::ConstPtr, Utils::FilePaths> groups;
-    for (const Utils::FilePath &file : qAsConst(filtered)) {
+    for (const Utils::FilePath &file : std::as_const(filtered)) {
         const QString stringed = file.toString();
         for (const CppEditor::ProjectPart::ConstPtr &part : parts) {
             using CppEditor::ProjectFile;

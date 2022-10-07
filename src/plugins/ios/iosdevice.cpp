@@ -510,7 +510,7 @@ IosDeviceManager::IosDeviceManager(QObject *parent) :
 
 void IosDeviceManager::updateUserModeDevices()
 {
-    for (const QString &uid : qAsConst(m_userModeDeviceIds))
+    for (const QString &uid : std::as_const(m_userModeDeviceIds))
         updateInfo(uid);
 }
 

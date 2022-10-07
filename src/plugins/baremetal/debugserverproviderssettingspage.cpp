@@ -146,7 +146,7 @@ DebugServerProviderNode *DebugServerProviderModel::nodeForIndex(const QModelInde
 void DebugServerProviderModel::apply()
 {
     // Remove unused providers
-    for (IDebugServerProvider *provider : qAsConst(m_providersToRemove))
+    for (IDebugServerProvider *provider : std::as_const(m_providersToRemove))
         DebugServerProviderManager::deregisterProvider(provider);
     QTC_ASSERT(m_providersToRemove.isEmpty(), m_providersToRemove.clear());
 
@@ -166,7 +166,7 @@ void DebugServerProviderModel::apply()
 
     // Add new (and already updated) providers
     QStringList skippedProviders;
-    for (IDebugServerProvider *provider: qAsConst(m_providersToAdd)) {
+    for (IDebugServerProvider *provider: std::as_const(m_providersToAdd)) {
         if (!DebugServerProviderManager::registerProvider(provider))
             skippedProviders << provider->displayName();
     }

@@ -178,7 +178,7 @@ void QbsProfilesSettingsWidget::refreshKitsList()
     QList<Kit *> validKits = KitManager::kits();
     Utils::erase(validKits, [](const Kit *k) { return !k->isValid(); });
     const bool hasKits = !validKits.isEmpty();
-    for (const Kit * const kit : qAsConst(validKits)) {
+    for (const Kit * const kit : std::as_const(validKits)) {
         if (kit->id() == currentId)
             newCurrentIndex = m_kitsComboBox->count();
         m_kitsComboBox->addItem(kit->displayName(), kit->id().toSetting());

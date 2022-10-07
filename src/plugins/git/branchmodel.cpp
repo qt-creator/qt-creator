@@ -127,7 +127,7 @@ public:
             fn.append(nodes.first()->sha);
         nodes.removeFirst();
 
-        for (const BranchNode *n : qAsConst(nodes))
+        for (const BranchNode *n : std::as_const(nodes))
             fn.append(n->name);
 
         return fn;
@@ -390,7 +390,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 
 void BranchModel::clear()
 {
-    for (BranchNode *root : qAsConst(d->rootNode->children)) {
+    for (BranchNode *root : std::as_const(d->rootNode->children)) {
         while (root->count())
             delete root->children.takeLast();
     }

@@ -45,7 +45,7 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
         return l->priority() > r->priority();
     });
 
-    for (ActionInterface* actionInterface : qAsConst(matchingFactoriesList)) {
+    for (ActionInterface* actionInterface : std::as_const(matchingFactoriesList)) {
         if (actionInterface->type() == ActionInterface::ContextMenu) {
             actionInterface->currentContextChanged(selectionContext);
             QMenu *newMenu = actionInterface->action()->menu();

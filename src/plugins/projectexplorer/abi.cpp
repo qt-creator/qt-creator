@@ -1201,7 +1201,7 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
 
     // Remove duplicates:
     Abis result;
-    for (const Abi &a : qAsConst(tmp)) {
+    for (const Abi &a : std::as_const(tmp)) {
         if (!result.contains(a))
             result.append(a);
     }

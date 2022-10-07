@@ -798,13 +798,13 @@ void GdbEngine::commandTimeout()
     QList<int> keys = m_commandForToken.keys();
     Utils::sort(keys);
     bool killIt = false;
-    for (int key : qAsConst(keys)) {
+    for (int key : std::as_const(keys)) {
         const DebuggerCommand &cmd = m_commandForToken.value(key);
         killIt = true;
         showMessage(QString::number(key) + ": " + cmd.function);
     }
     QStringList commands;
-    for (const DebuggerCommand &cmd : qAsConst(m_commandForToken))
+    for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
         commands << QString("\"%1\"").arg(cmd.function);
     if (killIt) {
         showMessage(QString("TIMED OUT WAITING FOR GDB REPLY. "
@@ -2910,7 +2910,7 @@ void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
         const QString needle = prefix + moduleName;
         Sections sections;
         bool active = false;
-        for (const QString &line : qAsConst(lines)) {
+        for (const QString &line : std::as_const(lines)) {
             if (line.startsWith(prefix)) {
                 if (active)
                     break;
@@ -3815,7 +3815,7 @@ void GdbEngine::setupEngine()
     const QStringList testList = qtcEnvironmentVariable("QTC_DEBUGGER_TESTS").split(',');
     for (const QString &test : testList)
         m_testCases.insert(test.toInt());
-    for (int test : qAsConst(m_testCases))
+    for (int test : std::as_const(m_testCases))
         showMessage("ENABLING TEST CASE: " + QString::number(test));
 
     m_expectTerminalTrap = terminal();
@@ -4176,7 +4176,7 @@ void GdbEngine::resetCommandQueue()
         QString msg;
         QTextStream ts(&msg);
         ts << "RESETING COMMAND QUEUE. LEFT OVER TOKENS: ";
-        for (const DebuggerCommand &cmd : qAsConst(m_commandForToken))
+        for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
             ts << "CMD:" << cmd.function;
         m_commandForToken.clear();
         m_flagsForToken.clear();

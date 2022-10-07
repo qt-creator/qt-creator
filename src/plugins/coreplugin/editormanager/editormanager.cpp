@@ -891,7 +891,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
             auto button = qobject_cast<QPushButton *>(msgbox.button(QMessageBox::Open));
             QTC_ASSERT(button, return nullptr);
             auto menu = new QMenu(button);
-            for (EditorType *factory : qAsConst(factories)) {
+            for (EditorType *factory : std::as_const(factories)) {
                 QAction *action = menu->addAction(factory->displayName());
                 connect(action, &QAction::triggered, &msgbox, [&selectedFactory, factory, &msgbox]() {
                     selectedFactory = factory;
@@ -969,7 +969,7 @@ IEditor *EditorManagerPrivate::openEditorWith(const FilePath &filePath, Id edito
                 views.prepend(currentView); // open editor in current view first
         }
         EditorManager::OpenEditorFlags flags;
-        for (EditorView *view : qAsConst(views)) {
+        for (EditorView *view : std::as_const(views)) {
             IEditor *editor = EditorManagerPrivate::openEditor(view, filePath, editorId, flags);
             if (!openedEditor && editor)
                 openedEditor = editor;
@@ -1128,7 +1128,7 @@ void EditorManagerPrivate::showPopupOrSelectDocument()
         // if the active window has editors, we want that editor area as a reference
         // TODO: this does not work correctly with multiple editor areas in the same window
         EditorArea *activeEditorArea = nullptr;
-        for (EditorArea *area : qAsConst(d->m_editorAreas)) {
+        for (EditorArea *area : std::as_const(d->m_editorAreas)) {
             if (area->window() == activeWindow) {
                 activeEditorArea = area;
                 break;
@@ -1629,7 +1629,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     // 2. keep track of the document and all the editors that might remain open for it
     QSet<IEditor*> acceptedEditors;
     QHash<IDocument *, QList<IEditor *> > editorsForDocuments;
-    for (IEditor *editor : qAsConst(editors)) {
+    for (IEditor *editor : std::as_const(editors)) {
         bool editorAccepted = true;
         const QList<std::function<bool(IEditor *)>> listeners = d->m_closeEditorListeners;
         for (const std::function<bool(IEditor *)> &listener : listeners) {
@@ -1676,7 +1676,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
         return false;
 
     // save editor states
-    for (IEditor *editor : qAsConst(acceptedEditors)) {
+    for (IEditor *editor : std::as_const(acceptedEditors)) {
         if (!editor->document()->filePath().isEmpty() && !editor->document()->isTemporary()) {
             QByteArray state = editor->saveState();
             if (!state.isEmpty())
@@ -1690,7 +1690,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     // and sort them per view, so we can remove them from views in an orderly
     // manner.
     QMultiHash<EditorView *, IEditor *> editorsPerView;
-    for (IEditor *editor : qAsConst(acceptedEditors)) {
+    for (IEditor *editor : std::as_const(acceptedEditors)) {
         emit m_instance->editorAboutToClose(editor);
         removeEditor(editor, flag != CloseFlag::Suspend);
         if (EditorView *view = viewForEditor(editor)) {
@@ -1723,7 +1723,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
             return true;
         return false;
     });
-    for (EditorView *view : qAsConst(views)) {
+    for (EditorView *view : std::as_const(views)) {
         QList<IEditor *> editors = editorsPerView.values(view);
         // handle current editor in view last
         IEditor *viewCurrentEditor = view->currentEditor();
@@ -1731,7 +1731,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
             editors.removeAll(viewCurrentEditor);
             editors.append(viewCurrentEditor);
         }
-        for (IEditor *editor : qAsConst(editors)) {
+        for (IEditor *editor : std::as_const(editors)) {
             if (editor == viewCurrentEditor && view == views.last()) {
                 // Avoid removing the globally current editor from its view,
                 // set a new current editor before.
@@ -2602,7 +2602,7 @@ void EditorManagerPrivate::autoSuspendDocuments()
                                                    &IEditor::document);
     int keptEditorCount = 0;
     QList<IDocument *> documentsToSuspend;
-    for (const EditLocation &editLocation : qAsConst(d->m_globalHistory)) {
+    for (const EditLocation &editLocation : std::as_const(d->m_globalHistory)) {
         IDocument *document = editLocation.document;
         if (!document || !document->isSuspendAllowed() || document->isModified()
                 || document->isTemporary() || document->filePath().isEmpty()
@@ -2690,7 +2690,7 @@ EditorView *EditorManagerPrivate::currentEditorView()
         }
         QTC_CHECK(view);
         if (!view) { // should not happen, we should always have either currentview or currentdocument
-            for (const EditorArea *area : qAsConst(d->m_editorAreas)) {
+            for (const EditorArea *area : std::as_const(d->m_editorAreas)) {
                 if (area->window()->isActiveWindow()) {
                     view = area->findFirstView();
                     break;
@@ -2705,7 +2705,7 @@ EditorView *EditorManagerPrivate::currentEditorView()
 QList<EditorView *> EditorManagerPrivate::allEditorViews()
 {
     QList<EditorView *> views;
-    for (const EditorArea *area : qAsConst(d->m_editorAreas)) {
+    for (const EditorArea *area : std::as_const(d->m_editorAreas)) {
         EditorView *firstView = area->findFirstView();
         EditorView *view = firstView;
         if (view) {
@@ -3639,7 +3639,7 @@ bool EditorManager::restoreState(const QByteArray &state)
         // restore windows
         QVector<QVariantHash> windowStates;
         stream >> windowStates;
-        for (const QVariantHash &windowState : qAsConst(windowStates)) {
+        for (const QVariantHash &windowState : std::as_const(windowStates)) {
             EditorWindow *window = d->createEditorWindow();
             window->restoreState(windowState);
             window->show();
@@ -3804,7 +3804,7 @@ void EditorManager::setSessionTitleHandler(WindowTitleHandler handler)
 */
 void EditorManager::updateWindowTitles()
 {
-    for (EditorArea *area : qAsConst(d->m_editorAreas))
+    for (EditorArea *area : std::as_const(d->m_editorAreas))
         emit area->windowTitleNeedsUpdate();
 }
 

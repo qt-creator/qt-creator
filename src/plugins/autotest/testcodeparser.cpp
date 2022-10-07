@@ -318,11 +318,11 @@ void TestCodeParser::scanForTests(const Utils::FilePaths &fileList,
         }
     } else if (!parsers.isEmpty()) {
         for (ITestParser *parser: parsers) {
-            for (const Utils::FilePath &filePath : qAsConst(list))
+            for (const Utils::FilePath &filePath : std::as_const(list))
                 parser->framework()->rootNode()->markForRemovalRecursively(filePath);
         }
     } else {
-        for (const Utils::FilePath &filePath : qAsConst(list))
+        for (const Utils::FilePath &filePath : std::as_const(list))
             emit requestRemoval(filePath);
     }
 
@@ -453,7 +453,7 @@ void TestCodeParser::parsePostponedFiles()
 
 void TestCodeParser::releaseParserInternals()
 {
-    for (ITestParser *parser : qAsConst(m_testCodeParsers))
+    for (ITestParser *parser : std::as_const(m_testCodeParsers))
         parser->release();
 }
 

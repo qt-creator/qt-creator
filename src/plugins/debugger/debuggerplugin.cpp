@@ -1819,7 +1819,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    for (DebuggerRunTool *debugger : qAsConst(m_scheduledStarts))
+    for (DebuggerRunTool *debugger : std::as_const(m_scheduledStarts))
         debugger->startRunControl();
 }
 
@@ -2494,7 +2494,7 @@ void DebuggerUnitTests::testDebuggerMatching()
     auto expectedLevel = static_cast<DebuggerItem::MatchLevel>(result);
 
     Abis debuggerAbis;
-    for (const QString &abi : qAsConst(debugger))
+    for (const QString &abi : std::as_const(debugger))
         debuggerAbis << Abi::fromString(abi);
 
     DebuggerItem item;

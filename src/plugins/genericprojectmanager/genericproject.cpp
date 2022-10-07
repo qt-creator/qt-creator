@@ -416,7 +416,7 @@ void GenericBuildSystem::parse(RefreshOptions options)
         QStringList normalPaths;
         QStringList frameworkPaths;
         const auto baseDir = Utils::FilePath::fromString(m_includesFileName).parentDir();
-        for (const QString &rawPath : qAsConst(m_rawProjectIncludePaths)) {
+        for (const QString &rawPath : std::as_const(m_rawProjectIncludePaths)) {
             if (rawPath.startsWith("-F"))
                 frameworkPaths << rawPath.mid(2);
             else
@@ -440,7 +440,7 @@ FilePath GenericBuildSystem::findCommonSourceRoot()
         return FilePath::fromFileInfo(QFileInfo(m_filesFileName));
 
     QString root = m_files.front().first.toString();
-    for (const SourceFile &sourceFile : qAsConst(m_files)) {
+    for (const SourceFile &sourceFile : std::as_const(m_files)) {
         const QString item = sourceFile.first.toString();
         if (root.length() > item.length())
             root.truncate(item.length());
@@ -468,7 +468,7 @@ void GenericBuildSystem::refresh(RefreshOptions options)
         FilePath baseDir = findCommonSourceRoot();
 
         std::vector<std::unique_ptr<FileNode>> fileNodes;
-        for (const SourceFile &f : qAsConst(m_files)) {
+        for (const SourceFile &f : std::as_const(m_files)) {
             FileType fileType = FileType::Source; // ### FIXME
             if (f.first.endsWith(".qrc"))
                 fileType = FileType::Resource;

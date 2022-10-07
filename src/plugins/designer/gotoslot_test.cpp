@@ -154,7 +154,7 @@ public:
         QVERIFY(EditorManager::currentDocument()->isModified());
 
         // Wait for updated documents
-        for (TextEditor::BaseTextEditor *editor : qAsConst(editors)) {
+        for (TextEditor::BaseTextEditor *editor : std::as_const(editors)) {
             QElapsedTimer t;
             t.start();
             const QString filePath = editor->document()->filePath().toString();

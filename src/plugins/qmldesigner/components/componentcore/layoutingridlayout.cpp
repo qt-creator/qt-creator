@@ -248,7 +248,7 @@ void LayoutInGridLayout::collectItemNodes()
 void LayoutInGridLayout::collectOffsets()
 {
     //We collect all different x and y offsets that define the cells
-    for (const QmlItemNode &qmlItemNode : qAsConst(m_qmlItemNodes)) {
+    for (const QmlItemNode &qmlItemNode : std::as_const(m_qmlItemNodes)) {
         int x  = qRound((qmlItemNode.instancePosition().x()));
         m_xTopOffsets.append(x);
         x  = qRound((qmlItemNode.instancePosition().x() + lowerBound(qmlItemNode.instanceBoundingRect().width())));
@@ -284,7 +284,7 @@ void LayoutInGridLayout::calculateGridOffsets()
     int heightTolerance = defaultHeightTolerance;
 
     //The tolerance cannot be bigger then the size of an item
-    for (const auto &qmlItemNode : qAsConst(m_qmlItemNodes)) {
+    for (const auto &qmlItemNode : std::as_const(m_qmlItemNodes)) {
         widthTolerance = qMin(qmlItemNode.instanceSize().toSize().width() - 1, widthTolerance);
         heightTolerance = qMin(qmlItemNode.instanceSize().toSize().height() - 1, heightTolerance);
     }
@@ -321,7 +321,7 @@ void LayoutInGridLayout::removeEmtpyRowsAndColumns()
     m_columns = QVector<bool>(columnCount());
     m_columns.fill(false);
 
-    for (const auto &qmlItemNode : qAsConst(m_qmlItemNodes)) {
+    for (const auto &qmlItemNode : std::as_const(m_qmlItemNodes)) {
         int xCell = getCell(m_xTopOffsets, qmlItemNode.instancePosition().x());
         int yCell = getCell(m_yTopOffsets, qmlItemNode.instancePosition().y());
 
@@ -353,7 +353,7 @@ void LayoutInGridLayout::initializeCells()
 void LayoutInGridLayout::markUsedCells()
 {
     //We mark cells which are covered by items with true
-    for (const auto &qmlItemNode : qAsConst(m_qmlItemNodes)) {
+    for (const auto &qmlItemNode : std::as_const(m_qmlItemNodes)) {
         int xCell = getCell(m_xTopOffsets, qmlItemNode.instancePosition().x());
         int yCell = getCell(m_yTopOffsets, qmlItemNode.instancePosition().y());
 
@@ -372,7 +372,7 @@ void LayoutInGridLayout::fillEmptyCells()
     //Cells which are not covered by items and are not marked as true have to be filled with a "spacer" item
     m_layoutedNodes = m_selectionContext.selectedModelNodes();
 
-    for (const auto &itemNode : qAsConst(m_qmlItemNodes)) {
+    for (const auto &itemNode : std::as_const(m_qmlItemNodes)) {
         m_layoutedNodes.append(itemNode);
     }
 
@@ -414,7 +414,7 @@ void LayoutInGridLayout::setSpanning(const ModelNode &layoutNode)
         layoutNode.variantProperty("columns").setValue(columnCount());
         layoutNode.variantProperty("rows").setValue(rowCount());
 
-        for (const ModelNode &modelNode : qAsConst(m_layoutedNodes)) {
+        for (const ModelNode &modelNode : std::as_const(m_layoutedNodes)) {
             QmlItemNode qmlItemNode(modelNode);
             int xCell = getCell(m_xTopOffsets, qmlItemNode.instancePosition().x());
             int yCell = getCell(m_yTopOffsets, qmlItemNode.instancePosition().y());
@@ -444,7 +444,7 @@ void LayoutInGridLayout::setSpanning(const ModelNode &layoutNode)
 
 void LayoutInGridLayout::removeSpacersBySpanning(QList<ModelNode> &nodes)
 {
-    for (const ModelNode &node : qAsConst(m_spacerNodes)) {
+    for (const ModelNode &node : std::as_const(m_spacerNodes)) {
         if (int index = nodes.indexOf(node)) {
             ModelNode before = nodes.at(index -1);
             if (m_spacerNodes.contains(before)) {

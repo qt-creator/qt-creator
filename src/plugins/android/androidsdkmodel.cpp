@@ -281,7 +281,7 @@ void AndroidSdkModel::selectMissingEssentials()
     }
 
     // Select SDK platform
-    for (const SdkPlatform *platform : qAsConst(m_sdkPlatforms)) {
+    for (const SdkPlatform *platform : std::as_const(m_sdkPlatforms)) {
         if (!platform->installedLocation().isEmpty()) {
             pendingPkgs.removeOne(platform->sdkStylePath());
         } else if (pendingPkgs.contains(platform->sdkStylePath()) &&

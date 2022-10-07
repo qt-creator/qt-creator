@@ -3570,7 +3570,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
                     m_defaultRunConfiguration = runConfigs.first();
                 } else if (runConfigs.count() > 1) {
                     runMenu->menu()->menuAction()->setVisible(true);
-                    for (RunConfiguration *rc : qAsConst(runConfigs)) {
+                    for (RunConfiguration *rc : std::as_const(runConfigs)) {
                         auto *act = new QAction(runMenu->menu());
                         act->setText(tr("Run %1").arg(rc->displayName()));
                         runMenu->menu()->addAction(act);
@@ -3792,7 +3792,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
         return;
     FilePaths failedProjects;
     FilePaths addedProjects;
-    for (const FilePath &filePath : qAsConst(subProjectFilePaths)) {
+    for (const FilePath &filePath : std::as_const(subProjectFilePaths)) {
         if (projectNode->addSubProject(filePath))
             addedProjects << filePath;
         else
@@ -3968,7 +3968,7 @@ void ProjectExplorerPluginPrivate::removeFile()
             filesToRemove << siblings;
     }
 
-    for (const NodeAndPath &file : qAsConst(filesToRemove)) {
+    for (const NodeAndPath &file : std::as_const(filesToRemove)) {
         // Nodes can become invalid if the project was re-parsed while the dialog was open
         if (!ProjectTree::hasNode(file.first)) {
             QMessageBox::warning(ICore::dialogParent(), tr("Removing File Failed"),
@@ -3997,7 +3997,7 @@ void ProjectExplorerPluginPrivate::removeFile()
 
     std::vector<std::unique_ptr<FileChangeBlocker>> changeGuards;
     FilePaths pathList;
-    for (const NodeAndPath &file : qAsConst(filesToRemove)) {
+    for (const NodeAndPath &file : std::as_const(filesToRemove)) {
         pathList << file.second;
         changeGuards.emplace_back(std::make_unique<FileChangeBlocker>(file.second));
     }

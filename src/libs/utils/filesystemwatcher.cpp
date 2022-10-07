@@ -175,10 +175,10 @@ void FileSystemWatcherPrivate::autoReloadPostponed(bool postponed)
         return;
     m_postponed = postponed;
     if (!postponed) {
-        for (const QString &file : qAsConst(m_postponedFiles))
+        for (const QString &file : std::as_const(m_postponedFiles))
             emit q->fileChanged(file);
         m_postponedFiles.clear();
-        for (const QString &directory : qAsConst(m_postponedDirectories))
+        for (const QString &directory : std::as_const(m_postponedDirectories))
             emit q->directoryChanged(directory);
         m_postponedDirectories.clear();
     }
@@ -450,7 +450,7 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
             toReadd.removeOne(rejected);
 
         // If we've successfully added the file, that means it was deleted and replaced.
-        for (const QString &reAdded : qAsConst(toReadd))
+        for (const QString &reAdded : std::as_const(toReadd))
             d->fileChanged(reAdded);
     }
 }

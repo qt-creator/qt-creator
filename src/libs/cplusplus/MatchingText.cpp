@@ -522,7 +522,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     }
 
     QString result;
-    for (const QChar &ch : qAsConst(text)) {
+    for (const QChar &ch : std::as_const(text)) {
         if      (ch == QLatin1Char('('))  result += QLatin1Char(')');
         else if (ch == QLatin1Char('['))  result += QLatin1Char(']');
         else if (ch == QLatin1Char('{'))  result += QLatin1Char('}');

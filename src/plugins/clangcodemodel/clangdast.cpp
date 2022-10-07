@@ -319,7 +319,7 @@ private:
         }
 
         const bool wasDone = m_done;
-        for (const ClangdAstNode &child : qAsConst(childrenToCheck)) {
+        for (const ClangdAstNode &child : std::as_const(childrenToCheck)) {
             visitNode(child);
             if (m_done && !wasDone)
                 break;

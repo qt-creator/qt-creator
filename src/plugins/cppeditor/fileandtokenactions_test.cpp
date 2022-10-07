@@ -144,7 +144,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     Utils::sort(filesToOpen);
 
     // Process all files from the projects
-    for (const QString &filePath : qAsConst(filesToOpen)) {
+    for (const QString &filePath : std::as_const(filesToOpen)) {
         // Skip e.g. "<configuration>"
         if (!QFileInfo::exists(filePath))
             continue;
@@ -250,7 +250,7 @@ void TestActionsTestCase::undoChangesInAllEditorWidgets()
 void TestActionsTestCase::executeActionsOnEditorWidget(CppEditorWidget *editorWidget,
                                                        TestActionsTestCase::Actions actions)
 {
-    for (const ActionPointer &action : qAsConst(actions))
+    for (const ActionPointer &action : std::as_const(actions))
         action->run(editorWidget);
     QApplication::processEvents();
 }
@@ -442,7 +442,7 @@ void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
             cppQuickFixFactory->match(qfi, operations);
         }
 
-        for (QuickFixOperation::Ptr operation : qAsConst(operations)) {
+        for (QuickFixOperation::Ptr operation : std::as_const(operations)) {
             qDebug() << "    -- Performing Quick Fix" << operation->description();
             operation->perform();
             TestActionsTestCase::escape();

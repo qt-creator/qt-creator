@@ -534,7 +534,7 @@ QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
                    // Entries existed, but were all removed
                    if (contCol < 0) {
                        // This is the last line, so clear continuations leading to it
-                       for (const ContPos &pos : qAsConst(contPos)) {
+                       for (const ContPos &pos : std::as_const(contPos)) {
                            QString &bline = (*lines)[pos.first];
                            bline.remove(pos.second, 1);
                            if (pos.second == bline.length())

@@ -1357,7 +1357,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
             for (int i = 0; i < argumentCountOfSpecialization; ++i)
                 templParams.insert(templateSpecialization->templateParameterAt(i)->name(), i);
 
-            for (const Name *baseName : qAsConst(allBases)) {
+            for (const Name *baseName : std::as_const(allBases)) {
                 ClassOrNamespace *baseBinding = nullptr;
 
                 if (const Identifier *nameId = baseName->asNameId()) {
@@ -1435,7 +1435,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
 
     // Find the missing bases for regular (non-template) types.
     // Ex.: class A : public B<Some>::Type {};
-    for (const Name *baseName : qAsConst(allBases)) {
+    for (const Name *baseName : std::as_const(allBases)) {
         ClassOrNamespace *binding = this;
         if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
             if (const Name *qualification = qBaseName->base())

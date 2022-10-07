@@ -311,7 +311,7 @@ GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
             return rc;
     }
     // Add the template files specified by the <file> elements.
-    for (const CustomWizardFile &file : qAsConst(d->m_parameters->files))
+    for (const CustomWizardFile &file : std::as_const(d->m_parameters->files))
         if (!createFile(file, d->m_parameters->directory, ctx->targetPath.toString(), context()->replacements,
                         &rc, errorMessage))
             return {};

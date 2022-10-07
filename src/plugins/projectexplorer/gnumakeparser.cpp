@@ -348,7 +348,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
     FilePaths searchDirs = childParser->searchDirectories();
 
     // add extra directories:
-    for (const QString &dir : qAsConst(extraSearchDirs))
+    for (const QString &dir : std::as_const(extraSearchDirs))
         testbench.addSearchDir(FilePath::fromString(dir));
 
     testbench.testParsing(input, inputChannel,
@@ -357,13 +357,13 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
 
     // make sure we still have all the original dirs
     FilePaths newSearchDirs = tester->directories;
-    for (const FilePath &dir : qAsConst(searchDirs)) {
+    for (const FilePath &dir : std::as_const(searchDirs)) {
         QVERIFY(newSearchDirs.contains(dir));
         newSearchDirs.removeOne(dir);
     }
 
     // make sure we have all additional dirs:
-    for (const QString &dir : qAsConst(additionalSearchDirs)) {
+    for (const QString &dir : std::as_const(additionalSearchDirs)) {
         const FilePath fp = FilePath::fromString(dir);
         QVERIFY(newSearchDirs.contains(fp));
         newSearchDirs.removeOne(fp);

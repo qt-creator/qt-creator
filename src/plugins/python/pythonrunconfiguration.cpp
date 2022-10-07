@@ -203,7 +203,7 @@ void PythonRunConfiguration::checkForPySide(const FilePath &python)
     const PipPackage pySide6Package("PySide6");
     const PipPackageInfo info = pySide6Package.info(python);
 
-    for (const FilePath &file : qAsConst(info.files)) {
+    for (const FilePath &file : std::as_const(info.files)) {
         if (file.fileName() == HostOsInfo::withExecutableSuffix("pyside6-project")) {
             pySideProjectPath = info.location.resolvePath(file);
             pySideProjectPath = pySideProjectPath.cleanPath();

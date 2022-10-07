@@ -109,7 +109,7 @@ QString createDiagnosticToolTipString(
                                  "</head>\n"
                                  "<body><dl>");
 
-    for (const StringPair &pair : qAsConst(lines)) {
+    for (const StringPair &pair : std::as_const(lines)) {
         html += QLatin1String("<dt>");
         html += pair.first;
         html += QLatin1String("</dt><dd>");

@@ -56,7 +56,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     MyBaseFileFilter filter(Utils::FileUtils::toFilePathList(testFiles));
     BasicLocatorFilterTest test(&filter);
 
-    for (const ReferenceData &reference : qAsConst(referenceDataList)) {
+    for (const ReferenceData &reference : std::as_const(referenceDataList)) {
         const QList<LocatorFilterEntry> filterEntries = test.matchesFor(reference.searchText);
         const ResultDataList results = ResultData::fromFilterEntryList(filterEntries);
 //        QTextStream(stdout) << "----" << endl;

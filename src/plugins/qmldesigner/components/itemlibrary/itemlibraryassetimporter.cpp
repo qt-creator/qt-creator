@@ -498,7 +498,7 @@ void ItemLibraryAssetImporter::copyImportedFiles()
         notifyProgress(0, progressTitle);
 
         int counter = 0;
-        for (const auto &assetFiles : qAsConst(m_importFiles)) {
+        for (const auto &assetFiles : std::as_const(m_importFiles)) {
             // Only increase progress between entire assets instead of individual files, because
             // progress notify leads to processEvents call, which can lead to various filesystem
             // watchers triggering while library is still incomplete, leading to inconsistent model.
@@ -710,7 +710,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                             const QList<Import> currentImports = model->imports();
                             QList<Import> newImportsToAdd;
 
-                            for (auto &imp : qAsConst(m_requiredImports)) {
+                            for (auto &imp : std::as_const(m_requiredImports)) {
                                 const bool isPos = Utils::contains(posImports, [imp](const Import &posImp) {
                                     return posImp.url() == imp.url();
                                 });

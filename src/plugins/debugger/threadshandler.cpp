@@ -301,7 +301,7 @@ bool ThreadsHandler::notifyGroupExited(const QString &groupId)
         if (item->threadData.groupId == groupId)
             list.append(item);
     });
-    for (ThreadItem *item : qAsConst(list))
+    for (ThreadItem *item : std::as_const(list))
         destroyItem(item);
 
     m_pidForGroupId.remove(groupId);

@@ -876,7 +876,7 @@ void ExternalToolConfig::apply()
             resultMap.insert(it.key(), items);
     }
     // Remove tools that have been deleted from the settings (and are no preset)
-    for (const ExternalTool *tool : qAsConst(originalTools)) {
+    for (const ExternalTool *tool : std::as_const(originalTools)) {
         QTC_ASSERT(!tool->preset(), continue);
         // TODO error handling
         tool->fileName().removeFile();

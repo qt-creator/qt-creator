@@ -167,7 +167,7 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
                 return candidateByData;
             }
             // If there is a glob match that is a sub class of sniffedMime, use it
-            for (const QString &m : qAsConst(candidatesByName)) {
+            for (const QString &m : std::as_const(candidatesByName)) {
                 if (inherits(m, sniffedMime)) {
                     // We have magic + pattern pointing to this, so it's a pretty good match
                     *accuracyPtr = 100;
@@ -425,7 +425,7 @@ QList<MimeType> MimeDatabase::mimeTypesForFileName(const QString &fileName) cons
     QStringList matches = d->mimeTypeForFileName(fileName);
     QList<MimeType> mimes;
     matches.sort(); // Make it deterministic
-    for (const QString &mime : qAsConst(matches))
+    for (const QString &mime : std::as_const(matches))
         mimes.append(d->mimeTypeForName(mime));
     return mimes;
 }

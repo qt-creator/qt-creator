@@ -990,7 +990,7 @@ void HelpWidget::highlightSearchTerms(HelpViewer *viewer)
 {
     if (m_searchTerms.isEmpty())
         return;
-    for (const QString &term : qAsConst(m_searchTerms))
+    for (const QString &term : std::as_const(m_searchTerms))
         viewer->findText(term, {}, false, true);
     m_searchTerms.clear();
 }

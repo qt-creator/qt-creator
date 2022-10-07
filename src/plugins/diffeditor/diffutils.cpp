@@ -1286,7 +1286,7 @@ static QList<FileData> readGitPatch(QStringView patch, bool *ok, QFutureInterfac
     QList<FileData> fileDataList;
     readOk = false;
     int i = 0;
-    for (const auto &patchInfo : qAsConst(patches)) {
+    for (const auto &patchInfo : std::as_const(patches)) {
         if (jobController) {
             if (jobController->isCanceled())
                 return {};

@@ -172,7 +172,7 @@ QmakePriFile *QmakePriFile::findPriFile(const FilePath &fileName)
 {
     if (fileName == filePath())
         return this;
-    for (QmakePriFile *n : qAsConst(m_children)) {
+    for (QmakePriFile *n : std::as_const(m_children)) {
         if (QmakePriFile *result = n->findPriFile(fileName))
             return result;
     }
@@ -183,7 +183,7 @@ const QmakePriFile *QmakePriFile::findPriFile(const FilePath &fileName) const
 {
     if (fileName == filePath())
         return this;
-    for (const QmakePriFile *n : qAsConst(m_children)) {
+    for (const QmakePriFile *n : std::as_const(m_children)) {
         if (const QmakePriFile *result = n->findPriFile(fileName))
             return result;
     }
@@ -205,7 +205,7 @@ const QSet<FilePath> QmakePriFile::collectFiles(const FileType &type) const
 {
     QSet<FilePath> allFiles = transform(files(type),
                                         [](const SourceFile &sf) { return sf.first; });
-    for (const QmakePriFile * const priFile : qAsConst(m_children)) {
+    for (const QmakePriFile * const priFile : std::as_const(m_children)) {
         if (!dynamic_cast<const QmakeProFile *>(priFile))
             allFiles.unite(priFile->collectFiles(type));
     }
@@ -547,7 +547,7 @@ bool QmakePriFile::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
         }
 
         FilePaths uniqueQrcFiles;
-        for (const FilePath &file : qAsConst(qrcFiles)) {
+        for (const FilePath &file : std::as_const(qrcFiles)) {
             if (!m_recursiveEnumerateFiles.contains(file))
                 uniqueQrcFiles.append(file);
         }
@@ -1208,7 +1208,7 @@ QString QmakeProFile::displayName() const
 QList<QmakeProFile *> QmakeProFile::allProFiles()
 {
     QList<QmakeProFile *> result = { this };
-    for (QmakePriFile *c : qAsConst(m_children)) {
+    for (QmakePriFile *c : std::as_const(m_children)) {
         auto proC = dynamic_cast<QmakeProFile *>(c);
         if (proC)
             result.append(proC->allProFiles());
@@ -1588,7 +1588,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         toCompare.pop_front();
 
         // Loop prevention: Make sure that exact same node is not in our parent chain
-        for (QmakeIncludedPriFile *priFile : qAsConst(tree->children)) {
+        for (QmakeIncludedPriFile *priFile : std::as_const(tree->children)) {
             bool loop = input.parentFilePaths.contains(priFile->name);
             for (const QmakePriFile *n = pn; n && !loop; n = n->parent()) {
                 if (n->filePath() == priFile->name)
@@ -1688,16 +1688,16 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
     //
     FilePath buildDirectory = m_buildSystem->buildDir(m_filePath);
     makeEmpty();
-    for (QmakePriFile * const toAdd : qAsConst(result->directChildren))
+    for (QmakePriFile * const toAdd : std::as_const(result->directChildren))
         addChild(toAdd);
     result->directChildren.clear();
 
-    for (const auto &priFiles : qAsConst(result->priFiles)) {
+    for (const auto &priFiles : std::as_const(result->priFiles)) {
         priFiles.first->finishInitialization(m_buildSystem, this);
         priFiles.first->update(priFiles.second);
     }
 
-    for (QmakeProFile * const proFile : qAsConst(result->proFiles)) {
+    for (QmakeProFile * const proFile : std::as_const(result->proFiles)) {
         proFile->finishInitialization(m_buildSystem, proFile);
         proFile->asyncUpdate();
     }
@@ -1998,7 +1998,7 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
         }
 
         QString itemPath = itemPaths.last();
-        for (const auto &prefixValuePair : qAsConst(installPrefixValues)) {
+        for (const auto &prefixValuePair : std::as_const(installPrefixValues)) {
             if (prefixValuePair.first == prefixValuePair.second
                     || !itemPath.startsWith(prefixValuePair.first)) {
                 continue;

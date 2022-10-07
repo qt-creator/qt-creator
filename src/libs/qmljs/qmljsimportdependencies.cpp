@@ -554,7 +554,7 @@ QByteArray DependencyInfo::calculateFingerprint(const ImportDependencies &deps)
     hash.addData("/", 1);
     QList<ImportKey> imports = Utils::toList(allImports);
     std::sort(imports.begin(), imports.end());
-    for (const ImportKey &k : qAsConst(imports))
+    for (const ImportKey &k : std::as_const(imports))
         k.addToHash(hash);
     return hash.result();
 }

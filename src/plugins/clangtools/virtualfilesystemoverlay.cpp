@@ -53,7 +53,7 @@ void VirtualFileSystemOverlay::update()
         newSaved[doc] = saved;
     }
 
-    for (const AutoSavedPath &path : qAsConst(m_saved)) {
+    for (const AutoSavedPath &path : std::as_const(m_saved)) {
         QString error;
         if (!path.path.removeRecursively(&error))
             qCDebug(LOG) << error;
@@ -79,7 +79,7 @@ void VirtualFileSystemOverlay::update()
         jsonRoot["type"] = "directory";
         jsonRoot["name"] = root.toUserOutput();
         QJsonArray contents;
-        for (auto doc : qAsConst(documents))
+        for (auto doc : std::as_const(documents))
             contents << toContent(doc);
         jsonRoot["contents"] = contents;
         jsonRoots << jsonRoot;

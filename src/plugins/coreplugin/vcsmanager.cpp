@@ -544,7 +544,7 @@ void CorePlugin::testVcsManager()
 
     // From VCSes:
     int expectedCount = 0;
-    for (const QString &result : qAsConst(results)) {
+    for (const QString &result : std::as_const(results)) {
         // qDebug() << "Expecting:" << result;
 
         const QStringList split = result.split(QLatin1Char(':'));

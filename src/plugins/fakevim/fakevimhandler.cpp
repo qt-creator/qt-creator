@@ -6122,7 +6122,7 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
     }
     QString info;
     info += "--- Registers ---\n";
-    for (char reg : qAsConst(regs)) {
+    for (char reg : std::as_const(regs)) {
         QString value = quoteUnprintable(registerContents(reg));
         info += QString("\"%1   %2\n").arg(reg).arg(value);
     }
@@ -6528,7 +6528,7 @@ bool FakeVimHandler::Private::handleExMultiRepeatCommand(const ExCommand &cmd)
 
     beginEditBlock();
 
-    for (const QTextCursor &tc : qAsConst(matches)) {
+    for (const QTextCursor &tc : std::as_const(matches)) {
         setPosition(tc.position());
         handleExCommand(innerCmd);
     }

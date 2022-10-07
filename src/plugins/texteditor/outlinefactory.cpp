@@ -166,7 +166,7 @@ void OutlineWidgetStack::updateEditor(Core::IEditor *editor)
     IOutlineWidget *newWidget = nullptr;
 
     if (editor) {
-        for (IOutlineWidgetFactory *widgetFactory : qAsConst(g_outlineWidgetFactories)) {
+        for (IOutlineWidgetFactory *widgetFactory : std::as_const(g_outlineWidgetFactories)) {
             if (widgetFactory->supportsEditor(editor)) {
                 newWidget = widgetFactory->createWidget(editor);
                 m_toggleSort->setVisible(widgetFactory->supportsSorting());

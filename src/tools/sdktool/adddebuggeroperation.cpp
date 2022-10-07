@@ -228,7 +228,7 @@ QVariantMap AddDebuggerData::addDebugger(const QVariantMap &map) const
     data << KeyValuePair(QStringList() << QLatin1String(COUNT), QVariant(count + 1));
 
     KeyValuePairList qtExtraList;
-    for (const KeyValuePair &pair : qAsConst(m_extra))
+    for (const KeyValuePair &pair : std::as_const(m_extra))
         qtExtraList << KeyValuePair(QStringList() << debugger << pair.key, pair.value);
     data.append(qtExtraList);
 

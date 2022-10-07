@@ -374,7 +374,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
         }
     }
 
-    for (const auto itemLibImport : qAsConst(importHash)) {
+    for (const auto itemLibImport : std::as_const(importHash)) {
         m_importList.append(itemLibImport);
         itemLibImport->setImportExpanded(loadExpandedState(itemLibImport->importUrl()));
     }
@@ -588,7 +588,7 @@ void ItemLibraryModel::sortSections()
 
     std::sort(m_importList.begin(), m_importList.end(), sectionSort);
 
-    for (ItemLibraryImport *itemLibImport : qAsConst(m_importList))
+    for (ItemLibraryImport *itemLibImport : std::as_const(m_importList))
         itemLibImport->sortCategorySections();
 }
 

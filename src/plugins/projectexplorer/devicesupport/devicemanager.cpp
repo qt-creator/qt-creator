@@ -92,7 +92,7 @@ void DeviceManager::replaceInstance()
     const QList<Id> newIds =
         Utils::transform(DeviceManagerPrivate::clonedInstance->d->devices, &IDevice::id);
 
-    for (const IDevice::Ptr &dev : qAsConst(m_instance->d->devices)) {
+    for (const IDevice::Ptr &dev : std::as_const(m_instance->d->devices)) {
         if (!newIds.contains(dev->id()))
             dev->aboutToBeRemoved();
     }
@@ -124,7 +124,7 @@ DeviceManager *DeviceManager::cloneInstance()
 void DeviceManager::copy(const DeviceManager *source, DeviceManager *target, bool deep)
 {
     if (deep) {
-        for (const IDevice::Ptr &device : qAsConst(source->d->devices))
+        for (const IDevice::Ptr &device : std::as_const(source->d->devices))
             target->d->devices << device->clone();
     } else {
         target->d->devices = source->d->devices;
@@ -170,8 +170,8 @@ void DeviceManager::load()
         userDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
-    for (IDevice::ConstPtr device : qAsConst(userDevices)) {
-        for (const IDevice::Ptr &sdkDevice : qAsConst(sdkDevices)) {
+    for (IDevice::ConstPtr device : std::as_const(userDevices)) {
+        for (const IDevice::Ptr &sdkDevice : std::as_const(sdkDevices)) {
             if (device->id() == sdkDevice->id()) {
                 if (device->version() < sdkDevice->version())
                     device = sdkDevice;
@@ -182,7 +182,7 @@ void DeviceManager::load()
         addDevice(device);
     }
     // Append the new SDK devices to the model.
-    for (const IDevice::Ptr &sdkDevice : qAsConst(sdkDevices))
+    for (const IDevice::Ptr &sdkDevice : std::as_const(sdkDevices))
         addDevice(sdkDevice);
 
     // Overwrite with the saved default devices.
@@ -245,7 +245,7 @@ QVariantMap DeviceManager::toMap() const
     }
     map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
     QVariantList deviceList;
-    for (const IDevice::Ptr &device : qAsConst(d->devices))
+    for (const IDevice::Ptr &device : std::as_const(d->devices))
         deviceList << device->toMap();
     map.insert(QLatin1String(DeviceListKey), deviceList);
     return map;
@@ -256,7 +256,7 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
     const IDevice::Ptr device = _device->clone();
 
     QStringList names;
-    for (const IDevice::Ptr &tmp : qAsConst(d->devices)) {
+    for (const IDevice::Ptr &tmp : std::as_const(d->devices)) {
         if (tmp->id() != device->id())
             names << tmp->displayName();
     }

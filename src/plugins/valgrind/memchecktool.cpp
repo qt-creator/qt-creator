@@ -359,7 +359,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         bool inProject = false;
         for (int i = 0; i < framesToLookAt; ++i) {
             const Frame &frame = frames.at(i);
-            for (const QString &folder : qAsConst(validFolders)) {
+            for (const QString &folder : std::as_const(validFolders)) {
                 if (frame.directory().startsWith(folder)) {
                     inProject = true;
                     break;
@@ -609,7 +609,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     filterButton->setProperty("noArrow", true);
 
     m_filterMenu = new QMenu(filterButton);
-    for (QAction *filterAction : qAsConst(m_errorFilterActions))
+    for (QAction *filterAction : std::as_const(m_errorFilterActions))
         m_filterMenu->addAction(filterAction);
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_filterProjectAction);
@@ -908,7 +908,7 @@ void MemcheckToolPrivate::settingsDestroyed(QObject *settings)
 
 void MemcheckToolPrivate::updateFromSettings()
 {
-    for (QAction *action : qAsConst(m_errorFilterActions)) {
+    for (QAction *action : std::as_const(m_errorFilterActions)) {
         bool contained = true;
         const QList<QVariant> actions = action->data().toList();
         for (const QVariant &v : actions) {
@@ -1094,7 +1094,7 @@ void MemcheckToolPrivate::updateErrorFilter()
     m_settings->filterExternalIssues.setValue(!m_filterProjectAction->isChecked());
 
     QList<int> errorKinds;
-    for (QAction *a : qAsConst(m_errorFilterActions)) {
+    for (QAction *a : std::as_const(m_errorFilterActions)) {
         if (!a->isChecked())
             continue;
         const QList<QVariant> actions = a->data().toList();
@@ -1204,7 +1204,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
 
     auto profilesLayout = new QHBoxLayout;
     m_profilesCombo = new QComboBox;
-    for (const auto &profile : qAsConst(m_profiles))
+    for (const auto &profile : std::as_const(m_profiles))
         m_profilesCombo->addItem(settings->value(profile + "/" + heobProfileNameC).toString());
     if (hasSelProfile) {
         int selIdx = m_profiles.indexOf(selProfile);

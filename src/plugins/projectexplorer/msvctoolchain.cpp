@@ -792,7 +792,7 @@ void MsvcToolChain::updateEnvironmentModifications(Utils::EnvironmentItems modif
     if (modifications != m_environmentModifications) {
         if (Log().isDebugEnabled()) {
             qCDebug(Log) << "Update environment for " << displayName();
-            for (const EnvironmentItem &item : qAsConst(modifications))
+            for (const EnvironmentItem &item : std::as_const(modifications))
                 qCDebug(Log) << '\t' << item;
         }
         m_environmentModifications = modifications;
@@ -1294,7 +1294,7 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     m_varsBatPathCombo->setObjectName("varsBatCombo");
     m_varsBatPathCombo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     m_varsBatPathCombo->setEditable(true);
-    for (const MsvcToolChain *tmpTc : qAsConst(g_availableMsvcToolchains)) {
+    for (const MsvcToolChain *tmpTc : std::as_const(g_availableMsvcToolchains)) {
         const QString nativeVcVars = QDir::toNativeSeparators(tmpTc->varsBat());
         if (!tmpTc->varsBat().isEmpty()
                 && m_varsBatPathCombo->findText(nativeVcVars) == -1) {
@@ -1403,7 +1403,7 @@ void MsvcToolChainConfigWidget::updateAbis()
     // choose one appropriately.
     Abis supportedAbis;
     Abi targetAbi;
-    for (const MsvcToolChain *tc : qAsConst(g_availableMsvcToolchains)) {
+    for (const MsvcToolChain *tc : std::as_const(g_availableMsvcToolchains)) {
         if (tc->varsBat() == normalizedVcVars && tc->targetAbi().wordWidth() == wordWidth
             && tc->targetAbi().architecture() == arch && tc->language() == currentTc->language()) {
             // We need to filter out duplicates as there might be multiple toolchains with
@@ -1504,7 +1504,7 @@ void ClangClToolChainConfigWidget::setFromClangClToolChain()
     m_nameDisplayLabel->setText(currentTC->displayName());
     m_varsBatDisplayCombo->clear();
     m_varsBatDisplayCombo->addItem(msvcVarsToDisplay(*currentTC));
-    for (const MsvcToolChain *tc : qAsConst(g_availableMsvcToolchains)) {
+    for (const MsvcToolChain *tc : std::as_const(g_availableMsvcToolchains)) {
         const QString varsToDisplay = msvcVarsToDisplay(*tc);
         if (m_varsBatDisplayCombo->findText(varsToDisplay) == -1)
             m_varsBatDisplayCombo->addItem(varsToDisplay);
@@ -1993,7 +1993,7 @@ Toolchains MsvcToolChainFactory::autoDetect(const ToolchainDetector &detector) c
 
     detectCppBuildTools2015(&results);
 
-    for (ToolChain *tc : qAsConst(results))
+    for (ToolChain *tc : std::as_const(results))
         tc->setDetection(ToolChain::AutoDetection);
 
     return results;

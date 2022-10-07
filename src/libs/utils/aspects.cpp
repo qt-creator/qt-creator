@@ -180,7 +180,7 @@ bool BaseAspect::isVisible() const
 void BaseAspect::setVisible(bool visible)
 {
     d->m_visible = visible;
-    for (QWidget *w : qAsConst(d->m_subWidgets)) {
+    for (QWidget *w : std::as_const(d->m_subWidgets)) {
         QTC_ASSERT(w, continue);
         // This may happen during layout building. Explicit setting visibility here
         // may create a show a toplevel widget for a moment until it is parented
@@ -274,7 +274,7 @@ QString BaseAspect::toolTip() const
 void BaseAspect::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
-    for (QWidget *w : qAsConst(d->m_subWidgets)) {
+    for (QWidget *w : std::as_const(d->m_subWidgets)) {
         QTC_ASSERT(w, continue);
         w->setToolTip(tooltip);
     }
@@ -288,7 +288,7 @@ bool BaseAspect::isEnabled() const
 void BaseAspect::setEnabled(bool enabled)
 {
     d->m_enabled = enabled;
-    for (QWidget *w : qAsConst(d->m_subWidgets)) {
+    for (QWidget *w : std::as_const(d->m_subWidgets)) {
         QTC_ASSERT(w, continue);
         w->setEnabled(enabled);
     }
@@ -313,7 +313,7 @@ bool BaseAspect::isReadOnly() const
 void BaseAspect::setReadOnly(bool readOnly)
 {
     d->m_readOnly = readOnly;
-    for (QWidget *w : qAsConst(d->m_subWidgets)) {
+    for (QWidget *w : std::as_const(d->m_subWidgets)) {
         QTC_ASSERT(w, continue);
         if (auto lineEdit = qobject_cast<QLineEdit *>(w))
             lineEdit->setReadOnly(readOnly);
@@ -1661,7 +1661,7 @@ void MultiSelectionAspect::addToLayout(LayoutBuilder &builder)
     switch (d->m_displayStyle) {
     case DisplayStyle::ListView:
         d->m_listView = createSubWidget<QListWidget>();
-        for (const QString &val : qAsConst(d->m_allValues)) {
+        for (const QString &val : std::as_const(d->m_allValues)) {
             auto item = new QListWidgetItem(val, d->m_listView);
             item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
             item->setCheckState(value().contains(item->text()) ? Qt::Checked : Qt::Unchecked);
@@ -2239,7 +2239,7 @@ void AspectContainer::registerAspect(BaseAspect *aspect)
 
 void AspectContainer::registerAspects(const AspectContainer &aspects)
 {
-    for (BaseAspect *aspect : qAsConst(aspects.d->m_items))
+    for (BaseAspect *aspect : std::as_const(aspects.d->m_items))
         registerAspect(aspect);
 }
 
@@ -2270,7 +2270,7 @@ const QList<BaseAspect *> &AspectContainer::aspects() const
 
 void AspectContainer::fromMap(const QVariantMap &map)
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->fromMap(map);
 
     emit fromMapFinished();
@@ -2279,7 +2279,7 @@ void AspectContainer::fromMap(const QVariantMap &map)
 
 void AspectContainer::toMap(QVariantMap &map) const
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->toMap(map);
 }
 
@@ -2288,7 +2288,7 @@ void AspectContainer::readSettings(QSettings *settings)
     for (const QString &group : d->m_settingsGroup)
         settings->beginGroup(group);
 
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->readSettings(settings);
 
     for (int i = 0; i != d->m_settingsGroup.size(); ++i)
@@ -2300,7 +2300,7 @@ void AspectContainer::writeSettings(QSettings *settings) const
     for (const QString &group : d->m_settingsGroup)
         settings->beginGroup(group);
 
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->writeSettings(settings);
 
     for (int i = 0; i != d->m_settingsGroup.size(); ++i)
@@ -2319,7 +2319,7 @@ void AspectContainer::setSettingsGroups(const QString &groupKey, const QString &
 
 void AspectContainer::apply()
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->apply();
 
     emit applied();
@@ -2327,26 +2327,26 @@ void AspectContainer::apply()
 
 void AspectContainer::cancel()
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->cancel();
 }
 
 void AspectContainer::finish()
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->finish();
 }
 
 void AspectContainer::reset()
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->setValueQuietly(aspect->defaultValue());
 }
 
 void AspectContainer::setAutoApply(bool on)
 {
     d->m_autoApply = on;
-    for (BaseAspect *aspect : qAsConst(d->m_items))
+    for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->setAutoApply(on);
 }
 
@@ -2357,7 +2357,7 @@ void AspectContainer::setOwnsSubAspects(bool on)
 
 bool AspectContainer::isDirty() const
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items)) {
+    for (BaseAspect *aspect : std::as_const(d->m_items)) {
         if (aspect->isDirty())
             return true;
     }
@@ -2382,7 +2382,7 @@ void AspectContainer::copyFrom(const AspectContainer &other)
 
 void AspectContainer::forEachAspect(const std::function<void(BaseAspect *)> &run) const
 {
-    for (BaseAspect *aspect : qAsConst(d->m_items)) {
+    for (BaseAspect *aspect : std::as_const(d->m_items)) {
         if (auto container = dynamic_cast<AspectContainer *>(aspect))
             container->forEachAspect(run);
         else

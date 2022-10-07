@@ -235,7 +235,7 @@ void SemanticTokenSupport::setLegend(const LanguageServerProtocol::SemanticToken
 void SemanticTokenSupport::updateFormatHash()
 {
     auto fontSettings = TextEditorSettings::fontSettings();
-    for (int tokenType : qAsConst(m_tokenTypes)) {
+    for (int tokenType : std::as_const(m_tokenTypes)) {
         if (tokenType < 0)
             continue;
         TextStyle style;
@@ -364,7 +364,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         const QList<int> &data = tokens.data();
 
         int newDataSize = data.size();
-        for (const SemanticTokensEdit &edit : qAsConst(edits))
+        for (const SemanticTokensEdit &edit : std::as_const(edits))
             newDataSize += edit.dataSize() - edit.deleteCount();
         QList<int> newData;
         newData.reserve(newDataSize);
@@ -373,7 +373,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         const auto end = data.end();
         qCDebug(LOGLSPHIGHLIGHT) << "Edit Tokens";
         qCDebug(LOGLSPHIGHLIGHT) << "Data before edit " << data;
-        for (const SemanticTokensEdit &edit : qAsConst(edits)) {
+        for (const SemanticTokensEdit &edit : std::as_const(edits)) {
             if (edit.start() > data.size()) // prevent edits after the previously reported data
                 return;
             for (const auto start = data.begin() + edit.start(); it < start; ++it)
@@ -446,7 +446,7 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath, bool force
         };
         if (LOGLSPHIGHLIGHT().isDebugEnabled()) {
             qCDebug(LOGLSPHIGHLIGHT) << "Expanded Tokens for " << filePath;
-            for (const ExpandedSemanticToken &token : qAsConst(expandedTokens)) {
+            for (const ExpandedSemanticToken &token : std::as_const(expandedTokens)) {
                 qCDebug(LOGLSPHIGHLIGHT)
                     << token.line << token.column << token.length << token.type << token.modifiers;
             }

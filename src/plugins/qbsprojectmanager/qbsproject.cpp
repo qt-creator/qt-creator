@@ -156,7 +156,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
 {
     connect(m_session, &QbsSession::newGeneratedFilesForSources, this,
             [this](const QHash<QString, QStringList> &generatedFiles) {
-        for (ExtraCompiler * const ec : qAsConst(m_extraCompilers))
+        for (ExtraCompiler * const ec : std::as_const(m_extraCompilers))
             ec->deleteLater();
         m_extraCompilers.clear();
         for (auto it = m_sourcesForGeneratedFiles.cbegin();
@@ -906,17 +906,17 @@ static RawProjectParts generateProjectParts(
             ProjectExplorer::HeaderPaths grpHeaderPaths;
             QStringList list = arrayToStringList(props.value("cpp.includePaths"));
             list.removeDuplicates();
-            for (const QString &p : qAsConst(list))
+            for (const QString &p : std::as_const(list))
                 grpHeaderPaths += HeaderPath::makeUser(FilePath::fromUserInput(p));
             list = arrayToStringList(props.value("cpp.distributionIncludePaths"))
                     + arrayToStringList(props.value("cpp.systemIncludePaths"));
             list.removeDuplicates();
-            for (const QString &p : qAsConst(list))
+            for (const QString &p : std::as_const(list))
                 grpHeaderPaths += HeaderPath::makeSystem(FilePath::fromUserInput(p));
             list = arrayToStringList(props.value("cpp.frameworkPaths"));
             list.append(arrayToStringList(props.value("cpp.systemFrameworkPaths")));
             list.removeDuplicates();
-            for (const QString &p : qAsConst(list))
+            for (const QString &p : std::as_const(list))
                 grpHeaderPaths += HeaderPath::makeFramework(FilePath::fromUserInput(p));
             rpp.setHeaderPaths(grpHeaderPaths);
             rpp.setDisplayName(groupName);

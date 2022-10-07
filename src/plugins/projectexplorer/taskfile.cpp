@@ -161,7 +161,7 @@ void TaskFile::stopMonitoring()
 {
     SessionManager::setValue(Constants::SESSION_TASKFILE_KEY, {});
 
-    for (TaskFile *document : qAsConst(openFiles))
+    for (TaskFile *document : std::as_const(openFiles))
         document->deleteLater();
     openFiles.clear();
 }

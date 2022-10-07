@@ -1120,7 +1120,7 @@ bool CheckSymbols::visit(FunctionDefinitionAST *ast)
     accept(ast->function_body);
 
     const Internal::LocalSymbols locals(_doc, ast);
-    for (const QList<Result> &uses : qAsConst(locals.uses)) {
+    for (const QList<Result> &uses : std::as_const(locals.uses)) {
         for (const Result &u : uses)
             addUse(u);
     }

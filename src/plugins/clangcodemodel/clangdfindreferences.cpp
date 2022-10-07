@@ -129,7 +129,7 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
     QObject::connect(search, &SearchResult::canceled, q, [this] {
         canceled = true;
         search->disconnect(q);
-        for (const MessageId &id : qAsConst(pendingAstRequests))
+        for (const MessageId &id : std::as_const(pendingAstRequests))
             client()->cancelRequest(id);
         pendingAstRequests.clear();
         finishSearch();

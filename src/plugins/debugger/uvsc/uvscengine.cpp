@@ -684,7 +684,7 @@ void UvscEngine::handleReloadRegisters()
         showMessage(Tr::tr("UVSC: Reading registers failed."), LogMisc);
     } else {
         RegisterHandler *handler = registerHandler();
-        for (const auto &reg : qAsConst(m_registers))
+        for (const auto &reg : std::as_const(m_registers))
             handler->updateRegister(reg.second);
         handler->commitUpdates();
     }

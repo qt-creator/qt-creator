@@ -246,7 +246,7 @@ void GeneralSettingsWidget::fillCodecBox() const
 
     QByteArrayList codecs = QTextCodec::availableCodecs();
     Utils::sort(codecs);
-    for (const QByteArray &codec : qAsConst(codecs)) {
+    for (const QByteArray &codec : std::as_const(codecs)) {
         m_codecBox->addItem(QString::fromLocal8Bit(codec));
         if (codec == currentCodec)
             m_codecBox->setCurrentIndex(m_codecBox->count() - 1);

@@ -69,7 +69,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
 
     // Check if there is exactly one cursor marker
     unsigned cursorMarkersCount = 0;
-    for (const TestDocumentPtr &document : qAsConst(m_testDocuments)) {
+    for (const TestDocumentPtr &document : std::as_const(m_testDocuments)) {
         if (document->hasCursorMarker())
             ++cursorMarkersCount;
     }
@@ -78,7 +78,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
     // Write documents to disk
     m_temporaryDirectory.reset(new TemporaryDir);
     QVERIFY(m_temporaryDirectory->isValid());
-    for (const TestDocumentPtr &document : qAsConst(m_testDocuments)) {
+    for (const TestDocumentPtr &document : std::as_const(m_testDocuments)) {
         if (QFileInfo(document->m_fileName).isRelative())
             document->setBaseDirectory(m_temporaryDirectory->path());
         document->writeToDisk();
@@ -93,12 +93,12 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
 
     // Update Code Model
     QSet<QString> filePaths;
-    for (const TestDocumentPtr &document : qAsConst(m_testDocuments))
+    for (const TestDocumentPtr &document : std::as_const(m_testDocuments))
         filePaths << document->filePath();
     QVERIFY(parseFiles(filePaths));
 
     // Open Files
-    for (const TestDocumentPtr &document : qAsConst(m_testDocuments)) {
+    for (const TestDocumentPtr &document : std::as_const(m_testDocuments)) {
         QVERIFY(openCppEditor(document->filePath(), &document->m_editor,
                               &document->m_editorWidget));
         closeEditorAtEndOfTestCase(document->m_editor);
@@ -127,7 +127,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
     m_cppCodeStylePreferences->setCurrentDelegate("qt");
 
     // Find the document having the cursor marker
-    for (const TestDocumentPtr &document : qAsConst(m_testDocuments)) {
+    for (const TestDocumentPtr &document : std::as_const(m_testDocuments)) {
         if (document->hasCursorMarker()){
             m_documentWithMarker = document;
             break;
@@ -149,7 +149,7 @@ BaseQuickFixTestCase::~BaseQuickFixTestCase()
         m_modelManager->setHeaderPaths(m_headerPathsToRestore);
 
     // Remove created files from file system
-    for (const TestDocumentPtr &testDocument : qAsConst(m_testDocuments))
+    for (const TestDocumentPtr &testDocument : std::as_const(m_testDocuments))
         QVERIFY(QFile::remove(testDocument->filePath()));
 }
 
@@ -201,7 +201,7 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
     operation->perform();
 
     // Compare all files
-    for (const TestDocumentPtr &testDocument : qAsConst(m_testDocuments)) {
+    for (const TestDocumentPtr &testDocument : std::as_const(m_testDocuments)) {
         // Check
         QString result = testDocument->m_editorWidget->document()->toPlainText();
         removeTrailingWhitespace(result);
@@ -247,7 +247,7 @@ QuickFixOfferedOperationsTest::QuickFixOfferedOperationsTest(
 
     // Convert to QStringList
     QStringList actualOperationsAsStringList;
-    for (const QuickFixOperation::Ptr &operation : qAsConst(actualOperations))
+    for (const QuickFixOperation::Ptr &operation : std::as_const(actualOperations))
         actualOperationsAsStringList << operation->description();
 
     QCOMPARE(actualOperationsAsStringList, expectedOperations);
@@ -5865,7 +5865,7 @@ void QuickfixTest::testAddIncludeForUndefinedIdentifier()
 
     TemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
-    for (const TestDocumentPtr &testDocument : qAsConst(testDocuments))
+    for (const TestDocumentPtr &testDocument : std::as_const(testDocuments))
         testDocument->setBaseDirectory(temporaryDir.path());
 
     QScopedPointer<CppQuickFixFactory> factory;

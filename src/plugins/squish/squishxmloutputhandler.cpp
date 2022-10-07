@@ -282,7 +282,7 @@ void SquishXmlOutputHandler::outputAvailable(const QByteArray &output)
                 }
 
                 if (!logDetailsList.isEmpty()) {
-                    for (const QString &detail : qAsConst(logDetailsList)) {
+                    for (const QString &detail : std::as_const(logDetailsList)) {
                         TestResult childResult(Result::Detail, detail);
                         SquishResultItem *childItem = new SquishResultItem(childResult);
                         item->appendChild(childItem);

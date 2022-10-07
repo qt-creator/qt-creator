@@ -71,7 +71,7 @@ void ChangeStyleWidgetAction::changeStyle(const QString &style)
 
         int contains = -1;
 
-        for (const auto &item : qAsConst(items)) {
+        for (const auto &item : std::as_const(items)) {
             if (item.displayName == style) {
                 contains = items.indexOf(item);
                 break;
@@ -106,7 +106,7 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
     auto comboBox = new QComboBox(parent);
     comboBox->setToolTip(tr(enabledTooltip));
 
-    for (const auto &item : qAsConst(items))
+    for (const auto &item : std::as_const(items))
         comboBox->addItem(item.displayName);
 
     comboBox->setEditable(true);

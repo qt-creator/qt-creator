@@ -51,11 +51,11 @@ bool TestFrameworkManager::registerTestTool(ITestTool *testTool)
 void TestFrameworkManager::activateFrameworksAndToolsFromSettings(
         const Internal::TestSettings *settings)
 {
-    for (ITestFramework *framework : qAsConst(s_instance->m_registeredFrameworks)) {
+    for (ITestFramework *framework : std::as_const(s_instance->m_registeredFrameworks)) {
         framework->setActive(settings->frameworks.value(framework->id(), false));
         framework->setGrouping(settings->frameworksGrouping.value(framework->id(), false));
     }
-    for (ITestTool *testTool : qAsConst(s_instance->m_registeredTestTools))
+    for (ITestTool *testTool : std::as_const(s_instance->m_registeredTestTools))
         testTool->setActive(settings->tools.value(testTool->id(), false));
 }
 
@@ -99,11 +99,11 @@ ITestTool *TestFrameworkManager::testToolForBuildSystemId(Id buildSystemId)
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
     Internal::AutotestPlugin::settings()->fromSettings(s);
-    for (ITestFramework *framework : qAsConst(m_registeredFrameworks)) {
+    for (ITestFramework *framework : std::as_const(m_registeredFrameworks)) {
         if (ITestSettings *fSettings = framework->testSettings())
             fSettings->readSettings(s);
     }
-    for (ITestTool *testTool : qAsConst(m_registeredTestTools)) {
+    for (ITestTool *testTool : std::as_const(m_registeredTestTools)) {
         if (ITestSettings *tSettings = testTool->testSettings())
             tSettings->readSettings(s);
     }

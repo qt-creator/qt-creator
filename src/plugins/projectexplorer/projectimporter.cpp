@@ -113,7 +113,7 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
     }
 
     qCDebug(log) << "Looking for kits";
-    for (void *data : qAsConst(dataList)) {
+    for (void *data : std::as_const(dataList)) {
         QTC_ASSERT(data, continue);
         QList<Kit *> kitList;
         const QList<Kit *> tmp
@@ -128,7 +128,7 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
             qCDebug(log) << "  " << tmp.count() << "matching kits found.";
         }
 
-        for (Kit *k : qAsConst(kitList)) {
+        for (Kit *k : std::as_const(kitList)) {
             qCDebug(log) << "Creating buildinfos for kit" << k->displayName();
             const QList<BuildInfo> infoList = buildInfoList(data);
             if (infoList.isEmpty()) {
@@ -146,7 +146,7 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
         }
     }
 
-    for (void *dd : qAsConst(dataList))
+    for (void *dd : std::as_const(dataList))
         deleteDirectoryData(dd);
     dataList.clear();
 
@@ -213,7 +213,7 @@ void ProjectImporter::makePersistent(Kit *k) const
     k->removeKey(KIT_TEMPORARY_NAME);
     k->removeKey(KIT_FINAL_NAME);
 
-    for (const TemporaryInformationHandler &tih : qAsConst(m_temporaryHandlers)) {
+    for (const TemporaryInformationHandler &tih : std::as_const(m_temporaryHandlers)) {
         const Utils::Id fid = fullId(tih.id);
         const QVariantList temporaryValues = k->value(fid).toList();
 
@@ -238,7 +238,7 @@ void ProjectImporter::makePersistent(Kit *k) const
 void ProjectImporter::cleanupKit(Kit *k) const
 {
     QTC_ASSERT(k, return);
-    for (const TemporaryInformationHandler &tih : qAsConst(m_temporaryHandlers)) {
+    for (const TemporaryInformationHandler &tih : std::as_const(m_temporaryHandlers)) {
         const Utils::Id fid = fullId(tih.id);
         const QVariantList temporaryValues
                 = Utils::filtered(k->value(fid).toList(), [fid, k](const QVariant &v) {
@@ -377,7 +377,7 @@ static ProjectImporter::ToolChainData createToolChains(const ToolChainDescriptio
         if (data.tcs.isEmpty())
             continue;
 
-        for (ToolChain *tc : qAsConst(data.tcs))
+        for (ToolChain *tc : std::as_const(data.tcs))
             ToolChainManager::registerToolChain(tc);
 
         data.areTemporary = true;
@@ -394,7 +394,7 @@ ProjectImporter::findOrCreateToolChains(const ToolChainDescription &tcd) const
     result.tcs = ToolChainManager::toolchains([&tcd](const ToolChain *tc) {
         return tc->language() == tcd.language && tc->matchesCompilerCommand(tcd.compilerPath);
     });
-    for (const ToolChain *tc : qAsConst(result.tcs)) {
+    for (const ToolChain *tc : std::as_const(result.tcs)) {
         const QByteArray tcId = tc->id();
         result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolChainKitAspect::id(), tcId);
     }

@@ -478,7 +478,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeInclude(
     const QStringList suffixes = mimeType.suffixes();
 
     QList<AssistProposalItemInterface *> completions;
-    for (const HeaderPath &headerPath : qAsConst(allHeaderPaths)) {
+    for (const HeaderPath &headerPath : std::as_const(allHeaderPaths)) {
         QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
@@ -490,7 +490,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeInclude(
     }
 
     QList<QPair<AssistProposalItemInterface *, QString>> completionsForSorting;
-    for (AssistProposalItemInterface * const item : qAsConst(completions)) {
+    for (AssistProposalItemInterface * const item : std::as_const(completions)) {
         QString s = item->text();
         s.replace('/', QChar(0)); // The dir separator should compare less than anything else.
         completionsForSorting.push_back({item, s});

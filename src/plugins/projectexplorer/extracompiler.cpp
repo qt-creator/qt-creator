@@ -263,7 +263,7 @@ void ExtraCompilerPrivate::updateIssues()
 
     QList<QTextEdit::ExtraSelection> selections;
     const QTextDocument *document = widget->document();
-    for (const Task &issue : qAsConst(issues)) {
+    for (const Task &issue : std::as_const(issues)) {
         QTextEdit::ExtraSelection selection;
         QTextCursor cursor(document->findBlockByNumber(issue.line - 1));
         cursor.movePosition(QTextCursor::StartOfLine);

@@ -173,7 +173,7 @@ bool CrashHandler::collectRestartAppData()
         return false;
     }
     commandLine.removeLast();
-    for (const QByteArray &item : qAsConst(commandLine))
+    for (const QByteArray &item : std::as_const(commandLine))
         d->restartAppCommandLine.append(QString::fromLatin1(item));
 
     // Get environment.
@@ -187,7 +187,7 @@ bool CrashHandler::collectRestartAppData()
     }
     if (environment.last().isEmpty())
         environment.removeLast();
-    for (const QByteArray &item : qAsConst(environment))
+    for (const QByteArray &item : std::as_const(environment))
         d->restartAppEnvironment.append(QString::fromLatin1(item));
 
     return true;

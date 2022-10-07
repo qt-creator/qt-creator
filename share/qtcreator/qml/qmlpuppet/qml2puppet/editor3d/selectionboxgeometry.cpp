@@ -31,7 +31,7 @@ SelectionBoxGeometry::SelectionBoxGeometry()
 
 SelectionBoxGeometry::~SelectionBoxGeometry()
 {
-    for (auto &connection : qAsConst(m_connections))
+    for (auto &connection : std::as_const(m_connections))
         QObject::disconnect(connection);
     m_connections.clear();
 }
@@ -145,7 +145,7 @@ void SelectionBoxGeometry::doUpdateGeometry()
 
     GeometryBase::doUpdateGeometry();
 
-    for (auto &connection : qAsConst(m_connections))
+    for (auto &connection : std::as_const(m_connections))
         QObject::disconnect(connection);
     m_connections.clear();
 
@@ -278,9 +278,9 @@ void SelectionBoxGeometry::getBounds(
     };
 
     // Combine all child bounds
-    for (const auto &newBounds : qAsConst(minBoundsVec))
+    for (const auto &newBounds : std::as_const(minBoundsVec))
         combineMinBounds(localMinBounds, newBounds);
-    for (const auto &newBounds : qAsConst(maxBoundsVec))
+    for (const auto &newBounds : std::as_const(maxBoundsVec))
         combineMaxBounds(localMaxBounds, newBounds);
 
     if (qobject_cast<QQuick3DModel *>(node)) {

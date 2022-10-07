@@ -219,7 +219,7 @@ QList<ToolChain *> QnxConfiguration::autoDetect(const QList<ToolChain *> &alread
 {
     QList<ToolChain *> result;
 
-    for (const Target &target : qAsConst(m_targets))
+    for (const Target &target : std::as_const(m_targets))
         result += findToolChain(alreadyKnown, target.m_abi);
 
     return result;

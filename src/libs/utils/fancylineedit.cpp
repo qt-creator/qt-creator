@@ -509,7 +509,7 @@ void FancyLineEdit::validate()
 
     // Check buttons.
     if (d->m_oldText.isEmpty() || t.isEmpty()) {
-        for (auto &button : qAsConst(d->m_iconbutton)) {
+        for (auto &button : std::as_const(d->m_iconbutton)) {
             if (button->hasAutoHide())
                 button->animateShow(!t.isEmpty());
         }

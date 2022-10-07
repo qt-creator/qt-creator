@@ -50,7 +50,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
 
     VcsBaseSubmitEditor::filterUntrackedFilesOfProject(fileModel->repositoryRoot(), &shouldTrack);
 
-    for (const QString &track : qAsConst(shouldTrack)) {
+    for (const QString &track : std::as_const(shouldTrack)) {
         for (const VcsBaseClient::StatusItem &item : repoStatus) {
             if (item.file == track)
                 fileModel->addFile(item.file, item.flags, Unchecked);
