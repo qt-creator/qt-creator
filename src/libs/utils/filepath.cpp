@@ -1630,6 +1630,8 @@ bool FilePath::isRelativePath() const
         return false;
     if (path().size() > 1 && isWindowsDriveLetter(path()[0]) && path().at(1) == ':')
         return false;
+    if (path().startsWith(":/")) // QRC
+        return false;
     return true;
 }
 
