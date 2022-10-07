@@ -791,26 +791,19 @@ private:
     QStringList m_files;
 };
 
-class GitProgressParser : public ProgressParser
+class GitProgressParser
 {
 public:
-    static void attachToCommand(VcsCommand *command)
-    {
-        command->setProgressParser(new GitProgressParser);
+    void operator()(QFutureInterface<void> &fi, const QString &inputText) const {
+        const QRegularExpressionMatch match = m_progressExp.match(inputText);
+        if (match.hasMatch()) {
+            fi.setProgressRange(0, match.captured(2).toInt());
+            fi.setProgressValue(match.captured(1).toInt());
+        }
     }
 
 private:
-    GitProgressParser() : m_progressExp("\\((\\d+)/(\\d+)\\)") // e.g. Rebasing (7/42)
-    { }
-
-    void parseProgress(const QString &text) override
-    {
-        const QRegularExpressionMatch match = m_progressExp.match(text);
-        if (match.hasMatch())
-            setProgressAndMaximum(match.captured(1).toInt(), match.captured(2).toInt());
-    }
-
-    const QRegularExpression m_progressExp;
+    const QRegularExpression m_progressExp{"\\((\\d+)/(\\d+)\\)"}; // e.g. Rebasing (7/42)
 };
 
 static inline QString msgRepositoryNotFound(const FilePath &dir)
@@ -3404,7 +3397,7 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
     command->addJob({vcsBinary(), arguments}, isRebase ? 0 : vcsTimeoutS());
     ConflictHandler::attachToCommand(command, workingDirectory, abortCommand);
     if (isRebase)
-        GitProgressParser::attachToCommand(command);
+        command->setProgressParser(GitProgressParser());
     command->start();
 
     return command;

@@ -13,16 +13,12 @@
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
+#include <QCoreApplication>
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QMutex>
 #include <QTextCodec>
 #include <QThread>
-#include <QVariant>
-
-#include <numeric>
 
 /*!
     \fn void Utils::ProgressParser::parseProgress(const QString &text)
@@ -67,8 +63,6 @@ public:
         m_futureInterface.setProgressRange(0, 1);
     }
 
-    ~VcsCommandPrivate() { delete m_progressParser; }
-
     Environment environment()
     {
         if (!(m_flags & RunFlags::ForceCLocale))
@@ -98,7 +92,7 @@ public:
     const FilePath m_defaultWorkingDirectory;
     Environment m_environment;
     QTextCodec *m_codec = nullptr;
-    ProgressParser *m_progressParser = nullptr;
+    ProgressParser m_progressParser = {};
     QFutureWatcher<void> m_watcher;
     QList<Job> m_jobs;
 
@@ -143,8 +137,6 @@ void VcsCommandPrivate::setup()
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
         });
     }
-    if (m_progressParser)
-        m_progressParser->setFuture(&m_futureInterface);
 }
 
 void VcsCommandPrivate::cleanup()
@@ -156,8 +148,6 @@ void VcsCommandPrivate::cleanup()
             GlobalFileChangeBlocker::instance()->forceBlocked(false);
         });
     }
-    if (m_progressParser)
-        m_progressParser->setFuture(nullptr);
 }
 
 void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
@@ -186,7 +176,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
                                                   || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setStdErrCallback([this](const QString &text) {
             if (m_progressParser)
-                m_progressParser->parseProgress(text);
+                m_progressParser(m_futureInterface, text);
             if (!(m_flags & RunFlags::SuppressStdErr))
                 emit q->appendError(text);
             if (m_flags & RunFlags::ProgressiveOutput)
@@ -198,7 +188,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
                          || m_flags & RunFlags::ShowStdOut) {
         process->setStdOutCallback([this](const QString &text) {
             if (m_progressParser)
-                m_progressParser->parseProgress(text);
+                m_progressParser(m_futureInterface, text);
             if (m_flags & RunFlags::ShowStdOut) {
                 if (m_flags & RunFlags::SilentOutput)
                     emit q->appendSilently(text);
@@ -415,34 +405,9 @@ void VcsCommand::setCodec(QTextCodec *codec)
 }
 
 //! Use \a parser to parse progress data from stdout. Command takes ownership of \a parser
-void VcsCommand::setProgressParser(ProgressParser *parser)
+void VcsCommand::setProgressParser(const ProgressParser &parser)
 {
-    QTC_ASSERT(!d->m_progressParser, return);
     d->m_progressParser = parser;
-}
-
-ProgressParser::ProgressParser() :
-    m_futureMutex(new QMutex)
-{ }
-
-ProgressParser::~ProgressParser()
-{
-    delete m_futureMutex;
-}
-
-void ProgressParser::setProgressAndMaximum(int value, int maximum)
-{
-    QMutexLocker lock(m_futureMutex);
-    if (!m_future)
-        return;
-    m_future->setProgressRange(0, maximum);
-    m_future->setProgressValue(value);
-}
-
-void ProgressParser::setFuture(QFutureInterface<void> *future)
-{
-    QMutexLocker lock(m_futureMutex);
-    m_future = future;
 }
 
 CommandResult::CommandResult(const QtcProcess &process)

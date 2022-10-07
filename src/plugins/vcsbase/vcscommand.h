@@ -12,7 +12,6 @@
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
-class QMutex;
 class QVariant;
 template <typename T>
 class QFuture;
@@ -31,23 +30,7 @@ namespace VcsBase {
 
 namespace Internal { class VcsCommandPrivate; }
 
-class VCSBASE_EXPORT ProgressParser
-{
-public:
-    ProgressParser();
-    virtual ~ProgressParser();
-
-protected:
-    virtual void parseProgress(const QString &text) = 0;
-    void setProgressAndMaximum(int value, int maximum);
-
-private:
-    void setFuture(QFutureInterface<void> *future);
-
-    QFutureInterface<void> *m_future;
-    QMutex *m_futureMutex = nullptr;
-    friend class Internal::VcsCommandPrivate;
-};
+using ProgressParser = std::function<void(QFutureInterface<void> &, const QString &)>;
 
 class VCSBASE_EXPORT CommandResult
 {
@@ -96,7 +79,7 @@ public:
 
     void setCodec(QTextCodec *codec);
 
-    void setProgressParser(ProgressParser *parser);
+    void setProgressParser(const ProgressParser &parser);
 
     static CommandResult runBlocking(const Utils::FilePath &workingDirectory,
                                      const Utils::Environment &environmentconst,
