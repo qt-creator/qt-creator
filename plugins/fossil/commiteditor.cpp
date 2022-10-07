@@ -58,8 +58,7 @@ void CommitEditor::setFields(const QString &repositoryRoot, const BranchInfo &br
 
     m_fileModel = new VcsBase::SubmitFileModel(this);
     m_fileModel->setRepositoryRoot(repositoryRoot);
-    m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &)
-                                           -> VcsBase::SubmitFileModel::FileStatusHint {
+    m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &) {
         if (status == Constants::FSTATUS_ADDED
             || status == Constants::FSTATUS_ADDED_BY_MERGE
             || status == Constants::FSTATUS_ADDED_BY_INTEGRATE) {

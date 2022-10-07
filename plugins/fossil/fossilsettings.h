@@ -51,20 +51,18 @@ public:
 
 struct RepositorySettings
 {
-    enum AutosyncMode {AutosyncOff = 0, AutosyncOn = 1, AutosyncPullOnly};
+    enum AutosyncMode {AutosyncOff, AutosyncOn, AutosyncPullOnly};
 
     QString user;
-    AutosyncMode autosync;
     QString sslIdentityFile;
-
-    RepositorySettings();
+    AutosyncMode autosync = AutosyncOn;
 };
 
-inline bool operator== (const RepositorySettings &lh, const RepositorySettings &rh)
+inline bool operator==(const RepositorySettings &lh, const RepositorySettings &rh)
 {
-    return (lh.user == rh.user
-            && lh.autosync == rh.autosync
-            && lh.sslIdentityFile == rh.sslIdentityFile);
+    return (lh.user == rh.user &&
+            lh.sslIdentityFile == rh.sslIdentityFile &&
+            lh.autosync == rh.autosync);
 }
 
 class OptionsPage : public Core::IOptionsPage

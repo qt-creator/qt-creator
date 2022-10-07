@@ -121,7 +121,6 @@ public:
         QTC_ASSERT(client, return);
         addReloadButton();
     }
-
 };
 
 class FossilLogConfig : public VcsBaseEditorConfig
@@ -214,12 +213,10 @@ public:
                     }
                     args << params[i];
                 }
-
             } else {
                 args << arg;
             }
         }
-
         return args;
     }
 
@@ -280,10 +277,11 @@ unsigned int FossilClient::synchronousBinaryVersion() const
     const int major = versionMatch.captured(1).toInt();
     const int minor = versionMatch.captured(2).toInt();
     const int patch = 0;
-    return makeVersionNumber(major,minor,patch);
+    return makeVersionNumber(major, minor, patch);
 }
 
-QList<BranchInfo> FossilClient::branchListFromOutput(const QString &output, const BranchInfo::BranchFlags defaultFlags)
+QList<BranchInfo> FossilClient::branchListFromOutput(const QString &output,
+                                                     const BranchInfo::BranchFlags defaultFlags)
 {
     // Branch list format:
     // "  branch-name"
@@ -301,12 +299,12 @@ QList<BranchInfo> FossilClient::branchListFromOutput(const QString &output, cons
 BranchInfo FossilClient::synchronousCurrentBranch(const FilePath &workingDirectory)
 {
     if (workingDirectory.isEmpty())
-        return BranchInfo();
+        return {};
 
     // First try to get the current branch from the list of open branches
     const CommandResult result = vcsSynchronousExec(workingDirectory, {"branch", "list"});
     if (result.result() != ProcessResult::FinishedWithSuccess)
-        return BranchInfo();
+        return {};
 
     const QString output = sanitizeFossilOutput(result.cleanedStdOut());
     BranchInfo currentBranch = Utils::findOrDefault(branchListFromOutput(output), [](const BranchInfo &b) {
@@ -318,7 +316,7 @@ BranchInfo FossilClient::synchronousCurrentBranch(const FilePath &workingDirecto
         const CommandResult result = vcsSynchronousExec(workingDirectory,
                                                         {"branch", "list", "--closed"});
         if (result.result() != ProcessResult::FinishedWithSuccess)
-            return BranchInfo();
+            return {};
 
         const QString output = sanitizeFossilOutput(result.cleanedStdOut());
         currentBranch = Utils::findOrDefault(branchListFromOutput(output, BranchInfo::Closed), [](const BranchInfo &b) {
@@ -532,20 +530,17 @@ bool FossilClient::synchronousConfigureRepository(const FilePath &workingDirecto
     const bool applyAll = (currentSettings == RepositorySettings());
 
     if (!newSettings.user.isEmpty()
-        && (applyAll
-            || newSettings.user != currentSettings.user)
-        && !synchronousSetUserDefault(workingDirectory, newSettings.user)){
+        && (applyAll || newSettings.user != currentSettings.user)
+        && !synchronousSetUserDefault(workingDirectory, newSettings.user)) {
         return false;
     }
 
-    if ((applyAll
-         || newSettings.sslIdentityFile != currentSettings.sslIdentityFile)
-        && !synchronousSetSetting(workingDirectory, "ssl-identity", newSettings.sslIdentityFile)){
+    if ((applyAll || newSettings.sslIdentityFile != currentSettings.sslIdentityFile)
+        && !synchronousSetSetting(workingDirectory, "ssl-identity", newSettings.sslIdentityFile)) {
         return false;
     }
 
-    if (applyAll
-        || newSettings.autosync != currentSettings.autosync) {
+    if (applyAll || newSettings.autosync != currentSettings.autosync) {
         QString value;
         switch (newSettings.autosync) {
         case RepositorySettings::AutosyncOff:
@@ -758,8 +753,6 @@ VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir, const QS
     if (VcsBaseEditorConfig *editorConfig = fossilEditor->editorConfig())
         effectiveArgs = editorConfig->arguments();
 
-    VcsCommand *cmd = createCommand(workingDir, fossilEditor);
-
     // here we introduce a "|BLAME|" meta-option to allow both annotate and blame modes
     int pos = effectiveArgs.indexOf("|BLAME|");
     if (pos != -1) {
@@ -767,10 +760,8 @@ VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir, const QS
         effectiveArgs.removeAt(pos);
     }
     QStringList args(vcsCmdString);
-    if (!revision.isEmpty()
-        && supportedFeatures().testFlag(AnnotateRevisionFeature))
+    if (!revision.isEmpty() && supportedFeatures().testFlag(AnnotateRevisionFeature))
         args << "-r" << revision;
-
     args << effectiveArgs << file;
 
     // When version list requested, ignore the source line.
@@ -778,7 +769,7 @@ VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir, const QS
         lineNumber = -1;
     editor->setDefaultLineNumber(lineNumber);
 
-    enqueueJob(cmd, args);
+    enqueueJob(createCommand(workingDir, fossilEditor), args);
     return fossilEditor;
 }
 
@@ -816,8 +807,7 @@ unsigned int FossilClient::binaryVersion() const
 
     // Invalidate cache on failed version result.
     // Assume that fossil client options have been changed and will change again.
-    if (!cachedBinaryVersion
-        || currentBinaryPath != cachedBinaryPath) {
+    if (!cachedBinaryVersion || currentBinaryPath != cachedBinaryPath) {
         cachedBinaryVersion = synchronousBinaryVersion();
         if (cachedBinaryVersion)
             cachedBinaryPath = currentBinaryPath;
@@ -869,7 +859,7 @@ void FossilClient::view(const QString &source, const QString &id, const QStringL
     const FilePath fPath = FilePath::fromString(source);
     const FilePath workingDirectory = fPath.isFile() ? fPath.absolutePath() : fPath;
 
-    const RevisionInfo revisionInfo = synchronousRevisionQuery(workingDirectory,id);
+    const RevisionInfo revisionInfo = synchronousRevisionQuery(workingDirectory, id);
     const QStringList args{"diff", "--from", revisionInfo.parentId, "--to", revisionInfo.id, "-v"};
     const Id kind = vcsEditorKind(DiffCommand);
     const QString title = vcsEditorTitle(vcsCommandString(DiffCommand), id);
@@ -1037,12 +1027,11 @@ void FossilClient::revertFile(const FilePath &workingDir,
     QStringList args(vcsCommandString(RevertCommand));
     if (!revision.isEmpty())
         args << "-r" << revision;
-
     args << extraOptions << file;
 
     // Indicate file list
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = QStringList(workingDir.toString() + "/" + file);
+    const QStringList files = {workingDir.toString() + "/" + file};
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
@@ -1059,15 +1048,10 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
     //       Thus undo for whole tree revert should not be possible.
 
     QStringList args;
-    if (revision.isEmpty()) {
-        args << vcsCommandString(RevertCommand)
-             << extraOptions;
-
-    } else {
-        args << "checkout" << revision
-             << "--force"
-             << extraOptions;
-    }
+    if (revision.isEmpty())
+        args << vcsCommandString(RevertCommand) << extraOptions;
+    else
+        args << "checkout" << revision << "--force" << extraOptions;
 
     // Indicate repository change
     VcsCommand *cmd = createCommand(workingDir);
@@ -1183,16 +1167,15 @@ FossilClient::StatusItem FossilClient::parseStatusLine(const QString &line) cons
     else if (label == "NOT_A_FILE")
         flags = Constants::FSTATUS_UNKNOWN;
 
-
     if (flags.isEmpty())
         return {};
 
     // adjust the position to the last space before the file name
-    for (int size = line.size(); (pos+1) < size && line[pos+1].isSpace(); ++pos) {}
+    for (int size = line.size(); (pos + 1) < size && line[pos + 1].isSpace(); ++pos)
+        ;
 
     item.flags = flags;
     item.file = line.mid(pos + 1);
-
     return item;
 }
 

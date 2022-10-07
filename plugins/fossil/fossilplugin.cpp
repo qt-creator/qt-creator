@@ -298,11 +298,6 @@ FossilClient *FossilPlugin::client()
     return &dd->m_client;
 }
 
-void FossilPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &status)
-{
-    dd->showCommitWidget(status);
-}
-
 FossilPluginPrivate::FossilPluginPrivate()
     : VcsBase::VcsBasePluginPrivate(Core::Context(Constants::FOSSIL_CONTEXT))
 {
@@ -688,12 +683,8 @@ void FossilPluginPrivate::commit()
     QTC_ASSERT(state.hasTopLevel(), return);
 
     m_submitRepository = state.topLevel();
-
-    connect(&m_client, &VcsBaseClient::parsedStatus,
-            this, &FossilPluginPrivate::showCommitWidget);
-
-    QStringList extraOptions;
-    m_client.emitParsedStatus(m_submitRepository, extraOptions);
+    connect(&m_client, &VcsBaseClient::parsedStatus, this, &FossilPluginPrivate::showCommitWidget);
+    m_client.emitParsedStatus(m_submitRepository, {});
 }
 
 void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status)

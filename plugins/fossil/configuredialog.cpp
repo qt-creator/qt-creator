@@ -37,12 +37,12 @@ namespace Internal {
 
 class ConfigureDialogPrivate {
 public:
-    RepositorySettings settings() {
-        m_settings.user = m_ui.userLineEdit->text().trimmed();
-        m_settings.sslIdentityFile = m_ui.sslIdentityFilePathChooser->filePath().toString();
-        m_settings.autosync = m_ui.disableAutosyncCheckBox->isChecked()
-                ? RepositorySettings::AutosyncOff : RepositorySettings::AutosyncOn;
-        return m_settings;
+    RepositorySettings settings() const
+    {
+        return {m_ui.userLineEdit->text().trimmed(),
+                m_ui.sslIdentityFilePathChooser->filePath().toString(),
+                m_ui.disableAutosyncCheckBox->isChecked()
+                    ? RepositorySettings::AutosyncOff : RepositorySettings::AutosyncOn};
     }
 
     void updateUi() {

@@ -26,7 +26,6 @@
 #include "fossilsettings.h"
 
 #include "constants.h"
-#include "fossilclient.h"
 
 #include <coreplugin/icore.h>
 
@@ -118,11 +117,6 @@ FossilSettings::FossilSettings()
     logCount.setToolTip(tr("The number of recent commit log entries to show. "
         "Choose 0 to see all entries."));
 };
-
-RepositorySettings::RepositorySettings()
-    : autosync(AutosyncOn)
-{
-}
 
 // OptionsPage
 
