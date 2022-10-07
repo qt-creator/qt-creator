@@ -370,6 +370,7 @@ public:
     ShellThreadHandler *m_handler = nullptr;
     mutable QMutex m_shellMutex;
     QList<QtcProcess *> m_terminals;
+    bool m_useFind = true;
 };
 
 // SshProcessImpl
@@ -1315,11 +1316,10 @@ void LinuxDevice::iterateDirectory(const FilePath &filePath,
                                    const FileFilter &filter) const
 {
     QTC_ASSERT(handlesFile(filePath), return);
-    // if we do not have find - use ls as fallback
-    const QByteArray output = d->outputForRunInShell({"ls", {"-1", "-b", "--", filePath.path()}})
-                                  .value_or(QByteArray());
-    const QStringList entries = QString::fromUtf8(output).split('\n', Qt::SkipEmptyParts);
-    FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
+    auto runInShell = [this](const CommandLine &cmd) {
+        return d->outputForRunInShell(cmd).value_or(QByteArray());
+    };
+    FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
 }
 
 std::optional<QByteArray> LinuxDevice::fileContents(const FilePath &filePath,
