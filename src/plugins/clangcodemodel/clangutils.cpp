@@ -185,12 +185,12 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
                                                           optionsBuilder.isClStyle());
                 if (compileCommandsFile.size() > 1)
                     compileCommandsFile.write(",");
-                compileCommandsFile.write('\n' + QJsonDocument(json).toJson().trimmed());
+                compileCommandsFile.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
             }
         }
     }
 
-    compileCommandsFile.write("\n]");
+    compileCommandsFile.write("]");
     compileCommandsFile.close();
     return GenerateCompilationDbResult(compileCommandsFile.fileName(), QString());
 }
