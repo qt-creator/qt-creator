@@ -528,15 +528,17 @@ IVersionControl *ProjectWizardPage::currentVersionControl()
 void ProjectWizardPage::setFiles(const FilePaths &files)
 {
     m_commonDirectory = FileUtils::commonPath(files);
+    const bool hasNoCommonDirectory = m_commonDirectory.isEmpty() || files.size() < 2;
+
     QString fileMessage;
     {
         QTextStream str(&fileMessage);
         str << "<qt>"
-            << (m_commonDirectory.isEmpty() ? tr("Files to be added:") : tr("Files to be added in"))
+            << (hasNoCommonDirectory ? tr("Files to be added:") : tr("Files to be added in"))
             << "<pre>";
 
         QStringList formattedFiles;
-        if (m_commonDirectory.isEmpty()) {
+        if (hasNoCommonDirectory) {
             formattedFiles = Utils::transform(files, &FilePath::toString);
         } else {
             str << m_commonDirectory.toUserOutput() << ":\n\n";
