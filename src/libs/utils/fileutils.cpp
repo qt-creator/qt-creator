@@ -648,6 +648,24 @@ static bool iterateWithFind(const FilePath &filePath,
     return true;
 }
 
+static void findUsingLs(const QString &current,
+                        const FileFilter &filter,
+                        const std::function<RunResult(const CommandLine &)> &runInShell,
+                        QStringList *found)
+{
+    const RunResult result = runInShell({"ls", {"-1", "-p", "--", current}});
+    const QStringList entries  = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
+    for (QString entry : entries) {
+        const QChar last = entry.back();
+        if (last == '/') {
+            entry.chop(1);
+            if (filter.iteratorFlags.testFlag(QDirIterator::Subdirectories))
+                findUsingLs(current + '/' + entry, filter, runInShell, found);
+        }
+        found->append(entry);
+    }
+}
+
 void FileUtils::iterateUnixDirectory(const FilePath &filePath,
                                      const FileFilter &filter,
                                      bool *useFind,
@@ -665,9 +683,8 @@ void FileUtils::iterateUnixDirectory(const FilePath &filePath,
     }
 
     // if we do not have find - use ls as fallback
-    // FIXME: Recursion into subdirectories not implemented!
-    const RunResult result = runInShell({"ls", {"-1", "-b", "--", filePath.path()}});
-    const QStringList entries = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
+    QStringList entries;
+    findUsingLs(filePath.path(), filter, runInShell, &entries);
     FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
 }
 
