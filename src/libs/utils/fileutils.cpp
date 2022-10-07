@@ -639,7 +639,7 @@ static bool iterateWithFind(const FilePath &filePath,
 
     const QStringList entries = out.split("\n", Qt::SkipEmptyParts);
     for (const QString &entry : entries) {
-        if (entry.startsWith("find: ")) {
+        if (!entry.startsWith("find: ")) {
             const FilePath fp = FilePath::fromString(entry);
             if (!callBack(fp.onDevice(filePath)))
                 break;
