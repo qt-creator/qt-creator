@@ -20,23 +20,6 @@
 #include <QTextCodec>
 #include <QThread>
 
-/*!
-    \fn void Utils::ProgressParser::parseProgress(const QString &text)
-
-    Reimplement to parse progress as it appears in the standard output.
-    If a progress string is detected, call \c setProgressAndMaximum() to update
-    the progress bar accordingly.
-
-    \sa Utils::ProgressParser::setProgressAndMaximum()
-*/
-
-/*!
-    \fn void Utils::ProgressParser::setProgressAndMaximum(int value, int maximum)
-
-    Sets progress \a value and \a maximum for current command. Called by \c parseProgress()
-    when a progress string is detected.
-*/
-
 using namespace Core;
 using namespace Utils;
 
