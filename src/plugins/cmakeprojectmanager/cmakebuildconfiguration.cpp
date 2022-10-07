@@ -1956,19 +1956,8 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
 
         // Skip the default shadow build directories for build types if we have presets
         const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
-        if (!presetItem.isNull()) {
-            const QString presetName = presetItem.expandedValue(k);
-            const auto project = qobject_cast<CMakeProject *>(SessionManager::startupProject());
-
-            PresetsDetails::ConfigurePreset configurePreset
-                = Utils::findOrDefault(project->presetsData().configurePresets,
-                                       [&presetName] (const PresetsDetails::ConfigurePreset &preset) {
-                                           return preset.name == presetName;
-                                       });
-
-            if (configurePreset.binaryDir)
-                return result;
-        }
+        if (!presetItem.isNull())
+            return result;
 
         for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
             BuildInfo info = createBuildInfo(BuildType(type));

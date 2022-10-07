@@ -10,7 +10,6 @@
       "name": "mingw",
       "displayName": "MinGW 11.2.0",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-${presetName}-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/mingw_64"
@@ -29,6 +28,7 @@
     },
     {
       "name": "mingw-make",
+      "binaryDir": "${sourceDir}/build-${presetName}-release",
       "displayName": "MinGW 11.2.0 Makefiles",
       "generator": "MinGW Makefiles",
       "inherits" : "mingw"
