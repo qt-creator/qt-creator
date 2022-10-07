@@ -239,6 +239,7 @@ Project {
             prefix: "progressmanager/"
             files: [
                 "futureprogress.cpp", "futureprogress.h",
+                "processprogress.cpp", "processprogress.h",
                 "progressbar.cpp", "progressbar.h",
                 "progressmanager.cpp", "progressmanager.h", "progressmanager_p.h",
                 "progressview.cpp", "progressview.h",

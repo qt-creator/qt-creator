@@ -1750,6 +1750,11 @@ void QtcProcess::setTimeoutS(int timeoutS)
         d->m_maxHangTimerCount = INT_MAX / 1000;
 }
 
+int QtcProcess::timeoutS() const
+{
+    return d->m_maxHangTimerCount;
+}
+
 void QtcProcess::setCodec(QTextCodec *c)
 {
     QTC_ASSERT(c, return);

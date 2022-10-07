@@ -140,6 +140,7 @@ add_qtc_plugin(Core
     plugindialog.cpp plugindialog.h
     plugininstallwizard.cpp plugininstallwizard.h
     progressmanager/futureprogress.cpp progressmanager/futureprogress.h
+    progressmanager/processprogress.cpp progressmanager/processprogress.h
     progressmanager/progressbar.cpp progressmanager/progressbar.h
     progressmanager/progressmanager.cpp progressmanager/progressmanager.h progressmanager/progressmanager_p.h
     progressmanager/progressview.cpp progressmanager/progressview.h

@@ -142,6 +142,7 @@ public:
     /* Timeout for hanging processes (triggers after no more output
      * occurs on stderr/stdout). */
     void setTimeoutS(int timeoutS);
+    int timeoutS() const;
 
     // TODO: We should specify the purpose of the codec, e.g. setCodecForStandardChannel()
     void setCodec(QTextCodec *c);
