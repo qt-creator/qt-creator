@@ -187,6 +187,7 @@ public:
     QTextCodec *codec = nullptr; // Not owner
     std::unique_ptr<QTextCodec::ConverterState> codecState;
     std::function<void(const QString &lines)> outputCallback;
+    TextChannelMode m_textChannelMode = TextChannelMode::Off;
 
     bool emitSingleLines = true;
     bool keepRawData = true;
@@ -1831,30 +1832,72 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
     }
 }
 
-void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)
+void QtcProcess::setStdOutCallback(const TextChannelCallback &callback)
 {
     d->m_stdOut.outputCallback = callback;
     d->m_stdOut.emitSingleLines = false;
 }
 
-void QtcProcess::setStdOutLineCallback(const std::function<void (const QString &)> &callback)
+void QtcProcess::setStdOutLineCallback(const TextChannelCallback &callback)
 {
     d->m_stdOut.outputCallback = callback;
     d->m_stdOut.emitSingleLines = true;
     d->m_stdOut.keepRawData = false;
 }
 
-void QtcProcess::setStdErrCallback(const std::function<void (const QString &)> &callback)
+void QtcProcess::setStdErrCallback(const TextChannelCallback &callback)
 {
     d->m_stdErr.outputCallback = callback;
     d->m_stdErr.emitSingleLines = false;
 }
 
-void QtcProcess::setStdErrLineCallback(const std::function<void (const QString &)> &callback)
+void QtcProcess::setStdErrLineCallback(const TextChannelCallback &callback)
 {
     d->m_stdErr.outputCallback = callback;
     d->m_stdErr.emitSingleLines = true;
     d->m_stdErr.keepRawData = false;
+}
+
+void QtcProcess::setTextChannelMode(Channel channel, TextChannelMode mode)
+{
+    const TextChannelCallback outputCb = [this](const QString &text) {
+        GuardLocker locker(d->m_guard);
+        emit textOnStandardOutput(text);
+    };
+    const TextChannelCallback errorCb = [this](const QString &text) {
+        GuardLocker locker(d->m_guard);
+        emit textOnStandardError(text);
+    };
+    const TextChannelCallback callback = (channel == Channel::Output) ? outputCb : errorCb;
+    ChannelBuffer *buffer = channel == Channel::Output ? &d->m_stdOut : &d->m_stdErr;
+    QTC_ASSERT(buffer->m_textChannelMode == TextChannelMode::Off, qWarning()
+               << "QtcProcess::setTextChannelMode(): Changing text channel mode for"
+               << (channel == Channel::Output ? "Output": "Error")
+               << "channel while it was previously set for this channel.");
+    buffer->m_textChannelMode = mode;
+    switch (mode) {
+    case TextChannelMode::Off:
+        buffer->outputCallback = {};
+        buffer->emitSingleLines = true;
+        buffer->keepRawData = true;
+        break;
+    case TextChannelMode::SingleLine:
+        buffer->outputCallback = callback;
+        buffer->emitSingleLines = true;
+        buffer->keepRawData = false;
+        break;
+    case TextChannelMode::MultiLine:
+        buffer->outputCallback = callback;
+        buffer->emitSingleLines = false;
+        buffer->keepRawData = true;
+        break;
+    }
+}
+
+TextChannelMode QtcProcess::textChannelMode(Channel channel) const
+{
+    ChannelBuffer *buffer = channel == Channel::Output ? &d->m_stdOut : &d->m_stdErr;
+    return buffer->m_textChannelMode;
 }
 
 void QtcProcessPrivate::slotTimeout()

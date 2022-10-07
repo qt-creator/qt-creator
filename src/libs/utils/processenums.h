@@ -37,6 +37,21 @@ enum class EventLoopMode {
     On // Avoid
 };
 
+enum class Channel {
+    Output,
+    Error
+};
+
+enum class TextChannelMode {
+                // Keep | Emit | Emit
+                //  raw | text | content
+                // data |  sig |
+                // -----+------+--------
+    Off,        //  yes |   no | -
+    SingleLine, //   no |  yes | Single lines
+    MultiLine   //  yes |  yes | All the available data
+};
+
 enum class ProcessResult {
     // Finished successfully. Unless an ExitCodeInterpreter is set
     // this corresponds to a return code 0.
@@ -53,6 +68,7 @@ enum class ProcessResult {
 };
 
 using ExitCodeInterpreter = std::function<ProcessResult(int /*exitCode*/)>;
+using TextChannelCallback = std::function<void(const QString & /*text*/)>;
 
 } // namespace Utils
 
