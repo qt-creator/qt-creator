@@ -161,28 +161,12 @@ void SquishTestTreeItemDelegate::setEditorData(QWidget *editor, const QModelInde
     static_cast<Utils::FancyLineEdit *>(editor)->setText(index.data().toString());
 }
 
-static Utils::FilePath scriptsPath(const Utils::FilePath &squishPath, Language language)
-{
-    Utils::FilePath scripts = squishPath.pathAppended("scriptmodules");
-    switch (language) {
-    case Language::Python: scripts = scripts.pathAppended("python"); break;
-    case Language::Perl: scripts = scripts.pathAppended("perl"); break;
-    case Language::JavaScript: scripts = scripts.pathAppended("javascript"); break;
-    case Language::Ruby: scripts = scripts.pathAppended("ruby"); break;
-    case Language::Tcl: scripts = scripts.pathAppended("tcl"); break;
-    }
-
-    return scripts;
-}
-
-static bool copyScriptTemplates(const SuiteConf &suiteConf,
-                                const Utils::FilePath &destination)
+static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePath &destination)
 {
     const SquishSettings *s = SquishPlugin::squishSettings();
     QTC_ASSERT(s, return false);
     // copy template files
-    Utils::FilePath squishPath = s->squishPath.filePath();
-    Utils::FilePath scripts = scriptsPath(squishPath, suiteConf.language());
+    const Utils::FilePath squishPath = s->squishPath.filePath();
 
     bool ok = destination.ensureWritableDir();
     QTC_ASSERT(ok, return false);
@@ -191,24 +175,16 @@ static bool copyScriptTemplates(const SuiteConf &suiteConf,
     const QString extension = suiteConf.scriptExtension();
     const QString testStr = scripted ? QString("script_som_template") : QString("script_template");
 
+    const Utils::FilePath scripts = s->scriptsPath(suiteConf.language());
     const Utils::FilePath test = scripts.pathAppended(testStr + extension);
     const Utils::FilePath testFile = destination.pathAppended("test" + extension);
+    QTC_ASSERT(testFile.exists(), return false);
     ok = test.copyFile(testFile);
     QTC_ASSERT(ok, return false);
 
-    if (scripted) {
-        const Utils::FilePath destinationObjectMap = destination.parentDir()
-                .pathAppended("shared/scripts/names" + extension);
-        if (destinationObjectMap.exists())
-            return true;
-
-        const Utils::FilePath objectMap = scripts.pathAppended("objectmap_template" + extension);
-        ok = destinationObjectMap.parentDir().ensureWritableDir();
-        QTC_ASSERT(ok, return false);
-        ok = objectMap.copyFile(destinationObjectMap);
-        QTC_ASSERT(ok, return false);
-    }
-    return true;
+    if (scripted)
+        ok = suiteConf.ensureObjectMapExists();
+    return ok;
 }
 
 void SquishTestTreeItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,

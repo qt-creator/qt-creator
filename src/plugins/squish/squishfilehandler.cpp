@@ -5,6 +5,7 @@
 
 #include "opensquishsuitesdialog.h"
 #include "squishconstants.h"
+#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"

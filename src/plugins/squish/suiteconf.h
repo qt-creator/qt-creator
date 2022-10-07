@@ -36,6 +36,8 @@ public:
     void addTestCase(const QString &testCase);
 
     QStringList usedTestCases() const;
+
+    bool ensureObjectMapExists() const;
 private:
     void setLanguage(const QString &language);
 
