@@ -162,7 +162,7 @@ private slots:
 
         QRandomGenerator generator;
 
-        const DeviceShell::RunResult result = shell.outputForRunInShell({"echo", {testData}});
+        const RunResult result = shell.runInShell({"echo", {testData}});
         QCOMPARE(result.exitCode, 0);
         const QString expected = testData + "\n";
         const QString resultAsUtf8 = QString::fromUtf8(result.stdOut);
@@ -210,7 +210,7 @@ private slots:
 
         QRandomGenerator generator;
 
-        const DeviceShell::RunResult result = shell.outputForRunInShell({"cat", {}}, testData.toUtf8());
+        const RunResult result = shell.runInShell({"cat", {}}, testData.toUtf8());
         QCOMPARE(result.exitCode, 0);
         const QString resultAsUtf8 = QString::fromUtf8(result.stdOut);
         QCOMPARE(resultAsUtf8.size(), testData.size());
@@ -236,8 +236,7 @@ private slots:
         TestShell shell(cmdLine);
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        const DeviceShell::RunResult result = shell.outputForRunInShell({"cat", {}},
-                                                                        m_asciiTestData);
+        const RunResult result = shell.runInShell({"cat", {}}, m_asciiTestData);
         QCOMPARE(result.stdOut, m_asciiTestData);
     }
 
@@ -260,12 +259,11 @@ private slots:
         TestShell shell(cmdLine);
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        const DeviceShell::RunResult result = shell.outputForRunInShell({"cat", {}},
-                                                                        m_asciiTestData);
+        const RunResult result = shell.runInShell({"cat", {}}, m_asciiTestData);
         QCOMPARE(result.stdOut, m_asciiTestData);
         QVERIFY(result.stdErr.isEmpty());
 
-        const DeviceShell::RunResult result2 = shell.outputForRunInShell(
+        const RunResult result2 = shell.runInShell(
             {"cat", {"/tmp/i-do-not-exist.none"}});
         QVERIFY(!result2.stdErr.isEmpty());
         QVERIFY(result2.exitCode != 0);
@@ -290,7 +288,7 @@ private slots:
         TestShell shell(cmdLine);
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        const DeviceShell::RunResult result = shell.outputForRunInShell({}, {});
+        const RunResult result = shell.runInShell({}, {});
 
         QVERIFY(result.exitCode == 255);
     }
@@ -322,7 +320,7 @@ private slots:
         while (true) {
             QElapsedTimer t;
             t.start();
-            DeviceShell::RunResult result = shell.outputForRunInShell({"find", {"/usr", "-maxdepth", QString::number(maxDepth)}});
+            RunResult result = shell.runInShell({"find", {"/usr", "-maxdepth", QString::number(maxDepth)}});
             numMs = t.elapsed();
             qDebug() << "adjusted maxDepth" << maxDepth << "took" << numMs << "ms";
             if (numMs < 100 || maxDepth == 1) {
@@ -334,7 +332,7 @@ private slots:
         QList<QByteArray> results = Utils::mapped<QList>(runs, [&shell, maxDepth](const int i) -> QByteArray{
             QElapsedTimer t;
             t.start();
-            DeviceShell::RunResult result = shell.outputForRunInShell({"find", {"/usr", "-maxdepth", QString::number(maxDepth)}});
+            RunResult result = shell.runInShell({"find", {"/usr", "-maxdepth", QString::number(maxDepth)}});
             qDebug() << i << "took" << t.elapsed() << "ms";
             return result.stdOut;
         });
@@ -357,8 +355,8 @@ private slots:
         TestShell shell(cmdLine, true);
         QCOMPARE(shell.state(), DeviceShell::State::NoScript);
 
-        const bool result = shell.runInShell({"echo", {"Hello"}});
-        QCOMPARE(result, true);
+        const RunResult result = shell.runInShell({"echo", {"Hello"}});
+        QCOMPARE(result.exitCode, 0);
     }
 };
 

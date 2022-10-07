@@ -592,8 +592,6 @@ void FileUtils::iterateLsOutput(const FilePath &base,
                                 const FileFilter &filter,
                                 const std::function<bool (const FilePath &)> &callBack)
 {
-    QTC_CHECK(filter.iteratorFlags != QDirIterator::NoIteratorFlags); // FIXME: Not supported yet below.
-
     const QList<QRegularExpression> nameRegexps =
             transform(filter.nameFilters, [](const QString &filter) {
         QRegularExpression re;
@@ -625,25 +623,27 @@ void FileUtils::iterateLsOutput(const FilePath &base,
 // returns whether 'find' could be used.
 static bool iterateWithFind(const FilePath &filePath,
                             const FileFilter &filter,
-                            const std::function<QByteArray(const CommandLine &)> &runInShell,
-                            const std::function<bool(const Utils::FilePath &)> &callBack)
+                            const std::function<RunResult(const CommandLine &)> &runInShell,
+                            const std::function<bool(const FilePath &)> &callBack)
 {
     QTC_CHECK(filePath.isAbsolutePath());
     QStringList arguments{filePath.path()};
     arguments << filter.asFindArguments();
 
-    const QByteArray output = runInShell({"find", arguments});
-    const QString out = QString::fromUtf8(output.data(), output.size());
-    if (!output.isEmpty() && !out.startsWith(filePath.path())) // missing find, unknown option
+    const RunResult result = runInShell({"find", arguments});
+    if (!result.stdErr.isEmpty()) {
+        // missing find, unknown option e.g. "find: unknown predicate `-L'\n"
+        // qDebug() << "find error: " << result.stdErr;
         return false;
+    }
 
+    const QString out = QString::fromUtf8(result.stdOut);
     const QStringList entries = out.split("\n", Qt::SkipEmptyParts);
     for (const QString &entry : entries) {
-        if (!entry.startsWith("find: ")) {
-            const FilePath fp = FilePath::fromString(entry);
-            if (!callBack(fp.onDevice(filePath)))
-                break;
-        }
+        const FilePath fp = FilePath::fromString(entry);
+        // Call back returning 'false' indicates a request to abort iteration.
+        if (!callBack(fp.onDevice(filePath)))
+            break;
     }
     return true;
 }
@@ -651,7 +651,7 @@ static bool iterateWithFind(const FilePath &filePath,
 void FileUtils::iterateUnixDirectory(const FilePath &filePath,
                                      const FileFilter &filter,
                                      bool *useFind,
-                                     const std::function<QByteArray(const CommandLine &)> &runInShell,
+                                     const std::function<RunResult (const CommandLine &)> &runInShell,
                                      const std::function<bool(const FilePath &)> &callBack)
 {
     QTC_ASSERT(callBack, return);
@@ -665,8 +665,9 @@ void FileUtils::iterateUnixDirectory(const FilePath &filePath,
     }
 
     // if we do not have find - use ls as fallback
-    const QByteArray output = runInShell({"ls", {"-1", "-b", "--", filePath.path()}});
-    const QStringList entries = QString::fromUtf8(output).split('\n', Qt::SkipEmptyParts);
+    // FIXME: Recursion into subdirectories not implemented!
+    const RunResult result = runInShell({"ls", {"-1", "-b", "--", filePath.path()}});
+    const QStringList entries = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
     FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
 }
 

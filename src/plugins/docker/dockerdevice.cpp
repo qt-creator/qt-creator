@@ -125,8 +125,10 @@ public:
 
     ~DockerDevicePrivate() { stopCurrentContainer(); }
 
-    bool runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
-    QByteArray outputForRunInShell(const CommandLine &cmd);
+    RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
+    bool runInShellSuccess(const CommandLine &cmd, const QByteArray &stdInData = {}) {
+        return runInShell(cmd, stdInData).exitCode == 0;
+    }
 
     std::optional<QByteArray> fileContents(const FilePath &filePath, qint64 limit, qint64 offset);
 
@@ -727,76 +729,76 @@ bool DockerDevice::isExecutableFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"test", {"-x", path}});
+    return d->runInShellSuccess({"test", {"-x", path}});
 }
 
 bool DockerDevice::isReadableFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"test", {"-r", path, "-a", "-f", path}});
+    return d->runInShellSuccess({"test", {"-r", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"test", {"-w", path, "-a", "-f", path}});
+    return d->runInShellSuccess({"test", {"-w", path, "-a", "-f", path}});
 }
 
 bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"test", {"-r", path, "-a", "-d", path}});
+    return d->runInShellSuccess({"test", {"-r", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"test", {"-w", path, "-a", "-d", path}});
+    return d->runInShellSuccess({"test", {"-w", path, "-a", "-d", path}});
 }
 
 bool DockerDevice::isFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"test", {"-f", path}});
+    return d->runInShellSuccess({"test", {"-f", path}});
 }
 
 bool DockerDevice::isDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"test", {"-d", path}});
+    return d->runInShellSuccess({"test", {"-d", path}});
 }
 
 bool DockerDevice::createDirectory(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"mkdir", {"-p", path}});
+    return d->runInShellSuccess({"mkdir", {"-p", path}});
 }
 
 bool DockerDevice::exists(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"test", {"-e", path}});
+    return d->runInShellSuccess({"test", {"-e", path}});
 }
 
 bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     const QString path = filePath.path();
-    return d->runInShell({"touch", {path}});
+    return d->runInShellSuccess({"touch", {path}});
 }
 
 bool DockerDevice::removeFile(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
-    return d->runInShell({"rm", {filePath.path()}});
+    return d->runInShellSuccess({"rm", {filePath.path()}});
 }
 
 bool DockerDevice::removeRecursively(const FilePath &filePath) const
@@ -811,28 +813,28 @@ bool DockerDevice::removeRecursively(const FilePath &filePath) const
     const int levelsNeeded = path.startsWith("/home/") ? 4 : 3;
     QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
 
-    return d->runInShell({"rm", {"-rf", "--", path}});
+    return d->runInShellSuccess({"rm", {"-rf", "--", path}});
 }
 
 bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     QTC_ASSERT(handlesFile(target), return false);
-    return d->runInShell({"cp", {filePath.path(), target.path()}});
+    return d->runInShellSuccess({"cp", {filePath.path(), target.path()}});
 }
 
 bool DockerDevice::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     QTC_ASSERT(handlesFile(filePath), return false);
     QTC_ASSERT(handlesFile(target), return false);
-    return d->runInShell({"mv", {filePath.path(), target.path()}});
+    return d->runInShellSuccess({"mv", {filePath.path(), target.path()}});
 }
 
 QDateTime DockerDevice::lastModified(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%Y", filePath.path()}});
-    qint64 secs = output.toLongLong();
+    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%Y", filePath.path()}});
+    qint64 secs = result.stdOut.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
 }
@@ -840,24 +842,24 @@ QDateTime DockerDevice::lastModified(const FilePath &filePath) const
 FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    const QByteArray output = d->outputForRunInShell({"readlink", {"-n", "-e", filePath.path()}});
-    const QString out = QString::fromUtf8(output.data(), output.size());
+    const RunResult result = d->runInShell({"readlink", {"-n", "-e", filePath.path()}});
+    const QString out = QString::fromUtf8(result.stdOut);
     return out.isEmpty() ? FilePath() : filePath.withNewPath(out);
 }
 
 qint64 DockerDevice::fileSize(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return -1);
-    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%s", filePath.path()}});
-    return output.toLongLong();
+    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%s", filePath.path()}});
+    return result.stdOut.toLongLong();
 }
 
 QFileDevice::Permissions DockerDevice::permissions(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
 
-    const QByteArray output = d->outputForRunInShell({"stat", {"-L", "-c", "%a", filePath.path()}});
-    const uint bits = output.toUInt(nullptr, 8);
+    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%a", filePath.path()}});
+    const uint bits = result.stdOut.toUInt(nullptr, 8);
     QFileDevice::Permissions perm = {};
 #define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
     BIT(0, ExeOther);
@@ -896,7 +898,7 @@ void DockerDevice::iterateDirectory(const FilePath &filePath,
                                     const FileFilter &filter) const
 {
     QTC_ASSERT(handlesFile(filePath), return);
-    auto runInShell = [this](const CommandLine &cmd) { return d->outputForRunInShell(cmd); };
+    auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };
     FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
 }
 
@@ -911,7 +913,7 @@ std::optional<QByteArray> DockerDevice::fileContents(const FilePath &filePath,
 bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    return d->runInShell({"dd", {"of=" + filePath.path()}}, data);
+    return d->runInShellSuccess({"dd", {"of=" + filePath.path()}}, data);
 }
 
 Environment DockerDevice::systemEnvironment() const
@@ -926,8 +928,8 @@ void DockerDevice::aboutToBeRemoved() const
 }
 
 std::optional<QByteArray> DockerDevicePrivate::fileContents(const FilePath &filePath,
-                                                     qint64 limit,
-                                                     qint64 offset)
+                                                            qint64 limit,
+                                                            qint64 offset)
 {
     updateContainerAccess();
 
@@ -939,7 +941,7 @@ std::optional<QByteArray> DockerDevicePrivate::fileContents(const FilePath &file
                  QString("seek=%1").arg(offset / gcd)};
     }
 
-    const ContainerShell::RunResult r = m_shell->outputForRunInShell({"dd", args});
+    const RunResult r = m_shell->runInShell({"dd", args});
 
     if (r.exitCode != 0)
         return {};
@@ -952,8 +954,8 @@ void DockerDevicePrivate::fetchSystemEnviroment()
     updateContainerAccess();
 
     if (m_shell && m_shell->state() == DeviceShell::State::Succeeded) {
-        const QByteArray output = outputForRunInShell({"env", {}});
-        const QString out = QString::fromUtf8(output.data(), output.size());
+        const RunResult result = runInShell({"env", {}});
+        const QString out = QString::fromUtf8(result.stdOut);
         m_cachedEnviroment = Environment(out.split('\n', Qt::SkipEmptyParts), q->osType());
         return;
     }
@@ -972,18 +974,11 @@ void DockerDevicePrivate::fetchSystemEnviroment()
         qCWarning(dockerDeviceLog) << "Cannot read container environment:", qPrintable(remoteError);
 }
 
-bool DockerDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &stdInData)
+RunResult DockerDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &stdInData)
 {
     updateContainerAccess();
-    QTC_ASSERT(m_shell, return false);
+    QTC_ASSERT(m_shell, return {});
     return m_shell->runInShell(cmd, stdInData);
-}
-
-QByteArray DockerDevicePrivate::outputForRunInShell(const CommandLine &cmd)
-{
-    updateContainerAccess();
-    QTC_ASSERT(m_shell.get(), return {});
-    return m_shell->outputForRunInShell(cmd).stdOut;
 }
 
 // Factory

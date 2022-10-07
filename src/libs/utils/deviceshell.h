@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "fileutils.h"
+
 #include <QMap>
 #include <QMutex>
 #include <QProcess>
@@ -28,13 +30,6 @@ class QTCREATOR_UTILS_EXPORT DeviceShell : public QObject
 public:
     enum class State { FailedToStart = -1, Unknown = 0, Succeeded = 1, NoScript = 2 };
 
-    struct RunResult
-    {
-        int exitCode = 0;
-        QByteArray stdOut;
-        QByteArray stdErr;
-    };
-
     enum class ParseType {
         StdOut,
         StdErr,
@@ -46,8 +41,7 @@ public:
 
     bool start();
 
-    bool runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
-    RunResult outputForRunInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
+    RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
     State state() const;
 

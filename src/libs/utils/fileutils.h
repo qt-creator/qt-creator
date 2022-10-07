@@ -33,6 +33,13 @@ namespace Utils {
 
 class CommandLine;
 
+struct QTCREATOR_UTILS_EXPORT RunResult
+{
+    int exitCode = 0;
+    QByteArray stdOut;
+    QByteArray stdErr;
+};
+
 class QTCREATOR_UTILS_EXPORT FileUtils
 {
 public:
@@ -89,7 +96,7 @@ public:
             const FilePath &base,
             const FileFilter &filter,
             bool *useFind,
-            const std::function<QByteArray(const CommandLine &)> &runInShell,
+            const std::function<RunResult(const CommandLine &)> &runInShell,
             const std::function<bool(const FilePath &)> &callBack);
 
     static qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
