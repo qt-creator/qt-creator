@@ -74,7 +74,7 @@ public:
 
         auto squishTools = SquishTools::instance();
         connect(squishTools, &SquishTools::queryFinished, this,
-                [this] (const QString &out) {
+                [this] (const QString &out, const QString &) {
             SquishServerSettings s;
             s.setFromXmlOutput(out);
             QApplication::restoreOverrideCursor();

@@ -77,7 +77,7 @@ signals:
     void squishTestRunStarted();
     void squishTestRunFinished();
     void resultOutputCreated(const QByteArray &output);
-    void queryFinished(const QString &output);
+    void queryFinished(const QString &output, const QString &error);
     void configChangesFailed(QProcess::ProcessError error);
     void configChangesWritten();
     void localsUpdated(const QString &output);
@@ -163,6 +163,7 @@ private:
     int m_autId = 0;
     bool m_shutdownInitiated = false;
     bool m_closeRunnerOnEndRecord = false;
+    bool m_licenseIssues = false;
 };
 
 } // namespace Internal

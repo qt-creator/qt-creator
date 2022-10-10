@@ -521,6 +521,7 @@ void SquishTools::startSquishServer(Request request)
 {
     if (m_shutdownInitiated)
         return;
+    m_licenseIssues = false;
     QTC_ASSERT(m_perspective.perspectiveMode() != SquishPerspective::NoMode, return);
     m_request = request;
     if (m_serverProcess.state() != QProcess::NotRunning) {
@@ -683,7 +684,9 @@ void SquishTools::onRunnerFinished()
 {
     qCDebug(LOG) << "Runner finished";
     if (m_request == RunnerQueryRequested) {
-        emit queryFinished(m_fullRunnerOutput);
+        const QString error = m_licenseIssues ? Tr::tr("Could not get Squish license from server.")
+                                              : QString();
+        emit queryFinished(m_fullRunnerOutput, error);
         setState(RunnerStopped);
         m_fullRunnerOutput.clear();
         return;
@@ -894,6 +897,9 @@ void SquishTools::onRunnerErrorOutput()
                                              "squishserver settings.\n"
                                              "(Tools > Squish > Server Settings...)")
                                       .arg(m_suiteConf.aut()));
+            } else if (trimmed.startsWith("Couldn't get license")
+                       || trimmed.contains("UNLICENSED version of Squish")) {
+                m_licenseIssues = true;
             }
         }
     }
