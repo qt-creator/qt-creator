@@ -145,6 +145,9 @@
     removed. The real Type must contain the given Type. For example, \c int
     matches \c int32_t but not \c vector<int>, and \c vector matches
     \c {std::pmr::vector<int>} but not \c {std::optional<vector<int>>}.
+
+    To return non-trivial objects by using a \c const reference, select the
+    \uicontrol {Return non-value types by const reference} check box.
     \endif
 
     \section1 Summary of Refactoring Actions
@@ -720,6 +723,13 @@
     \code
     Foo * localFoo = new Foo;
     \endcode
+
+                By default, \QC uses the \c auto variable type when creating the
+                variable. To label the variable with its actual type, select
+                \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
+                \uicontrol {Quick Fixes}, and then deselect the
+                \uicontrol {Use type "auto" when creating new variables} check
+                box.
 
             \li Function call or class name
         \row
