@@ -1319,13 +1319,13 @@ void MainWindow::updateContext()
 {
     Context contexts = m_highPrioAdditionalContexts;
 
-    for (IContext *context : qAsConst(m_activeContext))
+    for (IContext *context : std::as_const(m_activeContext))
         contexts.add(context->context());
 
     contexts.add(m_lowPrioAdditionalContexts);
 
     Context uniquecontexts;
-    for (const Id &id : qAsConst(contexts)) {
+    for (const Id &id : std::as_const(contexts)) {
         if (!uniquecontexts.contains(id))
             uniquecontexts.add(id);
     }

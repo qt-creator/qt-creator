@@ -148,7 +148,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
         CoreImport cImport = dep.coreImport(objectValue->originId());
         if (!cImport.valid())
             break;
-        for (const Export &e : qAsConst(cImport.possibleExports)) {
+        for (const Export &e : std::as_const(cImport.possibleExports)) {
             if (e.pathRequired.isEmpty() || vContext.paths.contains(e.pathRequired)) {
                 switch (e.exportName.type) {
                 case ImportType::Library:
@@ -173,7 +173,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
                     // remove the search path prefix.
                     // this means that the same relative path wrt. different import paths will clash
                     QString filePath = e.exportName.path();
-                    for (const Utils::FilePath &path : qAsConst(vContext.paths)) {
+                    for (const Utils::FilePath &path : std::as_const(vContext.paths)) {
                         if (filePath.startsWith(path.path()) && filePath.size() > path.path().size()
                             && filePath.at(path.path().size()) == QLatin1Char('/')) {
                             filePath = filePath.mid(path.path().size() + 1);
@@ -247,7 +247,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
         };
         if (!possibleLibraries.isEmpty()) {
             if (hasQtQuick) {
-                for (const QString &libImport : qAsConst(possibleLibraries))
+                for (const QString &libImport : std::as_const(possibleLibraries))
                     if (!libImport.startsWith(QLatin1String("QtQuick")))
                         possibleLibraries.removeAll(libImport);
             }
@@ -284,7 +284,7 @@ public:
             const TypeName type = resolveTypeName(ref, m_context, dotProperties);
             m_properties.append({propertyName, type});
             if (!dotProperties.isEmpty()) {
-                for (const PropertyInfo &propertyInfo : qAsConst(dotProperties)) {
+                for (const PropertyInfo &propertyInfo : std::as_const(dotProperties)) {
                     PropertyName dotName = propertyInfo.first;
                     TypeName type = propertyInfo.second;
                     dotName = propertyName + '.' + dotName;
@@ -1267,7 +1267,7 @@ void NodeMetaInfoPrivate::setupPrototypes()
         return;
     }
 
-    for (const ObjectValue *ov : qAsConst(objects)) {
+    for (const ObjectValue *ov : std::as_const(objects)) {
         TypeDescription description;
         description.className = ov->className();
         description.minorVersion = -1;

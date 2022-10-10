@@ -26,7 +26,7 @@ public:
             return true;
 
         SafeMatcher matcher;
-        for (const T *existingItem : qAsConst(_container)) {
+        for (const T *existingItem : std::as_const(_container)) {
             if (Matcher::match(existingItem, item, &matcher))
                 return true;
         }

@@ -829,8 +829,8 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
     candidateFileNames += baseNamesWithAllPrefixes(candidateFileNames, isHeader);
 
     // Try to find a file in the same or sibling directories first
-    for (const QString &candidateDir : qAsConst(candidateDirs)) {
-        for (const QString &candidateFileName : qAsConst(candidateFileNames)) {
+    for (const QString &candidateDir : std::as_const(candidateDirs)) {
+        for (const QString &candidateFileName : std::as_const(candidateFileNames)) {
             const QString candidateFilePath = candidateDir + QLatin1Char('/') + candidateFileName;
             const QString normalized = FileUtils::normalizedPathName(candidateFilePath);
             const QFileInfo candidateFi(normalized);

@@ -20,7 +20,6 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
 #include <QHeaderView>
 #include <QMenu>
 #include <QMessageBox>
@@ -251,9 +250,8 @@ void SquishNavigationWidget::onItemActivated(const QModelIndex &idx)
         break;
     }
 
-    auto filePath = Utils::FilePath::fromString(item->filePath());
-    if (filePath.exists())
-        Core::EditorManager::openEditor(filePath);
+    if (item->filePath().exists())
+        Core::EditorManager::openEditor(item->filePath());
 }
 
 void SquishNavigationWidget::onExpanded(const QModelIndex &idx)
@@ -284,13 +282,13 @@ void SquishNavigationWidget::onRowsRemoved(const QModelIndex &parent, int, int)
 
 void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModelIndex &parent)
 {
-    const QString folder = m_model->index(row, 0, parent).data().toString();
+    const auto folder = Utils::FilePath::fromVariant(m_model->index(row, 0, parent).data(LinkRole));
     QTC_ASSERT(!folder.isEmpty(), return );
 
     if (QMessageBox::question(Core::ICore::dialogParent(),
                               Tr::tr("Remove Shared Folder"),
                               Tr::tr("Remove \"%1\" from the list of shared folders?")
-                                  .arg(QDir::toNativeSeparators(folder)))
+                                  .arg(folder.toUserOutput()))
         != QMessageBox::Yes) {
         return;
     }

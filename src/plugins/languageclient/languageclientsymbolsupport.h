@@ -42,7 +42,8 @@ public:
             const ResultHandler &handler = {});
 
     bool supportsRename(TextEditor::TextDocument *document);
-    void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor);
+    void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor,
+                      const QString &newSymbolName = {}, bool preferLowerCaseFileNames = true);
 
     static Core::Search::TextRange convertRange(const LanguageServerProtocol::Range &range);
     static QStringList getFileContents(const Utils::FilePath &filePath);
@@ -59,17 +60,19 @@ private:
         const ResultHandler &handler);
 
     void requestPrepareRename(const LanguageServerProtocol::TextDocumentPositionParams &params,
-                              const QString &placeholder);
+                              const QString &placeholder, const QString &oldSymbolName,
+                              bool preferLowerCaseFileNames);
     void requestRename(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
                        const QString &newName, Core::SearchResult *search);
-    Core::SearchResult *createSearch(
-        const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
-        const QString &placeholder);
+    Core::SearchResult *createSearch(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
+                                     const QString &placeholder, const QString &oldSymbolName,
+                                     bool preferLowerCaseFileNames);
     void startRenameSymbol(const LanguageServerProtocol::TextDocumentPositionParams &params,
-                           const QString &placeholder);
+                           const QString &placeholder, const QString &oldSymbolName,
+                           bool preferLowerCaseFileNames);
     void handleRenameResponse(Core::SearchResult *search,
                               const LanguageServerProtocol::RenameRequest::Response &response);
-    void applyRename(const QList<Core::SearchResultItem> &checkedItems);
+    void applyRename(const QList<Core::SearchResultItem> &checkedItems, Core::SearchResult *search);
 
     Client *m_client = nullptr;
     SymbolMapper m_defaultSymbolMapper;

@@ -130,7 +130,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     m_fileChooser->setPromptDialogTitle(Tr::tr("Select Suppression File"));
 
     QString suppressions;
-    for (const Error &error : qAsConst(m_errors))
+    for (const Error &error : std::as_const(m_errors))
         suppressions += suppressionText(error);
 
     m_suppressionEdit->setPlainText(suppressions);
@@ -153,7 +153,7 @@ void SuppressionDialog::maybeShow(MemcheckErrorView *view)
         indices.append(view->selectionModel()->currentIndex());
 
     QList<XmlProtocol::Error> errors;
-    for (const QModelIndex &index : qAsConst(indices)) {
+    for (const QModelIndex &index : std::as_const(indices)) {
         Error error = view->model()->data(index, ErrorListModel::ErrorRole).value<Error>();
         if (!error.suppression().isNull())
             errors.append(error);
@@ -198,7 +198,7 @@ void SuppressionDialog::accept()
         return l.row() > r.row();
     });
     QAbstractItemModel *model = m_view->model();
-    for (const QModelIndex &index : qAsConst(indices)) {
+    for (const QModelIndex &index : std::as_const(indices)) {
         bool removed = model->removeRow(index.row());
         QTC_ASSERT(removed, qt_noop());
         Q_UNUSED(removed)
@@ -209,7 +209,7 @@ void SuppressionDialog::accept()
         const Error rowError = model->data(
             model->index(row, 0), ErrorListModel::ErrorRole).value<Error>();
 
-        for (const Error &error : qAsConst(m_errors)) {
+        for (const Error &error : std::as_const(m_errors)) {
             if (equalSuppression(rowError, error)) {
                 bool removed = model->removeRow(row);
                 QTC_CHECK(removed);

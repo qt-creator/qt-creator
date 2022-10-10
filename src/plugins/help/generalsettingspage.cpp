@@ -425,7 +425,7 @@ void GeneralSettingsPage::updateFontSizeSelector()
     //  try to maintain selection or select closest.
     if (!pointSizes.empty()) {
         QString n;
-        foreach (int pointSize, pointSizes)
+        for (int pointSize : qAsConst(pointSizes))
             m_widget->sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
         const int closestIndex = closestPointSizeIndex(m_font.pointSize());
         if (closestIndex != -1)
@@ -446,7 +446,7 @@ void GeneralSettingsPage::updateFontStyleSelector()
     if (!styles.empty()) {
         int normalIndex = -1;
         const QString normalStyle = "Normal";
-        foreach (const QString &style, styles) {
+        for (const QString &style : styles) {
             // try to maintain selection or select 'normal' preferably
             const int newIndex = m_widget->styleComboBox->count();
             m_widget->styleComboBox->addItem(style);

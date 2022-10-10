@@ -240,7 +240,7 @@ void OutputFormatter::setLineParsers(const QList<OutputLineParser *> &parsers)
 
 void OutputFormatter::addLineParsers(const QList<OutputLineParser *> &parsers)
 {
-    for (OutputLineParser * const p : qAsConst(parsers))
+    for (OutputLineParser * const p : std::as_const(parsers))
         addLineParser(p);
 }
 
@@ -264,7 +264,7 @@ void OutputFormatter::setFileFinder(const FileInProjectFinder &finder)
 
 void OutputFormatter::setDemoteErrorsToWarnings(bool demote)
 {
-    for (OutputLineParser * const p : qAsConst(d->lineParsers))
+    for (OutputLineParser * const p : std::as_const(d->lineParsers))
         p->setDemoteErrorsToWarnings(demote);
 }
 
@@ -307,7 +307,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
     if (linkified.isEmpty())
         append({}, charFmt); // This might cause insertion of a newline character.
 
-    for (OutputLineParser * const p : qAsConst(involvedParsers)) {
+    for (OutputLineParser * const p : std::as_const(involvedParsers)) {
         if (d->postPrintAction)
             d->postPrintAction(p);
         else
@@ -340,7 +340,7 @@ OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, Out
         }
     }
     QTC_CHECK(!d->nextParser);
-    for (OutputLineParser * const parser : qAsConst(d->lineParsers)) {
+    for (OutputLineParser * const parser : std::as_const(d->lineParsers)) {
         if (parser == oldNextParser) // We tried that one already.
             continue;
         const OutputLineParser::Result res
@@ -532,7 +532,7 @@ void OutputFormatter::handleLink(const QString &href)
     // to the line parsers.
     if (handleFileLink(href))
         return;
-    for (OutputLineParser * const f : qAsConst(d->lineParsers)) {
+    for (OutputLineParser * const f : std::as_const(d->lineParsers)) {
         if (f->handleLink(href))
             return;
     }
@@ -575,7 +575,7 @@ void OutputFormatter::flush()
         flushIncompleteLine();
     flushTrailingNewline();
     d->escapeCodeHandler.endFormatScope();
-    for (OutputLineParser * const p : qAsConst(d->lineParsers))
+    for (OutputLineParser * const p : std::as_const(d->lineParsers))
         p->flush();
     if (d->nextParser)
         d->nextParser->runPostPrintActions(plainTextEdit());
@@ -590,13 +590,13 @@ bool OutputFormatter::hasFatalErrors() const
 
 void OutputFormatter::addSearchDir(const FilePath &dir)
 {
-    for (OutputLineParser * const p : qAsConst(d->lineParsers))
+    for (OutputLineParser * const p : std::as_const(d->lineParsers))
         p->addSearchDir(dir);
 }
 
 void OutputFormatter::dropSearchDir(const FilePath &dir)
 {
-    for (OutputLineParser * const p : qAsConst(d->lineParsers))
+    for (OutputLineParser * const p : std::as_const(d->lineParsers))
         p->dropSearchDir(dir);
 }
 

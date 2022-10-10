@@ -147,7 +147,7 @@ void FpsLabelAction::fpsHandler(quint16 fpsValues[8])
         fpsText = fpsText.arg("--");
     else
         fpsText = fpsText.arg(lastValidFrames);
-    for (const QPointer<QLabel> &label : qAsConst(fpsHandlerLabelList)) {
+    for (const QPointer<QLabel> &label : std::as_const(fpsHandlerLabelList)) {
         if (label)
             label->setText(fpsText);
     }
@@ -176,7 +176,7 @@ QWidget *FpsLabelAction::createWidget(QWidget *parent)
 
 void FpsLabelAction::refreshFpsLabel(quint16 frames)
 {
-    for (const auto &labelPointer : qAsConst(fpsHandlerLabelList)) {
+    for (const auto &labelPointer : std::as_const(fpsHandlerLabelList)) {
         if (labelPointer)
             labelPointer->setText(QString("%1 FPS").arg(frames));
     }

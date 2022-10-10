@@ -145,7 +145,7 @@ void ModelsManager::releaseModel(ExtDocumentController *documentController)
 
 void ModelsManager::openDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagramUid)
 {
-    for (const ManagedModel &managedModel : qAsConst(d->managedModels)) {
+    for (const ManagedModel &managedModel : std::as_const(d->managedModels)) {
         if (managedModel.m_documentController->projectController()->project()->uid() == modelUid) {
             qmt::MDiagram *diagram = managedModel.m_documentController->modelController()->findObject<qmt::MDiagram>(diagramUid);
             QMT_ASSERT(diagram, continue);
@@ -208,7 +208,7 @@ void ModelsManager::onAboutToShowContextMenu(ProjectExplorer::Node *node)
 {
     bool canOpenDiagram = false;
 
-    for (const ManagedModel &managedModel : qAsConst(d->managedModels)) {
+    for (const ManagedModel &managedModel : std::as_const(d->managedModels)) {
         if (managedModel.m_documentController->pxNodeController()->hasDiagramForExplorerNode(node)) {
             canOpenDiagram = true;
             break;
@@ -226,7 +226,7 @@ void ModelsManager::onOpenDiagramFromProjectExplorer()
 {
     if (ProjectExplorer::ProjectTree::currentNode() == d->contextMenuOwnerNode) {
         qmt::MDiagram *diagram = nullptr;
-        for (const ManagedModel &managedModel : qAsConst(d->managedModels)) {
+        for (const ManagedModel &managedModel : std::as_const(d->managedModels)) {
             if ((diagram = managedModel.m_documentController->pxNodeController()->findDiagramForExplorerNode(d->contextMenuOwnerNode))) {
                 openDiagram(managedModel.m_documentController, diagram);
                 break;
@@ -245,7 +245,7 @@ void ModelsManager::onOpenDefaultModel(const qmt::Uid &modelUid)
 void ModelsManager::openDiagram(ExtDocumentController *documentController,
                                  qmt::MDiagram *diagram)
 {
-    for (const ManagedModel &managedModel : qAsConst(d->managedModels)) {
+    for (const ManagedModel &managedModel : std::as_const(d->managedModels)) {
         if (managedModel.m_documentController == documentController) {
             Core::IEditor *editor = Core::EditorManager::activateEditorForDocument(managedModel.m_modelDocument);
             if (auto modelEditor = qobject_cast<ModelEditor *>(editor)) {

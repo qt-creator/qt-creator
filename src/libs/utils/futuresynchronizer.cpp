@@ -53,7 +53,7 @@ bool FutureSynchronizer::isCancelOnWait() const
 void FutureSynchronizer::flushFinishedFutures()
 {
     QList<QFuture<void>> newFutures;
-    for (const QFuture<void> &future : qAsConst(m_futures)) {
+    for (const QFuture<void> &future : std::as_const(m_futures)) {
         if (!future.isFinished())
             newFutures.append(future);
     }

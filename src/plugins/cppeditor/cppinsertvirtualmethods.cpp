@@ -196,7 +196,7 @@ ClassItem::~ClassItem()
 
 Qt::ItemFlags ClassItem::flags() const
 {
-    for (FunctionItem *func : qAsConst(functions)) {
+    for (FunctionItem *func : std::as_const(functions)) {
         if (!func->alreadyFound)
             return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     }
@@ -209,7 +209,7 @@ Qt::CheckState ClassItem::checkState() const
     if (functions.isEmpty())
         return Qt::Unchecked;
     Qt::CheckState state = functions.first()->checkState();
-    for (FunctionItem *function : qAsConst(functions)) {
+    for (FunctionItem *function : std::as_const(functions)) {
         Qt::CheckState functionState = function->checkState();
         if (functionState != state)
             return Qt::PartiallyChecked;
@@ -469,7 +469,7 @@ public:
                 }
             } else {
                 auto classItem = static_cast<ClassItem *>(item);
-                for (FunctionItem *funcItem : qAsConst(classItem->functions)) {
+                for (FunctionItem *funcItem : std::as_const(classItem->functions)) {
                     if (funcItem->alreadyFound || funcItem->checked == checked)
                         continue;
                     QModelIndex funcIndex = createIndex(funcItem->row, 0, funcItem);
@@ -576,7 +576,7 @@ public:
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         printer.showFunctionSignatures = true;
         QHash<const Function *, FunctionItem *> virtualFunctions;
-        for (const Class *clazz : qAsConst(baseClasses)) {
+        for (const Class *clazz : std::as_const(baseClasses)) {
             ClassItem *itemBase = new ClassItem(printer.prettyName(clazz->name()), clazz);
             for (Scope::iterator it = clazz->memberBegin(); it != clazz->memberEnd(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
@@ -592,7 +592,7 @@ public:
                         continue;
 
                     if (func->isFinal()) {
-                        for (const Function *firstVirtual : qAsConst(firstVirtuals)) {
+                        for (const Function *firstVirtual : std::as_const(firstVirtuals)) {
                             if (FunctionItem *first = virtualFunctions[firstVirtual]) {
                                 FunctionItem *next = nullptr;
                                 for (FunctionItem *removed = first; next != first; removed = next) {
@@ -610,7 +610,7 @@ public:
                     //   - virtual void *qt_metacast(const char *);
                     //   - virtual int qt_metacall(QMetaObject::Call, int, void **);
                     bool skip = false;
-                    for (const Function *firstVirtual : qAsConst(firstVirtuals)) {
+                    for (const Function *firstVirtual : std::as_const(firstVirtuals)) {
                         if (printer.prettyName(firstVirtual->enclosingClass()->name()) == "QObject"
                                 && magicQObjectFunctions().contains(
                                     printer.prettyName(func->name()))) {
@@ -653,7 +653,7 @@ public:
                         factory->setHasReimplementedFunctions(true);
                         funcItem->reimplemented = true;
                         funcItem->alreadyFound = funcExistsInClass;
-                        for (const Function *firstVirtual : qAsConst(firstVirtuals)) {
+                        for (const Function *firstVirtual : std::as_const(firstVirtuals)) {
                             if (FunctionItem *first = virtualFunctions[firstVirtual]) {
                                 if (!first->alreadyFound) {
                                     while (first->checked != isPureVirtual) {
@@ -773,14 +773,14 @@ public:
         UseMinimalNames useMinimalNames(targetCoN);
         Control *control = context().bindings()->control().data();
         QList<const Function *> insertedFunctions;
-        for (ClassItem *classItem : qAsConst(m_factory->classFunctionModel->classes)) {
+        for (ClassItem *classItem : std::as_const(m_factory->classFunctionModel->classes)) {
             if (classItem->checkState() == Qt::Unchecked)
                 continue;
 
             // Insert Declarations (+ definitions)
             QString lastAccessSpecString;
             bool first = true;
-            for (FunctionItem *funcItem : qAsConst(classItem->functions)) {
+            for (FunctionItem *funcItem : std::as_const(classItem->functions)) {
                 if (funcItem->reimplemented || funcItem->alreadyFound || !funcItem->checked)
                     continue;
 
@@ -1198,7 +1198,7 @@ void InsertVirtualMethodsDialog::setHideReimplementedFunctions(bool hide)
 void InsertVirtualMethodsDialog::updateOverrideReplacementsComboBox()
 {
     m_overrideReplacementComboBox->clear();
-    for (const QString &replacement : qAsConst(m_availableOverrideReplacements))
+    for (const QString &replacement : std::as_const(m_availableOverrideReplacements))
         m_overrideReplacementComboBox->addItem(replacement);
 }
 

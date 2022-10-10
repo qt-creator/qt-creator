@@ -283,7 +283,7 @@ void GenericProposalModel::filter(const QString &prefix)
     m_currentItems.clear();
     const QString lowerPrefix = prefix.toLower();
     const bool checkInfix = prefix.size() >= 3;
-    for (const auto &item : qAsConst(m_originalItems)) {
+    for (const auto &item : std::as_const(m_originalItems)) {
         const QString &text = item->filterText();
 
         // Direct match?

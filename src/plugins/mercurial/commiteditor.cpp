@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "commiteditor.h"
+
 #include "mercurialcommitwidget.h"
+#include "mercurialtr.h"
 
 #include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
@@ -11,16 +13,15 @@
 
 using namespace VcsBase;
 
-namespace Mercurial {
-namespace Internal  {
+namespace Mercurial::Internal {
 
 CommitEditor::CommitEditor() :
     VcsBaseSubmitEditor(new MercurialCommitWidget)
 {
-    document()->setPreferredDisplayName(tr("Commit Editor"));
+    document()->setPreferredDisplayName(Tr::tr("Commit Editor"));
 }
 
-MercurialCommitWidget *CommitEditor::commitWidget()
+MercurialCommitWidget *CommitEditor::commitWidget() const
 {
     return static_cast<MercurialCommitWidget *>(widget());
 }
@@ -49,7 +50,7 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
 
     VcsBaseSubmitEditor::filterUntrackedFilesOfProject(fileModel->repositoryRoot(), &shouldTrack);
 
-    for (const QString &track : qAsConst(shouldTrack)) {
+    for (const QString &track : std::as_const(shouldTrack)) {
         for (const VcsBaseClient::StatusItem &item : repoStatus) {
             if (item.file == track)
                 fileModel->addFile(item.file, item.flags, Unchecked);
@@ -59,15 +60,14 @@ void CommitEditor::setFields(const QFileInfo &repositoryRoot, const QString &bra
     setFileModel(fileModel);
 }
 
-QString CommitEditor::committerInfo()
+QString CommitEditor::committerInfo() const
 {
     return commitWidget()->committer();
 }
 
-QString CommitEditor::repoRoot()
+QString CommitEditor::repoRoot() const
 {
     return commitWidget()->repoRoot();
 }
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

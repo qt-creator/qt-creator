@@ -74,7 +74,7 @@ CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardCo
     m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     if (debug)
         qDebug() << Q_FUNC_INFO << parameters->fields.size();
-    for (const CustomWizardField &f : qAsConst(parameters->fields))
+    for (const CustomWizardField &f : std::as_const(parameters->fields))
         addField(f);
     vLayout->addLayout(m_formLayout);
     m_errorLabel->setVisible(false);
@@ -281,7 +281,7 @@ void CustomWizardFieldPage::initializePage()
 {
     QWizardPage::initializePage();
     clearError();
-    for (const LineEditData &led : qAsConst(m_lineEdits)) {
+    for (const LineEditData &led : std::as_const(m_lineEdits)) {
         if (!led.userChange.isNull()) {
             led.lineEdit->setText(led.userChange);
         } else if (!led.defaultText.isEmpty()) {
@@ -292,7 +292,7 @@ void CustomWizardFieldPage::initializePage()
         if (!led.placeholderText.isEmpty())
             led.lineEdit->setPlaceholderText(led.placeholderText);
     }
-    for (const TextEditData &ted : qAsConst(m_textEdits)) {
+    for (const TextEditData &ted : std::as_const(m_textEdits)) {
         if (!ted.userChange.isNull()) {
             ted.textEdit->setText(ted.userChange);
         } else if (!ted.defaultText.isEmpty()) {
@@ -301,7 +301,7 @@ void CustomWizardFieldPage::initializePage()
             ted.textEdit->setText(defaultText);
         }
     }
-    for (const PathChooserData &ped : qAsConst(m_pathChoosers)) {
+    for (const PathChooserData &ped : std::as_const(m_pathChoosers)) {
         if (!ped.userChange.isNull()) {
             ped.pathChooser->setFilePath(FilePath::fromUserInput(ped.userChange));
         } else if (!ped.defaultText.isEmpty()) {
@@ -349,7 +349,7 @@ bool CustomWizardFieldPage::validatePage()
 {
     clearError();
     // Check line edits with validators
-    for (const LineEditData &led : qAsConst(m_lineEdits)) {
+    for (const LineEditData &led : std::as_const(m_lineEdits)) {
         if (const QValidator *val = led.lineEdit->validator()) {
             int pos = 0;
             QString text = led.lineEdit->text();

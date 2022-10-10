@@ -250,7 +250,7 @@ void WorkspaceLocatorFilter::prepareSearch(const QString &entry,
         params.setLimit(m_maxResultCount);
 
     QMutexLocker locker(&m_mutex);
-    for (auto client : qAsConst(clients)) {
+    for (auto client : std::as_const(clients)) {
         if (!client->reachable())
             continue;
         if (!(force || client->locatorsEnabled()))

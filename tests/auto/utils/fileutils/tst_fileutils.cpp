@@ -161,6 +161,8 @@ void tst_fileutils::parentDir_data()
             << "//server/directory/file" << "//server/directory" << "";
     QTest::newRow("//server/directory") << "//server/directory" << "//server/" << "";
     QTest::newRow("//server") << "//server" << "" << "";
+
+    QTest::newRow("qrc") << ":/foo/bar.txt" << ":/foo" << "";
 }
 
 void tst_fileutils::parentDir()
@@ -199,6 +201,8 @@ void tst_fileutils::isChildOf_data()
             << "//server/directory" << "//server/directory/file" << true;
     QTest::newRow("//server/directory")
             << "//server" << "//server/directory" << true;
+
+    QTest::newRow("qrc") << ":/foo/bar" << ":/foo/bar/blah" << true;
 }
 
 void tst_fileutils::isChildOf()
@@ -243,6 +247,8 @@ void tst_fileutils::fileName_data()
     QTest::newRow("slashes at end 2") << "/a/b//" << 1 << "b//";
     QTest::newRow("root only 1") << "/" << 0 << "";
     QTest::newRow("root only 2") << "/" << 1 << "/";
+    QTest::newRow("qrc 0") << ":/foo/bar" << 0 << "bar";
+    QTest::newRow("qrc with root") << ":/foo/bar" << 1 << ":/foo/bar";
 }
 
 void tst_fileutils::fileName()
@@ -384,6 +390,8 @@ void tst_fileutils::absoluteFilePath_data()
     QTest::newRow("default-constructed") << FilePath() << FilePath();
     QTest::newRow("relative") << FilePath::fromString("a/b")
                               << FilePath::fromString(QDir::currentPath() + "/a/b");
+    QTest::newRow("qrc") << FilePath::fromString(":/foo/bar.txt")
+                         << FilePath::fromString(":/foo/bar.txt");
 }
 
 void tst_fileutils::absoluteFilePath()

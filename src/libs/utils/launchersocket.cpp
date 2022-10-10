@@ -79,7 +79,7 @@ bool CallerHandle::flushFor(SignalType signalType)
     {
         QMutexLocker locker(&m_mutex);
         const QList<SignalType> storedSignals =
-                Utils::transform(qAsConst(m_signals), [](const LauncherSignal *launcherSignal) {
+                Utils::transform(std::as_const(m_signals), [](const LauncherSignal *launcherSignal) {
                                    return launcherSignal->signalType();
         });
 
@@ -102,7 +102,7 @@ bool CallerHandle::flushFor(SignalType signalType)
         }
     }
     bool signalMatched = false;
-    for (const LauncherSignal *storedSignal : qAsConst(oldSignals)) {
+    for (const LauncherSignal *storedSignal : std::as_const(oldSignals)) {
         const SignalType storedSignalType = storedSignal->signalType();
         if (storedSignalType == signalType)
             signalMatched = true;
@@ -653,7 +653,7 @@ void LauncherSocket::handleRequests()
         m_requests.clear();
     }
 
-    for (const QByteArray &request : qAsConst(requests))
+    for (const QByteArray &request : std::as_const(requests))
         socket->write(request);
 }
 

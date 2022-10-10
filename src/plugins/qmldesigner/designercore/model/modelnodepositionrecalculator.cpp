@@ -24,7 +24,7 @@ void ModelNodePositionRecalculator::moved(const TextModifier::MoveInfo &moveInfo
     const int prefixLength = moveInfo.prefixToInsert.length();
     const int suffixLength = moveInfo.suffixToInsert.length();
 
-    for (const ModelNode &node : qAsConst(m_nodesToTrack)) {
+    for (const ModelNode &node : std::as_const(m_nodesToTrack)) {
         const int nodeLocation = m_positionStore->nodeOffset(node);
 
         if (nodeLocation == ModelNodePositionStorage::INVALID_LOCATION)
@@ -67,7 +67,7 @@ void ModelNodePositionRecalculator::replaced(int offset, int oldLength, int newL
     if (growth == 0)
         return;
 
-    for (const ModelNode &node : qAsConst(m_nodesToTrack)) {
+    for (const ModelNode &node : std::as_const(m_nodesToTrack)) {
         const int nodeLocation = m_positionStore->nodeOffset(node);
 
         if (nodeLocation == ModelNodePositionStorage::INVALID_LOCATION)

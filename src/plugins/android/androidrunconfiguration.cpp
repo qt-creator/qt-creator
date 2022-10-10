@@ -1,12 +1,12 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidrunconfiguration.h"
-
 #include "androidconstants.h"
 #include "androidglobal.h"
-#include "androidtoolchain.h"
 #include "androidmanager.h"
+#include "androidrunconfiguration.h"
+#include "androidtoolchain.h"
+#include "androidtr.h"
 
 #include <app/app_version.h>
 
@@ -51,7 +51,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     : RunConfiguration(target, id)
 {
     auto envAspect = addAspect<EnvironmentAspect>();
-    envAspect->addSupportedBaseEnvironment(tr("Clean Environment"), {});
+    envAspect->addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
 
     auto extraAppArgsAspect = addAspect<ArgumentsAspect>(macroExpander());
 
@@ -67,7 +67,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     auto amStartArgsAspect = addAspect<StringAspect>();
     amStartArgsAspect->setId(Constants::ANDROID_AM_START_ARGS);
     amStartArgsAspect->setSettingsKey("Android.AmStartArgsKey");
-    amStartArgsAspect->setLabelText(tr("Activity manager start arguments:"));
+    amStartArgsAspect->setLabelText(Tr::tr("Activity manager start arguments:"));
     amStartArgsAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     amStartArgsAspect->setHistoryCompleter("Android.AmStartArgs.History");
 
@@ -75,13 +75,13 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     preStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
     preStartShellCmdAspect->setId(Constants::ANDROID_PRESTARTSHELLCMDLIST);
     preStartShellCmdAspect->setSettingsKey("Android.PreStartShellCmdListKey");
-    preStartShellCmdAspect->setLabelText(tr("Pre-launch on-device shell commands:"));
+    preStartShellCmdAspect->setLabelText(Tr::tr("Pre-launch on-device shell commands:"));
 
     auto postStartShellCmdAspect = addAspect<BaseStringListAspect>();
     postStartShellCmdAspect->setDisplayStyle(StringAspect::TextEditDisplay);
     postStartShellCmdAspect->setId(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
-    postStartShellCmdAspect->setLabelText(tr("Post-quit on-device shell commands:"));
+    postStartShellCmdAspect->setLabelText(Tr::tr("Post-quit on-device shell commands:"));
 
     setUpdater([this, target] {
         const BuildTargetInfo bti = buildTargetInfo();

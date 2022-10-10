@@ -261,7 +261,7 @@ QList<ITestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreChec
     }
 
     for (auto it = testCasesForProFile.begin(), end = testCasesForProFile.end(); it != end; ++it) {
-        for (const QString &target : qAsConst(it.value().internalTargets)) {
+        for (const QString &target : std::as_const(it.value().internalTargets)) {
             GTestConfiguration *tc = new GTestConfiguration(framework());
             if (!ignoreCheckState)
                 tc->setTestCases(it.value().filters);
@@ -297,7 +297,7 @@ QList<ITestConfiguration *> GTestTreeItem::getFailedTestConfigurations() const
     collectFailedTestInfo(this, testCasesForProFile);
 
     for (auto it = testCasesForProFile.begin(), end = testCasesForProFile.end(); it != end; ++it) {
-        for (const QString &target : qAsConst(it.value().internalTargets)) {
+        for (const QString &target : std::as_const(it.value().internalTargets)) {
             GTestConfiguration *tc = new GTestConfiguration(framework());
             tc->setTestCases(it.value().filters);
             tc->setTestCaseCount(tc->testCaseCount() + it.value().testSetCount);
@@ -331,7 +331,7 @@ QList<ITestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Ut
         }
     });
     for (auto it = testCases.begin(), end = testCases.end(); it != end; ++it) {
-        for (const QString &target : qAsConst(it.value().internalTargets)) {
+        for (const QString &target : std::as_const(it.value().internalTargets)) {
             GTestConfiguration *tc = new GTestConfiguration(framework());
             tc->setTestCases(it.value().filters);
             tc->setProjectFile(it.key());

@@ -110,7 +110,7 @@ void QmlMainFileAspect::updateFileComboBox()
 
     // make paths relative to project directory
     QStringList relativeFiles;
-    for (const QString &fn : qAsConst(sortedFiles))
+    for (const QString &fn : std::as_const(sortedFiles))
         relativeFiles += projectDir.relativeFilePath(fn);
     sortedFiles = relativeFiles;
 
@@ -120,7 +120,7 @@ void QmlMainFileAspect::updateFileComboBox()
     if (mainScriptSource() != FileInEditor)
         mainScriptPath = projectDir.relativeFilePath(mainScript());
 
-    for (const QString &fn : qAsConst(sortedFiles)) {
+    for (const QString &fn : std::as_const(sortedFiles)) {
         QFileInfo fileInfo(fn);
         if (fileInfo.suffix() != "qml")
             continue;

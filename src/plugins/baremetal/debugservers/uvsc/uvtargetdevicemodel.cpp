@@ -215,7 +215,7 @@ void DeviceSelectionModel::fillAllPacks(const FilePath &toolsIniFile)
 
     if (allPackFiles.isEmpty())
         return;
-    for (const QString &packFile : qAsConst(allPackFiles))
+    for (const QString &packFile : std::as_const(allPackFiles))
         parsePackage(packFile);
 }
 

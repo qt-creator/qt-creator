@@ -38,8 +38,14 @@
     To specify global code style settings sets for C++ files, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol C++.
 
+    \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
+
     To specify global code style settings sets for QML files, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick}.
+
+    \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings view"
+
+    Only \uicontrol General settings are available for QML files.
 
     To configure the editor behavior for the current project:
 
@@ -57,12 +63,6 @@
         \li Give a name to the settings and click \uicontrol OK.
 
         \li Click \uicontrol Edit to specify code style settings for the project.
-
-            \image qtcreator-code-style-settings-edit-cpp.png "Edit Code Style Settings dialog"
-
-            \note Only \uicontrol General settings are available for QML files.
-
-            \image qtcreator-code-style-settings-edit-qtquick.png "Edit Code Style Settings view"
 
     \endlist
 

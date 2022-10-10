@@ -25,7 +25,7 @@ RefactorOverlay::RefactorOverlay(TextEditor::TextEditorWidget *editor) :
 void RefactorOverlay::paint(QPainter *painter, const QRect &clip)
 {
     m_maxWidth = 0;
-    for (auto &marker : qAsConst(m_markers)) {
+    for (auto &marker : std::as_const(m_markers)) {
         paintMarker(marker, painter, clip);
     }
 

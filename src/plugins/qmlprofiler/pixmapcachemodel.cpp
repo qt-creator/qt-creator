@@ -411,7 +411,7 @@ QString PixmapCacheModel::fileName(int index) const
 
 void PixmapCacheModel::computeMaxCacheSize()
 {
-    for (const PixmapCacheModel::Item &event : qAsConst(m_data)) {
+    for (const PixmapCacheModel::Item &event : std::as_const(m_data)) {
         if (event.pixmapEventType == PixmapCacheModel::PixmapCacheCountChanged) {
             if (event.cacheSize > m_maxCacheSize)
                 m_maxCacheSize = event.cacheSize;

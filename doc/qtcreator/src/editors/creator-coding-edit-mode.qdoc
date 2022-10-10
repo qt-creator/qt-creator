@@ -151,6 +151,8 @@
     Press and hold \key Alt and double-click strings to select several strings
     simultaneously.
 
+    Press \key {Alt+Shift+I} to create cursors at the ends of selected lines.
+
     Press \key Esc to remove all the cursors and selections.
 
     \section1 Splitting the Editor View
@@ -281,6 +283,10 @@
     \uicontrol {Follow Symbol Under Cursor in Next Split}. Following symbols is
     supported for namespaces, classes, functions, variables, include statements,
     and macros.
+
+    When the cursor is on a string literal and the string is a QRC file path,
+    following the symbol opens the specified resource file for editing in the
+    \uicontrol {Resource Browser}.
 
     To switch between the definition and declaration of a function, place the
     cursor on either and press \key {Shift+F2} or right-click and select

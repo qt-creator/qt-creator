@@ -198,7 +198,7 @@ void RotationManipulator::end()
 void RotationManipulator::deleteSnapLines()
 {
     if (m_layerItem) {
-        for (QGraphicsItem *item : qAsConst(m_graphicsLineList)) {
+        for (QGraphicsItem *item : std::as_const(m_graphicsLineList)) {
             m_layerItem->scene()->removeItem(item);
             delete item;
         }

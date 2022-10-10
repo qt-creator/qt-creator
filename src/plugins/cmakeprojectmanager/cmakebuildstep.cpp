@@ -628,7 +628,7 @@ void CMakeBuildStep::recreateBuildTargetsModel()
             m_buildTargets.push_back(m_allTarget);
     }
 
-    for (const QString &buildTarget : qAsConst(targetList))
+    for (const QString &buildTarget : std::as_const(targetList))
         addItem(buildTarget, specialTargets(usesAllCapsTargets).contains(buildTarget));
 
     updateBuildTargetsModel();

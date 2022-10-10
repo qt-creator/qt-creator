@@ -111,10 +111,10 @@ ExternalQtEditor *ExternalQtEditor::createDesignerEditor()
     }
 }
 
-static QString findFirstCommand(QVector<QtSupport::QtVersion *> qtVersions,
+static QString findFirstCommand(const QVector<QtSupport::QtVersion *> &qtVersions,
                                 ExternalQtEditor::CommandForQtVersion command)
 {
-    foreach (QtSupport::QtVersion *qt, qtVersions) {
+    for (QtSupport::QtVersion *qt : qtVersions) {
         if (qt) {
             const QString binary = command(qt);
             if (!binary.isEmpty())

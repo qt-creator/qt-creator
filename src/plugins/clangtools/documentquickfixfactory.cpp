@@ -56,7 +56,7 @@ void ClangToolQuickFixOperation::perform()
         refactoringFile->setChangeSet(changeSet);
     }
 
-    for (const TextEditor::RefactoringFilePtr &refactoringFile : qAsConst(refactoringFiles))
+    for (const TextEditor::RefactoringFilePtr &refactoringFile : std::as_const(refactoringFiles))
         refactoringFile->apply();
 }
 

@@ -147,7 +147,7 @@ void FunctionHintAssistProvider::setTriggerCharacters(
     const std::optional<QList<QString>> &triggerChars)
 {
     m_triggerChars = triggerChars.value_or(QList<QString>());
-    for (const QString &trigger : qAsConst(m_triggerChars)) {
+    for (const QString &trigger : std::as_const(m_triggerChars)) {
         if (trigger.length() > m_activationCharSequenceLength)
             m_activationCharSequenceLength = trigger.length();
     }

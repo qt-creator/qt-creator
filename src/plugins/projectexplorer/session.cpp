@@ -489,7 +489,7 @@ bool SessionManager::save()
         FilePaths projectFiles = Utils::transform(projects(), &Project::projectFilePath);
         // Restore information on projects that failed to load:
         // don't read projects to the list, which the user loaded
-        for (const FilePath &failed : qAsConst(d->m_failedProjects)) {
+        for (const FilePath &failed : std::as_const(d->m_failedProjects)) {
             if (!projectFiles.contains(failed))
                 projectFiles << failed;
         }
@@ -649,7 +649,7 @@ QStringList SessionManagerPrivate::dependenciesOrder() const
         // remove the handled projects from the dependency lists
         // of the remaining unordered projects
         for (int i = 0; i < unordered.count(); ++i) {
-            for (const QString &pro : qAsConst(ordered)) {
+            for (const QString &pro : std::as_const(ordered)) {
                 QStringList depList = unordered.at(i).second;
                 depList.removeAll(pro);
                 unordered[i].second = depList;
@@ -670,7 +670,7 @@ QList<Project *> SessionManager::projectOrder(const Project *project)
     else
         pros = d->dependenciesOrder();
 
-    for (const QString &proFile : qAsConst(pros)) {
+    for (const QString &proFile : std::as_const(pros)) {
         for (Project *pro : projects()) {
             if (pro->projectFilePath().toString() == proFile) {
                 result << pro;
@@ -921,7 +921,7 @@ void SessionManagerPrivate::restoreStartupProject(const PersistentSettingsReader
 {
     const QString startupProject = reader.restoreValue(QLatin1String("StartupProject")).toString();
     if (!startupProject.isEmpty()) {
-        for (Project *pro : qAsConst(m_projects)) {
+        for (Project *pro : std::as_const(m_projects)) {
             if (pro->projectFilePath().toString() == startupProject) {
                 m_instance->setStartupProject(pro);
                 break;

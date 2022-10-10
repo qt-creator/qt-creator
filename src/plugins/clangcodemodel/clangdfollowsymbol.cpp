@@ -173,11 +173,11 @@ ClangdFollowSymbol::~ClangdFollowSymbol()
     d->closeTempDocuments();
     if (d->virtualFuncAssistProcessor)
         d->virtualFuncAssistProcessor->resetData(false);
-    for (const MessageId &id : qAsConst(d->pendingSymbolInfoRequests))
+    for (const MessageId &id : std::as_const(d->pendingSymbolInfoRequests))
         d->client->cancelRequest(id);
-    for (const MessageId &id : qAsConst(d->pendingGotoImplRequests))
+    for (const MessageId &id : std::as_const(d->pendingGotoImplRequests))
         d->client->cancelRequest(id);
-    for (const MessageId &id : qAsConst(d->pendingGotoDefRequests))
+    for (const MessageId &id : std::as_const(d->pendingGotoDefRequests))
         d->client->cancelRequest(id);
     delete d;
 }
@@ -307,7 +307,7 @@ ClangdFollowSymbol::VirtualFunctionAssistProcessor::createProposal(bool final) c
     QList<AssistProposalItemInterface *> items;
     bool needsBaseDeclEntry = !m_followSymbol->d->defLinkNode.range()
             .contains(Position(m_followSymbol->d->cursor));
-    for (const SymbolData &symbol : qAsConst(m_followSymbol->d->symbolsToDisplay)) {
+    for (const SymbolData &symbol : std::as_const(m_followSymbol->d->symbolsToDisplay)) {
         Link link = symbol.second;
         if (m_followSymbol->d->defLink == link) {
             if (!needsBaseDeclEntry)
@@ -411,7 +411,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
             newLinks = {ploc->toLink()};
         if (const auto plloc = std::get_if<QList<Location>>(&*result))
             newLinks = transform(*plloc, &Location::toLink);
-        for (const Link &link : qAsConst(newLinks)) {
+        for (const Link &link : std::as_const(newLinks)) {
             if (!allLinks.contains(link)) {
                 allLinks << link;
 
@@ -444,7 +444,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
     //         pure virtual and mark it accordingly.
     //         In addition, we need to follow all override links, because for these, clangd
     //         gives us the declaration instead of the definition.
-    for (const Link &link : qAsConst(allLinks)) {
+    for (const Link &link : std::as_const(allLinks)) {
         if (!client->documentForFilePath(link.targetFilePath) && addOpenFile(link.targetFilePath))
             client->openExtraFile(link.targetFilePath);
         const auto symbolInfoHandler = [sentinel = QPointer(q), this, link](
@@ -525,7 +525,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
 
 void ClangdFollowSymbol::Private::closeTempDocuments()
 {
-    for (const FilePath &fp : qAsConst(openedFiles)) {
+    for (const FilePath &fp : std::as_const(openedFiles)) {
         if (!client->documentForFilePath(fp))
             client->closeExtraFile(fp);
     }

@@ -1424,9 +1424,9 @@ Qt5InformationNodeInstanceServer::~Qt5InformationNodeInstanceServer()
     if (m_editView3DData.rootItem)
         m_editView3DData.rootItem->disconnect(this);
 
-    for (auto view : qAsConst(m_view3Ds))
+    for (auto view : std::as_const(m_view3Ds))
         view->disconnect();
-    for (auto node : qAsConst(m_3DSceneMap))
+    for (auto node : std::as_const(m_3DSceneMap))
         node->disconnect();
 
     if (m_editView3DData.rootItem)
@@ -1720,7 +1720,7 @@ QObject *Qt5InformationNodeInstanceServer::findView3DForInstance(
     // If no ancestor View3D was found, check if the scene root is specified as importScene in
     // some View3D.
     QObject *sceneRoot = find3DSceneRoot(instance);
-    for (const auto &view3D : qAsConst(m_view3Ds)) {
+    for (const auto &view3D : std::as_const(m_view3Ds)) {
         auto view = qobject_cast<QQuick3DViewport *>(view3D);
         if (view && sceneRoot == view->importScene())
             return view3D;
@@ -1740,7 +1740,7 @@ QObject *Qt5InformationNodeInstanceServer::findView3DForSceneRoot(
         return findView3DForInstance(instanceForObject(sceneRoot));
     } else {
         // No instance, so the scene root must be scene property of one of the views
-        for (const auto &view3D : qAsConst(m_view3Ds)) {
+        for (const auto &view3D : std::as_const(m_view3Ds)) {
             auto view = qobject_cast<QQuick3DViewport *>(view3D);
             if (view && sceneRoot == view->scene())
                 return view3D;
@@ -1825,7 +1825,7 @@ QObject *Qt5InformationNodeInstanceServer::find3DSceneRoot([[maybe_unused]] QObj
         return find3DSceneRoot(instanceForObject(obj));
 
     // If there is no instance, obj could be a scene in a View3D
-    for (const auto &viewObj : qAsConst(m_view3Ds)) {
+    for (const auto &viewObj : std::as_const(m_view3Ds)) {
         const auto view = qobject_cast<QQuick3DViewport *>(viewObj);
         if (view && view->scene() == obj)
             return obj;
@@ -2684,7 +2684,7 @@ void Qt5InformationNodeInstanceServer::handlePickTarget(
         return;
     }
 
-    for (auto childItem : qAsConst(childItems)) {
+    for (auto childItem : std::as_const(childItems)) {
         if (!hasInstanceForObject(childItem)) {
             // Children of components do not have instances, but will still need to be pickable
             // and redirect their pick to the component

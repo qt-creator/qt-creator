@@ -388,7 +388,7 @@ void Wizard::showVariables()
     QHash<QString, QVariant> vars = variables();
     QList<QString> keys = vars.keys();
     sort(keys);
-    for (const QString &key : qAsConst(keys)) {
+    for (const QString &key : std::as_const(keys)) {
         const QVariant &v = vars.value(key);
         result += QLatin1String("  <tr><td>")
                 + key + QLatin1String("</td><td>")

@@ -1,10 +1,11 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidqtversion.h"
-#include "androidconstants.h"
 #include "androidconfigurations.h"
+#include "androidconstants.h"
 #include "androidmanager.h"
+#include "androidqtversion.h"
+#include "androidtr.h"
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -56,12 +57,12 @@ QString AndroidQtVersion::invalidReason() const
     QString tmp = QtVersion::invalidReason();
     if (tmp.isEmpty()) {
         if (AndroidConfigurations::currentConfig().ndkLocation(this).isEmpty())
-            return tr("NDK is not configured in Devices > Android.");
+            return Tr::tr("NDK is not configured in Devices > Android.");
         if (AndroidConfigurations::currentConfig().sdkLocation().isEmpty())
-            return tr("SDK is not configured in Devices > Android.");
+            return Tr::tr("SDK is not configured in Devices > Android.");
         if (qtAbis().isEmpty())
-            return tr("Failed to detect the ABIs used by the Qt version. Check the settings in "
-                      "Devices > Android for errors.");
+            return Tr::tr("Failed to detect the ABIs used by the Qt version. Check the settings in "
+                          "Devices > Android for errors.");
     }
     return tmp;
 }
@@ -98,7 +99,7 @@ void AndroidQtVersion::setupQmakeRunEnvironment(Utils::Environment &env) const
 QString AndroidQtVersion::description() const
 {
     //: Qt Version is meant for Android
-    return tr("Android");
+    return Tr::tr("Android");
 }
 
 const QStringList &AndroidQtVersion::androidAbis() const

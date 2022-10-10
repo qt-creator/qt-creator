@@ -251,7 +251,7 @@ bool ScxmlTag::hasData() const
     if (!m_attributeNames.isEmpty() || !m_content.isEmpty())
         return true;
 
-    for (ScxmlTag *tag : qAsConst(m_childTags)) {
+    for (ScxmlTag *tag : std::as_const(m_childTags)) {
         if (tag->hasData())
             return true;
     }
@@ -261,7 +261,7 @@ bool ScxmlTag::hasData() const
 
 bool ScxmlTag::hasChild(TagType type) const
 {
-    for (ScxmlTag *tag : qAsConst(m_childTags)) {
+    for (ScxmlTag *tag : std::as_const(m_childTags)) {
         if (tag->tagType() == type)
             return true;
     }
@@ -271,7 +271,7 @@ bool ScxmlTag::hasChild(TagType type) const
 
 bool ScxmlTag::hasChild(const QString &name) const
 {
-    for (ScxmlTag *tag : qAsConst(m_childTags)) {
+    for (ScxmlTag *tag : std::as_const(m_childTags)) {
         if (tag->tagName() == name)
             return true;
     }
@@ -484,7 +484,7 @@ QVector<ScxmlTag*> ScxmlTag::allChildren() const
 QVector<ScxmlTag*> ScxmlTag::children(const QString &name) const
 {
     QVector<ScxmlTag*> children;
-    for (ScxmlTag *tag : qAsConst(m_childTags)) {
+    for (ScxmlTag *tag : std::as_const(m_childTags)) {
         if (tag->tagName() == name)
             children << tag;
     }
@@ -494,7 +494,7 @@ QVector<ScxmlTag*> ScxmlTag::children(const QString &name) const
 
 ScxmlTag *ScxmlTag::child(const QString &name) const
 {
-    for (ScxmlTag *tag : qAsConst(m_childTags)) {
+    for (ScxmlTag *tag : std::as_const(m_childTags)) {
         if (tag->tagName() == name)
             return tag;
     }

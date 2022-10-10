@@ -308,7 +308,7 @@ void SectionedProducts::fetchNextImage()
 
     if (QPixmapCache::find(nextUrl, nullptr)) {
         // this image is already cached it might have been added while downloading
-        for (ProductListModel *model : qAsConst(m_productModels))
+        for (ProductListModel *model : std::as_const(m_productModels))
             model->updateModelIndexesForUrl(nextUrl);
         fetchNextImage();
         return;
@@ -337,7 +337,7 @@ void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
                                    Qt::KeepAspectRatio, Qt::SmoothTransformation);
             pixmap.setDevicePixelRatio(dpr);
             QPixmapCache::insert(url, pixmap);
-            for (ProductListModel *model : qAsConst(m_productModels))
+            for (ProductListModel *model : std::as_const(m_productModels))
                 model->updateModelIndexesForUrl(url);
         }
     } // handle error not needed - it's okay'ish to have no images as long as the rest works
@@ -386,7 +386,7 @@ void SectionedProducts::onTagClicked(const QString &tag)
 QList<Core::ListItem *> SectionedProducts::items()
 {
     QList<Core::ListItem *> result;
-    for (const ProductListModel *model : qAsConst(m_productModels))
+    for (const ProductListModel *model : std::as_const(m_productModels))
         result.append(model->items());
     return result;
 }

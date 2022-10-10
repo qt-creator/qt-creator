@@ -37,8 +37,7 @@ class VcsBaseEditorWidget;
 class VcsCommand;
 }
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class CommitData;
 class GitBaseDiffEditorController;
@@ -80,8 +79,6 @@ public:
 
 class GITSHARED_EXPORT GitClient : public VcsBase::VcsBaseClientImpl
 {
-    Q_OBJECT
-
 public:
     enum CommandInProgress { NoCommand, Revert, CherryPick,
                              Rebase, Merge, RebaseMerge };
@@ -159,7 +156,7 @@ public:
     void addFile(const Utils::FilePath &workingDirectory, const QString &fileName);
     bool synchronousLog(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                         QString *output, QString *errorMessage = nullptr,
-                        unsigned flags = 0);
+                        VcsBase::RunFlags flags = VcsBase::RunFlags::None);
     bool synchronousAdd(const Utils::FilePath &workingDirectory, const QStringList &files,
                         const QStringList &extraOptions = {});
     bool synchronousDelete(const Utils::FilePath &workingDirectory,
@@ -218,7 +215,7 @@ public:
                                            QString *errorMessage = nullptr) const;
     SubmoduleDataMap submoduleList(const Utils::FilePath &workingDirectory) const;
     QByteArray synchronousShow(const Utils::FilePath &workingDirectory, const QString &id,
-                               unsigned flags = 0) const;
+                               VcsBase::RunFlags flags = VcsBase::RunFlags::None) const;
 
     bool synchronousRevListCmd(const Utils::FilePath &workingDirectory, const QStringList &extraArguments,
                                QString *output, QString *errorMessage = nullptr) const;
@@ -406,5 +403,4 @@ public:
     GitRemote(const QString &location);
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

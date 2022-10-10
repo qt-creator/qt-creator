@@ -182,7 +182,7 @@ void PerfConfigWidget::handleProcessDone()
                     Tr::tr("No Trace Points Found"),
                     Tr::tr("Trace points can be defined with \"perf probe -a\"."));
     } else {
-        for (const QByteArray &event : qAsConst(tracePoints)) {
+        for (const QByteArray &event : std::as_const(tracePoints)) {
             int row = model->rowCount();
             model->insertRow(row);
             model->setData(model->index(row, PerfConfigEventsModel::ColumnEventType),

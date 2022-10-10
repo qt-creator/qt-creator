@@ -247,7 +247,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
             m_rootContexts.insert(engineId, qvariant_cast<ContextReference>(value));
             if (m_rootContexts.size() == m_engines.size()) {
                 clearObjectTree();
-                for (const auto &engine : qAsConst(m_engines)) {
+                for (const auto &engine : std::as_const(m_engines)) {
                     QString name = engine.name();
                     if (name.isEmpty())
                         name = QString::fromLatin1("Engine %1").arg(engine.debugId());
@@ -270,7 +270,7 @@ void QmlInspectorAgent::newObject(int engineId, int /*objectId*/, int /*parentId
 
     log(LogReceive, "OBJECT_CREATED");
 
-    for (const auto &engine : qAsConst(m_engines)) {
+    for (const auto &engine : std::as_const(m_engines)) {
         if (engine.debugId() == engineId) {
             m_delayQueryTimer.start();
             break;
@@ -361,7 +361,7 @@ void QmlInspectorAgent::queryEngineContext()
 
     m_rootContexts.clear();
     m_rootContextQueryIds.clear();
-    for (const auto &engine : qAsConst(m_engines))
+    for (const auto &engine : std::as_const(m_engines))
         m_rootContextQueryIds.append(m_engineClient->queryRootContexts(engine));
 }
 
@@ -424,7 +424,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
 
         // Still not found? Maybe we're loading the engine itself.
         if (engineId == -1) {
-            for (const auto &engine : qAsConst(m_engines)) {
+            for (const auto &engine : std::as_const(m_engines)) {
                 if (engine.debugId() == objectDebugId) {
                     engineId = engine.debugId();
                     break;

@@ -86,7 +86,7 @@ int GetOperation::execute() const
     Q_ASSERT(!m_keys.isEmpty());
     QVariantMap map = load(m_file);
 
-    for (const QString &key : qAsConst(m_keys)) {
+    for (const QString &key : std::as_const(m_keys)) {
         const QVariant result = get(map, key);
         if (!result.isValid())
             std::cout << "<invalid>" << std::endl;

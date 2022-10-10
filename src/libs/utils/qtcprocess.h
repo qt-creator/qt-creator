@@ -55,7 +55,7 @@ public:
     qint64 applicationMainThreadId() const;
 
     QProcess::ProcessState state() const;
-    virtual ProcessResultData resultData() const;
+    ProcessResultData resultData() const;
 
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
@@ -177,8 +177,9 @@ public:
     QString toStandaloneCommandLine() const;
 
 signals:
-    void started();
-    void done();
+    void starting(); // On NotRunning -> Starting state transition
+    void started();  // On Starting -> Running state transition
+    void done();     // On Starting | Running -> NotRunning state transition
     void readyReadStandardOutput();
     void readyReadStandardError();
 

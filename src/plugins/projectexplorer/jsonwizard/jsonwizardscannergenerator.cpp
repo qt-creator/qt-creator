@@ -101,7 +101,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
 
 bool JsonWizardScannerGenerator::matchesSubdirectoryPattern(const Utils::FilePath &path)
 {
-    for (const QRegularExpression &regexp : qAsConst(m_subDirectoryExpressions)) {
+    for (const QRegularExpression &regexp : std::as_const(m_subDirectoryExpressions)) {
         if (regexp.match(path.path()).hasMatch())
             return true;
     }

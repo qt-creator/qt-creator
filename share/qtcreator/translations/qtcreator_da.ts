@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="da">
 <context>
-    <name>AdbCommandsWidget</name>
+    <name>Android</name>
     <message>
         <source>Widget</source>
         <translation>Widget</translation>
@@ -152,7 +152,7 @@
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -192,9 +192,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>Failed to run keytool.</source>
         <translation>Kunne ikke køre keytool.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidBuildApkWidget</name>
     <message>
         <source>Keystore files (*.keystore *.jks)</source>
         <translation>Keystore-filer (*.keystore *.jks)</translation>
@@ -207,9 +204,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>&lt;b&gt;Build Android APK&lt;/b&gt;</source>
         <translation>&lt;b&gt;Byg Android APK&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Android Debugger for %1</source>
         <translation>Android-fejlretter for %1</translation>
@@ -218,9 +212,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>Android for %1 (GCC %2, %3)</source>
         <translation>Android for %1 (GCC %2, %3)</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Ukendt Android version. API-niveau: %1</translation>
@@ -237,9 +228,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>Starting Android virtual device failed.</source>
         <translation>Start af Android virtuel-enhed mislykkedes.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AddNewAVDDialog</name>
     <message>
         <source>Create new AVD</source>
         <translation>Opret ny AVD</translation>
@@ -264,9 +252,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source> MiB</source>
         <translation> MiB</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Keystore password is too short.</source>
         <translation>Keystore adgangskode er for kort.</translation>
@@ -295,24 +280,6 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
         <source>Keystore Filename</source>
         <translation>Keystore-filnavn</translation>
     </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Keystore-filer (*.keystore *.jks)</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fejl</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Udsend til Android-enhed</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployQtStep default display name</extracomment>
@@ -394,16 +361,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Package deploy: Running command &quot;%1 %2&quot;.</source>
         <translation>Pakkeudsendelse: kører kommandoen &quot;%1 %2&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Udsend til Android-enhed eller emulator</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Udsend-konfigurationer&lt;/b&gt;</translation>
@@ -416,20 +377,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Android package (*.apk)</source>
         <translation>Android-pakke (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation>Kør på Android</translation>
     </message>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Vælg Android-enhed</translation>
@@ -457,10 +408,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
     <message>
         <source>Refresh Device List</source>
         <translation>Genopfrisk enhedsliste</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -502,16 +449,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Looking for default device &lt;b&gt;%1&lt;/b&gt;.</source>
         <translation>Kig efter standardenhed &lt;b&gt;%1&lt;/b&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
     <message>
         <source>Android Device</source>
         <translation>Android-enhed</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL aktiveret</translation>
@@ -520,9 +461,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>OpenGL disabled</source>
         <translation>OpenGL deaktiveret</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: SDK installationsfejl 0x%1</translation>
@@ -563,16 +501,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: ukendt fejl 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
         <source>GDB server</source>
         <translation>GDB-server</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Håndter...</translation>
@@ -601,9 +533,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>GDB-server for &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -612,16 +541,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>XML Source</source>
         <translation>XML-kilde</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Android Manifest-redigering</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Pakke</translation>
@@ -758,23 +681,14 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>Choose High DPI Icon</source>
         <translation>Vælg høj-DPI-ikon</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Konfigurer Android...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>%1 har brug for yderligere indstillinger for at aktivere Android-understøttelse. Kan du konfigurere sådanne indstillinger i dialogen Valgmuligheder.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Kunne ikke detektere ABI&apos;erne brugt af Qt versionen.</translation>
@@ -784,16 +698,10 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation>&quot;%1&quot; termineret.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Ingen ledige porte tilgængelige på vært til QML-fejlretning.</translation>
@@ -838,9 +746,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <source>&quot;%1&quot; died.</source>
         <translation>&quot;%1&quot; dødede.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManager</name>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
         <translation>Handlingen kræver indgriben fra brugeren. Brug kommandolinjeværktøjet &quot;sdkmanager&quot;.</translation>
@@ -853,9 +758,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
 
 </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
     <message>
         <source>Android SDK Manager</source>
         <translation>Android SDK manager</translation>
@@ -899,10 +801,6 @@ Vil du afinstallere den eksisterende pakke?</translation>
     <message>
         <source>Native SDK Manager...</source>
         <translation>Native SDK manager...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuller</translation>
     </message>
     <message>
         <source>Do you want to accept the Android SDK license?</source>
@@ -1011,13 +909,6 @@ Cancelling pending operations...
 Annullerer afventende handlinger...
 </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
-        <translation>Pakke</translation>
-    </message>
     <message>
         <source>Revision</source>
         <translation>Revision</translation>
@@ -1050,16 +941,6 @@ Annullerer afventende handlinger...
         <source>Install</source>
         <translation>Installation</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>JDK path exists.</source>
         <translation>JDK-sti findes.</translation>
@@ -1170,23 +1051,14 @@ Vælg Valgmuligheder &gt; Byg &amp; kør &gt; Qt versioner, for at tilføje Qt v
         <source>AVD manager UI tool is not available in the installed SDK tools(version %1). Use the command line tool &quot;avdmanager&quot; for advanced AVD management.</source>
         <translation>AVD manager UI-værktøj er ikke tilgængelig i de installerede SDK-værktøjer (version %1). Brug kommandolinjeværktøjet &quot;avdmanager&quot; for avanceret håndtering af AVD.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>NDK-rod:</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>Android GCC</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdDialog</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -1201,9 +1073,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Allowed characters are: a-z A-Z 0-9 and . _ -</source>
         <translation>Tilladte tegn er: a-z A-Z 0-9 og . _ -</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -1217,16 +1086,10 @@ Installer en SDK af mindst API version %1.</translation>
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation>Java-redigering</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::OptionsDialog</name>
     <message>
         <source>SDK Manager Arguments</source>
         <translation>SDK manager-argumenter</translation>
@@ -1243,9 +1106,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Available arguments:</source>
         <translation>Tilgængelige argumenter:</translation>
     </message>
-</context>
-<context>
-    <name>Android::PasswordInputDialog</name>
     <message>
         <source>Incorrect password.</source>
         <translation>Ukorrekt adgangskode.</translation>
@@ -1266,9 +1126,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Enter certificate password</source>
         <translation>Indtast certifikat-adgangskode</translation>
     </message>
-</context>
-<context>
-    <name>AndroidAvdManager</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation>Kan ikke oprette AVD. Ugyldigt input.</translation>
@@ -1285,9 +1142,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Cannot create AVD. Command timed out.</source>
         <translation>Kan ikke oprette AVD. Kommando fik timeout.</translation>
     </message>
-</context>
-<context>
-    <name>AndroidBuildApkWidget</name>
     <message>
         <source>Sign package</source>
         <translation>Signér pakke</translation>
@@ -1307,10 +1161,6 @@ Installer en SDK af mindst API version %1.</translation>
     <message>
         <source>Certificate alias:</source>
         <translation>Certifikat alias:</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Program</translation>
     </message>
     <message>
         <source>Android build SDK:</source>
@@ -1344,16 +1194,10 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Add debug server</source>
         <translation>Tilføj fejlret-server</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Fejl ved oprettelse af AVD</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfiguration</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Kunne ikke kører: %1</translation>
@@ -1362,9 +1206,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>No devices found in output of: %1</source>
         <translation>Ingen enheder fundet i output af: %1</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>Opret en keystore og et certifikat</translation>
@@ -1398,10 +1239,6 @@ Installer en SDK af mindst API version %1.</translation>
         <translation>Sprogkode på to bogstaver for denne enhed (f.eks. RO):</translation>
     </message>
     <message>
-        <source>Certificate</source>
-        <translation>Certifikat</translation>
-    </message>
-    <message>
         <source>Show password</source>
         <translation>Vis adgangskode</translation>
     </message>
@@ -1430,13 +1267,6 @@ Installer en SDK af mindst API version %1.</translation>
         <translation>Brug keystore adgangskode</translation>
     </message>
     <message>
-        <source>Keystore</source>
-        <translation>Keystore</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
-    <message>
         <source>Deploy options</source>
         <translation>Udsend-valgmuligheder</translation>
     </message>
@@ -1456,9 +1286,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Install Ministro from APK</source>
         <translation>Installer Ministro fra APK</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Updating installed packages.</source>
         <translation>Opdaterer installerede pakker.</translation>
@@ -1487,9 +1314,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Failed</source>
         <translation>Mislykkedes</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android-konfiguration</translation>
@@ -1539,10 +1363,6 @@ Installer en SDK af mindst API version %1.</translation>
         <translation> Mb</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
-    </message>
-    <message>
         <source>Add...</source>
         <translation>Tilføj...</translation>
     </message>
@@ -1561,13 +1381,6 @@ Installer en SDK af mindst API version %1.</translation>
     <message>
         <source>SDK Manager</source>
         <translation>SDK manager</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidToolManager</name>
-    <message>
-        <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation>Kunne ikke starte processen &quot;%1 %2&quot;</translation>
     </message>
 </context>
 <context>
@@ -2406,7 +2219,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -16521,7 +16334,7 @@ Se også Google-test-indstillinger.</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
+    <name>Git</name>
     <message>
         <source>Authentication</source>
         <translation>Autentifikation</translation>
@@ -16546,9 +16359,6 @@ Se også Google-test-indstillinger.</translation>
         <source>Anonymous</source>
         <translation>Anonym</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Henter fra Gerrit</translation>
@@ -16565,9 +16375,6 @@ Se også Google-test-indstillinger.</translation>
         <source>Error running %1: %2</source>
         <translation>Fejl ved kørsel af %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Changes</source>
         <translation>Ændringer</translation>
@@ -16624,16 +16431,9 @@ Note: This can expose you to man-in-the-middle attack.</source>
 Vil du deaktivere SSL-verifikation for denne server?
 Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (kladde)</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation>Emne</translation>
     </message>
     <message>
         <source>Owner</source>
@@ -16683,16 +16483,6 @@ Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>Parse-fejl: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -16700,10 +16490,6 @@ Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
     <message>
         <source>&amp;Host:</source>
         <translation>&amp;Vært:</translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>&amp;Bruger:</translation>
     </message>
     <message>
         <source>&amp;ssh:</source>
@@ -16729,9 +16515,6 @@ Bemærk: Dette kan udsætte dig for man-in-the-middle-angreb.</translation>
 &quot;canonicalWebUrl&quot; ikke er konfigureret i filen
 &quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -16774,9 +16557,6 @@ blev ikke verificeret blandt fjerne i %3. Vælg anden mappe?</translation>
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>Indtast lokal repository for &quot;%1&quot; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Push til Gerrit</translation>
@@ -16883,9 +16663,6 @@ Delvist tilvalg - Ændr ikke aktuelle tilstand.</translation>
         <source>&amp;Work-in-progress</source>
         <translation>&amp;Igangværende arbejde</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritRemoteChooser</name>
     <message>
         <source>Refresh Remote Servers</source>
         <translation>Genopfrisk fjern-servere</translation>
@@ -16894,24 +16671,9 @@ Delvist tilvalg - Ændr ikke aktuelle tilstand.</translation>
         <source>Fallback</source>
         <translation>Fallback</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Anmoder Gerrit</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Fejl ved kørsel af %1: %2</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 holdt op med at virke.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 returnerede %2.</translation>
     </message>
     <message>
         <source>Timeout</source>
@@ -16933,9 +16695,6 @@ Vil du terminere den?</translation>
         <source>Keep Running</source>
         <translation>Fortsæt kørsel</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Patience</source>
         <translation>Patience</translation>
@@ -16952,9 +16711,6 @@ Vil du terminere den?</translation>
         <source>Ignore whitespace only changes.</source>
         <translation>Ignorer ændringer som kun består af mellemrum.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchAddDialog</name>
     <message>
         <source>Branch Name:</source>
         <translation>Grennavn:</translation>
@@ -16979,9 +16735,6 @@ Vil du terminere den?</translation>
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Spor lokal grenen &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Lokale ændringer fundet. Vælg handling:</translation>
@@ -16993,10 +16746,6 @@ Vil du terminere den?</translation>
     <message>
         <source>Discard Local Changes</source>
         <translation>Forkast lokale ændringer</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Afkrydsningsboks</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -17018,9 +16767,6 @@ Vil du terminere den?</translation>
         <source>Create Branch Stash for Current Branch</source>
         <translation>Opret gren-stash for aktuel gren</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Branches</source>
         <translation>Grene</translation>
@@ -17093,20 +16839,9 @@ Vil du terminere den?</translation>
         <translation>Inkluder &amp;tags</translation>
     </message>
     <message>
-        <source>C&amp;heckout</source>
-        <translation>C&amp;heckout</translation>
-    </message>
-    <message>
         <source>Re&amp;set</source>
         <translation>&amp;Nulstil</translation>
     </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry &amp;pick</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::BranchModel</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokale grene</translation>
@@ -17119,9 +16854,6 @@ Vil du terminere den?</translation>
         <source>Tags</source>
         <translation>Tags</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
         <translation>Vælg et Git-commit</translation>
@@ -17155,14 +16887,6 @@ Vil du terminere den?</translation>
         <translation>&amp;Tilbagefør</translation>
     </message>
     <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry &amp;pick</translation>
-    </message>
-    <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Vis</translation>
-    </message>
-    <message>
         <source>Select Git Directory</source>
         <translation>Vælg Git-mappe</translation>
     </message>
@@ -17186,9 +16910,6 @@ Vil du terminere den?</translation>
         <source>Fetching commit data...</source>
         <translation>Henter commit-data...</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CommitData</name>
     <message>
         <source>untracked</source>
         <translation>untracked</translation>
@@ -17233,9 +16954,6 @@ Vil du terminere den?</translation>
         <source> by them</source>
         <translation> af dem</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Omit Date</source>
         <translation>Udelad dato</translation>
@@ -17245,20 +16963,9 @@ Vil du terminere den?</translation>
         <translation>Skjul ændringsdatoen fra outputtet.</translation>
     </message>
     <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignorer blanktegn</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Ignorer ændringer som kun består af mellemrum.</translation>
-    </message>
-    <message>
         <source>Reload</source>
         <translation>Genindlæs</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Cannot determine the repository for &quot;%1&quot;.</source>
         <translation>Kan ikke beslutte repository&apos;et for &quot;%1&quot;.</translation>
@@ -17647,9 +17354,6 @@ Commit nu?</translation>
         <source>Cancel %1.</source>
         <translation>Annuller %1.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditorWidget</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation>&amp;Blame %1</translation>
@@ -17657,10 +17361,6 @@ Commit nu?</translation>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
         <translation>Blame &amp;forælder revision %1</translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
-        <translation>Bid staged</translation>
     </message>
     <message>
         <source>Stage Chunk...</source>
@@ -17702,9 +17402,6 @@ Commit nu?</translation>
         <source>&amp;Soft</source>
         <translation>&amp;Blødt</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Vis forskel</translation>
@@ -17729,13 +17426,6 @@ Commit nu?</translation>
         <source>Show textual graph log.</source>
         <translation>Vis textual graph log.</translation>
     </message>
-    <message>
-        <source>Reload</source>
-        <translation>Genindlæs</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&lt;No repository&gt;</source>
         <translation>&lt;intet repository&gt;</translation>
@@ -17913,10 +17603,6 @@ Commit nu?</translation>
         <translation>Clean...</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Status</translation>
-    </message>
-    <message>
         <source>Commit...</source>
         <translation>Commit...</translation>
     </message>
@@ -17969,20 +17655,12 @@ Commit nu?</translation>
         <translation>Afbryd revert</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Fortsæt rebase</translation>
-    </message>
-    <message>
         <source>Skip Rebase</source>
         <translation>Spring rebase over</translation>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
         <translation>Fortsæt cherry pick</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Fortsæt revert</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -18011,10 +17689,6 @@ Commit nu?</translation>
     <message>
         <source>Stashes...</source>
         <translation>Stashes...</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
@@ -18137,10 +17811,6 @@ Commit nu?</translation>
         <translation>Opret repository...</translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation>Commit</translation>
-    </message>
-    <message>
         <source>Diff &amp;Selected Files</source>
         <translation>Diff &amp;valgte filer</translation>
     </message>
@@ -18216,30 +17886,17 @@ Commit nu?</translation>
         <source>Patch %1 successfully applied to %2</source>
         <translation>Patch %1 anvendt på %2 med succes</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>Binæren &quot;%1&quot; kunne ikke findes i stien &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation>Genindlæser commit-data</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation>Giv en gyldig e-mail for at commit.</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Afkoblet HEAD</translation>
     </message>
     <message>
         <source>Select Change</source>
@@ -18269,9 +17926,6 @@ Commit nu?</translation>
         <source>&amp;Commit</source>
         <translation>&amp;Commit</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Generel information</translation>
@@ -18312,9 +17966,6 @@ Commit nu?</translation>
         <source>Sign off</source>
         <translation>Sign off</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Nulstil til:</translation>
@@ -18339,9 +17990,6 @@ Commit nu?</translation>
         <source>Soft</source>
         <translation>Blødt</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
     <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
@@ -18350,9 +17998,6 @@ Commit nu?</translation>
         <source>Subject</source>
         <translation>Subjekt</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
     <message>
         <source>Normal</source>
         <translation>Normal</translation>
@@ -18441,9 +18086,6 @@ Fjern: %4</translation>
         <source>Merge tool process terminated with exit code %1</source>
         <translation>Merge-værktøj-proces termineret med afslutningskode %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Tilføj fjern</translation>
@@ -18456,20 +18098,9 @@ Fjern: %4</translation>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Fjern</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Genindlæs</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Tilføj...</translation>
     </message>
     <message>
         <source>F&amp;etch</source>
@@ -18478,10 +18109,6 @@ Fjern: %4</translation>
     <message>
         <source>&amp;Push</source>
         <translation>&amp;Push</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>&amp;Fjern</translation>
     </message>
     <message>
         <source>A remote with the name &quot;%1&quot; already exists.</source>
@@ -18499,20 +18126,10 @@ Fjern: %4</translation>
         <source>Would you like to delete the remote &quot;%1&quot;?</source>
         <translation>Vil du slette fjernen &quot;%1&quot;?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
     <message>
         <source>Name</source>
         <translation>Navn</translation>
     </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -18558,16 +18175,8 @@ Fjern: %4</translation>
         <translation>Bemærk at kæmpe mængder af commits kan tage noget tid.</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Argumenter:</translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Repositorybrowser</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -18581,9 +18190,6 @@ Fjern: %4</translation>
         <source>Git Settings</source>
         <translation>Git-indstillinger</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
@@ -18606,16 +18212,9 @@ i stedet for i dens installationsmappe når der køres udenfor git bash.</transl
         <source>Git Repository Browser Command</source>
         <translation>Git repositorybrowser-kommando</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
         <translation>Stashes</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Navn</translation>
     </message>
     <message>
         <source>Branch</source>
@@ -18634,10 +18233,6 @@ i stedet for i dens installationsmappe når der køres udenfor git bash.</transl
         <translation>&amp;Slet...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Vis</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>&amp;Genskab...</translation>
     </message>
@@ -18645,10 +18240,6 @@ i stedet for i dens installationsmappe når der køres udenfor git bash.</transl
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Genskab til &amp;gren...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Genindlæs</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -18676,20 +18267,8 @@ You can choose between stashing the changes or discarding them.</source>
 Du kan vælge mellem stashing af ændringerne eller forkaste dem.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Forkast</translation>
-    </message>
-    <message>
         <source>Restore Stash to Branch</source>
         <translation>Genskab stash til gren</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Gren:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -18703,9 +18282,6 @@ Du kan vælge mellem stashing af ændringerne eller forkaste dem.</translation>
         <source>Error restoring %1</source>
         <translation>Fejl ved genskabelse af %1</translation>
     </message>
-</context>
-<context>
-    <name>GitGrep</name>
     <message>
         <source>Tree (optional)</source>
         <translation>Træ (valgfrit)</translation>
@@ -20878,7 +20454,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
+    <name>Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -20891,16 +20467,10 @@ Fejl: %5</translation>
         <source>Password:</source>
         <translation>Adgangskode:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Commit-redigering</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Kunne ikke finde forælder revisioner af %1 i %2: %3</translation>
@@ -20917,9 +20487,6 @@ Fejl: %5</translation>
         <source>Hg outgoing %1</source>
         <translation>Hg udgående %1</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Generel information</translation>
@@ -20952,16 +20519,10 @@ Fejl: %5</translation>
         <source>Email:</source>
         <translation>E-mail:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
     <message>
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignorer blanktegn</translation>
@@ -20970,9 +20531,6 @@ Fejl: %5</translation>
         <source>Ignore Blank Lines</source>
         <translation>Ignorer tomme linjer</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>&amp;Annotate %1</translation>
@@ -20981,9 +20539,6 @@ Fejl: %5</translation>
         <source>Annotate &amp;parent revision %1</source>
         <translation>Annotate &amp;forælder revision %1</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation>Me&amp;rcurial</translation>
@@ -21180,9 +20735,6 @@ Fejl: %5</translation>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>Meddelelsestjek mislykkedes. Vil du fortsætte?</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -21232,19 +20784,9 @@ Fejl: %5</translation>
         <translation>Log antal:</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
-    <message>
         <source>Mercurial Command</source>
         <translation>Mercurial-kommando</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Tilbagefør</translation>
@@ -21256,13 +20798,6 @@ Fejl: %5</translation>
     <message>
         <source>Revision:</source>
         <translation>Revision:</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
     </message>
     <message>
         <source>Default Location</source>
@@ -28672,7 +28207,7 @@ Udløbsdato: %3</translation>
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::ChooseDirectoryPage</name>
+    <name>Android</name>
     <message>
         <source>Android package source directory:</source>
         <translation>Android-pakke kildemappe:</translation>
@@ -28701,9 +28236,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Android-skabelon-filerne vil blive oprettet i ANDROID_PACKAGE_SOURCE_DIR sæt i .pro-filen.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Vælg .pro-filen til hvilke du vil oprette Android-skabelon-filerne.</translation>
@@ -28716,9 +28248,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>Select a .pro File</source>
         <translation>Vælg en .pro-fil</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Opret Android-skabelon-filer-assistent</translation>
@@ -28747,9 +28276,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>Could not update the .pro file %1.</source>
         <translation>Kunne ikke opdatere .pro-filen %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>Ingen program .pro-fil fundet i dette projekt.</translation>
@@ -28758,13 +28284,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>No Application .pro File</source>
         <translation>Ingen program .pro-fil</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStep</name>
-    <message>
-        <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
-        <translation>Fandt gammel &quot;android&quot;-mappe i kildemappe. Qt 5.2 bruger ikke den mappe som standard.</translation>
-    </message>
     <message>
         <source>Android build SDK not defined. Check Android settings.</source>
         <translation>Android-byg SDK ikke defineret. Tjek Android-indstillinger.</translation>
@@ -28772,24 +28291,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     <message>
         <source>No application .pro file found, not building an APK.</source>
         <translation>Ingen program .pro-fil fundet, bygger ikke en APK.</translation>
-    </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
-        <translation>Starter: &quot;%1&quot; %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStepFactory</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation>Byg Android APK</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkWidget</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
     </message>
     <message>
         <source>Create Templates</source>
@@ -28808,16 +28309,8 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <translation>Vælg bibliotek som skal inkluderes i pakke.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Tilføj...</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>Fjern aktuelt valgt bibliotek fra liste.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
@@ -28826,10 +28319,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     <message>
         <source>Libraries (*.so)</source>
         <translation>Biblioteker (*.so)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Build Android APK&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Byg Android APK&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -32093,9 +31582,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation>Typen er kun tilgængelig i QML-redigeringerne når typenavnet er en streng-literal</translation>
@@ -32112,16 +31598,10 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>must be a string literal to be available in the QML editor</source>
         <translation>skal være en streng-literal for at være tilgængelig i QML-redigeringen</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
         <source>QML Functions</source>
         <translation>QML-funktioner</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -32130,9 +31610,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Reset Code Model</source>
         <translation>Nulstil kodemodel</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -42752,7 +42229,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>AVD Start Error</source>
         <translation>Fejl ved start af AVD</translation>
@@ -42765,9 +42242,6 @@ Spordataene er tabt.</translation>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
         <translation>Installer det manglende emulatorværktøj (%1) til det installerede Android SDK.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Kopiér programdata</translation>
@@ -42776,23 +42250,14 @@ Spordataene er tabt.</translation>
         <source>Removing directory %1</source>
         <translation>Fjerner mappen %1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>Make install</source>
         <translation>Make install</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
     <message>
         <source>Deploy to device</source>
         <translation>Udsend til enhed</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
     <message>
         <source>Activity manager start options:</source>
         <translation>Aktivitetshåndteringer start-valgmuligheder:</translation>
@@ -43293,7 +42758,7 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchUtils</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation>Checkout</translation>
@@ -43334,9 +42799,6 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
         <source>Hard reset branch &quot;%1&quot; to &quot;%2&quot;?</source>
         <translation>Hard reset gren &quot;%1&quot; til &quot;%2&quot;?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitDiffEditorController</name>
     <message>
         <source>&lt;None&gt;</source>
         <translation>&lt;intet&gt;</translation>

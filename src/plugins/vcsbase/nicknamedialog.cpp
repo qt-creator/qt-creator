@@ -10,7 +10,6 @@
 
 #include <QDebug>
 #include <QDialogButtonBox>
-#include <QDir>
 #include <QPushButton>
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
@@ -227,7 +226,7 @@ QStandardItemModel *NickNameDialog::createModel(QObject *parent)
     return model;
 }
 
-bool NickNameDialog::populateModelFromMailCapFile(const QString &fileName,
+bool NickNameDialog::populateModelFromMailCapFile(const FilePath &fileName,
                                                   QStandardItemModel *model,
                                                   QString *errorMessage)
 {
@@ -236,7 +235,7 @@ bool NickNameDialog::populateModelFromMailCapFile(const QString &fileName,
     if (fileName.isEmpty())
         return true;
     FileReader reader;
-    if (!reader.fetch(FilePath::fromString(fileName), QIODevice::Text, errorMessage))
+    if (!reader.fetch(fileName, QIODevice::Text, errorMessage))
          return false;
     // Split into lines and read
     NickNameEntry entry;
@@ -247,7 +246,7 @@ bool NickNameDialog::populateModelFromMailCapFile(const QString &fileName,
             model->appendRow(entry.toModelRow());
         } else {
             qWarning("%s: Invalid mail cap entry at line %d: '%s'\n",
-                     qPrintable(QDir::toNativeSeparators(fileName)),
+                     qPrintable(fileName.toUserOutput()),
                      i + 1, qPrintable(lines.at(i)));
         }
     }

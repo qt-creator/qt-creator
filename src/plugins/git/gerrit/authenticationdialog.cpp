@@ -5,6 +5,8 @@
 
 #include "gerritserver.h"
 
+#include "../gittr.h"
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -52,11 +54,11 @@ static bool replaceEntry(QString &line, const QString &type, const QString &valu
 AuthenticationDialog::AuthenticationDialog(GerritServer *server)
         : m_server(server)
 {
-    setWindowTitle(tr("Authentication"));
+    setWindowTitle(Git::Tr::tr("Authentication"));
     resize(400, 334);
 
     // FIXME: Take html out of this translatable string.
-    const QString desc = tr(
+    const QString desc = Git::Tr::tr(
         "<html><head/><body><p>Gerrit server with HTTP was detected, but you need "
         "to set up credentials for it.</p><p>To get your password, "
         "<a href=\"LINK_PLACEHOLDER\"><span style=\" text-decoration: "
@@ -90,16 +92,16 @@ AuthenticationDialog::AuthenticationDialog(GerritServer *server)
     Column {
         descriptionLabel,
         Form {
-            tr("Server:"), serverLineEdit, br,
-            tr("&User:"), m_userLineEdit, br,
-            tr("&Password:"), m_passwordLineEdit, br,
+            Git::Tr::tr("Server:"), serverLineEdit, br,
+            Git::Tr::tr("&User:"), m_userLineEdit, br,
+            Git::Tr::tr("&Password:"), m_passwordLineEdit, br,
         },
         m_buttonBox,
     }.attachTo(this);
 
     readExistingConf();
 
-    QPushButton *anonymous = m_buttonBox->addButton(tr("Anonymous"), QDialogButtonBox::AcceptRole);
+    QPushButton *anonymous = m_buttonBox->addButton(Git::Tr::tr("Anonymous"), QDialogButtonBox::AcceptRole);
     connect(m_buttonBox, &QDialogButtonBox::clicked,
             this, [this, anonymous](QAbstractButton *button) {
         if (button == anonymous)

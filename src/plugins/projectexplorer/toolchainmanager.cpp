@@ -143,7 +143,7 @@ ToolChain *ToolChainManager::toolChain(const ToolChain::Predicate &predicate)
 Toolchains ToolChainManager::findToolChains(const Abi &abi)
 {
     Toolchains result;
-    for (ToolChain *tc : qAsConst(d->m_toolChains)) {
+    for (ToolChain *tc : std::as_const(d->m_toolChains)) {
         bool isCompatible = Utils::anyOf(tc->supportedAbis(), [abi](const Abi &supportedAbi) {
             return supportedAbi.isCompatibleWith(abi);
         });
@@ -198,7 +198,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
 
     if (d->m_toolChains.contains(tc))
         return true;
-    for (const ToolChain *current : qAsConst(d->m_toolChains)) {
+    for (const ToolChain *current : std::as_const(d->m_toolChains)) {
         if (*tc == *current && !tc->isAutoDetected())
             return false;
         QTC_ASSERT(current->id() != tc->id(), return false);

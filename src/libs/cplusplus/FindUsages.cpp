@@ -399,7 +399,7 @@ private:
                 if (!klass) {
                     if (const auto namedType = baseExprType->asNamedType()) {
                         items = context.lookup(namedType->name(), item->scope());
-                        for (const LookupItem &item : qAsConst(items)) {
+                        for (const LookupItem &item : std::as_const(items)) {
                             if ((klass = item.type()->asClassType()))
                                 break;
                         }
@@ -410,7 +410,7 @@ private:
                 items = context.lookup(memberAccess->member_name->name, klass);
                 if (items.isEmpty())
                     return Usage::Type::Other;
-                for (const LookupItem &item : qAsConst(items)) {
+                for (const LookupItem &item : std::as_const(items)) {
                     if (item.type()->asFunctionType()) {
                         if (item.type().isConst())
                             return Usage::Type::Read;

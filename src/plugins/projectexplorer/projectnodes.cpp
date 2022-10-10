@@ -66,7 +66,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
         parts[0].prepend('/');
 
     ProjectExplorer::FolderNode *parent = folder;
-    for (const QString &part : qAsConst(parts)) {
+    for (const QString &part : std::as_const(parts)) {
         path = path.pathAppended(part);
         // Find folder in subFolders
         FolderNode *next = parent->folderNode(path);
@@ -557,7 +557,7 @@ const QList<Node *> FolderNode::nodes() const
     return Utils::toRawPointer<QList>(m_nodes);
 }
 
-QList<FileNode*> FolderNode::fileNodes() const
+QList<FileNode *> FolderNode::fileNodes() const
 {
     QList<FileNode *> result;
     for (const std::unique_ptr<Node> &n : m_nodes) {

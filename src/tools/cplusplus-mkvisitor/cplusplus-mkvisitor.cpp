@@ -104,7 +104,7 @@ public:
                   << "    Semantic(TranslationUnit *unit): ASTVisitor(unit) { translationUnit(unit->ast()->asTranslationUnit()); }" << std::endl
                   << std::endl;
 
-        for (ClassOrNamespace *b : qAsConst(interfaces)) {
+        for (ClassOrNamespace *b : std::as_const(interfaces)) {
             Q_ASSERT(! b->symbols().isEmpty());
 
             Class *klass = 0;
@@ -136,7 +136,7 @@ public:
                   << std::endl;
 
         QHash<ClassOrNamespace *, QList<ClassOrNamespace *> > implements;
-        for (ClassOrNamespace *b : qAsConst(nodes)) {
+        for (ClassOrNamespace *b : std::as_const(nodes)) {
             ClassOrNamespace *iface = 0;
             for (ClassOrNamespace *u : b->usings()) {
                 if (interfaces.contains(u)) {
@@ -148,7 +148,7 @@ public:
             implements[iface].append(b);
         }
 
-        for (ClassOrNamespace *iface : qAsConst(interfaces)) {
+        for (ClassOrNamespace *iface : std::as_const(interfaces)) {
             const QList<ClassOrNamespace *> values = implements.value(iface);
             for (ClassOrNamespace *b : values) {
                 if (! isMiscNode(b))
@@ -169,7 +169,7 @@ public:
 
         std::cout << std::endl;
 
-        for (ClassOrNamespace *iface : qAsConst(interfaces)) {
+        for (ClassOrNamespace *iface : std::as_const(interfaces)) {
             std::cout << "    // " << qPrintable(oo(iface->symbols().first()->name())) << std::endl;
             const QList<ClassOrNamespace *> values = implements.value(iface);
             for (ClassOrNamespace *b : values) {
@@ -187,7 +187,7 @@ public:
         }
 
         std::cout << "private:" << std::endl;
-        for (ClassOrNamespace *b : qAsConst(interfaces)) {
+        for (ClassOrNamespace *b : std::as_const(interfaces)) {
             Q_ASSERT(! b->symbols().isEmpty());
 
             Class *klass = 0;
@@ -220,7 +220,7 @@ public:
 
         // implementation
 
-        for (ClassOrNamespace *b : qAsConst(interfaces)) {
+        for (ClassOrNamespace *b : std::as_const(interfaces)) {
             Q_ASSERT(! b->symbols().isEmpty());
 
             Class *klass = 0;
@@ -255,7 +255,7 @@ public:
                       << std::endl;
         }
 
-        for (ClassOrNamespace *iface : qAsConst(interfaces)) {
+        for (ClassOrNamespace *iface : std::as_const(interfaces)) {
             std::cout << "// " << qPrintable(oo(iface->symbols().first()->name())) << std::endl;
             const QList<ClassOrNamespace *> values = implements.value(iface);
             for (ClassOrNamespace *b : values) {

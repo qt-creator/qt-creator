@@ -79,9 +79,9 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
     if (editor)
         editor->setCommand(cmd);
     if (mode == VcsWindowOutputBind) {
-        cmd->addFlags(VcsCommand::ShowStdOut);
+        cmd->addFlags(RunFlags::ShowStdOut);
         if (editor) // assume that the commands output is the important thing
-            cmd->addFlags(VcsCommand::SilentOutput);
+            cmd->addFlags(RunFlags::SilentOutput);
     } else if (editor) {
         connect(cmd, &VcsCommand::done, editor, [editor, cmd] {
             if (cmd->result() != ProcessResult::FinishedWithSuccess) {
@@ -129,19 +129,16 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
 }
 
 CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
-              const QStringList &args, unsigned flags, int timeoutS, QTextCodec *codec) const
+              const QStringList &args, RunFlags flags, int timeoutS, QTextCodec *codec) const
 {
     return vcsSynchronousExec(workingDir, {vcsBinary(), args}, flags, timeoutS, codec);
 }
 
 CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
-              const CommandLine &cmdLine, unsigned flags, int timeoutS, QTextCodec *codec) const
+              const CommandLine &cmdLine, RunFlags flags, int timeoutS, QTextCodec *codec) const
 {
-    VcsCommand command(workingDir, processEnvironment());
-    command.addFlags(flags);
-    if (codec)
-        command.setCodec(codec);
-    return command.runCommand(cmdLine, timeoutS > 0 ? timeoutS : vcsTimeoutS());
+    return VcsCommand::runBlocking(workingDir, processEnvironment(), cmdLine, flags,
+                                   timeoutS > 0 ? timeoutS : vcsTimeoutS(), codec);
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const FilePath &workingDir)
@@ -165,7 +162,7 @@ void VcsBaseClientImpl::annotateRevisionRequested(const FilePath &workingDirecto
 VcsCommand *VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
                                        const QStringList &arguments,
                                        VcsBaseEditorWidget *editor, bool useOutputToWindow,
-                                       unsigned additionalFlags) const
+                                       RunFlags additionalFlags) const
 {
     VcsCommand *command = createCommand(workingDirectory, editor,
                                         useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
@@ -291,7 +288,7 @@ bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
 {
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
-    const unsigned flags = VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
+    const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
     const bool ok = vcsSynchronousExec(workingDir, args, flags).result()
             == ProcessResult::FinishedWithSuccess;
     if (ok)
@@ -305,7 +302,7 @@ bool VcsBaseClient::synchronousPush(const FilePath &workingDir,
 {
     QStringList args;
     args << vcsCommandString(PushCommand) << extraOptions << dstLocation;
-    const unsigned flags = VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
+    const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
     return vcsSynchronousExec(workingDir, args, flags).result()
             == ProcessResult::FinishedWithSuccess;
 }
@@ -575,7 +572,7 @@ void VcsBaseClient::statusParser(const QString &text)
 
     QStringList rawStatusList = text.split(QLatin1Char('\n'));
 
-    for (const QString &string : qAsConst(rawStatusList)) {
+    for (const QString &string : std::as_const(rawStatusList)) {
         const VcsBaseClient::StatusItem lineInfo = parseStatusLine(string);
         if (!lineInfo.flags.isEmpty() && !lineInfo.file.isEmpty())
             lineInfoList.append(lineInfo);

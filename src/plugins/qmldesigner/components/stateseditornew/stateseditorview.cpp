@@ -314,7 +314,7 @@ void StatesEditorView::removeState(int nodeId)
                     Utils::sort(lockedTargets);
                     QString detailedText = QString("<b>" + tr("Locked components:") + "</b><br>");
 
-                    for (const auto &id : qAsConst(lockedTargets))
+                    for (const auto &id : std::as_const(lockedTargets))
                         detailedText.append("- " + id + "<br>");
 
                     detailedText.chop(QString("<br>").size());

@@ -95,7 +95,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
 
             // evaluate file options once:
             QHash<QString, QString> options;
-            for (const JsonWizard::OptionDefinition &od : qAsConst(file.options)) {
+            for (const JsonWizard::OptionDefinition &od : std::as_const(file.options)) {
                 if (od.condition(*expander))
                     options.insert(od.key(), od.value(*expander));
             }
@@ -171,7 +171,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
 
     const QSet<Utils::FilePath> knownFiles = Utils::transform<QSet>(fileList, &File::target);
 
-    for (const File &dir : qAsConst(dirList)) {
+    for (const File &dir : std::as_const(dirList)) {
         Utils::FilePath sourceDir(dir.source);
         const Utils::FilePaths entries =
                 sourceDir.dirEntries(QDir::NoDotAndDotDot | QDir::Files| QDir::Hidden);

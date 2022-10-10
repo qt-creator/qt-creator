@@ -716,4 +716,23 @@
     \uicontrol {Enable auto format on file save}.
 
     \image qtcreator-qml-js-editing.png "QML/JS Editing preferences"
+
+    \if defined(qtcreator)
+    \section1 Inspecting Preprocessed C++ Code
+
+    To analyze the causes of compile errors or errors caused by wrong includes
+    pulled in by dependencies or C++ macros expanding to something unexpected,
+    select \uicontrol {Show Preprocessed Source} in the editor context menu.
+
+    This action expands all C++ macros to their actual code and removes code that
+    is guarded by a currently inactive \c {#ifdef} statements. If you deselect
+    the \uicontrol {Use built-in preprocessor to show pre-processed files} check
+    box in \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
+    \uicontrol {Code Model}, this action also expands all
+    \c {"#include <foo.h>"} statements to their actual contents.
+
+    \image qtcreator-clang-code-model-options.png "C++ Code Model preferences"
+
+    \endif
+
 */

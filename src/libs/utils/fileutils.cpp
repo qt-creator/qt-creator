@@ -5,6 +5,7 @@
 #include "savefile.h"
 
 #include "algorithm.h"
+#include "commandline.h"
 #include "qtcassert.h"
 #include "hostosinfo.h"
 
@@ -583,14 +584,14 @@ FilePath FileUtils::getOpenFilePathFromDevice(QWidget *parent,
     return {};
 }
 
+#endif // QT_WIDGETS_LIB
+
 // Used on 'ls' output on unix-like systems.
 void FileUtils::iterateLsOutput(const FilePath &base,
                                 const QStringList &entries,
                                 const FileFilter &filter,
                                 const std::function<bool (const FilePath &)> &callBack)
 {
-    QTC_CHECK(filter.iteratorFlags != QDirIterator::NoIteratorFlags); // FIXME: Not supported yet below.
-
     const QList<QRegularExpression> nameRegexps =
             transform(filter.nameFilters, [](const QString &filter) {
         QRegularExpression re;
@@ -619,7 +620,56 @@ void FileUtils::iterateLsOutput(const FilePath &base,
     }
 }
 
-#endif // QT_WIDGETS_LIB
+// returns whether 'find' could be used.
+static bool iterateWithFind(const FilePath &filePath,
+                            const FileFilter &filter,
+                            const std::function<RunResult(const CommandLine &)> &runInShell,
+                            const std::function<bool(const FilePath &)> &callBack)
+{
+    QTC_CHECK(filePath.isAbsolutePath());
+    QStringList arguments{filePath.path()};
+    arguments << filter.asFindArguments();
+
+    const RunResult result = runInShell({"find", arguments});
+    if (!result.stdErr.isEmpty()) {
+        // missing find, unknown option e.g. "find: unknown predicate `-L'\n"
+        // qDebug() << "find error: " << result.stdErr;
+        return false;
+    }
+
+    const QString out = QString::fromUtf8(result.stdOut);
+    const QStringList entries = out.split("\n", Qt::SkipEmptyParts);
+    for (const QString &entry : entries) {
+        const FilePath fp = FilePath::fromString(entry);
+        // Call back returning 'false' indicates a request to abort iteration.
+        if (!callBack(fp.onDevice(filePath)))
+            break;
+    }
+    return true;
+}
+
+void FileUtils::iterateUnixDirectory(const FilePath &filePath,
+                                     const FileFilter &filter,
+                                     bool *useFind,
+                                     const std::function<RunResult (const CommandLine &)> &runInShell,
+                                     const std::function<bool(const FilePath &)> &callBack)
+{
+    QTC_ASSERT(callBack, return);
+
+    // We try to use 'find' first, because that can filter better directly.
+    // Unfortunately, it's not installed on all devices by default.
+    if (useFind && *useFind) {
+        if (iterateWithFind(filePath, filter, runInShell, callBack))
+            return;
+        *useFind = false; // remember the failure for the next time and use the 'ls' fallback below.
+    }
+
+    // if we do not have find - use ls as fallback
+    // FIXME: Recursion into subdirectories not implemented!
+    const RunResult result = runInShell({"ls", {"-1", "-b", "--", filePath.path()}});
+    const QStringList entries = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
+    FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
+}
 
 /*!
   Copies the directory specified by \a srcFilePath recursively to \a tgtFilePath. \a tgtFilePath will contain

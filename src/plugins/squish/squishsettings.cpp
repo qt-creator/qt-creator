@@ -415,7 +415,7 @@ void SquishServerSettingsWidget::repopulateApplicationView()
 
     SquishServerItem *autPaths = new SquishServerItem(Tr::tr("AUT Paths"));
     m_model.rootItem()->appendChild(autPaths);
-    for (const QString &path : qAsConst(m_serverSettings.autPaths))
+    for (const QString &path : std::as_const(m_serverSettings.autPaths))
         autPaths->appendChild(new SquishServerItem(path, ""));
 
     SquishServerItem *attachable = new SquishServerItem(Tr::tr("Attachable AUTs"));
@@ -593,11 +593,11 @@ QList<QStringList> SquishServerSettingsWidget::toConfigChangeArguments() const
             result.append({"addAttachableAUT", it.key(), it.value()});
     }
 
-    for (auto &path : qAsConst(m_originalSettings.autPaths)) {
+    for (auto &path : std::as_const(m_originalSettings.autPaths)) {
         if (!m_serverSettings.autPaths.contains(path))
             result.append({"removeAppPath", path});
     }
-    for (auto &path : qAsConst(m_serverSettings.autPaths)) {
+    for (auto &path : std::as_const(m_serverSettings.autPaths)) {
         if (!m_originalSettings.autPaths.contains(path))
             result.append({"addAppPath", path});
     }

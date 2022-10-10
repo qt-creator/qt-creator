@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "androidmanifesteditoriconwidget.h"
+#include "androidtr.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -65,10 +66,10 @@ AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(
         m_scaleWarningLabel->setMinimumSize(clearAndWarningSize);
         m_scaleWarningLabel->setMaximumSize(clearAndWarningSize);
         m_scaleWarningLabel->setPixmap(Utils::Icons::WARNING.icon().pixmap(clearAndWarningSize));
-        m_scaleWarningLabel->setToolTip(tr("Icon scaled up."));
+        m_scaleWarningLabel->setToolTip(Tr::tr("Icon scaled up."));
         m_scaleWarningLabel->setVisible(false);
     }
-    auto label = new QLabel(tr("Click to select..."), parent);
+    auto label = new QLabel(Tr::tr("Click to select..."), parent);
     iconLayout->addWidget(iconTitle);
     iconLayout->setAlignment(iconTitle, Qt::AlignHCenter);
     iconLayout->addStretch(50);
@@ -144,7 +145,7 @@ void AndroidManifestEditorIconWidget::selectIcon()
 {
     FilePath file = FileUtils::getOpenFilePath(this, m_iconSelectionText,
                                                FileUtils::homePath(),
-                                               tr("Images (*.png *.jpg *.jpeg *.webp *.svg)"));
+                                               Tr::tr("Images (*.png *.jpg *.jpeg *.webp *.svg)")); // TODO: See SplashContainterWidget
     if (file.isEmpty())
         return;
     setIconFromPath(file);

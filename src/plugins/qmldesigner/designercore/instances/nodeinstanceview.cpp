@@ -143,7 +143,7 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
     m_updateWatcherTimer.setSingleShot(true);
     m_updateWatcherTimer.setInterval(100);
     QObject::connect(&m_updateWatcherTimer, &QTimer::timeout, [this] {
-        for (const auto &path : qAsConst(m_pendingUpdateDirs))
+        for (const auto &path : std::as_const(m_pendingUpdateDirs))
             updateWatcher(path);
         m_pendingUpdateDirs.clear();
     });
@@ -499,7 +499,7 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
         }
     }
 
-    for (const ModelNode &node : qAsConst(nodeList))
+    for (const ModelNode &node : std::as_const(nodeList))
         removeInstanceNodeRelationship(node);
 }
 
@@ -2139,7 +2139,7 @@ void NodeInstanceView::handleShaderChanges()
 
     m_remainingQsbTargets += newShaders.size();
 
-    for (const auto &shader : qAsConst(newShaders)) {
+    for (const auto &shader : std::as_const(newShaders)) {
         const Utils::FilePath srcFile = Utils::FilePath::fromString(shader);
         const Utils::FilePath srcPath = srcFile.absolutePath();
         const Utils::FilePath outPath = Utils::FilePath::fromString(shader + ".qsb");
@@ -2204,7 +2204,7 @@ void NodeInstanceView::updateRotationBlocks()
         }
     }
     if (!qml3DNodes.isEmpty()) {
-        for (const auto &node : qAsConst(qml3DNodes)) {
+        for (const auto &node : std::as_const(qml3DNodes)) {
             if (rotationKeyframeTargets.contains(node))
                 node.setAuxiliaryData(rotBlockProperty, true);
             else

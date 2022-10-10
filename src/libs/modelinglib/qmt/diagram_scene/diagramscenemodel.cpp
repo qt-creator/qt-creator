@@ -230,7 +230,7 @@ ObjectItem *DiagramSceneModel::findTopmostObjectItem(const QPointF &scenePos) co
 {
     // fetch affected items from scene in correct drawing order to find topmost element
     const QList<QGraphicsItem *> items = m_graphicsScene->items(scenePos);
-    for (QGraphicsItem *item : qAsConst(items)) {
+    for (QGraphicsItem *item : std::as_const(items)) {
         if (m_graphicsItems.contains(item)) {
             DObject *object = dynamic_cast<DObject *>(m_itemToElementMap.value(item));
             if (object)
@@ -807,7 +807,7 @@ void DiagramSceneModel::onEndRemoveElement(int row, const MDiagram *diagram)
     Q_UNUSED(diagram)
     QMT_CHECK(m_busyState == RemoveElement);
     // update elements from store (see above)
-    for (const Uid &end_uid : qAsConst(m_relationEndsUid)) {
+    for (const Uid &end_uid : std::as_const(m_relationEndsUid)) {
         DElement *dEnd = m_diagramController->findElement(end_uid, diagram);
         if (dEnd)
             updateGraphicsItem(graphicsItem(dEnd), dEnd);
@@ -854,11 +854,11 @@ void DiagramSceneModel::onSelectionChanged()
     }
 
     // select more items secondarily
-    for (QGraphicsItem *selectedItem : qAsConst(m_selectedItems)) {
+    for (QGraphicsItem *selectedItem : std::as_const(m_selectedItems)) {
         if (auto selectable = dynamic_cast<ISelectable *>(selectedItem)) {
             QRectF boundary = selectable->getSecondarySelectionBoundary();
             if (!boundary.isEmpty()) {
-                for (QGraphicsItem *item : qAsConst(m_graphicsItems)) {
+                for (QGraphicsItem *item : std::as_const(m_graphicsItems)) {
                     if (auto secondarySelectable = dynamic_cast<ISelectable *>(item)) {
                         if (!item->isSelected() && !secondarySelectable->isSecondarySelected()) {
                             secondarySelectable->setBoundarySelected(boundary, true);
@@ -1023,7 +1023,7 @@ void DiagramSceneModel::restoreSelectedStatusAfterExport(const DiagramSceneModel
 void DiagramSceneModel::recalcSceneRectSize()
 {
     QRectF sceneRect = m_originItem->mapRectToScene(m_originItem->boundingRect());
-    for (QGraphicsItem *item : qAsConst(m_graphicsItems)) {
+    for (QGraphicsItem *item : std::as_const(m_graphicsItems)) {
         // TODO use an interface to update sceneRect by item
         if (!dynamic_cast<SwimlaneItem *>(item))
             sceneRect |= item->mapRectToScene(item->boundingRect());

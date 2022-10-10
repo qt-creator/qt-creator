@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -22,7 +24,7 @@ class OpenSquishSuitesDialog : public QDialog
 public:
     explicit OpenSquishSuitesDialog(QWidget *parent = nullptr);
     ~OpenSquishSuitesDialog() override;
-    QStringList chosenSuites() const { return m_chosenSuites; }
+    Utils::FilePaths chosenSuites() const { return m_chosenSuites; }
 
 private:
     void onDirectoryChanged();
@@ -31,7 +33,7 @@ private:
     void deselectAll();
     void setChosenSuites();
 
-    QStringList m_chosenSuites;
+    Utils::FilePaths m_chosenSuites;
 
     Utils::PathChooser *m_directoryLineEdit;
     QListWidget *m_suitesListWidget;

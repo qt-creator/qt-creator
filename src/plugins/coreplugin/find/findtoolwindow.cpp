@@ -228,7 +228,7 @@ void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
 {
     qDeleteAll(m_configWidgets);
     m_configWidgets.clear();
-    for (IFindFilter *filter : qAsConst(m_filters))
+    for (IFindFilter *filter : std::as_const(m_filters))
         filter->disconnect(this);
     m_filters = filters;
     m_filterList->clear();
@@ -353,7 +353,7 @@ void FindToolWindow::writeSettings()
     settings->beginGroup("Find");
     settings->setValueWithDefault("CurrentFilter",
                                   m_currentFilter ? m_currentFilter->id() : QString());
-    for (IFindFilter *filter : qAsConst(m_filters))
+    for (IFindFilter *filter : std::as_const(m_filters))
         filter->writeSettings(settings);
     settings->endGroup();
 }

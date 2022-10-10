@@ -9,6 +9,7 @@
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
+#include "qmljstoolstr.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -124,9 +125,9 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
 QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
 {
     setId(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("QmlJSTools", Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
+    setDisplayName(Tr::tr(Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setDisplayCategory(QCoreApplication::translate("QmlJSEditor", "Qt Quick"));
+    setDisplayCategory(Tr::tr("Qt Quick"));
     setCategoryIconPath(":/qmljstools/images/settingscategory_qml.png");
 }
 

@@ -9377,7 +9377,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::CloneWizardPage</name>
+    <name>Git</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -9390,9 +9390,6 @@ These files are preserved.</source>
         <source>Recursive</source>
         <translation type="vanished">Рекурсивно</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Patience</source>
         <translation type="unfinished"></translation>
@@ -9409,9 +9406,6 @@ These files are preserved.</source>
         <source>Ignore whitespace only changes.</source>
         <translation>Ігнорувати зміни в пропусках.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchAddDialog</name>
     <message>
         <source>Branch Name:</source>
         <translation>Назва гілки:</translation>
@@ -9436,9 +9430,6 @@ These files are preserved.</source>
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Відстежувати локальну гілку &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Branches</source>
         <translation>Гілки</translation>
@@ -9556,10 +9547,6 @@ These files are preserved.</source>
         <translation>&amp;Стежити</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Скинути</translation>
-    </message>
-    <message>
         <source>Set current branch to track the selected one.</source>
         <translation>Встановити, щоб поточна гілка стежила за вибраною.</translation>
     </message>
@@ -9567,9 +9554,6 @@ These files are preserved.</source>
         <source>&amp;Include old entries</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchModel</name>
     <message>
         <source>Local Branches</source>
         <translation>Локальні гілки</translation>
@@ -9582,9 +9566,6 @@ These files are preserved.</source>
         <source>Tags</source>
         <translation>Теги</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Browse &amp;Directory...</source>
         <translation type="vanished">Оглянути &amp;теку...</translation>
@@ -9653,9 +9634,6 @@ These files are preserved.</source>
         <source>Select a Git Commit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CloneWizard</name>
     <message>
         <source>Cloning</source>
         <translation type="vanished">Клонування</translation>
@@ -9672,9 +9650,6 @@ These files are preserved.</source>
         <source>Git Repository Clone</source>
         <translation type="vanished">Клонування сховища Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Omit Date</source>
         <translation>Пропускати дату</translation>
@@ -9683,17 +9658,6 @@ These files are preserved.</source>
         <source>Hide the date of a change from the output.</source>
         <translation>Приховати дату зміни у виведенні.</translation>
     </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ігнорувати пропуски</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Ігнорувати зміни в пропусках.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Waiting for data...</source>
         <translation type="vanished">Очікування на дані...</translation>
@@ -9843,14 +9807,6 @@ These files are preserved.</source>
     <message>
         <source>Git Diff Project</source>
         <translation>Зміни в проекті (Git)</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All changes in working directory will be discarded. Are you sure?</source>
-        <translation>Усі зміни в робочій теці будуть відкинуті. Ви впевнені?</translation>
     </message>
     <message>
         <source>Cannot describe revision &quot;%1&quot; in &quot;%2&quot;: %3</source>
@@ -10015,10 +9971,6 @@ Commit now?</source>
         <translation>Неможливо отримати статус: %1</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Продовження перебазування</translation>
-    </message>
-    <message>
         <source>Continue</source>
         <translation>Продовжити</translation>
     </message>
@@ -10097,9 +10049,6 @@ Commit now?</source>
         <source>There are no modified files.</source>
         <translation>Немає змінених файлів.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Reset</source>
         <translation type="vanished">Скидання</translation>
@@ -10108,9 +10057,6 @@ Commit now?</source>
         <source>All changes in working directory will be discarded. Are you sure?</source>
         <translation type="vanished">Усі зміни в робочій теці будуть відкинуті. Ви впевнені?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -10296,10 +10242,6 @@ Commit now?</source>
         <translation>Зберігає поточний стан вашої праці.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Saves the current state of your work and resets the repository.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10353,10 +10295,6 @@ Commit now?</source>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10422,14 +10360,6 @@ Commit now?</source>
     <message>
         <source>Fetch</source>
         <translation>Отримати (fetch)</translation>
-    </message>
-    <message>
-        <source>Clones a Git repository and tries to load the contained project.</source>
-        <translation type="vanished">Клонує сховище Git та намагається завантажити з нього проект.</translation>
-    </message>
-    <message>
-        <source>Git Repository Clone</source>
-        <translation type="vanished">Клонування сховища Git</translation>
     </message>
     <message>
         <source>Reflog</source>
@@ -10524,10 +10454,6 @@ Commit now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Undo</source>
         <translation>&amp;Повернути</translation>
     </message>
@@ -10583,9 +10509,6 @@ Commit now?</source>
         <source>Patch %1 successfully applied to %2</source>
         <translation>Латку %1 було успішно накладено на %2</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation type="vanished">Не вдалось знайти виконуваний модуль &apos;%1&apos; в шляху &apos;%2&apos;</translation>
@@ -10594,9 +10517,6 @@ Commit now?</source>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>Не вдалось знайти виконуваний модуль &quot;%1&quot; в шляху &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Загальна інформація</translation>
@@ -10633,9 +10553,6 @@ Commit now?</source>
         <source>By&amp;pass hooks:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Додавання віддаленого сховища</translation>
@@ -10648,28 +10565,13 @@ Commit now?</source>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Віддалені сховища</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Оновити</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Додати...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>&amp;Отримати</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>&amp;Видалити</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -10683,9 +10585,6 @@ Commit now?</source>
         <source>&amp;Push</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Примітка:&lt;/b&gt;</translation>
@@ -10723,10 +10622,6 @@ Commit now?</source>
         <translation>Встановити змінну середовища &quot;HOME&quot;</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Аргументи:</translation>
     </message>
@@ -10755,13 +10650,6 @@ Commit now?</source>
         <translation>Показувати теги в діалозі &quot;Гілки&quot;</translation>
     </message>
     <message>
-        <source>Repository Browser</source>
-        <translation>Оглядач сховища</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
-    <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
 This causes msysgit to look for the SSH-keys in that location
@@ -10787,9 +10675,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Git Repository Browser Command</source>
         <translation>Команда оглядача сховища Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
         <translation type="unfinished"></translation>
@@ -10835,10 +10720,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation>Ви&amp;далити...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Показати</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10846,10 +10727,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Оновити</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -10865,20 +10742,8 @@ You can choose between stashing the changes or discarding them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Відкинути</translation>
-    </message>
-    <message>
         <source>Restore Stash to Branch</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Гілка:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -12374,7 +12239,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Cloning</source>
         <translation type="vanished">Клонування</translation>
@@ -12387,9 +12252,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation type="vanished">Клонує сховище Mercurial та намагається завантажити з нього проект.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -12398,16 +12260,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Clone URL:</source>
         <translation type="vanished">URL для клонування:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation type="unfinished"></translation>
@@ -12424,9 +12280,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Hg outgoing %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Загальна інформація</translation>
@@ -12459,16 +12312,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Email:</source>
         <translation>Email:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
     <message>
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation type="vanished">Ігнорувати пропуски</translation>
@@ -12484,13 +12331,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Ignore Blank Lines</source>
         <translation>Ігнорувати порожні рядки</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
-    <message>
-        <source>Clones a Mercurial repository and tries to load the contained project.</source>
-        <translation type="vanished">Клонує сховище Mercurial та намагається завантажити з нього проект.</translation>
     </message>
     <message>
         <source>Me&amp;rcurial</source>
@@ -12704,9 +12544,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Message check failed. Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -12756,23 +12593,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation> с</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Команда Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation type="unfinished"></translation>
@@ -12785,9 +12612,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Revision:</source>
         <translation>Ревізія:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Діалог</translation>
@@ -17896,9 +17720,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
         <source>QML Methods and Functions</source>
         <translation type="vanished">Методи та функції QML</translation>
@@ -17907,16 +17728,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>QML Functions</source>
         <translation>Функцій QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation type="vanished">Індексування</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>&quot;%1&quot; crashed.</source>
         <translation type="vanished">&quot;%1&quot; завершився аварійно.</translation>
@@ -17925,9 +17740,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Arguments: %1</source>
         <translation type="vanished">Аргументи: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -17936,9 +17748,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Reset Code Model</source>
         <translation>Скинути модель коду</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -26260,7 +26069,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -26864,7 +26673,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation type="unfinished"></translation>
@@ -26905,9 +26714,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source> by them</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Показати зміни</translation>
@@ -27762,30 +27568,11 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
-    <message>
-        <source>Create new AVD</source>
-        <translation type="vanished">Створити новий AVD</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="vanished">Назва:</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Kit:</source>
         <translation type="vanished">Комплект:</translation>
     </message>
-    <message>
-        <source>SD card size:</source>
-        <translation type="vanished">Розмір карти SD:</translation>
-    </message>
-    <message>
-        <source> MiB</source>
-        <translation type="vanished"> Мб</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>Створення сховища ключів та сертифіката</translation>
@@ -27866,80 +27653,9 @@ Do you want to kill it?</source>
         <source>Use Keystore password</source>
         <translation>Пароль для сховища ключів</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-    <message>
-        <source>Qt Deployment</source>
-        <translation type="vanished">Розгортання Qt</translation>
-    </message>
-    <message>
-        <source>Use the external Ministro application to download and maintain Qt libraries.</source>
-        <translation type="vanished">Використовувати зовнішню програму Ministro для завантаження та підтримки бібліотек Qt.</translation>
-    </message>
-    <message>
-        <source>Use Ministro service to install Qt</source>
-        <translation type="vanished">Використовувати службу Ministro для встановлення Qt</translation>
-    </message>
-    <message>
-        <source>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation type="vanished">Надсилати локальні бібліотеки Qt до пристрою. Ви повинні мати бібліотеки Qt скомпільовані для цієї платформи.
-Файл APK не можна буде використовувати на жодному іншому пристрої.</translation>
-    </message>
-    <message>
-        <source>Deploy local Qt libraries to temporary directory</source>
-        <translation type="vanished">Розгортати локальні бібліотеки Qt до тимчасової теки</translation>
-    </message>
-    <message>
-        <source>Creates a standalone APK.</source>
-        <translation type="vanished">Створює автономний APK.</translation>
-    </message>
-    <message>
-        <source>Bundle Qt libraries in APK</source>
-        <translation type="vanished">Вкладати бібліотеки Qt до APK</translation>
-    </message>
-    <message>
-        <source>Advanced Actions</source>
-        <translation type="vanished">Розширені дії</translation>
-    </message>
-    <message>
-        <source>Clean Temporary Libraries Directory on Device</source>
-        <translation type="vanished">Очистити теку тимчасових
-бібліотек на пристрої</translation>
-    </message>
-    <message>
-        <source>Install Ministro from APK</source>
-        <translation type="vanished">Встановити Ministro з APK</translation>
-    </message>
-    <message>
-        <source>Reset Default Devices</source>
-        <translation type="vanished">Скинути типові пристрої</translation>
-    </message>
-    <message>
-        <source>Uses the external Ministro application to download and maintain Qt libraries.</source>
-        <translation type="vanished">Використовувати зовнішню програму Ministro для завантаження та підтримки бібліотек Qt.</translation>
-    </message>
-    <message>
-        <source>Pushes local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation type="vanished">Надсилати локальні бібліотеки Qt до пристрою. Ви повинні мати бібліотеки Qt скомпільовані для цієї платформи.
-Файл APK не можна буде використовувати на жодному іншому пристрої.</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>&lt;b&gt;Android target SDK:&lt;/b&gt;</source>
         <translation type="vanished">&lt;b&gt;SDK для Android:&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation type="vanished">Програма</translation>
     </message>
     <message>
         <source>Libraries</source>
@@ -27972,14 +27688,6 @@ The APK will not be usable on any other device.</source>
         <translation type="vanished">Вгору</translation>
     </message>
     <message>
-        <source>Sign package</source>
-        <translation type="vanished">Підпис пакунка</translation>
-    </message>
-    <message>
-        <source>Keystore:</source>
-        <translation type="vanished">Сховище ключів:</translation>
-    </message>
-    <message>
         <source>Create</source>
         <translation type="vanished">Створити</translation>
     </message>
@@ -27992,20 +27700,9 @@ The APK will not be usable on any other device.</source>
         <translation type="vanished">Відкрити розташування пакунка після завершення</translation>
     </message>
     <message>
-        <source>Certificate alias:</source>
-        <translation type="vanished">Псевдонім сертифіката:</translation>
-    </message>
-    <message>
-        <source>Signing a debug package</source>
-        <translation type="vanished">Підписання зневаджувального пакунка</translation>
-    </message>
-    <message>
         <source>Automatically check required Qt libraries from compiled application.</source>
         <translation type="vanished">Автоматично перевіряти необхідні бібліотеки Qt із скомпільованої програми.</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Конфігурація Android</translation>
@@ -28013,10 +27710,6 @@ The APK will not be usable on any other device.</source>
     <message>
         <source>Android SDK location:</source>
         <translation>Розташування Android SDK:</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Огляд</translation>
     </message>
     <message>
         <source>Android NDK location:</source>
@@ -28045,10 +27738,6 @@ The APK will not be usable on any other device.</source>
     <message>
         <source>Start Android AVD Manager</source>
         <translation type="vanished">Запустити управління AVD для Android</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="vanished">Додати</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -28919,46 +28608,12 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
-    <message>
-        <source>Could not run: %1</source>
-        <translation type="vanished">Не вдалось запустити: %1</translation>
-    </message>
-    <message>
-        <source>No devices found in output of: %1</source>
-        <translation type="vanished">Не знайдено пристроїв у виведенні: %1</translation>
-    </message>
-    <message>
-        <source>Error Creating AVD</source>
-        <translation type="vanished">Помилка створення AVD</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Please install an SDK of at least API version %1.</source>
         <translation type="vanished">Неможливо створити новий AVD. Відсутній достатньо свіжий Android SDK.
 Будь ласка, встановіть SDK з версією API не нижче %1.</translation>
-    </message>
-    <message>
-        <source>Android Debugger for %1</source>
-        <translation type="vanished">Зневаджувач Android для &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Android for %1 (GCC %2, Qt %3)</source>
-        <translation type="vanished">Android для %1 (GCC %2, Qt %3)</translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation type="vanished">&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль закороткий&lt;/span&gt;</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
@@ -29004,27 +28659,9 @@ Please install an SDK of at least API version %1.</source>
         <source>Error</source>
         <translation>Помилка</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Розгортання на пристрій Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>Розгортання на пристрій Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <extracomment>AndroidDeployStep default display name</extracomment>
-        <translation type="vanished">Розгортання на пристрій Android</translation>
     </message>
     <message>
         <source>Please wait, searching for a suitable device for target:%1.</source>
@@ -29063,14 +28700,6 @@ Please install an SDK of at least API version %1.</source>
         <translation type="vanished"> Причина: %1</translation>
     </message>
     <message>
-        <source>Reason: %1</source>
-        <translation type="vanished">Причина: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="vanished">Код завершення: %1</translation>
-    </message>
-    <message>
         <source>Deploy Qt libraries. This may take some time, please wait.</source>
         <translation type="vanished">Розгортання бібліотек Qt. Це може зайняти деякий час, будь ласка, почекайте.</translation>
     </message>
@@ -29083,52 +28712,13 @@ Please install an SDK of at least API version %1.</source>
         <translation type="vanished">Збій встановлення пакунка.</translation>
     </message>
     <message>
-        <source>Pulling files necessary for debugging.</source>
-        <translation type="vanished">Стягування файлів, що необхідні для зневадження.</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
-    <message>
-        <source>Deploy to Android device or emulator</source>
-        <translation type="vanished">Розгортання на пристрій Android або емулятор</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
-    <message>
-        <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
-        <translation type="vanished">&lt;b&gt;Конфігурації розгортання&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Qt Android Smart Installer</source>
-        <translation type="vanished">Qt Android Smart Installer</translation>
-    </message>
-    <message>
-        <source>Android package (*.apk)</source>
-        <translation type="vanished">Пакунок Android (*.apk)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
-    <message>
         <source>Run on Android</source>
         <translation>Запустити на Android</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation>Пристрій Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation type="vanished">Помилка створення теки &apos;%1&apos; для Android.</translation>
@@ -29152,14 +28742,6 @@ Please install at least one SDK.</source>
         <translation type="vanished">Файли Android були автоматично оновлені.</translation>
     </message>
     <message>
-        <source>Unknown Android version. API Level: %1</source>
-        <translation type="vanished">Невідома версія Android. Рівень API: %1</translation>
-    </message>
-    <message>
-        <source>Cannot parse &quot;%1&quot;.</source>
-        <translation type="vanished">Неможливо розібрати &quot;%1&quot;.</translation>
-    </message>
-    <message>
         <source>Cannot open &quot;%1&quot;.</source>
         <translation type="vanished">Неможливо відкрити &quot;%1&quot;.</translation>
     </message>
@@ -29168,20 +28750,12 @@ Please install at least one SDK.</source>
         <translation type="vanished">Невідома версія Android.</translation>
     </message>
     <message>
-        <source>Error creating Android templates.</source>
-        <translation type="vanished">Помилка створення шаблонів Android.</translation>
-    </message>
-    <message>
         <source>Cannot parse &apos;%1&apos;.</source>
         <translation type="vanished">Неможливо розібрати &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>Cannot open &apos;%1&apos;.</source>
         <translation type="vanished">Неможливо відкрити &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Starting Android virtual device failed.</source>
-        <translation type="vanished">Збій запуску віртуального пристрою Android.</translation>
     </message>
     <message>
         <source>Android files have been updated automatically</source>
@@ -29199,16 +28773,10 @@ Please install at least one SDK.</source>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation type="vanished">Неможливо відкрити &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation type="vanished">Створити пакунок Android (.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
     <message>
         <source>Packaging for Android</source>
         <translation type="vanished">Пакування для Android</translation>
@@ -29234,10 +28802,6 @@ Please install at least one SDK.</source>
 Please make sure your application is built successfully and is selected in Application tab (&apos;Run option&apos;).</source>
         <translation type="vanished">Неможливо знайти &apos;%1&apos;.
 Будь ласка, переконайтесь, що ваша програма була успішно зібрана та вибрана у вкладці Програма (&apos;Параметри запуску&apos;).</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
     </message>
     <message>
         <source>Failed to run keytool</source>
@@ -29286,53 +28850,6 @@ Please make sure your application is built successfully and is selected in Appli
         <translation type="vanished">Пакунок створено.</translation>
     </message>
     <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation type="vanished">Розгортання пакунка: Виконання команди &apos;%1 %2&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="vanished">Збій пакування.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation type="vanished">Помилка пакування: Не вдалось запустити команду &apos;%1 %2&apos;. Причина: %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation type="vanished">Помилка пакування: Збій команди &apos;%1 %2&apos;.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation type="vanished">Причина: %1</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation type="vanished"> Причина: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="vanished">Код завершення: %1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation type="vanished">Сховище ключів</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation type="vanished">Пароль до сховища ключів:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation type="vanished">Сертифікат</translation>
-    </message>
-    <message>
-        <source>Certificate password (%1):</source>
-        <translation type="vanished">Пароль сертифіката (%1):</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
-    <message>
         <source>&lt;b&gt;Package configurations&lt;/b&gt;</source>
         <translation type="vanished">&lt;b&gt;Конфігурації пакування&lt;/b&gt;</translation>
     </message>
@@ -29340,31 +28857,6 @@ Please make sure your application is built successfully and is selected in Appli
         <source>Select keystore file</source>
         <translation type="vanished">Виберіть файл сховища ключів</translation>
     </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation type="vanished">Файли сховищ ключів (*.keystore *.jks)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
-    <message>
-        <source>Deploy to device</source>
-        <translation type="vanished">Розгортання на пристрій</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
-    <message>
-        <source>Copy application data</source>
-        <translation type="vanished">Копіювання даних програми</translation>
-    </message>
-    <message>
-        <source>Removing directory %1</source>
-        <translation type="vanished">Видалення теки %1</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Збій визначення ABI, що використовуються версією Qt.</translation>
@@ -29374,31 +28866,18 @@ Please make sure your application is built successfully and is selected in Appli
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
         <translation type="vanished">Здійснюється розбір файлу .pro &apos;%1&apos;.</translation>
     </message>
     <message>
-        <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
-        <translation type="vanished">Здійснюється розбір файлу .pro &quot;%1&quot;.</translation>
-    </message>
-    <message>
         <source>Run on Android device</source>
         <translation type="vanished">Запустити на пристрої Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Запуск віддаленого процесу.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Немає вільних портів на вузлі для зневадження QML.</translation>
@@ -29467,16 +28946,10 @@ Please make sure your application is built successfully and is selected in Appli
 
 &apos;%1&apos; завершився.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Конфігурації Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -29490,9 +28963,6 @@ Please make sure your application is built successfully and is selected in Appli
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>&quot;%1&quot; does not seem to be an Android SDK top folder.</source>
         <translation>&quot;%1&quot; не схожа на кореневу теку Android SDK.</translation>
@@ -29591,16 +29061,10 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Select OpenJDK Path</source>
         <translation type="vanished">Виберіть шлях до OpenJDK</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>Android GCC</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>Корінь NDK:</translation>
@@ -31141,7 +30605,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>Git</name>
     <message>
         <source>Apply in:</source>
         <translation>Застосувати в:</translation>
@@ -31179,20 +30643,9 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="vanished">&amp;Показати...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Показати</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fetching &quot;%1&quot;...</source>
         <translation>Отримання &quot;%1&quot;...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Owner&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Project&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Patch set&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Тема&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Номер&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Власник&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Проект&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Статус&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Набір латок&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -31216,10 +30669,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     <message>
         <source>Approvals</source>
         <translation>Схвалення</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Статус</translation>
     </message>
     <message>
         <source>Number</source>
@@ -31265,13 +30714,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Parse error in line &apos;%1&apos;</source>
         <translation type="vanished">Помилка розбору в рядку&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
-    <message>
-        <source>Gerrit</source>
-        <translation type="vanished">Gerrit</translation>
-    </message>
     <message>
         <source>Querying Gerrit</source>
         <translation>Опитування Gerrit</translation>
@@ -31316,16 +30758,10 @@ Would you like to terminate it?</source>
         <source>Keep Running</source>
         <translation>Продовжувати виконання</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -31370,9 +30806,6 @@ Would you like to terminate it?</source>
 для формування URL у випадку, якщо &quot;canonicalWebUrl&quot;
 не налаштовано в файлі&quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
         <translation type="vanished">Отримати з Gerrit</translation>
@@ -31381,21 +30814,6 @@ Would you like to terminate it?</source>
         <source>Fetching from Gerrit</source>
         <translation>Отримання з Gerrit</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 завершився аварійно.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 повернув %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Помилка запуску %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -31443,15 +30861,8 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation type="vanished">Введіть локальне сховище для &apos;%1&apos; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32135,7 +31546,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="unfinished"></translation>
@@ -32790,7 +32201,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Знайдені локальні зміни. Оберіть дію:</translation>
@@ -32802,10 +32213,6 @@ cannot be found in the path.</source>
     <message>
         <source>Discard Local Changes</source>
         <translation>Відкинути локальні зміни</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Прапорець</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -33772,14 +33179,11 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
+    <name>Android</name>
     <message>
         <source>GDB server</source>
         <translation>Сервер GDB</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Управління...</translation>
@@ -34110,11 +33514,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::MergeTool</name>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
+    <name>Git</name>
     <message>
         <source>Normal</source>
         <translation>Звичайний</translation>
@@ -34936,7 +34336,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlConsoleEdit</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation type="vanished">Вирі&amp;зати</translation>
@@ -34957,9 +34357,6 @@ Remote: %4</source>
         <source>C&amp;lear</source>
         <translation type="vanished">&amp;Очистити</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsolePane</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation type="vanished">Показувати зневаджувальні, журналу та інформаційні повідомлення.</translation>
@@ -34976,20 +34373,9 @@ Remote: %4</source>
         <source>QML/JS Console</source>
         <translation type="vanished">Консоль QML/JS</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Копіювати</translation>
-    </message>
     <message>
         <source>&amp;Show in Editor</source>
         <translation type="vanished">&amp;Показати в редакторі</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation type="vanished">&amp;Очистити</translation>
     </message>
 </context>
 <context>
@@ -35267,7 +34653,7 @@ See details for a complete list of files.</source>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
+    <name>Git</name>
     <message>
         <source>Push to Gerrit</source>
         <translation type="unfinished"></translation>
@@ -35518,14 +34904,11 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAnalyzeSupport</name>
+    <name>Android</name>
     <message>
         <source>No analyzer tool selected.</source>
         <translation type="vanished">Інструмент для аналізу не обрано.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Загальне</translation>
@@ -35534,16 +34917,10 @@ Partial names can be used if they are unambiguous.</source>
         <source>XML Source</source>
         <translation>Код XML</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Редактор Android Manifest</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Пакунок</translation>
@@ -35681,10 +35058,6 @@ Partial names can be used if they are unambiguous.</source>
         <translation>Включати типові можливості для модулів Qt.</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>Add</source>
         <translation>Додати</translation>
     </message>
@@ -35724,9 +35097,6 @@ Partial names can be used if they are unambiguous.</source>
         <source>Choose High DPI Icon</source>
         <translation>Виберіть піктограму з високою DPI</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPlugin</name>
     <message>
         <source>Android Manifest file</source>
         <translation type="vanished">Файл Android Manifest</translation>
@@ -36117,7 +35487,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffHandler</name>
+    <name>Git</name>
     <message>
         <source>Working tree</source>
         <translation type="vanished">Робоче дерево</translation>
@@ -36127,23 +35497,9 @@ Partial names can be used if they are unambiguous.</source>
         <translation type="vanished">Покажчик</translation>
     </message>
     <message>
-        <source>Waiting for data...</source>
-        <translation type="vanished">Очікування на дані...</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
-    <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Тема</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Скинути до:</translation>
@@ -36687,11 +36043,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Діалог</translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>User name:</source>
         <translation type="vanished">Ім&apos;я користувача:</translation>
@@ -36818,7 +36170,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>Створити новий AVD</translation>
@@ -36843,40 +36195,9 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <source>ABI:</source>
         <translation>ABI:</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
-    </message>
-    <message>
-        <source>Sign package</source>
-        <translation type="vanished">Підпис пакунка</translation>
-    </message>
-    <message>
-        <source>Keystore:</source>
-        <translation type="vanished">Сховище ключів:</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation type="vanished">Створити</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation type="vanished">Огляд</translation>
-    </message>
-    <message>
-        <source>Signing a debug package</source>
-        <translation type="vanished">Підписання зневаджувального пакунка</translation>
-    </message>
-    <message>
-        <source>Certificate alias:</source>
-        <translation type="vanished">Псевдонім сертифіката:</translation>
-    </message>
-    <message>
-        <source>Advanced Actions</source>
-        <translation type="vanished">Розширені дії</translation>
     </message>
     <message>
         <source>Clean Temporary Libraries Directory on Device</source>
@@ -36892,20 +36213,8 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <translation>Скинути типові пристрої</translation>
     </message>
     <message>
-        <source>Open package location after build</source>
-        <translation type="vanished">Відкрити розташування пакунка після збірки</translation>
-    </message>
-    <message>
-        <source>Verbose output</source>
-        <translation type="vanished">Розширене виведення</translation>
-    </message>
-    <message>
         <source>Create AndroidManifest.xml</source>
         <translation type="vanished">Створити AndroidManifest.xml</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation type="vanished">Програма</translation>
     </message>
     <message>
         <source>Input file for androiddeployqt:</source>
@@ -36914,82 +36223,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     <message>
         <source>Qt no longer uses the folder &quot;android&quot; in the project&apos;s source directory.</source>
         <translation type="vanished">Qt більше не використовує підтеку &quot;android&quot; з теки коду проекту.</translation>
-    </message>
-    <message>
-        <source>Qt Deployment</source>
-        <translation type="vanished">Розгортання Qt</translation>
-    </message>
-    <message>
-        <source>Use the external Ministro application to download and maintain Qt libraries.</source>
-        <translation type="vanished">Використовувати зовнішню програму Ministro для завантаження та підтримки бібліотек Qt.</translation>
-    </message>
-    <message>
-        <source>Use Ministro service to install Qt</source>
-        <translation type="vanished">Використовувати службу Ministro для встановлення Qt</translation>
-    </message>
-    <message>
-        <source>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation type="vanished">Надсилати локальні бібліотеки Qt до пристрою. Ви повинні мати бібліотеки Qt скомпільовані для цієї платформи.
-Файл APK не можна буде використовувати на жодному іншому пристрої.</translation>
-    </message>
-    <message>
-        <source>Deploy local Qt libraries to temporary directory</source>
-        <translation type="vanished">Розгортати локальні бібліотеки Qt до тимчасової теки</translation>
-    </message>
-    <message>
-        <source>Creates a standalone APK.</source>
-        <translation type="vanished">Створює автономний APK.</translation>
-    </message>
-    <message>
-        <source>Bundle Qt libraries in APK</source>
-        <translation type="vanished">Вкладати бібліотеки Qt до APK</translation>
-    </message>
-    <message>
-        <source>Additional Libraries</source>
-        <translation type="vanished">Додаткові бібліотеки</translation>
-    </message>
-    <message>
-        <source>List of extra libraries to include in Android package and load on startup.</source>
-        <translation type="vanished">Список додаткових бібліотек для включення до пакунка Android та завантаження під час запуску.</translation>
-    </message>
-    <message>
-        <source>Select library to include in package.</source>
-        <translation type="vanished">Виберіть бібліотеку для включення до пакунку.</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="vanished">Додати</translation>
-    </message>
-    <message>
-        <source>Remove currently selected library from list.</source>
-        <translation type="vanished">Видалити виділену бібліотеку зі списку.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Видалити</translation>
-    </message>
-    <message>
-        <source>Create...</source>
-        <translation type="vanished">Створити...</translation>
-    </message>
-    <message>
-        <source>Android build SDK:</source>
-        <translation type="vanished">Android SDK для збірки:</translation>
-    </message>
-    <message>
-        <source>Uses the external Ministro application to download and maintain Qt libraries.</source>
-        <translation type="vanished">Використовувати зовнішню програму Ministro для завантаження та підтримки бібліотек Qt.</translation>
-    </message>
-    <message>
-        <source>Pushes local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation type="vanished">Надсилати локальні бібліотеки Qt до пристрою. Ви повинні мати бібліотеки Qt скомпільовані для цієї платформи.
-Файл APK не можна буде використовувати на жодному іншому пристрої.</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="vanished">Додати...</translation>
     </message>
     <message>
         <source>Uses the external Ministro application to download and maintain Qt libraries.&lt;br/&gt;&lt;br/&gt;Ministro is a third-party tool which provides the open source Qt libraries on demand. These libraries are compatible with the default open source binary package and will not always be up-to-date.</source>
@@ -37003,9 +36236,6 @@ The APK will not be usable on any other device.</source>
         <source>Uninstall previous package</source>
         <translation>Деінсталювати попередній пакунок</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Вибір пристрою Android</translation>
@@ -37021,10 +36251,6 @@ The APK will not be usable on any other device.</source>
     <message>
         <source>Always use this device for architecture %1</source>
         <translation type="vanished">Завжди використовувати цей пристрій для архітектури %1</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -37972,14 +37198,11 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Розгортання на пристрій Android або емулятор</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployQtStep default display name</extracomment>
@@ -38066,10 +37289,6 @@ Do you want to uninstall the existing package next time?</source>
 Бажаєте деінсталювати існуючий пакунок наступного разу?</translation>
     </message>
     <message>
-        <source>Warning: Signing a debug package.</source>
-        <translation type="vanished">Попередження: Підписання зневаджувального пакунка.</translation>
-    </message>
-    <message>
         <source>Internal Error: Could not find .pro file.</source>
         <translation type="vanished">Внутрішня помилка: не вдалось знайти файл .pro.</translation>
     </message>
@@ -38082,18 +37301,6 @@ Do you want to uninstall the existing package next time?</source>
         <translation>Стягування файлів, що необхідні для зневадження.</translation>
     </message>
     <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation type="vanished">Розгортання пакунка: Виконання команди &apos;%1 %2&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation type="vanished">Помилка пакування: Не вдалось запустити команду &apos;%1 %2&apos;. Причина: %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation type="vanished">Помилка пакування: Збій команди &apos;%1 %2&apos;.</translation>
-    </message>
-    <message>
         <source>Reason: %1</source>
         <translation>Причина: %1</translation>
     </message>
@@ -38101,37 +37308,6 @@ Do you want to uninstall the existing package next time?</source>
         <source>Exit code: %1</source>
         <translation>Код завершення: %1</translation>
     </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Помилка</translation>
-    </message>
-    <message>
-        <source>Failed to run keytool.</source>
-        <translation type="vanished">Збій запуску keytool.</translation>
-    </message>
-    <message>
-        <source>Invalid password.</source>
-        <translation type="vanished">Неправильний пароль.</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation type="vanished">Сховище ключів</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation type="vanished">Пароль до сховища ключів:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation type="vanished">Сертифікат</translation>
-    </message>
-    <message>
-        <source>Certificate password (%1):</source>
-        <translation type="vanished">Пароль сертифіката (%1):</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Конфігурації розгортання&lt;/b&gt;</translation>
@@ -38144,25 +37320,6 @@ Do you want to uninstall the existing package next time?</source>
         <source>Android package (*.apk)</source>
         <translation>Пакунок Android (*.apk)</translation>
     </message>
-    <message>
-        <source>Select keystore file</source>
-        <translation type="vanished">Виберіть файл сховища ключів</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation type="vanished">Файли сховищ ключів (*.keystore *.jks)</translation>
-    </message>
-    <message>
-        <source>Select additional libraries</source>
-        <translation type="vanished">Виберіть додаткові бібліотеки</translation>
-    </message>
-    <message>
-        <source>Libraries (*.so)</source>
-        <translation type="vanished">Бібліотеки (*.so)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: помилка встановлення SDK 0x%1</translation>
@@ -38203,20 +37360,6 @@ Do you want to uninstall the existing package next time?</source>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: невідома помилка 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
-    <message>
-        <source>&lt;b&gt;Make install&lt;/b&gt;</source>
-        <translation type="vanished">&lt;b&gt;Make install&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Make install</source>
-        <translation type="vanished">Make install</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>Qt Creator needs additional settings to enable Android support.You can configure those settings in the Options dialog.</source>
         <translation type="vanished">Qt Creator потребує додаткових налаштувань, щоб увімкнути підтримку Android. Ви можете їх встановити в діалозі Опції.</translation>
@@ -38229,62 +37372,18 @@ Do you want to uninstall the existing package next time?</source>
         <source>Qt Creator needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>Qt Creator потребує додаткових налаштувань, щоб увімкнути підтримку Android. Ви можете їх встановити в діалозі Опції.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::NoApplicationProFilePage</name>
-    <message>
-        <source>No application .pro file found in this project.</source>
-        <translation type="vanished">Не знайдено файл .pro програми в цьому проекті.</translation>
-    </message>
-    <message>
-        <source>No Application .pro File</source>
-        <translation type="vanished">Немає файлу .pro програми</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create an AndroidManifest.xml file.</source>
         <translation type="vanished">Виберіть файл .pro, для якого Ви бажаєте створити файл AndroidManifest.xml.</translation>
     </message>
     <message>
-        <source>.pro file:</source>
-        <translation type="vanished">Файл .pro:</translation>
-    </message>
-    <message>
-        <source>Select a .pro File</source>
-        <translation type="vanished">Виберіть файл .pro</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseDirectoryPage</name>
-    <message>
         <source>The Android package source directory can not be the same as the project directory.</source>
         <translation type="vanished">Тека джерел пакунка Android не може збігатись з текою проекту.</translation>
-    </message>
-    <message>
-        <source>The Android package source directory cannot be the same as the project directory.</source>
-        <translation type="vanished">Тека джерел пакунка Android не може збігатись з текою проекту.</translation>
-    </message>
-    <message>
-        <source>Android package source directory:</source>
-        <translation type="vanished">Тека джерел пакунка Android:</translation>
-    </message>
-    <message>
-        <source>Select the Android package source directory.
-
-The files in the Android package source directory are copied to the build directory&apos;s Android directory and the default files are overwritten.</source>
-        <translation type="vanished">Оберіть теку джерел пакунка Android.
-
-Файли в теці джерел пакунка Android будуть скопійовані до теки Android в теці збірки, а типові файли будуть перезаписані.</translation>
     </message>
     <message>
         <source>The Android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation type="vanished">Файл маніфесту Android буде створено в теці, на яку вказує ANDROID_PACKAGE_SOURCE_DIR задана в файлі .pro.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Manifest Wizard</source>
         <translation type="vanished">Майстер створення маніфесту Android</translation>
@@ -38306,20 +37405,8 @@ The files in the Android package source directory are copied to the build direct
         <translation type="vanished">Не вдалось видалити файл %1.</translation>
     </message>
     <message>
-        <source>File Creation Error</source>
-        <translation type="vanished">Помилка створення файлу</translation>
-    </message>
-    <message>
         <source>Could not create file %1.</source>
         <translation type="vanished">Не вдалось створити файл %1.</translation>
-    </message>
-    <message>
-        <source>Project File not Updated</source>
-        <translation type="vanished">Файл проекту не оновлено</translation>
-    </message>
-    <message>
-        <source>Could not update the .pro file %1.</source>
-        <translation type="vanished">Не вдалось оновити файл .pro %1.</translation>
     </message>
 </context>
 <context>
@@ -40219,7 +39306,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>AndroidConfiguration</name>
+    <name>Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Не вдалось запустити: %1</translation>
@@ -40228,40 +39315,22 @@ Please build the qmldump application on the Qt version options page.</source>
         <source>No devices found in output of: %1</source>
         <translation>Не знайдено пристроїв у виведенні: %1</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Помилка створення AVD</translation>
     </message>
     <message>
-        <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
-Please install an SDK of at least API version %1.</source>
-        <translation type="vanished">Неможливо створити новий AVD. Відсутній достатньо свіжий Android SDK.
-Будь ласка, встановіть SDK з версією API не нижче %1.</translation>
-    </message>
-    <message>
         <source>Could not start process &quot;%1 %2&quot;</source>
         <translation>Не вдалось запустити процес &quot;%1 %2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Налаштувати Android...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation>Редактор Java</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaFileWizard</name>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
         <translation type="vanished">Створює файл Java з шаблонним кодом.</translation>
@@ -41944,7 +41013,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AvdDialog</name>
+    <name>Android</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -42424,15 +41493,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizardFactory</name>
-    <message>
-        <source>Clones a Git repository and tries to load the contained project.</source>
-        <translation type="vanished">Клонує сховище Git та намагається завантажити з нього проект.</translation>
-    </message>
-    <message>
-        <source>Git Repository Clone</source>
-        <translation type="vanished">Клонування сховища Git</translation>
-    </message>
+    <name>Git</name>
 </context>
 <context>
     <name>Gitorious::Internal::GitoriousCloneWizardFactory</name>
@@ -42446,21 +41507,10 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditor</name>
+    <name>Git</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Назва</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -42575,11 +41625,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizardFactory</name>
-    <message>
-        <source>Clones a Mercurial repository and tries to load the contained project.</source>
-        <translation type="vanished">Клонує сховище Mercurial та намагається завантажити з нього проект.</translation>
-    </message>
+    <name>Mercurial</name>
 </context>
 <context>
     <name>ProjectExplorer::DeploymentDataModel</name>
@@ -43367,11 +42413,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>AndroidBuildApkWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Sign package</source>
         <translation>Підпис пакунка</translation>
@@ -43395,10 +42437,6 @@ Install an SDK of at least API version %1.</source>
     <message>
         <source>Signing an APK that uses &quot;Deploy local Qt libraries&quot; is not allowed</source>
         <translation type="vanished">Підписання APK при вживанні &quot;Розгортати локальні бібліотеки Qt&quot; не дозволяється</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Програма</translation>
     </message>
     <message>
         <source>Android build SDK:</source>
@@ -43526,22 +42564,10 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Create Templates</source>
         <translation>Створити шаблони</translation>
-    </message>
-    <message>
-        <source>Input file for androiddeployqt:</source>
-        <translation type="vanished">Вхідний файл для androiddeployqt:</translation>
     </message>
     <message>
         <source>Additional Libraries</source>
@@ -43556,16 +42582,8 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
         <translation>Виберіть бібліотеку для включення до пакунку.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Додати...</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>Видалити виділену бібліотеку зі списку.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
@@ -43741,23 +42759,15 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
         <translation>Збірка APK Android</translation>
     </message>
     <message>
-        <source>Warning: Signing a debug package.</source>
-        <translation type="vanished">Попередження: Підписання зневаджувального пакунка.</translation>
-    </message>
-    <message>
         <source>Warning: Signing a debug or profile package.</source>
         <translation>Попередження: Підписання пакунка для зневадження або профілювання.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Помилка</translation>
     </message>
     <message>
         <source>Failed to run keytool.</source>
@@ -43768,39 +42778,17 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
         <translation>Неправильний пароль.</translation>
     </message>
     <message>
-        <source>Keystore</source>
-        <translation>Сховище ключів</translation>
-    </message>
-    <message>
         <source>Keystore password:</source>
         <translation>Пароль до сховища ключів:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Сертифікат</translation>
     </message>
     <message>
         <source>Certificate password (%1):</source>
         <translation>Пароль сертифіката (%1):</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidBuildApkWidget</name>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Файли сховищ ключів (*.keystore *.jks)</translation>
-    </message>
     <message>
         <source>Select Keystore File</source>
         <translation>Виберіть файл сховища ключів</translation>
     </message>
-    <message>
-        <source>&lt;b&gt;Build Android APK&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Збірка APK Android&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Android Debugger for %1</source>
         <translation>Зневаджувач Android для &quot;%1&quot;</translation>
@@ -43809,9 +42797,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
         <source>Android for %1 (GCC %2, Qt %3)</source>
         <translation>Android для %1 (GCC %2, Qt %3)</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Невідома версія Android. Рівень API: %1</translation>
@@ -45730,21 +44715,13 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditorWidget</name>
+    <name>Git</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All changes in working directory will be discarded. Are you sure?</source>
-        <translation type="vanished">Усі зміни в робочій теці будуть відкинуті. Ви впевнені?</translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -46302,14 +45279,11 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to device</source>
         <translation>Розгортання на пристрій</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Копіювання даних програми</translation>
@@ -46318,9 +45292,6 @@ to project &quot;%2&quot;.</source>
         <source>Removing directory %1</source>
         <translation>Видалення теки %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install&lt;/b&gt;</source>
         <translation>&lt;b&gt;Make install&lt;/b&gt;</translation>
@@ -46329,9 +45300,6 @@ to project &quot;%2&quot;.</source>
         <source>Make install</source>
         <translation>Make install</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>Не знайдено файл .pro програми в цьому проекті.</translation>
@@ -46340,9 +45308,6 @@ to project &quot;%2&quot;.</source>
         <source>No Application .pro File</source>
         <translation>Немає файлу .pro програми</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Виберіть файл .pro, для якого Ви бажаєте створити файли шаблонів Android.</translation>
@@ -46355,9 +45320,6 @@ to project &quot;%2&quot;.</source>
         <source>Select a .pro File</source>
         <translation>Виберіть файл .pro</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseDirectoryPage</name>
     <message>
         <source>The Android package source directory cannot be the same as the project directory.</source>
         <translation>Тека джерел пакунка Android не може збігатись з текою проекту.</translation>
@@ -46390,9 +45352,6 @@ The files in the Android package source directory are copied to the build direct
         <source>It is highly recommended if you are plannig to extend the Java part of your Qt application.</source>
         <translation type="vanished">Настійливо рекомендовано, якщо ви плануєте розширювати Java-частину вашої програми Qt.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Майстер створення файлів шаблонів Android</translation>
@@ -46421,39 +45380,10 @@ The files in the Android package source directory are copied to the build direct
         <source>Could not update the .pro file %1.</source>
         <translation>Не вдалось оновити файл .pro %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStepFactory</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation>Збірка APK Android</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStep</name>
-    <message>
-        <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
-        <translation>Знайдено стару теку &quot;android&quot; серед кодів. Qt 5.2 типово не використовує цю теку.</translation>
-    </message>
-    <message>
-        <source>Internal Error: Could not find .pro file.</source>
-        <translation type="vanished">Внутрішня помилка: не вдалось знайти файл .pro.</translation>
-    </message>
-    <message>
-        <source>Internal Error: Unknown Android deployment JSON file location.</source>
-        <translation type="vanished">Внутрішня помилка: невідоме розташування JSON-файлу розгортання Android.</translation>
-    </message>
     <message>
         <source>No application .pro file found, not building an APK.</source>
         <translation>Не знайдено файл .pro програми, не будуємо APK.</translation>
     </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
-        <translation>Запуск: &quot;%1&quot; %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidRunConfiguration</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
         <translation>Здійснюється розбір файлу .pro &quot;%1&quot;.</translation>
@@ -47831,7 +46761,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation type="unfinished"></translation>
@@ -48467,7 +47397,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
+    <name>Android</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL увімкнено</translation>
@@ -51679,7 +50609,7 @@ Please set a real Clang executable.</source>
     </message>
 </context>
 <context>
-    <name>GitGrep</name>
+    <name>Git</name>
     <message>
         <source>&amp;Use Git Grep</source>
         <translation type="unfinished"></translation>

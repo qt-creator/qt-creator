@@ -395,7 +395,7 @@ void DragTool::commitTransaction()
 void DragTool::handleView3dDrop()
 {
     // If a View3D is dropped, we need to assign material to the included model
-    for (const QmlItemNode &dragNode : qAsConst(m_dragNodes)) {
+    for (const QmlItemNode &dragNode : std::as_const(m_dragNodes)) {
         if (dragNode.modelNode().metaInfo().isQtQuick3DView3D()) {
             auto model = dragNode.model();
             const QList<ModelNode> models = dragNode.modelNode().subModelNodesOfType(

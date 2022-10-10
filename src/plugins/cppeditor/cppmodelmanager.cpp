@@ -850,7 +850,7 @@ void CppModelManager::ensureUpdated()
 QStringList CppModelManager::internalProjectFiles() const
 {
     QStringList files;
-    for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
+    for (const ProjectData &projectData : std::as_const(d->m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             for (const ProjectFile &file : part->files)
                 files += file.path;
@@ -863,7 +863,7 @@ QStringList CppModelManager::internalProjectFiles() const
 ProjectExplorer::HeaderPaths CppModelManager::internalHeaderPaths() const
 {
     ProjectExplorer::HeaderPaths headerPaths;
-    for (const ProjectData &projectData: qAsConst(d->m_projectData)) {
+    for (const ProjectData &projectData: std::as_const(d->m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             for (const ProjectExplorer::HeaderPath &path : part->headerPaths) {
                 ProjectExplorer::HeaderPath hp(QDir::cleanPath(path.path), path.type);
@@ -891,7 +891,7 @@ ProjectExplorer::Macros CppModelManager::internalDefinedMacros() const
 {
     ProjectExplorer::Macros macros;
     QSet<ProjectExplorer::Macro> alreadyIn;
-    for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
+    for (const ProjectData &projectData : std::as_const(d->m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             addUnique(part->toolChainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
@@ -1023,7 +1023,7 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
                            cppEditorDocument->revision());
     }
 
-    for (AbstractEditorSupport *es : qAsConst(d->m_extraEditorSupports))
+    for (AbstractEditorSupport *es : std::as_const(d->m_extraEditorSupports))
         workingCopy.insert(es->fileName(), es->contents(), es->revision());
 
     // Add the project configuration file
@@ -1097,7 +1097,7 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
     for (const ProjectPart::ConstPtr &projectPart : projectInfo.projectParts()) {
-        for (const ProjectFile &cxxFile : qAsConst(projectPart->files)) {
+        for (const ProjectFile &cxxFile : std::as_const(projectPart->files)) {
             const QSet<QString> fileNames = d->m_snapshot.allIncludesForDocument(cxxFile.path);
             for (const QString &fileName : fileNames)
                 d->m_snapshot.remove(fileName);
@@ -1195,7 +1195,7 @@ void CppModelManager::recalculateProjectPartMappings()
 {
     d->m_projectPartIdToProjectProjectPart.clear();
     d->m_fileToProjectParts.clear();
-    for (const ProjectData &projectData : qAsConst(d->m_projectData)) {
+    for (const ProjectData &projectData : std::as_const(d->m_projectData)) {
         for (const ProjectPart::ConstPtr &projectPart : projectData.projectInfo->projectParts()) {
             d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             for (const ProjectFile &cxxFile : projectPart->files)
@@ -1245,7 +1245,7 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     QSet<Core::IDocument *> invisibleCppEditorDocuments
         = Utils::toSet(Core::DocumentModel::openedDocuments());
     invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
-    for (Core::IDocument *document : qAsConst(invisibleCppEditorDocuments)) {
+    for (Core::IDocument *document : std::as_const(invisibleCppEditorDocuments)) {
         const QString filePath = document->filePath().toString();
         if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
             const CppEditorDocumentHandle::RefreshReason refreshReason = projectsUpdated
@@ -1528,7 +1528,7 @@ QSet<QString> CppModelManager::dependingInternalTargets(const Utils::FilePath &f
             = correspondingHeaderOrSource(file.toString(), &wasHeader, CacheUsage::ReadOnly);
     const Utils::FilePaths dependingFiles = snapshot.filesDependingOn(
                 wasHeader ? file : Utils::FilePath::fromString(correspondingFile));
-    for (const Utils::FilePath &fn : qAsConst(dependingFiles)) {
+    for (const Utils::FilePath &fn : std::as_const(dependingFiles)) {
         for (const ProjectPart::ConstPtr &part : projectPart(fn))
             result.insert(part->buildSystemTarget);
     }

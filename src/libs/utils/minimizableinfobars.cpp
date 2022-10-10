@@ -40,7 +40,7 @@ void MinimizableInfoBars::setSettingsGroup(const QString &settingsGroup)
 void MinimizableInfoBars::createActions()
 {
     QTC_CHECK(m_actions.isEmpty());
-    for (const Utils::InfoBarEntry &entry : qAsConst(m_infoEntries)) {
+    for (const Utils::InfoBarEntry &entry : std::as_const(m_infoEntries)) {
         const Id id = entry.id();
         auto action = new QAction(this);
         action->setToolTip(entry.text());

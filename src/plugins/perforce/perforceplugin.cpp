@@ -1462,7 +1462,7 @@ void PerforcePluginPrivate::p4Diff(const PerforceDiffParameters &p)
     QTextCodec *codec = VcsBaseEditor::getCodec(p.workingDir, p.files);
     const QString id = VcsBaseEditor::getTitleId(p.workingDir, p.files);
     // Reuse existing editors for that id
-    const QString tag = VcsBaseEditor::editorTag(DiffOutput, p.workingDir.toString(), p.files);
+    const QString tag = VcsBaseEditor::editorTag(DiffOutput, p.workingDir, p.files);
     IEditor *existingEditor = VcsBaseEditor::locateEditorByTag(tag);
     // Split arguments according to size
     QStringList args;

@@ -45,7 +45,7 @@ QList<LocatorFilterEntry> ExecuteFilter::matchesFor(QFutureInterface<LocatorFilt
         value.append(LocatorFilterEntry(this, entry, QVariant()));
     QList<LocatorFilterEntry> others;
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
-    for (const QString &cmd : qAsConst(m_commandHistory)) {
+    for (const QString &cmd : std::as_const(m_commandHistory)) {
         if (future.isCanceled())
             break;
         if (cmd == entry) // avoid repeated entry

@@ -198,7 +198,7 @@ void OptionsDialog::setSettings(const Settings &settings)
     m_scanInSubprojectRadioButton->setChecked(settings.scanningScope == ScanningScopeSubProject);
 
     m_keywordsList->clear();
-    for (const Keyword &keyword : qAsConst(settings.keywords))
+    for (const Keyword &keyword : std::as_const(settings.keywords))
         addToKeywordsList(keyword);
 }
 

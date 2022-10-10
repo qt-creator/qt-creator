@@ -7,18 +7,15 @@
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
-namespace Mercurial {
-namespace Internal {
+namespace Mercurial::Internal {
 
 class MercurialSettings : public VcsBase::VcsBaseSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(Mercurial::Internal::MercurialSettings)
-
 public:
+    MercurialSettings();
+
     Utils::StringAspect diffIgnoreWhiteSpace;
     Utils::StringAspect diffIgnoreBlankLines;
-
-    MercurialSettings();
 };
 
 class MercurialSettingsPage final : public Core::IOptionsPage
@@ -27,5 +24,4 @@ public:
     explicit MercurialSettingsPage(MercurialSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

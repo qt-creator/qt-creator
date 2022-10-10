@@ -103,7 +103,7 @@ void DebugServerProviderManager::restoreProviders()
                 map[key.mid(lastDot + 1)] = map[key];
         }
         bool restored = false;
-        for (IDebugServerProviderFactory *f : qAsConst(m_factories)) {
+        for (IDebugServerProviderFactory *f : std::as_const(m_factories)) {
             if (f->canRestore(map)) {
                 if (IDebugServerProvider *p = f->restore(map)) {
                     registerProvider(p);
@@ -127,7 +127,7 @@ void DebugServerProviderManager::saveProviders()
     data.insert(fileVersionKeyC, 1);
 
     int count = 0;
-    for (const IDebugServerProvider *p : qAsConst(m_providers)) {
+    for (const IDebugServerProvider *p : std::as_const(m_providers)) {
         if (p->isValid()) {
             const QVariantMap tmp = p->toMap();
             if (tmp.isEmpty())
@@ -179,7 +179,7 @@ bool DebugServerProviderManager::registerProvider(IDebugServerProvider *provider
 {
     if (!provider || m_instance->m_providers.contains(provider))
         return true;
-    for (const IDebugServerProvider *current : qAsConst(m_instance->m_providers)) {
+    for (const IDebugServerProvider *current : std::as_const(m_instance->m_providers)) {
         if (*provider == *current)
             return false;
         QTC_ASSERT(current->id() != provider->id(), return false);

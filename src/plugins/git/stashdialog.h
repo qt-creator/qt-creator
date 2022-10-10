@@ -15,8 +15,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class TreeView; }
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class StashModel;
 
@@ -27,8 +26,6 @@ class StashModel;
 
 class StashDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit StashDialog(QWidget *parent = nullptr);
     ~StashDialog() override;
@@ -72,5 +69,4 @@ private:
     Utils::TreeView *m_stashView;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

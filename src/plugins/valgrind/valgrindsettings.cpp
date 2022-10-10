@@ -91,7 +91,7 @@ void SuppressionAspectPrivate::slotRemoveSuppression()
 
     Utils::sort(rows, std::greater<int>());
 
-    for (int row : qAsConst(rows))
+    for (int row : std::as_const(rows))
         m_model.removeRow(row);
 
     if (!isGlobal)

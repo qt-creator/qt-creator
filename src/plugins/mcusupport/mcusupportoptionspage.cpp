@@ -256,7 +256,7 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
         row.fieldItem->widget()->hide();
     }
 
-    for (const auto &package : qAsConst(m_options.sdkRepository.packages)) {
+    for (const auto &package : std::as_const(m_options.sdkRepository.packages)) {
         QWidget *packageWidget = package->widget();
         if (!mcuTarget->packages().contains(package) || package->label().isEmpty())
             continue;
@@ -289,7 +289,7 @@ void McuSupportOptionsWidget::apply()
 
     m_settingsHandler->setAutomaticKitCreation(m_options.automaticKitCreationEnabled());
     pathsChanged |= m_options.qtForMCUsSdkPackage->writeToSettings();
-    for (const auto &package : qAsConst(m_options.sdkRepository.packages))
+    for (const auto &package : std::as_const(m_options.sdkRepository.packages))
         pathsChanged |= package->writeToSettings();
 
     if (pathsChanged) {

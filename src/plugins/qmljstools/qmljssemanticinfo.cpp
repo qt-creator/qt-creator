@@ -169,7 +169,7 @@ QList<AST::Node *> SemanticInfo::rangePath(int cursorPosition) const
 {
     QList<AST::Node *> path;
 
-    for (const Range &range : qAsConst(ranges)) {
+    for (const Range &range : std::as_const(ranges)) {
         if (range.begin.isNull() || range.end.isNull())
             continue;
         else if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position())

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmljscodestylesettingswidget.h"
-
 #include "qmljscodestylesettings.h"
+#include "qmljstoolstr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -22,9 +22,9 @@ QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent)
     using namespace Utils::Layouting;
     Column {
         Group {
-            title(tr("Qml JS Code Style")),
+            title(Tr::tr("Qml JS Code Style")),
             Form {
-                tr("&Line length:"), m_lineLengthSpinBox, br,
+                Tr::tr("&Line length:"), m_lineLengthSpinBox, br,
             }
         }
     }.attachTo(this, WithoutMargins);

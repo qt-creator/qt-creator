@@ -6602,7 +6602,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation>Načíst (checkout)</translation>
@@ -6614,14 +6614,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>Unable to find the repository directory for &apos;%1&apos;.</source>
         <translation type="obsolete">Adresář skladiště pro &apos;%1&apos; se nepodařilo najít.</translation>
-    </message>
-    <message>
-        <source>Diff</source>
-        <translation type="obsolete">Rozdíly (diff)</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Obnovit</translation>
     </message>
     <message>
         <source>Delete...</source>
@@ -6716,28 +6708,12 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation type="obsolete">Obecné informace</translation>
     </message>
     <message>
-        <source>Repository:</source>
-        <translation type="obsolete">Skladiště:</translation>
-    </message>
-    <message>
         <source>Remote branches</source>
         <translation type="obsolete">Vzdálené větve</translation>
     </message>
     <message>
-        <source>Remote Branches</source>
-        <translation type="obsolete">Vzdálené větve</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Obnovit</translation>
-    </message>
-    <message>
         <source>&amp;Add...</source>
         <translation>Přid&amp;at...</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>Odst&amp;ranit</translation>
     </message>
     <message>
         <source>&amp;Diff</source>
@@ -6781,16 +6757,9 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation>&amp;Sledovat</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Set current branch to track the selected one.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation type="obsolete">Vyberte odeslání do Git</translation>
@@ -6808,10 +6777,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation type="obsolete">Vyberte skladiště Git</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="obsolete">Chyba</translation>
-    </message>
-    <message>
         <source>Selected directory is not a Git repository.</source>
         <translation type="obsolete">Vybraný adresář není skladištěm Git.</translation>
     </message>
@@ -6826,10 +6791,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>&amp;Show</source>
         <translation>Uká&amp;zat</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry-&amp;Pick</translation>
     </message>
     <message>
         <source>&amp;Revert</source>
@@ -6887,9 +6848,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <source>HEAD</source>
         <translation>HEAD</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation type="obsolete">Upozornění: přídavný modul Git pro QtCreator zatím ještě není schopen spolupracovat se serverem. Tudíž nebude pracovat ani ruční rozpoznání ssh a tak dále.</translation>
@@ -7082,10 +7040,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>Unable to run show: %1: %2</source>
         <translation type="obsolete">Příkaz pro ukázání (show) se nepodařilo provést: %1: %2</translation>
-    </message>
-    <message>
-        <source>Changes</source>
-        <translation type="obsolete">Změny</translation>
     </message>
     <message>
         <source>You have modified files. Would you like to stash your changes?</source>
@@ -7346,16 +7300,8 @@ Chcete nyní zapsat?</translation>
         <translation>Co chcete dělat s následujícími místními změnami:</translation>
     </message>
     <message>
-        <source>Stash &amp;&amp; Pop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Stash local changes and pop when %1 finishes.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Odložit (stash)</translation>
     </message>
     <message>
         <source>Stash local changes and execute %1.</source>
@@ -7376,10 +7322,6 @@ Chcete nyní zapsat?</translation>
     <message>
         <source>Stash local changes and continue.</source>
         <translation>Odložit místní změny a pokračovat.</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Odmítnout</translation>
     </message>
     <message>
         <source>Discard (reset) local changes and continue.</source>
@@ -7447,10 +7389,6 @@ Chcete nyní zapsat?</translation>
         <source>You need to commit changes to finish revert.
 Commit now?</source>
         <translation>Pro dokončení vrácení změn je nutno provést zápis. Chcete nyní zapsat?</translation>
-    </message>
-    <message>
-        <source>Commit</source>
-        <translation>Použít</translation>
     </message>
     <message>
         <source>Create Local Branch</source>
@@ -7546,10 +7484,6 @@ Commit now?</source>
         </translation>
     </message>
     <message>
-        <source>Revert</source>
-        <translation>Vrátit změny (revert)</translation>
-    </message>
-    <message>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Soubor byl změněn. Chcete vrátit změny?</translation>
     </message>
@@ -7605,9 +7539,6 @@ Commit now?</source>
         <source>Cannot determine git version: %1</source>
         <translation>Používanou verzi Gitu se nepodařilo určit. %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -7753,16 +7684,8 @@ Commit now?</source>
         <translation>Zrušit vrácení změn</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Pokračovat v přeskládání</translation>
-    </message>
-    <message>
         <source>Continue Cherry Pick</source>
         <translation>Pokračovat ve výběrovém slučování</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Pokračovat ve vracení změn</translation>
     </message>
     <message>
         <source>Diff &amp;Selected Files</source>
@@ -7901,10 +7824,6 @@ Commit now?</source>
     <message>
         <source>Undo Project Changes</source>
         <translation type="obsolete">Změny v projektu vrátit zpět</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Odložit (stash)</translation>
     </message>
     <message>
         <source>Saves the current state of your work.</source>
@@ -8229,23 +8148,10 @@ Commit now?</source>
         <source>The commit message check failed. Do you want to commit the change?</source>
         <translation type="obsolete">Ověření popisu týkajícího se odeslání se nezdařilo. Přesto chcete odeslání změn provést?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>Spustitelný soubor &apos;%1&apos; se v cestě &apos;%2&apos; nepodařilo najít</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
-    <message>
-        <source>Git Commit</source>
-        <translation type="obsolete">Git Commit</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Obecné informace</translation>
@@ -8282,9 +8188,6 @@ Commit now?</source>
         <source>By&amp;pass hooks</source>
         <translation>O&amp;bejít podmíněné akce (hooks)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation type="obsolete">&lt;Nová větev&gt;</translation>
@@ -8293,9 +8196,6 @@ Commit now?</source>
         <source>Type to create a new branch</source>
         <translation type="obsolete">Zadejte název pro novou větev</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Git</source>
         <translation>Git</translation>
@@ -8385,10 +8285,6 @@ Commit now?</source>
         <translation>Nastavit proměnnou prostředí &quot;HOME&quot;</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
     </message>
@@ -8428,13 +8324,6 @@ Commit now?</source>
         <source>Show diff side-by-side</source>
         <translation>Ukázat změny vedle sebe</translation>
     </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Prohlížeč skladiště</translation>
-    </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -19055,7 +18944,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="obsolete">Vytvoří přesnou kopii projektu ze skladiště jménem Git.</translation>
@@ -19076,9 +18965,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Git Repository Clone</source>
         <translation>Klon skladiště Git</translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -21089,7 +20975,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Odložené změny</translation>
@@ -21109,10 +20995,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Delete all...</source>
         <translation type="obsolete">Smazat vše...</translation>
-    </message>
-    <message>
-        <source>Delete...</source>
-        <translation type="obsolete">Smazat...</translation>
     </message>
     <message>
         <source>Show</source>
@@ -21177,10 +21059,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation>S&amp;mazat...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>Uká&amp;zat</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>&amp;Obnovit...</translation>
     </message>
@@ -21188,10 +21066,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Obnovit jako &amp;větev...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Obnovit</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -21220,10 +21094,6 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <translation>Použít odloženou jako větev</translation>
     </message>
     <message>
-        <source>Branch:</source>
-        <translation>Větev:</translation>
-    </message>
-    <message>
         <source>Stash Restore</source>
         <translation>Použití odložené změny</translation>
     </message>
@@ -21237,7 +21107,7 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Obecné informace</translation>
@@ -21270,9 +21140,6 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <source>Email:</source>
         <translation>E-mailová adresa:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -21330,16 +21197,9 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <translation>Ptát se na potvrzení</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>Počet nedávných záznamů které se vypisují v historii změn. Při volbě 0 budou vidět všechny záznamy.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Vrátit</translation>
@@ -21352,9 +21212,6 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <source>Revision:</source>
         <translation>Revize:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -24706,28 +24563,15 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteBranchModel</name>
+    <name>Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">&lt;žádná větev&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GitClient</name>
-    <message>
-        <source>Unable to determine the repository for %1.</source>
-        <translation type="obsolete">Skladiště pro %1 se nepodařilo určit.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation type="obsolete">Chyba: Překročení času u Gitu po %1s.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
         <translation>Anotace (blame) pro %1</translation>
@@ -24806,7 +24650,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Cloning</source>
         <translation>Klonování</translation>
@@ -24823,9 +24667,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Mercurial Clone</source>
         <translation>Klon Mercurialu</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -24838,16 +24679,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Clone URL:</source>
         <translation>Klonovat z adresy (URL):</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Editor zápisu (commit)</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Nadřazenou revizi %1 ve skladišti %2 se nepodařilo určit: %3</translation>
@@ -24880,16 +24715,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Working...</source>
         <translation type="obsolete">Pracuje...</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditor</name>
     <message>
         <source>Annotate %1</source>
         <translation>Vypsat anotace pro %1</translation>
@@ -24898,9 +24723,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Annotate parent revision %1</source>
         <translation>Vypsat anotace nadřazené revize &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialJobRunner</name>
     <message>
         <source>Executing: %1 %2
 </source>
@@ -24915,9 +24737,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
         <translation type="obsolete">Překročení času %1s při čekání na ukončení Procesu Mercurialu.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Mercurial</source>
         <translation type="obsolete">Mercurial</translation>
@@ -25134,9 +24953,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>Ověření popisu se nezdařilo. Přesto chcete pokračovat?</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Příkaz &apos;Mercurial&apos;</translation>
@@ -29519,7 +29335,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -29527,10 +29343,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Branch Name:</source>
         <translation>Název větve:</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Zaškrtávací okénko</translation>
     </message>
     <message>
         <source>Add Branch</source>
@@ -29548,9 +29360,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Sledovat místní větev &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Přidat vzdálené</translation>
@@ -29563,9 +29372,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <source>URL:</source>
         <translation>Adresa (URL):</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Vzdálené (Remotes)</translation>
@@ -29573,10 +29379,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Re&amp;fresh</source>
         <translation>O&amp;bnovit</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>Přid&amp;at...</translation>
     </message>
     <message>
         <source>F&amp;etch</source>
@@ -34971,7 +34773,7 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Místní větve</translation>
@@ -34984,9 +34786,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <source>Tags</source>
         <translation>Značky</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>Použít algoritmus &quot;patience diff&quot; pro výpočet rozdílů.</translation>
@@ -35003,9 +34802,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <source>Ignore Whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>Select the pretty printing format.</source>
         <translation type="obsolete">Vybrat výstupní formát.</translation>
@@ -35038,9 +34834,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <source>raw</source>
         <translation>nezpracovaný</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>Datum změny ve výstupu neukazovat.</translation>
@@ -35049,17 +34842,6 @@ Tyto soubory jsou zachovány.</numerusform>
         <source>Omit Date</source>
         <translation>Vynechat datum</translation>
     </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Nevšímat si změn bílých znaků.</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Nevšímat si bílých znaků</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -35311,7 +35093,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -36343,7 +36125,7 @@ a vlastností součástek QML přímo.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Methods and functions</source>
         <translation type="obsolete">Metody a funkce</translation>
@@ -36360,16 +36142,10 @@ a vlastností součástek QML přímo.</translation>
         <source>QML Functions</source>
         <translation>Funkce QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation>Rejstříkování</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>Type dump of QML plugin in %1 failed.
 Errors:
@@ -36492,9 +36268,6 @@ Please build the debugging helpers on the Qt version options page.</source>
         <translation type="obsolete">Pomocný program ke sdělení informací o typu přídavného modulu C++ se nepodařilo najít.
 Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na stránce pro nastavení verzí Qt.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>Styl kódování</translation>
@@ -36503,9 +36276,6 @@ Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na 
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -36514,9 +36284,6 @@ Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na 
         <source>Reset Code Model</source>
         <translation>Nastavit model kódu znovu</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>
@@ -42939,7 +42706,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>Vytvořit nový AVD</translation>
@@ -42964,9 +42731,6 @@ Filtr: %2
         <source>Kit:</source>
         <translation>Sada:</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a cetificate</source>
         <translation type="obsolete">Vytvořit úložiště pro klíč a certifikát</translation>
@@ -43063,9 +42827,6 @@ Filtr: %2
         <source>Use Keystore password</source>
         <translation>Použít heslo pro úložiště klíče</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -43210,9 +42971,6 @@ The APK will not be usable on any other device.</source>
         <translation>Zkopíruje místní knihovny Qt na zařízení. Knihovny Qt musíte mít přeloženy pro tuto platformu.
 Toto APK nelze použít na žádném jiném zařízení.</translation>
     </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
         <translation type="obsolete">Manifest</translation>
@@ -43382,40 +43140,12 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ikona programu:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Select low dpi icon</source>
-        <translation type="obsolete">Vybrat ikonu s nízkým dpi</translation>
-    </message>
-    <message>
-        <source>Select medium dpi icon</source>
-        <translation type="obsolete">Vybrat ikonu se středním dpi</translation>
-    </message>
-    <message>
-        <source>Select high dpi icon</source>
-        <translation type="obsolete">Vybrat ikonu s vysokým dpi</translation>
-    </message>
-    <message>
-        <source>Permissions</source>
-        <translation type="obsolete">Oprávnění</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation type="obsolete">Uložit</translation>
     </message>
     <message>
         <source>Discard</source>
         <translation type="obsolete">Zahodit</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_CHECKIN_PROPERTIES</source>
@@ -44009,9 +43739,6 @@ p, li { white-space: pre-wrap; }
         <source>Automatically check required Qt libraries from compiled application.</source>
         <translation>Automaticky ověřit požadované knihovny Qt ze sestaveného programu.</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Nastavení pro Android</translation>
@@ -44019,10 +43746,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Android SDK location:</source>
         <translation>Umístění SDK pro Android:</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Procházet</translation>
     </message>
     <message>
         <source>Android NDK location:</source>
@@ -46467,7 +46190,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
+    <name>Android</name>
     <message>
         <source>Create AVD error</source>
         <translation type="obsolete">Chyba při vytváření AVD</translation>
@@ -46503,13 +46226,6 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     <message>
         <source>Android for %1 (GCC %2, Qt %3)</source>
         <translation>Android pro %1 (GCC %2, Qt %3)</translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
     </message>
 </context>
 <context>
@@ -46556,11 +46272,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je příliš krátké&lt;/span&gt;</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo neodpovídá&lt;/span&gt;</translation>
@@ -46605,23 +46317,10 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
         <source>Error</source>
         <translation>Chyba</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Poslat na zařízení Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>Poslat na Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
@@ -46728,7 +46427,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
+    <name>Android</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Nastavení nasazení&lt;/b&gt;</translation>
@@ -46754,7 +46453,7 @@ Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
+    <name>Android</name>
     <message>
         <source>Packaging for Android</source>
         <translation>Vytvoření balíčku pro Android</translation>
@@ -46796,10 +46495,6 @@ Please make sure your application is built successfully and is selected in Appli
 Ujistěte se, prosím, že váš program je sestaven úspěšně a je vybrán na kartě s programy (&apos;Volba pro spuštění&apos;).</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
-    <message>
         <source>Failed to run keytool</source>
         <translation>Nepodařilo se spustit nástroj klíče</translation>
     </message>
@@ -46836,52 +46531,17 @@ Ujistěte se, prosím, že váš program je sestaven úspěšně a je vybrán na
         <translation>Soubor s balíčkem byl vytvořen.</translation>
     </message>
     <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Nasazení balíčku: Spouští se příkaz &apos;%1 %2&apos;.</translation>
-    </message>
-    <message>
         <source>Packaging failed.</source>
         <translation>Vytvoření balíčku se nezdařilo.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1 %2&apos;: Důvod %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Chyba při vytváření balíčku: Příkaz &apos;%1 %2&apos; se nepodařilo provést.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Důvod: %1</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation>Důvod: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Kód ukončení: %1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Úložiště pro klíč</translation>
     </message>
     <message>
         <source>Keystore password:</source>
         <translation>Heslo pro úložiště klíče:</translation>
     </message>
     <message>
-        <source>Certificate</source>
-        <translation>Certifikát</translation>
-    </message>
-    <message>
         <source>Certificate password (%1):</source>
         <translation>Heslo k certifikátu (%1):</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid package name</source>
         <translation type="obsolete">Neplatný název balíčku</translation>
@@ -46893,20 +46553,8 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.example.myapplication&quot;).</translation>
     </message>
     <message>
-        <source>Choose High DPI Icon</source>
-        <translation type="obsolete">Vybrat ikonu s vysokým dpi</translation>
-    </message>
-    <message>
         <source>png images (*.png)</source>
         <translation type="obsolete">Soubory s obrázky PNG (*.png)</translation>
-    </message>
-    <message>
-        <source>Choose Medium DPI Icon</source>
-        <translation type="obsolete">Vybrat ikonu se středním dpi</translation>
-    </message>
-    <message>
-        <source>Choose Low DPI Icon</source>
-        <translation type="obsolete">Vybrat ikonu s nízkým dpi</translation>
     </message>
     <message>
         <source>&lt; type or choose a permission &gt;</source>
@@ -46915,10 +46563,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     <message>
         <source>Invalid Package Name</source>
         <translation type="obsolete">Neplatný název balíčku</translation>
-    </message>
-    <message>
-        <source>PNG images (*.png)</source>
-        <translation type="obsolete">Soubory s obrázky PNG (*.png)</translation>
     </message>
     <message>
         <source>&lt; Type or choose a permission &gt;</source>
@@ -46932,10 +46576,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Select keystore file</source>
         <translation>Vybrat soubor úložiště klíče</translation>
     </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Soubory úložiště klíče (*.keystore *.jks)</translation>
-    </message>
 </context>
 <context>
     <name>QmakeProjectManager</name>
@@ -46945,7 +46585,7 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
+    <name>Android</name>
     <message>
         <source>Copy application data</source>
         <translation>Kopírovat data programu</translation>
@@ -46958,9 +46598,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Current target is not an android target</source>
         <translation type="obsolete">Nynější cíl není cílem Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
         <translation>Soubor .pro &apos;%1&apos; se právě zpracovává.</translation>
@@ -46969,9 +46606,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Run on Android device</source>
         <translation>Spustit na zařízení Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process ...</source>
         <translation type="obsolete">Spouští se vzdálený proces...</translation>
@@ -46980,9 +46614,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Starting remote process.</source>
         <translation>Spouští se vzdálený proces.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device/emulator</source>
         <translation type="obsolete">Spustit na zařízení/emulátor Android</translation>
@@ -46991,9 +46622,6 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>Run on Android device or emulator.</source>
         <translation type="obsolete">Spustit na zařízení nebo emulátoru Androida.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>
 
@@ -47098,31 +46726,10 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
 
 &apos;%1&apos; ukončen.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Nastavení pro Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AVDModel</name>
-    <message>
-        <source>AVD Name</source>
-        <translation type="obsolete">Název AVD</translation>
-    </message>
-    <message>
-        <source>AVD Target</source>
-        <translation type="obsolete">Cíl AVD</translation>
-    </message>
-    <message>
-        <source>CPU/ABI</source>
-        <translation type="obsolete">CPU/ABI</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
         <translation>Složka SDK pro Android</translation>
@@ -47227,38 +46834,6 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
         <source>Select OpenJDK path</source>
         <translation type="obsolete">Vybrat cestu pro OpenJDK</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidTarget</name>
-    <message>
-        <source>Error creating Android directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Chyba při vytváření adresáře Android &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>No Qt for Android SDKs were found.
-Please install at least one SDK.</source>
-        <translation type="obsolete">Nepodařilo se najít žádné Qt pro SDK Android.
-Nainstalujte, prosím, alespoň jedno SDK.</translation>
-    </message>
-    <message>
-        <source>Android files have been updated automatically</source>
-        <translation type="obsolete">Soubory Android byly zaktualizovány automaticky</translation>
-    </message>
-    <message>
-        <source>Can&apos;t parse &apos;%1&apos;</source>
-        <translation type="obsolete">Nelze zpracovat &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Can&apos;t open &apos;%1&apos;</source>
-        <translation type="obsolete">Nelze otevřít &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Error creating Android templates</source>
-        <translation type="obsolete">Chyba při vytváření předloh Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidTargetFactory</name>
     <message>
         <source>Debug</source>
         <translation type="obsolete">Ladění</translation>
@@ -47267,9 +46842,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Release</source>
         <translation type="obsolete">Vydání</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>GCC Android</translation>
@@ -47286,9 +46858,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Android GCC (%1-%2)</source>
         <translation type="obsolete">GCC Android  (%1-%2)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root: %1</source>
         <translation type="obsolete">Kořen (root) NDK: %1</translation>
@@ -47297,9 +46866,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>NDK Root:</source>
         <translation>Kořen (root) NDK:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -48110,7 +47676,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>neverzováno</translation>
@@ -48155,9 +47721,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>updated</source>
         <translation type="obsolete">aktualizováno</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Gerrit %1@%2</source>
         <translation>Gerrit %1@%2</translation>
@@ -48211,16 +47774,8 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation>Načíst (checkout)...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>Uká&amp;zat</translation>
-    </message>
-    <message>
         <source>Cherry &amp;Pick</source>
         <translation>&amp;Výběrově sloučit</translation>
-    </message>
-    <message>
-        <source>&amp;Checkout</source>
-        <translation>&amp;Načíst (checkout)</translation>
     </message>
     <message>
         <source>Diff...</source>
@@ -48231,20 +47786,9 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translation type="obsolete">Použít...</translation>
     </message>
     <message>
-        <source>Checkout...</source>
-        <translation type="obsolete">Načíst (checkout)...</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Obnovit</translation>
-    </message>
-    <message>
         <source>Fetching &quot;%1&quot;...</source>
         <translation>Natahuje se &quot;%1&quot;...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source>Subject: %1
 Number: %2 Id: %3
@@ -48294,10 +47838,6 @@ Schválení: %12</translation>
         <translation>Schválení</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Stav</translation>
-    </message>
-    <message>
         <source>Parse error: &apos;%1&apos; -&gt; %2</source>
         <translation>Chyba ve zpracování: &apos;%1&apos; -&gt; %2</translation>
     </message>
@@ -48309,9 +47849,6 @@ Schválení: %12</translation>
         <source>Parse error in line &apos;%1&apos;</source>
         <translation>Chyba ve zpracování na řádku: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
@@ -48348,16 +47885,6 @@ Chcete jej ukončit?</translation>
         <source>Keep Running</source>
         <translation>Pokračovat</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -48438,24 +47965,9 @@ asked to confirm the repository path.</source>
 &quot;canonicalWebUrl&quot;není nastavena v souboru
 &quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
         <translation>Gerrit Fetch (přivedení)</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 spadl.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 vrátil %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Chyba při spouštění %1: %2</translation>
     </message>
     <message>
         <source>Error writing to temporary file.</source>
@@ -48469,9 +47981,6 @@ asked to confirm the repository path.</source>
         <source>Cherry-picking %1...</source>
         <translation type="obsolete">Vybírá se %1...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -48522,9 +48031,6 @@ nepatří k ověřeným Remotes v %3. Vybrat jinou složku?</translation>
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation>Vstoupit do místního skladiště pro &apos;%1&apos; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Ukázat rozdíly</translation>
@@ -48540,39 +48046,6 @@ nepatří k ověřeným Remotes v %3. Vybrat jinou složku?</translation>
     <message>
         <source>Show textual graph log.</source>
         <translation>Ukázat graf jako text.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::ResetDialog</name>
-    <message>
-        <source>Sha1</source>
-        <translation type="obsolete">Sha1</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation type="obsolete">Předmět</translation>
-    </message>
-    <message>
-        <source>Reset to:</source>
-        <translation type="obsolete">Nastavit znovu na:</translation>
-    </message>
-    <message>
-        <source>Reset type:</source>
-        <translatorcomment>XXX: neověřeno za běhu</translatorcomment>
-        <translation type="obsolete">Druh znovunastavení:</translation>
-    </message>
-    <message>
-        <source>Hard Reset</source>
-        <translatorcomment>XXX: Včetně pracovního stromu (lepší, ale asi moc dlouhé?); Napevno (hard) </translatorcomment>
-        <translation type="obsolete">I pracovní strom (hard)</translation>
-    </message>
-    <message>
-        <source>Soft Reset</source>
-        <translation type="obsolete">Pouze HEAD (soft)</translation>
-    </message>
-    <message>
-        <source>Undo Changes to %1</source>
-        <translation type="obsolete">Změny pro %1 vrátit zpět</translation>
     </message>
 </context>
 <context>
@@ -50143,32 +49616,15 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
-    <message>
-        <source>Deploy to Android device or emulator</source>
-        <translation>Nasadit na zařízení nebo emulátor Android.</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
+    <name>Android</name>
     <message>
         <source>Run on Android</source>
         <translation>Spustit na Androidu</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation>Zařízení Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation>Chyba při vytváření adresáře Android &apos;%1&apos;.</translation>
@@ -50223,23 +49679,14 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation>Nelze otevřít &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation>Vytvořit balíček pro Android (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
     <message>
         <source>Deploy to device</source>
         <translation>Nasadit na zařízení</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>ABI(s) verze Qt se nepodařilo určit.</translation>
@@ -50249,9 +49696,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -51236,11 +50680,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Odpojená HEAD</translation>
-    </message>
+    <name>Git</name>
     <message>
         <source>Select Change</source>
         <translation>Vybrat změnu</translation>
@@ -51783,7 +51223,7 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>Tento typ bude v editoru QML Qt Creatoru viditelný jen tehdy, když je název typu řetězec znaků tvořený písmeny (literal)</translation>
@@ -52597,11 +52037,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
-    </message>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Nalezeny místní změny. Vyberte úkon:</translation>
@@ -53940,14 +53376,11 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
+    <name>Android</name>
     <message>
         <source>GDB server</source>
         <translation>Server GDB:</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Spravovat...</translation>
@@ -54267,11 +53700,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::MergeTool</name>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
+    <name>Git</name>
     <message>
         <source>File input for the merge tool requires Git 1.7.8, or later.</source>
         <translatorcomment>XXX: ověřit?</translatorcomment>
@@ -54355,50 +53784,8 @@ Vzdálený: %4</translation>
         <translation>Nástroj pro slučování doběhl úspěšně.</translation>
     </message>
     <message>
-        <source>No changes found. </source>
-        <translation type="obsolete">Beze změn.</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="obsolete">Přeskočit</translation>
-    </message>
-    <message>
         <source>Merge tool process finished successully.</source>
         <translation>Nástroj pro slučování doběhl úspěšně.</translation>
-    </message>
-    <message>
-        <source>Continue Rebase</source>
-        <translation type="obsolete">Pokračovat v přeskládání</translation>
-    </message>
-    <message>
-        <source>Continue rebase?</source>
-        <translation type="obsolete">Pokračovat v přeskládání?</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Pokračovat</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation type="obsolete">Pokračovat ve vracení změn</translation>
-    </message>
-    <message>
-        <source>You need to commit changes to finish revert.
-Commit now?</source>
-        <translation type="obsolete">Pro dokončení vrácení změn je nutno provést zápis. Chcete nyní zapsat?</translation>
-    </message>
-    <message>
-        <source>Commit</source>
-        <translation type="obsolete">Zapsat (commit)</translation>
-    </message>
-    <message>
-        <source>Continue Cherry-Picking</source>
-        <translation type="obsolete">Pokračovat ve výběrovém slučování</translation>
-    </message>
-    <message>
-        <source>You need to commit changes to finish cherry-picking.
-Commit now?</source>
-        <translation type="obsolete">Pro dokončení výběrového slučování je nutno provést zápis. Chcete nyní zapsat?</translation>
     </message>
     <message>
         <source>Merge tool process terminated with exit code %1</source>
@@ -54958,7 +54345,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlConsoleEdit</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation>Vyj&amp;mout</translation>
@@ -54979,16 +54366,10 @@ Commit now?</source>
         <source>C&amp;lear</source>
         <translation>Sma&amp;zat</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleModel</name>
     <message>
         <source>Can only evaluate during a QML debug session.</source>
         <translation>Vyhodnocovat lze jen během sezení ladění QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsolePane</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Ukázat ladění, záznamy a informační zprávy.</translation>
@@ -54997,20 +54378,9 @@ Commit now?</source>
         <source>QML/JS Console</source>
         <translation>Konzole QML/JS</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation>&amp;Kopírovat</translation>
-    </message>
     <message>
         <source>&amp;Show in Editor</source>
         <translation>&amp;Ukázat v editoru</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation>Sma&amp;zat</translation>
     </message>
 </context>
 <context>
@@ -55597,7 +54967,7 @@ Chcete je nyní načíst?</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
+    <name>Git</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Odvést do Gerritu...</translation>
@@ -55676,11 +55046,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>User name:</source>
         <translation>Uživatelské jméno:</translation>
@@ -56016,14 +55382,11 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAnalyzeSupport</name>
+    <name>Android</name>
     <message>
         <source>No analyzer tool selected.</source>
         <translation>Nevybrán žádný nástroj pro rozbor.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Obecné</translation>
@@ -56032,16 +55395,10 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>XML Source</source>
         <translation>Zdroj XML</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Editor manifestu pro Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Balíček</translation>
@@ -56095,10 +55452,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     <message>
         <source>Target SDK:</source>
         <translation>SDK cíle:</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Program</translation>
     </message>
     <message>
         <source>Application name:</source>
@@ -56165,14 +55518,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <translation>Oprávnění</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>The structure of the android manifest file is corrupt. Expected a top level &apos;manifest&apos; node.</source>
         <translation>Stavba souboru s manifestem pro Android je neplatná. Očekáván uzel &apos;manifest&apos; na nejhornější úrovni.</translation>
     </message>
@@ -56208,9 +55553,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Choose High DPI Icon</source>
         <translation>Vybrat ikonu s vysokým dpi</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPlugin</name>
     <message>
         <source>Android Manifest file</source>
         <translation>Soubor s manifestem pro Android</translation>
@@ -56713,7 +56055,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffHandler</name>
+    <name>Git</name>
     <message>
         <source>Working tree</source>
         <translation>Pracovní kopie</translation>
@@ -56723,23 +56065,9 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <translation>Index</translation>
     </message>
     <message>
-        <source>Waiting for data...</source>
-        <translation>Čeká se na data...</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
-    <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Předmět</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Nastavit znovu na:</translation>
@@ -57366,77 +56694,14 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
-    <message>
-        <source>Create new AVD</source>
-        <translation>Vytvořit nový AVD</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Target API:</source>
         <translation>Cílové API:</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
-    </message>
-    <message>
-        <source>SD card size:</source>
-        <translation>Velikost karty SD:</translation>
-    </message>
-    <message>
-        <source> MiB</source>
-        <translation> MiB</translation>
-    </message>
-    <message>
         <source>ABI:</source>
         <translation>ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Sign package</source>
-        <translation>Podepsat balíček</translation>
-    </message>
-    <message>
-        <source>Keystore:</source>
-        <translation>Úložiště pro klíč:</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Vytvoření</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Procházet</translation>
-    </message>
-    <message>
-        <source>Signing a debug package</source>
-        <translation>Podepsání balíčku ladění</translation>
-    </message>
-    <message>
-        <source>Certificate alias:</source>
-        <translation>Alias certifikátu:</translation>
-    </message>
-    <message>
-        <source>Advanced Actions</source>
-        <translation>Pokročilé činnosti</translation>
-    </message>
-    <message>
-        <source>Clean Temporary Libraries Directory on Device</source>
-        <translation>Vyprázdnit adresář s dočasnými knihovnami na zařízení</translation>
-    </message>
-    <message>
-        <source>Install Ministro from APK</source>
-        <translation>Instalovat Ministro z APK</translation>
-    </message>
-    <message>
-        <source>Reset Default Devices</source>
-        <translation>Nastavit výchozí zařízení znovu</translation>
     </message>
     <message>
         <source>Open package location after build</source>
@@ -57451,10 +56716,6 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
         <translation>Vytvořit AndroidManifest.xml</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation>Program</translation>
-    </message>
-    <message>
         <source>Android target SDK:</source>
         <translation>SDK pro Android:</translation>
     </message>
@@ -57465,36 +56726,6 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     <message>
         <source>Qt no longer uses the folder &quot;android&quot; in the project&apos;s source directory.</source>
         <translation>Qt už nadále nepoužívá složku &quot;android&quot; v adresáři projektu se zdroji.</translation>
-    </message>
-    <message>
-        <source>Qt Deployment</source>
-        <translation>Nasazení Qt</translation>
-    </message>
-    <message>
-        <source>Use the external Ministro application to download and maintain Qt libraries.</source>
-        <translation>Použít externí program Ministro ke stažení a správě knihoven Qt.</translation>
-    </message>
-    <message>
-        <source>Use Ministro service to install Qt</source>
-        <translation>Použít službu Ministro k nainstalování Qt</translation>
-    </message>
-    <message>
-        <source>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation>Zkopírovat místní knihovny Qt na zařízení. Knihovny Qt musíte mít přeloženy pro tuto platformu.
-Toto APK nelze použít na žádném jiném zařízení.</translation>
-    </message>
-    <message>
-        <source>Deploy local Qt libraries to temporary directory</source>
-        <translation>Zkopírovat místní knihovny Qt do dočasného adresáře</translation>
-    </message>
-    <message>
-        <source>Creates a standalone APK.</source>
-        <translation>Vytvoří samostatné APK.</translation>
-    </message>
-    <message>
-        <source>Bundle Qt libraries in APK</source>
-        <translation>Knihovny Qt zabalit do APK</translation>
     </message>
     <message>
         <source>Additional Libraries</source>
@@ -57509,16 +56740,8 @@ Toto APK nelze použít na žádném jiném zařízení.</translation>
         <translation>Vybrat knihovnu k zahrnutí v balíčku.</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>Odstranit nyní vybranou knihovnu ze seznamu.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>Create...</source>
@@ -57528,23 +56751,6 @@ Toto APK nelze použít na žádném jiném zařízení.</translation>
         <source>Android build SDK:</source>
         <translation>SDK pro sestavení pro Android:</translation>
     </message>
-    <message>
-        <source>Uses the external Ministro application to download and maintain Qt libraries.</source>
-        <translation>Používá externí program Ministro ke stažení a správě knihoven Qt.</translation>
-    </message>
-    <message>
-        <source>Pushes local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation>Zkopíruje místní knihovny Qt na zařízení. Knihovny Qt musíte mít přeloženy pro tuto platformu.
-Toto APK nelze použít na žádném jiném zařízení.</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Vybrat zařízení Android</translation>
@@ -57560,10 +56766,6 @@ Toto APK nelze použít na žádném jiném zařízení.</translation>
     <message>
         <source>Always use this device for architecture %1</source>
         <translation>Vždy používat toto zařízení pro architekturu %1</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -58398,18 +57600,10 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Nasadit na zařízení nebo emulátor Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <extracomment>AndroidDeployQtStep default display name</extracomment>
-        <translation>Poslat na zařízení Android</translation>
     </message>
     <message>
         <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
@@ -58420,44 +57614,12 @@ monitor reset</source>
         <translation>Podle souboru .pro nenastaven žádný archiv Android.</translation>
     </message>
     <message>
-        <source>Warning: Signing a debug package.</source>
-        <translation>Varování: Podepsání balíčku ladění.</translation>
-    </message>
-    <message>
         <source>Internal Error: Could not find .pro file.</source>
         <translation>Vnitřní chyba: Nepodařilo se najít soubor .pro.</translation>
     </message>
     <message>
         <source>Internal Error: Unknown Android deployment JSON file location.</source>
         <translation>Vnitřní chyba: Neznámé umístění souboru JSON nasazení Androidu.</translation>
-    </message>
-    <message>
-        <source>Pulling files necessary for debugging.</source>
-        <translation>Nahrávají se soubory nezbytné pro ladění.</translation>
-    </message>
-    <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Nasazení balíčku: Spouští se příkaz &apos;%1 %2&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1 %2&apos;: Důvod %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Chyba při vytváření balíčku: Příkaz &apos;%1 %2&apos; se nepodařilo provést.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Důvod: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Kód ukončení: %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
     </message>
     <message>
         <source>Failed to run keytool.</source>
@@ -58468,45 +57630,6 @@ monitor reset</source>
         <translation>Neplatné heslo.</translation>
     </message>
     <message>
-        <source>Keystore</source>
-        <translation>Úložiště pro klíč</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Heslo pro úložiště klíče:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Certifikát</translation>
-    </message>
-    <message>
-        <source>Certificate password (%1):</source>
-        <translation>Heslo k certifikátu (%1):</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
-    <message>
-        <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Nastavení nasazení&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Qt Android Smart Installer</source>
-        <translation>Chytrý instalátor pro Qt Android</translation>
-    </message>
-    <message>
-        <source>Android package (*.apk)</source>
-        <translation>Balíček pro Android (*.apk)</translation>
-    </message>
-    <message>
-        <source>Select keystore file</source>
-        <translation>Vybrat soubor úložiště klíče</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Soubory úložiště klíče (*.keystore *.jks)</translation>
-    </message>
-    <message>
         <source>Select additional libraries</source>
         <translation>Vybrat dodatečné knihovny</translation>
     </message>
@@ -58514,9 +57637,6 @@ monitor reset</source>
         <source>Libraries (*.so)</source>
         <translation>Knihovny (*.so)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: Chyba při instalaci SDK 0x%1</translation>
@@ -58557,9 +57677,6 @@ monitor reset</source>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: Neznámá chyba 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install&lt;/b&gt;</source>
         <translation>&lt;b&gt;Make install&lt;/b&gt;</translation>
@@ -58568,9 +57685,6 @@ monitor reset</source>
         <source>Make install</source>
         <translation>Make install</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>Qt Creator needs additional settings to enable Android support.You can configure those settings in the Options dialog.</source>
         <translation>Qt Creator potřebuje dodatečná nastavení pro povolení podpory pro Android. Tato nastavení můžete nastavit v dialogu s volbami.</translation>
@@ -58583,9 +57697,6 @@ monitor reset</source>
         <source>Qt Creator needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>Qt Creator potřebuje dodatečná nastavení pro povolení podpory pro Android. Tato nastavení můžete nastavit v dialogu s volbami.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>V tomto projektu nebyl nalezen žádný soubor .pro aplikace.</translation>
@@ -58594,9 +57705,6 @@ monitor reset</source>
         <source>No Application .pro File</source>
         <translation>Žádný soubor .pro aplikace</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create an AndroidManifest.xml file.</source>
         <translation>vyberte soubor .pro, pro který chcete vytvořit soubor AndroidManifest.xml.</translation>
@@ -58609,9 +57717,6 @@ monitor reset</source>
         <source>Select a .pro File</source>
         <translation>Vybrat soubor .pro</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseDirectoryPage</name>
     <message>
         <source>The Android package source directory can not be the same as the project directory.</source>
         <translation>Zdrojový adresář balíčku pro Android nemůže být týž jako projektový adresář.</translation>
@@ -58636,9 +57741,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>The Android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Soubor s manifestem pro Android bude vytvořen v ANDROID_PACKAGE_SOURCE_DIR nastaveném v souboru .pro.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Manifest Wizard</source>
         <translation>Vytvořit průvodce manifestem pro Android</translation>
@@ -58943,7 +58045,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffSwitcher</name>
+    <name>Git</name>
     <message>
         <source>Switch to Text Diff Editor</source>
         <translation>Přepnout na editor rozdílů v textu</translation>
@@ -60681,45 +59783,15 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>AndroidConfiguration</name>
-    <message>
-        <source>Could not run: %1</source>
-        <translation>Nepodařilo se spustit: %1</translation>
-    </message>
-    <message>
-        <source>No devices found in output of: %1</source>
-        <translation>Nenalezena žádná zařízení ve výstupu: %1</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
-    <message>
-        <source>Error Creating AVD</source>
-        <translation>Chyba při vytváření AVD</translation>
-    </message>
-    <message>
-        <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
-Please install an SDK of at least API version %1.</source>
-        <translation>Nelze vytvořit nové AVD. Není dostupné dostačně nedávné SDK pro Android.
-Nainstalujte, prosím, jedno SDK s API verze alespoň %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
+    <name>Android</name>
     <message>
         <source>Configure Android...</source>
         <translation>Nastavit Android...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation>Editor Javy</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaFileWizard</name>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
         <translation>Vytvoří soubor Java s kódem se standardním textem.</translation>

@@ -204,7 +204,7 @@ namespace ADS
                 return;
 
             m_visibleDockAreaCount = 0;
-            for (auto dockArea : qAsConst(m_dockAreas))
+            for (auto dockArea : std::as_const(m_dockAreas))
                 m_visibleDockAreaCount += dockArea->isHidden() ? 0 : 1;
         }
 
@@ -1110,7 +1110,7 @@ namespace ADS
 
     DockAreaWidget *DockContainerWidget::dockAreaAt(const QPoint &globalPosition) const
     {
-        for (auto dockArea : qAsConst(d->m_dockAreas)) {
+        for (auto dockArea : std::as_const(d->m_dockAreas)) {
             if (dockArea->isVisible()
                 && dockArea->rect().contains(dockArea->mapFromGlobal(globalPosition)))
                 return dockArea;
@@ -1131,7 +1131,7 @@ namespace ADS
     int DockContainerWidget::visibleDockAreaCount() const
     {
         int result = 0;
-        for (auto dockArea : qAsConst(d->m_dockAreas))
+        for (auto dockArea : std::as_const(d->m_dockAreas))
             result += dockArea->isHidden() ? 0 : 1;
 
         return result;
@@ -1221,7 +1221,7 @@ namespace ADS
     QList<DockAreaWidget *> DockContainerWidget::openedDockAreas() const
     {
         QList<DockAreaWidget *> result;
-        for (auto dockArea : qAsConst(d->m_dockAreas)) {
+        for (auto dockArea : std::as_const(d->m_dockAreas)) {
             if (!dockArea->isHidden())
                 result.append(dockArea);
         }
@@ -1361,7 +1361,7 @@ namespace ADS
     QList<DockWidget *> DockContainerWidget::dockWidgets() const
     {
         QList<DockWidget *> result;
-        for (const auto dockArea : qAsConst(d->m_dockAreas))
+        for (const auto dockArea : std::as_const(d->m_dockAreas))
             result.append(dockArea->dockWidgets());
 
         return result;
@@ -1370,7 +1370,7 @@ namespace ADS
     DockWidget::DockWidgetFeatures DockContainerWidget::features() const
     {
         DockWidget::DockWidgetFeatures features(DockWidget::AllDockWidgetFeatures);
-        for (const auto dockArea : qAsConst(d->m_dockAreas))
+        for (const auto dockArea : std::as_const(d->m_dockAreas))
             features &= dockArea->features();
 
         return features;
@@ -1383,7 +1383,7 @@ namespace ADS
 
     void DockContainerWidget::closeOtherAreas(DockAreaWidget *keepOpenArea)
     {
-        for (const auto dockArea : qAsConst(d->m_dockAreas)) {
+        for (const auto dockArea : std::as_const(d->m_dockAreas)) {
             if (dockArea == keepOpenArea)
                 continue;
 

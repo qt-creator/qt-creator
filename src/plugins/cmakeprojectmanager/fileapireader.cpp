@@ -230,7 +230,6 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
     const FilePath buildDirectory = m_parameters.buildDirectory;
     const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build" ? "" : m_parameters.cmakeBuildType;
 
-    QTC_CHECK(!replyFilePath.needsDevice());
     m_lastReplyTimestamp = replyFilePath.lastModified();
 
     m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),

@@ -51,24 +51,6 @@ VersionSelector::VersionSelector(const QString &fileName, const QString &message
                             + Tr::tr("Note: You will not be able to check in this file without merging "
                                  "the changes (not supported by the plugin)")
                             + "</b></p></body></html>");
-    m_stream = new QTextStream(message.toLocal8Bit(), QIODevice::ReadOnly | QIODevice::Text);
-    QString line;
-    while (!m_stream->atEnd() && !line.contains(QLatin1String("1) Loaded version")))
-        line = m_stream->readLine();
-    if (!readValues())
-        return;
-    loadedLabel->setText(m_versionID);
-    loadedCreatedByLabel->setText(m_createdBy);
-    loadedCreatedOnLabel->setText(m_createdOn);
-    loadedText->insertPlainText(m_message + QLatin1Char(' '));
-
-    line = m_stream->readLine(); // 2) Version after update
-    if (!readValues())
-        return;
-    updatedLabel->setText(m_versionID);
-    updatedCreatedByLabel->setText(m_createdBy);
-    updatedCreatedOnLabel->setText(m_createdOn);
-    updatedText->setPlainText(m_message);
 
     using namespace Utils::Layouting;
 
@@ -91,6 +73,25 @@ VersionSelector::VersionSelector(const QString &fileName, const QString &message
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    m_stream = new QTextStream(message.toLocal8Bit(), QIODevice::ReadOnly | QIODevice::Text);
+    QString line;
+    while (!m_stream->atEnd() && !line.contains(QLatin1String("1) Loaded version")))
+        line = m_stream->readLine();
+    if (!readValues())
+        return;
+    loadedLabel->setText(m_versionID);
+    loadedCreatedByLabel->setText(m_createdBy);
+    loadedCreatedOnLabel->setText(m_createdOn);
+    loadedText->insertPlainText(m_message + QLatin1Char(' '));
+
+    line = m_stream->readLine(); // 2) Version after update
+    if (!readValues())
+        return;
+    updatedLabel->setText(m_versionID);
+    updatedCreatedByLabel->setText(m_createdBy);
+    updatedCreatedOnLabel->setText(m_createdOn);
+    updatedText->setPlainText(m_message);
 }
 
 VersionSelector::~VersionSelector()

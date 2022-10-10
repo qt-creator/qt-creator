@@ -175,7 +175,7 @@ public:
 
         m_addButton = new QPushButton(ToolChainOptionsPage::tr("Add"), this);
         auto addMenu = new QMenu;
-        for (ToolChainFactory *factory : qAsConst(m_factories)) {
+        for (ToolChainFactory *factory : std::as_const(m_factories)) {
             QList<Utils::Id> languages = factory->supportedLanguages();
             if (languages.isEmpty())
                 continue;
@@ -187,7 +187,7 @@ public:
                                 return ToolChainManager::displayNameOfLanguageId(l1) < ToolChainManager::displayNameOfLanguageId(l2);
                             });
                 auto subMenu = addMenu->addMenu(factory->displayName());
-                for (const Utils::Id &l : qAsConst(languages))
+                for (const Utils::Id &l : std::as_const(languages))
                     subMenu->addAction(createAction(ToolChainManager::displayNameOfLanguageId(l), factory, l));
             }
         }
@@ -209,7 +209,7 @@ public:
                 if (!tcItem->toolChain->isSdkProvided())
                     itemsToRemove << tcItem;
             });
-            for (ToolChainTreeItem * const tcItem : qAsConst(itemsToRemove))
+            for (ToolChainTreeItem * const tcItem : std::as_const(itemsToRemove))
                 markForRemoval(tcItem);
         });
 
@@ -410,9 +410,9 @@ void ToolChainOptionsWidget::redetectToolchains()
             toAdd << tc;
         }
     }
-    for (ToolChainTreeItem * const tcItem : qAsConst(itemsToRemove))
+    for (ToolChainTreeItem * const tcItem : std::as_const(itemsToRemove))
         markForRemoval(tcItem);
-    for (ToolChain * const newTc : qAsConst(toAdd))
+    for (ToolChain * const newTc : std::as_const(toAdd))
         m_toAddList.append(insertToolChain(newTc, true));
     qDeleteAll(toDelete);
 }
@@ -432,7 +432,7 @@ void ToolChainOptionsWidget::apply()
 {
     // Remove unused tool chains:
     QList<ToolChainTreeItem *> nodes = m_toRemoveList;
-    for (const ToolChainTreeItem *n : qAsConst(nodes))
+    for (const ToolChainTreeItem *n : std::as_const(nodes))
         ToolChainManager::deregisterToolChain(n->toolChain);
 
     Q_ASSERT(m_toRemoveList.isEmpty());
@@ -456,7 +456,7 @@ void ToolChainOptionsWidget::apply()
     // Add new (and already updated) tool chains
     QStringList removedTcs;
     nodes = m_toAddList;
-    for (const ToolChainTreeItem *n : qAsConst(nodes)) {
+    for (const ToolChainTreeItem *n : std::as_const(nodes)) {
         if (!ToolChainManager::registerToolChain(n->toolChain))
             removedTcs << n->toolChain->displayName();
     }

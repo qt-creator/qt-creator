@@ -271,13 +271,12 @@ void QmakeBuildConfiguration::updateProblemLabel()
         allGood = false;
 
     if (allGood) {
-        Tasks issues;
-        issues = version->reportIssues(proFileName, buildDirectory().toString());
+        Tasks issues = version->reportIssues(proFileName, buildDirectory().toString());
         Utils::sort(issues);
 
         if (!issues.isEmpty()) {
             QString text = QLatin1String("<nobr>");
-            foreach (const ProjectExplorer::Task &task, issues) {
+            for (const ProjectExplorer::Task &task : qAsConst(issues)) {
                 QString type;
                 switch (task.type) {
                 case ProjectExplorer::Task::Error:

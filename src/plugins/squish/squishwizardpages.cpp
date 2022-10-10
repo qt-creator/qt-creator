@@ -9,6 +9,8 @@
 #include "squishtools.h"
 #include "squishtr.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
 
@@ -334,12 +336,23 @@ Core::GeneratedFiles SquishFileGenerator::fileList(Utils::MacroExpander *expande
     const QString toolkit = expander->expand(QString{"%{Toolkit}"});;
     const Utils::FilePath suiteConf = projectDir.pathAppended("suite.conf");
 
+    Core::GeneratedFiles result;
+    if (expander->expand(QString{"%{VersionControl}"}) == "G.Git") {
+        Core::GeneratedFile gitignore(projectDir.pathAppended(".gitignore"));
+        const Utils::FilePath orig = Core::ICore::resourcePath()
+                .pathAppended("templates/wizards/projects/git.ignore");
+
+        if (QTC_GUARD(orig.exists())) {
+            gitignore.setBinaryContents(orig.fileContents().value());
+            result.append(gitignore);
+        }
+    }
+
     Core::GeneratedFile file(suiteConf);
     file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     file.setContents(generateSuiteConf(aut, lang, toolkit));
-    Core::GeneratedFile base(projectDir);
-    base.setAttributes(Core::GeneratedFile::CustomGeneratorAttribute);
-    return {base, file};
+    result.append(file);
+    return result;
 }
 
 bool SquishFileGenerator::writeFile(const ProjectExplorer::JsonWizard *,

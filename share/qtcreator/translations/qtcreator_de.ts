@@ -4101,7 +4101,7 @@ Grund: %3</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
+    <name>Git</name>
     <message>
         <source>Browse &amp;History...</source>
         <translation>Von &amp;History...</translation>
@@ -4170,9 +4170,6 @@ Grund: %3</translation>
         <source>&amp;Archive...</source>
         <translation>&amp;Archiv erzeugen...</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Invalid revision</source>
         <translation>Ungültige Revision</translation>
@@ -4260,10 +4257,6 @@ Jetzt Commit ausführen?</translation>
     <message>
         <source>Stash local changes and execute %1.</source>
         <translation>Stash der lokalen Änderungen anlegen und %1 ausführen.</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Verwerfen</translation>
     </message>
     <message>
         <source>Git SVN Log</source>
@@ -4671,9 +4664,6 @@ Jetzt Commit ausführen?</translation>
         <source>What would you like to do with local changes in:</source>
         <translation>Wie möchten Sie die folgenden lokalen Änderungen behandeln:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&lt;No repository&gt;</source>
         <translation>&lt;Kein Repository&gt;</translation>
@@ -4682,16 +4672,10 @@ Jetzt Commit ausführen?</translation>
         <source>Repository: %1</source>
         <translation>Repository: %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>Die ausführbare Datei &quot;%1&quot; konnte nicht im Pfad &quot;%2&quot; gefunden werden</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Allgemeine Informationen</translation>
@@ -4732,9 +4716,6 @@ Jetzt Commit ausführen?</translation>
         <source>Sign off</source>
         <translation>Unterschreiben</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Hinweis:&lt;/b&gt;</translation>
@@ -4790,10 +4771,6 @@ Jetzt Commit ausführen?</translation>
     <message>
         <source>Command:</source>
         <translation>Kommando:</translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Repository Browser</translation>
     </message>
 </context>
 <context>
@@ -8576,7 +8553,7 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Stashes</translation>
@@ -8613,10 +8590,6 @@ Was möchten Sie tun?</translation>
         <translation>&amp;Löschen...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Anzeigen</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>&amp;Wiederherstellen...</translation>
     </message>
@@ -8644,20 +8617,12 @@ You can choose between stashing the changes or discarding them.</source>
 Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>Als Branch wiederherstellen</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Branch:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -8673,7 +8638,7 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Allgemeine Informationen</translation>
@@ -8706,9 +8671,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Email:</source>
         <translation>E-Mail-Adresse:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -8757,9 +8719,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>Zahl der anzuzeigenden Logeinträge, 0 für unbegrenzt.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Rückgängig machen</translation>
@@ -8772,9 +8731,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Revision:</source>
         <translation>Revision:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -9220,14 +9176,11 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CommitEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation>Commit-Editor</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Die übergeordnete Revision von %1 im Repository %2 konnte nicht bestimmt werden: %3</translation>
@@ -9252,9 +9205,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Mercurial Diff &quot;%1&quot;</source>
         <translation>Mercurial Diff für &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation>Me&amp;rcurial</translation>
@@ -9427,16 +9377,9 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Ausführbare Datei</translation>
-    </message>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
     </message>
 </context>
 <context>
@@ -11590,7 +11533,7 @@ Wenn Sie %2 aus den Quelltexten erstellen und eine ausführbare CDB-Datei mit ei
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
@@ -12743,7 +12686,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>&quot;patience diff&quot;-Algorithmus verwenden.</translation>
@@ -12760,9 +12703,6 @@ Soll es noch einmal versucht werden?</translation>
         <source>Ignore Whitespace</source>
         <translation>Leerzeichen ignorieren</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>Datum der Änderung in Ausgabe nicht anzeigen.</translation>
@@ -12770,10 +12710,6 @@ Soll es noch einmal versucht werden?</translation>
     <message>
         <source>Omit Date</source>
         <translation>Datum weglassen</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Änderungen der Leerzeichen ignorieren.</translation>
     </message>
     <message>
         <source>No Move Detection</source>
@@ -12794,10 +12730,6 @@ Soll es noch einmal versucht werden?</translation>
     <message>
         <source>Move detection</source>
         <translation>Verschobene Daten erkennen</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Leerzeichen ignorieren</translation>
     </message>
 </context>
 <context>
@@ -12972,7 +12904,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>QML Functions</source>
         <translation>QML-Funktionen</translation>
@@ -14262,7 +14194,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
+    <name>Git</name>
     <message>
         <source>Add Remote</source>
         <translation>Git Remote hinzufügen</translation>
@@ -14275,16 +14207,9 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Git Remotes</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Aktualisieren</translation>
     </message>
     <message>
         <source>&amp;Add...</source>
@@ -15258,9 +15183,6 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -15961,7 +15883,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>Branch:</translation>
@@ -16007,7 +15929,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokale Branches</translation>
@@ -16017,16 +15939,12 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Remote Branches</translation>
     </message>
     <message>
-        <source>Detached HEAD</source>
-        <translation>Detached HEAD</translation>
-    </message>
-    <message>
         <source>Tags</source>
         <translation>Tags</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
+    <name>QmlJSTools</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -18065,7 +17983,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -18154,7 +18072,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>nicht unter Versionskontrolle</translation>
@@ -18199,9 +18117,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source> by them</source>
         <translation> von ihnen</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>First Parent</source>
         <translation>Erster Eltern-Commit</translation>
@@ -18696,7 +18611,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AndroidCreateKeystoreCertificate</name>
+    <name>Android</name>
     <message>
         <source>Keystore</source>
         <translation>Keystore</translation>
@@ -18765,9 +18680,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Use Keystore password</source>
         <translation>Keystore-Passwort verwenden</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android-Konfiguration</translation>
@@ -19011,7 +18923,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
+    <name>Android</name>
     <message>
         <source>Keystore password is too short.</source>
         <translation>Das Keystore-Passwort ist zu kurz.</translation>
@@ -19048,16 +18960,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation>&quot;%1&quot; beendet.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Select JDK Path</source>
         <translation>Pfad zum JDK auswählen</translation>
@@ -19239,10 +19145,6 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
         <translation>Fehlende Android-SDK-Pakete</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Android settings are OK.</source>
         <translation>Android-Einstellungen sind korrekt.</translation>
     </message>
@@ -19327,7 +19229,7 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>Git</name>
     <message>
         <source>Changes</source>
         <translation>Änderungen</translation>
@@ -19353,14 +19255,6 @@ manuellen Herunterladen im Browser des System zu öffnen.</translation>
         <translation>&amp;Aktualisieren</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>An&amp;zeigen</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry-&amp;Pick</translation>
-    </message>
-    <message>
         <source>Fetching &quot;%1&quot;...</source>
         <translation>Hole &quot;%1&quot;...</translation>
     </message>
@@ -19384,9 +19278,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (Entwurf)</translation>
@@ -19443,9 +19334,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>Fehler bei Auswertung: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Anfrage an Gerrit</translation>
@@ -19482,16 +19370,6 @@ Möchten Sie ihn beenden?</translation>
         <source>Terminate</source>
         <translation>Beenden</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -19528,28 +19406,10 @@ Möchten Sie ihn beenden?</translation>
 &quot;canonicalWebUrl&quot; in der Datei &quot;gerrit.config&quot;
 nicht konfiguriert ist.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Hole von Gerrit</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 ist abgestürzt.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 gab %2 zurück.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Fehler bei Ausführung von %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -19592,16 +19452,9 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>Geben Sie das lokale Repository für &quot;%1&quot; an (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation>Geben Sie eine gültige Email-Adresse für Commits an.</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Detached HEAD</translation>
     </message>
     <message>
         <source>Select Change</source>
@@ -19854,22 +19707,15 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDevice</name>
+    <name>Android</name>
     <message>
         <source>Run on Android</source>
         <translation>Ausführung auf Android-Gerät</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Android Device</source>
         <translation>Android-Gerät</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>NDK is not configured in Devices &gt; Android.</source>
         <translation>In Geräte &gt; Android ist kein NDK konfiguriert.</translation>
@@ -19908,7 +19754,7 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation>Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist</translation>
@@ -20219,7 +20065,7 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     </message>
 </context>
 <context>
-    <name>Android::Internal::AvdModel</name>
+    <name>Android</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -20624,7 +20470,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Es wurden lokale Änderungen festgestellt: Wählen Sie eine Aktion:</translation>
@@ -20832,7 +20678,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
 </context>
 <context>
-    <name>Git::Internal::MergeTool</name>
+    <name>Git</name>
     <message>
         <source>Normal</source>
         <translation>Normal</translation>
@@ -22422,7 +22268,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
+    <name>Git</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Push zu Gerrit</translation>
@@ -22620,7 +22466,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::LogChangeDialog</name>
+    <name>Git</name>
     <message>
         <source>Reset to:</source>
         <translation>Zurücksetzen auf:</translation>
@@ -22881,14 +22727,10 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::LogChangeWidget</name>
+    <name>Git</name>
     <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation>Titel</translation>
     </message>
 </context>
 <context>
@@ -22962,7 +22804,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidManifestEditor</name>
+    <name>Android</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -22971,9 +22813,6 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <source>XML Source</source>
         <translation>XML-Quelle</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Paket</translation>
@@ -23069,10 +22908,6 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     <message>
         <source>Include default features for Qt modules.</source>
         <translation>Standard-Features für Qt-Module einschließen.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Add</source>
@@ -23204,11 +23039,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>Password:</source>
         <translation>Passwort:</translation>
@@ -23348,7 +23179,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidErrorMessage</name>
+    <name>Android</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: Bei der SDK-Installation trat Fehler 0x%1 auf</translation>
@@ -23535,7 +23366,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translatorcomment>Android Virtual Device</translatorcomment>
@@ -23569,9 +23400,6 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <source>Overwrite existing AVD name</source>
         <translation>Bestehenden AVD-Namen überschreiben</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Android-Gerät auswählen</translation>
@@ -23635,10 +23463,6 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;aaa&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;My device is missing&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;aaa&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;Mein Gerät fehlt&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>This can be later reset in deployment settings in the Projects mode.</source>
@@ -23945,7 +23769,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
+    <name>Android</name>
     <message>
         <source>No Android arch set by the .pro file.</source>
         <translation>Die .pro-Datei setzt keine Android-Architektur.</translation>
@@ -24055,9 +23879,6 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
         <source>Package deploy: Running command &quot;%1&quot;.</source>
         <translation>Paket-Deployment: Führe Kommando &quot;%1&quot; aus.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>%1 benötigt zusätzliche Einstellungen, um die Android-Unterstützung zu aktivieren. Sie können diese im Einstellungsdialog konfigurieren.</translation>
@@ -26055,7 +25876,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
 </context>
 <context>
-    <name>AndroidConfiguration</name>
+    <name>Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Keine Ausführung möglich: %1</translation>
@@ -26064,16 +25885,10 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
         <source>No devices found in output of: %1</source>
         <translation>In der Ausgabe von %1 konnten keine Geräte festgestellt werden</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Fehler beim Erstellen des AVD</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Android konfigurieren...</translation>
@@ -27122,7 +26937,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AvdDialog</name>
+    <name>Android</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -27401,21 +27216,10 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditor</name>
+    <name>Git</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation>Aktualisiere Commit-Daten</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -27992,7 +27796,7 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -28041,16 +27845,9 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <translation>Starte: &quot;%1&quot; %2</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-    <message>
         <source>Failed to run keytool.</source>
         <translation>keytool konnte nicht ausgeführt werden.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Custom Android Debugger (%1, NDK %2)</source>
         <translation>Benutzerdefinierter Android-Debugger (%1, NDK %2)</translation>
@@ -28063,9 +27860,6 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <source>Android %1 Clang %2</source>
         <translation>Android %1 Clang %2</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Unbekannte Android-Version. API-Level: %1</translation>
@@ -30538,7 +30332,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditorWidget</name>
+    <name>Git</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation>&amp;Blame %1</translation>
@@ -30546,10 +30340,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Blame &amp;Parent Revision %1</source>
         <translation>Blame der über&amp;geordneten Revision %1</translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
-        <translation>Chunk wurde für Commit vorgesehen</translation>
     </message>
     <message>
         <source>Stage Chunk...</source>
@@ -30576,7 +30366,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>&amp;Annotate %1</translation>
@@ -31613,7 +31403,7 @@ Senden selbst auch Zeit benötigt.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
+    <name>Android</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL aktiviert</translation>
@@ -35028,7 +34818,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
 </context>
 <context>
-    <name>GitGrep</name>
+    <name>Git</name>
     <message>
         <source>Tree (optional)</source>
         <translation>Baum (optional)</translation>
@@ -36368,7 +36158,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>AdbCommandsWidget</name>
+    <name>Android</name>
     <message>
         <source>Widget</source>
         <translation>Widget</translation>
@@ -36535,7 +36325,7 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
+    <name>Git</name>
     <message>
         <source>Authentication</source>
         <translation>Authentifizierung</translation>
@@ -36543,10 +36333,6 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gerrit server with HTTP was detected, but you need to set up credentials for it.&lt;/p&gt;&lt;p&gt;To get your password, &lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;click here&lt;/span&gt;&lt;/a&gt; (sign in if needed). Click Generate Password if the password is blank, and copy the user name and password to this form.&lt;/p&gt;&lt;p&gt;Choose Anonymous if you do not want authentication for this server. In this case, changes that require authentication (like draft changes or private projects) will not be displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ein Gerrit-Server mit HTTP wurde erkannt, aber Sie müssen Zugangsdaten angeben.&lt;/p&gt;&lt;p&gt;Um Ihr Passwort zu erhalten, &lt;a href=&quot;LINK_PLACEHOLDER&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;klicken Sie hier&lt;/span&gt;&lt;/a&gt;. (Melden Sie sich an, wenn nötig.). Wenn das Passwortfeld leer ist, klicken Sie &quot;Generate Password&quot; und kopieren den Benutzernamen und das Passwort in dieses Formular.&lt;/p&gt;&lt;p&gt;Wählen Sie &quot;Anonym&quot;, wenn Sie keine Authentifizierung für diesen Server wünschen. In diesem Fall werden Änderungen, die eine Authentifizierung benötigen (wie &quot;Drafts&quot; oder private Projekte), nicht angezeigt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>&amp;Benutzer:</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
@@ -37241,7 +37027,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation>AVD kann nicht erstellt werden. Ungültige Eingabe.</translation>
@@ -37254,20 +37040,9 @@ Fehler: %5</translation>
         <source>Cannot create AVD. Command timed out.</source>
         <translation>AVD kann nicht erstellt werden. Zeitüberschreitung des Kommandos.</translation>
     </message>
-</context>
-<context>
-    <name>Android::PasswordInputDialog</name>
     <message>
         <source>Incorrect password.</source>
         <translation>Ungültiges Passwort.</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Keystore</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Zertifikat</translation>
     </message>
     <message>
         <source>Enter keystore password</source>
@@ -37277,9 +37052,6 @@ Fehler: %5</translation>
         <source>Enter certificate password</source>
         <translation>Geben Sie das Zertifikatspasswort ein</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Auf dem Host sind nicht genügend freie Ports für das QML-Debuggen vorhanden.</translation>
@@ -37950,7 +37722,7 @@ Einzelschritt in das Modul und das Setzen von Haltepunkten nach Datei und Zeilen
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritRemoteChooser</name>
+    <name>Git</name>
     <message>
         <source>Refresh Remote Servers</source>
         <translation>Remote-Server aktualisieren</translation>
@@ -39921,7 +39693,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
+    <name>Android</name>
     <message>
         <source>Android SDK Manager</source>
         <translation>Android SDK-Manager</translation>
@@ -39957,10 +39729,6 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     <message>
         <source>Advanced Options...</source>
         <translation>Erweiterte Optionen...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Do you want to accept the Android SDK license?</source>
@@ -40069,9 +39837,6 @@ Cancelling pending operations...
 Breche ausstehende Operationen ab...
 </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManager</name>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
         <translation>Die Operation benötigt Benutzereingaben. Benutzen Sie das Kommandozeilenwerkzeug &quot;sdkmanager&quot;.</translation>
@@ -40084,9 +39849,6 @@ Breche ausstehende Operationen ab...
 
 </translation>
     </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Updating installed packages.</source>
         <translation>Aktualisiere installierte Pakete.</translation>
@@ -40115,9 +39877,6 @@ Breche ausstehende Operationen ab...
         <source>Failed</source>
         <translation>Fehlgeschlagen</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::OptionsDialog</name>
     <message>
         <source>SDK Manager Arguments</source>
         <translation>SDK-Manager-Argumente</translation>
@@ -40134,20 +39893,9 @@ Breche ausstehende Operationen ab...
         <source>Available arguments:</source>
         <translation>Verfügbare Argumente:</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
-        <translation>Paket</translation>
-    </message>
     <message>
         <source>Revision</source>
         <translation>Revision</translation>
-    </message>
-    <message>
-        <source>API</source>
-        <translation>API</translation>
     </message>
     <message>
         <source>Operation</source>
@@ -40364,7 +40112,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>Android::AndroidPackageInstallationStep</name>
+    <name>Android</name>
     <message>
         <source>Copy application data</source>
         <translation>Anwendungsdaten kopieren</translation>
@@ -40842,7 +40590,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>AVD Start Error</source>
         <translation>Fehler beim Start von AVD</translation>
@@ -40855,9 +40603,6 @@ Die Trace-Daten sind verloren.</translation>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
         <translation>Installieren Sie den fehlenden Emulator (%1) im installierten Android-SDK.</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
     <message>
         <source>Clean Environment</source>
         <translation>Saubere Umgebung</translation>
@@ -41795,7 +41540,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidBuildApkWidget</name>
+    <name>Android</name>
     <message>
         <source>Create Templates</source>
         <translation>Vorlagen erstellen</translation>
@@ -41809,16 +41554,8 @@ Speichern fehlgeschlagen.</translation>
         <translation>Liste aller zusätzlichen Bibliotheken, die in das Paket aufgenommen und beim Start geladen werden.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Hinzufügen...</translation>
-    </message>
-    <message>
         <source>Select library to include in package.</source>
         <translation>Wählen Sie eine Bibliothek zur Aufnahme in das Paket aus.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Remove currently selected library from list.</source>
@@ -41827,10 +41564,6 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>Select additional libraries</source>
         <translation>Zusätzliche Bibliotheken auswählen</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Anwendung</translation>
     </message>
     <message>
         <source>Android build SDK:</source>
@@ -41843,10 +41576,6 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>Keystore:</source>
         <translation>Keystore:</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Keystore-Dateien (*.keystore *.jks)</translation>
     </message>
     <message>
         <source>Select Keystore File</source>
@@ -41901,13 +41630,6 @@ Speichern fehlgeschlagen.</translation>
         <translation>Dies ist nützlich für Apps, die SSL benutzen. Der Pfad kann in Extras &gt; Einstellungen &gt; Geräte &gt; Android festgelegt werden.</translation>
     </message>
     <message>
-        <source>Build Android APK</source>
-        <translation>Android-APK erstellen</translation>
-    </message>
-</context>
-<context>
-    <name>Android::NoApplicationProFilePage</name>
-    <message>
         <source>No application .pro file found in this project.</source>
         <translation>Die .pro-Datei der Anwendung konnte in diesem Projekt nicht gefunden werden.</translation>
     </message>
@@ -41915,9 +41637,6 @@ Speichern fehlgeschlagen.</translation>
         <source>No Application .pro File</source>
         <translation>Keine .pro-Datei der Anwendung</translation>
     </message>
-</context>
-<context>
-    <name>Android::ChooseDirectoryPage</name>
     <message>
         <source>Android package source directory:</source>
         <translation>Quellverzeichnis des Android-Pakets:</translation>
@@ -41946,9 +41665,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Die Android-Vorlagendateien werden im in der .pro-Datei angegebenen ANDROID_PACKAGE_SOURCE_DIR angelegt.</translation>
     </message>
-</context>
-<context>
-    <name>Android::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Assistent zum Erzeugen von Android-Vorlagendateien</translation>
@@ -42071,7 +41787,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchView</name>
+    <name>Git</name>
     <message>
         <source>Include Old Entries</source>
         <translation>Alte Einträge einschließen</translation>
@@ -42092,20 +41808,12 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         </translation>
     </message>
     <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;Kein Repository&gt;</translation>
-    </message>
-    <message>
         <source>Create Git Repository...</source>
         <translation>Git-Repository erzeugen...</translation>
     </message>
     <message>
         <source>Add Branch...</source>
         <translation>Branch hinzufügen...</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Hinzufügen...</translation>
     </message>
     <message>
         <source>&amp;Fetch</source>
@@ -42140,18 +41848,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>Zurück&amp;setzen</translation>
     </message>
     <message>
-        <source>&amp;Hard</source>
-        <translation>&amp;Hard</translation>
-    </message>
-    <message>
-        <source>&amp;Mixed</source>
-        <translation>&amp;Mixed</translation>
-    </message>
-    <message>
-        <source>&amp;Soft</source>
-        <translation>&amp;Soft</translation>
-    </message>
-    <message>
         <source>&amp;Merge (Fast-Forward)</source>
         <translation>&amp;Merge (Fast-Forward)</translation>
     </message>
@@ -42168,16 +41864,8 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>&amp;Rebase</translation>
     </message>
     <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Cherry-&amp;Pick</translation>
-    </message>
-    <message>
         <source>&amp;Track</source>
         <translation>&amp;Folgen</translation>
-    </message>
-    <message>
-        <source>&amp;Push</source>
-        <translation>&amp;Push</translation>
     </message>
     <message>
         <source>Would you like to delete the tag &quot;%1&quot;?</source>
@@ -42203,9 +41891,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>Git Reset</source>
         <translation>Git Reset</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchViewFactory</name>
     <message>
         <source>Git Branches</source>
         <translation>Git Branches</translation>
@@ -43105,13 +42790,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
             <numerusform>ein Element</numerusform>
             <numerusform>%n Elemente</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal</name>
-    <message>
-        <source>Deploy to Android Device</source>
-        <translation>Deployment auf Android-Gerät</translation>
     </message>
 </context>
 <context>
@@ -44540,14 +44218,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidSdkDownloader</name>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-</context>
-<context>
-    <name>Android::ChooseProfilePage</name>
+    <name>Android</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Wählen Sie die .pro-Datei, für die Sie die Android-Vorlagendateien erstellen wollen.</translation>
@@ -44685,7 +44356,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autotools Manager</source>
         <translation>Autotools-Verwaltung</translation>
@@ -46331,7 +46002,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitLogArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Diff</source>
         <translation>Diff</translation>
@@ -46341,13 +46012,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Änderung anzeigen.</translation>
     </message>
     <message>
-        <source>Filter</source>
-        <translation>Filter</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogFilterWidget</name>
-    <message>
         <source>Filter:</source>
         <translation>Filter:</translation>
     </message>
@@ -46355,9 +46019,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Case Sensitive</source>
         <translation>Groß-/Kleinschreibung</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPluginPrivate</name>
     <message>
         <source>&amp;Copy &quot;%1&quot;</source>
         <translation>&quot;%1&quot; &amp;Kopieren</translation>
@@ -46523,10 +46184,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>&amp;Lokales Repository</translation>
     </message>
     <message>
-        <source>Diff</source>
-        <translation>Diff</translation>
-    </message>
-    <message>
         <source>Log</source>
         <translation>Log</translation>
     </message>
@@ -46537,10 +46194,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Clean...</source>
         <translation>Repository bereinigen...</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Status</translation>
     </message>
     <message>
         <source>Commit...</source>
@@ -46595,20 +46248,12 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Revert abbrechen</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Rebase fortsetzen</translation>
-    </message>
-    <message>
         <source>Skip Rebase</source>
         <translation>Rebase überspringen</translation>
     </message>
     <message>
         <source>Continue Cherry Pick</source>
         <translation>Cherry-Pick fortsetzen</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Revert fortsetzen</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -46637,10 +46282,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Stashes...</source>
         <translation>Stashes...</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
@@ -46731,10 +46372,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Git-&amp;Werkzeuge</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Gitk Current File</source>
         <translation>Gitk mit Datei</translation>
     </message>
@@ -46757,10 +46394,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Repository Browser</source>
         <translation>Repository-Browser</translation>
-    </message>
-    <message>
-        <source>Merge Tool</source>
-        <translation>Merge-Tool</translation>
     </message>
     <message>
         <source>Git Bash</source>
@@ -48502,7 +48135,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidManifestEditorIconContainerWidget</name>
+    <name>Android</name>
     <message>
         <source>Low DPI icon</source>
         <translation>Symbol mit geringer Auflösung</translation>
@@ -48527,30 +48160,9 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Select high DPI icon.</source>
         <translation>Symbol für hohe Auflösung auswählen.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidServiceWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChain</name>
     <message>
         <source>Android Clang</source>
         <translation>Android Clang</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::SplashIconContainerWidget</name>
-    <message>
-        <source>Splash screen</source>
-        <translation>Startbildschirm</translation>
     </message>
 </context>
 <context>

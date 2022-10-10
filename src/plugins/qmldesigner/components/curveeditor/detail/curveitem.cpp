@@ -114,7 +114,7 @@ void CurveItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
 
 void CurveItem::lockedCallback()
 {
-    for (auto frame : qAsConst(m_keyframes))
+    for (auto frame : std::as_const(m_keyframes))
         frame->setLocked(locked());
 
     setHandleVisibility(!locked());
@@ -355,7 +355,7 @@ void CurveItem::setDirty(bool dirty)
 
 void CurveItem::setHandleVisibility(bool visible)
 {
-    for (auto *frame : qAsConst(m_keyframes))
+    for (auto *frame : std::as_const(m_keyframes))
         frame->setHandleVisibility(visible);
 }
 
@@ -390,7 +390,7 @@ QRectF CurveItem::setComponentTransform(const QTransform &transform)
 {
     prepareGeometryChange();
     m_transform = transform;
-    for (auto *frame : qAsConst(m_keyframes))
+    for (auto *frame : std::as_const(m_keyframes))
         frame->setComponentTransform(transform);
 
     return boundingRect();
@@ -400,7 +400,7 @@ void CurveItem::setStyle(const CurveEditorStyle &style)
 {
     m_style = style.curveStyle;
 
-    for (auto *frame : qAsConst(m_keyframes))
+    for (auto *frame : std::as_const(m_keyframes))
         frame->setStyle(style);
 }
 
@@ -441,7 +441,7 @@ void CurveItem::toggleUnified()
     if (m_keyframes.empty())
         return;
 
-    for (auto *frame : qAsConst(m_keyframes)) {
+    for (auto *frame : std::as_const(m_keyframes)) {
         if (frame->selected())
             frame->toggleUnified();
     }
@@ -489,7 +489,7 @@ void CurveItem::deleteSelectedKeyframes()
 
 void CurveItem::remapValue(double min, double max)
 {
-    for (auto *frameItem : qAsConst(m_keyframes)) {
+    for (auto *frameItem : std::as_const(m_keyframes)) {
         frameItem->remapValue(min, max);
     }
 }

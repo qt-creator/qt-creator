@@ -627,7 +627,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
     headerCache->insert({env, arguments}, paths);
 
     qCDebug(gccLog) << "Reporting header paths to code model:";
-    for (const HeaderPath &hp : qAsConst(paths)) {
+    for (const HeaderPath &hp : std::as_const(paths)) {
         qCDebug(gccLog) << compilerCommand.toUserOutput()
                         << (languageId == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
                         << arguments.join(", ") << "]" << hp.path;
@@ -1108,7 +1108,7 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
         FilePaths searchPaths = detector.searchPaths;
         if (searchPaths.isEmpty())
             searchPaths = device->systemEnvironment().path();
-        for (const FilePath &deviceDir : qAsConst(searchPaths)) {
+        for (const FilePath &deviceDir : std::as_const(searchPaths)) {
             static const QRegularExpression regexp(binaryRegexp);
             const auto callBack = [&compilerPaths, compilerName](const FilePath &candidate) {
                 if (candidate.fileName() == compilerName)
@@ -1142,7 +1142,7 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                     searchPaths << ccachePath;
             }
         }
-        for (const FilePath &dir : qAsConst(searchPaths)) {
+        for (const FilePath &dir : std::as_const(searchPaths)) {
             static const QRegularExpression regexp(binaryRegexp);
             QDir binDir(dir.toString());
             const QStringList fileNames = binDir.entryList(nameFilters,
@@ -1173,7 +1173,7 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
     Toolchains existingCandidates = filtered(detector.alreadyKnown,
             [language](const ToolChain *tc) { return tc->language() == language; });
     Toolchains result;
-    for (const FilePath &compilerPath : qAsConst(compilerPaths)) {
+    for (const FilePath &compilerPath : std::as_const(compilerPaths)) {
         bool alreadyExists = false;
         for (ToolChain * const existingTc : existingCandidates) {
             // We have a match if the existing toolchain ultimately refers to the same file

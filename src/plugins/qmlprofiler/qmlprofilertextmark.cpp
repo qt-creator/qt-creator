@@ -94,13 +94,13 @@ void QmlProfilerTextMarkModel::createMarks(QmlProfilerViewManager *viewManager,
 
 void QmlProfilerTextMarkModel::showTextMarks()
 {
-    for (QmlProfilerTextMark *mark : qAsConst(m_marks))
+    for (QmlProfilerTextMark *mark : std::as_const(m_marks))
         mark->setVisible(true);
 }
 
 void QmlProfilerTextMarkModel::hideTextMarks()
 {
-    for (QmlProfilerTextMark *mark : qAsConst(m_marks))
+    for (QmlProfilerTextMark *mark : std::as_const(m_marks))
         mark->setVisible(false);
 }
 

@@ -36,7 +36,7 @@ QList<ProcessInfo> QnxDeviceProcessList::buildProcessList(const QString &listPro
     lines.pop_front(); // drop headers
     const QRegularExpression re("\\s*(\\d+)\\s+(.*){(.*)}");
 
-    for (const QString &line : qAsConst(lines)) {
+    for (const QString &line : std::as_const(lines)) {
         const QRegularExpressionMatch match = re.match(line);
         if (match.hasMatch()) {
             const QStringList captures = match.capturedTexts();

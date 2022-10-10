@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidpotentialkit.h"
-#include "androidconstants.h"
 #include "androidconfigurations.h"
+#include "androidconstants.h"
+#include "androidpotentialkit.h"
+#include "androidtr.h"
 
 #include <app/app_version.h>
 
@@ -27,7 +28,7 @@ using namespace Android::Internal;
 
 QString AndroidPotentialKit::displayName() const
 {
-    return tr("Configure Android...");
+    return Tr::tr("Configure Android...");
 }
 
 void AndroidPotentialKit::executeFromMenu()
@@ -68,8 +69,8 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     auto layout = new QGridLayout(mainWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     auto label = new QLabel;
-    label->setText(tr("%1 needs additional settings to enable Android support."
-                      " You can configure those settings in the Options dialog.")
+    label->setText(Tr::tr("%1 needs additional settings to enable Android support."
+                          " You can configure those settings in the Options dialog.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME));
     label->setWordWrap(true);
     layout->addWidget(label, 0, 0, 1, 2);

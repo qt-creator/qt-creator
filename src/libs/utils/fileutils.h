@@ -31,6 +31,15 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class CommandLine;
+
+struct QTCREATOR_UTILS_EXPORT RunResult
+{
+    int exitCode = 0;
+    QByteArray stdOut;
+    QByteArray stdErr;
+};
+
 class QTCREATOR_UTILS_EXPORT FileUtils
 {
 public:
@@ -77,10 +86,18 @@ public:
 
     static FilePaths toFilePathList(const QStringList &paths);
 
-    static void iterateLsOutput(const FilePath &base,
-                                const QStringList &entries,
-                                const FileFilter &filter,
-                                const std::function<bool(const FilePath &)> &callBack);
+    static void iterateLsOutput(
+            const FilePath &base,
+            const QStringList &entries,
+            const FileFilter &filter,
+            const std::function<bool(const FilePath &)> &callBack);
+
+    static void iterateUnixDirectory(
+            const FilePath &base,
+            const FileFilter &filter,
+            bool *useFind,
+            const std::function<RunResult(const CommandLine &)> &runInShell,
+            const std::function<bool(const FilePath &)> &callBack);
 
     static qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
 

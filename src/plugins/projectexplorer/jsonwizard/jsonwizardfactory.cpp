@@ -599,13 +599,13 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
     wizard->setValue(QStringLiteral("id"), id().toString());
 
     MacroExpander *expander = wizard->expander();
-    for (const JsonWizard::OptionDefinition &od : qAsConst(m_options)) {
+    for (const JsonWizard::OptionDefinition &od : std::as_const(m_options)) {
         if (od.condition(*expander))
             wizard->setValue(od.key(), od.value(*expander));
     }
 
     bool havePage = false;
-    for (const Page &data : qAsConst(m_pages)) {
+    for (const Page &data : std::as_const(m_pages)) {
         QTC_ASSERT(data.isValid(), continue);
 
         if (!JsonWizard::boolFromVariant(data.enabled, wizard->expander()))
@@ -633,7 +633,7 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
         }
     }
 
-    for (const Generator &data : qAsConst(m_generators)) {
+    for (const Generator &data : std::as_const(m_generators)) {
         QTC_ASSERT(data.isValid(), continue);
         JsonWizardGeneratorFactory *factory = Utils::findOr(s_generatorFactories, nullptr,
                                                             [&data](JsonWizardGeneratorFactory *f) {
@@ -680,7 +680,7 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
         const QString locale = languageSetting().toLower();
         QStringList locales;
         locales << locale << QLatin1String("en") << QLatin1String("C") << tmp.keys();
-        for (const QString &locale : qAsConst(locales)) {
+        for (const QString &locale : std::as_const(locales)) {
             QString result = tmp.value(locale, QString()).toString();
             if (!result.isEmpty())
                 return result;
@@ -834,7 +834,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
         return false;
     }
 
-    for (const QVariant &v : qAsConst(list)) {
+    for (const QVariant &v : std::as_const(list)) {
         Generator gen = parseGenerator(v, errorMessage);
         if (gen.isValid())
             m_generators.append(gen);
@@ -849,7 +849,7 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
         return false;
     }
 
-    for (const QVariant &v : qAsConst(list)) {
+    for (const QVariant &v : std::as_const(list)) {
         Page p = parsePage(v, errorMessage);
         if (p.isValid())
             m_pages.append(p);

@@ -112,7 +112,7 @@ void ScxmlDocument::addNamespace(ScxmlNamespace *ns)
 
     ScxmlTag *scxmlTag = scxmlRootTag();
     if (scxmlTag) {
-        for (ScxmlNamespace *ns : qAsConst(m_namespaces)) {
+        for (ScxmlNamespace *ns : std::as_const(m_namespaces)) {
             QString prefix = ns->prefix();
             if (prefix.isEmpty())
                 prefix = "xmlns";
@@ -149,7 +149,7 @@ bool ScxmlDocument::generateSCXML(QIODevice *io, ScxmlTag *tag) const
 ScxmlTag *ScxmlDocument::createScxmlTag()
 {
     auto tag = new ScxmlTag(Scxml, this);
-    for (ScxmlNamespace *ns : qAsConst(m_namespaces)) {
+    for (ScxmlNamespace *ns : std::as_const(m_namespaces)) {
         QString prefix = ns->prefix();
         if (prefix.isEmpty())
             prefix = "xmlns";
@@ -291,7 +291,7 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
     QBuffer buffer(&d);
     buffer.open(QIODevice::ReadOnly);
     QXmlStreamReader xml(&buffer);
-    for (ScxmlNamespace *ns : qAsConst(m_namespaces)) {
+    for (ScxmlNamespace *ns : std::as_const(m_namespaces)) {
         xml.addExtraNamespaceDeclaration(QXmlStreamNamespaceDeclaration(ns->prefix(), ns->name()));
     }
 
@@ -576,7 +576,7 @@ QString ScxmlDocument::nextUniqueId(const QString &key)
         name = QString::fromLatin1("%1_%2").arg(key).arg(id);
 
         // Check duplicate
-        for (const ScxmlTag *tag : qAsConst(m_tags)) {
+        for (const ScxmlTag *tag : std::as_const(m_tags)) {
             if (tag->attribute("id") == name) {
                 bFound = true;
                 break;
@@ -598,7 +598,7 @@ QString ScxmlDocument::getUniqueCopyId(const ScxmlTag *tag)
     while (true) {
         bFound = false;
         // Check duplicate
-        for (const ScxmlTag *t : qAsConst(m_tags)) {
+        for (const ScxmlTag *t : std::as_const(m_tags)) {
             if (t->attribute("id") == name && t != tag) {
                 name = QString::fromLatin1("%1_Copy%2").arg(key).arg(counter);
                 bFound = true;

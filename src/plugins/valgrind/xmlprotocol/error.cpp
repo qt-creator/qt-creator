@@ -182,7 +182,7 @@ QString Error::toXml() const
         stream << "  <what>" << d->what << "</what>\n";
     }
 
-    for (const Stack &stack : qAsConst(d->stacks)) {
+    for (const Stack &stack : std::as_const(d->stacks)) {
         if (!stack.auxWhat().isEmpty())
             stream << "  <auxwhat>" << stack.auxWhat() << "</auxwhat>\n";
         stream << "  <stack>\n";

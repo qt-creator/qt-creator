@@ -152,7 +152,7 @@ void SubComponentManager::parseDirectories()
     for (const auto &assetPath : assetPaths)
         parseDirectory(assetPath);
 
-    for (const Import &import : qAsConst(m_imports)) {
+    for (const Import &import : std::as_const(m_imports)) {
         if (import.isFileImport()) {
             QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());
             if (dirInfo.exists() && dirInfo.isDir()) {
@@ -387,7 +387,7 @@ void SubComponentManager::parseQuick3DAssetsDir(const QString &quick3DAssetsPath
         asset.prepend(QString(Constants::QUICK_3D_ASSETS_FOLDER).mid(1) + '.');
 
     // Create item library entries for Quick3D assets that are imported by document
-    for (auto &import : qAsConst(m_imports)) {
+    for (auto &import : std::as_const(m_imports)) {
         if (import.isLibraryImport() && assets.contains(import.url())) {
             assets.removeOne(import.url());
             parseQuick3DAssetsItem(import.url(), quick3DAssetsPath);

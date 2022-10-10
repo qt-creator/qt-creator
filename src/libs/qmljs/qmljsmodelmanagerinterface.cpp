@@ -278,9 +278,9 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
     for (auto it = objs.cbegin(); it != objs.cend(); ++it)
         CppQmlTypesLoader::defaultLibraryObjects.insert(it.key(), it.value());
 
-    for (const QString &error : qAsConst(errors))
+    for (const QString &error : std::as_const(errors))
         writeMessageInternal(error);
-    for (const QString &warning : qAsConst(warnings))
+    for (const QString &warning : std::as_const(warnings))
         writeMessageInternal(warning);
 }
 
@@ -462,7 +462,7 @@ void ModelManagerInterface::iterateQrcFiles(
     }
 
     QSet<Utils::FilePath> pathsChecked;
-    for (const ModelManagerInterface::ProjectInfo &pInfo : qAsConst(pInfos)) {
+    for (const ModelManagerInterface::ProjectInfo &pInfo : std::as_const(pInfos)) {
         QList<Utils::FilePath> qrcFilePaths;
         if (resources == ActiveQrcResources)
             qrcFilePaths = pInfo.activeResourceFiles;
@@ -470,7 +470,7 @@ void ModelManagerInterface::iterateQrcFiles(
             qrcFilePaths = pInfo.allResourceFiles;
         for (const Utils::FilePath &p : generatedQrc(pInfo.applicationDirectories))
             qrcFilePaths.append(p);
-        for (const Utils::FilePath &qrcFilePath : qAsConst(qrcFilePaths)) {
+        for (const Utils::FilePath &qrcFilePath : std::as_const(qrcFilePaths)) {
             if (pathsChecked.contains(qrcFilePath))
                 continue;
             pathsChecked.insert(qrcFilePath);
@@ -566,19 +566,19 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
 
     // remove files that are no longer in the project and have been deleted
     QList<Utils::FilePath> deletedFiles;
-    for (const Utils::FilePath &oldFile : qAsConst(oldInfo.sourceFiles)) {
+    for (const Utils::FilePath &oldFile : std::as_const(oldInfo.sourceFiles)) {
         if (snapshot.document(oldFile) && !pinfo.sourceFiles.contains(oldFile)
             && !oldFile.exists()) {
             deletedFiles += oldFile;
         }
     }
     removeFiles(deletedFiles);
-    for (const Utils::FilePath &oldFile : qAsConst(deletedFiles))
+    for (const Utils::FilePath &oldFile : std::as_const(deletedFiles))
         m_fileToProject.remove(oldFile, p);
 
     // parse any files not yet in the snapshot
     QList<Utils::FilePath> newFiles;
-    for (const Utils::FilePath &file : qAsConst(pinfo.sourceFiles)) {
+    for (const Utils::FilePath &file : std::as_const(pinfo.sourceFiles)) {
         if (!m_fileToProject.contains(file, p))
             m_fileToProject.insert(file, p);
         if (!snapshot.document(file))
@@ -589,11 +589,11 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
 
     // update qrc cache
     m_qrcContents = pinfo.resourceFileContents;
-    for (const Utils::FilePath &newQrc : qAsConst(pinfo.allResourceFiles))
+    for (const Utils::FilePath &newQrc : std::as_const(pinfo.allResourceFiles))
         m_qrcCache.addPath(newQrc.toString(), m_qrcContents.value(newQrc));
     for (const Utils::FilePath &newQrc : generatedQrc(pinfo.applicationDirectories))
         m_qrcCache.addPath(newQrc.toString(), m_qrcContents.value(newQrc));
-    for (const Utils::FilePath &oldQrc : qAsConst(oldInfo.allResourceFiles))
+    for (const Utils::FilePath &oldQrc : std::as_const(oldInfo.allResourceFiles))
         m_qrcCache.removePath(oldQrc.toString());
 
     m_pluginDumper->loadBuiltinTypes(pinfo);
@@ -654,7 +654,7 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfos
             projects = m_fileToProject.values(path.canonicalPath());
     }
     QList<ProjectInfo> infos;
-    for (ProjectExplorer::Project *project : qAsConst(projects)) {
+    for (ProjectExplorer::Project *project : std::as_const(projects)) {
         ProjectInfo info = projectInfo(project);
         if (!info.project.isNull())
             infos.append(info);
@@ -1011,7 +1011,7 @@ void ModelManagerInterface::parseLoop(QSet<Utils::FilePath> &scannedPaths,
         }
 
         // add new files to parse list
-        for (const Utils::FilePath &file : qAsConst(importedFiles)) {
+        for (const Utils::FilePath &file : std::as_const(importedFiles)) {
             if (!files.contains(file))
                 files.append(file);
         }
@@ -1200,7 +1200,7 @@ static QList<Utils::FilePath> minimalPrefixPaths(const QList<Utils::FilePath> &p
 {
     QList<Utils::FilePath> sortedPaths;
     // find minimal prefix, ensure '/' at end
-    for (Utils::FilePath path : qAsConst(paths)) {
+    for (Utils::FilePath path : std::as_const(paths)) {
         if (!path.endsWith("/"))
             path = path.withNewPath(path.path() + "/");
         if (path.path().length() > 1)
@@ -1226,7 +1226,7 @@ void ModelManagerInterface::updateImportPaths()
     QList<Utils::FilePath> allApplicationDirectories;
     QmlLanguageBundles activeBundles;
     QmlLanguageBundles extendedBundles;
-    for (const ProjectInfo &pInfo : qAsConst(m_projects)) {
+    for (const ProjectInfo &pInfo : std::as_const(m_projects)) {
         for (const auto &importPath : pInfo.importPaths) {
             const FilePath canonicalPath = importPath.path().canonicalPath();
             if (!canonicalPath.isEmpty())
@@ -1235,13 +1235,13 @@ void ModelManagerInterface::updateImportPaths()
         allApplicationDirectories.append(pInfo.applicationDirectories);
     }
 
-    for (const ViewerContext &vContext : qAsConst(m_defaultVContexts)) {
+    for (const ViewerContext &vContext : std::as_const(m_defaultVContexts)) {
         for (const Utils::FilePath &path : vContext.paths)
             allImportPaths.maybeInsert(path, vContext.language);
         allApplicationDirectories.append(vContext.applicationDirectories);
     }
 
-    for (const ProjectInfo &pInfo : qAsConst(m_projects)) {
+    for (const ProjectInfo &pInfo : std::as_const(m_projects)) {
         activeBundles.mergeLanguageBundles(pInfo.activeBundle);
         const auto languages = pInfo.activeBundle.languages();
         for (Dialect l : languages) {
@@ -1254,7 +1254,7 @@ void ModelManagerInterface::updateImportPaths()
         }
     }
 
-    for (const ProjectInfo &pInfo : qAsConst(m_projects)) {
+    for (const ProjectInfo &pInfo : std::as_const(m_projects)) {
         if (!pInfo.qtQmlPath.isEmpty())
             allImportPaths.maybeInsert(pInfo.qtQmlPath, Dialect::QmlQtQuick2);
     }
@@ -1269,7 +1269,7 @@ void ModelManagerInterface::updateImportPaths()
         allImportPaths.maybeInsert(importPath);
     }
 
-    for (const Utils::FilePath &path : qAsConst(m_defaultImportPaths))
+    for (const Utils::FilePath &path : std::as_const(m_defaultImportPaths))
         allImportPaths.maybeInsert(path, Dialect::Qml);
     allImportPaths.compact();
     allApplicationDirectories = Utils::filteredUnique(allApplicationDirectories);
@@ -1288,9 +1288,9 @@ void ModelManagerInterface::updateImportPaths()
     QList<Utils::FilePath> importedFiles;
     QSet<Utils::FilePath> scannedPaths;
     QSet<Utils::FilePath> newLibraries;
-    for (const Document::Ptr &doc : qAsConst(snapshot))
+    for (const Document::Ptr &doc : std::as_const(snapshot))
         findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths, &newLibraries);
-    for (const Utils::FilePath &path : qAsConst(allApplicationDirectories)) {
+    for (const Utils::FilePath &path : std::as_const(allApplicationDirectories)) {
         allImportPaths.maybeInsert(path, Dialect::Qml);
         findNewQmlApplicationInPath(path, snapshot, this, &newLibraries);
     }
@@ -1381,9 +1381,9 @@ bool rescanExports(const QString &fileName, FindExportedCppTypes &finder,
         }
         if (!hasNewInfo) {
             QHash<QString, QByteArray> newFingerprints;
-            for (const auto &newType : qAsConst(exported))
+            for (const auto &newType : std::as_const(exported))
                 newFingerprints[newType->className()]=newType->fingerprint();
-            for (const auto &oldType : qAsConst(data.exportedTypes)) {
+            for (const auto &oldType : std::as_const(data.exportedTypes)) {
                 if (newFingerprints.value(oldType->className()) != oldType->fingerprint()) {
                     hasNewInfo = true;
                     break;
@@ -1521,7 +1521,7 @@ ViewerContext ModelManagerInterface::getVContext(const ViewerContext &vCtx,
         Q_FALLTHROUGH();
     case ViewerContext::AddAllPaths:
     {
-        for (const Utils::FilePath &path : qAsConst(defaultVCtx.paths))
+        for (const Utils::FilePath &path : std::as_const(defaultVCtx.paths))
             maybeAddPath(res, path);
         switch (res.language.dialect()) {
         case Dialect::AnyLanguage:
@@ -1552,7 +1552,7 @@ ViewerContext ModelManagerInterface::getVContext(const ViewerContext &vCtx,
                     allProjects = m_projects.values();
                 }
                 std::sort(allProjects.begin(), allProjects.end(), &pInfoLessThanImports);
-                for (const ProjectInfo &pInfo : qAsConst(allProjects))
+                for (const ProjectInfo &pInfo : std::as_const(allProjects))
                     addPathsOnLanguageMatch(pInfo.importPaths);
             }
             const auto environmentPaths = environmentImportPaths();
@@ -1574,7 +1574,7 @@ ViewerContext ModelManagerInterface::getVContext(const ViewerContext &vCtx,
         res.selectors.append(defaultVCtx.selectors);
         Q_FALLTHROUGH();
     case ViewerContext::AddDefaultPaths:
-        for (const Utils::FilePath &path : qAsConst(defaultVCtx.paths))
+        for (const Utils::FilePath &path : std::as_const(defaultVCtx.paths))
             maybeAddPath(res, path);
         if (res.language == Dialect::AnyLanguage || res.language == Dialect::Qml)
             maybeAddPath(res, info.qtQmlPath);
@@ -1692,7 +1692,7 @@ void ModelManagerInterface::resetCodeModel()
         QMutexLocker locker(&m_mutex);
 
         // find all documents currently in the code model
-        for (const Document::Ptr &doc : qAsConst(m_validSnapshot))
+        for (const Document::Ptr &doc : std::as_const(m_validSnapshot))
             documents.append(doc->fileName());
 
         // reset the snapshot

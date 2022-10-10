@@ -170,7 +170,7 @@ void WinDebugInterface::dispatchDebugOutput()
         m_readySignalEmitted = false;
     m_outputMutex.unlock();
 
-    for (const auto &p : qAsConst(output))
+    for (const auto &p : std::as_const(output))
         emit debugOutput(p.first, p.second);
     if (hasMoreOutput)
         emit _q_debugOutputReady();

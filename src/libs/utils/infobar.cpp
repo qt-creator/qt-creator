@@ -266,7 +266,7 @@ void InfoBarDisplay::infoBarDestroyed()
 
 void InfoBarDisplay::update()
 {
-    for (QWidget *widget : qAsConst(m_infoWidgets)) {
+    for (QWidget *widget : std::as_const(m_infoWidgets)) {
         widget->disconnect(this); // We want no destroyed() signal now
         delete widget;
     }
@@ -275,7 +275,7 @@ void InfoBarDisplay::update()
     if (!m_infoBar)
         return;
 
-    for (const InfoBarEntry &info : qAsConst(m_infoBar->m_infoBarEntries)) {
+    for (const InfoBarEntry &info : std::as_const(m_infoBar->m_infoBarEntries)) {
         auto infoWidget = new InfoBarWidget(m_edge);
 
         auto hbox = new QHBoxLayout;
@@ -319,7 +319,7 @@ void InfoBarDisplay::update()
         if (!info.m_combo.entries.isEmpty()) {
             auto cb = new QComboBox();
             cb->setToolTip(info.m_combo.tooltip);
-            for (const InfoBarEntry::ComboInfo &comboInfo : qAsConst(info.m_combo.entries))
+            for (const InfoBarEntry::ComboInfo &comboInfo : std::as_const(info.m_combo.entries))
                 cb->addItem(comboInfo.displayText, comboInfo.data);
             if (info.m_combo.currentIndex >= 0 && info.m_combo.currentIndex < cb->count())
                 cb->setCurrentIndex(info.m_combo.currentIndex);
@@ -330,7 +330,7 @@ void InfoBarDisplay::update()
             hbox->addWidget(cb);
         }
 
-        for (const InfoBarEntry::Button &button : qAsConst(info.m_buttons)) {
+        for (const InfoBarEntry::Button &button : std::as_const(info.m_buttons)) {
             auto infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(button.text);
             infoWidgetButton->setToolTip(button.tooltip);

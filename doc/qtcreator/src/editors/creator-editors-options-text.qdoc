@@ -39,6 +39,9 @@
     \uicontrol Behavior and deselect the
     \uicontrol {Enable scroll wheel zooming} check box.
 
+    To improve the readability of text in the editor, adjust the line spacing in
+    the \uicontrol {Line spacing} field.
+
     Antialiasing is used by default to make text look smoother and more readable
     on the screen. Deselect the \uicontrol Antialias check box to turn off
     antialiasing.

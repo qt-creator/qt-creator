@@ -69,7 +69,7 @@ ParseData::Private::~Private()
 void ParseData::Private::cleanupFunctionCycles()
 {
     m_cycleCacheValid = false;
-    for (const Function *func : qAsConst(m_cycleCache)) {
+    for (const Function *func : std::as_const(m_cycleCache)) {
         if (dynamic_cast<const FunctionCycle *>(func))
             delete func;
     }

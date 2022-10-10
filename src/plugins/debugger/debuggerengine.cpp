@@ -2840,7 +2840,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 bool found = false;
                 while (str < limit) {
                     const QString string = QString::fromUtf8(str);
-                    for (auto pair : qAsConst(globalRegExpSourceMap)) {
+                    for (auto pair : std::as_const(globalRegExpSourceMap)) {
                         const QRegularExpressionMatch match = pair.first.match(string);
                         if (match.hasMatch()) {
                             rp.sourcePathMap.insert(string.left(match.capturedStart()) + match.captured(1),
@@ -2862,7 +2862,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         if (hasEmbeddedInfo || hasLink)
             return;
 
-        for (const QByteArray &name : qAsConst(interesting)) {
+        for (const QByteArray &name : std::as_const(interesting)) {
             const QString found = seen.contains(name) ? Tr::tr("Found.")
                                                       : Tr::tr("Not found.");
             detailedWarning.append('\n' + Tr::tr("Section %1: %2").arg(QString::fromUtf8(name)).arg(found));

@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace Mercurial {
-namespace Constants {
+namespace Mercurial::Constants {
 
 enum { debug = 0 };
 const char MERCURIAL_PLUGIN[] = "MercurialPlugin";
@@ -65,5 +64,4 @@ const char OUTGOING[] = "Mercurial.Action.Outgoing";
 const char COMMIT[] = "Mercurial.Action.Commit";
 const char CREATE_REPOSITORY[] = "Mercurial.Action.CreateRepository";
 
-} // namespace Constants
-} // namespace mercurial
+} // Mercurial::Constants

@@ -135,7 +135,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     QString candidatePath = targetDir + defaultAssetFolder + quick3DFolder;
     int candidatePriority = 5;
 
-    for (const auto &importPath : qAsConst(importPaths)) {
+    for (const auto &importPath : std::as_const(importPaths)) {
         if (importPath.startsWith(targetDir)) {
             const bool isDefaultFolder = importPath.endsWith(defaultAssetFolder);
             const QString assetFolder = importPath + quick3DFolder;
@@ -197,7 +197,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
 
         // Create tab for each supported extension group that also has files included in the import
         QMap<QString, int> tabMap; // QMap used for alphabetical order
-        for (const auto &file : qAsConst(m_quick3DFiles)) {
+        for (const auto &file : std::as_const(m_quick3DFiles)) {
             auto extIt = supportedExts.constBegin();
             QString ext = QFileInfo(file).suffix().toLower();
             while (extIt != supportedExts.constEnd()) {
@@ -252,7 +252,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
             this, &ItemLibraryAssetImportDialog::setImportProgress);
 
     addInfo(tr("Select import options and press \"Import\" to import the following files:"));
-    for (const auto &file : qAsConst(m_quick3DFiles))
+    for (const auto &file : std::as_const(m_quick3DFiles))
         addInfo(file);
 
     connect(ui->advancedSettingsButton, &QPushButton::clicked,
@@ -751,7 +751,7 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
 
     // Ungrouped options are spread evenly under the groups
     int totalRowCount = (rowIndex[0] + rowIndex[1] + widgets[0].size() + 1) / 2;
-    for (const auto &rowWidgets : qAsConst(widgets[0])) {
+    for (const auto &rowWidgets : std::as_const(widgets[0])) {
         int col = rowIndex[0] < totalRowCount ? 0 : 1;
         insertOptionToLayout(col, rowWidgets);
     }
@@ -898,11 +898,11 @@ void ItemLibraryAssetImportDialog::onClose()
 void ItemLibraryAssetImportDialog::toggleAdvanced()
 {
     m_advancedMode = !m_advancedMode;
-    for (const auto &widget : qAsConst(m_simpleData.contentWidgets)) {
+    for (const auto &widget : std::as_const(m_simpleData.contentWidgets)) {
         if (widget)
             widget->setVisible(!m_advancedMode);
     }
-    for (const auto &widget : qAsConst(m_advancedData.contentWidgets)) {
+    for (const auto &widget : std::as_const(m_advancedData.contentWidgets)) {
         if (widget)
             widget->setVisible(m_advancedMode);
     }

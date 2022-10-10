@@ -7,7 +7,6 @@
 
 #include <utils/filepath.h>
 
-#include <QCoreApplication>
 #include <QStringList>
 #include <QPair>
 
@@ -15,8 +14,7 @@ QT_BEGIN_NAMESPACE
 class QTextCodec;
 QT_END_NAMESPACE
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 // Read-only
 class GitSubmitEditorPanelInfo
@@ -69,8 +67,6 @@ Q_DECLARE_FLAGS(FileStates, FileState)
 
 class CommitData
 {
-    Q_DECLARE_TR_FUNCTIONS(Git::Internal::CommitData)
-
 public:
     CommitData(CommitType type = SimpleCommit);
     // A pair of state string/file name ('modified', 'file.cpp').
@@ -101,17 +97,14 @@ private:
     bool checkLine(const QString &stateInfo, const QString &file);
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Git::Internal::FileStates)
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 // Must appear after Q_DECLARE_OPERATORS_FOR_FLAGS
 bool operator<(const CommitData::StateFilePair &a,
                const CommitData::StateFilePair &b);
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

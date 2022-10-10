@@ -181,7 +181,7 @@ void AssetImportUpdateTreeModel::createItems(const QList<QFileInfo> &infos,
             }
         }
         // Remove dir items that have no children from the model
-        for (auto dirItem : qAsConst(dirItems)) {
+        for (auto dirItem : std::as_const(dirItems)) {
             if (dirItem->childCount() == 0)
                 delete dirItem;
         }
@@ -220,7 +220,7 @@ QStringList AssetImportUpdateTreeModel::checkedFiles() const
 {
     QStringList retList;
 
-    for (const auto item : qAsConst(m_fileItems)) {
+    for (const auto item : std::as_const(m_fileItems)) {
         if (item->checkState() == Qt::Checked)
             retList.append(item->fileInfo().absoluteFilePath());
     }

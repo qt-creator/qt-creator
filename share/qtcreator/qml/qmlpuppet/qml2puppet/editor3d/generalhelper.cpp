@@ -206,7 +206,7 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
         totalMinBound = {-halfExtent, -halfExtent, -halfExtent};
         totalMaxBound = {halfExtent, halfExtent, halfExtent};
     }
-    for (const auto node : qAsConst(nodeList)) {
+    for (const auto node : std::as_const(nodeList)) {
         auto model = qobject_cast<QQuick3DModel *>(node);
         qreal maxExtent = defaultExtent;
         QVector3D center = node->scenePosition();
@@ -345,7 +345,7 @@ void GeneralHelper::alignCameras(QQuick3DCamera *camera, const QVariant &nodes)
             nodeList.append(cameraNode);
     }
 
-    for (QQuick3DCamera *node : qAsConst(nodeList)) {
+    for (QQuick3DCamera *node : std::as_const(nodeList)) {
         node->setPosition(camera->position());
         node->setRotation(camera->rotation());
     }
@@ -587,7 +587,7 @@ void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
     // Filter selection to contain only topmost parent nodes in the selection
     m_multiSelDataMap.clear();
     m_multiSelNodes.clear();
-    for (auto &connection : qAsConst(m_multiSelectConnections))
+    for (auto &connection : std::as_const(m_multiSelectConnections))
         disconnect(connection);
     m_multiSelectConnections.clear();
     m_multiSelectRootNode = multiSelectRootNode;
@@ -599,7 +599,7 @@ void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
         if (node)
             selNodes.insert(node);
     }
-    for (const auto selNode : qAsConst(selNodes)) {
+    for (const auto selNode : std::as_const(selNodes)) {
         bool found = false;
         QQuick3DNode *parent = selNode->parentNode();
         while (parent) {
@@ -617,7 +617,7 @@ void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
                 // The new selection should be notified by creator immediately after anyway.
                 m_multiSelDataMap.clear();
                 m_multiSelNodes.clear();
-                for (auto &connection : qAsConst(m_multiSelectConnections))
+                for (auto &connection : std::as_const(m_multiSelectConnections))
                     disconnect(connection);
                 m_multiSelectConnections.clear();
             }));
@@ -643,7 +643,7 @@ void GeneralHelper::resetMultiSelectionNode()
 
     m_multiSelNodeData = {};
     if (!m_multiSelDataMap.isEmpty()) {
-        for (const auto &data : qAsConst(m_multiSelDataMap))
+        for (const auto &data : std::as_const(m_multiSelDataMap))
             m_multiSelNodeData.startScenePos += data.startScenePos;
         m_multiSelNodeData.startScenePos /= m_multiSelDataMap.size();
     }
@@ -880,9 +880,9 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
     };
 
     // Combine all child bounds
-    for (const auto &newBounds : qAsConst(minBoundsVec))
+    for (const auto &newBounds : std::as_const(minBoundsVec))
         combineMinBounds(localMinBounds, newBounds);
-    for (const auto &newBounds : qAsConst(maxBoundsVec))
+    for (const auto &newBounds : std::as_const(maxBoundsVec))
         combineMaxBounds(localMaxBounds, newBounds);
 
     if (qobject_cast<QQuick3DModel *>(node)) {

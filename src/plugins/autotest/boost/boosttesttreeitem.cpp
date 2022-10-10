@@ -182,7 +182,7 @@ QList<ITestConfiguration *> BoostTestTreeItem::getAllTestConfigurations() const
     });
 
     for (auto it = testsPerProjectfile.begin(), end = testsPerProjectfile.end(); it != end; ++it) {
-        for (const QString &target : qAsConst(it.value().internalTargets)) {
+        for (const QString &target : std::as_const(it.value().internalTargets)) {
             BoostTestConfiguration *config = new BoostTestConfiguration(framework());
             config->setProject(project);
             config->setProjectFile(it.key());

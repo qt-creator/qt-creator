@@ -151,7 +151,7 @@ static FilePath otherFile()
     }
     // Try to find existing file with desired suffix
     const FilePath currentBaseName = current.parentDir().pathAppended(current.baseName() + '.');
-    for (const QString &candidateSuffix : qAsConst(candidateSuffixes)) {
+    for (const QString &candidateSuffix : std::as_const(candidateSuffixes)) {
         const FilePath filePath = currentBaseName.stringAppended(candidateSuffix);
         if (filePath.isFile())
             return filePath.absoluteFilePath();

@@ -513,6 +513,7 @@ public:
     void updateHighlights();
     void updateCurrentLineInScrollbar();
     void updateCurrentLineHighlight();
+    int indentDepthForBlock(const QTextBlock &block);
 
     void drawFoldingMarker(QPainter *painter, const QPalette &pal,
                            const QRect &rect,
@@ -533,7 +534,7 @@ public:
     void paintCursorAsBlock(const PaintEventData &data, QPainter &painter,
                             PaintEventBlockData &blockData, int cursorPosition) const;
     void paintAdditionalVisualWhitespaces(PaintEventData &data, QPainter &painter, qreal top) const;
-    void paintIndentDepth(PaintEventData &data, QPainter &painter, const PaintEventBlockData &blockData) const;
+    void paintIndentDepth(PaintEventData &data, QPainter &painter, const PaintEventBlockData &blockData);
     void paintReplacement(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintWidgetBackground(const PaintEventData &data, QPainter &painter) const;
     void paintOverlays(const PaintEventData &data, QPainter &painter) const;
@@ -808,6 +809,7 @@ public:
     };
     using UndoMultiCursor = QList<UndoCursor>;
     QStack<UndoMultiCursor> m_undoCursorStack;
+    QList<int> m_visualIndentCache;
 };
 
 class TextEditorWidgetFind : public BaseTextFind
@@ -1081,7 +1083,7 @@ void TextEditorWidgetPrivate::showTextMarksToolTip(const QPoint &pos,
         return mark1->priority() > mark2->priority();
     });
 
-    for (const TextMark *mark : qAsConst(allMarks)) {
+    for (const TextMark *mark : std::as_const(allMarks)) {
         if (mark != mainTextMark)
             mark->addToToolTipLayout(layout);
     }
@@ -1549,7 +1551,7 @@ void TextEditorWidgetPrivate::updateAutoCompleteHighlight()
     const QTextCharFormat matchFormat = m_document->fontSettings().toTextCharFormat(C_AUTOCOMPLETE);
 
     QList<QTextEdit::ExtraSelection> extraSelections;
-    for (const QTextCursor &cursor : qAsConst(m_autoCompleteHighlightPos)) {
+    for (const QTextCursor &cursor : std::as_const(m_autoCompleteHighlightPos)) {
         QTextEdit::ExtraSelection sel;
         sel.cursor = cursor;
         sel.format.setBackground(matchFormat.background());
@@ -1852,6 +1854,7 @@ void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemove
     }
     m_blockCount = newBlockCount;
     m_scrollBarUpdateTimer.start(500);
+    m_visualIndentCache.clear();
 }
 
 void TextEditorWidgetPrivate::slotSelectionChanged()
@@ -2873,7 +2876,7 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
     d->m_snippetOverlay->accept();
 
     QList<PositionedPart> positionedParts;
-    for (const ParsedSnippet::Part &part : qAsConst(data.parts)) {
+    for (const ParsedSnippet::Part &part : std::as_const(data.parts)) {
         if (part.variableIndex >= 0) {
             PositionedPart posPart(part);
             posPart.start = cursor.position();
@@ -3202,7 +3205,7 @@ void TextEditorWidget::restoreState(const QByteArray &state)
         stream >> collapsedBlocks;
         QTextDocument *doc = document();
         bool layoutChanged = false;
-        for (const int blockNumber : qAsConst(collapsedBlocks)) {
+        for (const int blockNumber : std::as_const(collapsedBlocks)) {
             QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
             if (block.isValid()) {
                 TextDocumentLayout::doFoldOrUnfold(block, false);
@@ -4070,7 +4073,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         }
     }
 
-    for (const TextMark *mark : qAsConst(marks)) {
+    for (const TextMark *mark : std::as_const(marks)) {
         boundingRect = QRectF(x, boundingRect.top(), q->viewport()->width() - x, boundingRect.height());
         if (boundingRect.isEmpty())
             break;
@@ -4379,24 +4382,72 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
     }
 }
 
+int TextEditorWidgetPrivate::indentDepthForBlock(const QTextBlock &block)
+{
+    const TabSettings &tabSettings = m_document->tabSettings();
+    const auto blockDepth = [&](const QTextBlock &block) {
+        int depth = m_visualIndentCache.value(block.blockNumber(), -1);
+        if (depth < 0) {
+            const QString text = block.text();
+            depth = text.simplified().isEmpty() ? -1 : tabSettings.indentationColumn(text);
+        }
+        return depth;
+    };
+    const auto ensureCacheSize = [&](const int size) {
+        if (m_visualIndentCache.size() < size)
+            m_visualIndentCache.resize(size, -1);
+    };
+    int depth = blockDepth(block);
+    if (depth < 0) // the block was empty and uncached ask the indenter for a visual indentation
+        depth = m_document->indenter()->visualIndentFor(block, tabSettings);
+    if (depth >= 0) {
+        ensureCacheSize(block.blockNumber() + 1);
+        m_visualIndentCache[block.blockNumber()] = depth;
+    } else {
+        // find previous non empty block and get the indent depth of this block
+        QTextBlock it = block.previous();
+        int prevDepth = -1;
+        while (it.isValid()) {
+            prevDepth = blockDepth(it);
+            if (prevDepth >= 0)
+                break;
+            it = it.previous();
+        }
+        const int startBlockNumber = it.isValid() ? it.blockNumber() + 1 : 0;
+
+        // find next non empty block and get the indent depth of this block
+        it = block.next();
+        int nextDepth = -1;
+        while (it.isValid()) {
+            nextDepth = blockDepth(it);
+            if (nextDepth >= 0)
+                break;
+            it = it.next();
+        }
+        const int endBlockNumber = it.isValid() ? it.blockNumber() : m_blockCount;
+
+        // get the depth for the whole range of empty blocks and fill the cache so we do not need to
+        // redo this for every paint event
+        depth = prevDepth > 0 && nextDepth > 0 ? qMin(prevDepth, nextDepth) : 0;
+        ensureCacheSize(endBlockNumber);
+        for (int i = startBlockNumber; i < endBlockNumber; ++i)
+            m_visualIndentCache[i] = depth;
+    }
+    return depth;
+}
+
 void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
                                                QPainter &painter,
-                                               const PaintEventBlockData &blockData) const
+                                               const PaintEventBlockData &blockData)
 {
     if (!m_displaySettings.m_visualizeIndent)
         return;
 
-    const QString text = data.block.text();
-    const TabSettings &tabSettings = m_document->tabSettings();
-    int currentDepth = -1;
-    if (text.simplified().isEmpty())
-        currentDepth = m_document->indenter()->indentFor(data.block, tabSettings);
-    if (currentDepth < 0)
-        currentDepth = tabSettings.indentationColumn(text);
-
-    if (currentDepth == 0 || blockData.layout->lineCount() < 1)
+    const int depth = indentDepthForBlock(data.block);
+    if (depth <= 0 || blockData.layout->lineCount() < 1)
         return;
 
+    const TabSettings &tabSettings = m_document->tabSettings();
     const qreal horizontalAdvance = QFontMetricsF(q->font()).horizontalAdvance(
         QString(tabSettings.m_indentSize, QChar(' ')));
 
@@ -4408,7 +4459,8 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     qreal x = textLine.cursorToX(0) + data.offset.x() + qMax(0, q->cursorWidth() - 1);
     int paintColumn = 0;
 
-    while (paintColumn < currentDepth) {
+    const QString text = data.block.text();
+    while (paintColumn < depth) {
         if (x >= 0) {
             int paintPosition = tabSettings.positionAtColumn(text, paintColumn);
             if (blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0)
@@ -5035,7 +5087,7 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
         return;
     }
     size = size / 2;
-    for (const QIcon &icon : qAsConst(icons)) {
+    for (const QIcon &icon : std::as_const(icons)) {
         const QRect r(xoffset, yoffset, size, size);
         icon.paint(&painter, r, Qt::AlignCenter);
         if (xoffset != 0) {
@@ -6080,6 +6132,7 @@ void TextEditorWidgetPrivate::handleHomeKey(bool anchor, bool block)
             if (QTextLayout *layout = c.block().layout();
                 layout->lineForTextPosition(initpos - pos).lineNumber() != 0) {
                 c.movePosition(QTextCursor::StartOfLine, mode);
+                continue;
             }
         }
 
@@ -7159,7 +7212,7 @@ QList<QTextEdit::ExtraSelection> TextEditorWidget::extraSelections(Id kind) cons
 
 QString TextEditorWidget::extraSelectionTooltip(int pos) const
 {
-    for (const QList<QTextEdit::ExtraSelection> &sel : qAsConst(d->m_extraSelections)) {
+    for (const QList<QTextEdit::ExtraSelection> &sel : std::as_const(d->m_extraSelections)) {
         for (const QTextEdit::ExtraSelection &s : sel) {
             if (s.cursor.selectionStart() <= pos
                 && s.cursor.selectionEnd() >= pos
@@ -7278,7 +7331,7 @@ void TextEditorWidget::rewrapParagraph()
     // keep the same indentation level as first line in paragraph.
     QString currentWord;
 
-    for (const QChar &ch : qAsConst(selectedText)) {
+    for (const QChar &ch : std::as_const(selectedText)) {
         if (ch.isSpace() && ch != QChar::Nbsp) {
             if (!currentWord.isEmpty()) {
                 currentLength += currentWord.length() + 1;

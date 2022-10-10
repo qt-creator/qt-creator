@@ -432,7 +432,7 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
     int i = 0;
     const int count = input.m_contextFileData.size();
 
-    for (const FileData &fileData : qAsConst(input.m_contextFileData)) {
+    for (const FileData &fileData : std::as_const(input.m_contextFileData)) {
         const QString leftFileInfo = "--- " + fileData.fileInfo[LeftSide].fileName + '\n';
         const QString rightFileInfo = "+++ " + fileData.fileInfo[RightSide].fileName + '\n';
         output.diffData.m_fileInfo[blockNumber] = fileData.fileInfo;

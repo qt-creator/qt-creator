@@ -535,7 +535,7 @@ void DiagramController::onBeginResetModel()
 void DiagramController::onEndResetModel()
 {
     updateAllDiagramsList();
-    for (MDiagram *diagram : qAsConst(m_allDiagrams)) {
+    for (MDiagram *diagram : std::as_const(m_allDiagrams)) {
         const QList<DElement *> elements = diagram->diagramElements();
         // remove all elements which are not longer part of the model
         for (int i = elements.size() - 1; i >= 0; --i) {

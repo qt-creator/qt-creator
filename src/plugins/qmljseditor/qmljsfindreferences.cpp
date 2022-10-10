@@ -879,7 +879,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         replacement = name;
 
     Utils::FilePaths files;
-    for (const Document::Ptr &doc : qAsConst(snapshot)) {
+    for (const Document::Ptr &doc : std::as_const(snapshot)) {
         // ### skip files that don't contain the name token
         files.append(modelManager->fileToSource(doc->fileName()));
     }
@@ -965,7 +965,7 @@ QList<FindReferences::Usage> FindReferences::findUsageOfType(const Utils::FilePa
     QmlJS::Snapshot snapshot =  modelManager->snapshot();
 
     QSet<Utils::FilePath> docDone;
-    for (const QmlJS::Document::Ptr &doc : qAsConst(snapshot)) {
+    for (const QmlJS::Document::Ptr &doc : std::as_const(snapshot)) {
         Utils::FilePath sourceFile = modelManager->fileToSource(doc->fileName());
         if (docDone.contains(sourceFile))
             continue;

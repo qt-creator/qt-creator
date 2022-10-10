@@ -7289,7 +7289,7 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Branches</source>
         <translation>Branches</translation>
@@ -7297,10 +7297,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>General information</source>
         <translation type="obsolete">Informations générales</translation>
-    </message>
-    <message>
-        <source>Repository:</source>
-        <translation type="obsolete">Dépôt :</translation>
     </message>
     <message>
         <source>Remote branches</source>
@@ -7318,14 +7314,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>Unable to find the repository directory for &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible de trouver le dépôt de &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Diff</source>
-        <translation type="obsolete">Diff</translation>
-    </message>
-    <message>
-        <source>Log</source>
-        <translation type="obsolete">Log</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -7401,10 +7389,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation type="obsolete">Échec de la création d&apos;une branche de suivi</translation>
     </message>
     <message>
-        <source>Remote Branches</source>
-        <translation type="obsolete">Branches distantes</translation>
-    </message>
-    <message>
         <source>Re&amp;fresh</source>
         <translation>Ra&amp;fraîchir</translation>
     </message>
@@ -7423,10 +7407,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>&amp;Log</source>
         <translation>&amp;Log</translation>
-    </message>
-    <message>
-        <source>&amp;Checkout</source>
-        <translation>Import (&amp;C)</translation>
     </message>
     <message>
         <source>Re&amp;name</source>
@@ -7456,9 +7436,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>&amp;Track</source>
         <translation>&amp;Suivre</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation type="obsolete">Sélectionner un commit Git</translation>
@@ -7478,10 +7455,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>&amp;Show</source>
         <translation>&amp;Montrer</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>I&amp;mportation sélective</translation>
     </message>
     <message>
         <source>&amp;Revert</source>
@@ -7551,9 +7524,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>HEAD</source>
         <translation>HEAD</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translatorcomment>marchera ou marcheront ? Le etc laisse sous-entendre qu&apos;il y aurait d&apos;autres choses qui ne marcheraient pas.</translatorcomment>
@@ -7774,10 +7744,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation type="obsolete">Impossible d&apos;exécuter show : %1 : %2</translation>
     </message>
     <message>
-        <source>Changes</source>
-        <translation type="obsolete">Modifications</translation>
-    </message>
-    <message>
         <source>You have modified files. Would you like to stash your changes?</source>
         <translation type="obsolete">Vous avez modifié des fichiers. Souhaitez-vous mettre vos changements dans le stash ?</translation>
     </message>
@@ -7932,10 +7898,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>MERGING</source>
         <translation>FUSIONNEMENT</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>HEAD détaché</translation>
     </message>
     <message>
         <source>Cannot retrieve top revision of &quot;%1&quot;: %2</source>
@@ -8113,10 +8075,6 @@ Valider maintenant ?</translation>
         <translation>Remiser les changements locaux, puis les récupérer lorsque %1 est terminé.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Remise</translation>
-    </message>
-    <message>
         <source>Stash local changes and continue.</source>
         <translation type="obsolete">Remiser les changements locaux et continuer.</translation>
     </message>
@@ -8224,10 +8182,6 @@ Valider maintenant ?</translation>
         </translation>
     </message>
     <message>
-        <source>Revert</source>
-        <translation>Rétablir</translation>
-    </message>
-    <message>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Le fichier a été modifié. Voulez-vous le rétablir ?</translation>
     </message>
@@ -8283,9 +8237,6 @@ Valider maintenant ?</translation>
         <source>Cannot determine git version: %1</source>
         <translation>Impossible de déterminer la version de git : %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -8568,16 +8519,8 @@ Valider maintenant ?</translation>
         <translation>Annuler le rétablissement</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>Continuer le rebasement</translation>
-    </message>
-    <message>
         <source>Continue Cherry Pick</source>
         <translation>Continuer l&apos;importation sélective</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>Continuer le rétablissement</translation>
     </message>
     <message>
         <source>&amp;Patch</source>
@@ -8821,14 +8764,6 @@ Valider maintenant ?</translation>
         <translation>Actions sur les soumissions...</translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation>Faire un commit</translation>
-    </message>
-    <message>
-        <source>Undo Changes to %1</source>
-        <translation>Annuler les changements jusqu&apos;à %1</translation>
-    </message>
-    <message>
         <source>Interactive Rebase</source>
         <translation>Changement de base interactif</translation>
     </message>
@@ -8861,10 +8796,6 @@ Valider maintenant ?</translation>
     <message>
         <source>Git Fixup Commit</source>
         <translation>Soumission de correction Git</translation>
-    </message>
-    <message>
-        <source>Git Commit</source>
-        <translation>Soumission Git</translation>
     </message>
     <message>
         <source>Closing Git Editor</source>
@@ -8914,23 +8845,14 @@ Valider maintenant ?</translation>
         <source>The commit message check failed. Do you want to commit the change?</source>
         <translation type="obsolete">La vérification du message de commit a échoué. Voulez-vous soumettre vos modifications ?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>Le binaire &apos;%1&apos; n&apos;a pas pu être trouvé dans le chemin &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Git Commit</source>
         <translation type="obsolete">Git commit</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Informations générales</translation>
@@ -8968,9 +8890,6 @@ Valider maintenant ?</translation>
         <translatorcomment>contexte ? -&gt; Les hooks dans git (ou SVN) sont des checks faites avant et après un commit. D&apos;ailleurs, le projet Qt utilise les hooks :P . Dans le livre suivant, j&apos;ai trouvé : http://git-scm.com/book/fr/Personnalisation-de-Git-Crochets-Git </translatorcomment>
         <translation>&amp;Éviter les crochets</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation type="obsolete">&lt;Nouvelle branche&gt;</translation>
@@ -8980,9 +8899,6 @@ Valider maintenant ?</translation>
         <translatorcomment>Type pas facile à traduire dans ce contexte... Taper ?</translatorcomment>
         <translation type="obsolete">Saisir pour créer une nouvelle branche</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Environment variables</source>
         <translation type="obsolete">Variables d&apos;environnement</translation>
@@ -9076,10 +8992,6 @@ Valider maintenant ?</translation>
         <translation type="obsolete">Ignorer les changements relatifs aux espaces dans les annotations et le diff</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
     </message>
@@ -9115,13 +9027,6 @@ Valider maintenant ?</translation>
         <source>Show tags in Branches dialog</source>
         <translation>Montrer les tags dans le dialogue des branches</translation>
     </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Explorateur de dépôt</translation>
-    </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -19620,7 +19525,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="obsolete">Clone un projet à partir d&apos;un dépôt git.</translation>
@@ -19641,9 +19546,6 @@ p, li { white-space: pre-wrap; }
         <source>Git Repository Clone</source>
         <translation>Clone du dépôt git</translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -21281,7 +21183,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Remises</translation>
@@ -21303,10 +21205,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation type="obsolete">Tout supprimer...</translation>
     </message>
     <message>
-        <source>Delete...</source>
-        <translation type="obsolete">Supprimer…</translation>
-    </message>
-    <message>
         <source>Show</source>
         <translation type="obsolete">Afficher</translation>
     </message>
@@ -21318,10 +21216,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Restore to branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation type="obsolete">Restaurer la branche...</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Rafraîchir</translation>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
@@ -21368,10 +21262,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation>&amp;Supprimer...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Montrer</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>R&amp;estaurer...</translation>
     </message>
@@ -21379,10 +21269,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Restaurer dans la &amp;branche...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>Ra&amp;fraîchir</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -21399,20 +21285,8 @@ You can choose between stashing the changes or discarding them.</source>
 Vous pouvez choisir entre mettre les changements dans une remise ou de les abandonner.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Remise</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>Abandonner</translation>
-    </message>
-    <message>
         <source>Restore Stash to Branch</source>
         <translation>Restaurer la remise dans la branche</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Branche :</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -21428,7 +21302,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Informations générales</translation>
@@ -21461,9 +21335,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Email:</source>
         <translation>Email :</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -21521,16 +21392,9 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <translation>Invite lors du submit</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>Le nombre de logs de commit récents à afficher, 0 pour tout afficher. </translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Rétablir</translation>
@@ -21543,9 +21407,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Revision:</source>
         <translation>Révision :</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -24790,28 +24651,15 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteBranchModel</name>
+    <name>Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">(aucune banche)</translation>
     </message>
-</context>
-<context>
-    <name>GitClient</name>
-    <message>
-        <source>Unable to determine the repository for %1.</source>
-        <translation type="obsolete">Impossible de déterminer le dépôt de %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation type="obsolete">Erreur :Git est arrivé à échéance après %1s.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
         <translation>Blame %1</translation>
@@ -24877,7 +24725,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Cloning</source>
         <translation>Cloner</translation>
@@ -24894,9 +24742,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Mercurial Clone</source>
         <translation>Clone de Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -24909,16 +24754,10 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Clone URL:</source>
         <translation>URL de clone :</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Faire un commit de l&apos;éditeur</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>Impossible de trouver la révision parente de %1 dans %2 : %3</translation>
@@ -24951,16 +24790,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Working...</source>
         <translation type="obsolete">Travail en cours...</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditor</name>
     <message>
         <source>Annotate %1</source>
         <translation>Annoter %1</translation>
@@ -24969,9 +24798,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Annotate parent revision %1</source>
         <translation>Annoter la révision parente %1</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialJobRunner</name>
     <message>
         <source>Executing: %1 %2
 </source>
@@ -24986,9 +24812,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
         <translation type="obsolete">Interruption après %1s d&apos;attente que le processus mercurial se termine.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Mercurial</source>
         <translation type="obsolete">Mercurial</translation>
@@ -25205,9 +25028,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>Vérification du message échouée. Voulez-vous continuer ?</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Commande Mercurial</translation>
@@ -29891,7 +29711,7 @@ Details: %3</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -35036,7 +34856,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the diff</source>
         <translation type="obsolete">Utiliser l&apos;algorithme patience pour calculer le diff</translation>
@@ -35061,9 +34881,6 @@ Do you want to retry?</source>
         <source>Ignore Whitespace</source>
         <translation>Ignorer les espaces</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>Select the pretty printing format</source>
         <translation type="obsolete">Sélectionner le format d&apos;affichage </translation>
@@ -35100,9 +34917,6 @@ Do you want to retry?</source>
         <source>raw</source>
         <translation>brut</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Do not show the date a change was made in the output</source>
         <translation type="obsolete">Ne pas afficher à qu&apos;elle date un changement a été fait sur la sortie</translation>
@@ -35114,18 +34928,6 @@ Do you want to retry?</source>
     <message>
         <source>Omit Date</source>
         <translation>Omettre la date</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Ignorer les changement relatifs aux espaces.</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes</source>
-        <translation type="obsolete">Ignorer les changement relatifs aux espaces</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Ignorer les espaces</translation>
     </message>
 </context>
 <context>
@@ -35669,7 +35471,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Functions</source>
         <translation type="obsolete">Fonctions</translation>
@@ -35690,9 +35492,6 @@ QML component instance objects and properties directly.</source>
         <source>QML Functions</source>
         <translation>Fonctions QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation>Indexation</translation>
@@ -35701,9 +35500,6 @@ QML component instance objects and properties directly.</source>
         <source>Qml import scan</source>
         <translation>Analyse de l&apos;import Qml</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>Type dump of QML plugin in %1 failed.
 Errors:
@@ -37042,7 +36838,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -37071,9 +36867,6 @@ if (a &amp;&amp;
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Pister la branche locale &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Ajouter distant</translation>
@@ -37086,28 +36879,13 @@ if (a &amp;&amp;
         <source>URL:</source>
         <translation>URL : </translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Distants</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>Ra&amp;fraîchir</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Ajouter...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>Récupér&amp;er</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>&amp;Supprimer</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -38811,7 +38589,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Branches locales</translation>
@@ -38845,7 +38623,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -39172,9 +38950,6 @@ These files are preserved.</source>
         <source>Code Style</source>
         <translation>Style de code</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -39183,9 +38958,6 @@ These files are preserved.</source>
         <source>Reset Code Model</source>
         <translation>Restaurer le modèle de code</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>
@@ -44945,7 +44717,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -45309,7 +45081,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>non suivi</translation>
@@ -45355,9 +45127,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>updated</source>
         <translation type="obsolete">mis à jour</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Montrer les différences</translation>
@@ -46022,7 +45791,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>Créer un nouvel AVD</translation>
@@ -46039,13 +45808,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <source>SD card size:</source>
         <translation>Taille de la carte SD :</translation>
     </message>
-    <message>
-        <source> MiB</source>
-        <translation>Mio</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>Crée un classeur de clés et un certificat</translation>
@@ -46127,9 +45889,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <source>Use Keystore password</source>
         <translation>Utilise le mot de passe du trousseau de clés</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -46176,14 +45935,6 @@ Cette option est utile lorsque vous voulez essayer votre applications sur les p�
         <translation type="obsolete">Choisir l&apos;APK</translation>
     </message>
     <message>
-        <source>Qt Deployment</source>
-        <translation>Déploiement Qt</translation>
-    </message>
-    <message>
-        <source>Use the external Ministro application to download and maintain Qt libraries.</source>
-        <translation>Utiliser l&apos;application Ministro externe pour télécharger et maintenant les bibliothèques Qt.</translation>
-    </message>
-    <message>
         <source>Use Ministro service to install Qt</source>
         <translation>Utiliser le service Ministro pour installer Qt</translation>
     </message>
@@ -46221,9 +45972,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <source>Reset Default Devices</source>
         <translation>Restaurer les périphériques par défaut</translation>
     </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
         <translation type="obsolete">Fichier manifest</translation>
@@ -46275,40 +46023,12 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation type="obsolete">&lt;b&gt;Icône de l&apos;application :&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>Select low dpi icon</source>
-        <translation type="obsolete">Sélectionner une icône basse résolution</translation>
-    </message>
-    <message>
-        <source>Select medium dpi icon</source>
-        <translation type="obsolete">Sélectionner une icône moyenne résolution</translation>
-    </message>
-    <message>
-        <source>Select high dpi icon</source>
-        <translation type="obsolete">Sélectionner une icône haute résolution</translation>
-    </message>
-    <message>
-        <source>Permissions</source>
-        <translation type="obsolete">Permissions</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation type="obsolete">Enregistrer</translation>
     </message>
     <message>
         <source>Discard</source>
         <translation type="obsolete">Abandonner</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
         <source>Libraries</source>
@@ -46365,23 +46085,12 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Alias de certificat :</translation>
     </message>
     <message>
-        <source>Signing a debug package</source>
-        <translation>Authentification un paquet Debug</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
-    <message>
         <source>Android Configuration</source>
         <translation>Configuration Android</translation>
     </message>
     <message>
         <source>Android SDK location:</source>
         <translation>Emplacement du SDK Android :</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Parcourir</translation>
     </message>
     <message>
         <source>Android NDK location:</source>
@@ -47231,7 +46940,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
+    <name>Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>Impossible de démarrer : %1</translation>
@@ -47257,20 +46966,6 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
     <message>
         <source>Android for %1 (GCC %2, Qt %3)</source>
         <translation>Android pour %1 (GCC %2, Qt %3)</translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Le mot de passe est trop court&lt;/span&gt;</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
@@ -47316,23 +47011,10 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Déployer sur périphérique Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>Déployer sur Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
@@ -47357,10 +47039,6 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
     <message>
         <source>adb finished with exit code %1.</source>
         <translation>adb s&apos;est terminé en retournant %1.</translation>
-    </message>
-    <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Déployement de paquet : exécution de la commande &quot;%1 %2&quot;.</translation>
     </message>
     <message>
         <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
@@ -47407,16 +47085,6 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
         <source>Pulling files necessary for debugging.</source>
         <translation>Envoie des fichiers nécessaires au débogage.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
-    <message>
-        <source>Deploy to Android device or emulator</source>
-        <translation>Déploiement sur un périphérique Android ou un émulateur</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Configurations de déploiement&lt;/b&gt;</translation>
@@ -47429,27 +47097,14 @@ Veuillez installer un SDK supérieur à la version %1.</translation>
         <source>Android package (*.apk)</source>
         <translation>Paquet Android (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation>Exécuter sur Android</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation>Périphérique Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation>Error lors de la création du répertoire Android &quot;%1&quot;.</translation>
@@ -47501,16 +47156,10 @@ Veuillez installer au moins un SDK. </translation>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation>Impossible d&apos;ouvrir &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation>Créer un paquet Android (.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
     <message>
         <source>Packaging for Android</source>
         <translation>Paquetage pour Android</translation>
@@ -47536,10 +47185,6 @@ Veuillez installer au moins un SDK. </translation>
 Please make sure your application is built successfully and is selected in Application tab (&apos;Run option&apos;).</source>
         <translation>Impossible de trouver &quot;%1&quot;.
 Veuillez vous assurer que votre application est compilée et sélectionnée dans l&apos;onglet Application (&quot;Option d&apos;exécution&quot;).</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
     </message>
     <message>
         <source>Failed to run keytool</source>
@@ -47586,44 +47231,13 @@ Veuillez vous assurer que votre application est compilée et sélectionnée dans
         <translation>Échec lors de la création du paquet.</translation>
     </message>
     <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Erreur de paquetage : impossible de lancer la commande &quot;%1 %2&quot;. Raison : %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Erreur de paquetage : la commande &quot;%1 %2&quot; a échoué.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Raison : %1</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation>Raison : %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Code de sortie : %1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Trousseau de clés</translation>
-    </message>
-    <message>
         <source>Keystore password:</source>
         <translation>Mot de passe du trousseau de clés :</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Certificat</translation>
     </message>
     <message>
         <source>Certificate password (%1):</source>
         <translation>Mot de passe du certificat (%1) :</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid Package Name</source>
         <translation type="obsolete">Nom de paquet invalide</translation>
@@ -47633,22 +47247,6 @@ Veuillez vous assurer que votre application est compilée et sélectionnée dans
 Please choose a valid package name for your application (e.g. &quot;org.example.myapplication&quot;).</source>
         <translation type="obsolete">Le nom du paquet &quot;%1&quot; n&apos;est pas valide.
 Veuillez choisir un nom de paquet valide pour votre application (par exemple &quot;org.exemple.monapplication&quot;).</translation>
-    </message>
-    <message>
-        <source>Choose High DPI Icon</source>
-        <translation type="obsolete">Choisir une icône haute résolution</translation>
-    </message>
-    <message>
-        <source>PNG images (*.png)</source>
-        <translation type="obsolete">Images PNG (*.png)</translation>
-    </message>
-    <message>
-        <source>Choose Medium DPI Icon</source>
-        <translation type="obsolete">Choisir une icône moyenne résolution</translation>
-    </message>
-    <message>
-        <source>Choose Low DPI Icon</source>
-        <translation type="obsolete">Choisir une icône basse résolution</translation>
     </message>
     <message>
         <source>&lt; Type or choose a permission &gt;</source>
@@ -47663,19 +47261,9 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <translation>Sélectionner un fichier de trousseau de clés</translation>
     </message>
     <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Fichiers de trousseau de clés (*.keystore *.jks)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
-    <message>
         <source>Deploy to device</source>
         <translation>Déployer sur le périphérique</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Copie des données de l&apos;application</translation>
@@ -47684,9 +47272,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Removing directory %1</source>
         <translation>Supprimer le répertoire %1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Échec de la détection de l&apos;ABI utilisée par la version de Qt.</translation>
@@ -47696,9 +47281,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
         <translation>Le fichier de projet &quot;%1&quot; est en cours d&apos;analyse.</translation>
@@ -47707,23 +47289,14 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Run on Android device</source>
         <translation>Exécuter sur le périphérique Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Démarrage des processus distants.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device or emulator.</source>
         <translation type="obsolete">Exécuter sur un périphérique Android ou un émulateur.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>Aucun port libre n&apos;est disponible sur l&apos;hôte pour le débogage.QML.</translation>
@@ -47781,16 +47354,10 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
 
 &quot;%1&quot; tué.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Configurations Android </translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -47804,9 +47371,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
         <translation>Dossier du SDK Android</translation>
@@ -47863,9 +47427,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Select OpenJDK Path</source>
         <translation>Sélectionner le chemin d&apos;OpenJDK</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>GCC Android</translation>
@@ -47878,9 +47439,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Android GCC (%1-%2)</source>
         <translation type="obsolete">GCC Android (%1 %2)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>Racine du NDK :</translation>
@@ -49382,7 +48940,7 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>Git</name>
     <message>
         <source>Apply in: </source>
         <translation>Appliquer dans :</translation>
@@ -49429,10 +48987,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <translation>&amp;Importer...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Afficher</translation>
-    </message>
-    <message>
         <source>Cherry &amp;Pick</source>
         <translation>Im&amp;porter la sélection</translation>
     </message>
@@ -49452,17 +49006,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Apply...</source>
         <translation type="obsolete">Appliquer...</translation>
     </message>
-    <message>
-        <source>Checkout...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Rafraîchir</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Owner&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Project&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Patch set&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Sujet&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Numéro&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Propriétaire&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projet&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Statut&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ensemble de patchs&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -49488,10 +49031,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <translation>Approbations</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Statut</translation>
-    </message>
-    <message>
         <source>Parse error: &apos;%1&apos; -&gt; %2</source>
         <translation>Erreur d&apos;analyse : &quot;%1&quot; -&gt; %2</translation>
     </message>
@@ -49503,9 +49042,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Parse error in line &apos;%1&apos;</source>
         <translation>Erreur d&apos;analyse à la ligne &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
@@ -49542,16 +49078,6 @@ Souhaitez-vous le terminer ?</translation>
         <source>Keep Running</source>
         <translation>Continuer l&apos;exécution</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -49606,25 +49132,10 @@ asked to confirm the repository path.</source>
 dans le cas où &quot;canonicalWebUrl&quot; n&apos;est pas configuré 
 dans le fichier &quot;gerrit.config&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
         <translatorcomment>Traduire fetch ?</translatorcomment>
         <translation>Gerrit fetch</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 a crashé.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 a retourné %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Erreur lors de l&apos;exécution de %1 : %2</translation>
     </message>
     <message>
         <source>Error writing to temporary file.</source>
@@ -49638,9 +49149,6 @@ dans le fichier &quot;gerrit.config&quot;.</translation>
         <source>Cherry-picking %1...</source>
         <translation type="obsolete">Sélectionner %1...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -49684,9 +49192,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation>Entrer un dépôt local pour &quot;%1&quot; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Detached HEAD</source>
         <translation>HEAD détachée</translation>
@@ -49718,21 +49223,6 @@ were not verified among remotes in %3. Select different folder?</source>
     <message>
         <source>&amp;Commit</source>
         <translation>&amp;Soumettre</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::ResetDialog</name>
-    <message>
-        <source>Sha1</source>
-        <translation type="obsolete">SHA1</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation type="obsolete">Sujet</translation>
-    </message>
-    <message>
-        <source>Reset to:</source>
-        <translation type="obsolete">Réinitaliser à :</translation>
     </message>
     <message>
         <source>Undo Changes to %1</source>
@@ -50203,7 +49693,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>Le type sera disponible dans l&apos;éditeur QML de Qt Creator lorsque le nom du type est une chaîne de caractères</translation>
@@ -51142,7 +50632,7 @@ Souhaitez-vous les importer maintenant ?</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
+    <name>Git</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Changements locaux trouvés. Choisissez une action :</translation>
@@ -51154,10 +50644,6 @@ Souhaitez-vous les importer maintenant ?</translation>
     <message>
         <source>Discard Local Changes</source>
         <translation>Annuler les changements locaux</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Case à cocher</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -51179,9 +50665,6 @@ Souhaitez-vous les importer maintenant ?</translation>
         <source>Create Branch Stash for Current Branch</source>
         <translation>Créer une branche remise pour la branche courante</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Pousser sur Gerrit</translation>
@@ -51248,11 +50731,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Boîte de dialogue</translation>
-    </message>
+    <name>Mercurial</name>
     <message>
         <source>User name:</source>
         <translation>Nom d&apos;utilisateur :</translation>
@@ -52760,21 +52239,15 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAnalyzeSupport</name>
+    <name>Android</name>
     <message>
         <source>No analyzer tool selected.</source>
         <translation>Pas d&apos;outil d&apos;analyse sélectionné.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
         <source>GDB server</source>
         <translation>Serveur GDB</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Gérer...</translation>
@@ -52803,9 +52276,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>Le serveur GDB pour &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Général</translation>
@@ -52814,16 +52284,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>XML Source</source>
         <translation>Source XML</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Éditeur de manifest Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>Paquet</translation>
@@ -52871,10 +52335,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Target SDK:</source>
         <translation>SDK cible :</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Application</translation>
     </message>
     <message>
         <source>Application name:</source>
@@ -52937,14 +52397,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Permissions</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>The structure of the android manifest file is corrupt. Expected a top level &apos;manifest&apos; node.</source>
         <translation>La structure du fichier manifest Android est corrompue. Un nœud de premier niveau &quot;manifest&quot; est attendu.</translation>
     </message>
@@ -52980,9 +52432,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Choose High DPI Icon</source>
         <translation>Choisir une icône haute résolution</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPlugin</name>
     <message>
         <source>Android Manifest file</source>
         <translation>Fichier manifest Android</translation>
@@ -53686,7 +53135,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffHandler</name>
+    <name>Git</name>
     <message>
         <source>Working tree</source>
         <translation>Arbre de travail</translation>
@@ -53696,23 +53145,9 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Index</translation>
     </message>
     <message>
-        <source>Waiting for data...</source>
-        <translation>En attente de données...</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
-    <message>
         <source>Sha1</source>
         <translation>SHA1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Sujet</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Réinitaliser à :</translation>
@@ -53736,13 +53171,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Soft</source>
         <translation>Soft</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
     </message>
     <message>
         <source>File input for the merge tool requires Git 1.7.8, or later.</source>
@@ -54625,7 +54053,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlConsoleEdit</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation>Co&amp;uper</translation>
@@ -54646,16 +54074,10 @@ Distant : %4</translation>
         <source>C&amp;lear</source>
         <translation>&amp;Effacer</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleModel</name>
     <message>
         <source>Can only evaluate during a QML debug session.</source>
         <translation>Ne peut être évalué que dans une session de débogage QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsolePane</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Montrer les messages de débogage, de log et d&apos;information.</translation>
@@ -54664,20 +54086,9 @@ Distant : %4</translation>
         <source>QML/JS Console</source>
         <translation>Console QML/JS</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation>&amp;Copier</translation>
-    </message>
     <message>
         <source>&amp;Show in Editor</source>
         <translation>Montrer dans l&apos;éditeur (&amp;S)</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation>&amp;Effacer</translation>
     </message>
 </context>
 <context>
@@ -55409,22 +54820,10 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
-    <message>
-        <source>Create new AVD</source>
-        <translation>Créer un nouvel AVD</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Target API:</source>
         <translation>API cible :</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Nom :</translation>
-    </message>
-    <message>
-        <source>SD card size:</source>
-        <translation>Taille de la carte SD :</translation>
     </message>
     <message>
         <source> MiB</source>
@@ -55434,52 +54833,9 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>ABI:</source>
         <translation>ABI :</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
-        <source>Sign package</source>
-        <translation>Authentifier un paquet</translation>
-    </message>
-    <message>
-        <source>Keystore:</source>
-        <translation>Trousseau de clés :</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Créer</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Parcourir</translation>
-    </message>
     <message>
         <source>Signing a debug package</source>
         <translation>Authentifier un paquet Debug</translation>
-    </message>
-    <message>
-        <source>Certificate alias:</source>
-        <translation>Alias de certificat :</translation>
-    </message>
-    <message>
-        <source>Advanced Actions</source>
-        <translation>Actions avancées</translation>
-    </message>
-    <message>
-        <source>Clean Temporary Libraries Directory on Device</source>
-        <translation>Nettoyer le répertoire temporaire des bibliothèques sur le périphérique</translation>
-    </message>
-    <message>
-        <source>Install Ministro from APK</source>
-        <translation>Installer Ministro à partir du fichier APK</translation>
-    </message>
-    <message>
-        <source>Reset Default Devices</source>
-        <translation>Restaurer les périphériques par défaut</translation>
     </message>
     <message>
         <source>Open package location after build</source>
@@ -55492,10 +54848,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     <message>
         <source>Create AndroidManifest.xml</source>
         <translation>Créer le fichier AndroidManifest.xml</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Application</translation>
     </message>
     <message>
         <source>Android target SDK:</source>
@@ -55518,28 +54870,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <translation>Utiliser l&apos;application externe Ministro pour télécharger et mettre à jour les bibliothèques Qt.</translation>
     </message>
     <message>
-        <source>Use Ministro service to install Qt</source>
-        <translation>Utiliser le service Ministro pour installer Qt</translation>
-    </message>
-    <message>
-        <source>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</source>
-        <translation>Envoyer les bibliothèques Qt locales sur le périphérique. Vous devez avoir les bibliothèques Qt compilés pour cette plateforme.
-Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</translation>
-    </message>
-    <message>
-        <source>Deploy local Qt libraries to temporary directory</source>
-        <translation>Déployer les bibliothèques Qt locales dans un répertoire temporaire</translation>
-    </message>
-    <message>
-        <source>Creates a standalone APK.</source>
-        <translation>Créer un standalone APK.</translation>
-    </message>
-    <message>
-        <source>Bundle Qt libraries in APK</source>
-        <translation>Empaqueter les bibliothèques Qt dans le fichier APK</translation>
-    </message>
-    <message>
         <source>Additional Libraries</source>
         <translation>Bibliothèques supplémentaires</translation>
     </message>
@@ -55552,20 +54882,9 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Sélectionner la bibliothèque à inclure dans le paquet.</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>Supprimer de la liste la bibliothèque actuellement sélectionnée.</translation>
     </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Sélectionner un périphérique Android</translation>
@@ -55581,10 +54900,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     <message>
         <source>Always use this device for architecture %1</source>
         <translation>Toujours utiliser ce périphérique pour l&apos;architecture %1</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI :</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -56364,18 +55679,10 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Déployer sur un périphérique Android ou un émulateur</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <extracomment>AndroidDeployQtStep default display name</extracomment>
-        <translation>Déployer sur périphérique Android</translation>
     </message>
     <message>
         <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
@@ -56386,83 +55693,12 @@ réinitialisation du moniteur</translation>
         <translation>Aucun architecture Android n&apos;est définie dans le fichier .pro.</translation>
     </message>
     <message>
-        <source>Warning: Signing a debug package.</source>
-        <translation>Avertissement : authentification d&apos;un paquet Debug.</translation>
-    </message>
-    <message>
-        <source>Pulling files necessary for debugging.</source>
-        <translation>Envoie des fichiers nécessaires au débogage.</translation>
-    </message>
-    <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Déployement de paquet : exécution de la commande &quot;%1 %2&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Erreur de paquetage : impossible de lancer la commande &quot;%1 %2&quot;. Raison : %3</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Erreur de paquetage : la commande &quot;%1 %2&quot; a échoué.</translation>
-    </message>
-    <message>
-        <source>Reason: %1</source>
-        <translation>Raison : %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Code de sortie : %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
-    <message>
         <source>Failed to run keytool.</source>
         <translation>Échec d&apos;exécution de keytool.</translation>
     </message>
     <message>
         <source>Invalid password.</source>
         <translation>Mot de passe invalide.</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>Trousseau de clés</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Mot de passe du trousseau de clés :</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>Certificat</translation>
-    </message>
-    <message>
-        <source>Certificate password (%1):</source>
-        <translation>Mot de passe du certificat (%1) :</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
-    <message>
-        <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Configurations de déploiement&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Qt Android Smart Installer</source>
-        <translation>Qt Android Smart Installer</translation>
-    </message>
-    <message>
-        <source>Android package (*.apk)</source>
-        <translation>Paquet Android (*.apk)</translation>
-    </message>
-    <message>
-        <source>Select keystore file</source>
-        <translation>Sélectionner un fichier de trousseau de clés</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Fichier de trousseau de clés (*.keystore *.jks)</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
@@ -56472,9 +55708,6 @@ réinitialisation du moniteur</translation>
         <source>Libraries (*.so)</source>
         <translation>Bibliothèques (*.so)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android : erreur d&apos;installation du SDK 0x%1</translation>
@@ -56515,9 +55748,6 @@ réinitialisation du moniteur</translation>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android : errreur inconnue 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install&lt;/b&gt;</source>
         <translation>&lt;b&gt;Installation de make&lt;/b&gt;</translation>
@@ -56526,9 +55756,6 @@ réinitialisation du moniteur</translation>
         <source>Make install</source>
         <translation>Installation de make</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>Qt Creator needs additional settings to enable Android support.You can configure those settings in the Options dialog.</source>
         <translation>Qt Creator a besoin de paramètres supplémentaires pour activer le support Android. Vous pouvez configurer ces paramètres dans le dialogue Options.</translation>
@@ -56537,9 +55764,6 @@ réinitialisation du moniteur</translation>
         <source>Open Settings</source>
         <translation>Ouvrir les préférences</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>Aucun fichier d&apos;application .pro n&apos;a été trouvé dans ce projet.</translation>
@@ -56548,9 +55772,6 @@ réinitialisation du moniteur</translation>
         <source>No Application .pro File</source>
         <translation>Aucun ficher d&apos;application .pro</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create an AndroidManifest.xml file.</source>
         <translation>Sélectionner un fichier .pro pour lequel vous souhaitez créer un fichier AndroidManifest.xml.</translation>
@@ -56563,9 +55784,6 @@ réinitialisation du moniteur</translation>
         <source>Select a .pro File</source>
         <translation>Sélectionner un fichier .pro</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::ChooseDirectoryPage</name>
     <message>
         <source>Android package source directory:</source>
         <translation>Répertoire des sources du paquet Android :</translation>
@@ -56578,9 +55796,6 @@ réinitialisation du moniteur</translation>
         <source>The Android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation>Le fichier manifest Android sera créé dans le répertoire défini dans le fichier .pro par le paramètre ANDROID_PACKAGE_SOURCE_DIR.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Manifest Wizard</source>
         <translation>Créer l&apos;assistant pour le manifest Android</translation>
@@ -56911,7 +56126,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitDiffSwitcher</name>
+    <name>Git</name>
     <message>
         <source>Switch to Text Diff Editor</source>
         <translation>Basculer vers l&apos;éditeur texte de différences</translation>

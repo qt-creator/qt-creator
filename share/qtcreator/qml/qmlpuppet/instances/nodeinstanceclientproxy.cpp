@@ -413,7 +413,7 @@ void NodeInstanceClientProxy::readDataStream()
             break;
     }
 
-    for (const QVariant &command : qAsConst(commandList))
+    for (const QVariant &command : std::as_const(commandList))
         dispatchCommand(command);
 }
 

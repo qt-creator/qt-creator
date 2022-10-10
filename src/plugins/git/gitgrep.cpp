@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "gitgrep.h"
+
 #include "gitclient.h"
+#include "gittr.h"
 
 #include <coreplugin/vcsmanager.h>
 
@@ -25,8 +27,13 @@
 #include <QSettings>
 #include <QTextStream>
 
-namespace Git {
-namespace Internal {
+using namespace Core;
+using namespace Utils;
+using namespace VcsBase;
+
+namespace Git::Internal {
+
+const char GitGrepRef[] = "GitGrepRef";
 
 class GitGrepParameters
 {
@@ -35,14 +42,6 @@ public:
     bool recurseSubmodules = false;
     QString id() const { return recurseSubmodules ? ref + ".Rec" : ref; }
 };
-
-using namespace Core;
-using namespace Utils;
-using namespace VcsBase;
-
-namespace {
-
-const char GitGrepRef[] = "GitGrepRef";
 
 class GitGrepRunner
 {
@@ -109,7 +108,7 @@ public:
         }
         single.matchingLine = text;
 
-        for (const auto &match : qAsConst(matches)) {
+        for (const auto &match : std::as_const(matches)) {
             single.matchStart = match.matchStart;
             single.matchLength = match.matchLength;
             single.regexpCapturedTexts = match.regexpCapturedTexts;
@@ -192,8 +191,6 @@ private:
     Environment m_environment;
 };
 
-} // namespace
-
 static bool isGitDirectory(const FilePath &path)
 {
     static IVersionControl *gitVc = VcsManager::versionControl(VcsBase::Constants::VCS_ID_GIT);
@@ -208,8 +205,8 @@ GitGrep::GitGrep(GitClient *client)
     auto layout = new QHBoxLayout(m_widget);
     layout->setContentsMargins(0, 0, 0, 0);
     m_treeLineEdit = new FancyLineEdit;
-    m_treeLineEdit->setPlaceholderText(tr("Tree (optional)"));
-    m_treeLineEdit->setToolTip(tr("Can be HEAD, tag, local or remote branch, or a commit hash.\n"
+    m_treeLineEdit->setPlaceholderText(Tr::tr("Tree (optional)"));
+    m_treeLineEdit->setToolTip(Tr::tr("Can be HEAD, tag, local or remote branch, or a commit hash.\n"
                                   "Leave empty to search through the file system."));
     const QRegularExpression refExpression("[\\S]*");
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
@@ -219,7 +216,7 @@ GitGrep::GitGrep(GitClient *client)
                          this,
                          [this, pLayout = QPointer<QHBoxLayout>(layout)](unsigned version) {
                              if (version >= 0x021300 && pLayout) {
-                                 m_recurseSubmodules = new QCheckBox(tr("Recurse submodules"));
+                                 m_recurseSubmodules = new QCheckBox(Tr::tr("Recurse submodules"));
                                  pLayout->addWidget(m_recurseSubmodules);
                              }
                          });
@@ -240,14 +237,14 @@ GitGrep::~GitGrep()
 
 QString GitGrep::title() const
 {
-    return tr("Git Grep");
+    return Tr::tr("Git Grep");
 }
 
 QString GitGrep::toolTip() const
 {
     const QString ref = m_treeLineEdit->text();
     if (!ref.isEmpty())
-        return tr("Ref: %1\n%2").arg(ref);
+        return Tr::tr("Ref: %1\n%2").arg(ref);
     return QLatin1String("%1");
 }
 
@@ -296,7 +293,6 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     return editor;
 }
 
-} // Internal
-} // Git
+} // Git::Internal
 
 Q_DECLARE_METATYPE(Git::Internal::GitGrepParameters)

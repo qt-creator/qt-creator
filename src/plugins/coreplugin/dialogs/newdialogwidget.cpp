@@ -167,6 +167,7 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
     , m_templateDescription(new QTextBrowser)
 
 {
+    setObjectName("Core.NewDialog");
     setAttribute(Qt::WA_DeleteOnClose);
     ICore::registerWindow(this, Context("Core.NewDialog"));
     resize(880, 520);
@@ -306,7 +307,7 @@ void NewDialogWidget::setWizardFactories(QList<IWizardFactory *> factories,
     if (!showPlatformFilter)
         m_comboBox->hide();
 
-    for (IWizardFactory *factory : qAsConst(factories)) {
+    for (IWizardFactory *factory : std::as_const(factories)) {
         QStandardItem *kindItem;
         switch (factory->kind()) {
         case IWizardFactory::ProjectWizard:
@@ -341,7 +342,7 @@ void NewDialogWidget::showDialog()
     static_cast<PlatformFilterProxyModel *>(m_filterProxyModel)->manualReset();
 
     if (!lastCategory.isEmpty())
-        for (QStandardItem *item : qAsConst(m_categoryItems)) {
+        for (QStandardItem *item : std::as_const(m_categoryItems)) {
             if (item->data(Qt::UserRole) == lastCategory)
                 idx = m_filterProxyModel->mapFromSource(m_model->indexFromItem(item));
     }

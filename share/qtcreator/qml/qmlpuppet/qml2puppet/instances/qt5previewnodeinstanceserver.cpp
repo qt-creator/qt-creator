@@ -63,7 +63,7 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
               stateInstances.append(instance.stateInstances());
           }
 
-          for (ServerNodeInstance instance : qAsConst(stateInstances)) {
+          for (ServerNodeInstance instance : std::as_const(stateInstances)) {
               instance.activateState();
               QImage previewImage = renderPreviewImage();
               if (!previewImage.isNull())

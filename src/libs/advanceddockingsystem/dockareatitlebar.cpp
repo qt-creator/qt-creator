@@ -381,7 +381,7 @@ namespace ADS
     {
         DockWidget* dockWidget = d->m_tabBar->currentTab()->dockWidget();
         if (!d->m_dockWidgetActionsButtons.isEmpty()) {
-            for (auto button : qAsConst(d->m_dockWidgetActionsButtons)) {
+            for (auto button : std::as_const(d->m_dockWidgetActionsButtons)) {
                 d->m_layout->removeWidget(button);
                 delete button;
             }

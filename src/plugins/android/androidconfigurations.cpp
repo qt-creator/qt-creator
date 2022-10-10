@@ -4,10 +4,11 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidtoolchain.h"
 #include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidqtversion.h"
+#include "androidtoolchain.h"
+#include "androidtr.h"
 #include "avddialog.h"
 
 #include <coreplugin/icore.h>
@@ -658,8 +659,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess) {
         if (error)
-            *error = QApplication::translate("AndroidConfiguration", "Could not run: %1")
-                .arg(cmd.toUserOutput());
+            *error = Tr::tr("Could not run: %1").arg(cmd.toUserOutput());
         return devices;
     }
     QStringList adbDevs = adbProc.allOutput().split('\n', Qt::SkipEmptyParts);
@@ -673,7 +673,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 
     // workaround for '????????????' serial numbers:
     // can use "adb -d" when only one usb device attached
-    for (const QString &device : qAsConst(adbDevs)) {
+    for (const QString &device : std::as_const(adbDevs)) {
         const QString serialNo = device.left(device.indexOf('\t')).trimmed();
         const QString deviceType = device.mid(device.indexOf('\t')).trimmed();
         AndroidDeviceInfo dev;
@@ -700,9 +700,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 
     Utils::sort(devices);
     if (devices.isEmpty() && error)
-        *error = QApplication::translate("AndroidConfiguration",
-                                         "No devices found in output of: %1")
-            .arg(cmd.toUserOutput());
+        *error = Tr::tr("No devices found in output of: %1").arg(cmd.toUserOutput());
     return devices;
 }
 
@@ -1276,7 +1274,7 @@ static QVariant findOrRegisterDebugger(ToolChain *tc,
     if (existingGdb)
         return existingGdb->id();
 
-    const QString mainName = AndroidConfigurations::tr("Android Debugger (%1, NDK %2)");
+    const QString mainName = Tr::tr("Android Debugger (%1, NDK %2)");
     const QString custom = customDebugger ? QString{"Custom "} : QString{};
     // debugger not found, register a new one
     // check lldb
@@ -1424,7 +1422,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 QString versionStr = QLatin1String("Qt %{Qt:Version}");
                 if (!qt->isAutodetected())
                     versionStr = QString("%1").arg(qt->displayName());
-                k->setUnexpandedDisplayName(tr("Android %1 Clang %2")
+                k->setUnexpandedDisplayName(Tr::tr("Android %1 Clang %2")
                                                 .arg(versionStr)
                                                 .arg(getMultiOrSingleAbiString(abis)));
                 k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation(qt).toString());
@@ -1540,7 +1538,7 @@ FilePath AndroidConfig::getJdkPath()
             // Look for the highest existing JDK
             allVersions.sort();
             std::reverse(allVersions.begin(), allVersions.end()); // Order descending
-            for (const QString &version : qAsConst(allVersions)) {
+            for (const QString &version : std::as_const(allVersions)) {
                 settings.beginGroup(version);
                 jdkHome = FilePath::fromUserInput(settings.value("JavaHome").toString());
                 settings.endGroup();

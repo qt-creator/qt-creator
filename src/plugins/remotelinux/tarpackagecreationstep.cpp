@@ -189,7 +189,7 @@ void TarPackageCreationStep::deployFinished(bool success)
     const Kit *kit = target()->kit();
 
     // Store files that have been tar'd and successfully deployed
-    for (const DeployableFile &file : qAsConst(m_files))
+    for (const DeployableFile &file : std::as_const(m_files))
         m_deployTimes.saveDeploymentTimeStamp(file, kit, QDateTime());
 }
 
@@ -267,7 +267,7 @@ bool TarPackageCreationStep::doPackage()
         return false;
     }
 
-    for (const DeployableFile &d : qAsConst(m_files)) {
+    for (const DeployableFile &d : std::as_const(m_files)) {
         if (d.remoteDirectory().isEmpty()) {
             emit addOutput(Tr::tr("No remote path specified for file \"%1\", skipping.")
                 .arg(d.localFilePath().toUserOutput()), OutputFormat::ErrorMessage);
@@ -379,9 +379,9 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
         return false;
     }
     if (fileInfo.isDir()) {
-        QDir dir(fileInfo.absoluteFilePath());
-        foreach (const QString &fileName,
-                 dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
+        const QDir dir(fileInfo.absoluteFilePath());
+        const QStringList files = dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+        for (const QString &fileName : files) {
             const QString thisLocalFilePath = dir.path() + QLatin1Char('/') + fileName;
             const QString thisRemoteFilePath  = remoteFilePath + QLatin1Char('/') + fileName;
             if (!appendFile(tarFile, QFileInfo(thisLocalFilePath), thisRemoteFilePath))

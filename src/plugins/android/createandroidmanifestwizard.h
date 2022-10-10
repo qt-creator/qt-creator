@@ -15,8 +15,6 @@ namespace Internal {
 
 class CreateAndroidManifestWizard : public Utils::Wizard
 {
-    Q_DECLARE_TR_FUNCTIONS(Android::CreateAndroidManifestWizard)
-
 public:
     CreateAndroidManifestWizard(ProjectExplorer::BuildSystem *buildSystem);
 

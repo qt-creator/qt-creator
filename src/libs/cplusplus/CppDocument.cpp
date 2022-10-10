@@ -299,7 +299,7 @@ void Document::setLastModified(const QDateTime &lastModified)
 QStringList Document::includedFiles() const
 {
     QStringList files;
-    for (const Include &i : qAsConst(_resolvedIncludes))
+    for (const Include &i : std::as_const(_resolvedIncludes))
         files.append(i.resolvedFileName());
     files.removeDuplicates();
     return files;
@@ -488,7 +488,7 @@ Symbol *Document::lastVisibleSymbolAt(int line, int column) const
 
 const Macro *Document::findMacroDefinitionAt(int line) const
 {
-    for (const Macro &macro : qAsConst(_definedMacros)) {
+    for (const Macro &macro : std::as_const(_definedMacros)) {
         if (macro.line() == line)
             return &macro;
     }
@@ -497,7 +497,7 @@ const Macro *Document::findMacroDefinitionAt(int line) const
 
 const Document::MacroUse *Document::findMacroUseAt(int utf16charsOffset) const
 {
-    for (const Document::MacroUse &use : qAsConst(_macroUses)) {
+    for (const Document::MacroUse &use : std::as_const(_macroUses)) {
         if (use.containsUtf16charOffset(utf16charsOffset)
                 && (utf16charsOffset < use.utf16charsBegin() + use.macro().nameToQString().size())) {
             return &use;
@@ -508,7 +508,7 @@ const Document::MacroUse *Document::findMacroUseAt(int utf16charsOffset) const
 
 const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(int utf16charsOffset) const
 {
-    for (const Document::UndefinedMacroUse &use : qAsConst(_undefinedMacroUses)) {
+    for (const Document::UndefinedMacroUse &use : std::as_const(_undefinedMacroUses)) {
         if (use.containsUtf16charOffset(utf16charsOffset)
                 && (utf16charsOffset < use.utf16charsBegin()
                     + QString::fromUtf8(use.name(), use.name().size()).length()))

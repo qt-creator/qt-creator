@@ -20,18 +20,15 @@ QT_END_NAMESPACE;
 namespace Utils {
 class ElidingLabel;
 class NavigationTreeView;
-}
+} // Utils
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class BranchModel;
 class BranchFilterModel;
 
 class BranchView : public QWidget
 {
-    Q_OBJECT
-
 public:
     explicit BranchView();
 
@@ -80,8 +77,6 @@ private:
 
 class BranchViewFactory : public Core::INavigationWidgetFactory
 {
-    Q_OBJECT
-
 public:
     BranchViewFactory();
 
@@ -93,5 +88,4 @@ private:
     QPointer<BranchView> m_view;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

@@ -102,7 +102,7 @@ static QList<BlockRange> cleanupDisabledCode(HighlightingResults &results, const
 
     qCDebug(clangdLogHighlight) << "found" << ifdefedOutRanges.size() << "ifdefed-out ranges";
     if (clangdLogHighlight().isDebugEnabled()) {
-        for (const BlockRange &r : qAsConst(ifdefedOutRanges))
+        for (const BlockRange &r : std::as_const(ifdefedOutRanges))
             qCDebug(clangdLogHighlight) << r.first() << r.last();
     }
 

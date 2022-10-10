@@ -7192,34 +7192,10 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation>Checkout</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">删除</translation>
-    </message>
-    <message>
-        <source>Unable to find the repository directory for &apos;%1&apos;.</source>
-        <translation type="obsolete">无法找到仓库目录&apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Diff</source>
-        <translation type="obsolete">Diff</translation>
-    </message>
-    <message>
-        <source>Log</source>
-        <translation type="obsolete">日志</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">刷新</translation>
-    </message>
-    <message>
-        <source>Delete...</source>
-        <translation type="obsolete">删除...</translation>
     </message>
     <message>
         <source>Checkout branch?</source>
@@ -7271,10 +7247,6 @@ on slow machines. In this case, the value should be increased.</source>
         <translation type="obsolete">概要</translation>
     </message>
     <message>
-        <source>Repository:</source>
-        <translation type="obsolete">仓库:</translation>
-    </message>
-    <message>
         <source>Remote branches</source>
         <translation type="obsolete">远程 branches</translation>
     </message>
@@ -7306,9 +7278,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>&amp;Checkout</source>
         <translation>检出(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git commit</source>
         <translation type="obsolete">选择一个 Git commit</translation>
@@ -7349,16 +7318,9 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Change:</source>
         <translation>更改:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation type="obsolete">请注意 git 插件无法与服务器交互，所以类似于“手动ssh身份认证”之类将无法工作。</translation>
-    </message>
-    <message>
-        <source>Unable to determine the repository for %1.</source>
-        <translation type="obsolete">无法为%1定位代码仓库.</translation>
     </message>
     <message>
         <source>Waiting for data...</source>
@@ -7717,10 +7679,6 @@ on slow machines. In this case, the value should be increased.</source>
         </translation>
     </message>
     <message>
-        <source>Revert</source>
-        <translation>还原</translation>
-    </message>
-    <message>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>文件被改变，您想要还原它吗？</translation>
     </message>
@@ -7764,9 +7722,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Cannot determine git version: %1</source>
         <translation>无法确定git 的版本: %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -7884,10 +7839,6 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Amend %1</source>
         <translation>增订 %1</translation>
-    </message>
-    <message>
-        <source>Git Commit</source>
-        <translation>Git Commit</translation>
     </message>
     <message>
         <source>Closing Git Editor</source>
@@ -8201,23 +8152,14 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Do you want to commit the change?</source>
         <translation>您想提交此修改吗？</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>无法在路径 &apos;%2&apos; 定位二进制档 &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Git Commit</source>
         <translation type="obsolete">Git Commit</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -8229,10 +8171,6 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>repository</source>
         <translation>代码仓库</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>分支:</translation>
     </message>
     <message>
         <source>branch</source>
@@ -8254,9 +8192,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>By&amp;pass hooks</source>
         <translation>跳过hook(&amp;P)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
     <message>
         <source>&lt;New branch&gt;</source>
         <translation type="obsolete">&lt;新的分支&gt;</translation>
@@ -8265,9 +8200,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Type to create a new branch</source>
         <translation type="obsolete">创建新分支</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Environment variables</source>
         <translation type="obsolete">环境变量</translation>
@@ -8388,9 +8320,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Command:</source>
         <translation>命令:</translation>
     </message>
-</context>
-<context>
-    <name>GitCommand</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -18220,7 +18149,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="obsolete">从 Git 仓库中 clone 一个项目。</translation>
@@ -18233,9 +18162,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Git Repository Clone</source>
         <translation>Git仓库的克隆 </translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -19670,7 +19596,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -19703,9 +19629,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Email:</source>
         <translation>电子邮件:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -19774,9 +19697,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>要显示的最近提交的日志数, 选择0 来查看所有项.</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>还原</translation>
@@ -19789,9 +19709,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Revision:</source>
         <translation>修订版本:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
@@ -19921,7 +19838,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Clone a Mercurial repository</source>
         <translation type="obsolete">克隆一个 Mercurial 仓库</translation>
@@ -19934,9 +19851,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Mercurial Clone</source>
         <translation>Mercurial 克隆</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -19949,16 +19863,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Clone URL:</source>
         <translation>克隆 URL:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>Commit编辑器</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>无法在 %2 找到 %1 的父修订版本: %3</translation>
@@ -19980,16 +19888,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Working...</source>
         <translation type="obsolete">工作中...</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialJobRunner</name>
     <message>
         <source>Executing: %1 %2
 </source>
@@ -20003,13 +19901,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Timed out after %1s waiting for mercurial process to finish.</source>
         <translation type="obsolete">等待 mercurial 进程结束，等待%1 秒后超时。</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -20219,9 +20110,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Message check failed. Do you want to proceed?</source>
         <translation>信息检查失败，您想要继续吗？</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Mercurial 命令</translation>
@@ -20525,7 +20413,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>Stash列表</translation>
@@ -20615,10 +20503,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
 You can choose between stashing the changes or discarding them.</source>
         <translation>%1 不能被还原，因为仓库已经变更。
 您可以选择 stash 修改的内容或者丢弃修改。</translation>
-    </message>
-    <message>
-        <source>Stash</source>
-        <translation>Stash</translation>
     </message>
     <message>
         <source>Discard</source>
@@ -22520,28 +22404,19 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::RemoteBranchModel</name>
+    <name>Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">(没有分支)</translation>
     </message>
-</context>
-<context>
-    <name>GitClient</name>
     <message>
         <source>Unable to determine the repository for %1.</source>
         <translation type="obsolete">无法为 %1 决定仓库。</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitCommand</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation type="obsolete">错误: Git 在 %1秒后超时.</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
         <translation>Blame %1</translation>
@@ -22575,7 +22450,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Annotate %1</source>
         <translation>注释 &quot;%1&quot; </translation>
@@ -28618,7 +28493,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -33021,7 +32896,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the diff</source>
         <translation type="obsolete">使用耐心算法来计算差异</translation>
@@ -33046,9 +32921,6 @@ Do you want to retry?</source>
         <source>Ignore Whitespace</source>
         <translation>忽略空白</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>Select the pretty printing format</source>
         <translation type="obsolete">选择一个漂亮的输出格式</translation>
@@ -33085,9 +32957,6 @@ Do you want to retry?</source>
         <source>raw</source>
         <translation>raw</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Do not show the date a change was made in the output</source>
         <translation type="obsolete">输出改变了不要显示日期</translation>
@@ -33099,18 +32968,6 @@ Do you want to retry?</source>
     <message>
         <source>Omit Date</source>
         <translation>忽略日期</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>忽略仅为空白的修改。</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes</source>
-        <translation type="obsolete">忽略空白仅关注改变</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>忽略空白</translation>
     </message>
 </context>
 <context>
@@ -33688,7 +33545,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Functions</source>
         <translation type="obsolete">功能</translation>
@@ -33701,16 +33558,10 @@ QML component instance objects and properties directly.</source>
         <source>Methods and Functions</source>
         <translation>方法和函数</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation>索引中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>Type dump of QML plugin in %1 failed.
 Errors:
@@ -35032,7 +34883,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
@@ -35053,9 +34904,6 @@ if (a &amp;&amp;
         <source>Track local branch &apos;%1&apos;</source>
         <translation>跟踪本地分支&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>添加远程</translation>
@@ -35068,28 +34916,13 @@ if (a &amp;&amp;
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>远程</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>刷新(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>添加(&amp;A)...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>F&amp;etch</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>删除(&amp;R)</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -36070,7 +35903,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>本地分支</translation>
@@ -36096,7 +35929,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -36382,9 +36215,6 @@ These files are preserved.</source>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -36393,9 +36223,6 @@ These files are preserved.</source>
         <source>Reset Code Model</source>
         <translation>重置代码模型</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>
@@ -40969,7 +40796,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>创建新AVD</translation>
@@ -40990,9 +40817,6 @@ Filter: %2
         <source> MiB</source>
         <translation> MiB</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>创建一个密钥存储库和一个证书</translation>
@@ -41070,9 +40894,6 @@ Filter: %2
         <source>&gt;AA; </source>
         <translation>&gt;AA; </translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -41117,9 +40938,6 @@ This option is useful when you want to try your application on devices which don
         <source>Choose APK</source>
         <translation>选择APK</translation>
     </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
         <translation>Manifest</translation>
@@ -41203,10 +41021,6 @@ This option is useful when you want to try your application on devices which don
         <translation>丢弃</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>名称:</translation>
-    </message>
-    <message>
         <source>Libraries</source>
         <translation>库</translation>
     </message>
@@ -41260,9 +41074,6 @@ This option is useful when you want to try your application on devices which don
         <source>Certificate alias:</source>
         <translation>证书别名:</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android配置</translation>
@@ -41270,10 +41081,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Android SDK location:</source>
         <translation>Android SDK的路径:</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>浏览</translation>
     </message>
     <message>
         <source>Android NDK location:</source>
@@ -41326,14 +41133,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Start Android AVD Manager</source>
         <translation>启动Android AVD管理器</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>删除</translation>
     </message>
 </context>
 <context>
@@ -43865,7 +43664,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
+    <name>Android</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>创建AVD错误</translation>
@@ -43875,20 +43674,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
 Please install an SDK of at least API version %1.</source>
         <translation>无法创建一个新的AVD。没有足够新的Android SDK。
 请安装API版本至少为 %1的 SDK。</translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;密码太短&lt;/span&gt;</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
@@ -43910,23 +43695,10 @@ Please install an SDK of at least API version %1.</source>
         <source>Error</source>
         <translation>错误</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>部署到Android设备</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>部署到Android设备</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
@@ -43943,14 +43715,6 @@ Please install an SDK of at least API version %1.</source>
     <message>
         <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
         <translation>包部署: 运行命令 &apos;%1 %2&apos;。</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>打包错误:无法执行命令&apos;%1 %2&apos;。原因&apos;%3&apos;</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>打包错误:命令&apos;%1 %2&apos;失败.。</translation>
     </message>
     <message>
         <source> Reason: %1</source>
@@ -43984,16 +43748,10 @@ Please install an SDK of at least API version %1.</source>
         <source>Pulling files necessary for debugging.</source>
         <translation>正在读取调试需要的文件。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>部署到Android设备或模拟器</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;Deploy 配置&lt;/b&gt;</translation>
@@ -44006,27 +43764,14 @@ Please install an SDK of at least API version %1.</source>
         <source>Android package (*.apk)</source>
         <translation>Android包 (*.apk)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation>在Android上运行</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation>Android设备</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation>创建Android目录 &apos;%1&apos;失败。</translation>
@@ -44057,16 +43802,10 @@ Please install at least one SDK.</source>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation>无法打开 &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation>创建Android (.apk)包</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
     <message>
         <source>Packaging for Android</source>
         <translation>正在为Android打包</translation>
@@ -44084,10 +43823,6 @@ Please install at least one SDK.</source>
 Please make sure your application is built successfully and is selected in Application tab (&apos;Run option&apos;).</source>
         <translation>找不到 &apos;%1&apos;。
 请确保您的程序构建成功，并且在“应用程序”标签(&quot;运行选项&quot;)中选中。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>错误</translation>
     </message>
     <message>
         <source>Failed to run keytool</source>
@@ -44126,10 +43861,6 @@ Please make sure your application is built successfully and is selected in Appli
         <translation>包创建完成。</translation>
     </message>
     <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>部署包: 运行命令 &apos;%1 %2&apos;。</translation>
-    </message>
-    <message>
         <source>Packaging failed.</source>
         <translation>打包失败。</translation>
     </message>
@@ -44142,32 +43873,13 @@ Please make sure your application is built successfully and is selected in Appli
         <translation>打包错误:命令&apos;%1 %2&apos;失败。</translation>
     </message>
     <message>
-        <source> Reason: %1</source>
-        <translation>原因 %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>退出代码: %1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>密钥存储库</translation>
-    </message>
-    <message>
         <source>Keystore password:</source>
         <translation>密钥存储库的密码:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>证书</translation>
     </message>
     <message>
         <source>Certificate password (%1):</source>
         <translation>证书的密码(%1):</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid Package Name</source>
         <translation>非法的包名</translation>
@@ -44207,26 +43919,13 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <translation>选择密钥存储库文件</translation>
     </message>
     <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>密钥存储库文件 (*.keystore *.jks)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
-    <message>
         <source>Deploy to device</source>
         <translation>部署到设备</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>复制应用程序的数据</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>检测Qt版本使用的ABI失败。</translation>
@@ -44236,30 +43935,18 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>Run on Android device</source>
         <translation>在Android设备上运行</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>启动远端进程。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device or emulator.</source>
         <translation>在Android设备或模拟器上运行。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>
 
@@ -44304,16 +43991,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 
 &apos;%1&apos; 被杀死。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Android配置</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -44327,9 +44008,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
         <translation>Android SDK的目录</translation>
@@ -44366,9 +44044,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Select OpenJDK Path</source>
         <translation>选择OpenJDK的路径</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>Android GCC</translation>
@@ -44381,16 +44056,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Android GCC (%1-%2)</source>
         <translation>Android GCC (%1-%2)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>NDK根目录:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -46064,7 +45733,7 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>untracked</translation>
@@ -46097,16 +45766,9 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>updated</source>
         <translation>已更新</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Gerrit %1@%2</source>
         <translation>Gerrit %1@%2</translation>
-    </message>
-    <message>
-        <source>Changes</source>
-        <translation>修改</translation>
     </message>
     <message>
         <source>&amp;Query:</source>
@@ -46133,13 +45795,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation>Checkout...</translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation>刷新</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Owner&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Project&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Patch set&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;标题&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;数字&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;所有者&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;项目&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;状态&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;补丁集&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -46164,10 +45819,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation>审批</translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>状态</translation>
-    </message>
-    <message>
         <source>Parse error: &apos;%1&apos; -&gt; %2</source>
         <translation>解析错误: &apos;%1&apos; -&gt; %2</translation>
     </message>
@@ -46179,9 +45830,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Parse error in line &apos;%1&apos;</source>
         <translation>在行 &apos;%1&apos;发生解析错误</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
@@ -46198,16 +45846,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>%1 returned %2.</source>
         <translation>%1 返回了 %2。</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -46239,24 +45877,9 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation>当文件&quot;gerrit.config&quot;没有配置&quot;canonicalWebUrl&quot;时
 从URL推测使用的协议。</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
         <translation>Gerrit Fetch</translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>&quot;%1&quot; 崩溃。</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 返回了 %2。</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>运行%1发生错误: %2</translation>
     </message>
     <message>
         <source>Error writing to temporary file.</source>
@@ -46270,9 +45893,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Cherry-picking %1...</source>
         <translation>正在cherry-pick %1...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -46285,9 +45905,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation>输入 &apos;%1&apos; (%2) 的本地代码仓库</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>显示Diff</translation>
@@ -46296,23 +45913,13 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Show difference.</source>
         <translation>显示差异。</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Detached HEAD</source>
         <translation>已经detach HEAD</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ResetDialog</name>
     <message>
         <source>Sha1</source>
         <translation>Sha1</translation>
-    </message>
-    <message>
-        <source>Subject</source>
-        <translation>标题</translation>
     </message>
     <message>
         <source>Reset to:</source>
@@ -46974,7 +46581,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlConsoleEdit</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation type="obsolete">剪切</translation>
@@ -46983,23 +46590,14 @@ Remote stderr was: %1</source>
         <source>Select &amp;All</source>
         <translation type="obsolete">全选</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsolePane</name>
     <message>
         <source>Console</source>
         <translation type="obsolete">控制台</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleView</name>
     <message>
         <source>&amp;Show in Editor</source>
         <translation type="obsolete">在编辑器中显示(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>仅在类型名称为字符串时该类型才能在Qt Creator 中的 QML编辑器中使用</translation>

@@ -153,7 +153,7 @@ void Function::setObject(qint64 id)
 QString Function::location() const
 {
     QString pos;
-    for (const CostItem *costItem : qAsConst(d->m_costItems)) {
+    for (const CostItem *costItem : std::as_const(d->m_costItems)) {
         if (costItem->differingFileId() != -1) {
             QTextStream stream(&pos);
             stream << '(';
@@ -192,7 +192,7 @@ int Function::lineNumber() const
     if (lineIdx == -1)
         return -1;
 
-    for (const CostItem *costItem : qAsConst(d->m_costItems)) {
+    for (const CostItem *costItem : std::as_const(d->m_costItems)) {
         if (costItem->differingFileId() == -1)
             return costItem->position(lineIdx);
     }
@@ -265,7 +265,7 @@ void Function::addCostItem(const CostItem *item)
 void Function::finalize()
 {
     bool recursive = false;
-    for (const FunctionCall *call : qAsConst(d->m_incomingCalls)) {
+    for (const FunctionCall *call : std::as_const(d->m_incomingCalls)) {
         if (call->caller() == this) {
             recursive = true;
             break;
@@ -278,7 +278,7 @@ void Function::finalize()
         // e.g.: A -> B -> B ..., C -> B -> B ...
         // cost of B = cost of call to B in A + cost of call to B in C + ...
         d->m_inclusiveCost.fill(0);
-        for (const FunctionCall *call : qAsConst(d->m_incomingCalls)) {
+        for (const FunctionCall *call : std::as_const(d->m_incomingCalls)) {
             if (call->caller() != this) {
                 const QVector<const CostItem *> costItems = call->caller()->costItems();
                 for (const CostItem *costItem : costItems) {

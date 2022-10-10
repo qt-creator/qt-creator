@@ -477,7 +477,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
         // Find the class definition (ui class defined as member or base class)
         // in the file itself or in the directly included files (order 1).
-        for (const Document::Ptr &d : qAsConst(docMap)) {
+        for (const Document::Ptr &d : std::as_const(docMap)) {
             LookupContext context(d, docTable);
             const ClassDocumentPtrPair cd = findClassRecursively(context, candidate, 1u);
             if (cd.first) {
@@ -519,7 +519,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
         docTable = CppEditor::CppModelManager::instance()->snapshot();
         newDocTable = {};
-        for (const auto &file : qAsConst(filePaths)) {
+        for (const auto &file : std::as_const(filePaths)) {
             const Document::Ptr doc = docTable.document(file);
             if (doc)
                 newDocTable.insert(doc);

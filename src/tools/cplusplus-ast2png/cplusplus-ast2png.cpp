@@ -75,7 +75,7 @@ public:
 
         typedef QPair<QByteArray, QByteArray> Pair;
 
-        for (const Pair &conn : qAsConst(_connections))
+        for (const Pair &conn : std::as_const(_connections))
             out << conn.first.constData() << " -> " << conn.second.constData() << std::endl;
 
         alignTerminals();
@@ -91,7 +91,7 @@ public:
 protected:
     void alignTerminals() {
         out<<"{ rank=same;" << std::endl;
-        for (const QByteArray &terminalShape : qAsConst(_terminalShapes)) {
+        for (const QByteArray &terminalShape : std::as_const(_terminalShapes)) {
             out << "  " << std::string(terminalShape.constData(), terminalShape.size()).c_str() << ";" << std::endl;
         }
         out<<"}"<<std::endl;
@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
                                           QString(fileName + QLatin1String(".ast.png"))));
         inputOutputFiles.append(qMakePair(QString(fileName + QLatin1String(".symbols.dot")),
                                           QString(fileName + QLatin1String(".symbols.png"))));
-        for (const Pair &pair : qAsConst(inputOutputFiles)) {
+        for (const Pair &pair : std::as_const(inputOutputFiles)) {
             createImageFromDot(pair.first, pair.second, optionVerbose);
             std::cout << qPrintable(QDir::toNativeSeparators(pair.second)) << std::endl;
         }

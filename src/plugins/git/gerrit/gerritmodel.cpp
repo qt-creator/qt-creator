@@ -3,6 +3,7 @@
 
 #include "gerritmodel.h"
 #include "../gitclient.h"
+#include "../gittr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -195,7 +196,7 @@ QString GerritChange::fullTitle() const
 {
     QString res = title;
     if (status == "DRAFT")
-        res += GerritModel::tr(" (Draft)");
+        res += Git::Tr::tr(" (Draft)");
     return res;
 }
 
@@ -293,7 +294,7 @@ QueryContext::~QueryContext()
 
 void QueryContext::start()
 {
-    Core::FutureProgress *fp = Core::ProgressManager::addTask(m_progress.future(), tr("Querying Gerrit"),
+    Core::FutureProgress *fp = Core::ProgressManager::addTask(m_progress.future(), Git::Tr::tr("Querying Gerrit"),
                                            "gerrit-query");
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress.reportStarted();
@@ -326,11 +327,11 @@ void QueryContext::processDone()
         emit errorText(m_error);
 
     if (m_process.exitStatus() == QProcess::CrashExit)
-        errorTermination(tr("%1 crashed.").arg(m_binary.toUserOutput()));
+        errorTermination(Git::Tr::tr("%1 crashed.").arg(m_binary.toUserOutput()));
     else if (m_process.exitCode())
-        errorTermination(tr("%1 returned %2.").arg(m_binary.toUserOutput()).arg(m_process.exitCode()));
+        errorTermination(Git::Tr::tr("%1 returned %2.").arg(m_binary.toUserOutput()).arg(m_process.exitCode()));
     else if (m_process.result() != ProcessResult::FinishedWithSuccess)
-        errorTermination(tr("Error running %1: %2").arg(m_binary.toUserOutput(), m_process.errorString()));
+        errorTermination(Git::Tr::tr("Error running %1: %2").arg(m_binary.toUserOutput(), m_process.errorString()));
     else
         emit resultRetrieved(m_output);
 
@@ -346,13 +347,13 @@ void QueryContext::timeout()
     QWidget *parent = QApplication::activeModalWidget();
     if (!parent)
         parent = QApplication::activeWindow();
-    QMessageBox box(QMessageBox::Question, tr("Timeout"),
-                    tr("The gerrit process has not responded within %1 s.\n"
+    QMessageBox box(QMessageBox::Question, Git::Tr::tr("Timeout"),
+                    Git::Tr::tr("The gerrit process has not responded within %1 s.\n"
                        "Most likely this is caused by problems with SSH authentication.\n"
                        "Would you like to terminate it?").
                     arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
-    QPushButton *terminateButton = box.addButton(tr("Terminate"), QMessageBox::YesRole);
-    box.addButton(tr("Keep Running"), QMessageBox::NoRole);
+    QPushButton *terminateButton = box.addButton(Git::Tr::tr("Terminate"), QMessageBox::YesRole);
+    box.addButton(Git::Tr::tr("Keep Running"), QMessageBox::NoRole);
     connect(&m_process, &QtcProcess::done, &box, &QDialog::reject);
     box.exec();
     if (m_process.state() != QProcess::Running)
@@ -368,9 +369,9 @@ GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *par
     , m_parameters(p)
 {
     QStringList headers; // Keep in sync with GerritChange::toHtml()
-    headers << "#" << tr("Subject") << tr("Owner")
-            << tr("Updated") << tr("Project")
-            << tr("Approvals") << tr("Status");
+    headers << "#" << Git::Tr::tr("Subject") << Git::Tr::tr("Owner")
+            << Git::Tr::tr("Updated") << Git::Tr::tr("Project")
+            << Git::Tr::tr("Approvals") << Git::Tr::tr("Status");
     setHorizontalHeaderLabels(headers);
 }
 
@@ -413,15 +414,15 @@ QString GerritModel::dependencyHtml(const QString &header, const int changeNumbe
 
 QString GerritModel::toHtml(const QModelIndex& index) const
 {
-    static const QString subjectHeader = GerritModel::tr("Subject");
-    static const QString numberHeader = GerritModel::tr("Number");
-    static const QString ownerHeader = GerritModel::tr("Owner");
-    static const QString projectHeader = GerritModel::tr("Project");
-    static const QString statusHeader = GerritModel::tr("Status");
-    static const QString patchSetHeader = GerritModel::tr("Patch set");
-    static const QString urlHeader = GerritModel::tr("URL");
-    static const QString dependsOnHeader = GerritModel::tr("Depends on");
-    static const QString neededByHeader = GerritModel::tr("Needed by");
+    static const QString subjectHeader = Git::Tr::tr("Subject");
+    static const QString numberHeader = Git::Tr::tr("Number");
+    static const QString ownerHeader = Git::Tr::tr("Owner");
+    static const QString projectHeader = Git::Tr::tr("Project");
+    static const QString statusHeader = Git::Tr::tr("Status");
+    static const QString patchSetHeader = Git::Tr::tr("Patch set");
+    static const QString urlHeader = Git::Tr::tr("URL");
+    static const QString dependsOnHeader = Git::Tr::tr("Depends on");
+    static const QString neededByHeader = Git::Tr::tr("Needed by");
 
     if (!index.isValid())
         return QString();
@@ -781,7 +782,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(adaptedOutput, &error);
     if (doc.isNull()) {
-        QString errorMessage = GerritModel::tr("Parse error: \"%1\" -> %2")
+        QString errorMessage = Git::Tr::tr("Parse error: \"%1\" -> %2")
                 .arg(QString::fromUtf8(output))
                 .arg(error.errorString());
         qWarning() << errorMessage;
@@ -806,7 +807,7 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
         } else {
             const QByteArray jsonObject = QJsonDocument(object).toJson();
             qWarning("%s: Parse error: '%s'.", Q_FUNC_INFO, jsonObject.constData());
-            VcsOutputWindow::appendError(GerritModel::tr("Parse error: \"%1\"")
+            VcsOutputWindow::appendError(Git::Tr::tr("Parse error: \"%1\"")
                                   .arg(QString::fromUtf8(jsonObject)));
             res = false;
         }
@@ -907,7 +908,7 @@ void GerritModel::resultRetrieved(const QByteArray &output)
     std::stable_sort(changes.begin(), changes.end(), gerritChangeLessThan);
     numberIndexHash.clear();
 
-    for (const GerritChangePtr &c : qAsConst(changes)) {
+    for (const GerritChangePtr &c : std::as_const(changes)) {
         // Avoid duplicate entries for example in the (unlikely)
         // case people do self-reviews.
         if (!itemForNumber(c->number)) {

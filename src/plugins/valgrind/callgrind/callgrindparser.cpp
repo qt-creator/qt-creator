@@ -204,7 +204,7 @@ void Parser::Private::parse(const FilePath &filePath)
 
     // functions that need to accumulate their calees
     QSet<Function *> pendingFunctions;
-    for (const CallData &callData : qAsConst(pendingCallees)) {
+    for (const CallData &callData : std::as_const(pendingCallees)) {
         Function *calledFunction = nullptr;
         QTC_ASSERT(callData.call, continue);
         QTC_ASSERT(callData.call->caller(), continue);
@@ -243,7 +243,7 @@ void Parser::Private::parse(const FilePath &filePath)
     // lookup done
 
     // now accumulate callees
-    for (Function *func : qAsConst(pendingFunctions))
+    for (Function *func : std::as_const(pendingFunctions))
         func->finalize();
 
     emit q->parserDataReady();

@@ -43,7 +43,7 @@ namespace McuSupport::Internal {
 static QMap<QByteArray, QByteArray> cMakeConfigToMap(const CMakeConfig &config)
 {
     QMap<QByteArray, QByteArray> map;
-    for (const auto &configItem : qAsConst(config.toList())) {
+    for (const auto &configItem : std::as_const(config.toList())) {
         map.insert(configItem.key, configItem.value);
     }
     return map;
@@ -493,7 +493,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
             McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
 
             bool needsUpgrade = false;
-            for (const auto &target : qAsConst(repo.mcuTargets)) {
+            for (const auto &target : std::as_const(repo.mcuTargets)) {
                 // if kit already exists, skip
                 if (!matchingKits(target.get(), qtForMCUsPackage).empty())
                     continue;
@@ -530,7 +530,7 @@ void upgradeKitsByCreatingNewPackage(const SettingsHandler::Ptr &settingsHandler
 
     McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
 
-    for (const auto &target : qAsConst(repo.mcuTargets)) {
+    for (const auto &target : std::as_const(repo.mcuTargets)) {
         if (!matchingKits(target.get(), qtForMCUsPackage).empty())
             // already up-to-date
             continue;
@@ -570,7 +570,7 @@ void updatePathsInExistingKits(const SettingsHandler::Ptr &settingsHandler)
     McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
 
     McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
-    for (const auto &target : qAsConst(repo.mcuTargets)) {
+    for (const auto &target : std::as_const(repo.mcuTargets)) {
         if (target->isValid()) {
             for (auto *kit : kitsWithMismatchedDependencies(target.get())) {
                 auto changes = cMakeConfigToMap(CMakeConfigurationKitAspect::configuration(kit));
@@ -629,7 +629,7 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
         }
         if (!kit->hasValue(kitQmlImportPath)) {
             auto config = CMakeProjectManager::CMakeConfigurationKitAspect::configuration(kit);
-            for (const auto &cfgItem : qAsConst(config)) {
+            for (const auto &cfgItem : std::as_const(config)) {
                 if (cfgItem.key == "QUL_GENERATORS") {
                     auto idx = cfgItem.value.indexOf("/lib/cmake/Qul");
                     auto qulDir = cfgItem.value.left(idx);
@@ -655,7 +655,7 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
     qtForMCUsPackage->updateStatus();
     if (qtForMCUsPackage->isValidStatus()) {
         McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
-        for (const auto &target : qAsConst(repo.mcuTargets))
+        for (const auto &target : std::as_const(repo.mcuTargets))
             for (auto kit : existingKits(target.get())) {
                 if (McuDependenciesKitAspect::dependencies(kit).isEmpty()) {
                     McuKitFactory::setKitCMakeOptions(kit, target.get(), qtForMCUsPackage);

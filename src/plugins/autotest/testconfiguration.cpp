@@ -210,7 +210,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     QList<RunConfiguration *> runConfigurations = target->runConfigurations();
     runConfigurations.removeOne(target->activeRunConfiguration());
     runConfigurations.prepend(target->activeRunConfiguration());
-    for (RunConfiguration *runConfig : qAsConst(runConfigurations)) {
+    for (RunConfiguration *runConfig : std::as_const(runConfigurations)) {
         qCDebug(LOG) << "RunConfiguration" << runConfig->id();
         if (!isLocal(target)) { // TODO add device support
             qCDebug(LOG) << " Skipped as not being local";

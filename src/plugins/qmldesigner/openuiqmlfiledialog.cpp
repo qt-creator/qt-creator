@@ -2,46 +2,66 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "openuiqmlfiledialog.h"
-#include "ui_openuiqmlfiledialog.h"
 
 #include <qmldesignerplugin.h>
 
+#include <utils/layoutbuilder.h>
+
+#include <QCheckBox>
 #include <QDir>
+#include <QListWidget>
+#include <QPushButton>
 
 namespace QmlDesigner {
 
 OpenUiQmlFileDialog::OpenUiQmlFileDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::OpenUiQmlFileDialog)
+    QDialog(parent)
 {
-    ui->setupUi(this);
+    resize(600, 300);
+    setModal(true);
+    setWindowTitle(tr("Open ui.qml file"));
 
-    connect(ui->cancelButton, &QPushButton::clicked, this, &QDialog::close);
-    connect(ui->openButton, &QPushButton::clicked, [this] {
-        QListWidgetItem *item = ui->listWidget->currentItem();
+    auto checkBox = new QCheckBox(tr("Do not show this dialog again"));
+
+    auto openButton = new QPushButton(tr("Open ui.qml file"));
+    auto cancelButton = new QPushButton(tr("Cancel"));
+
+    cancelButton->setDefault(true);
+
+    m_listWidget = new QListWidget;
+
+    using namespace Utils::Layouting;
+
+    Column {
+        tr("You are opening a .qml file in the designer. Do you want to open a .ui.qml file instead?"),
+        m_listWidget,
+        checkBox,
+        Row { st, openButton, cancelButton }  // FIXME: Use QDialogButtonBox to get order right?
+    }.attachTo(this);
+
+    connect(cancelButton, &QPushButton::clicked, this, &QDialog::close);
+    connect(openButton, &QPushButton::clicked, [this] {
+        QListWidgetItem *item = m_listWidget->currentItem();
         if (item) {
             m_uiFileOpened = true;
             m_uiQmlFile = item->data(Qt::UserRole).toString();
         }
         close();
     });
-    connect(ui->listWidget, &QListWidget::itemDoubleClicked, [this](QListWidgetItem *item) {
+    connect(m_listWidget, &QListWidget::itemDoubleClicked, [this](QListWidgetItem *item) {
         if (item) {
             m_uiFileOpened = true;
             m_uiQmlFile = item->data(Qt::UserRole).toString();
         }
         close();
     });
-    connect(ui->checkBox, &QCheckBox::toggled, this, [](bool b){
+    connect(checkBox, &QCheckBox::toggled, this, [](bool b){
         QmlDesignerPlugin::settings().insert(
             DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES, !b);
     });
 }
 
-OpenUiQmlFileDialog::~OpenUiQmlFileDialog()
-{
-    delete ui;
-}
+OpenUiQmlFileDialog::~OpenUiQmlFileDialog() = default;
 
 bool OpenUiQmlFileDialog::uiFileOpened() const
 {
@@ -53,11 +73,11 @@ void OpenUiQmlFileDialog::setUiQmlFiles(const QString &projectPath, const QStrin
     QDir projectDir(projectPath);
 
     for (const QString &fileName : stringList) {
-        QListWidgetItem *item = new QListWidgetItem(projectDir.relativeFilePath(fileName), ui->listWidget);
+        QListWidgetItem *item = new QListWidgetItem(projectDir.relativeFilePath(fileName), m_listWidget);
         item->setData(Qt::UserRole, fileName);
-        ui->listWidget->addItem(item);
+        m_listWidget->addItem(item);
     }
-    ui->listWidget->setCurrentItem(ui->listWidget->item(0));
+    m_listWidget->setCurrentItem(m_listWidget->item(0));
 }
 
 QString OpenUiQmlFileDialog::uiQmlFile() const

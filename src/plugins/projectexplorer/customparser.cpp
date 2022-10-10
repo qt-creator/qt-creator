@@ -277,7 +277,7 @@ public:
 
     void setSelectedParsers(const QList<Utils::Id> &parsers)
     {
-        for (const auto &p : qAsConst(parserCheckBoxes))
+        for (const auto &p : std::as_const(parserCheckBoxes))
             p.first->setChecked(parsers.contains(p.second));
         emit selectionChanged();
     }
@@ -285,7 +285,7 @@ public:
     QList<Utils::Id> selectedParsers() const
     {
         QList<Utils::Id> parsers;
-        for (const auto &p : qAsConst(parserCheckBoxes)) {
+        for (const auto &p : std::as_const(parserCheckBoxes)) {
             if (p.first->isChecked())
                 parsers << p.second;
         }
@@ -301,7 +301,7 @@ private:
         const auto layout = qobject_cast<QVBoxLayout *>(this->layout());
         QTC_ASSERT(layout, return);
         const QList<Utils::Id> parsers = selectedParsers();
-        for (const auto &p : qAsConst(parserCheckBoxes))
+        for (const auto &p : std::as_const(parserCheckBoxes))
             delete p.first;
         parserCheckBoxes.clear();
         for (const CustomParserSettings &s : ProjectExplorerPlugin::customParsers()) {

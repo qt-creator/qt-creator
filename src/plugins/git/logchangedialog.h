@@ -18,8 +18,7 @@ class QStandardItemModel;
 class QStandardItem;
 QT_END_NAMESPACE
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class LogChangeModel;
 
@@ -65,8 +64,6 @@ private:
 
 class LogChangeDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     LogChangeDialog(bool isReset, QWidget *parent);
 
@@ -109,5 +106,4 @@ private:
     QIcon m_icon;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

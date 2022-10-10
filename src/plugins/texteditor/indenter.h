@@ -57,6 +57,12 @@ public:
         return -1;
     }
 
+    virtual int visualIndentFor(const QTextBlock & /*block*/,
+                                const TabSettings & /*tabSettings*/)
+    {
+        return -1;
+    }
+
     virtual void autoIndent(const QTextCursor &cursor,
                             const TabSettings &tabSettings,
                             int cursorPositionInEditor = -1)

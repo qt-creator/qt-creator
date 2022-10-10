@@ -4,10 +4,10 @@
 #pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
+
 #include <QRegularExpression>
 
-namespace Mercurial {
-namespace Internal {
+namespace Mercurial::Internal {
 
 class MercurialAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
@@ -20,5 +20,4 @@ private:
     const QRegularExpression changeset;
 };
 
-} //namespace Internal
-}// namespace Mercurial
+} // Mercurial::Internal

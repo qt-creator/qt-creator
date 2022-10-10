@@ -345,7 +345,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(d->m_listview->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this] {
         const Tasks tasks = d->m_filter->tasks(d->m_listview->selectionModel()->selectedIndexes());
-        for (QAction * const action : qAsConst(d->m_actions)) {
+        for (QAction * const action : std::as_const(d->m_actions)) {
             ITaskHandler * const h = d->handler(action);
             action->setEnabled(h && h->canHandle(tasks));
         }
@@ -421,7 +421,7 @@ void TaskWindow::delayedInitialization()
 
     alreadyDone = true;
 
-    for (ITaskHandler *h : qAsConst(g_taskHandlers)) {
+    for (ITaskHandler *h : std::as_const(g_taskHandlers)) {
         if (h->isDefaultHandler() && !d->m_defaultHandler)
             d->m_defaultHandler = h;
 
@@ -822,7 +822,7 @@ void TaskDelegate::currentChanged(const QModelIndex &current, const QModelIndex 
 
 QString TaskDelegate::hrefForPos(const QPointF &pos)
 {
-    for (const auto &link : qAsConst(m_hrefs)) {
+    for (const auto &link : std::as_const(m_hrefs)) {
         if (link.first.contains(pos))
             return link.second;
     }

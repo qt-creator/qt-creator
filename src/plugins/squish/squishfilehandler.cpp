@@ -13,6 +13,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
@@ -22,9 +23,7 @@
 #include <QApplication>
 #include <QComboBox>
 #include <QDialogButtonBox>
-#include <QDir>
 #include <QFileDialog>
-#include <QFileInfo>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -68,7 +67,7 @@ public:
         connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
                 this, &QDialog::reject);
         connect(&aut, &QComboBox::currentIndexChanged,
-                this, [this, okButton] (int index) {
+                this, [okButton] (int index) {
             okButton->setEnabled(index > 0);
         });
         setWindowTitle(Tr::tr("Recording Settings"));
@@ -133,7 +132,7 @@ static bool isIgnoredSuffix(const QString &suffix)
 
 static void addAllEntriesRecursively(SquishTestTreeItem *item, SharedType sharedType)
 {
-    const Utils::FilePath folder = Utils::FilePath::fromString(item->filePath());
+    const Utils::FilePath folder = item->filePath();
 
     for (const Utils::FilePath &file : folder.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot)) {
         const bool isDirectory = file.isDir();
@@ -148,7 +147,7 @@ static void addAllEntriesRecursively(SquishTestTreeItem *item, SharedType shared
 
         SquishTestTreeItem *child = new SquishTestTreeItem(
                     file.fileName(), itemTypeForSharedType(sharedType, isDirectory));
-        child->setFilePath(file.toString());
+        child->setFilePath(file);
         if (isDirectory)
             addAllEntriesRecursively(child, sharedType);
 
@@ -161,7 +160,7 @@ static void processSharedSubFolders(SquishTestTreeItem *item, const Utils::FileP
 {
     SquishTestTreeItem *sharedItem = new SquishTestTreeItem(directory.fileName(),
                                                             SquishTestTreeItem::SquishSharedRoot);
-    sharedItem->setFilePath(directory.path());
+    sharedItem->setFilePath(directory);
     addAllEntriesRecursively(sharedItem, sharedType);
     if (sharedItem->hasChildren())
         item->appendChild(sharedItem);
@@ -169,18 +168,18 @@ static void processSharedSubFolders(SquishTestTreeItem *item, const Utils::FileP
         delete sharedItem;
 }
 
-SquishTestTreeItem *createSuiteTreeItem(const QString &name,
-                                        const QString &filePath,
-                                        const QStringList &cases)
+static SquishTestTreeItem *createSuiteTreeItem(const QString &name,
+                                               const Utils::FilePath &suiteConf,
+                                               const QStringList &cases)
 {
     SquishTestTreeItem *item = new SquishTestTreeItem(name, SquishTestTreeItem::SquishSuite);
-    item->setFilePath(filePath);
+    item->setFilePath(suiteConf);
     for (const QString &testCase : cases) {
         const Utils::FilePath testCaseFP = Utils::FilePath::fromString(testCase);
         const Utils::FilePath testCaseDir = testCaseFP.parentDir();
         SquishTestTreeItem *child = new SquishTestTreeItem(testCaseDir.fileName(),
                                                            SquishTestTreeItem::SquishTestCase);
-        child->setFilePath(testCase);
+        child->setFilePath(testCaseFP);
         item->appendChild(child);
 
         if (const Utils::FilePath data = testCaseDir.pathAppended("testdata"); data.isDir())
@@ -196,7 +195,7 @@ SquishTestTreeItem *createSuiteTreeItem(const QString &name,
                 = new SquishTestTreeItem(file.fileName(),
                                          isDir ? SquishTestTreeItem::SquishSharedFolder
                                                : SquishTestTreeItem::SquishSharedFile);
-            other->setFilePath(file.toString());
+            other->setFilePath(file);
             if (isDir)
                 addAllEntriesRecursively(other, SharedType::SharedFoldersAndFiles);
 
@@ -204,7 +203,7 @@ SquishTestTreeItem *createSuiteTreeItem(const QString &name,
         }
     }
 
-    const Utils::FilePath baseDir = Utils::FilePath::fromString(filePath).absolutePath();
+    const Utils::FilePath baseDir = suiteConf.parentDir();
     if (const Utils::FilePath scripts = baseDir.pathAppended("shared/scripts"); scripts.isDir())
         processSharedSubFolders(item, scripts, SharedType::SharedFoldersAndFiles);
     if (const Utils::FilePath data = baseDir.pathAppended("shared/testdata"); data.isDir())
@@ -214,12 +213,12 @@ SquishTestTreeItem *createSuiteTreeItem(const QString &name,
 }
 
 void SquishFileHandler::modifySuiteItem(const QString &suiteName,
-                                        const QString &filePath,
+                                        const Utils::FilePath &suiteConf,
                                         const QStringList &cases)
 {
-    SquishTestTreeItem *item = createSuiteTreeItem(suiteName, filePath, cases);
+    SquishTestTreeItem *item = createSuiteTreeItem(suiteName, suiteConf, cases);
     // TODO update file watcher
-    m_suites.insert(suiteName, filePath);
+    m_suites.insert(suiteName, suiteConf);
     emit suiteTreeItemModified(item, suiteName);
 }
 
@@ -228,16 +227,15 @@ void SquishFileHandler::openTestSuites()
     OpenSquishSuitesDialog dialog;
     dialog.exec();
     QMessageBox::StandardButton replaceSuite = QMessageBox::NoButton;
-    const QStringList chosenSuites = dialog.chosenSuites();
-    for (const QString &suite : chosenSuites) {
-        const QDir suiteDir(suite);
-        const QString suiteName = suiteDir.dirName();
-        const QStringList cases = SuiteConf::validTestCases(suite);
-        const QFileInfo suiteConf(suiteDir, "suite.conf");
+    const Utils::FilePaths chosenSuites = dialog.chosenSuites();
+    for (const Utils::FilePath &suiteDir : chosenSuites) {
+        const QString suiteName = suiteDir.fileName();
+        const QStringList cases = SuiteConf::validTestCases(suiteDir.toString());
+        const Utils::FilePath suiteConf = suiteDir.pathAppended("suite.conf");
 
         if (m_suites.contains(suiteName)) {
             if (replaceSuite == QMessageBox::YesToAll) {
-                modifySuiteItem(suiteName, suiteConf.absoluteFilePath(), cases);
+                modifySuiteItem(suiteName, suiteConf, cases);
             } else if (replaceSuite != QMessageBox::NoToAll) {
                 replaceSuite
                     = QMessageBox::question(Core::ICore::dialogParent(),
@@ -262,18 +260,17 @@ void SquishFileHandler::openTestSuites()
         }
     }
     emit suitesOpened();
-    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
-void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath, bool isReopen)
+void SquishFileHandler::openTestSuite(const Utils::FilePath &suiteConfPath, bool isReopen)
 {
-    const QString suiteName = suitePath.parentDir().fileName();
-    const QString suitePathStr = suitePath.toString();
-    const QStringList cases = SuiteConf::validTestCases(suitePath.parentDir().toString());
+    const QString suiteName = suiteConfPath.parentDir().fileName();
+    const QStringList cases = SuiteConf::validTestCases(suiteConfPath.parentDir().toString());
 
     if (m_suites.contains(suiteName)) {
         if (isReopen) {
-            modifySuiteItem(suiteName, suitePathStr, cases);
+            modifySuiteItem(suiteName, suiteConfPath, cases);
             return;
         }
         QMessageBox::Button replaceSuite
@@ -286,14 +283,14 @@ void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath, bool isR
                                         QMessageBox::Yes | QMessageBox::No,
                                         QMessageBox::No);
         if (replaceSuite == QMessageBox::Yes)
-            modifySuiteItem(suiteName, suitePathStr, cases);
+            modifySuiteItem(suiteName, suiteConfPath, cases);
     } else {
-        SquishTestTreeItem *item = createSuiteTreeItem(suiteName, suitePathStr, cases);
+        SquishTestTreeItem *item = createSuiteTreeItem(suiteName, suiteConfPath, cases);
         // TODO add file watcher
-        m_suites.insert(suiteName, suitePathStr);
+        m_suites.insert(suiteName, suiteConfPath);
         emit testTreeItemCreated(item);
     }
-    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
 void SquishFileHandler::closeTestSuite(const QString &suiteName)
@@ -305,13 +302,13 @@ void SquishFileHandler::closeTestSuite(const QString &suiteName)
     // TODO remove file watcher
     m_suites.remove(suiteName);
     emit suiteTreeItemRemoved(suiteName);
-    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
 void SquishFileHandler::closeAllTestSuites()
 {
     closeAllInternal();
-    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
 void SquishFileHandler::closeAllInternal()
@@ -331,18 +328,19 @@ void SquishFileHandler::runTestCase(const QString &suiteName, const QString &tes
     if (SquishTools::instance()->state() != SquishTools::Idle)
         return;
 
-    const QDir suitePath = QFileInfo(m_suites.value(suiteName)).absoluteDir();
-    if (!suitePath.exists() || !suitePath.isReadable()) {
+    const Utils::FilePath suitePath = m_suites.value(suiteName).parentDir();
+    if (!suitePath.exists() || !suitePath.isReadableDir()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               Tr::tr("Test Suite Path Not Accessible"),
                               Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
                                      "Refusing to run test case \"%2\".")
-                                  .arg(QDir::toNativeSeparators(suitePath.absolutePath()))
+                                  .arg(suitePath.toUserOutput())
                                   .arg(testCaseName));
         return;
     }
 
-    SquishTools::instance()->runTestCases(suitePath.absolutePath(), QStringList(testCaseName));
+    ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles();
+    SquishTools::instance()->runTestCases(suitePath, QStringList(testCaseName));
 }
 
 void SquishFileHandler::runTestSuite(const QString &suiteName)
@@ -352,14 +350,14 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
     if (SquishTools::instance()->state() != SquishTools::Idle)
         return;
 
-    const QString suiteConf = m_suites.value(suiteName);
-    const QDir suitePath = QFileInfo(suiteConf).absoluteDir();
-    if (!suitePath.exists() || !suitePath.isReadable()) {
+    const Utils::FilePath suiteConf = m_suites.value(suiteName);
+    const Utils::FilePath suitePath = suiteConf.parentDir();
+    if (!suitePath.exists() || !suitePath.isReadableDir()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               Tr::tr("Test Suite Path Not Accessible"),
                               Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
                                      "Refusing to run test cases.")
-                                  .arg(QDir::toNativeSeparators(suitePath.absolutePath())));
+                                  .arg(suitePath.toUserOutput()));
         return;
     }
 
@@ -371,7 +369,8 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
                                  .arg(suiteName));
         return;
     }
-    SquishTools::instance()->runTestCases(suitePath.absolutePath(), testCases);
+    ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles();
+    SquishTools::instance()->runTestCases(suitePath, testCases);
 }
 
 void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &testCaseName)
@@ -381,19 +380,18 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
     if (SquishTools::instance()->state() != SquishTools::Idle)
         return;
 
-    const QDir suitePath = QFileInfo(m_suites.value(suiteName)).absoluteDir();
-    if (!suitePath.exists() || !suitePath.isReadable()) {
+    const Utils::FilePath suitePath = m_suites.value(suiteName).parentDir();
+    if (!suitePath.exists() || !suitePath.isReadableDir()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               Tr::tr("Test Suite Path Not Accessible"),
                               Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
                                      "Refusing to record test case \"%2\".")
-                                  .arg(QDir::toNativeSeparators(suitePath.absolutePath()))
+                                  .arg(suitePath.toUserOutput())
                                   .arg(testCaseName));
         return;
     }
 
-    SuiteConf conf = SuiteConf::readSuiteConf(
-                Utils::FilePath::fromString(m_suites.value(suiteName)));
+    SuiteConf conf = SuiteConf::readSuiteConf(m_suites.value(suiteName));
     if (conf.aut().isEmpty()) {
         MappedAutDialog dialog;
 
@@ -404,28 +402,25 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
         conf.setArguments(dialog.arguments.value());
     }
 
-    SquishTools::instance()->recordTestCase(suitePath.absolutePath(), testCaseName, conf);
+    SquishTools::instance()->recordTestCase(suitePath, testCaseName, conf);
 }
 
 void addAllEntriesRecursively(SquishTestTreeItem *item)
 {
-    QDir folder(item->filePath());
-
-    const QFileInfoList entries = folder.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
-    for (const QFileInfo &info : entries) {
-        const QString &path = info.absoluteFilePath();
+    const Utils::FilePaths entries = item->filePath().dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot);
+    for (const Utils::FilePath &path : entries) {
         // TODO improve this later? Squish refuses directories containing Squish test suites
-        const bool isDir = info.isDir();
-        if (!info.isFile() && !isDir)
+        const bool isDir = path.isDir();
+        if (!path.isFile() && !isDir)
             continue;
 
         SquishTestTreeItem *child
-            = new SquishTestTreeItem(info.fileName(),
+            = new SquishTestTreeItem(path.fileName(),
                                      isDir ? SquishTestTreeItem::SquishSharedFolder
                                            : SquishTestTreeItem::SquishSharedFile);
         child->setFilePath(path);
 
-        if (info.isDir())
+        if (isDir)
             addAllEntriesRecursively(child);
 
         item->appendChild(child);
@@ -434,8 +429,8 @@ void addAllEntriesRecursively(SquishTestTreeItem *item)
 
 void SquishFileHandler::addSharedFolder()
 {
-    const QString &chosen = QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),
-                                                              Tr::tr("Select Global Script Folder"));
+    const Utils::FilePath chosen = Utils::FileUtils::getExistingDirectory(
+                Core::ICore::dialogParent(), Tr::tr("Select Global Script Folder"));
     if (chosen.isEmpty())
         return;
 
@@ -443,14 +438,14 @@ void SquishFileHandler::addSharedFolder()
         return;
 
     m_sharedFolders.append(chosen);
-    SquishTestTreeItem *item = new SquishTestTreeItem(chosen,
+    SquishTestTreeItem *item = new SquishTestTreeItem(chosen.toUserOutput(),
                                                       SquishTestTreeItem::SquishSharedFolder);
     item->setFilePath(chosen);
     addAllEntriesRecursively(item);
     emit testTreeItemCreated(item);
 }
 
-bool SquishFileHandler::removeSharedFolder(const QString &folder)
+bool SquishFileHandler::removeSharedFolder(const Utils::FilePath &folder)
 {
     if (m_sharedFolders.contains(folder))
         return m_sharedFolders.removeOne(folder);
@@ -467,8 +462,7 @@ void SquishFileHandler::openObjectsMap(const QString &suiteName)
 {
     QTC_ASSERT(!suiteName.isEmpty(), return );
 
-    const SuiteConf conf = SuiteConf::readSuiteConf(
-                Utils::FilePath::fromString(m_suites.value(suiteName)));
+    const SuiteConf conf = SuiteConf::readSuiteConf(m_suites.value(suiteName));
     const Utils::FilePath objectsMapPath = conf.objectMapPath();
     if (objectsMapPath.exists()) {
         if (!Core::EditorManager::openEditor(objectsMapPath, Constants::OBJECTSMAP_EDITOR_ID)) {
@@ -494,6 +488,11 @@ void SquishFileHandler::onSessionLoaded()
         if (fp.exists())
             openTestSuite(fp);
     }
+}
+
+QStringList SquishFileHandler::suitePathsAsStringList() const
+{
+    return Utils::transform(m_suites.values(), &Utils::FilePath::toString);
 }
 
 } // namespace Internal

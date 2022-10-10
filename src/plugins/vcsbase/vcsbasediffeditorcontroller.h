@@ -4,6 +4,7 @@
 #pragma once
 
 #include "vcsbase_global.h"
+#include "vcsenums.h"
 
 #include <diffeditor/diffeditorcontroller.h>
 
@@ -36,7 +37,7 @@ public:
     void setWorkingDirectory(const Utils::FilePath &workingDir);
 
 protected:
-    void runCommand(const QList<QStringList> &args, unsigned flags, QTextCodec *codec = nullptr);
+    void runCommand(const QList<QStringList> &args, RunFlags flags, QTextCodec *codec = nullptr);
     virtual void processCommandOutput(const QString &output);
 
     Utils::FilePath workingDirectory() const;

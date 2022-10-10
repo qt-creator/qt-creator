@@ -551,7 +551,7 @@ void OutputWindow::flush()
         return;
     }
     d->queueTimer.stop();
-    for (const auto &chunk : qAsConst(d->queuedOutput))
+    for (const auto &chunk : std::as_const(d->queuedOutput))
         handleOutputChunk(chunk.first, chunk.second);
     d->queuedOutput.clear();
     d->formatter.flush();

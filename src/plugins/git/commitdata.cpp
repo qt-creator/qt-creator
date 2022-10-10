@@ -3,13 +3,12 @@
 
 #include "commitdata.h"
 
+#include "gittr.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
-
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 void GitSubmitEditorPanelInfo::clear()
 {
@@ -175,32 +174,31 @@ QString CommitData::stateDisplayName(const FileStates &state)
 {
     QString resultState;
     if (state == UntrackedFile)
-        return tr("untracked");
+        return Tr::tr("untracked");
 
     if (state & StagedFile)
-        resultState = tr("staged + ");
+        resultState = Tr::tr("staged + ");
     if (state & ModifiedFile)
-        resultState.append(tr("modified"));
+        resultState.append(Tr::tr("modified"));
     else if (state & AddedFile)
-        resultState.append(tr("added"));
+        resultState.append(Tr::tr("added"));
     else if (state & DeletedFile)
-        resultState.append(tr("deleted"));
+        resultState.append(Tr::tr("deleted"));
     else if (state & RenamedFile)
-        resultState.append(tr("renamed"));
+        resultState.append(Tr::tr("renamed"));
     else if (state & CopiedFile)
-        resultState.append(tr("copied"));
+        resultState.append(Tr::tr("copied"));
     else if (state & TypeChangedFile)
-        resultState.append(tr("typechange"));
+        resultState.append(Tr::tr("typechange"));
     if (state & UnmergedUs) {
         if (state & UnmergedThem)
-            resultState.append(tr(" by both"));
+            resultState.append(Tr::tr(" by both"));
         else
-            resultState.append(tr(" by us"));
+            resultState.append(Tr::tr(" by us"));
     } else if (state & UnmergedThem) {
-        resultState.append(tr(" by them"));
+        resultState.append(Tr::tr(" by them"));
     }
     return resultState;
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

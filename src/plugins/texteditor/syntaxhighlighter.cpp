@@ -819,7 +819,7 @@ void SyntaxHighlighterPrivate::updateFormats(const FontSettings &fontSettings)
     this->fontSettings = fontSettings;
     // C_TEXT is handled by text editor's foreground and background color,
     // so use empty format for that
-    for (const auto &pair : qAsConst(formatCategories)) {
+    for (const auto &pair : std::as_const(formatCategories)) {
         formats[pair.first] = pair.second == C_TEXT ? QTextCharFormat()
                                                     : fontSettings.toTextCharFormat(pair.second);
     }

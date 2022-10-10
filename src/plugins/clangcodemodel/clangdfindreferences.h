@@ -25,7 +25,7 @@ class ClangdFindReferences : public QObject
 public:
     explicit ClangdFindReferences(ClangdClient *client, TextEditor::TextDocument *document,
                                   const QTextCursor &cursor, const QString &searchTerm,
-                                  const std::optional<QString> &replacement, bool categorize);
+                                  bool categorize);
     ~ClangdFindReferences();
 
 signals:

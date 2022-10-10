@@ -28,7 +28,7 @@ public:
         m_resultNameValueDictionary.modify(m_items);
         // Add removed variables again and mark them as "<UNSET>" so
         // that the user can actually see those removals:
-        for (const NameValueItem &item : qAsConst(m_items)) {
+        for (const NameValueItem &item : std::as_const(m_items)) {
             if (item.operation == NameValueItem::Unset)
                 m_resultNameValueDictionary.set(item.name, NameValueModel::tr("<UNSET>"));
         }

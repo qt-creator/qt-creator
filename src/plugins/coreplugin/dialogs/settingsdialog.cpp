@@ -195,11 +195,11 @@ void CategoryModel::ensurePages(Category *category)
 {
     if (!category->providerPagesCreated) {
         QList<IOptionsPage *> createdPages;
-        for (const IOptionsPageProvider *provider : qAsConst(category->providers))
+        for (const IOptionsPageProvider *provider : std::as_const(category->providers))
             createdPages += provider->pages();
 
         // check for duplicate ids
-        for (const IOptionsPage *page : qAsConst(createdPages)) {
+        for (const IOptionsPage *page : std::as_const(createdPages)) {
             QTC_ASSERT(!m_pageIds.contains(page->id()),
                        qWarning("duplicate options page id '%s'", qPrintable(page->id().toString())));
         }
@@ -585,7 +585,7 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     m_model.ensurePages(category);
     auto tabWidget = new QTabWidget;
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
-    for (IOptionsPage *page : qAsConst(category->pages)) {
+    for (IOptionsPage *page : std::as_const(category->pages)) {
         QWidget *widget = page->widget();
         ICore::setupScreenShooter(page->displayName(), widget);
         auto ssa = new SmartScrollArea(this);
@@ -677,9 +677,9 @@ void SettingsDialog::accept()
     m_finished = true;
     disconnectTabWidgets();
     m_applied = true;
-    for (IOptionsPage *page : qAsConst(m_visitedPages))
+    for (IOptionsPage *page : std::as_const(m_visitedPages))
         page->apply();
-    for (IOptionsPage *page : qAsConst(m_pages))
+    for (IOptionsPage *page : std::as_const(m_pages))
         page->finish();
     done(QDialog::Accepted);
 }
@@ -690,14 +690,14 @@ void SettingsDialog::reject()
         return;
     m_finished = true;
     disconnectTabWidgets();
-    for (IOptionsPage *page : qAsConst(m_pages))
+    for (IOptionsPage *page : std::as_const(m_pages))
         page->finish();
     done(QDialog::Rejected);
 }
 
 void SettingsDialog::apply()
 {
-    for (IOptionsPage *page : qAsConst(m_visitedPages))
+    for (IOptionsPage *page : std::as_const(m_visitedPages))
         page->apply();
     m_applied = true;
 }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "androidavdmanager.h"
-
+#include "androidtr.h"
 #include "avdmanageroutputparser.h"
 
 #include <coreplugin/icore.h>
@@ -72,8 +72,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     if (!result.isValid()) {
         qCDebug(avdManagerLog) << "AVD Create failed. Invalid CreateAvdInfo" << result.name
                                << result.systemImage->displayText() << result.systemImage->apiLevel();
-        result.error = QApplication::translate("AndroidAvdManager",
-                                               "Cannot create AVD. Invalid input.");
+        result.error = Tr::tr("Cannot create AVD. Invalid input.");
         return result;
     }
 
@@ -99,8 +98,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     proc.setCommand({avdManagerTool, arguments});
     proc.start();
     if (!proc.waitForStarted()) {
-        result.error = QApplication::translate("AndroidAvdManager",
-                                               "Could not start process \"%1 %2\"")
+        result.error = Tr::tr("Could not start process \"%1 %2\"")
                 .arg(avdManagerTool.toString(), arguments.join(' '));
         return result;
     }
@@ -131,10 +129,8 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
             break;
 
         // For a sane input and command, process should finish before timeout.
-        if (checkForTimeout(start, avdCreateTimeoutMs)) {
-            result.error = QApplication::translate("AndroidAvdManager",
-                                                   "Cannot create AVD. Command timed out.");
-        }
+        if (checkForTimeout(start, avdCreateTimeoutMs))
+            result.error = Tr::tr("Cannot create AVD. Command timed out.");
     }
 
     result.error = errorOutput;
@@ -216,11 +212,11 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
         avdErrorPaths.clear();
         avdList = parseAvdList(output, &avdErrorPaths);
         allAvdErrorPaths << avdErrorPaths;
-        for (const QString &avdPathStr : qAsConst(avdErrorPaths))
+        for (const QString &avdPathStr : std::as_const(avdErrorPaths))
             avdConfigEditManufacturerTag(avdPathStr); // comment out manufacturer tag
     } while (!avdErrorPaths.isEmpty());               // try again
 
-    for (const QString &avdPathStr : qAsConst(allAvdErrorPaths))
+    for (const QString &avdPathStr : std::as_const(allAvdErrorPaths))
         avdConfigEditManufacturerTag(avdPathStr, true); // re-add manufacturer tag
 
     return avdList;
@@ -244,11 +240,10 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     if (!emulator.exists()) {
         QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulator] {
             QMessageBox::critical(Core::ICore::dialogParent(),
-                                  AndroidAvdManager::tr("Emulator Tool Is Missing"),
-                                  AndroidAvdManager::tr(
-                                      "Install the missing emulator tool (%1) to the"
-                                      " installed Android SDK.")
-                                      .arg(emulator.displayName()));
+                                  Tr::tr("Emulator Tool Is Missing"),
+                                  Tr::tr("Install the missing emulator tool (%1) to the"
+                                         " installed Android SDK.")
+                                  .arg(emulator.displayName()));
         });
         return false;
     }
@@ -263,9 +258,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
         if (avdProcess->exitCode()) {
             const QString errorOutput = QString::fromLatin1(avdProcess->readAllStandardOutput());
             QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
-                const QString title
-                    = QCoreApplication::translate("Android::Internal::AndroidAvdManager",
-                                                  "AVD Start Error");
+                const QString title = Tr::tr("AVD Start Error");
                 QMessageBox::critical(Core::ICore::dialogParent(), title, errorOutput);
             });
         }

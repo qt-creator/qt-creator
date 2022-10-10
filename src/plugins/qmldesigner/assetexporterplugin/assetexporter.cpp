@@ -129,7 +129,7 @@ void AssetExporter::exportQml(const Utils::FilePaths &qmlFiles, const Utils::Fil
 
 void AssetExporter::beginExport()
 {
-    for (const Utils::FilePath &p : qAsConst(m_exportFiles)) {
+    for (const Utils::FilePath &p : std::as_const(m_exportFiles)) {
         if (m_cancelled)
             break;
         preprocessQmlFile(p);

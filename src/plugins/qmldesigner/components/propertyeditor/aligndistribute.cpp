@@ -309,7 +309,7 @@ void AlignDistribute::alignObjects(Target target, AlignTo alignTo, const QString
         };
 
     view->executeInTransaction("DesignerActionManager|" + operationName, [&]() {
-        for (const ModelNode &modelNode : qAsConst(selectedNodes)) {
+        for (const ModelNode &modelNode : std::as_const(selectedNodes)) {
             QTC_ASSERT(!modelNode.isRootNode(), continue);
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
                 QmlItemNode qmlItemNode(modelNode);
@@ -434,7 +434,7 @@ void AlignDistribute::distributeObjects(Target target, AlignTo alignTo, const QS
             return;
     }
 
-    for (const ModelNode &modelNode : qAsConst(selectedNodes)) {
+    for (const ModelNode &modelNode : std::as_const(selectedNodes)) {
         if (QmlItemNode::isValidQmlItemNode(modelNode)) {
             QmlItemNode qmlItemNode(modelNode);
             qreal currentPosition;
@@ -473,7 +473,7 @@ void AlignDistribute::distributeObjects(Target target, AlignTo alignTo, const QS
     const QByteArray operationName = "distribute" + QVariant::fromValue(target).toByteArray();
 
     view->executeInTransaction("DesignerActionManager|" + operationName, [&]() {
-        for (const ModelNode &modelNode : qAsConst(selectedNodes)) {
+        for (const ModelNode &modelNode : std::as_const(selectedNodes)) {
             QTC_ASSERT(!modelNode.isRootNode(), continue);
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
                 QmlItemNode qmlItemNode(modelNode);
@@ -569,7 +569,7 @@ void AlignDistribute::distributeSpacing(Dimension dimension,
         }
     }
 
-    for (const ModelNode &modelNode : qAsConst(selectedNodes)) {
+    for (const ModelNode &modelNode : std::as_const(selectedNodes)) {
         if (QmlItemNode::isValidQmlItemNode(modelNode)) {
             const QmlItemNode qmlItemNode(modelNode);
             qreal currentPosition;
@@ -606,7 +606,7 @@ void AlignDistribute::distributeSpacing(Dimension dimension,
                                                                  : "distributeSpacingVertical";
 
     view->executeInTransaction("DesignerActionManager|" + operationName, [&]() {
-        for (const ModelNode &modelNode : qAsConst(selectedNodes)) {
+        for (const ModelNode &modelNode : std::as_const(selectedNodes)) {
             QTC_ASSERT(!modelNode.isRootNode(), continue);
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
                 QmlItemNode qmlItemNode(modelNode);

@@ -13,33 +13,12 @@
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
+#include <QCoreApplication>
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QMutex>
 #include <QTextCodec>
 #include <QThread>
-#include <QVariant>
-
-#include <numeric>
-
-/*!
-    \fn void Utils::ProgressParser::parseProgress(const QString &text)
-
-    Reimplement to parse progress as it appears in the standard output.
-    If a progress string is detected, call \c setProgressAndMaximum() to update
-    the progress bar accordingly.
-
-    \sa Utils::ProgressParser::setProgressAndMaximum()
-*/
-
-/*!
-    \fn void Utils::ProgressParser::setProgressAndMaximum(int value, int maximum)
-
-    Sets progress \a value and \a maximum for current command. Called by \c parseProgress()
-    when a progress string is detected.
-*/
 
 using namespace Core;
 using namespace Utils;
@@ -67,11 +46,9 @@ public:
         m_futureInterface.setProgressRange(0, 1);
     }
 
-    ~VcsCommandPrivate() { delete m_progressParser; }
-
     Environment environment()
     {
-        if (!(m_flags & VcsCommand::ForceCLocale))
+        if (!(m_flags & RunFlags::ForceCLocale))
             return m_environment;
 
         m_environment.set("LANG", "C");
@@ -86,7 +63,7 @@ public:
     void cleanup();
     void setupProcess(QtcProcess *process, const Job &job);
     void installStdCallbacks(QtcProcess *process);
-    bool isFullySynchronous() const;
+    EventLoopMode eventLoopMode() const;
     void handleDone(QtcProcess *process);
     void startAll();
     void startNextJob();
@@ -98,7 +75,7 @@ public:
     const FilePath m_defaultWorkingDirectory;
     Environment m_environment;
     QTextCodec *m_codec = nullptr;
-    ProgressParser *m_progressParser = nullptr;
+    ProgressParser m_progressParser = {};
     QFutureWatcher<void> m_watcher;
     QList<Job> m_jobs;
 
@@ -109,9 +86,7 @@ public:
     ProcessResult m_result = ProcessResult::StartFailed;
     QFutureInterface<void> m_futureInterface;
 
-    unsigned m_flags = 0;
-
-    bool m_progressiveOutput = false;
+    RunFlags m_flags = RunFlags::None;
 };
 
 QString VcsCommandPrivate::displayName() const
@@ -140,26 +115,22 @@ int VcsCommandPrivate::timeoutS() const
 void VcsCommandPrivate::setup()
 {
     m_futureInterface.reportStarted();
-    if (m_flags & VcsCommand::ExpectRepoChanges) {
+    if (m_flags & RunFlags::ExpectRepoChanges) {
         QMetaObject::invokeMethod(GlobalFileChangeBlocker::instance(), [] {
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
         });
     }
-    if (m_progressParser)
-        m_progressParser->setFuture(&m_futureInterface);
 }
 
 void VcsCommandPrivate::cleanup()
 {
     QTC_ASSERT(m_futureInterface.isRunning(), return);
     m_futureInterface.reportFinished();
-    if (m_flags & VcsCommand::ExpectRepoChanges) {
+    if (m_flags & RunFlags::ExpectRepoChanges) {
         QMetaObject::invokeMethod(GlobalFileChangeBlocker::instance(), [] {
             GlobalFileChangeBlocker::instance()->forceBlocked(false);
         });
     }
-    if (m_progressParser)
-        m_progressParser->setFuture(nullptr);
 }
 
 void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
@@ -169,12 +140,12 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
     process->setTimeoutS(job.timeoutS);
     if (!job.workingDirectory.isEmpty())
         process->setWorkingDirectory(job.workingDirectory);
-    if (!(m_flags & VcsCommand::SuppressCommandLogging))
+    if (!(m_flags & RunFlags::SuppressCommandLogging))
         emit q->appendCommand(job.workingDirectory, job.command);
     process->setCommand(job.command);
     process->setDisableUnixTerminal();
     process->setEnvironment(environment());
-    if (m_flags & VcsCommand::MergeOutputChannels)
+    if (m_flags & RunFlags::MergeOutputChannels)
         process->setProcessChannelMode(QProcess::MergedChannels);
     if (m_codec)
         process->setCodec(m_codec);
@@ -184,29 +155,30 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
 
 void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 {
-    if (!(m_flags & VcsCommand::MergeOutputChannels)
-            && (m_progressiveOutput || !(m_flags & VcsCommand::SuppressStdErr))) {
+    if (!(m_flags & RunFlags::MergeOutputChannels) && (m_flags & RunFlags::ProgressiveOutput
+                                                  || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setStdErrCallback([this](const QString &text) {
             if (m_progressParser)
-                m_progressParser->parseProgress(text);
-            if (!(m_flags & VcsCommand::SuppressStdErr))
+                m_progressParser(m_futureInterface, text);
+            if (!(m_flags & RunFlags::SuppressStdErr))
                 emit q->appendError(text);
-            if (m_progressiveOutput)
+            if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdErrText(text);
         });
     }
     // connect stdout to the output window if desired
-    if (m_progressParser || m_progressiveOutput || (m_flags & VcsCommand::ShowStdOut)) {
+    if (m_progressParser || m_flags & RunFlags::ProgressiveOutput
+                         || m_flags & RunFlags::ShowStdOut) {
         process->setStdOutCallback([this](const QString &text) {
             if (m_progressParser)
-                m_progressParser->parseProgress(text);
-            if (m_flags & VcsCommand::ShowStdOut) {
-                if (m_flags & VcsCommand::SilentOutput)
+                m_progressParser(m_futureInterface, text);
+            if (m_flags & RunFlags::ShowStdOut) {
+                if (m_flags & RunFlags::SilentOutput)
                     emit q->appendSilently(text);
                 else
                     emit q->append(text);
             }
-            if (m_progressiveOutput)
+            if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdOutText(text);
         });
     }
@@ -214,19 +186,20 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 //    m_process->setTimeOutMessageBoxEnabled(true);
 }
 
-bool VcsCommandPrivate::isFullySynchronous() const
+EventLoopMode VcsCommandPrivate::eventLoopMode() const
 {
-    return (m_flags & VcsCommand::FullySynchronously) || (!(m_flags & VcsCommand::NoFullySync)
-            && QThread::currentThread() == QCoreApplication::instance()->thread());
+    if ((m_flags & RunFlags::UseEventLoop) && QThread::currentThread() == qApp->thread())
+        return EventLoopMode::On;
+    return EventLoopMode::Off;
 }
 
 void VcsCommandPrivate::handleDone(QtcProcess *process)
 {
     // Success/Fail message in appropriate window?
     if (process->result() == ProcessResult::FinishedWithSuccess) {
-        if (m_flags & VcsCommand::ShowSuccessMessage)
+        if (m_flags & RunFlags::ShowSuccessMessage)
             emit q->appendMessage(process->exitMessage());
-    } else if (!(m_flags & VcsCommand::SuppressFailMessage)) {
+    } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
         emit q->appendError(process->exitMessage());
     }
     emit q->runCommandFinished(process->workingDirectory());
@@ -302,7 +275,7 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
 
 void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 {
-    if (!(d->m_flags & VcsCommand::ExpectRepoChanges))
+    if (!(d->m_flags & RunFlags::ExpectRepoChanges))
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
@@ -323,7 +296,7 @@ void VcsCommand::setDisplayName(const QString &name)
     d->m_displayName = name;
 }
 
-void VcsCommand::addFlags(unsigned f)
+void VcsCommand::addFlags(RunFlags f)
 {
     d->m_flags |= f;
 }
@@ -344,7 +317,7 @@ void VcsCommand::start()
 
     d->startAll();
     d->m_watcher.setFuture(d->m_futureInterface.future());
-    if ((d->m_flags & VcsCommand::SuppressCommandLogging))
+    if ((d->m_flags & RunFlags::SuppressCommandLogging))
         return;
 
     const QString name = d->displayName();
@@ -362,11 +335,9 @@ void VcsCommand::cancel()
         // TODO: we may want to call cancel here...
         d->m_process->stop();
         // TODO: we may want to not wait here...
-        // However, VcsBaseDiffEditorController::runCommand() relies on getting finished() signal
         d->m_process->waitForFinished();
         d->m_process.reset();
     }
-    emit terminate();
 }
 
 QString VcsCommand::cleanedStdOut() const
@@ -384,7 +355,18 @@ ProcessResult VcsCommand::result() const
     return d->m_result;
 }
 
-CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
+CommandResult VcsCommand::runBlocking(const Utils::FilePath &workingDirectory,
+                                      const Utils::Environment &environment,
+                                      const Utils::CommandLine &command, RunFlags flags,
+                                      int timeoutS, QTextCodec *codec)
+{
+    VcsCommand vcsCommand(workingDirectory, environment);
+    vcsCommand.addFlags(flags);
+    vcsCommand.setCodec(codec);
+    return vcsCommand.runBlockingHelper(command, timeoutS);
+}
+
+CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int timeoutS)
 {
     QtcProcess process;
     if (command.executable().isEmpty())
@@ -392,15 +374,8 @@ CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
 
     d->setupProcess(&process, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
 
-    EventLoopMode eventLoopMode = EventLoopMode::Off;
-    if (!d->isFullySynchronous()) {
-        eventLoopMode = EventLoopMode::On;
-        connect(this, &VcsCommand::terminate, &process, [&process] {
-            process.stop();
-            process.waitForFinished();
-        });
-        process.setTimeOutMessageBoxEnabled(true);
-    }
+    const EventLoopMode eventLoopMode = d->eventLoopMode();
+    process.setTimeOutMessageBoxEnabled(eventLoopMode == EventLoopMode::On);
     process.runBlocking(eventLoopMode);
     d->handleDone(&process);
 
@@ -413,39 +388,9 @@ void VcsCommand::setCodec(QTextCodec *codec)
 }
 
 //! Use \a parser to parse progress data from stdout. Command takes ownership of \a parser
-void VcsCommand::setProgressParser(ProgressParser *parser)
+void VcsCommand::setProgressParser(const ProgressParser &parser)
 {
-    QTC_ASSERT(!d->m_progressParser, return);
     d->m_progressParser = parser;
-}
-
-void VcsCommand::setProgressiveOutput(bool progressive)
-{
-    d->m_progressiveOutput = progressive;
-}
-
-ProgressParser::ProgressParser() :
-    m_futureMutex(new QMutex)
-{ }
-
-ProgressParser::~ProgressParser()
-{
-    delete m_futureMutex;
-}
-
-void ProgressParser::setProgressAndMaximum(int value, int maximum)
-{
-    QMutexLocker lock(m_futureMutex);
-    if (!m_future)
-        return;
-    m_future->setProgressRange(0, maximum);
-    m_future->setProgressValue(value);
-}
-
-void ProgressParser::setFuture(QFutureInterface<void> *future)
-{
-    QMutexLocker lock(m_futureMutex);
-    m_future = future;
 }
 
 CommandResult::CommandResult(const QtcProcess &process)

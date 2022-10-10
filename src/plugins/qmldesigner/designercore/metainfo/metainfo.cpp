@@ -99,7 +99,7 @@ void MetaInfoPrivate::initialize()
 void MetaInfoPrivate::parseItemLibraryDescriptions()
 {
     Internal::WidgetPluginManager pluginManager;
-    for (const QString &pluginDir : qAsConst(m_q->s_pluginDirs))
+    for (const QString &pluginDir : std::as_const(m_q->s_pluginDirs))
         pluginManager.addPath(pluginDir);
     const QList<IWidgetPlugin *> widgetPluginList = pluginManager.instances();
     for (IWidgetPlugin *plugin : widgetPluginList) {

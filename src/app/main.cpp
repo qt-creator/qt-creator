@@ -584,7 +584,7 @@ int main(int argc, char **argv)
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     const QString &creatorTrPath = resourcePath() + "/translations";
-    for (QString locale : qAsConst(uiLanguages)) {
+    for (QString locale : std::as_const(uiLanguages)) {
         locale = QLocale(locale).name();
         if (translator.load("qtcreator_" + locale, creatorTrPath)) {
             const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);

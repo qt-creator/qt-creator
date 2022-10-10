@@ -1046,7 +1046,7 @@ void ModelEditor::initToolbars()
     QList<qmt::Toolbar> toolbars = stereotypeController->toolbars();
     std::stable_sort(toolbars.begin(), toolbars.end(),
                      [=](const qmt::Toolbar &lhs, const qmt::Toolbar &rhs) { return lhs.priority() > rhs.priority(); });
-    for (const qmt::Toolbar &toolbar : qAsConst(toolbars)) {
+    for (const qmt::Toolbar &toolbar : std::as_const(toolbars)) {
         QWidget *toolBar = toolBars.value(toolbar.id());
         QLayout *toolBarLayout = nullptr;
         if (!toolBar) {
@@ -1171,7 +1171,7 @@ void ModelEditor::initToolbars()
 
     // add stretch to all layouts and calculate width of tool bar
     int maxWidth = 48;
-    for (QWidget *toolBar : qAsConst(toolBars)) {
+    for (QWidget *toolBar : std::as_const(toolBars)) {
         QMT_ASSERT(toolBar, continue);
         auto layout = qobject_cast<QBoxLayout *>(toolBar->layout());
         QMT_ASSERT(layout, continue);

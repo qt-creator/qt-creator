@@ -281,7 +281,7 @@ void ClangToolRunWorker::start()
 
 void ClangToolRunWorker::stop()
 {
-    for (ClangToolRunner *runner : qAsConst(m_runners)) {
+    for (ClangToolRunner *runner : std::as_const(m_runners)) {
         QObject::disconnect(runner, nullptr, this, nullptr);
         delete runner;
     }

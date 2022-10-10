@@ -875,7 +875,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
             std::sort(children.begin(), children.end(), compareConsoleItems);
 
         item = new ConsoleItem(ConsoleItem::DefaultType, text);
-        for (ConsoleItem *child : qAsConst(children)) {
+        for (ConsoleItem *child : std::as_const(children)) {
             if (child)
                 item->appendChild(child);
         }
@@ -895,7 +895,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
             std::sort(children.begin(), children.end(), compareConsoleItems);
 
         item = new ConsoleItem(ConsoleItem::DefaultType, text);
-        for (ConsoleItem *child : qAsConst(children)) {
+        for (ConsoleItem *child : std::as_const(children)) {
             if (child)
                 item->appendChild(child);
         }
@@ -1804,7 +1804,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         }
 
                         QMap<QString,QString> files;
-                        for (const QString &file : qAsConst(sourceFiles)) {
+                        for (const QString &file : std::as_const(sourceFiles)) {
                             QString shortName = file;
                             QString fullName = engine->toFileInProject(file);
                             files.insert(shortName, fullName);
@@ -1856,7 +1856,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                         int newColumn = sourceLineText.indexOf('(') + 1;
 
-                        for (const Breakpoint &bp : qAsConst(v8Breakpoints)) {
+                        for (const Breakpoint &bp : std::as_const(v8Breakpoints)) {
                             QTC_ASSERT(bp, continue);
                             const BreakpointParameters &params = bp->requestedParameters();
 
@@ -1882,7 +1882,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                     if (inferiorStop) {
                         //Update breakpoint data
-                        for (const Breakpoint &bp : qAsConst(v8Breakpoints)) {
+                        for (const Breakpoint &bp : std::as_const(v8Breakpoints)) {
                             QTC_ASSERT(bp, continue);
                             if (bp->functionName().isEmpty()) {
                                 bp->setFunctionName(invocationText);
@@ -1895,7 +1895,7 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         }
 
                         if (engine->state() == InferiorRunOk) {
-                            for (const Breakpoint &bp : qAsConst(v8Breakpoints)) {
+                            for (const Breakpoint &bp : std::as_const(v8Breakpoints)) {
                                 QTC_ASSERT(bp, continue);
                                 if (breakpointsTemp.contains(bp->responseId()))
                                     clearBreakpoint(bp);
@@ -2238,7 +2238,7 @@ void QmlEnginePrivate::constructChildLogItems(ConsoleItem *item, const QmlV8Obje
     if (debuggerSettings()->sortStructMembers.value())
         std::sort(children.begin(), children.end(), compareConsoleItems);
 
-    for (ConsoleItem *child : qAsConst(children))
+    for (ConsoleItem *child : std::as_const(children))
         item->appendChild(child);
 }
 
@@ -2364,7 +2364,7 @@ void QmlEnginePrivate::handleExecuteDebuggerCommand(const QVariantMap &response)
         debuggerConsole()->printItem(constructLogItemTree(extractData(response.value(BODY))));
 
         // Update the locals
-        for (int index : qAsConst(currentFrameScopes))
+        for (int index : std::as_const(currentFrameScopes))
             scope(index);
     } else {
         debuggerConsole()->printItem(new ConsoleItem(ConsoleItem::ErrorType,
@@ -2439,7 +2439,7 @@ void QmlEnginePrivate::handleVersion(const QVariantMap &response)
 void QmlEnginePrivate::flushSendBuffer()
 {
     QTC_ASSERT(state() == Enabled, return);
-    for (const QByteArray &msg : qAsConst(sendBuffer))
+    for (const QByteArray &msg : std::as_const(sendBuffer))
         sendMessage(msg);
     sendBuffer.clear();
 }

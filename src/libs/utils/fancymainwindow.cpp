@@ -518,7 +518,7 @@ void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
         QTC_ASSERT(action2, return false);
         return stripAccelerator(action1->text()).toLower() < stripAccelerator(action2->text()).toLower();
     });
-    for (QAction *action : qAsConst(actions))
+    for (QAction *action : std::as_const(actions))
         menu->addAction(action);
     menu->addAction(&d->m_showCentralWidget);
     menu->addAction(&d->m_menuSeparator1);

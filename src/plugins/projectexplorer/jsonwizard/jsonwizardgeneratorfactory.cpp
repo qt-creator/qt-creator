@@ -139,7 +139,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     QStringList existingFiles;
     bool oddStuffFound = false;
 
-    for (const JsonWizard::GeneratorFile &f : qAsConst(*files)) {
+    for (const JsonWizard::GeneratorFile &f : std::as_const(*files)) {
         if (f.file.filePath().exists()
                 && !(f.file.attributes() & GeneratedFile::ForceOverwrite)
                 && !(f.file.attributes() & GeneratedFile::KeepExistingFileAttribute))
@@ -153,7 +153,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     // Format a file list message as ( "<file1> [readonly], <file2> [folder]").
     const QString commonExistingPath = Utils::commonPath(existingFiles);
     QString fileNamesMsgPart;
-    for (const QString &fileName : qAsConst(existingFiles)) {
+    for (const QString &fileName : std::as_const(existingFiles)) {
         const QFileInfo fi(fileName);
         if (fi.exists()) {
             if (!fileNamesMsgPart.isEmpty())
@@ -187,7 +187,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
 
     // Scripts cannot handle overwrite
     overwriteDialog.setFiles(existingFiles);
-    for (const JsonWizard::GeneratorFile &file : qAsConst(*files))
+    for (const JsonWizard::GeneratorFile &file : std::as_const(*files))
         if (!file.generator->canKeepExistingFiles())
             overwriteDialog.setFileEnabled(file.file.filePath().toString(), false);
     if (overwriteDialog.exec() != QDialog::Accepted)

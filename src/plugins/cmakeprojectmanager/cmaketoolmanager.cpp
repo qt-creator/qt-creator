@@ -212,7 +212,7 @@ void CMakeToolManager::listDetectedCMake(const QString &detectionSource, QString
 {
     QTC_ASSERT(logMessage, return);
     QStringList logMessages{Tr::tr("CMake:")};
-    for (const auto &tool : qAsConst(d->m_cmakeTools)) {
+    for (const auto &tool : std::as_const(d->m_cmakeTools)) {
         if (tool->detectionSource() == detectionSource)
             logMessages.append(tool->displayName());
     }

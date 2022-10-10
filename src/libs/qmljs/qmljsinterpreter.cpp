@@ -2565,7 +2565,7 @@ const ObjectValue *Imports::resolveAliasAndMarkUsed(const QString &name) const
 {
     if (const ObjectValue *value = m_aliased.value(name, nullptr)) {
         // mark all respective ImportInfo objects to avoid dropping imports (QmlDesigner) on rewrite
-        for (const Import &i : qAsConst(m_imports)) {
+        for (const Import &i : std::as_const(m_imports)) {
             const ImportInfo &info = i.info;
             if (info.as() == name)
                 i.used = true; // FIXME: This evilly modifies a 'const' object

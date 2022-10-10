@@ -510,7 +510,7 @@
     </message>
 </context>
 <context>
-    <name>Android::Internal::AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>新しい AVD の作成</translation>
@@ -547,9 +547,6 @@
         <source>Overwrite existing AVD name</source>
         <translation>既存の AVD 名を上書きする</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>キーストアと証明書の作成</translation>
@@ -618,9 +615,6 @@
         <source>Keystore</source>
         <translation>キーストア</translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployQtWidget</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -645,9 +639,6 @@
         <source>Uninstall previous package</source>
         <translation>古いパッケージをアンインストールする</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Android デバイスの選択</translation>
@@ -659,10 +650,6 @@
     <message>
         <source>Create Android Virtual Device</source>
         <translation>Android 仮想デバイス(AVD)の作成</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -728,9 +715,6 @@
         <source>Always use this device for architecture %1 for this project</source>
         <translation>このプロジェクトの %1 アーキテクチャでは常にこのデバイスを使用する</translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android 設定</translation>
@@ -2842,7 +2826,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>ブランチ名:</translation>
@@ -2887,9 +2871,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Checkout new branch</source>
         <translation>新しいブランチをチェックアウト</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>ローカルの変更が見つかりました。以下のアクションから選択してください:</translation>
@@ -2901,10 +2882,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
     <message>
         <source>Discard Local Changes</source>
         <translation>ローカルの変更を破棄する</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>チェックボックス</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -2926,9 +2903,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Create Branch Stash for Current Branch</source>
         <translation>現在のブランチをスタッシュする</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Branches</source>
         <translation>ブランチ</translation>
@@ -3012,14 +2986,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <translation>タグを削除</translation>
     </message>
     <message>
-        <source>Delete Branch</source>
-        <translation>ブランチの削除</translation>
-    </message>
-    <message>
-        <source>Rename Tag</source>
-        <translation>タグ名の変更</translation>
-    </message>
-    <message>
         <source>Git Reset</source>
         <translation>Git リセット</translation>
     </message>
@@ -3047,9 +3013,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>&amp;Include old entries</source>
         <translation>古いエントリを含む(&amp;I)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Working directory:</source>
         <translation>作業ディレクトリ:</translation>
@@ -3118,9 +3081,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>&amp;Archive...</source>
         <translation>アーカイブする(&amp;A)...</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Gerrit へプッシュ</translation>
@@ -3231,9 +3191,6 @@ Partially checked - Do not change current state.</source>
         <source>&amp;Work-in-progress</source>
         <translation>作業中(&amp;WIP)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>概要</translation>
@@ -3279,9 +3236,6 @@ Partially checked - Do not change current state.</source>
         <source>Sign off</source>
         <translation>サインオフ</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>リモートを追加</translation>
@@ -3294,20 +3248,9 @@ Partially checked - Do not change current state.</source>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>リモート</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>更新(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>追加(&amp;A)...</translation>
     </message>
     <message>
         <source>F&amp;etch</source>
@@ -3316,10 +3259,6 @@ Partially checked - Do not change current state.</source>
     <message>
         <source>&amp;Push</source>
         <translation>プッシュ(&amp;P)</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>削除(&amp;R)</translation>
     </message>
     <message>
         <source>A remote with the name &quot;%1&quot; already exists.</source>
@@ -3337,9 +3276,6 @@ Partially checked - Do not change current state.</source>
         <source>Would you like to delete the remote &quot;%1&quot;?</source>
         <translation>リモート &quot;%1&quot; を削除しますか？</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -3389,10 +3325,6 @@ Partially checked - Do not change current state.</source>
         <translation>ブランチダイアログにタグを表示する</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>引数:</translation>
     </message>
@@ -3412,9 +3344,6 @@ Partially checked - Do not change current state.</source>
         <source>Git Settings</source>
         <translation>Git の設定</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
         <translation>スタッシュ</translation>
@@ -3440,10 +3369,6 @@ Partially checked - Do not change current state.</source>
         <translation>削除(&amp;D)...</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>表示(&amp;S)</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>復元(&amp;E)...</translation>
     </message>
@@ -3451,10 +3376,6 @@ Partially checked - Do not change current state.</source>
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>ブランチに復元(&amp;B)...</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>更新(&amp;F)</translation>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
@@ -3489,20 +3410,12 @@ You can choose between stashing the changes or discarding them.</source>
 変更内容をスタッシュするか破棄するかを選択してください。</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>スタッシュ</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>破棄</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>スタッシュをブランチに復元</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>ブランチ:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -3907,7 +3820,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
+    <name>Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -3920,9 +3833,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Username:</source>
         <translation>ユーザー名:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>概要</translation>
@@ -3955,9 +3865,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Email:</source>
         <translation>メールアドレス:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -4014,9 +3921,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>元に戻す</translation>
@@ -4028,13 +3932,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Revision:</source>
         <translation>リビジョン:</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Default Location</source>
@@ -11359,13 +11256,6 @@ with a password, which you can enter below.</source>
 <context>
     <name>Android</name>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
         <source>Keystore password is too short.</source>
         <translation>キーストアパスワードが短すぎます。</translation>
     </message>
@@ -11407,30 +11297,14 @@ with a password, which you can enter below.</source>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Android デバイスにデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation>Android 上でデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation>Android デバイスまたはエミュレータにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployQtStep default display name</extracomment>
@@ -11558,9 +11432,6 @@ Do you want to uninstall the existing package?</source>
         <source>Pulling files necessary for debugging.</source>
         <translation>デバッグに必要なファイルを取得しています。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation>&lt;b&gt;デプロイ設定&lt;/b&gt;</translation>
@@ -11570,34 +11441,13 @@ Do you want to uninstall the existing package?</source>
         <translation>Qt Android スマートインストーラ</translation>
     </message>
     <message>
-        <source>Android package (*.apk)</source>
-        <translation>Android パッケージ (*.apk)</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
-    <message>
         <source>Run on Android</source>
         <translation>Android 上で実行</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Android Device</source>
         <translation>Android デバイス</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
-        <source>Android Device</source>
-        <translation>Android デバイス</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation>Android: SDK のインストールエラー 0x%1</translation>
@@ -11638,16 +11488,10 @@ Do you want to uninstall the existing package?</source>
         <source>Android: Unknown error 0x%1</source>
         <translation>Android: 未知のエラー 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
         <source>GDB server</source>
         <translation>GDB サーバー</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation>管理...</translation>
@@ -11676,9 +11520,6 @@ Do you want to uninstall the existing package?</source>
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>&quot;%1&quot; 向け GDB サーバー</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -11687,16 +11528,10 @@ Do you want to uninstall the existing package?</source>
         <source>XML Source</source>
         <translation>XML ソース</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation>Android Manifest エディタ</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation>パッケージ</translation>
@@ -11786,10 +11621,6 @@ Do you want to uninstall the existing package?</source>
         <translation>Qt モジュール用の既定の機能を追加する。</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>Add</source>
         <translation>追加</translation>
     </message>
@@ -11874,13 +11705,6 @@ Do you want to uninstall the existing package?</source>
         <translation>高 DPI アイコンを選択</translation>
     </message>
     <message>
-        <source>Android Manifest editor</source>
-        <translation>Android Manifest エディタ</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
-    <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Qt で使用されている ABI の検出に失敗しました。</translation>
     </message>
@@ -11901,16 +11725,10 @@ Do you want to uninstall the existing package?</source>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation>Android</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>リモートプロセスを起動します。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation>ホストに QML デバッグ用の空きポートがありません。</translation>
@@ -11947,16 +11765,10 @@ Do you want to uninstall the existing package?</source>
         <source>&quot;%1&quot; terminated.</source>
         <translation>&quot;%1&quot; が終了しました。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation>Android 設定</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -11986,9 +11798,6 @@ Do you want to uninstall the existing package?</source>
         <source>CPU/ABI</source>
         <translation>CPU/ABI</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>&quot;%1&quot; does not seem to be an Android SDK top folder.</source>
         <translation>&quot;%1&quot; は Android SDK の最上位フォルダとは異なるようです。</translation>
@@ -12182,10 +11991,6 @@ in the system&apos;s browser for manual download.</source>
         <translation>OpenSSL のビルド済みライブラリを複製する...</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-    <message>
         <source>OpenSSL prebuilt libraries cloning failed.</source>
         <translation>OpenSSL のビルド済みライブラリの複製に失敗しました。</translation>
     </message>
@@ -12230,10 +12035,6 @@ in the system&apos;s browser for manual download.</source>
         <translation>Android SDK Tools をダウンロードしてインストールするには: %1?</translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
-    <message>
         <source>Unsupported GDB</source>
         <translation>サポート対象外の GDB</translation>
     </message>
@@ -12253,23 +12054,14 @@ in the system&apos;s browser for manual download.</source>
         <source>Select ant Script</source>
         <translation>ant スクリプトの選択</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation>Android GCC</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation>NDK ルート:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -20246,7 +20038,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>ローカルブランチ</translation>
@@ -20263,9 +20055,6 @@ Rebuilding the project might help.</source>
         <source>Tags</source>
         <translation>タグ</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CommitData</name>
     <message>
         <source>untracked</source>
         <translation>未トラック</translation>
@@ -20310,9 +20099,6 @@ Rebuilding the project might help.</source>
         <source> by them</source>
         <translation> リモート側</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Apply in:</source>
         <translation>適用先:</translation>
@@ -20346,14 +20132,6 @@ Rebuilding the project might help.</source>
         <translation>更新(&amp;R)</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>表示(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>チェリーピック(&amp;P)</translation>
-    </message>
-    <message>
         <source>Fetching &quot;%1&quot;...</source>
         <translation>&quot;%1 を取得中...</translation>
     </message>
@@ -20377,9 +20155,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
 このサーバーの SSL 認証を無効にしますか？
 注意：これにより、中間者攻撃(man-in-the-middle attack)を受ける可能性があります。</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (下書き)</translation>
@@ -20403,10 +20178,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <message>
         <source>Approvals</source>
         <translation>承認者</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>ステータス</translation>
     </message>
     <message>
         <source>Number</source>
@@ -20436,9 +20207,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>解析エラー: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Gerrit へ問い合わせ中</translation>
@@ -20475,16 +20243,6 @@ Would you like to terminate it?</source>
         <source>Keep Running</source>
         <translation>そのままにする</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -20523,28 +20281,10 @@ Would you like to terminate it?</source>
 &quot;gerrit.config&quot;.</source>
         <translation>&quot;gerrit.config&quot; ファイルに &quot;canonicalWebUrl&quot; が設定されていない場合に、URL に使用されるプロトコルを指定します。</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Gerrit から取得中</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 がクラッシュしました。</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 は %2 で終了しました。</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>%1 実行中のエラー: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit...</translation>
@@ -20591,9 +20331,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>&quot;%1&quot; (%2) のローカルリポジトリを入力</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Patience</source>
         <translation>Patience</translation>
@@ -20610,9 +20347,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Ignore whitespace only changes.</source>
         <translation>空白だけの変更を無視します。</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Omit Date</source>
         <translation>日付を省略</translation>
@@ -20620,14 +20354,6 @@ were not verified among remotes in %3. Select different folder?</source>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>変更点を出力する際に日付を表示しません。</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>空白を無視</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>空白だけの変更を無視します。</translation>
     </message>
     <message>
         <source>No Move Detection</source>
@@ -20649,9 +20375,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Move detection</source>
         <translation>移動検出</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>差分表示</translation>
@@ -20692,9 +20415,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Show log also for previous names of the file.</source>
         <translation>以前のファイル名についてもログを表示する。</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Cannot determine the repository for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; のリポジトリを特定できません。</translation>
@@ -20822,10 +20542,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <translation>不正なリビジョン</translation>
     </message>
     <message>
-        <source>Detached HEAD</source>
-        <translation>デタッチされた HEAD</translation>
-    </message>
-    <message>
         <source>Cannot describe revision &quot;%1&quot; in &quot;%2&quot;: %3</source>
         <translation>&quot;%2&quot; (リビジョン: &quot;%1&quot;) を表示できません: %3</translation>
     </message>
@@ -20907,10 +20623,6 @@ Commit now?</source>
 コミットしますか？</translation>
     </message>
     <message>
-        <source>Commit</source>
-        <translation>コミット</translation>
-    </message>
-    <message>
         <source>Continue Revert</source>
         <translation>コミットの打ち消しの続行</translation>
     </message>
@@ -20969,10 +20681,6 @@ Commit now?</source>
     <message>
         <source>Cherr&amp;y-Pick Change %1</source>
         <translation>コミット %1 をチェリーピック(&amp;Y)</translation>
-    </message>
-    <message>
-        <source>Re&amp;vert Change %1</source>
-        <translation>コミット %1 をリバート(&amp;V)</translation>
     </message>
     <message>
         <source>C&amp;heckout Change %1</source>
@@ -21192,16 +20900,8 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <translation>ローカルの変更をスタッシュして %1 の完了後に復元します。</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>スタッシュ</translation>
-    </message>
-    <message>
         <source>Stash local changes and execute %1.</source>
         <translation>ローカルの変更をスタッシュして %1 を実行します。</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>破棄</translation>
     </message>
     <message>
         <source>Discard (reset) local changes and execute %1.</source>
@@ -21215,13 +20915,6 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <source>Cancel %1.</source>
         <translation>%1 をキャンセルします。</translation>
     </message>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
@@ -21443,16 +21136,8 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <translation>コミット打ち消しの中止</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>リベースの続行</translation>
-    </message>
-    <message>
         <source>Continue Cherry Pick</source>
         <translation>チェリーピックの続行</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>コミットの打ち消しの続行</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -21473,10 +21158,6 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
     <message>
         <source>Apply from File...</source>
         <translation>ファイルから適用...</translation>
-    </message>
-    <message>
-        <source>&amp;Stash</source>
-        <translation>スタッシュ  (&amp;Stash)</translation>
     </message>
     <message>
         <source>Stashes...</source>
@@ -21591,10 +21272,6 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <translation>Git GUI</translation>
     </message>
     <message>
-        <source>Repository Browser</source>
-        <translation>リポジトリブラウザ</translation>
-    </message>
-    <message>
         <source>Merge Tool</source>
         <translation>マージツール</translation>
     </message>
@@ -21687,30 +21364,12 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <translation>パッチ %1 を %2 に適用しました</translation>
     </message>
     <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;リポジトリなし&gt;</translation>
-    </message>
-    <message>
-        <source>Repository: %1</source>
-        <translation>リポジトリ: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
-    <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation>パス &quot;%2&quot; から実行ファイル &quot;%1&quot; が見つかりませんでした</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation>コミットするには有効なメールアドレスが必要です。</translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>デタッチされた HEAD</translation>
     </message>
     <message>
         <source>Select Change</source>
@@ -21752,20 +21411,10 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <source>&amp;Commit</source>
         <translation>コミット(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
     <message>
         <source>Sha1</source>
         <translation>SHA1</translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>件名</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>リセット:</translation>
@@ -21790,9 +21439,6 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
         <source>Soft</source>
         <translation>ソフト</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
     <message>
         <source>Normal</source>
         <translation>ノーマル</translation>
@@ -21874,10 +21520,6 @@ Remote: %4</source>
         <translation>他の未解決なパスのマージを継続しますか？</translation>
     </message>
     <message>
-        <source>Merge Tool</source>
-        <translation>マージツール</translation>
-    </message>
-    <message>
         <source>Merge tool is not configured.</source>
         <translation>マージツールが設定されていません。</translation>
     </message>
@@ -21893,9 +21535,6 @@ Remote: %4</source>
         <source>Merge tool process terminated with exit code %1</source>
         <translation>マージツールプロセスは終了コード %1 で終了しました</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
@@ -21927,10 +21566,6 @@ instead of its installation directory when run outside git bash.</source>
     <message>
         <source>Git Repository Browser Command</source>
         <translation>Git リポジトリブラウザコマンド</translation>
-    </message>
-    <message>
-        <source>Git</source>
-        <translation>Git</translation>
     </message>
 </context>
 <context>
@@ -22516,14 +22151,11 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CommitEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation>コミットエディタ</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>%2 (リビジョン: %1) の親リビジョンが見つかりません: %3</translation>
@@ -22548,9 +22180,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Mercurial Diff &quot;%1&quot;</source>
         <translation>Mercurial 差分 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>空白を無視</translation>
@@ -22559,16 +22188,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Ignore Blank Lines</source>
         <translation>空行を無視</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation>Me&amp;rcurial</translation>
@@ -22726,10 +22345,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation>サーバーとの差分検出</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-    <message>
         <source>Commit</source>
         <translation>コミット</translation>
     </message>
@@ -22769,16 +22384,9 @@ instead of its installation directory when run outside git bash.</source>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>メッセージチェックに失敗しました。続けて処理しますか？</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Mercurial コマンド</translation>
-    </message>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
     </message>
 </context>
 <context>
@@ -29271,7 +28879,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>この型は型名が文字列リテラルであるため、Qt Creator の QML エディタでのみ利用可能できます</translation>
@@ -29298,16 +28906,10 @@ the QML editor know about a likely URI.</source>
         <source>must be a string literal to be available in the QML editor</source>
         <translation>QML エディタ内では文字列リテラルでなければなりません</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
         <source>QML Functions</source>
         <translation>QML 関数</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>コードスタイル</translation>
@@ -29316,9 +28918,6 @@ the QML editor know about a likely URI.</source>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -29327,9 +28926,6 @@ the QML editor know about a likely URI.</source>
         <source>Reset Code Model</source>
         <translation>コードモデルのリセット</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -34070,7 +33666,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>AndroidConfiguration</name>
+    <name>Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>実行できません: %1</translation>
@@ -34079,9 +33675,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>No devices found in output of: %1</source>
         <translation>以下のコマンドの出力からデバイスが見つかりません: %1</translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>AVD 作成中のエラー</translation>
@@ -34090,23 +33683,14 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>Could not start process &quot;%1 %2&quot;</source>
         <translation>プロセス &quot;%1 %2&quot; を起動できませんでした</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation>Android の設定...</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>Qt Creator needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation>Android サポートを有効にするには Qt Creator に追加の設定が必要です。オプションダイアログからそれらの設定を行うことができます。</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation>Java エディタ</translation>
@@ -35299,7 +34883,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AvdDialog</name>
+    <name>Android</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -35563,21 +35147,10 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitSubmitEditor</name>
+    <name>Git</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation>コミットデータのリフレッシュ中</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
     </message>
 </context>
 <context>
@@ -36046,11 +35619,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>AndroidBuildApkWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Sign package</source>
         <translation>パッケージに署名する</translation>
@@ -36070,10 +35639,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
     <message>
         <source>Certificate alias:</source>
         <translation>証明書エイリアス:</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>アプリケーション</translation>
     </message>
     <message>
         <source>Android build SDK:</source>
@@ -36589,15 +36154,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
-    <message>
-        <source>Android</source>
-        <translation>Android</translation>
-    </message>
+    <name>Android</name>
     <message>
         <source>Create Templates</source>
         <translation>テンプレートの作成</translation>
@@ -36615,16 +36172,8 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
         <translation>パッケージに同梱するライブラリを選択します。</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
-    </message>
-    <message>
         <source>Remove currently selected library from list.</source>
         <translation>現在選択されているライブラリをリストから削除します。</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
@@ -37864,7 +37413,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Android::AndroidBuildApkStep</name>
+    <name>Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -37875,10 +37424,6 @@ the program.</source>
         <translation>警告: デバッグ用あるいはプロファイル用パッケージを署名しています。</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
         <source>Failed to run keytool.</source>
         <translation>keytool の実行に失敗しました。</translation>
     </message>
@@ -37887,39 +37432,17 @@ the program.</source>
         <translation>無効なパスワードです。</translation>
     </message>
     <message>
-        <source>Keystore</source>
-        <translation>キーストア</translation>
-    </message>
-    <message>
         <source>Keystore password:</source>
         <translation>キーストアパスワード:</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>証明書</translation>
     </message>
     <message>
         <source>Certificate password (%1):</source>
         <translation>証明書のパスワード(%1):</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidBuildApkWidget</name>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>キーストアファイル (*.keystore *.jks)</translation>
-    </message>
     <message>
         <source>Select Keystore File</source>
         <translation>キーストアファイルの選択</translation>
     </message>
-    <message>
-        <source>&lt;b&gt;Build Android APK&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Android APK のビルド&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Android Debugger for %1</source>
         <translation>%1 向け Android デバッガ</translation>
@@ -37928,9 +37451,6 @@ the program.</source>
         <source>Android for %1 (GCC %2, Qt %3)</source>
         <translation>%1 向け Android (GCC %2, Qt %3)</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
     <message>
         <source>OpenGL enabled</source>
         <translation>OpenGL 有効</translation>
@@ -37939,9 +37459,6 @@ the program.</source>
         <source>OpenGL disabled</source>
         <translation>OpenGL 無効</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>未知のバージョンの Android です。API レベル: %1</translation>
@@ -42190,7 +41707,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditorWidget</name>
+    <name>Git</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation>&quot;%1&quot; の編集者を表示(&amp;B)</translation>
@@ -42198,10 +41715,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
         <translation>親リビジョン %1 の編集者を表示(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
-        <translation>チャンクをステージに追加しました</translation>
     </message>
     <message>
         <source>Stage Chunk...</source>
@@ -42212,40 +41725,9 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>チャンクをステージから削除...</translation>
     </message>
     <message>
-        <source>Cherr&amp;y-Pick Change %1</source>
-        <translation>コミット %1 をチェリーピック(&amp;Y)</translation>
-    </message>
-    <message>
         <source>Re&amp;vert Change %1</source>
         <translation>コミット %1 を打ち消す(&amp;V)</translation>
     </message>
-    <message>
-        <source>C&amp;heckout Change %1</source>
-        <translation>コミット %1 をチェックアウト(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;Log for Change %1</source>
-        <translation>コミット %1 のログ(&amp;L)</translation>
-    </message>
-    <message>
-        <source>&amp;Reset to Change %1</source>
-        <translation>コミット %1 へリセット(&amp;R)</translation>
-    </message>
-    <message>
-        <source>&amp;Hard</source>
-        <translation>ハード(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;Mixed</source>
-        <translation>混在(&amp;M)</translation>
-    </message>
-    <message>
-        <source>&amp;Soft</source>
-        <translation>ソフト(&amp;S)</translation>
-    </message>
-</context>
-<context>
-    <name>GitGrep</name>
     <message>
         <source>&amp;Use Git Grep</source>
         <translation>Git Grep を使用する(&amp;U)</translation>
@@ -42273,10 +41755,6 @@ Leave empty to search through the file system.</source>
 %2</source>
         <translation>リファレンス: %1
 %2</translation>
-    </message>
-    <message>
-        <source>Git Show %1:%2</source>
-        <translation>Git Show %1:%2</translation>
     </message>
 </context>
 <context>
@@ -42391,7 +41869,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>%1 のアノテーション(&amp;A)</translation>
@@ -43305,14 +42783,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationFactory</name>
+    <name>Android</name>
     <message>
         <source>Deploy to device</source>
         <translation>デバイスにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>アプリケーションデータのコピー</translation>
@@ -43321,9 +42796,6 @@ These files are preserved.</source>
         <source>Removing directory %1</source>
         <translation>ディレクトリ %1 を削除しています</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>&lt;b&gt;Make install&lt;/b&gt;</source>
         <translation>&lt;b&gt;Make install&lt;/b&gt;</translation>
@@ -43332,9 +42804,6 @@ These files are preserved.</source>
         <source>Make install</source>
         <translation>Make install</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation>このプロジェクトにアプリケーション .pro ファイルが見つかりません。</translation>
@@ -43343,9 +42812,6 @@ These files are preserved.</source>
         <source>No Application .pro File</source>
         <translation>アプリケーション .pro ファイルが見つかりません</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation>Android テンプレートファイルを作成したい .pro ファイルを選択してください。</translation>
@@ -43358,9 +42824,6 @@ These files are preserved.</source>
         <source>Select a .pro File</source>
         <translation>.pro ファイルの選択</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::ChooseDirectoryPage</name>
     <message>
         <source>The Android package source directory cannot be the same as the project directory.</source>
         <translation>Android パッケージソースディレクトリをプロジェクトのディレクトリと同じにすることはできません。</translation>
@@ -43389,9 +42852,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Copy the Gradle files to Android directory</source>
         <translation>Gradle のファイルを Android ディレクトリにコピーする</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation>Android テンプレートファイル作成ウィザード</translation>
@@ -43420,31 +42880,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Could not update the .pro file %1.</source>
         <translation>.pro ファイル %1 を更新できませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStepFactory</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation>Android APK のビルド</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidBuildApkStep</name>
-    <message>
-        <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
-        <translation>ソースディレクトリに古い &quot;android&quot; フォルダを見つけました。Qt 5.2 は既定ではそのフォルダを使用しません。</translation>
-    </message>
     <message>
         <source>No application .pro file found, not building an APK.</source>
         <translation>アプリケーション .pro ファイルが見つからないため、APK をビルドできません。</translation>
     </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
-        <translation>起動中: &quot;%1&quot; %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeAndroidSupport::Internal::QmakeAndroidRunConfiguration</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
         <translation>.pro ファイル &quot;%1&quot; を現在解析しています。</translation>
@@ -45939,7 +45378,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
+    <name>Android</name>
     <message>
         <source>Expand All</source>
         <translation>すべて展開</translation>
@@ -45959,14 +45398,6 @@ Output:
     <message>
         <source>All</source>
         <translation>すべて</translation>
-    </message>
-    <message>
-        <source>Advanced Options...</source>
-        <translation type="unfinished">詳細オプション...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
     </message>
 </context>
 <context>
@@ -46344,14 +45775,10 @@ Output:
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
+    <name>Git</name>
     <message>
         <source>Authentication</source>
         <translation>認証情報</translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>ユーザー(&amp;U):</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
@@ -47320,180 +46747,11 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>AndroidAvdManager</name>
-    <message>
-        <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation>プロセス &quot;%1 %2&quot; を起動できませんでした</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidBuildApkStep</name>
-    <message>
-        <source>Application</source>
-        <translation>アプリケーション</translation>
-    </message>
-    <message>
-        <source>Android build SDK:</source>
-        <translation>Android SDK:</translation>
-    </message>
-    <message>
-        <source>Create Templates</source>
-        <translation>テンプレートの作成</translation>
-    </message>
-    <message>
-        <source>Keystore:</source>
-        <translation>キーストア:</translation>
-    </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation>キーストアファイル (*.keystore *.jks)</translation>
-    </message>
-    <message>
-        <source>Select Keystore File</source>
-        <translation>キーストアファイルの選択</translation>
-    </message>
-    <message>
-        <source>Create...</source>
-        <translation>作成...</translation>
-    </message>
-    <message>
-        <source>Sign package</source>
-        <translation>パッケージに署名する</translation>
-    </message>
-    <message>
-        <source>Signing a debug package</source>
-        <translation>デバッグパッケージに署名する</translation>
-    </message>
-    <message>
-        <source>Certificate alias:</source>
-        <translation>証明書エイリアス:</translation>
-    </message>
-    <message>
-        <source>Advanced Actions</source>
-        <translation>高度なアクション</translation>
-    </message>
-    <message>
-        <source>Open package location after build</source>
-        <translation>ビルド後にパッケージのパスを開く</translation>
-    </message>
-    <message>
-        <source>Verbose output</source>
-        <translation>詳細出力</translation>
-    </message>
-    <message>
-        <source>Additional Libraries</source>
-        <translation>追加ライブラリ</translation>
-    </message>
-    <message>
-        <source>List of extra libraries to include in Android package and load on startup.</source>
-        <translation>Android のパッケージに同梱され起動時に読み込まれる追加ライブラリのリストです。</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
-    </message>
-    <message>
-        <source>Select library to include in package.</source>
-        <translation>パッケージに同梱するライブラリを選択します。</translation>
-    </message>
-    <message>
-        <source>Select additional libraries</source>
-        <translation>追加ライブラリの選択</translation>
-    </message>
-    <message>
-        <source>Libraries (*.so)</source>
-        <translation>ライブラリ (*.so)</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
-        <source>Remove currently selected library from list.</source>
-        <translation>現在選択しているライブラリをリストから削除します。</translation>
-    </message>
-    <message>
-        <source>Build Android APK</source>
-        <translation>Android APK のビルド</translation>
-    </message>
-    <message>
-        <source>Warning: Signing a debug or profile package.</source>
-        <translation>警告: デバッグ用あるいはプロファイル用パッケージを署名しています。</translation>
-    </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
-        <translation>起動中: &quot;%1&quot; %2</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
-        <source>Failed to run keytool.</source>
-        <translation>keytool の実行に失敗しました。</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation>キーストア</translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation>証明書</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorIconWidget</name>
-    <message>
-        <source>Icon scaled up.</source>
-        <translation type="unfinished">アイコンをスケールアップ。</translation>
-    </message>
-    <message>
-        <source>Click to select...</source>
-        <translation type="unfinished">クリックして選択...</translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidPackageInstallationStep</name>
-    <message>
-        <source>Copy application data</source>
-        <translation>アプリケーションデータのコピー</translation>
-    </message>
-    <message>
-        <source>Removing directory %1</source>
-        <translation>ディレクトリ %1 を削除しています</translation>
-    </message>
-    <message>
-        <source>Deploy to device</source>
-        <translation>デバイスにデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
+    <name>Android</name>
     <message>
         <source>Clean Environment</source>
         <translation>環境変数なし</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
-    <message>
-        <source>No free ports available on host for QML debugging.</source>
-        <translation>ホストに QML デバッグ用の空きポートがありません。</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; died.</source>
-        <translation>&quot;%1&quot; は異常終了しました。</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkDownloader</name>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Failed.</source>
         <translation>失敗しました。</translation>
@@ -47502,95 +46760,9 @@ in &quot;%2&quot;.
         <source>Failed</source>
         <translation>失敗</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
-        <translation>パッケージ</translation>
-    </message>
-    <message>
-        <source>API</source>
-        <translation>API</translation>
-    </message>
     <message>
         <source>Install</source>
         <translation>インストールする</translation>
-    </message>
-</context>
-<context>
-    <name>Android::NoApplicationProFilePage</name>
-    <message>
-        <source>No application .pro file found in this project.</source>
-        <translation>このプロジェクトにアプリケーション .pro ファイルが見つかりません。</translation>
-    </message>
-    <message>
-        <source>No Application .pro File</source>
-        <translation>アプリケーション .pro ファイルが見つかりません</translation>
-    </message>
-</context>
-<context>
-    <name>Android::ChooseProfilePage</name>
-    <message>
-        <source>Select the .pro file for which you want to create the Android template files.</source>
-        <translation>Android テンプレートファイルを作成したい .pro ファイルを選択してください。</translation>
-    </message>
-    <message>
-        <source>.pro file:</source>
-        <translation>.pro ファイル:</translation>
-    </message>
-    <message>
-        <source>Select a .pro File</source>
-        <translation>.pro ファイルの選択</translation>
-    </message>
-</context>
-<context>
-    <name>Android::ChooseDirectoryPage</name>
-    <message>
-        <source>Android package source directory:</source>
-        <translation>Android パッケージソースディレクトリ:</translation>
-    </message>
-    <message>
-        <source>The Android package source directory cannot be the same as the project directory.</source>
-        <translation>Android パッケージソースディレクトリをプロジェクトのディレクトリと同じにすることはできません。</translation>
-    </message>
-    <message>
-        <source>Copy the Gradle files to Android directory</source>
-        <translation>Gradle のファイルを Android ディレクトリにコピーする</translation>
-    </message>
-    <message>
-        <source>It is highly recommended if you are planning to extend the Java part of your Qt application.</source>
-        <translation>Qt アプリケーションの Java 部を拡張する際には有効にすることを強く推奨します。</translation>
-    </message>
-    <message>
-        <source>Select the Android package source directory.
-
-The files in the Android package source directory are copied to the build directory&apos;s Android directory and the default files are overwritten.</source>
-        <translation>Android パッケージソースディレクトリを選択してください。
-
-Android パッケージソースディレクトリのファイルはビルドディレクトリの Android ディレクトリに既定のファイルを上書きする形でコピーされます。</translation>
-    </message>
-    <message>
-        <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
-        <translation type="vanished">Android テンプレートファイルは .pro ファイルの ANDROID_PACKAGE_SOURCE_DIR 変数に設定されたパスに作成されます。</translation>
-    </message>
-</context>
-<context>
-    <name>Android::CreateAndroidManifestWizard</name>
-    <message>
-        <source>Create Android Template Files Wizard</source>
-        <translation>Android テンプレートファイル作成ウィザード</translation>
-    </message>
-    <message>
-        <source>Project File not Updated</source>
-        <translation>プロジェクトファイルは未更新です</translation>
-    </message>
-</context>
-<context>
-    <name>JLSSettingsWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
     </message>
     <message>
         <source>Java:</source>
@@ -47604,16 +46776,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Path to equinox launcher jar</source>
         <translation>equinox launcher jarへのパス</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::SplashScreenContainerWidget</name>
-    <message>
-        <source>Splash screen</source>
-        <translation>スプラッシュスクリーン</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::SplashScreenWidget</name>
     <message>
         <source>Icon scaled up.</source>
         <translation>アイコンをスケールアップ。</translation>
@@ -47881,7 +47043,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
 </context>
 <context>
     <name>BuildConfiguration</name>
@@ -50090,135 +49252,30 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchView</name>
+    <name>Git</name>
     <message>
         <source>Refresh</source>
         <translation>更新</translation>
-    </message>
-    <message numerus="yes">
-        <source>Include branches and tags that have not been active for %n days.</source>
-        <translation>
-            <numerusform>直近の %n 日にアクティブではないブランチやタグを含みます。</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;リポジトリなし&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>追加(&amp;A)...</translation>
-    </message>
-    <message>
-        <source>&amp;Checkout</source>
-        <translation>チェックアウト(&amp;C)</translation>
-    </message>
-    <message>
-        <source>&amp;Diff</source>
-        <translation>差分表示(&amp;D)</translation>
-    </message>
-    <message>
-        <source>&amp;Log</source>
-        <translation>ログ表示(&amp;L)</translation>
-    </message>
-    <message>
-        <source>&amp;Hard</source>
-        <translation>ハード(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;Mixed</source>
-        <translation>混在(&amp;M)</translation>
-    </message>
-    <message>
-        <source>&amp;Soft</source>
-        <translation>ソフト(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>チェリーピック(&amp;P)</translation>
-    </message>
-    <message>
-        <source>&amp;Track</source>
-        <translation>トラック(&amp;T)</translation>
-    </message>
-    <message>
-        <source>&amp;Push</source>
-        <translation>プッシュ(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Would you like to delete the tag &quot;%1&quot;?</source>
-        <translation>タグ &quot;%1&quot; を削除しますか？</translation>
-    </message>
-    <message>
-        <source>Would you like to delete the branch &quot;%1&quot;?</source>
-        <translation>ブランチ &quot;%1&quot; を削除しますか？</translation>
-    </message>
-    <message>
-        <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &quot;%1&quot;?</source>
-        <translation>&lt;b&gt;マージされていない&lt;/b&gt;ブランチ ”%1&quot; を削除しますか？</translation>
-    </message>
-    <message>
-        <source>Delete Tag</source>
-        <translation>タグを削除</translation>
     </message>
     <message>
         <source>Delete Branch</source>
         <translation>ブランチを削除する</translation>
     </message>
     <message>
-        <source>Git Reset</source>
-        <translation>Git リセット</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::BranchViewFactory</name>
-    <message>
         <source>Filter</source>
         <translation>フィルタ</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBaseDiffEditorController</name>
     <message>
         <source>&lt;None&gt;</source>
         <translation>&lt;なし&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitLogArgumentsWidget</name>
-    <message>
-        <source>Show difference.</source>
-        <translation>差分を表示します。</translation>
-    </message>
-    <message>
-        <source>Filter</source>
-        <translation>フィルタ</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogFilterWidget</name>
     <message>
         <source>Filter:</source>
         <translation>フィルタ:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPluginPrivate</name>
     <message>
         <source>&amp;Describe Change %1</source>
         <translation>変更 %1 の説明(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Git Settings</source>
-        <translation>Git の設定</translation>
-    </message>
-    <message>
-        <source>&amp;Git</source>
-        <translation>&amp;Git</translation>
-    </message>
-    <message>
-        <source>Current &amp;File</source>
-        <translation>現在のファイル(&amp;F)</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
@@ -50226,25 +49283,9 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>&quot;%1&quot; の差分表示 (Diff)</translation>
     </message>
     <message>
-        <source>Meta+G,Meta+D</source>
-        <translation>Meta+G,Meta+D</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+D</source>
-        <translation>Alt+G,Alt+D</translation>
-    </message>
-    <message>
         <source>Log of &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
         <translation>&quot;%1&quot; のログ (Log)</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+L</source>
-        <translation>Meta+G,Meta+L</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+L</source>
-        <translation>Alt+G,Alt+L</translation>
     </message>
     <message>
         <source>Blame Current File</source>
@@ -50257,85 +49298,9 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>&quot;%1&quot; の編集者を表示 (Blame)</translation>
     </message>
     <message>
-        <source>Meta+G,Meta+B</source>
-        <translation>Meta+G,Meta+B</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+B</source>
-        <translation>Alt+G,Alt+B</translation>
-    </message>
-    <message>
-        <source>Stage File for Commit</source>
-        <translation>ファイルをステージ(コミット予定)に追加 (Add)</translation>
-    </message>
-    <message>
-        <source>Stage &quot;%1&quot; for Commit</source>
-        <translation>&quot;%1&quot; をステージ(コミット予定)に追加 (Add)</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+A</source>
-        <translation>Meta+G,Meta+A</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+A</source>
-        <translation>Alt+G,Alt+A</translation>
-    </message>
-    <message>
-        <source>Unstage File from Commit</source>
-        <translation>ファイルをステージ(コミット予定)から削除 (Reset)</translation>
-    </message>
-    <message>
-        <source>Unstage &quot;%1&quot; from Commit</source>
-        <translation>&quot;%1&quot; をステージ(コミット予定)から削除 (Reset)</translation>
-    </message>
-    <message>
-        <source>Undo Unstaged Changes</source>
-        <translation>ステージに無い変更を元に戻す</translation>
-    </message>
-    <message>
-        <source>Undo Unstaged Changes for &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のステージに無い変更を元に戻す</translation>
-    </message>
-    <message>
-        <source>Undo Uncommitted Changes</source>
-        <translation>コミットされていない変更を元に戻す</translation>
-    </message>
-    <message>
-        <source>Undo Uncommitted Changes for &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のコミットされていない変更を元に戻す</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+U</source>
-        <translation>Meta+G,Meta+U</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+U</source>
-        <translation>Alt+G,Alt+U</translation>
-    </message>
-    <message>
-        <source>Current &amp;Project</source>
-        <translation>現在のプロジェクト(&amp;P)</translation>
-    </message>
-    <message>
         <source>Diff Current Project</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
         <translation>現在のプロジェクトの差分表示 (Diff)</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+Shift+D</source>
-        <translation>Meta+G,Meta+Shift+D</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+Shift+D</source>
-        <translation>Alt+G,Alt+Shift+D</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+K</source>
-        <translation>Meta+G,Meta+K</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+K</source>
-        <translation>Alt+G,Alt+K</translation>
     </message>
     <message>
         <source>Clean Project...</source>
@@ -50346,18 +49311,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Clean Project &quot;%1&quot;...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
         <translation>プロジェクト &quot;%1&quot; をクリーン (Clean)...</translation>
-    </message>
-    <message>
-        <source>&amp;Local Repository</source>
-        <translation>ローカルリポジトリ(&amp;L)</translation>
-    </message>
-    <message>
-        <source>Meta+G,Meta+C</source>
-        <translation>Meta+G,Meta+C</translation>
-    </message>
-    <message>
-        <source>Alt+G,Alt+C</source>
-        <translation>Alt+G,Alt+C</translation>
     </message>
     <message>
         <source>Amend Last Commit...</source>
@@ -50373,10 +49326,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Interactive Rebase...</source>
         <comment>Avoid translating &quot;Rebase&quot;</comment>
         <translation>対話的なリベース (Rebase)...</translation>
-    </message>
-    <message>
-        <source>Update Submodules</source>
-        <translation>サブモジュールを更新</translation>
     </message>
     <message>
         <source>Abort Merge</source>
@@ -50399,44 +49348,8 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>コミット打ち消しの中止</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation>リベースの続行</translation>
-    </message>
-    <message>
-        <source>Continue Cherry Pick</source>
-        <translation>チェリーピックの続行</translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
-        <translation>コミットの打ち消しの続行</translation>
-    </message>
-    <message>
-        <source>Branches...</source>
-        <translation>ブランチ (Branch)...</translation>
-    </message>
-    <message>
-        <source>&amp;Patch</source>
-        <translation>パッチ(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Apply from Editor</source>
-        <translation>エディタから適用</translation>
-    </message>
-    <message>
-        <source>Apply &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の適用</translation>
-    </message>
-    <message>
-        <source>Apply from File...</source>
-        <translation>ファイルから適用...</translation>
-    </message>
-    <message>
         <source>&amp;Stash</source>
         <translation>スタッシュ (&amp;Stash)</translation>
-    </message>
-    <message>
-        <source>Saves the current state of your work and resets the repository.</source>
-        <translation>現在の状態を保持し、リポジトリを元の状態に戻します。</translation>
     </message>
     <message>
         <source>Stash Unstaged Files</source>
@@ -50444,125 +49357,9 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>ステージにないファイルをスタッシュ (Stash)</translation>
     </message>
     <message>
-        <source>Saves the current state of your unstaged files and resets the repository to its staged state.</source>
-        <translation>ステージにないファイルの現在の状態を保存してリポジトリをステージ状態にリセットします。</translation>
-    </message>
-    <message>
-        <source>Take Snapshot...</source>
-        <translation>スナップショットを取る...</translation>
-    </message>
-    <message>
-        <source>Saves the current state of your work.</source>
-        <translation>現在の作業状況を保存します。</translation>
-    </message>
-    <message>
         <source>Stash Pop</source>
         <comment>Avoid translating &quot;Stash&quot;</comment>
         <translation>スタッシュのポップ (Stash Pop)</translation>
-    </message>
-    <message>
-        <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
-        <translation>&quot;スタッシュ (Stash)&quot;で保存させた作業状況を復元します。</translation>
-    </message>
-    <message>
-        <source>&amp;Remote Repository</source>
-        <translation>リモートリポジトリ(&amp;R)</translation>
-    </message>
-    <message>
-        <source>&amp;Subversion</source>
-        <translation>&amp;Subversion</translation>
-    </message>
-    <message>
-        <source>Manage Remotes...</source>
-        <translation>リモートの管理...</translation>
-    </message>
-    <message>
-        <source>Git &amp;Tools</source>
-        <translation>Git ツール(&amp;T)</translation>
-    </message>
-    <message>
-        <source>Gitk Current File</source>
-        <translation>現在のファイルを Gitk で表示する</translation>
-    </message>
-    <message>
-        <source>Gitk of &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; を Gitk で表示する</translation>
-    </message>
-    <message>
-        <source>Gitk for folder of Current File</source>
-        <translation>現在のファイルのフォルダーを Gitk で表示する</translation>
-    </message>
-    <message>
-        <source>Gitk for folder of &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のフォルダーを Gitk で表示する</translation>
-    </message>
-    <message>
-        <source>Git Gui</source>
-        <translation>Git GUI</translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>リポジトリブラウザ</translation>
-    </message>
-    <message>
-        <source>Merge Tool</source>
-        <translation>マージツール</translation>
-    </message>
-    <message>
-        <source>Actions on Commits...</source>
-        <translation>コミット時のアクション...</translation>
-    </message>
-    <message>
-        <source>Create Repository...</source>
-        <translation>リポジトリの作成...</translation>
-    </message>
-    <message>
-        <source>Undo Changes to %1</source>
-        <translation>コミット %1 まで元に戻す</translation>
-    </message>
-    <message>
-        <source>Interactive Rebase</source>
-        <translation>対話的なリベース</translation>
-    </message>
-    <message>
-        <source>Another submit is currently being executed.</source>
-        <translation>別のサブミットが実行中です。</translation>
-    </message>
-    <message>
-        <source>Unsupported version of Git found. Git %1 or later required.</source>
-        <translation>サポート対象外のバージョンの Git が見つかりました。Git %1 以降が必要です。</translation>
-    </message>
-    <message>
-        <source>Amend %1</source>
-        <translation>%1 のログを修正する</translation>
-    </message>
-    <message>
-        <source>Git Fixup Commit</source>
-        <translation>Git コミットの Fixup</translation>
-    </message>
-    <message>
-        <source>Git Commit</source>
-        <translation>Git コミット</translation>
-    </message>
-    <message>
-        <source>Repository Clean</source>
-        <translation>リポジトリをクリーン</translation>
-    </message>
-    <message>
-        <source>The repository is clean.</source>
-        <translation>リポジトリは変更されていません。</translation>
-    </message>
-    <message>
-        <source>Patches (*.patch *.diff)</source>
-        <translation>パッチ (*.patch *.diff)</translation>
-    </message>
-    <message>
-        <source>Choose Patch</source>
-        <translation>パッチの選択</translation>
-    </message>
-    <message>
-        <source>Patch %1 successfully applied to %2</source>
-        <translation>パッチ %1 を %2 に適用しました</translation>
     </message>
 </context>
 <context>

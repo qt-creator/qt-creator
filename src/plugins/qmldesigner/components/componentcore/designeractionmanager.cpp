@@ -75,7 +75,7 @@ DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) con
         return l->priority() > r->priority();
     });
 
-    for (auto *categoryAction : qAsConst(categories)) {
+    for (auto *categoryAction : std::as_const(categories)) {
         QList<ActionInterface* > actions = Utils::filtered(designerActions(), [categoryAction](ActionInterface *action) {
                 return action->category() == categoryAction->menuId();
         });
@@ -86,7 +86,7 @@ DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) con
 
         bool addSeparator = false;
 
-        for (auto *action : qAsConst(actions)) {
+        for (auto *action : std::as_const(actions)) {
             if ((action->type() == ActionInterface::Action || action->type() == ActionInterface::ToolBarAction)
                     && action->action()) {
                 toolBar->registerAction(action);
@@ -151,7 +151,7 @@ QGraphicsWidget *DesignerActionManager::createFormEditorToolBar(QGraphicsItem *p
     layout->setSpacing(0);
     toolbar->setLayout(layout);
 
-    for (ActionInterface *action : qAsConst(actions)) {
+    for (ActionInterface *action : std::as_const(actions)) {
         auto button = new FormEditorToolButton(action->action(), toolbar);
         layout->addItem(button);
     }
@@ -203,7 +203,7 @@ void DesignerActionManager::registerModelNodePreviewHandler(const ModelNodePrevi
 bool DesignerActionManager::hasModelNodePreviewHandler(const ModelNode &node) const
 {
     const bool isComponent = node.isComponent();
-    for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
+    for (const auto &handler : std::as_const(m_modelNodePreviewImageHandlers)) {
         if ((isComponent || !handler.componentOnly)) {
             if (auto base = node.model()->metaInfo(handler.type); node.metaInfo().isBasedOn(base))
                 return true;
@@ -217,7 +217,7 @@ ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(
     ModelNodePreviewImageOperation op = nullptr;
     int prio = -1;
     const bool isComponent = node.isComponent();
-    for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
+    for (const auto &handler : std::as_const(m_modelNodePreviewImageHandlers)) {
         if ((isComponent || !handler.componentOnly) && handler.priority > prio) {
             if (auto base = node.model()->metaInfo(handler.type); node.metaInfo().isBasedOn(base)) {
                 op = handler.operation;
@@ -1922,7 +1922,7 @@ void DesignerActionManager::addCreatorCommand(Core::Command *command, const QByt
 QList<QSharedPointer<ActionInterface> > DesignerActionManager::actionsForTargetView(const ActionInterface::TargetView &target)
 {
     QList<QSharedPointer<ActionInterface> > out;
-    for (auto interface : qAsConst(m_designerActions))
+    for (auto interface : std::as_const(m_designerActions))
         if (interface->targetView() == target)
             out << interface;
 

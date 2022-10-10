@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "avddialog.h"
-
+#include "androidtr.h"
 #include "androidavdmanager.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
@@ -43,7 +43,7 @@ AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
       m_sdkManager(m_androidConfig)
 {
     resize(800, 0);
-    setWindowTitle(tr("Create new AVD"));
+    setWindowTitle(Tr::tr("Create new AVD"));
 
     m_abiComboBox = new QComboBox;
     m_abiComboBox->addItems({
@@ -54,7 +54,7 @@ AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
     });
 
     m_sdcardSizeSpinBox = new QSpinBox;
-    m_sdcardSizeSpinBox->setSuffix(tr(" MiB"));
+    m_sdcardSizeSpinBox->setSuffix(Tr::tr(" MiB"));
     m_sdcardSizeSpinBox->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
     m_sdcardSizeSpinBox->setRange(0, 1000000);
     m_sdcardSizeSpinBox->setValue(512);
@@ -73,7 +73,7 @@ AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
 
     m_deviceDefinitionTypeComboBox = new QComboBox;
 
-    m_overwriteCheckBox = new QCheckBox(tr("Overwrite existing AVD name"));
+    m_overwriteCheckBox = new QCheckBox(Tr::tr("Overwrite existing AVD name"));
 
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
@@ -84,13 +84,13 @@ AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
 
     Column {
         Form {
-            tr("Name:"), m_nameLineEdit, br,
-            tr("Device definition:"),
+            Tr::tr("Name:"), m_nameLineEdit, br,
+            Tr::tr("Device definition:"),
                 Row { m_deviceDefinitionTypeComboBox, m_deviceDefinitionComboBox }, br,
-            tr("Architecture (ABI):"), m_abiComboBox, br,
-            tr("Target API:"), m_targetApiComboBox, br,
+            Tr::tr("Architecture (ABI):"), m_abiComboBox, br,
+            Tr::tr("Target API:"), m_targetApiComboBox, br,
             QString(), m_warningText, br,
-            tr("SD card size:"), m_sdcardSizeSpinBox, br,
+            Tr::tr("SD card size:"), m_sdcardSizeSpinBox, br,
             QString(), m_overwriteCheckBox,
         },
         st,
@@ -235,7 +235,7 @@ void AvdDialog::updateDeviceDefinitionComboBox()
         m_deviceDefinitionTypeComboBox->currentText());
 
     m_deviceDefinitionComboBox->clear();
-    for (const DeviceDefinitionStruct &item : qAsConst(m_deviceDefinitionsList)) {
+    for (const DeviceDefinitionStruct &item : std::as_const(m_deviceDefinitionsList)) {
         if (item.deviceType == curDeviceType)
             m_deviceDefinitionComboBox->addItem(item.name_id);
     }
@@ -289,7 +289,7 @@ void AvdDialog::updateApiLevelComboBox()
     });
 
     m_targetApiComboBox->clear();
-    for (SystemImage *image : qAsConst(filteredList)) {
+    for (SystemImage *image : std::as_const(filteredList)) {
             QString imageString = "android-" % QString::number(image->apiLevel());
             const QStringList imageSplits = image->sdkStylePath().split(';');
             if (imageSplits.size() == 4)
@@ -305,13 +305,13 @@ void AvdDialog::updateApiLevelComboBox()
         m_targetApiComboBox->setEnabled(false);
         m_warningText->setVisible(true);
         m_warningText->setText(
-            tr("Cannot create a new AVD. No suitable Android system image is installed.<br/>"
-               "Install a system image for the intended Android version from the SDK Manager."));
+            Tr::tr("Cannot create a new AVD. No suitable Android system image is installed.<br/>"
+                   "Install a system image for the intended Android version from the SDK Manager."));
         m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     } else if (filteredList.isEmpty()) {
         m_targetApiComboBox->setEnabled(false);
         m_warningText->setVisible(true);
-        m_warningText->setText(tr("Cannot create an AVD for ABI %1.<br/>Install a system "
+        m_warningText->setText(Tr::tr("Cannot create an AVD for ABI %1.<br/>Install a system "
                                             "image for it from the SDK Manager tab first.")
                                              .arg(abi()));
         m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -330,7 +330,7 @@ bool AvdDialog::eventFilter(QObject *obj, QEvent *event)
         if (!key.isEmpty() && !m_allowedNameChars.match(key).hasMatch()) {
             QPoint position = m_nameLineEdit->parentWidget()->mapToGlobal(m_nameLineEdit->geometry().bottomLeft());
             position -= Utils::ToolTip::offsetFromPosition();
-            Utils::ToolTip::show(position, tr("Allowed characters are: a-z A-Z 0-9 and . _ -"), m_nameLineEdit);
+            Utils::ToolTip::show(position, Tr::tr("Allowed characters are: a-z A-Z 0-9 and . _ -"), m_nameLineEdit);
             m_hideTipTimer.start();
         } else {
             m_hideTipTimer.stop();

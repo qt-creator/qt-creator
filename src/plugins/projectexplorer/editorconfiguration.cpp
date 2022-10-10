@@ -390,7 +390,7 @@ void EditorConfiguration::slotAboutToRemoveProject(Project *project)
     if (project->editorConfiguration() != this)
         return;
 
-    for (BaseTextEditor *editor : qAsConst(d->m_editors))
+    for (BaseTextEditor *editor : std::as_const(d->m_editors))
         deconfigureEditor(editor);
 }
 

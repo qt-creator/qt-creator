@@ -591,7 +591,7 @@ void MimeTypeSettingsPrivate::writeUserModifiedMimeTypes()
             writer.writeStartDocument();
             writer.writeStartElement(QLatin1String(mimeInfoTagC));
 
-            for (const UserMimeType &mt : qAsConst(m_userModifiedMimeTypes)) {
+            for (const UserMimeType &mt : std::as_const(m_userModifiedMimeTypes)) {
                 writer.writeStartElement(QLatin1String(mimeTypeTagC));
                 writer.writeAttribute(QLatin1String(mimeTypeAttributeC), mt.name);
                 writer.writeAttribute(QLatin1String(patternAttributeC),

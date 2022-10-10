@@ -8,8 +8,6 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
-#include <QRegularExpression>
-
 namespace CMakeProjectManager::Internal::CMakePresets::Macros {
 
 QString getHostSystemName()
@@ -61,6 +59,48 @@ void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
     value.replace("${presetName}", preset.name);
 }
 
+QString expandMacroEnv(const QString &macroPrefix,
+                       const QString &value,
+                       const std::function<QString(const QString &)> &op)
+{
+    const QString startToken = QString("$%1{").arg(macroPrefix);
+    const QString endToken = QString("}");
+
+    auto findMacro = [startToken,
+                      endToken](const QString &str, qsizetype *pos, QString *ret) -> qsizetype {
+        forever {
+            qsizetype openPos = str.indexOf(startToken, *pos);
+            if (openPos < 0)
+                return 0;
+
+            qsizetype varPos = openPos + startToken.length();
+            qsizetype endPos = str.indexOf(endToken, varPos + 1);
+            if (endPos < 0)
+                return 0;
+
+            *ret = str.mid(varPos, endPos - varPos);
+            *pos = openPos;
+
+            return endPos - openPos + endToken.length();
+        }
+    };
+
+    QString result = value;
+    QString macroName;
+
+    bool done = true;
+    do {
+        done = true;
+        for (qsizetype pos = 0; int len = findMacro(result, &pos, &macroName);) {
+            result.replace(pos, len, op(macroName));
+            pos += macroName.length();
+            done = false;
+        }
+    } while (!done);
+
+    return result;
+}
+
 template<class PresetType>
 void expand(const PresetType &preset,
             Utils::Environment &env,
@@ -73,14 +113,9 @@ void expand(const PresetType &preset,
         QString value = it->second;
 
         expandAllButEnv(preset, sourceDirectory, value);
-
-        QRegularExpression envRegex(R"((\$env\{(\w+)\}))");
-        for (const QRegularExpressionMatch &match : envRegex.globalMatch(value)) {
-            if (match.captured(2) != key)
-                value.replace(match.captured(1), presetEnv.value(match.captured(2)));
-            else
-                value.replace(match.captured(1), "");
-        }
+        value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
+            return presetEnv.value(macroName);
+        });
 
         QString sep;
         bool append = true;
@@ -92,9 +127,9 @@ void expand(const PresetType &preset,
             value.replace("$penv{PATH}", "", Qt::CaseInsensitive);
         }
 
-        QRegularExpression penvRegex(R"((\$penv\{(\w+)\}))");
-        for (const QRegularExpressionMatch &match : penvRegex.globalMatch(value))
-            value.replace(match.captured(1), env.value(match.captured(2)));
+        value = expandMacroEnv("penv", value, [env](const QString &macroName) {
+            return env.value(macroName);
+        });
 
         if (append)
             env.appendOrSet(key, value, sep);
@@ -116,14 +151,9 @@ void expand(const PresetType &preset,
         QString value = it->second;
 
         expandAllButEnv(preset, sourceDirectory, value);
-
-        QRegularExpression envRegex(R"((\$env\{(\w+)\}))");
-        for (const QRegularExpressionMatch &match : envRegex.globalMatch(value)) {
-            if (match.captured(2) != key)
-                value.replace(match.captured(1), presetEnv.value(match.captured(2)));
-            else
-                value.replace(match.captured(1), "");
-        }
+        value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
+            return presetEnv.value(macroName);
+        });
 
         auto operation = Utils::EnvironmentItem::Operation::SetEnabled;
         if (key.compare("PATH", Qt::CaseInsensitive) == 0) {
@@ -134,9 +164,9 @@ void expand(const PresetType &preset,
             value.replace("$penv{PATH}", "", Qt::CaseInsensitive);
         }
 
-        QRegularExpression penvRegex(R"((\$penv\{(\w+)\}))");
-        for (const QRegularExpressionMatch &match : penvRegex.globalMatch(value))
-            value.replace(match.captured(1), QString("${%1}").arg(match.captured(2)));
+        value = expandMacroEnv("penv", value, [](const QString &macroName) {
+            return QString("${%1}").arg(macroName);
+        });
 
         envItems.emplace_back(Utils::EnvironmentItem(key, value, operation));
     }
@@ -153,13 +183,13 @@ void expand(const PresetType &preset,
     const QHash<QString, QString> presetEnv = preset.environment ? preset.environment.value()
                                                                  : QHash<QString, QString>();
 
-    QRegularExpression envRegex(R"((\$env\{(\w+)\}))");
-    for (const QRegularExpressionMatch &match : envRegex.globalMatch(value))
-        value.replace(match.captured(1), presetEnv.value(match.captured(2)));
+    value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
+        return presetEnv.value(macroName);
+    });
 
-    QRegularExpression penvRegex(R"((\$penv\{(\w+)\}))");
-    for (const QRegularExpressionMatch &match : penvRegex.globalMatch(value))
-        value.replace(match.captured(1), env.value(match.captured(2)));
+    value = expandMacroEnv("penv", value, [env](const QString &macroName) {
+        return env.value(macroName);
+    });
 }
 
 void updateToolchainFile(
@@ -260,7 +290,6 @@ bool evaluatePresetCondition(const PresetType &preset, const Utils::FilePath &so
 
     return condition.evaluate();
 }
-
 
 // Expand for PresetsDetails::ConfigurePreset
 template void expand<PresetsDetails::ConfigurePreset>(const PresetsDetails::ConfigurePreset &preset,

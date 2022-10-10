@@ -552,7 +552,7 @@ add_qtc_plugin(QmlDesigner
     documentwarningwidget.cpp documentwarningwidget.h
     dynamiclicensecheck.h
     generateresource.cpp generateresource.h
-    openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
+    openuiqmlfiledialog.cpp openuiqmlfiledialog.h
     puppetenvironmentbuilder.cpp puppetenvironmentbuilder.h
     qmldesigner_global.h
     qmldesignerconstants.h

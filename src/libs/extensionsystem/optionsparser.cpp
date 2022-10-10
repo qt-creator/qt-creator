@@ -176,7 +176,7 @@ bool OptionsParser::checkForLoadOption()
         return false;
     if (nextToken(RequiredToken)) {
         if (m_currentArg == QLatin1String("all")) {
-            for (PluginSpec *spec : qAsConst(m_pmPrivate->pluginSpecs))
+            for (PluginSpec *spec : std::as_const(m_pmPrivate->pluginSpecs))
                 spec->d->setForceEnabled(true);
             m_isDependencyRefreshNeeded = true;
         } else {
@@ -203,7 +203,7 @@ bool OptionsParser::checkForNoLoadOption()
         return false;
     if (nextToken(RequiredToken)) {
         if (m_currentArg == QLatin1String("all")) {
-            for (PluginSpec *spec : qAsConst(m_pmPrivate->pluginSpecs))
+            for (PluginSpec *spec : std::as_const(m_pmPrivate->pluginSpecs))
                 spec->d->setForceDisabled(true);
             m_isDependencyRefreshNeeded = true;
         } else {
@@ -287,7 +287,7 @@ void OptionsParser::forceDisableAllPluginsExceptTestedAndForceEnabled()
 {
     for (const PluginManagerPrivate::TestSpec &testSpec : m_pmPrivate->testSpecs)
         testSpec.pluginSpec->d->setForceEnabled(true);
-    for (PluginSpec *spec : qAsConst(m_pmPrivate->pluginSpecs)) {
+    for (PluginSpec *spec : std::as_const(m_pmPrivate->pluginSpecs)) {
         if (!spec->isForceEnabled() && !spec->isRequired())
             spec->d->setForceDisabled(true);
     }

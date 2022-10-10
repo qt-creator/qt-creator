@@ -218,7 +218,7 @@ bool RunConfiguration::isEnabled() const
 QWidget *RunConfiguration::createConfigurationWidget()
 {
     Layouting::Form builder;
-    for (BaseAspect *aspect : qAsConst(m_aspects)) {
+    for (BaseAspect *aspect : std::as_const(m_aspects)) {
         if (aspect->isVisible())
             aspect->addToLayout(builder.finishRow());
     }
@@ -580,7 +580,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
 
 RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    for (RunConfigurationFactory *factory : qAsConst(g_runConfigurationFactories)) {
+    for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
         if (factory->canHandle(parent)) {
             const Utils::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigurationId.name())) {
@@ -605,7 +605,7 @@ RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguratio
 const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)
 {
     QList<RunConfigurationCreationInfo> items;
-    for (RunConfigurationFactory *factory : qAsConst(g_runConfigurationFactories)) {
+    for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
         if (factory->canHandle(parent))
             items.append(factory->availableCreators(parent));
     }

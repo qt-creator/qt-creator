@@ -491,7 +491,7 @@ void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
 
 void RunSettingsWidget::removeSubWidgets()
 {
-    for (const RunConfigItem &item : qAsConst(m_subWidgets)) {
+    for (const RunConfigItem &item : std::as_const(m_subWidgets)) {
         delete item.first;
         delete item.second;
     }

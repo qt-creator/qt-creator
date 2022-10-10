@@ -669,7 +669,7 @@ public:
 void DebuggerToolTipManagerPrivate::hideAllToolTips()
 {
     purgeClosedToolTips();
-    for (const DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips))
+    for (const DebuggerToolTipHolder *tooltip : std::as_const(m_tooltips))
         tooltip->widget->hide();
 }
 
@@ -996,7 +996,7 @@ void DebuggerToolTipManagerPrivate::updateVisibleToolTips()
     }
 
     // Reposition and show all tooltips of that file.
-    for (DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips)) {
+    for (DebuggerToolTipHolder *tooltip : std::as_const(m_tooltips)) {
         if (tooltip->context.fileName == filePath)
             tooltip->positionShow(toolTipEditor->editorWidget());
         else
@@ -1012,7 +1012,7 @@ void DebuggerToolTipManager::updateToolTips()
 
     // Stack frame changed: All tooltips of that file acquire the engine,
     // all others release (arguable, this could be more precise?)
-    for (DebuggerToolTipHolder *tooltip : qAsConst(d->m_tooltips))
+    for (DebuggerToolTipHolder *tooltip : std::as_const(d->m_tooltips))
         tooltip->updateTooltip(d->m_engine);
     d->updateVisibleToolTips(); // Move tooltip when stepping in same file.
 }
@@ -1023,14 +1023,14 @@ void DebuggerToolTipManager::deregisterEngine()
 
     d->purgeClosedToolTips();
 
-    for (DebuggerToolTipHolder *tooltip : qAsConst(d->m_tooltips))
+    for (DebuggerToolTipHolder *tooltip : std::as_const(d->m_tooltips))
         if (tooltip->context.engineType == d->m_engine->objectName())
             tooltip->releaseEngine();
 
     d->saveSessionData();
 
     // FIXME: For now remove all.
-    for (DebuggerToolTipHolder *tooltip : qAsConst(d->m_tooltips))
+    for (DebuggerToolTipHolder *tooltip : std::as_const(d->m_tooltips))
         tooltip->destroy();
     d->purgeClosedToolTips();
 }
@@ -1111,7 +1111,7 @@ void DebuggerToolTipManagerPrivate::saveSessionData()
     w.writeStartDocument();
     w.writeStartElement(sessionDocumentC);
     w.writeAttribute(sessionVersionAttributeC, "1.0");
-    for (DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips))
+    for (DebuggerToolTipHolder *tooltip : std::as_const(m_tooltips))
         if (tooltip->widget->isPinned)
             tooltip->saveSessionData(w);
     w.writeEndDocument();
@@ -1127,7 +1127,7 @@ void DebuggerToolTipManager::closeAllToolTips()
 
 void DebuggerToolTipManagerPrivate::closeAllToolTips()
 {
-    for (DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips))
+    for (DebuggerToolTipHolder *tooltip : std::as_const(m_tooltips))
         tooltip->destroy();
     m_tooltips.clear();
 }
@@ -1135,7 +1135,7 @@ void DebuggerToolTipManagerPrivate::closeAllToolTips()
 void DebuggerToolTipManager::resetLocation()
 {
     d->purgeClosedToolTips();
-    for (DebuggerToolTipHolder *tooltip : qAsConst(d->m_tooltips))
+    for (DebuggerToolTipHolder *tooltip : std::as_const(d->m_tooltips))
         tooltip->widget->pin();
 }
 
@@ -1306,7 +1306,7 @@ DebuggerToolTipContexts DebuggerToolTipManager::pendingTooltips() const
 {
     StackFrame frame = d->m_engine->stackHandler()->currentFrame();
     DebuggerToolTipContexts rc;
-    for (DebuggerToolTipHolder *tooltip : qAsConst(d->m_tooltips)) {
+    for (DebuggerToolTipHolder *tooltip : std::as_const(d->m_tooltips)) {
         const DebuggerToolTipContext &context = tooltip->context;
         if (context.iname.startsWith("tooltip") && context.matchesFrame(frame))
             rc.push_back(context);
@@ -1323,7 +1323,7 @@ bool DebuggerToolTipManagerPrivate::eventFilter(QObject *o, QEvent *e)
         const auto me = static_cast<const QMoveEvent *>(e);
         const QPoint dist = me->pos() - me->oldPos();
         purgeClosedToolTips();
-        for (DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips)) {
+        for (DebuggerToolTipHolder *tooltip : std::as_const(m_tooltips)) {
             if (tooltip->widget && tooltip->widget->isVisible())
                 tooltip->widget->move(tooltip->widget->pos() + dist);
         }
@@ -1333,9 +1333,9 @@ bool DebuggerToolTipManagerPrivate::eventFilter(QObject *o, QEvent *e)
         const auto se = static_cast<const QWindowStateChangeEvent *>(e);
         const bool wasMinimized = se->oldState() & Qt::WindowMinimized;
         const bool isMinimized  = static_cast<const QWidget *>(o)->windowState() & Qt::WindowMinimized;
-        if (wasMinimized ^ isMinimized) {
+        if (wasMinimized != isMinimized) {
             purgeClosedToolTips();
-            for (DebuggerToolTipHolder *tooltip : qAsConst(m_tooltips))
+            for (DebuggerToolTipHolder *tooltip : std::as_const(m_tooltips))
                 tooltip->widget->setVisible(!isMinimized);
         }
         break;

@@ -416,9 +416,9 @@ void FileInfoGatherer::run()
             condition.wait(&mutex);
         if (abort.loadRelaxed())
             return;
-        const QString thisPath = qAsConst(path).front();
+        const QString thisPath = std::as_const(path).front();
         path.pop_front();
-        const QStringList thisList = qAsConst(files).front();
+        const QStringList thisList = std::as_const(files).front();
         files.pop_front();
         locker.unlock();
 
@@ -659,7 +659,7 @@ public:
     void updateIcon(QFileIconProvider *iconProvider, const QString &path) {
         if (info)
             info->icon = iconProvider->icon(QFileInfo(path));
-        for (FileSystemNode *child : qAsConst(children)) {
+        for (FileSystemNode *child : std::as_const(children)) {
             //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
             if (!path.isEmpty()) {
                 if (path.endsWith(QLatin1Char('/')))
@@ -674,7 +674,7 @@ public:
     void retranslateStrings(QFileIconProvider *iconProvider, const QString &path) {
         if (info)
             info->displayType = iconProvider->type(QFileInfo(path));
-        for (FileSystemNode *child : qAsConst(children)) {
+        for (FileSystemNode *child : std::as_const(children)) {
             //On windows the root (My computer) has no path so we don't want to add a / for nothing (e.g. /C:/)
             if (!path.isEmpty()) {
                 if (path.endsWith(QLatin1Char('/')))
@@ -2454,7 +2454,7 @@ void FileSystemModelPrivate::_q_fileSystemChanged(const QString &path,
     std::sort(rowsToUpdate.begin(), rowsToUpdate.end());
     PathKey min;
     PathKey max;
-    for (const PathKey &value : qAsConst(rowsToUpdate)) {
+    for (const PathKey &value : std::as_const(rowsToUpdate)) {
         //##TODO is there a way to bundle signals with QString as the content of the list?
         /*if (min.isEmpty()) {
             min = value;

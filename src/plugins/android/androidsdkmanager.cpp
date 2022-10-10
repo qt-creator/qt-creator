@@ -1,11 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidsdkmanager.h"
-
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidmanager.h"
+#include "androidsdkmanager.h"
+#include "androidtr.h"
 #include "avdmanageroutputparser.h"
 
 #include <utils/algorithm.h>
@@ -166,9 +166,8 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     if (assertionFound) {
         output.success = false;
         output.stdOutput = proc.cleanedStdOut();
-        output.stdError = QCoreApplication::translate("Android::Internal::AndroidSdkManager",
-                                                      "The operation requires user interaction. "
-                                                      "Use the \"sdkmanager\" command-line tool.");
+        output.stdError = Tr::tr("The operation requires user interaction. "
+                                 "Use the \"sdkmanager\" command-line tool.");
     } else {
         output.success = proc.result() == ProcessResult::FinishedWithSuccess;
     }
@@ -537,7 +536,7 @@ void SdkManagerOutputParser::compilePackageAssociations()
     deleteAlreadyInstalled(images);
 
     // Associate the system images with sdk platforms.
-    for (AndroidSdkPackage *image : qAsConst(images)) {
+    for (AndroidSdkPackage *image : std::as_const(images)) {
         int imageApi = m_systemImages[image];
         auto itr = std::find_if(m_packages.begin(), m_packages.end(),
                                 [imageApi](const AndroidSdkPackage *p) {
@@ -652,7 +651,7 @@ bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPa
     keys << installLocationKey << revisionKey << descriptionKey;
     for (const QString &line : input) {
         QString value;
-        for (const auto &key: qAsConst(keys)) {
+        for (const auto &key: std::as_const(keys)) {
             if (valueForKey(key, line, &value)) {
                 if (key == installLocationKey)
                     output.installedLocation = Utils::FilePath::fromUserInput(value);
@@ -910,8 +909,7 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdFutureInterface &fi)
     fi.setProgressValue(0);
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::UpdateAll;
-    result.stdOutput = QCoreApplication::translate("AndroidSdkManager",
-                                                   "Updating installed packages.");
+    result.stdOutput = Tr::tr("Updating installed packages.");
     fi.reportResult(result);
     QStringList args("--update");
     args << m_config.sdkManagerToolArgs();
@@ -921,8 +919,8 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdFutureInterface &fi)
         qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
 
     if (result.stdError.isEmpty() && !result.success)
-        result.stdError = QCoreApplication::translate("AndroidSdkManager", "Failed.");
-    result.stdOutput = QCoreApplication::translate("AndroidSdkManager", "Done\n\n");
+        result.stdError = Tr::tr("Failed.");
+    result.stdOutput = Tr::tr("Done\n\n");
     fi.reportResult(result);
     fi.setProgressValue(100);
 }
@@ -935,8 +933,8 @@ void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringLi
     double progressQuota = 100.0 / (install.count() + uninstall.count());
     int currentProgress = 0;
 
-    QString installTag = QCoreApplication::translate("AndroidSdkManager", "Installing");
-    QString uninstallTag = QCoreApplication::translate("AndroidSdkManager", "Uninstalling");
+    QString installTag = Tr::tr("Installing");
+    QString uninstallTag = Tr::tr("Uninstalling");
 
     auto doOperation = [&](const QString& packagePath, const QStringList& args,
             bool isInstall) {
@@ -952,8 +950,8 @@ void AndroidSdkManagerPrivate::update(SdkCmdFutureInterface &fi, const QStringLi
         currentProgress += progressQuota;
         fi.setProgressValue(currentProgress);
         if (result.stdError.isEmpty() && !result.success)
-            result.stdError = QCoreApplication::translate("AndroidSdkManager", "Failed");
-        result.stdOutput = QCoreApplication::translate("AndroidSdkManager", "Done\n\n");
+            result.stdError = Tr::tr("AndroidSdkManager", "Failed");
+        result.stdOutput = Tr::tr("AndroidSdkManager", "Done\n\n");
         fi.reportResult(result);
         return fi.isCanceled();
     };
@@ -1052,10 +1050,8 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
 
     m_licenseTextCache.clear();
     result.success = licenseCommand.exitStatus() == QProcess::NormalExit;
-    if (!result.success) {
-        result.stdError = QCoreApplication::translate("Android::Internal::AndroidSdkManager",
-                                                      "License command failed.\n\n");
-    }
+    if (!result.success)
+        result.stdError = Tr::tr("License command failed.\n\n");
     fi.reportResult(result);
     fi.setProgressValue(100);
 }
@@ -1127,7 +1123,7 @@ void AndroidSdkManagerPrivate::parseCommonArguments(QFutureInterface<QString> &f
 
 void AndroidSdkManagerPrivate::clearPackages()
 {
-    for (AndroidSdkPackage *p : qAsConst(m_allPackages))
+    for (AndroidSdkPackage *p : std::as_const(m_allPackages))
         delete p;
     m_allPackages.clear();
 }

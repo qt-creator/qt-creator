@@ -6,8 +6,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <vcsbase/vcsbaseclientsettings.h>
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 enum CommitType
 {
@@ -19,8 +18,6 @@ enum CommitType
 // Todo: Add user name and password?
 class GitSettings : public VcsBase::VcsBaseSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(Git::Internal::GitSettings)
-
 public:
     GitSettings();
 
@@ -51,5 +48,4 @@ public:
     explicit GitSettingsPage(GitSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

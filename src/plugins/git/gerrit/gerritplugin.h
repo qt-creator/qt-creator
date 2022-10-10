@@ -50,7 +50,7 @@ private:
     void openView();
     void push();
 
-    QString findLocalRepository(QString project, const QString &branch) const;
+    Utils::FilePath findLocalRepository(const QString &project, const QString &branch) const;
     void fetch(const QSharedPointer<GerritChange> &change, int mode);
 
     QSharedPointer<GerritParameters> m_parameters;

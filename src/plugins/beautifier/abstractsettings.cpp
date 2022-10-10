@@ -258,7 +258,7 @@ void AbstractSettings::save()
         return;
 
     // remove old files and possible subfolder
-    foreach (const QString &key, m_stylesToRemove) {
+    for (const QString &key : qAsConst(m_stylesToRemove)) {
         const QFileInfo fi(styleFileName(key));
         QFile::remove(fi.absoluteFilePath());
         if (fi.absoluteDir() != m_styleDir)
@@ -379,7 +379,7 @@ void AbstractSettings::readDocumentation()
                 if (xml.readNext() == QXmlStreamReader::Characters) {
                     m_docu << xml.text().toString();
                     const int index = m_docu.size() - 1;
-                    for (const QString &key : qAsConst(keys))
+                    for (const QString &key : std::as_const(keys))
                         m_options.insert(key, index);
                 }
             }

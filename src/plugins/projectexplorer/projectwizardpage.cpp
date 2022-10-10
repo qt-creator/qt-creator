@@ -78,7 +78,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QSt
 {
     if (node)
         m_toolTip = node->directory().toString();
-    for (AddNewTree *child : qAsConst(children))
+    for (AddNewTree *child : std::as_const(children))
         appendChild(child);
 }
 
@@ -90,7 +90,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children,
 {
     if (node)
         m_toolTip = node->directory().toString();
-    for (AddNewTree *child : qAsConst(children))
+    for (AddNewTree *child : std::as_const(children))
         appendChild(child);
 }
 
@@ -268,7 +268,9 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     : WizardPage(parent)
 {
     m_projectLabel = new QLabel;
+    m_projectLabel->setObjectName("projectLabel");
     m_projectComboBox = new Utils::TreeViewComboBox;
+    m_projectComboBox->setObjectName("projectComboBox");
     m_additionalInfo = new QLabel;
     m_addToVersionControlLabel = new QLabel(tr("Add to &version control:"));
     m_addToVersionControlComboBox = new QComboBox;
@@ -526,15 +528,17 @@ IVersionControl *ProjectWizardPage::currentVersionControl()
 void ProjectWizardPage::setFiles(const FilePaths &files)
 {
     m_commonDirectory = FileUtils::commonPath(files);
+    const bool hasNoCommonDirectory = m_commonDirectory.isEmpty() || files.size() < 2;
+
     QString fileMessage;
     {
         QTextStream str(&fileMessage);
         str << "<qt>"
-            << (m_commonDirectory.isEmpty() ? tr("Files to be added:") : tr("Files to be added in"))
+            << (hasNoCommonDirectory ? tr("Files to be added:") : tr("Files to be added in"))
             << "<pre>";
 
         QStringList formattedFiles;
-        if (m_commonDirectory.isEmpty()) {
+        if (hasNoCommonDirectory) {
             formattedFiles = Utils::transform(files, &FilePath::toString);
         } else {
             str << m_commonDirectory.toUserOutput() << ":\n\n";
@@ -553,7 +557,7 @@ void ProjectWizardPage::setFiles(const FilePaths &files)
             return filePath1HasDir;
         });
 
-        for (const QString &f : qAsConst(formattedFiles))
+        for (const QString &f : std::as_const(formattedFiles))
             str << QDir::toNativeSeparators(f) << '\n';
 
         str << "</pre>";

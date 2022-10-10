@@ -382,7 +382,7 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
         hasGcFinished = true;
     });
 
-    for (Project *project : qAsConst(m_openProjects))
+    for (Project *project : std::as_const(m_openProjects))
         ProjectExplorerPlugin::unloadProject(project);
 
     QElapsedTimer t;

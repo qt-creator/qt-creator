@@ -220,7 +220,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
     PropertyNameList nodePropertyNames = node.propertyNames();
     bool addToTop = true;
 
-    for (const PropertyName &propertyName : qAsConst(m_propertyOrder)) {
+    for (const PropertyName &propertyName : std::as_const(m_propertyOrder)) {
         if (propertyName == "id") {
             // the model handles the id property special, so:
             if (!node.id().isEmpty()) {
@@ -246,7 +246,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
         }
     }
 
-    for (const PropertyName &propertyName : qAsConst(nodePropertyNames)) {
+    for (const PropertyName &propertyName : std::as_const(nodePropertyNames)) {
         bottomPart.prepend(propertyToQml(node.property(propertyName), indentDepth));
     }
 

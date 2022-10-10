@@ -470,7 +470,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
 
     QCOMPARE(refreshedFiles.size(), initialProjectFiles.size());
     snapshot = mm->snapshot();
-    for (const QString &file : qAsConst(initialProjectFiles)) {
+    for (const QString &file : std::as_const(initialProjectFiles)) {
         QVERIFY(refreshedFiles.contains(file));
         QVERIFY(snapshot.contains(file));
     }
@@ -499,7 +499,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
 
     QCOMPARE(refreshedFiles.size(), finalProjectFiles.size());
     snapshot = mm->snapshot();
-    for (const QString &file : qAsConst(finalProjectFiles)) {
+    for (const QString &file : std::as_const(finalProjectFiles)) {
         QVERIFY(refreshedFiles.contains(file));
         QVERIFY(snapshot.contains(file));
     }
@@ -550,7 +550,7 @@ void ModelManagerTest::testSnapshotAfterTwoProjects()
     QCOMPARE(refreshedFiles, Utils::toSet(project1.projectFiles));
     const int snapshotSizeAfterProject1 = mm->snapshot().size();
 
-    for (const QString &file : qAsConst(project1.projectFiles))
+    for (const QString &file : std::as_const(project1.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
 
     // Project 2
@@ -565,9 +565,9 @@ void ModelManagerTest::testSnapshotAfterTwoProjects()
     QVERIFY(snapshotSizeAfterProject2 > snapshotSizeAfterProject1);
     QVERIFY(snapshotSizeAfterProject2 >= snapshotSizeAfterProject1 + project2.projectFiles.size());
 
-    for (const QString &file : qAsConst(project1.projectFiles))
+    for (const QString &file : std::as_const(project1.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
-    for (const QString &file : qAsConst(project2.projectFiles))
+    for (const QString &file : std::as_const(project2.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
 }
 
@@ -995,7 +995,7 @@ void ModelManagerTest::testRenameIncludes()
 
     // Copy test files to a temporary directory
     QSet<QString> sourceFiles;
-    for (const QString &fileName : qAsConst(fileNames)) {
+    for (const QString &fileName : std::as_const(fileNames)) {
         const QString &file = workingDir.filePath(fileName);
         QVERIFY(QFile::copy(testDir.file(fileName), file));
         // Saving source file names for the model manager update,
@@ -1008,7 +1008,7 @@ void ModelManagerTest::testRenameIncludes()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    for (const QString &sourceFile : qAsConst(sourceFiles))
+    for (const QString &sourceFile : std::as_const(sourceFiles))
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{oldHeader});
 
     // Renaming the header
@@ -1020,7 +1020,7 @@ void ModelManagerTest::testRenameIncludes()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
-    for (const QString &sourceFile : qAsConst(sourceFiles))
+    for (const QString &sourceFile : std::as_const(sourceFiles))
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{newHeader});
 }
 
@@ -1066,7 +1066,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    for (const QString &sourceFile : qAsConst(sourceFiles))
+    for (const QString &sourceFile : std::as_const(sourceFiles))
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{headerWithPragmaOnce});
 
     // Open a file in the editor
@@ -1144,7 +1144,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
-    for (const QString &sourceFile : qAsConst(sourceFiles))
+    for (const QString &sourceFile : std::as_const(sourceFiles))
         QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{renamedHeaderWithPragmaOnce});
 }
 

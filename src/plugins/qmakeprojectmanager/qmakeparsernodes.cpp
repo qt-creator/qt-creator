@@ -163,7 +163,7 @@ QmakeProject *QmakePriFile::project() const
     return static_cast<QmakeProject *>(m_buildSystem->project());
 }
 
-QVector<QmakePriFile *> QmakePriFile::children() const
+const QVector<QmakePriFile *> QmakePriFile::children() const
 {
     return m_children;
 }
@@ -172,7 +172,7 @@ QmakePriFile *QmakePriFile::findPriFile(const FilePath &fileName)
 {
     if (fileName == filePath())
         return this;
-    for (QmakePriFile *n : qAsConst(m_children)) {
+    for (QmakePriFile *n : std::as_const(m_children)) {
         if (QmakePriFile *result = n->findPriFile(fileName))
             return result;
     }
@@ -183,7 +183,7 @@ const QmakePriFile *QmakePriFile::findPriFile(const FilePath &fileName) const
 {
     if (fileName == filePath())
         return this;
-    for (const QmakePriFile *n : qAsConst(m_children)) {
+    for (const QmakePriFile *n : std::as_const(m_children)) {
         if (const QmakePriFile *result = n->findPriFile(fileName))
             return result;
     }
@@ -205,7 +205,7 @@ const QSet<FilePath> QmakePriFile::collectFiles(const FileType &type) const
 {
     QSet<FilePath> allFiles = transform(files(type),
                                         [](const SourceFile &sf) { return sf.first; });
-    for (const QmakePriFile * const priFile : qAsConst(m_children)) {
+    for (const QmakePriFile * const priFile : std::as_const(m_children)) {
         if (!dynamic_cast<const QmakeProFile *>(priFile))
             allFiles.unite(priFile->collectFiles(type));
     }
@@ -255,7 +255,8 @@ QSet<FilePath> QmakePriFile::recursiveEnumerate(const QString &folder)
     QSet<FilePath> result;
     QDir dir(folder);
     dir.setFilter(dir.filter() | QDir::NoDotAndDotDot);
-    foreach (const QFileInfo &file, dir.entryInfoList()) {
+    const QFileInfoList entries = dir.entryInfoList();
+    for (const QFileInfo &file : entries) {
         if (file.isDir() && !file.isSymLink())
             result += recursiveEnumerate(file.absoluteFilePath());
         else if (!Core::EditorManager::isAutoSaveFile(file.fileName()))
@@ -271,7 +272,7 @@ static QStringList fileListForVar(
     const QVector<ProFileEvaluator::SourceFile> &sources = sourceFiles[varName];
     QStringList result;
     result.reserve(sources.size());
-    foreach (const ProFileEvaluator::SourceFile &sf, sources)
+    for (const ProFileEvaluator::SourceFile &sf : sources)
         result << sf.fileName;
     return result;
 }
@@ -280,7 +281,7 @@ void QmakePriFile::extractSources(
         QHash<int, QmakePriFileEvalResult *> proToResult, QmakePriFileEvalResult *fallback,
         QVector<ProFileEvaluator::SourceFile> sourceFiles, FileType type, bool cumulative)
 {
-    foreach (const ProFileEvaluator::SourceFile &source, sourceFiles) {
+    for (const ProFileEvaluator::SourceFile &source : qAsConst(sourceFiles)) {
         auto *result = proToResult.value(source.proFileId);
         if (!result)
             result = fallback;
@@ -401,16 +402,11 @@ bool QmakePriFile::folderChanged(const QString &changedFolder, const QSet<FilePa
 {
     qCDebug(qmakeParse()) << "QmakePriFile::folderChanged";
 
-    QSet<FilePath> addedFiles = newFiles;
-    addedFiles.subtract(m_recursiveEnumerateFiles);
-
-    QSet<FilePath> removedFiles = m_recursiveEnumerateFiles;
-    removedFiles.subtract(newFiles);
-
-    foreach (const FilePath &file, removedFiles) {
-        if (!file.isChildOf(FilePath::fromString(changedFolder)))
-            removedFiles.remove(file);
-    }
+    const QSet<FilePath> addedFiles = newFiles - m_recursiveEnumerateFiles;
+    const QSet<FilePath> removedFiles = Utils::filtered(m_recursiveEnumerateFiles - newFiles,
+                                                        [changedFolder](const FilePath &file) {
+        return file.isChildOf(FilePath::fromString(changedFolder));
+    });
 
     if (addedFiles.isEmpty() && removedFiles.isEmpty())
         return false;
@@ -420,8 +416,8 @@ bool QmakePriFile::folderChanged(const QString &changedFolder, const QSet<FilePa
     // Apply the differences per file type
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         auto type = static_cast<FileType>(i);
-        QSet<FilePath> add = filterFilesRecursiveEnumerata(type, addedFiles);
-        QSet<FilePath> remove = filterFilesRecursiveEnumerata(type, removedFiles);
+        const QSet<FilePath> add = filterFilesRecursiveEnumerata(type, addedFiles);
+        const QSet<FilePath> remove = filterFilesRecursiveEnumerata(type, removedFiles);
 
         if (!add.isEmpty() || !remove.isEmpty()) {
             qCDebug(qmakeParse()) << "For type" << static_cast<int>(type) <<"\n"
@@ -451,7 +447,7 @@ bool QmakePriFile::deploysFolder(const QString &folder) const
     if (!f.endsWith(slash))
         f.append(slash);
 
-    foreach (const QString &wf, m_watchedFolders) {
+    for (const QString &wf : qAsConst(m_watchedFolders)) {
         if (f.startsWith(wf)
             && (wf.endsWith(slash)
                 || (wf.length() < f.length() && f.at(wf.length()) == slash)))
@@ -538,10 +534,10 @@ bool QmakePriFile::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
     }
 
     FilePaths failedFiles;
-    foreach (const QString &type, typeFileMap.keys()) {
-        const FilePaths typeFiles = typeFileMap.value(type);
+    for (auto it = typeFileMap.constBegin(); it != typeFileMap.constEnd(); ++it) {
+        const FilePaths &typeFiles = *it;
         FilePaths qrcFiles; // the list of qrc files referenced from ui files
-        if (type == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE)) {
+        if (it.key() == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE)) {
             for (const FilePath &formFile : typeFiles) {
                 const FilePaths resourceFiles = formResources(formFile);
                 for (const FilePath &resourceFile : resourceFiles)
@@ -551,7 +547,7 @@ bool QmakePriFile::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
         }
 
         FilePaths uniqueQrcFiles;
-        for (const FilePath &file : qAsConst(qrcFiles)) {
+        for (const FilePath &file : std::as_const(qrcFiles)) {
             if (!m_recursiveEnumerateFiles.contains(file))
                 uniqueQrcFiles.append(file);
         }
@@ -563,7 +559,7 @@ bool QmakePriFile::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
         }
         FilePath::sort(uniqueFilePaths);
 
-        changeFiles(type, uniqueFilePaths, &failedFiles, AddToProFile);
+        changeFiles(it.key(), uniqueFilePaths, &failedFiles, AddToProFile);
         if (notAdded)
             *notAdded += failedFiles;
         changeFiles(QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE), uniqueQrcFiles, &failedFiles, AddToProFile);
@@ -583,7 +579,8 @@ bool QmakePriFile::removeFiles(const FilePaths &filePaths, FilePaths *notRemoved
         const MimeType mt = Utils::mimeTypeForFile(file);
         typeFileMap[mt.name()] << file;
     }
-    foreach (const QString &type, typeFileMap.keys()) {
+    const QStringList types = typeFileMap.keys();
+    for (const QString &type : types) {
         const FilePaths typeFiles = typeFileMap.value(type);
         changeFiles(type, typeFiles, &failedFiles, RemoveFromProFile);
         if (notRemoved)
@@ -950,10 +947,10 @@ QStringList QmakePriFile::varNames(FileType type, QtSupport::ProFileReader *read
         break;
     case FileType::Source: {
         vars << QLatin1String("SOURCES");
-        QStringList listOfExtraCompilers = readerExact->values(QLatin1String("QMAKE_EXTRA_COMPILERS"));
-        foreach (const QString &var, listOfExtraCompilers) {
-            QStringList inputs = readerExact->values(var + QLatin1String(".input"));
-            foreach (const QString &input, inputs)
+        const QStringList listOfExtraCompilers = readerExact->values("QMAKE_EXTRA_COMPILERS");
+        for (const QString &var : listOfExtraCompilers) {
+            const QStringList inputs = readerExact->values(var + QLatin1String(".input"));
+            for (const QString &input : inputs)
                 // FORMS, RESOURCES, and STATECHARTS are handled below, HEADERS and SOURCES above
                 if (input != "FORMS"
                         && input != "STATECHARTS"
@@ -1059,11 +1056,11 @@ QSet<FilePath> QmakePriFile::filterFilesProVariables(FileType fileType, const QS
         return files;
     QSet<FilePath> result;
     if (fileType == FileType::QML) {
-        foreach (const FilePath &file, files)
+        for (const FilePath &file : files)
             if (file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
     } else {
-        foreach (const FilePath &file, files)
+        for (const FilePath &file : files)
             if (!file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
     }
@@ -1076,11 +1073,11 @@ QSet<FilePath> QmakePriFile::filterFilesRecursiveEnumerata(FileType fileType, co
     if (fileType != FileType::QML && fileType != FileType::Unknown)
         return result;
     if (fileType == FileType::QML) {
-        foreach (const FilePath &file, files)
+        for (const FilePath &file : files)
             if (file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
     } else {
-        foreach (const FilePath &file, files)
+        for (const FilePath &file : files)
             if (!file.toString().endsWith(QLatin1String(".qml")))
                 result << file;
     }
@@ -1123,7 +1120,8 @@ const QmakeProFile *QmakeProFile::findProFile(const FilePath &fileName) const
 QByteArray QmakeProFile::cxxDefines() const
 {
     QByteArray result;
-    foreach (const QString &def, variableValue(Variable::Defines)) {
+    const QStringList defs = variableValue(Variable::Defines);
+    for (const QString &def : defs) {
         // 'def' is shell input, so interpret it.
         ProcessArgs::SplitError error = ProcessArgs::SplitOk;
         const QStringList args = ProcessArgs::splitArgs(def, HostOsInfo::hostOs(), false, &error);
@@ -1210,7 +1208,7 @@ QString QmakeProFile::displayName() const
 QList<QmakeProFile *> QmakeProFile::allProFiles()
 {
     QList<QmakeProFile *> result = { this };
-    for (QmakePriFile *c : qAsConst(m_children)) {
+    for (QmakePriFile *c : std::as_const(m_children)) {
         auto proC = dynamic_cast<QmakeProFile *>(c);
         if (proC)
             result.append(proC->allProFiles());
@@ -1237,7 +1235,7 @@ QString QmakeProFile::singleVariableValue(const Variable var) const
 void QmakeProFile::setParseInProgressRecursive(bool b)
 {
     setParseInProgress(b);
-    foreach (QmakePriFile *c, children()) {
+    for (QmakePriFile *c : children()) {
         if (auto node = dynamic_cast<QmakeProFile *>(c))
             node->setParseInProgressRecursive(b);
     }
@@ -1253,7 +1251,7 @@ void QmakeProFile::setParseInProgress(bool b)
 void QmakeProFile::setValidParseRecursive(bool b)
 {
     m_validParse = b;
-    foreach (QmakePriFile *c, children()) {
+    for (QmakePriFile *c : children()) {
         if (auto *node = dynamic_cast<QmakeProFile *>(c))
             node->setValidParseRecursive(b);
     }
@@ -1396,10 +1394,11 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     if (result->state == QmakeEvalResult::EvalOk) {
         if (result->projectType == ProjectType::SubDirsTemplate) {
             QStringList errors;
-            FilePaths subDirs = subDirsPaths(input.readerExact, input.projectDir, &result->subProjectsNotToDeploy, &errors);
+            const FilePaths subDirs = subDirsPaths(input.readerExact, input.projectDir,
+                                                   &result->subProjectsNotToDeploy, &errors);
             result->errors.append(errors);
 
-            foreach (const FilePath &subDirName, subDirs) {
+            for (const FilePath &subDirName : subDirs) {
                 auto subDir = new QmakeIncludedPriFile;
                 subDir->proFile = nullptr;
                 subDir->name = subDirName;
@@ -1416,8 +1415,8 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
             QmakeIncludedPriFile *current = toBuild.takeFirst();
             if (!current->proFile)
                 continue;  // Don't attempt to map subdirs here
-            QVector<ProFile *> children = includeFiles.value(current->proFile);
-            foreach (ProFile *child, children) {
+            const QVector<ProFile *> children = includeFiles.value(current->proFile);
+            for (ProFile *child : children) {
                 const FilePath childName = FilePath::fromString(child->fileName());
                 auto it = current->children.find(childName);
                 if (it == current->children.end()) {
@@ -1452,8 +1451,8 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         QmakeIncludedPriFile *current = toBuild.takeFirst();
         if (!current->proFile)
             continue;  // Don't attempt to map subdirs here
-        QVector<ProFile *> children = includeFiles.value(current->proFile);
-        foreach (ProFile *child, children) {
+        const QVector<ProFile *> children = includeFiles.value(current->proFile);
+        for (ProFile *child : children) {
             const FilePath childName = FilePath::fromString(child->fileName());
             auto it = current->children.find(childName);
             if (it == current->children.end()) {
@@ -1481,7 +1480,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         const auto type = static_cast<FileType>(i);
         const QStringList qmakeVariables = varNames(type, exactReader);
-        foreach (const QString &qmakeVariable, qmakeVariables) {
+        for (const QString &qmakeVariable : qmakeVariables) {
             QHash<ProString, bool> handled;
             if (result->state == QmakeEvalResult::EvalOk) {
                 const QStringList vPathsExact = fullVPaths(
@@ -1589,7 +1588,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         toCompare.pop_front();
 
         // Loop prevention: Make sure that exact same node is not in our parent chain
-        for (QmakeIncludedPriFile *priFile : qAsConst(tree->children)) {
+        for (QmakeIncludedPriFile *priFile : std::as_const(tree->children)) {
             bool loop = input.parentFilePaths.contains(priFile->name);
             for (const QmakePriFile *n = pn; n && !loop; n = n->parent()) {
                 if (n->filePath() == priFile->name)
@@ -1645,7 +1644,7 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
         return;
     }
 
-    foreach (const QString &error, result->errors)
+    for (const QString &error : qAsConst(result->errors))
         QmakeBuildSystem::proFileParseError(error, filePath());
 
     // we are changing what is executed in that case
@@ -1673,7 +1672,7 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
     if (result->projectType != m_projectType) {
         // probably all subfiles/projects have changed anyway
         // delete files && folders && projects
-        foreach (QmakePriFile *c, children()) {
+        for (QmakePriFile *c : children()) {
             if (auto qmakeProFile = dynamic_cast<QmakeProFile *>(c)) {
                 qmakeProFile->setValidParseRecursive(false);
                 qmakeProFile->setParseInProgressRecursive(false);
@@ -1689,16 +1688,16 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
     //
     FilePath buildDirectory = m_buildSystem->buildDir(m_filePath);
     makeEmpty();
-    for (QmakePriFile * const toAdd : qAsConst(result->directChildren))
+    for (QmakePriFile * const toAdd : std::as_const(result->directChildren))
         addChild(toAdd);
     result->directChildren.clear();
 
-    for (const auto &priFiles : qAsConst(result->priFiles)) {
+    for (const auto &priFiles : std::as_const(result->priFiles)) {
         priFiles.first->finishInitialization(m_buildSystem, this);
         priFiles.first->update(priFiles.second);
     }
 
-    for (QmakeProFile * const proFile : qAsConst(result->proFiles)) {
+    for (QmakeProFile * const proFile : std::as_const(result->proFiles)) {
         proFile->finishInitialization(m_buildSystem, proFile);
         proFile->asyncUpdate();
     }
@@ -1815,7 +1814,8 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
 {
     QStringList paths;
     bool nextIsAnIncludePath = false;
-    foreach (const QString &cxxflags, reader->values(QLatin1String("QMAKE_CXXFLAGS"))) {
+    const QStringList flagList = reader->values(QLatin1String("QMAKE_CXXFLAGS"));
+    for (const QString &cxxflags : flagList) {
         if (nextIsAnIncludePath) {
             nextIsAnIncludePath = false;
             paths.append(cxxflags);
@@ -1833,9 +1833,9 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
     const QString mocDir = mocDirPath(reader, buildDir);
     const QString uiDir = uiDirPath(reader, buildDir);
 
-    foreach (const ProFileEvaluator::SourceFile &el,
-             reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString(),
-                                    false)) {
+    const QVector<ProFileEvaluator::SourceFile> elList = reader->fixifiedValues(
+                QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString(), false);
+    for (const ProFileEvaluator::SourceFile &el : elList) {
         const QString sysrootifiedPath = sysrootify(el.fileName, sysroot.toString(), projectDir,
                                                     buildDir.toString());
         if (IoUtils::isAbsolutePath(sysrootifiedPath)
@@ -1866,7 +1866,8 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
 QStringList QmakeProFile::libDirectories(QtSupport::ProFileReader *reader)
 {
     QStringList result;
-    foreach (const QString &str, reader->values(QLatin1String("LIBS"))) {
+    const QStringList values = reader->values(QLatin1String("LIBS"));
+    for (const QString &str : values) {
         if (str.startsWith(QLatin1String("-L")))
             result.append(str.mid(2));
     }
@@ -1881,8 +1882,7 @@ FilePaths QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
     FilePaths subProjectPaths;
 
     const QStringList subDirVars = reader->values(QLatin1String("SUBDIRS"));
-
-    foreach (const QString &subDirVar, subDirVars) {
+    for (const QString &subDirVar : subDirVars) {
         // Special case were subdir is just an identifier:
         //   "SUBDIR = subid
         //    subid.subdir = realdir"
@@ -1981,7 +1981,7 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
                                        reader->propertyValue(installPrefix + "/dev")});
     }
 
-    foreach (const QString &item, itemList) {
+    for (const QString &item : itemList) {
         const QStringList config = reader->values(item + ".CONFIG");
         const bool active = !config.contains("no_default_install");
         const bool executable = config.contains("executable");
@@ -1998,7 +1998,7 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
         }
 
         QString itemPath = itemPaths.last();
-        for (const auto &prefixValuePair : qAsConst(installPrefixValues)) {
+        for (const auto &prefixValuePair : std::as_const(installPrefixValues)) {
             if (prefixValuePair.first == prefixValuePair.second
                     || !itemPath.startsWith(prefixValuePair.first)) {
                 continue;

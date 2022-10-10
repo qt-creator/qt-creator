@@ -16,13 +16,11 @@ QtcPlugin {
         "annotationhighlighter.h",
         "authenticationdialog.cpp",
         "authenticationdialog.h",
-        "authenticationdialog.ui",
         "commiteditor.cpp",
         "commiteditor.h",
         "constants.h",
         "mercurialclient.cpp",
         "mercurialclient.h",
-        "mercurialcommitpanel.ui",
         "mercurialcommitwidget.cpp",
         "mercurialcommitwidget.h",
         "mercurialeditor.cpp",
@@ -33,9 +31,7 @@ QtcPlugin {
         "mercurialsettings.h",
         "revertdialog.cpp",
         "revertdialog.h",
-        "revertdialog.ui",
         "srcdestdialog.cpp",
-        "srcdestdialog.h",
-        "srcdestdialog.ui",
+        "srcdestdialog.h"
     ]
 }

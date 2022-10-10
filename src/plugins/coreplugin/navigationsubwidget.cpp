@@ -90,7 +90,7 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
     saveSettings();
 
     // Remove toolbutton
-    for (QWidget *w : qAsConst(m_additionalToolBarWidgets))
+    for (QWidget *w : std::as_const(m_additionalToolBarWidgets))
         delete w;
     m_additionalToolBarWidgets.clear();
 
@@ -111,7 +111,7 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
     // Add Toolbutton
     m_additionalToolBarWidgets = n.dockToolBarWidgets;
     auto layout = qobject_cast<QHBoxLayout *>(m_toolBar->layout());
-    for (QToolButton *w : qAsConst(m_additionalToolBarWidgets))
+    for (QToolButton *w : std::as_const(m_additionalToolBarWidgets))
         layout->insertWidget(layout->count()-2, w);
 
     restoreSettings();

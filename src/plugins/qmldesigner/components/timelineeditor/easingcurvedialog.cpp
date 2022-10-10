@@ -176,7 +176,7 @@ bool EasingCurveDialog::apply()
 
     return view->executeInTransaction("EasingCurveDialog::apply", [this](){
         auto expression = m_splineEditor->easingCurve().toString();
-        for (const auto &frame : qAsConst(m_frames))
+        for (const auto &frame : std::as_const(m_frames))
             frame.bindingProperty("easing.bezierCurve").setExpression(expression);
     });
 }

@@ -207,7 +207,7 @@ public:
         });
         QTC_ASSERT(!languageList.isEmpty(), return);
         int row = 0;
-        for (Id l : qAsConst(languageList)) {
+        for (Id l : std::as_const(languageList)) {
             layout->addWidget(new QLabel(ToolChainManager::displayNameOfLanguageId(l) + ':'), row, 0);
             auto cb = new QComboBox;
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());

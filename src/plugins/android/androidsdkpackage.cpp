@@ -133,7 +133,7 @@ SdkPlatform::SdkPlatform(const QVersionNumber &version, const QString &sdkStyleP
 
 SdkPlatform::~SdkPlatform()
 {
-    for (SystemImage *image : qAsConst(m_systemImages))
+    for (SystemImage *image : std::as_const(m_systemImages))
         delete image;
     m_systemImages.clear();
 }

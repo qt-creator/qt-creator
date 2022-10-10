@@ -638,7 +638,7 @@ void DynamicPropertiesModel::addModelNode(const ModelNode &modelNode)
         return a.name() < b.name();
     });
 
-    for (const AbstractProperty &property : qAsConst(dynamicProperties)) {
+    for (const AbstractProperty &property : std::as_const(dynamicProperties)) {
         if (property.isBindingProperty())
             addBindingProperty(property.toBindingProperty());
         else if (property.isVariantProperty())

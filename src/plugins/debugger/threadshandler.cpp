@@ -244,9 +244,9 @@ void ThreadsHandler::sort(int column, Qt::SortOrder order)
         if (v1 == v2)
             return false;
         if (column == 0)
-            return (v1.toInt() < v2.toInt()) ^ (order == Qt::DescendingOrder);
+            return (v1.toInt() < v2.toInt()) != (order == Qt::DescendingOrder);
         // FIXME: Use correct toXXX();
-        return (v1.toString() < v2.toString()) ^ (order == Qt::DescendingOrder);
+        return (v1.toString() < v2.toString()) != (order == Qt::DescendingOrder);
     });
 }
 
@@ -301,7 +301,7 @@ bool ThreadsHandler::notifyGroupExited(const QString &groupId)
         if (item->threadData.groupId == groupId)
             list.append(item);
     });
-    for (ThreadItem *item : qAsConst(list))
+    for (ThreadItem *item : std::as_const(list))
         destroyItem(item);
 
     m_pidForGroupId.remove(groupId);

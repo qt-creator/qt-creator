@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "branchmodel.h"
+
 #include "gitclient.h"
 #include "gitconstants.h"
+#include "gittr.h"
 
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -22,8 +24,7 @@
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 enum RootNodes {
     LocalBranches = 0,
@@ -126,7 +127,7 @@ public:
             fn.append(nodes.first()->sha);
         nodes.removeFirst();
 
-        for (const BranchNode *n : qAsConst(nodes))
+        for (const BranchNode *n : std::as_const(nodes))
             fn.append(n->name);
 
         return fn;
@@ -254,8 +255,8 @@ BranchModel::BranchModel(GitClient *client, QObject *parent) :
     QTC_CHECK(d->client);
 
     // Abuse the sha field for ref prefix
-    d->rootNode->append(new BranchNode(tr("Local Branches"), "refs/heads"));
-    d->rootNode->append(new BranchNode(tr("Remote Branches"), "refs/remotes"));
+    d->rootNode->append(new BranchNode(Tr::tr("Local Branches"), "refs/heads"));
+    d->rootNode->append(new BranchNode(Tr::tr("Remote Branches"), "refs/remotes"));
     connect(&d->fsWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this] {
         QString errorMessage;
         refresh(d->workingDirectory, &errorMessage);
@@ -389,7 +390,7 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 
 void BranchModel::clear()
 {
-    for (BranchNode *root : qAsConst(d->rootNode->children)) {
+    for (BranchNode *root : std::as_const(d->rootNode->children)) {
         while (root->count())
             delete root->children.takeLast();
     }
@@ -440,7 +441,7 @@ bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessag
     }
     if (!d->currentBranch) {
         BranchNode *local = d->rootNode->children.at(LocalBranches);
-        d->currentBranch = d->headNode = new BranchNode(tr("Detached HEAD"), "HEAD", QString(),
+        d->currentBranch = d->headNode = new BranchNode(Tr::tr("Detached HEAD"), "HEAD", QString(),
                                                         d->currentDateTime);
         local->prepend(d->headNode);
     }
@@ -670,7 +671,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     } else {
         const QStringList arguments({"-n1", "--format=%H %ct"});
         if (d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
-                                      VcsCommand::SuppressCommandLogging)) {
+                                      RunFlags::SuppressCommandLogging)) {
             const QStringList values = output.split(' ');
             startSha = values[0];
             branchDateTime = QDateTime::fromSecsSinceEpoch(values[1].toLongLong());
@@ -796,7 +797,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
             oldEntriesRoot = root->append(new BranchNode(remoteName));
     } else if (showTags && nameParts.first() == "tags") {
         if (!hasTags()) // Tags is missing, add it
-            rootNode->append(new BranchNode(tr("Tags"), "refs/tags"));
+            rootNode->append(new BranchNode(Tr::tr("Tags"), "refs/tags"));
         rootType = Tags;
     } else {
         return;
@@ -919,12 +920,10 @@ QString BranchModel::toolTip(const QString &sha) const
     QStringList arguments("-n1");
     arguments << sha;
     if (!d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
-                                   VcsCommand::SuppressCommandLogging)) {
+                                   RunFlags::SuppressCommandLogging)) {
         return errorMessage;
     }
     return output;
 }
 
-} // namespace Internal
-} // namespace Git
-
+} // Git::Internal

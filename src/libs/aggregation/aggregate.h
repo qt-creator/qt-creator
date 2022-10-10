@@ -26,7 +26,7 @@ public:
 
     template <typename T> T *component() {
         QReadLocker locker(&lock());
-        for (QObject *component : qAsConst(m_components)) {
+        for (QObject *component : std::as_const(m_components)) {
             if (T *result = qobject_cast<T *>(component))
                 return result;
         }
@@ -36,7 +36,7 @@ public:
     template <typename T> QList<T *> components() {
         QReadLocker locker(&lock());
         QList<T *> results;
-        for (QObject *component : qAsConst(m_components)) {
+        for (QObject *component : std::as_const(m_components)) {
             if (T *result = qobject_cast<T *>(component)) {
                 results << result;
             }

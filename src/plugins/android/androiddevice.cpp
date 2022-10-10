@@ -2,13 +2,13 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androiddevice.h"
-
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
+#include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidsignaloperation.h"
+#include "androidtr.h"
 #include "avddialog.h"
 
 #include <coreplugin/icore.h>
@@ -75,40 +75,40 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     if (!dev->isValid())
         return;
 
-    formLayout->addRow(AndroidDevice::tr("Device name:"), new QLabel(dev->displayName()));
-    formLayout->addRow(AndroidDevice::tr("Device type:"), new QLabel(dev->deviceTypeName()));
+    formLayout->addRow(Tr::tr("Device name:"), new QLabel(dev->displayName()));
+    formLayout->addRow(Tr::tr("Device type:"), new QLabel(dev->deviceTypeName()));
 
     const QString serialNumber = dev->serialNumber();
-    const QString printableSerialNumber = serialNumber.isEmpty() ? AndroidDevice::tr("Unknown")
+    const QString printableSerialNumber = serialNumber.isEmpty() ? Tr::tr("Unknown")
                                                                  : serialNumber;
-    formLayout->addRow(AndroidDevice::tr("Serial number:"), new QLabel(printableSerialNumber));
+    formLayout->addRow(Tr::tr("Serial number:"), new QLabel(printableSerialNumber));
 
     const QString abis = dev->supportedAbis().join(", ");
-    formLayout->addRow(AndroidDevice::tr("CPU architecture:"), new QLabel(abis));
+    formLayout->addRow(Tr::tr("CPU architecture:"), new QLabel(abis));
 
     const auto osString = QString("%1 (SDK %2)").arg(dev->androidVersion()).arg(dev->sdkLevel());
-    formLayout->addRow(AndroidDevice::tr("OS version:"), new QLabel(osString));
+    formLayout->addRow(Tr::tr("OS version:"), new QLabel(osString));
 
     if (dev->machineType() == IDevice::Hardware) {
         const QString authorizedStr = dev->deviceState() == IDevice::DeviceReadyToUse
-                                          ? AndroidDevice::tr("Yes")
-                                          : AndroidDevice::tr("No");
-        formLayout->addRow(AndroidDevice::tr("Authorized:"), new QLabel(authorizedStr));
+                                          ? Tr::tr("Yes")
+                                          : Tr::tr("No");
+        formLayout->addRow(Tr::tr("Authorized:"), new QLabel(authorizedStr));
     }
 
     if (dev->machineType() == IDevice::Emulator) {
         const QString targetName = dev->androidTargetName();
-        formLayout->addRow(AndroidDevice::tr("Android target flavor:"), new QLabel(targetName));
-        formLayout->addRow(AndroidDevice::tr("SD card size:"), new QLabel(dev->sdcardSize()));
-        formLayout->addRow(AndroidDevice::tr("Skin type:"), new QLabel(dev->skinName()));
+        formLayout->addRow(Tr::tr("Android target flavor:"), new QLabel(targetName));
+        formLayout->addRow(Tr::tr("SD card size:"), new QLabel(dev->sdcardSize()));
+        formLayout->addRow(Tr::tr("Skin type:"), new QLabel(dev->skinName()));
         const QString openGlStatus = dev->openGLStatus();
-        formLayout->addRow(AndroidDevice::tr("OpenGL status:"), new QLabel(openGlStatus));
+        formLayout->addRow(Tr::tr("OpenGL status:"), new QLabel(openGlStatus));
     }
 }
 
 QString AndroidDeviceWidget::dialogTitle()
 {
-    return AndroidDevice::tr("Android Device Manager");
+    return Tr::tr("Android Device Manager");
 }
 
 bool AndroidDeviceWidget::messageDialog(const QString &msg, QMessageBox::Icon icon, QWidget *parent)
@@ -152,13 +152,13 @@ AndroidDevice::AndroidDevice()
 {
     setupId(IDevice::AutoDetected, Constants::ANDROID_DEVICE_ID);
     setType(Constants::ANDROID_DEVICE_TYPE);
-    setDefaultDisplayName(tr("Run on Android"));
-    setDisplayType(tr("Android"));
+    setDefaultDisplayName(Tr::tr("Run on Android"));
+    setDisplayType(Tr::tr("Android"));
     setMachineType(IDevice::Hardware);
     setOsType(OsType::OsTypeOtherUnix);
     setDeviceState(DeviceDisconnected);
 
-    addDeviceAction({tr("Refresh"), [](const IDevice::Ptr &device, QWidget *parent) {
+    addDeviceAction({Tr::tr("Refresh"), [](const IDevice::Ptr &device, QWidget *parent) {
         Q_UNUSED(parent)
         AndroidDeviceManager::instance()->updateDeviceState(device);
     }});
@@ -166,10 +166,10 @@ AndroidDevice::AndroidDevice()
 
 void AndroidDevice::addActionsIfNotFound()
 {
-    static const QString startAvdAction = tr("Start AVD");
-    static const QString eraseAvdAction = tr("Erase AVD");
-    static const QString avdArgumentsAction = tr("AVD Arguments");
-    static const QString setupWifi = tr("Setup Wi-Fi");
+    static const QString startAvdAction = Tr::tr("Start AVD");
+    static const QString eraseAvdAction = Tr::tr("Erase AVD");
+    static const QString avdArgumentsAction = Tr::tr("AVD Arguments");
+    static const QString setupWifi = Tr::tr("Setup Wi-Fi");
 
     bool hasStartAction = false;
     bool hasEraseAction = false;
@@ -351,32 +351,32 @@ QString AndroidDevice::androidVersion() const
 QString AndroidDevice::deviceTypeName() const
 {
     if (machineType() == Emulator)
-        return tr("Emulator for \"%1\"").arg(avdSettings()->value("hw.device.name").toString());
-    return tr("Physical device");
+        return Tr::tr("Emulator for \"%1\"").arg(avdSettings()->value("hw.device.name").toString());
+    return Tr::tr("Physical device");
 }
 
 QString AndroidDevice::skinName() const
 {
     const QString skin = avdSettings()->value("skin.name").toString();
-    return skin.isEmpty() ? tr("None") : skin;
+    return skin.isEmpty() ? Tr::tr("None") : skin;
 }
 
 QString AndroidDevice::androidTargetName() const
 {
     const QString target = avdSettings()->value("tag.display").toString();
-    return target.isEmpty() ? tr("Unknown") : target;
+    return target.isEmpty() ? Tr::tr("Unknown") : target;
 }
 
 QString AndroidDevice::sdcardSize() const
 {
     const QString size = avdSettings()->value("sdcard.size").toString();
-    return size.isEmpty() ? tr("Unknown") : size;
+    return size.isEmpty() ? Tr::tr("Unknown") : size;
 }
 
 QString AndroidDevice::openGLStatus() const
 {
     const QString openGL = avdSettings()->value("hw.gpu.enabled").toString();
-    return openGL.isEmpty() ? tr("Unknown") : openGL;
+    return openGL.isEmpty() ? Tr::tr("Unknown") : openGL;
 }
 
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
@@ -475,7 +475,7 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
 
     const QString name = static_cast<const AndroidDevice *>(device.data())->avdName();
     const QString question
-        = AndroidDevice::tr("Erase the Android AVD \"%1\"?\nThis cannot be undone.").arg(name);
+        = Tr::tr("Erase the Android AVD \"%1\"?\nThis cannot be undone.").arg(name);
     if (!AndroidDeviceWidget::questionDialog(question, parent))
         return;
 
@@ -494,7 +494,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
 {
     if (device->deviceState() != IDevice::DeviceReadyToUse) {
         AndroidDeviceWidget::infoDialog(
-                    AndroidDevice::tr("The device has to be connected with ADB debugging "
+                    Tr::tr("The device has to be connected with ADB debugging "
                                       "enabled to use this feature."), parent);
         return;
     }
@@ -507,7 +507,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
     const SdkToolResult result = AndroidManager::runAdbCommand(args);
     if (!result.success()) {
         AndroidDeviceWidget::criticalDialog(
-                    AndroidDevice::tr("Opening connection port %1 failed.").arg(wifiDevicePort),
+                    Tr::tr("Opening connection port %1 failed.").arg(wifiDevicePort),
                     parent);
         return;
     }
@@ -519,7 +519,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         const SdkToolResult ipRes = AndroidManager::runAdbCommand(args);
         if (!ipRes.success()) {
             AndroidDeviceWidget::criticalDialog(
-                        AndroidDevice::tr("Retrieving the device IP address failed."), parent);
+                        Tr::tr("Retrieving the device IP address failed."), parent);
             return;
         }
 
@@ -533,7 +533,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         }
         if (!ipRegex.match(ipParts.last()).hasMatch()) {
             AndroidDeviceWidget::criticalDialog(
-                        AndroidDevice::tr("The retrieved IP address is invalid."), parent);
+                        Tr::tr("The retrieved IP address is invalid."), parent);
             return;
         }
 
@@ -543,7 +543,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         const SdkToolResult connectRes = AndroidManager::runAdbCommand(args);
         if (!connectRes.success()) {
             AndroidDeviceWidget::criticalDialog(
-                        AndroidDevice::tr("Connecting to to the device IP \"%1\" failed.").arg(ip),
+                        Tr::tr("Connecting to to the device IP \"%1\" failed.").arg(ip),
                         parent);
             return;
         }
@@ -559,7 +559,7 @@ void AndroidDeviceManager::handleAvdRemoved()
         // Remove the device from QtC after it's been removed using avdmanager.
         DeviceManager::instance()->removeDevice(result.first->id());
     } else {
-        AndroidDeviceWidget::criticalDialog(QObject::tr("An error occurred while removing the "
+        AndroidDeviceWidget::criticalDialog(Tr::tr("An error occurred while removing the "
                 "Android AVD \"%1\" using avdmanager tool.").arg(name));
     }
 }
@@ -577,8 +577,8 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
             "https://developer.android.com/studio/run/emulator-commandline#startup-options";
 
     QInputDialog dialog(parent ? parent : Core::ICore::dialogParent());
-    dialog.setWindowTitle(AndroidDevice::tr("Emulator Command-line Startup Options"));
-    dialog.setLabelText(AndroidDevice::tr("Emulator command-line startup options "
+    dialog.setWindowTitle(Tr::tr("Emulator Command-line Startup Options"));
+    dialog.setLabelText(Tr::tr("Emulator command-line startup options "
                                           "(<a href=\"%1\">Help Web Page</a>):")
                             .arg(helpUrl));
     dialog.setTextValue(m_androidConfig.emulatorArgs());
@@ -844,7 +844,7 @@ AndroidDeviceFactory::AndroidDeviceFactory()
     : IDeviceFactory(Constants::ANDROID_DEVICE_TYPE),
       m_androidConfig(AndroidConfigurations::currentConfig())
 {
-    setDisplayName(AndroidDevice::tr("Android Device"));
+    setDisplayName(Tr::tr("Android Device"));
     setCombinedIcon(":/android/images/androiddevicesmall.png",
                     ":/android/images/androiddevice.png");
 
@@ -861,7 +861,7 @@ AndroidDeviceFactory::AndroidDeviceFactory()
                         qPrintable(androidDev->avdName()));
             } else {
                 AndroidDeviceWidget::criticalDialog(
-                        AndroidDevice::tr("The device info returned from AvdDialog is invalid."));
+                        Tr::tr("The device info returned from AvdDialog is invalid."));
             }
 
             return IDevice::Ptr(dev);

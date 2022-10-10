@@ -55,7 +55,7 @@ void ModelManagerTestHelper::cleanup()
 {
     CppModelManager *mm = CppModelManager::instance();
     QList<ProjectInfo::ConstPtr> pies = mm->projectInfos();
-    for (Project * const p : qAsConst(m_projects)) {
+    for (Project * const p : std::as_const(m_projects)) {
         ProjectExplorer::SessionManager::removeProject(p);
         emit aboutToRemoveProject(p);
     }

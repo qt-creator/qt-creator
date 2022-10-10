@@ -223,7 +223,7 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, Side fallbackSide)
 void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &factories)
 {
     Context navicontext(Constants::C_NAVIGATION_PANE);
-    for (INavigationWidgetFactory *factory : qAsConst(factories)) {
+    for (INavigationWidgetFactory *factory : std::as_const(factories)) {
         const Id id = factory->id();
         const Id actionId = id.withPrefix("QtCreator.Sidebar.");
 
@@ -334,7 +334,7 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position, int
 QWidget *NavigationWidget::activateSubWidget(Id factoryId, int preferredPosition)
 {
     setShown(true);
-    for (Internal::NavigationSubWidget *subWidget : qAsConst(d->m_subWidgets)) {
+    for (Internal::NavigationSubWidget *subWidget : std::as_const(d->m_subWidgets)) {
         if (subWidget->factory()->id() == factoryId) {
             subWidget->setFocusWidget();
             ICore::raiseWindow(this);
@@ -434,7 +434,7 @@ void NavigationWidget::restoreSettings(QSettings *settings)
     }
 
     int position = 0;
-    for (const QString &id : qAsConst(viewIds)) {
+    for (const QString &id : std::as_const(viewIds)) {
         int index = factoryIndex(Id::fromString(id));
         if (index >= 0) {
             // Only add if the id was actually found!
@@ -486,7 +486,7 @@ void NavigationWidget::restoreSettings(QSettings *settings)
 
 void NavigationWidget::closeSubWidgets()
 {
-    for (Internal::NavigationSubWidget *subWidget : qAsConst(d->m_subWidgets)) {
+    for (Internal::NavigationSubWidget *subWidget : std::as_const(d->m_subWidgets)) {
         subWidget->saveSettings();
         delete subWidget;
     }

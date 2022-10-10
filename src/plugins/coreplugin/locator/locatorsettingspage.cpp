@@ -330,7 +330,7 @@ void LocatorSettingsWidget::setFilter(const QString &text)
 void LocatorSettingsWidget::saveFilterStates()
 {
     m_filterStates.clear();
-    for (ILocatorFilter *filter : qAsConst(m_filters))
+    for (ILocatorFilter *filter : std::as_const(m_filters))
         m_filterStates.insert(filter, filter->saveState());
 }
 
@@ -352,11 +352,11 @@ void LocatorSettingsWidget::initializeModel()
     m_model->clear();
     QSet<ILocatorFilter *> customFilterSet = Utils::toSet(m_customFilters);
     auto builtIn = new CategoryItem(tr("Built-in"), 0/*order*/);
-    for (ILocatorFilter *filter : qAsConst(m_filters))
+    for (ILocatorFilter *filter : std::as_const(m_filters))
         if (!filter->isHidden() && !customFilterSet.contains(filter))
             builtIn->appendChild(new FilterItem(filter));
     m_customFilterRoot = new CategoryItem(tr("Custom"), 1/*order*/);
-    for (ILocatorFilter *customFilter : qAsConst(m_customFilters))
+    for (ILocatorFilter *customFilter : std::as_const(m_customFilters))
         m_customFilterRoot->appendChild(new FilterItem(customFilter));
 
     m_model->rootItem()->appendChild(builtIn);

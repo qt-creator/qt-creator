@@ -140,7 +140,7 @@ void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
     ui->checkBox_signalWithNewValue->setChecked(settings->signalWithNewValue);
     ui->useAutoCheckBox->setChecked(settings->useAuto);
     ui->valueTypes->clear();
-    for (const auto &valueType : qAsConst(settings->valueTypes)) {
+    for (const auto &valueType : std::as_const(settings->valueTypes)) {
         auto item = new QListWidgetItem(valueType, ui->valueTypes);
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled
                        | Qt::ItemNeverHasChildren);

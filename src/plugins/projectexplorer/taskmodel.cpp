@@ -75,7 +75,7 @@ Tasks TaskModel::tasks(Utils::Id categoryId) const
         return m_tasks;
 
     Tasks taskList;
-    for (const Task &t : qAsConst(m_tasks)) {
+    for (const Task &t : std::as_const(m_tasks)) {
         if (t.category == categoryId)
             taskList.append(t);
     }

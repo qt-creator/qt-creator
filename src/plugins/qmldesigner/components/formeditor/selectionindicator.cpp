@@ -32,7 +32,7 @@ SelectionIndicator::~SelectionIndicator()
 
 void SelectionIndicator::show()
 {
-    for (QGraphicsPolygonItem *item : qAsConst(m_indicatorShapeHash))
+    for (QGraphicsPolygonItem *item : std::as_const(m_indicatorShapeHash))
         item->show();
     if (m_labelItem)
         m_labelItem->show();
@@ -40,7 +40,7 @@ void SelectionIndicator::show()
 
 void SelectionIndicator::hide()
 {
-    for (QGraphicsPolygonItem *item : qAsConst(m_indicatorShapeHash))
+    for (QGraphicsPolygonItem *item : std::as_const(m_indicatorShapeHash))
         item->hide();
     if (m_labelItem)
         m_labelItem->hide();
@@ -49,7 +49,7 @@ void SelectionIndicator::hide()
 void SelectionIndicator::clear()
 {
     if (m_layerItem) {
-        for (QGraphicsPolygonItem *item : qAsConst(m_indicatorShapeHash)) {
+        for (QGraphicsPolygonItem *item : std::as_const(m_indicatorShapeHash)) {
             m_layerItem->scene()->removeItem(item);
             delete item;
         }
@@ -185,7 +185,7 @@ void SelectionIndicator::setCursor(const QCursor &cursor)
 {
     m_cursor = cursor;
 
-    for (QGraphicsItem  *item : qAsConst(m_indicatorShapeHash))
+    for (QGraphicsItem  *item : std::as_const(m_indicatorShapeHash))
         item->setCursor(cursor);
 }
 

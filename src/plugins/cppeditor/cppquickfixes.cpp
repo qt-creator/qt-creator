@@ -2064,7 +2064,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     if (matchName(nameAst->name, &matches, &className)) {
         QList<IndexItem::Ptr> indexItems;
         const Snapshot forwardHeaders = forwardingHeaders(interface);
-        for (const Core::LocatorFilterEntry &entry : qAsConst(matches)) {
+        for (const Core::LocatorFilterEntry &entry : std::as_const(matches)) {
             IndexItem::Ptr info = entry.internalData.value<IndexItem::Ptr>();
             if (!info || info->symbolName() != className)
                 continue;
@@ -2076,7 +2076,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             headerAndItsForwardingHeaders << Utils::FilePath::fromString(info->fileName());
             headerAndItsForwardingHeaders += localForwardHeaders.filesDependingOn(info->fileName());
 
-            for (const Utils::FilePath &header : qAsConst(headerAndItsForwardingHeaders)) {
+            for (const Utils::FilePath &header : std::as_const(headerAndItsForwardingHeaders)) {
                 const QString include = findShortestInclude(currentDocumentFilePath,
                                                             header.toString(),
                                                             headerPaths);
@@ -2443,7 +2443,7 @@ static Enum *findEnum(const QList<LookupItem> &results, const LookupContext &ctx
                 const Name *referenceName = namedType->name();
                 if (const QualifiedNameId *qualifiedName = referenceName->asQualifiedNameId())
                     referenceName = qualifiedName->name();
-                for (Enum *e : qAsConst(enums)) {
+                for (Enum *e : std::as_const(enums)) {
                     if (const Name *candidateName = e->name()) {
                         if (candidateName->match(referenceName))
                             return e;
@@ -3221,7 +3221,7 @@ private:
     {
         QList<Symbol *> unimplemented;
         SymbolFinder symbolFinder;
-        for (Symbol * const s : qAsConst(m_declarations)) {
+        for (Symbol * const s : std::as_const(m_declarations)) {
             if (!symbolFinder.findMatchingDefinition(s, snapshot()))
                 unimplemented << s;
         }
@@ -3262,7 +3262,7 @@ private:
             const auto incDefPos = [&defPos] {
                 defPos = (defPos + 1) % (DefPosImplementationFile + 2);
             };
-            for (Symbol * const func : qAsConst(unimplemented)) {
+            for (Symbol * const func : std::as_const(unimplemented)) {
                 incDefPos();
                 if (defPos > DefPosImplementationFile)
                     continue;
@@ -3303,7 +3303,7 @@ private:
         };
 
         QHash<QString, QPair<ChangeSet, QList<ChangeSet::Range>>> changeSets;
-        for (const MemberFunctionImplSetting &setting : qAsConst(settings)) {
+        for (const MemberFunctionImplSetting &setting : std::as_const(settings)) {
             DeclFinder finder(currentFile().data(), setting.func);
             finder.accept(m_classAST);
             QTC_ASSERT(finder.decl(), continue);
@@ -4677,7 +4677,7 @@ public:
         }
         const QStringList memberFunctionsAsStrings = toStringList(memberFunctions);
 
-        for (Symbol *const member : qAsConst(dataMembers)) {
+        for (Symbol *const member : std::as_const(dataMembers)) {
             ExistingGetterSetterData existing;
             existing.memberVariableName = QString::fromUtf8(member->identifier()->chars(),
                                                             member->identifier()->size());
@@ -6922,7 +6922,7 @@ void AssignToLocalVariable::match(const CppQuickFixInterface &interface, QuickFi
                                      TypeOfExpression::Preprocess);
         }
 
-        for (const LookupItem &item : qAsConst(items)) {
+        for (const LookupItem &item : std::as_const(items)) {
             if (!item.declaration())
                 continue;
 
@@ -7254,7 +7254,7 @@ public:
         ChangeSet changes;
 
         bool replace = true;
-        for (const QByteArray &chunk : qAsConst(newContents)) {
+        for (const QByteArray &chunk : std::as_const(newContents)) {
             const QString str = decoder->toUnicode(chunk);
             const QByteArray utf8buf = str.toUtf8();
             if (!utf8codec->canEncode(str) || chunk != utf8buf)
@@ -7370,7 +7370,7 @@ bool findRawAccessFunction(Class *klass, PointerType *pointerType, QString *objA
         break;
     default:
         // Multiple candidates - prefer a function named data
-        for (Function *func : qAsConst(candidates)) {
+        for (Function *func : std::as_const(candidates)) {
             if (!strcmp(func->name()->identifier()->chars(), "data")) {
                 funcName = func->name();
                 break;
@@ -8111,7 +8111,7 @@ private:
             processIncludes(refactoring, filePath().toString());
         }
 
-        for (auto &file : qAsConst(m_changes))
+        for (auto &file : std::as_const(m_changes))
             file->apply();
     }
 

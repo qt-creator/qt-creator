@@ -105,7 +105,7 @@ void OutputTaskParser::runPostPrintActions(QPlainTextEdit *edit)
         });
     }
 
-    for (const TaskInfo &t : qAsConst(d->scheduledTasks))
+    for (const TaskInfo &t : std::as_const(d->scheduledTasks))
         TaskHub::addTask(t.task);
     d->scheduledTasks.clear();
 }

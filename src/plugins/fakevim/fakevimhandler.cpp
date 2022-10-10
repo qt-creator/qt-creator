@@ -1002,7 +1002,7 @@ QDebug operator<<(QDebug ts, const ExCommand &cmd)
 
 QDebug operator<<(QDebug ts, const QList<QTextEdit::ExtraSelection> &sels)
 {
-    foreach (const QTextEdit::ExtraSelection &sel, sels)
+    for (const QTextEdit::ExtraSelection &sel : sels)
         ts << "SEL: " << sel.cursor.anchor() << sel.cursor.position();
     return ts;
 }
@@ -3049,7 +3049,7 @@ void FakeVimHandler::Private::clearPendingInput()
 void FakeVimHandler::Private::waitForMapping()
 {
     g.currentCommand.clear();
-    foreach (const Input &input, g.currentMap.currentInputs())
+    for (const Input &input : g.currentMap.currentInputs())
         g.currentCommand.append(input.toString());
 
     // wait for user to press any key or trigger complete mapping after interval
@@ -6070,13 +6070,13 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     //qDebug() << "MAPPING: " << modes << lhs << rhs;
     switch (type) {
         case Unmap:
-            foreach (char c, modes)
+            for (char c : qAsConst(modes))
                 MappingsIterator(&g.mappings, c, key).remove();
             break;
         case Map: Q_FALLTHROUGH();
         case Noremap: {
-            Inputs inputs(rhs, type == Noremap, silent);
-            foreach (char c, modes)
+            const Inputs inputs(rhs, type == Noremap, silent);
+            for (char c : qAsConst(modes))
                 MappingsIterator(&g.mappings, c).setInputs(key, inputs, unique);
             break;
         }
@@ -6094,7 +6094,7 @@ bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
         QString info;
         info += "#  command history\n";
         int i = 0;
-        foreach (const QString &item, g.commandBuffer.historyItems()) {
+        for (const QString &item : g.commandBuffer.historyItems()) {
             ++i;
             info += QString("%1 %2\n").arg(i, -8).arg(item);
         }
@@ -6122,7 +6122,7 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
     }
     QString info;
     info += "--- Registers ---\n";
-    for (char reg : qAsConst(regs)) {
+    for (char reg : std::as_const(regs)) {
         QString value = quoteUnprintable(registerContents(reg));
         info += QString("\"%1   %2\n").arg(reg).arg(value);
     }
@@ -6519,7 +6519,7 @@ bool FakeVimHandler::Private::handleExMultiRepeatCommand(const ExCommand &cmd)
         const Range range(pos, pos, RangeLineMode);
         const QString lineContents = selectText(range);
         const QRegularExpressionMatch match = re.match(lineContents);
-        if (match.hasMatch() ^ negates) {
+        if (match.hasMatch() != negates) {
             QTextCursor tc(document());
             tc.setPosition(pos);
             matches.append(tc);
@@ -6528,7 +6528,7 @@ bool FakeVimHandler::Private::handleExMultiRepeatCommand(const ExCommand &cmd)
 
     beginEditBlock();
 
-    for (const QTextCursor &tc : qAsConst(matches)) {
+    for (const QTextCursor &tc : std::as_const(matches)) {
         setPosition(tc.position());
         handleExCommand(innerCmd);
     }

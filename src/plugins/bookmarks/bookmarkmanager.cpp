@@ -377,7 +377,7 @@ QStringList BookmarkManager::mimeTypes() const
 QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
 {
     auto data = new DropMimeData;
-    foreach (const QModelIndex &index, indexes) {
+    for (const QModelIndex &index : indexes) {
         if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
             continue;
         Bookmark *bookMark = m_bookmarksList.at(index.row());
@@ -748,7 +748,7 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
 void BookmarkManager::saveBookmarks()
 {
     QStringList list;
-    foreach (const Bookmark *bookmark, m_bookmarksList)
+    for (const Bookmark *bookmark : qAsConst(m_bookmarksList))
         list << bookmarkToString(bookmark);
 
     SessionManager::setValue(QLatin1String("Bookmarks"), list);
@@ -759,7 +759,7 @@ void BookmarkManager::loadBookmarks()
 {
     removeAllBookmarks();
     const QStringList &list = SessionManager::value(QLatin1String("Bookmarks")).toStringList();
-    foreach (const QString &bookmarkString, list)
+    for (const QString &bookmarkString : list)
         addBookmark(bookmarkString);
 
     updateActionStatus();

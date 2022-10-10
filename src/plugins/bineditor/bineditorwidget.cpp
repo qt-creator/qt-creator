@@ -890,7 +890,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                 int item_x = -xoffset +  m_margin + c * m_columnWidth + m_labelWidth;
 
                 QColor color;
-                for (const Markup &m : qAsConst(m_markup)) {
+                for (const Markup &m : std::as_const(m_markup)) {
                     if (m.covers(lineAddress + c)) {
                         color = m.color;
                         break;
@@ -1221,7 +1221,7 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
     str << "<html><head/><body><p align=\"center\"><b>"
         << Tr::tr("Memory at 0x%1").arg(address, 0, 16) << "</b></p>";
 
-    for (const Markup &m : qAsConst(m_markup)) {
+    for (const Markup &m : std::as_const(m_markup)) {
         if (m.covers(address) && !m.toolTip.isEmpty()) {
             str << "<p>" <<  m.toolTip << "</p><br>";
             break;

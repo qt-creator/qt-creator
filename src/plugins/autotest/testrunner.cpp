@@ -462,7 +462,7 @@ int TestRunner::precheckTestConfigurations()
 {
     const bool omitWarnings = AutotestPlugin::settings()->omitRunConfigWarn;
     int testCaseCount = 0;
-    for (ITestConfiguration *itc : qAsConst(m_selectedTests)) {
+    for (ITestConfiguration *itc : std::as_const(m_selectedTests)) {
         if (itc->testBase()->type() == ITestBase::Tool) {
             if (itc->project()) {
                 testCaseCount += itc->testCaseCount();
@@ -509,7 +509,7 @@ void TestRunner::runTests()
 {
     QList<ITestConfiguration *> toBeRemoved;
     bool projectChanged = false;
-    for (ITestConfiguration *itc : qAsConst(m_selectedTests)) {
+    for (ITestConfiguration *itc : std::as_const(m_selectedTests)) {
         if (itc->testBase()->type() == ITestBase::Tool) {
             if (itc->project() != SessionManager::startupProject()) {
                 projectChanged = true;

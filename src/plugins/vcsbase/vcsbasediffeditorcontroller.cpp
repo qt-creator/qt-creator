@@ -134,7 +134,7 @@ VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
     delete d;
 }
 
-void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, unsigned flags, QTextCodec *codec)
+void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, RunFlags flags, QTextCodec *codec)
 {
     // Cancel the possible ongoing reload without the commandFinished() nor
     // processingFinished() notifications, as right after that

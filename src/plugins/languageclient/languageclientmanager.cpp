@@ -186,7 +186,7 @@ void LanguageClientManager::addExclusiveRequest(const MessageId &id, Client *cli
 void LanguageClientManager::reportFinished(const MessageId &id, Client *byClient)
 {
     QTC_ASSERT(managerInstance, return);
-    for (Client *client : qAsConst(managerInstance->m_exclusiveRequests[id])) {
+    for (Client *client : std::as_const(managerInstance->m_exclusiveRequests[id])) {
         if (client != byClient)
             client->cancelRequest(id);
     }
@@ -275,14 +275,14 @@ void LanguageClientManager::applySettings()
             documents << managerInstance->m_clientForDocument.keys(client);
             shutdownClient(client);
         }
-        for (auto document : qAsConst(documents))
+        for (auto document : std::as_const(documents))
             managerInstance->m_clientForDocument.remove(document);
         if (!setting->isValid() || !setting->m_enabled)
             continue;
         switch (setting->m_startBehavior) {
         case BaseSettings::AlwaysOn: {
             Client *client = startClient(setting);
-            for (TextEditor::TextDocument *document : qAsConst(documents))
+            for (TextEditor::TextDocument *document : std::as_const(documents))
                 managerInstance->m_clientForDocument[document] = client;
             break;
         }
@@ -296,7 +296,7 @@ void LanguageClientManager::applySettings()
             }
             if (!documents.isEmpty()) {
                 Client *client = startClient(setting);
-                for (TextEditor::TextDocument *document : qAsConst(documents))
+                for (TextEditor::TextDocument *document : std::as_const(documents))
                     client->openDocument(document);
             }
             break;
@@ -514,7 +514,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
             } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
                 clients << startClient(setting);
             }
-            for (auto client : qAsConst(clients))
+            for (auto client : std::as_const(clients))
                 client->openDocument(textDocument);
         }
     }
@@ -546,7 +546,7 @@ void LanguageClientManager::documentWillSave(Core::IDocument *document)
 
 void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
 {
-    for (BaseSettings *setting : qAsConst(m_currentSettings)) {
+    for (BaseSettings *setting : std::as_const(m_currentSettings)) {
         if (setting->isValid()
             && setting->m_enabled
             && setting->m_startBehavior == BaseSettings::RequiresProject) {

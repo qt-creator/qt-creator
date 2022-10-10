@@ -37,8 +37,12 @@
 
         \li \l{Running Autotests}
 
-            You can create, build and run Qt tests, Qt Quick tests, Google
+            Create, build and run Qt tests, Qt Quick tests, Google
             tests, and Boost tests using \QC.
+
+        \li \l{Using Squish}
+
+            Map AUTs to \QC and run Squish test suites and cases from it.
 
     \endlist
 

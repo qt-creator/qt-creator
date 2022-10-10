@@ -1,9 +1,9 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidcreatekeystorecertificate.h"
-
 #include "androidconfigurations.h"
+#include "androidcreatekeystorecertificate.h"
+#include "androidtr.h"
 
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
@@ -25,7 +25,7 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
     : QDialog(parent)
 {
     resize(638, 473);
-    setWindowTitle(tr("Create a keystore and a certificate"));
+    setWindowTitle(Tr::tr("Create a keystore and a certificate"));
 
     m_commonNameLineEdit = new QLineEdit;
 
@@ -44,7 +44,7 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
     m_certificateRetypePassLineEdit = new QLineEdit;
     m_certificateRetypePassLineEdit->setEchoMode(QLineEdit::Password);
 
-    m_certificateShowPassCheckBox = new QCheckBox(tr("Show password"));
+    m_certificateShowPassCheckBox = new QCheckBox(Tr::tr("Show password"));
 
     m_validitySpinBox = new QSpinBox;
     m_validitySpinBox->setRange(10000, 100000);
@@ -59,7 +59,7 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
     m_keySizeSpinBox = new QSpinBox;
     m_keySizeSpinBox->setRange(2048, 2097152);
 
-    m_samePasswordCheckBox = new QCheckBox(tr("Use Keystore password"));
+    m_samePasswordCheckBox = new QCheckBox(Tr::tr("Use Keystore password"));
 
     m_keystorePassLineEdit = new QLineEdit;
     m_keystorePassLineEdit->setEchoMode(QLineEdit::Password);
@@ -72,7 +72,7 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
     m_infoLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     m_infoLabel->hide();
 
-    auto keystoreShowPassCheckBox = new QCheckBox(tr("Show password"));
+    auto keystoreShowPassCheckBox = new QCheckBox(Tr::tr("Show password"));
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close|QDialogButtonBox::Save);
 
@@ -80,36 +80,36 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
 
     Column {
         Group {
-            title(tr("Keystore")),
+            title(Tr::tr("Keystore")),
             Form {
-                tr("Password:"), m_keystorePassLineEdit, br,
-                tr("Retype password:"), m_keystoreRetypePassLineEdit, br,
+                Tr::tr("Password:"), m_keystorePassLineEdit, br,
+                Tr::tr("Retype password:"), m_keystoreRetypePassLineEdit, br,
                 Span(2, keystoreShowPassCheckBox), br,
             }
         },
 
         Group {
-            title(tr("Certificate")),
+            title(Tr::tr("Certificate")),
             Form {
-                tr("Alias name:"), m_certificateAliasLineEdit, br,
-                tr("Keysize:"), m_keySizeSpinBox, br,
-                tr("Validity (days):"), m_validitySpinBox, br,
-                tr("Password:"), m_certificatePassLineEdit, br,
-                tr("Retype password:"), m_certificateRetypePassLineEdit, br,
+                Tr::tr("Alias name:"), m_certificateAliasLineEdit, br,
+                Tr::tr("Keysize:"), m_keySizeSpinBox, br,
+                Tr::tr("Validity (days):"), m_validitySpinBox, br,
+                Tr::tr("Password:"), m_certificatePassLineEdit, br,
+                Tr::tr("Retype password:"), m_certificateRetypePassLineEdit, br,
                 Span(2, m_samePasswordCheckBox), br,
                 Span(2, m_certificateShowPassCheckBox), br,
             }
         },
 
         Group {
-            title(tr("Certificate Distinguished Names")),
+            title(Tr::tr("Certificate Distinguished Names")),
             Form {
-                tr("First and last name:"), m_commonNameLineEdit, br,
-                tr("Organizational unit (e.g. Necessitas):"),  m_organizationUnitLineEdit, br,
-                tr("Organization (e.g. KDE):"), m_organizationNameLineEdit, br,
-                tr("City or locality:"), m_localityNameLineEdit, br,
-                tr("State or province:"), m_stateNameLineEdit, br,
-                tr("Two-letter country code for this unit (e.g. RO):"), m_countryLineEdit,
+                Tr::tr("First and last name:"), m_commonNameLineEdit, br,
+                Tr::tr("Organizational unit (e.g. Necessitas):"),  m_organizationUnitLineEdit, br,
+                Tr::tr("Organization (e.g. KDE):"), m_organizationNameLineEdit, br,
+                Tr::tr("City or locality:"), m_localityNameLineEdit, br,
+                Tr::tr("State or province:"), m_stateNameLineEdit, br,
+                Tr::tr("Two-letter country code for this unit (e.g. RO):"), m_countryLineEdit,
             }
         },
 
@@ -170,12 +170,12 @@ AndroidCreateKeystoreCertificate::PasswordStatus AndroidCreateKeystoreCertificat
 {
     if (m_keystorePassLineEdit->text().length() < 6) {
         m_infoLabel->show();
-        m_infoLabel->setText(tr("Keystore password is too short."));
+        m_infoLabel->setText(Tr::tr("Keystore password is too short."));
         return Invalid;
     }
     if (m_keystorePassLineEdit->text() != m_keystoreRetypePassLineEdit->text()) {
         m_infoLabel->show();
-        m_infoLabel->setText(tr("Keystore passwords do not match."));
+        m_infoLabel->setText(Tr::tr("Keystore passwords do not match."));
         return NoMatch;
     }
 
@@ -190,12 +190,12 @@ AndroidCreateKeystoreCertificate::PasswordStatus AndroidCreateKeystoreCertificat
 
     if (m_certificatePassLineEdit->text().length() < 6) {
         m_infoLabel->show();
-        m_infoLabel->setText(tr("Certificate password is too short."));
+        m_infoLabel->setText(Tr::tr("Certificate password is too short."));
         return Invalid;
     }
     if (m_certificatePassLineEdit->text() != m_certificateRetypePassLineEdit->text()) {
         m_infoLabel->show();
-        m_infoLabel->setText(tr("Certificate passwords do not match."));
+        m_infoLabel->setText(Tr::tr("Certificate passwords do not match."));
         return NoMatch;
     }
 
@@ -207,7 +207,7 @@ bool AndroidCreateKeystoreCertificate::checkCertificateAlias()
 {
     if (m_certificateAliasLineEdit->text().length() == 0) {
         m_infoLabel->show();
-        m_infoLabel->setText(tr("Certificate alias is missing."));
+        m_infoLabel->setText(Tr::tr("Certificate alias is missing."));
         return false;
     }
 
@@ -219,7 +219,7 @@ bool AndroidCreateKeystoreCertificate::checkCountryCode()
 {
     if (!m_countryLineEdit->text().contains(QRegularExpression("[A-Z]{2}"))) {
         m_infoLabel->show();
-        m_infoLabel->setText(tr("Invalid country code."));
+        m_infoLabel->setText(Tr::tr("Invalid country code."));
         return false;
     }
 
@@ -244,9 +244,9 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
     if (!validateUserInput())
         return;
 
-    m_keystoreFilePath = FileUtils::getSaveFilePath(this, tr("Keystore Filename"),
+    m_keystoreFilePath = FileUtils::getSaveFilePath(this, Tr::tr("Keystore Filename"),
                                                     FileUtils::homePath() / "android_release.keystore",
-                                                    tr("Keystore files (*.keystore *.jks)"));
+                                                    Tr::tr("Keystore files (*.keystore *.jks)"));
     if (m_keystoreFilePath.isEmpty())
         return;
     QString distinguishedNames(QString::fromLatin1("CN=%1, O=%2, L=%3, C=%4")
@@ -277,7 +277,7 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
     genKeyCertProc.runBlocking(EventLoopMode::On);
 
     if (genKeyCertProc.result() != ProcessResult::FinishedWithSuccess) {
-        QMessageBox::critical(this, tr("Error"),
+        QMessageBox::critical(this, Tr::tr("Error"),
                               genKeyCertProc.exitMessage() + '\n' + genKeyCertProc.allOutput());
         return;
     }

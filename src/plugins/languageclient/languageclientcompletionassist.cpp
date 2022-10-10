@@ -468,7 +468,7 @@ void LanguageClientCompletionAssistProvider::setTriggerCharacters(
 {
     m_activationCharSequenceLength = 0;
     m_triggerChars = triggerChars.value_or(QList<QString>());
-    for (const QString &trigger : qAsConst(m_triggerChars)) {
+    for (const QString &trigger : std::as_const(m_triggerChars)) {
         if (trigger.length() > m_activationCharSequenceLength)
             m_activationCharSequenceLength = trigger.length();
     }

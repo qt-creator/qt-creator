@@ -4875,7 +4875,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchDialog</name>
+    <name>Git</name>
     <message>
         <source>Checkout</source>
         <translation type="unfinished">取出</translation>
@@ -4924,9 +4924,6 @@ Reason: %3</source>
         <source>&amp;Checkout</source>
         <translation>取出(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
         <translation>選擇一個 Git 提交紀錄</translation>
@@ -4955,9 +4952,6 @@ Reason: %3</source>
         <source>Change:</source>
         <translation>變更：</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message>
         <source>Waiting for data...</source>
         <translation>等待資料中...</translation>
@@ -5207,9 +5201,6 @@ Reason: %3</source>
         <source>Cannot determine git version: %1</source>
         <translation>無法決定 git 的版本：%1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
     <message>
         <source>&amp;Git</source>
         <translation>Git(&amp;G)</translation>
@@ -5549,16 +5540,10 @@ Reason: %3</source>
         <source>Do you want to commit the change?</source>
         <translation>您要提交此變更嗎？</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>在路徑 &apos;%2&apos; 中找不到執行檔 &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
@@ -5595,9 +5580,6 @@ Reason: %3</source>
         <source>By&amp;pass hooks</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;注意：&lt;/b&gt;</translation>
@@ -11104,7 +11086,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::CloneWizard</name>
+    <name>Git</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
         <translation>複製一個 Git 主目錄，並試著載入裡面包含的專案。</translation>
@@ -11113,9 +11095,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Git Repository Clone</source>
         <translation>Git 主目錄複製</translation>
     </message>
-</context>
-<context>
-    <name>Git::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -11891,7 +11870,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <name>Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
@@ -11924,9 +11903,6 @@ Reason: %2</source>
         <source>Email:</source>
         <translation>電子郵件：</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -11987,9 +11963,6 @@ Reason: %2</source>
         <source>The number of recent commit logs to show, choose 0 to see all entries.</source>
         <translation>要顯示的最近提交的紀錄數。選擇 0 表示看全部的紀錄。</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>復原</translation>
@@ -12002,9 +11975,6 @@ Reason: %2</source>
         <source>Revision:</source>
         <translation>版本：</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -12122,7 +12092,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CloneWizard</name>
+    <name>Mercurial</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation>複製一個 Mercurial 主目錄，並試著載入裡面包含的專案。</translation>
@@ -12131,9 +12101,6 @@ Reason: %2</source>
         <source>Mercurial Clone</source>
         <translation>Mercurial 複製</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CloneWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -12146,16 +12113,10 @@ Reason: %2</source>
         <source>Clone URL:</source>
         <translation>複製網址：</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation>提交編輯器</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation>無法在 %2 找到 %1 的父版本：%3</translation>
@@ -12171,20 +12132,6 @@ Reason: %2</source>
     <message>
         <source>Hg outgoing %1</source>
         <translation>Hg 傳出 %1</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
-    <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -12382,9 +12329,6 @@ Reason: %2</source>
         <source>Message check failed. Do you want to proceed?</source>
         <translation>訊息檢查失敗。您要繼續嗎？</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Mercurial 指令</translation>
@@ -12503,7 +12447,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::StashDialog</name>
+    <name>Git</name>
     <message>
         <source>Stashes</source>
         <translation>暫存檔</translation>
@@ -12578,20 +12522,12 @@ You can choose between stashing the changes or discarding them.</source>
 您可以選擇要暫存或是丟棄變更。</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>暫存</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>丟棄</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>還原暫存內容到分支</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>分支：</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -13281,7 +13217,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Git::Internal::GitEditor</name>
+    <name>Git</name>
     <message>
         <source>Blame %1</source>
         <translation>&quot;%1&quot; 的提交紀錄</translation>
@@ -13315,7 +13251,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Annotate %1</source>
         <translation>最後註記 %1</translation>
@@ -16830,7 +16766,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::SettingsPageWidget</name>
+    <name>Git</name>
     <message>
         <source>Set the environment variable HOME to &apos;%1&apos;
 (%2).
@@ -20126,7 +20062,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
+    <name>Git</name>
     <message>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>使用 patience 演算法來計算差異。</translation>
@@ -20143,9 +20079,6 @@ Do you want to retry?</source>
         <source>Ignore Whitespace</source>
         <translation>忽略空白</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitShowArgumentsWidget</name>
     <message>
         <source>oneline</source>
         <translation>一行</translation>
@@ -20174,9 +20107,6 @@ Do you want to retry?</source>
         <source>raw</source>
         <translation>原始</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Hide the date of a change from the output.</source>
         <translation>在輸出隱藏變更日期。</translation>
@@ -20184,14 +20114,6 @@ Do you want to retry?</source>
     <message>
         <source>Omit Date</source>
         <translation>省略日期</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>忽略只有空白的變更。</translation>
-    </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>忽略空白</translation>
     </message>
 </context>
 <context>
@@ -20629,21 +20551,15 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Methods and Functions</source>
         <translation>方法和函式</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation>建索引中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins
 
@@ -21770,7 +21686,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -21791,9 +21707,6 @@ if (a &amp;&amp;
         <source>Track local branch &apos;%1&apos;</source>
         <translation>追蹤本地分支 &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>新增遠端</translation>
@@ -21806,28 +21719,13 @@ if (a &amp;&amp;
         <source>URL:</source>
         <translation>網址：</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>遠端</translation>
     </message>
     <message>
-        <source>Re&amp;fresh</source>
-        <translation>刷新(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>新增(&amp;A)...</translation>
-    </message>
-    <message>
         <source>F&amp;etch</source>
         <translation>抓取(&amp;E)</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation>移除(&amp;R)</translation>
     </message>
     <message>
         <source>Delete Remote</source>
@@ -22423,7 +22321,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>本地分支</translation>
@@ -22445,7 +22343,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
+    <name>Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -22724,9 +22622,6 @@ These files are preserved.</source>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>QML/JS(&amp;Q)</translation>
@@ -22735,9 +22630,6 @@ These files are preserved.</source>
         <source>Reset Code Model</source>
         <translation>重置代碼模型</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -28076,7 +27968,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -28443,7 +28335,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Git::Internal::CommitData</name>
+    <name>Git</name>
     <message>
         <source>untracked</source>
         <translation>未追蹤的</translation>
@@ -28476,9 +28368,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>updated</source>
         <translation>已更新</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>顯示差異</translation>
@@ -29018,7 +28907,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>Android</name>
     <message>
         <source>Create new AVD</source>
         <translation type="unfinished"></translation>
@@ -29039,9 +28928,6 @@ references to elements in other files, loops, etc.)</source>
         <source> MiB</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation type="unfinished"></translation>
@@ -29118,9 +29004,6 @@ references to elements in other files, loops, etc.)</source>
         <source>&gt;AA; </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">表單</translation>
@@ -29163,9 +29046,6 @@ This option is useful when you want to try your application on devices which don
         <source>Choose APK</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
         <translation type="unfinished"></translation>
@@ -29246,10 +29126,6 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished">丟棄</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation type="unfinished">名稱：</translation>
-    </message>
-    <message>
         <source>Libraries</source>
         <translation type="unfinished">函式庫</translation>
     </message>
@@ -29302,19 +29178,12 @@ This option is useful when you want to try your application on devices which don
         <source>Certificate alias:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Android SDK location:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29368,14 +29237,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Start Android AVD Manager</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="unfinished">新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">移除</translation>
     </message>
 </context>
 <context>
@@ -30148,7 +30009,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidConfigurations</name>
+    <name>Android</name>
     <message>
         <source>Error Creating AVD</source>
         <translation type="unfinished"></translation>
@@ -30156,20 +30017,6 @@ This option is useful when you want to try your application on devices which don
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Please install an SDK of at least API version %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android</name>
-    <message>
-        <source>Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -30192,23 +30039,10 @@ Please install an SDK of at least API version %1.</source>
         <source>Error</source>
         <translation type="unfinished">錯誤</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfiguration</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStep</name>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
@@ -30266,16 +30100,10 @@ Please install an SDK of at least API version %1.</source>
         <source>Pulling files necessary for debugging.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
@@ -30288,27 +30116,14 @@ Please install an SDK of at least API version %1.</source>
         <source>Android package (*.apk)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
-    <message>
         <source>Android Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManager</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
@@ -30338,16 +30153,10 @@ Please install at least one SDK.</source>
         <source>Can&apos;t open &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationStep</name>
     <message>
         <source>Packaging for Android</source>
         <translation type="unfinished"></translation>
@@ -30364,10 +30173,6 @@ Please install at least one SDK.</source>
         <source>Cannot find &apos;%1&apos;.
 Please make sure your application is built successfully and is selected in Application tab (&apos;Run option&apos;).</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">錯誤</translation>
     </message>
     <message>
         <source>Failed to run keytool</source>
@@ -30406,48 +30211,17 @@ Please make sure your application is built successfully and is selected in Appli
         <translation type="unfinished">套件已建立。</translation>
     </message>
     <message>
-        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Packaging failed.</source>
         <translation type="unfinished">打包失敗。</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation type="unfinished">打包錯誤：指令 &apos;%1&apos; 失敗。 {1 %2&apos;?}</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation type="unfinished">原因：%1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="unfinished">離開代碼：%1</translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Keystore password:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Certificate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Certificate password (%1):</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid Package Name</source>
         <translation type="unfinished"></translation>
@@ -30486,26 +30260,13 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationFactory</name>
-    <message>
         <source>Deploy to device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation type="unfinished"></translation>
@@ -30515,30 +30276,18 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>Run on Android device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device or emulator.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>
 
@@ -30579,16 +30328,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 &apos;%1&apos; killed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -30602,9 +30345,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>CPU/ABI</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
         <translation type="unfinished"></translation>
@@ -30641,9 +30381,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Select OpenJDK Path</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
         <translation type="unfinished"></translation>
@@ -30656,9 +30393,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Android GCC (%1-%2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root:</source>
         <translation type="unfinished"></translation>
@@ -31889,14 +31623,10 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>Git</name>
     <message>
         <source>Gerrit %1@%2</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changes</source>
-        <translation type="unfinished">變更</translation>
     </message>
     <message>
         <source>&amp;Query:</source>
@@ -31923,13 +31653,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation type="unfinished">刷新</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Owner&lt;/td&gt;&lt;td&gt;%3 &lt;a href=&quot;mailto:%4&quot;&gt;%4&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Project&lt;/td&gt;&lt;td&gt;%5 (%6)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Status&lt;/td&gt;&lt;td&gt;%7, %8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Patch set&lt;/td&gt;&lt;td&gt;%9&lt;/td&gt;&lt;/tr&gt;%10&lt;tr&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;&lt;a href=&quot;%11&quot;&gt;%11&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -31954,10 +31677,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation type="unfinished">狀態</translation>
-    </message>
-    <message>
         <source>Parse error: &apos;%1&apos; -&gt; %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -31969,9 +31688,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Parse error in line &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
         <translation type="unfinished"></translation>
@@ -31988,16 +31704,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>%1 returned %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation type="unfinished"></translation>
@@ -32028,23 +31734,8 @@ Stepping into the module or setting breakpoints by file and is expected to work.
 &quot;gerrit.config&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32059,9 +31750,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Cherry-picking %1...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation type="unfinished"></translation>
@@ -32074,22 +31762,12 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Detached HEAD</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ResetDialog</name>
     <message>
         <source>Sha1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Subject</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32616,7 +32294,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="unfinished">此種類型名稱字串字面常數僅在 Qt Creator 中的 QML編輯器時可使用</translation>

@@ -49,6 +49,7 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d->m_defaultSuffixLabel = new QLabel;
     d->m_nameLabel = new QLabel;
     d->m_nameLineEdit = new FileNameValidatingLineEdit;
+    d->m_nameLineEdit->setObjectName("nameLineEdit");
     d->m_pathLabel = new QLabel;
     d->m_pathChooser = new PathChooser;
 

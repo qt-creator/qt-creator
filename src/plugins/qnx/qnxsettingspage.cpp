@@ -223,7 +223,7 @@ void QnxSettingsWidget::setConfigState(QnxConfiguration *config, State state)
         break;
     }
 
-    for (const ConfigState &configState : qAsConst(m_changedConfigs)) {
+    for (const ConfigState &configState : std::as_const(m_changedConfigs)) {
         if (configState.config == config && configState.state == stateToRemove)
             m_changedConfigs.removeAll(configState);
     }
@@ -233,7 +233,7 @@ void QnxSettingsWidget::setConfigState(QnxConfiguration *config, State state)
 
 void QnxSettingsWidget::apply()
 {
-    for (const ConfigState &configState : qAsConst(m_changedConfigs)) {
+    for (const ConfigState &configState : std::as_const(m_changedConfigs)) {
         switch (configState.state) {
         case Activated :
             configState.config->activate();

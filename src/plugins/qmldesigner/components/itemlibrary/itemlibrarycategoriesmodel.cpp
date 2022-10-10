@@ -112,7 +112,7 @@ void ItemLibraryCategoriesModel::sortCategorySections()
 
     std::sort(m_categoryList.begin(), m_categoryList.end(), categorySort);
 
-    for (const auto &category : qAsConst(m_categoryList))
+    for (const auto &category : std::as_const(m_categoryList))
         category->sortItems();
 }
 

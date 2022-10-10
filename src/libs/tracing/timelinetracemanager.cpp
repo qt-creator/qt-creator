@@ -198,7 +198,7 @@ void TimelineTraceManager::setAggregateTraces(bool aggregateTraces)
 
 void TimelineTraceManager::initialize()
 {
-    for (const Initializer &initializer : qAsConst(d->initializers))
+    for (const Initializer &initializer : std::as_const(d->initializers))
         initializer();
 }
 
@@ -209,7 +209,7 @@ void TimelineTraceManager::finalize()
     // Load notes after the timeline models have been initialized ...
     // which happens on stateChanged(Done).
 
-    for (const Finalizer &finalizer : qAsConst(d->finalizers))
+    for (const Finalizer &finalizer : std::as_const(d->finalizers))
         finalizer();
 }
 
@@ -398,7 +398,7 @@ void TimelineTraceManager::TimelineTraceManagerPrivate::reset()
     traceStart = -1;
     traceEnd = -1;
 
-    for (const Clearer &clearer : qAsConst(clearers))
+    for (const Clearer &clearer : std::as_const(clearers))
         clearer();
 
     numEvents = 0;

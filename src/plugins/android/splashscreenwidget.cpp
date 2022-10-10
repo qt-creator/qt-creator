@@ -1,6 +1,7 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "androidtr.h"
 #include "splashscreenwidget.h"
 
 #include <texteditor/textdocument.h>
@@ -64,10 +65,10 @@ SplashScreenWidget::SplashScreenWidget(
         m_scaleWarningLabel->setMinimumSize(clearAndWarningSize);
         m_scaleWarningLabel->setMaximumSize(clearAndWarningSize);
         m_scaleWarningLabel->setPixmap(Utils::Icons::WARNING.icon().pixmap(clearAndWarningSize));
-        m_scaleWarningLabel->setToolTip(tr("Icon scaled up."));
+        m_scaleWarningLabel->setToolTip(Tr::tr("Icon scaled up."));
         m_scaleWarningLabel->setVisible(false);
     }
-    auto label = new QLabel(tr("Click to select..."), parent);
+    auto label = new QLabel(Tr::tr("Click to select..."), parent);
     splashLayout->addWidget(splashTitle);
     splashLayout->setAlignment(splashTitle, Qt::AlignHCenter);
     splashButtonLayout->setColumnMinimumWidth(0, 16);
@@ -166,7 +167,7 @@ void SplashScreenWidget::selectImage()
     const FilePath file = FileUtils::getOpenFilePath(this, m_imageSelectionText,
                                                      FileUtils::homePath(),
                                                      QStringLiteral("%1 (*.png *.jpg *.jpeg)")
-                                                     .arg(tr("Images")));
+                                                     .arg(Tr::tr("Images")));
     if (file.isEmpty())
         return;
     setImageFromPath(file, false);

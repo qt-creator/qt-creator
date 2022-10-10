@@ -174,7 +174,7 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
 ExtensionSystem::IPlugin::ShutdownFlag CodePasterPlugin::aboutToShutdown()
 {
     // Delete temporary, fetched files
-    for (const QString &fetchedSnippet : qAsConst(d->m_fetchedSnippets)) {
+    for (const QString &fetchedSnippet : std::as_const(d->m_fetchedSnippets)) {
         QFile file(fetchedSnippet);
         if (file.exists())
             file.remove();

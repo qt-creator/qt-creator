@@ -24,9 +24,10 @@ static QByteArray startApplication(Language language,
         parameters << QString(args).replace('"', "\\\"");
 
     switch (language) {
-    case Language::Python:
     case Language::Perl:
     case Language::JavaScript:
+        return QByteArray("startApplication(\"" + parameters.join(' ').toUtf8() + "\");");
+    case Language::Python:
     case Language::Ruby:
         return QByteArray("startApplication(\"" + parameters.join(' ').toUtf8() + "\")");
     case Language::Tcl:

@@ -291,7 +291,7 @@ QVariantMap AddToolChainData::addToolChain(const QVariantMap &map) const
         abis << QVariant(s);
     data << KeyValuePair({tc, SUPPORTED_ABIS}, QVariant(abis));
     KeyValuePairList tcExtraList;
-    for (const KeyValuePair &pair : qAsConst(m_extra))
+    for (const KeyValuePair &pair : std::as_const(m_extra))
         tcExtraList << KeyValuePair(QStringList({tc}) << pair.key, pair.value);
     data.append(tcExtraList);
     data << KeyValuePair(COUNT, QVariant(count + 1));
@@ -313,7 +313,7 @@ bool AddToolChainData::exists(const QVariantMap &map, const QString &id)
     // support old settings using QByteArray for id's
     valueKeys.append(FindValueOperation::findValue(map, id.toUtf8()));
 
-    for (const QString &k : qAsConst(valueKeys)) {
+    for (const QString &k : std::as_const(valueKeys)) {
         if (k.endsWith(QString('/') + ID)) {
             return true;
         }

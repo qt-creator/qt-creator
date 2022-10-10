@@ -1,9 +1,9 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidsdkdownloader.h"
-
 #include "androidconstants.h"
+#include "androidsdkdownloader.h"
+#include "androidtr.h"
 
 #include <utils/archive.h>
 #include <utils/filepath.h>
@@ -39,14 +39,14 @@ void AndroidSdkDownloader::sslErrors(const QList<QSslError> &sslErrors)
 {
     for (const QSslError &error : sslErrors)
         qCDebug(sdkDownloaderLog, "SSL error: %s\n", qPrintable(error.errorString()));
-    cancelWithError(tr("Encountered SSL errors, download is aborted."));
+    cancelWithError(Tr::tr("Encountered SSL errors, download is aborted."));
 }
 #endif
 
 void AndroidSdkDownloader::downloadAndExtractSdk()
 {
     if (m_androidConfig.sdkToolsUrl().isEmpty()) {
-        logError(tr("The SDK Tools download URL is empty."));
+        logError(Tr::tr("The SDK Tools download URL is empty."));
         return;
     }
 
@@ -57,7 +57,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     connect(m_reply, &QNetworkReply::sslErrors, this, &AndroidSdkDownloader::sslErrors);
 #endif
 
-    m_progressDialog = new QProgressDialog(tr("Downloading SDK Tools package..."), tr("Cancel"),
+    m_progressDialog = new QProgressDialog(Tr::tr("Downloading SDK Tools package..."), Tr::tr("Cancel"),
                                            0, 100, Core::ICore::dialogParent());
     m_progressDialog->setWindowModality(Qt::ApplicationModal);
     m_progressDialog->setWindowTitle(dialogTitle());
@@ -105,7 +105,7 @@ bool AndroidSdkDownloader::verifyFileIntegrity()
 
 QString AndroidSdkDownloader::dialogTitle()
 {
-    return tr("Download SDK Tools");
+    return Tr::tr("Download SDK Tools");
 }
 
 void AndroidSdkDownloader::cancel()
@@ -154,7 +154,7 @@ bool AndroidSdkDownloader::saveToDisk(const FilePath &filename, QIODevice *data)
 {
     QFile file(filename.toString());
     if (!file.open(QIODevice::WriteOnly)) {
-        logError(QString(tr("Could not open %1 for writing: %2."))
+        logError(QString(Tr::tr("Could not open %1 for writing: %2."))
                      .arg(filename.toUserOutput(), file.errorString()));
         return false;
     }
@@ -176,18 +176,18 @@ void AndroidSdkDownloader::downloadFinished(QNetworkReply *reply)
 {
     QUrl url = reply->url();
     if (reply->error()) {
-        cancelWithError(QString(tr("Downloading Android SDK Tools from URL %1 has failed: %2."))
+        cancelWithError(QString(Tr::tr("Downloading Android SDK Tools from URL %1 has failed: %2."))
                             .arg(url.toString(), reply->errorString()));
     } else {
         if (isHttpRedirect(reply)) {
-            cancelWithError(QString(tr("Download from %1 was redirected.")).arg(url.toString()));
+            cancelWithError(QString(Tr::tr("Download from %1 was redirected.")).arg(url.toString()));
         } else {
             m_sdkFilename = getSaveFilename(url);
             if (saveToDisk(m_sdkFilename, reply) && verifyFileIntegrity())
                 emit sdkPackageWriteFinished();
             else
                 cancelWithError(
-                    tr("Writing and verifying the integrity of the downloaded file has failed."));
+                    Tr::tr("Writing and verifying the integrity of the downloaded file has failed."));
         }
     }
 

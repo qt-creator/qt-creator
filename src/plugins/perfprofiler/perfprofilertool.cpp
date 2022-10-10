@@ -500,7 +500,7 @@ void PerfProfilerTool::updateFilterMenu()
     QList<PerfProfilerTraceManager::Thread> threads = m_traceManager->threads().values();
     std::sort(threads.begin(), threads.end());
 
-    for (const PerfProfilerTraceManager::Thread &thread : qAsConst(threads)) {
+    for (const PerfProfilerTraceManager::Thread &thread : std::as_const(threads)) {
         QAction *action = m_filterMenu->addAction(
                     QString::fromLatin1("%1 (%2)")
                     .arg(QString::fromUtf8(m_traceManager->string(thread.name)))

@@ -139,7 +139,7 @@ void ClangToolsDiagnosticModel::clear()
 
 void ClangToolsDiagnosticModel::updateItems(const DiagnosticItem *changedItem)
 {
-    for (auto item : qAsConst(stepsToItemsCache[changedItem->diagnostic().explainingSteps])) {
+    for (auto item : std::as_const(stepsToItemsCache[changedItem->diagnostic().explainingSteps])) {
         if (item != changedItem)
             item->setFixItStatus(changedItem->fixItStatus());
     }
@@ -202,7 +202,7 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
                    "<style>dt { font-weight:bold; } dd { font-family: monospace; }</style>\n"
                    "<body><dl>");
 
-    for (const StringPair &pair : qAsConst(lines)) {
+    for (const StringPair &pair : std::as_const(lines)) {
         html += QLatin1String("<dt>");
         html += pair.first;
         html += QLatin1String("</dt><dd>");
@@ -250,7 +250,7 @@ static QString fullText(const Diagnostic &diagnostic)
 
     // Explaining steps.
     int explainingStepNumber = 1;
-    for (const ExplainingStep &explainingStep : qAsConst(diagnostic.explainingSteps)) {
+    for (const ExplainingStep &explainingStep : std::as_const(diagnostic.explainingSteps)) {
         text += createExplainingStepString(explainingStep, explainingStepNumber++)
                 + QLatin1Char('\n');
     }
@@ -622,7 +622,7 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
         }
 
         // Explicitly suppressed?
-        for (const SuppressedDiagnostic &d : qAsConst(m_suppressedDiagnostics)) {
+        for (const SuppressedDiagnostic &d : std::as_const(m_suppressedDiagnostics)) {
             if (d.description != diag.description)
                 continue;
             Utils::FilePath filePath = d.filePath;

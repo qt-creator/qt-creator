@@ -66,7 +66,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     m_futureSynchronizer.addFuture(generateFuture);
 
     // extra compilers
-    for (QPointer<ExtraCompiler> compiler : qAsConst(m_extraCompilers)) {
+    for (QPointer<ExtraCompiler> compiler : std::as_const(m_extraCompilers)) {
         if (compiler->isDirty()) {
             QPointer<QFutureWatcher<void>> watcher = new QFutureWatcher<void>;
             // queued connection to delay after the extra compiler updated its result contents,
@@ -135,7 +135,7 @@ void CppProjectUpdater::checkForExtraCompilersFinished()
 
     QList<ExtraCompiler *> extraCompilers;
     QSet<QString> compilerFiles;
-    for (const QPointer<ExtraCompiler> &compiler : qAsConst(m_extraCompilers)) {
+    for (const QPointer<ExtraCompiler> &compiler : std::as_const(m_extraCompilers)) {
         if (compiler) {
             extraCompilers += compiler.data();
             compilerFiles += Utils::transform<QSet>(compiler->targets(), &Utils::FilePath::toString);

@@ -5,9 +5,10 @@
 
 #include "annotationhighlighter.h"
 #include "gitclient.h"
-#include "gitsettings.h"
 #include "gitconstants.h"
 #include "githighlighters.h"
+#include "gitsettings.h"
+#include "gittr.h"
 
 #include <coreplugin/icore.h>
 #include <texteditor/textdocument.h>
@@ -34,40 +35,37 @@ using namespace Core;
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class GitLogFilterWidget : public QToolBar
 {
-    Q_DECLARE_TR_FUNCTIONS(Git::Internal::GitLogFilterWidget);
-
 public:
     GitLogFilterWidget(GitEditorWidget *editor)
     {
         auto addLineEdit = [](const QString &placeholder,
                               const QString &tooltip,
                               GitEditorWidget *editor) {
-            auto lineEdit = new Utils::FancyLineEdit;
+            auto lineEdit = new FancyLineEdit;
             lineEdit->setFiltering(true);
             lineEdit->setToolTip(tooltip);
             lineEdit->setPlaceholderText(placeholder);
             lineEdit->setMaximumWidth(200);
             connect(lineEdit, &QLineEdit::returnPressed,
                     editor, &GitEditorWidget::refresh);
-            connect(lineEdit, &Utils::FancyLineEdit::rightButtonClicked,
+            connect(lineEdit, &FancyLineEdit::rightButtonClicked,
                     editor, &GitEditorWidget::refresh);
             return lineEdit;
         };
-        grepLineEdit = addLineEdit(tr("Filter by message"),
-                                   tr("Filter log entries by text in the commit message."),
+        grepLineEdit = addLineEdit(Tr::tr("Filter by message"),
+                                   Tr::tr("Filter log entries by text in the commit message."),
                                    editor);
-        pickaxeLineEdit = addLineEdit(tr("Filter by content"),
-                                      tr("Filter log entries by added or removed string."),
+        pickaxeLineEdit = addLineEdit(Tr::tr("Filter by content"),
+                                      Tr::tr("Filter log entries by added or removed string."),
                                       editor);
-        authorLineEdit = addLineEdit(tr("Filter by author"),
-                                     tr("Filter log entries by author."),
+        authorLineEdit = addLineEdit(Tr::tr("Filter by author"),
+                                     Tr::tr("Filter log entries by author."),
                                      editor);
-        addWidget(new QLabel(tr("Filter:")));
+        addWidget(new QLabel(Tr::tr("Filter:")));
         addSeparator();
         addWidget(grepLineEdit);
         addSeparator();
@@ -75,7 +73,7 @@ public:
         addSeparator();
         addWidget(authorLineEdit);
         addSeparator();
-        caseAction = new QAction(tr("Case Sensitive"), this);
+        caseAction = new QAction(Tr::tr("Case Sensitive"), this);
         caseAction->setCheckable(true);
         caseAction->setChecked(true);
         connect(caseAction, &QAction::toggled, editor, &GitEditorWidget::refresh);
@@ -84,9 +82,9 @@ public:
         connect(editor, &GitEditorWidget::toggleFilters, this, &QWidget::setVisible);
     }
 
-    Utils::FancyLineEdit *grepLineEdit;
-    Utils::FancyLineEdit *pickaxeLineEdit;
-    Utils::FancyLineEdit *authorLineEdit;
+    FancyLineEdit *grepLineEdit;
+    FancyLineEdit *pickaxeLineEdit;
+    FancyLineEdit *authorLineEdit;
     QAction *caseAction;
 };
 
@@ -102,8 +100,8 @@ GitEditorWidget::GitEditorWidget() :
     */
     setDiffFilePattern("^(?:diff --git a/|index |[+-]{3} (?:/dev/null|[ab]/(.+$)))");
     setLogEntryPattern("^commit ([0-9a-f]{8})[0-9a-f]{32}");
-    setAnnotateRevisionTextFormat(tr("&Blame %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Blame &Parent Revision %1"));
+    setAnnotateRevisionTextFormat(Tr::tr("&Blame %1"));
+    setAnnotatePreviousRevisionTextFormat(Tr::tr("Blame &Parent Revision %1"));
     setAnnotationEntryPattern("^(" CHANGE_PATTERN ") ");
 }
 
@@ -189,9 +187,8 @@ void GitEditorWidget::setPlainText(const QString &text)
     switch (contentType())
     {
     case LogOutput: {
-        Utils::AnsiEscapeCodeHandler handler;
-        const QList<Utils::FormattedText> formattedTextList
-                = handler.parseText(Utils::FormattedText(text));
+        AnsiEscapeCodeHandler handler;
+        const QList<FormattedText> formattedTextList = handler.parseText(FormattedText(text));
 
         clear();
         QTextCursor cursor = textCursor();
@@ -215,7 +212,7 @@ void GitEditorWidget::setPlainText(const QString &text)
 
 void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAction)
 {
-    Utils::TemporaryFile patchFile("git-apply-chunk");
+    TemporaryFile patchFile("git-apply-chunk");
     if (!patchFile.open())
         return;
 
@@ -230,7 +227,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAc
     QString errorMessage;
     if (GitClient::instance()->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
         if (errorMessage.isEmpty())
-            VcsOutputWindow::append(tr("Chunk successfully staged"));
+            VcsOutputWindow::append(Tr::tr("Chunk successfully staged"));
         else
             VcsOutputWindow::append(errorMessage);
         if (patchAction == PatchAction::Revert)
@@ -243,7 +240,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAc
 void GitEditorWidget::init()
 {
     VcsBaseEditorWidget::init();
-    Utils::Id editorId = textDocument()->id();
+    Id editorId = textDocument()->id();
     const bool isCommitEditor = editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID;
     const bool isRebaseEditor = editorId == Git::Constants::GIT_REBASE_EDITOR_ID;
     if (!isCommitEditor && !isRebaseEditor)
@@ -259,22 +256,21 @@ void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)
 {
     menu->addSeparator();
 
-    QAction *stageAction = menu->addAction(tr("Stage Chunk..."));
+    QAction *stageAction = menu->addAction(Tr::tr("Stage Chunk..."));
     connect(stageAction, &QAction::triggered, this, [this, chunk] {
         applyDiffChunk(chunk, PatchAction::Apply);
     });
 
-    QAction *unstageAction = menu->addAction(tr("Unstage Chunk..."));
+    QAction *unstageAction = menu->addAction(Tr::tr("Unstage Chunk..."));
     connect(unstageAction, &QAction::triggered, this, [this, chunk] {
         applyDiffChunk(chunk, PatchAction::Revert);
     });
 }
 
-void GitEditorWidget::aboutToOpen(const Utils::FilePath &filePath,
-                                  const Utils::FilePath &realFilePath)
+void GitEditorWidget::aboutToOpen(const FilePath &filePath, const FilePath &realFilePath)
 {
     Q_UNUSED(realFilePath)
-    Utils::Id editorId = textDocument()->id();
+    Id editorId = textDocument()->id();
     if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         const FilePath gitPath = filePath.absolutePath();
@@ -392,5 +388,4 @@ bool GitEditorWidget::caseSensitive() const
     return m_logFilterWidget && m_logFilterWidget->caseAction->isChecked();
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

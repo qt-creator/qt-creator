@@ -304,7 +304,7 @@ int ProjectTreeWidget::expandedCount(Node *node)
         return 0;
 
     int count = 0;
-    for (ProjectTreeWidget *tree : qAsConst(m_projectTreeWidgets)) {
+    for (ProjectTreeWidget *tree : std::as_const(m_projectTreeWidgets)) {
         QModelIndex idx = index;
         while (idx.isValid() && idx != tree->m_view->rootIndex()) {
             if (!tree->m_view->isExpanded(idx))

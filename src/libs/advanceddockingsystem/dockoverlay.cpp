@@ -592,7 +592,7 @@ namespace ADS {
         if (windowHandle()->devicePixelRatio() == d->m_lastDevicePixelRatio) // TODO
             return;
 
-        for (auto widget : qAsConst(d->m_dropIndicatorWidgets))
+        for (auto widget : std::as_const(d->m_dropIndicatorWidgets))
             d->updateDropIndicatorIcon(widget);
 
         d->m_lastDevicePixelRatio = devicePixelRatioF();

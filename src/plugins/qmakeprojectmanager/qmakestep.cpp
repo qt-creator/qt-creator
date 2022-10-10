@@ -144,7 +144,7 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     QString args = ProcessArgs::joinArgs(arguments);
     // User arguments
     ProcessArgs::addArgs(&args, userArguments());
-    for (QString arg : qAsConst(m_extraArgs))
+    for (QString arg : std::as_const(m_extraArgs))
         ProcessArgs::addArgs(&args, arg);
     return (flags & ArgumentFlag::Expand) ? bc->macroExpander()->expand(args) : args;
 }
@@ -248,7 +248,7 @@ bool QMakeStep::init()
 
     if (!tasks.isEmpty()) {
         bool canContinue = true;
-        for (const Task &t : qAsConst(tasks)) {
+        for (const Task &t : std::as_const(tasks)) {
             emit addTask(t);
             if (t.type == Task::Error)
                 canContinue = false;
@@ -635,7 +635,7 @@ void QMakeStep::abisChanged()
                 }
             }
             QStringList archs;
-            for (const QString &selectedAbi : qAsConst(m_selectedAbis)) {
+            for (const QString &selectedAbi : std::as_const(m_selectedAbis)) {
                 const auto abi = Abi::abiFromTargetTriplet(selectedAbi);
                 if (abi.architecture() == Abi::X86Architecture)
                     archs << "x86_64";

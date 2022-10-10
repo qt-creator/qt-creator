@@ -11,13 +11,10 @@ class QGroupBox;
 class QRadioButton;
 QT_END_NAMESPACE
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class BranchCheckoutDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit BranchCheckoutDialog(QWidget *parent, const QString &currentBranch,
                                   const QString &nextBranch);
@@ -47,5 +44,4 @@ private:
     QCheckBox *m_popStashCheckBox;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

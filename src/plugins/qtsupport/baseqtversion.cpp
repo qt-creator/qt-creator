@@ -1048,7 +1048,7 @@ FilePath QtVersionPrivate::findHostBinary(HostBinaries binary) const
     default:
         Q_ASSERT(false);
     }
-    for (const QString &possibleCommand : qAsConst(possibleCommands)) {
+    for (const QString &possibleCommand : std::as_const(possibleCommands)) {
         const FilePath fullPath = baseDir / possibleCommand;
         if (fullPath.isExecutableFile())
             return fullPath;
@@ -2341,7 +2341,7 @@ QtVersion *QtVersionFactory::create() const
 
 QtVersion *QtVersion::clone() const
 {
-    for (QtVersionFactory *factory : qAsConst(g_qtVersionFactories)) {
+    for (QtVersionFactory *factory : std::as_const(g_qtVersionFactories)) {
         if (factory->m_supportedType == d->m_type) {
             QtVersion *version = factory->create();
             QTC_ASSERT(version, return nullptr);

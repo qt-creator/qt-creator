@@ -167,7 +167,7 @@ Core::GeneratedFiles
     if (CustomWizard::verbose()) {
         QDebug nospace = qDebug().nospace();
         nospace << script << " generated:\n";
-        for (const Core::GeneratedFile &f : qAsConst(files))
+        for (const Core::GeneratedFile &f : std::as_const(files))
             nospace << ' ' << f.filePath() << f.attributes() << '\n';
     }
     return files;

@@ -292,7 +292,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
         QMargins margins = actionsLayout->contentsMargins();
         margins.setLeft(margins.left() + 5);
         actionsLayout->setContentsMargins(margins);
-        for (QAction *action : qAsConst(actions)) {
+        for (QAction *action : std::as_const(actions)) {
             QTC_ASSERT(!action->icon().isNull(), delete action; continue);
             auto button = new QToolButton;
             button->setIcon(action->icon());
@@ -481,7 +481,7 @@ void TextMarkRegistry::documentRenamed(IDocument *document,
     m_marks[oldPath].subtract(toBeMoved);
     m_marks[newPath].unite(toBeMoved);
 
-    for (TextMark *mark : qAsConst(toBeMoved))
+    for (TextMark *mark : std::as_const(toBeMoved))
         mark->updateFileName(newPath);
 }
 

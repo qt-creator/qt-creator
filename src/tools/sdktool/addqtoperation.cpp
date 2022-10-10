@@ -296,7 +296,7 @@ QVariantMap AddQtData::addQt(const QVariantMap &map) const
     data << KeyValuePair(QStringList() << qt << ABIS, QVariant(m_abis));
 
     KeyValuePairList qtExtraList;
-    for (const KeyValuePair &pair : qAsConst(m_extra))
+    for (const KeyValuePair &pair : std::as_const(m_extra))
         qtExtraList << KeyValuePair(QStringList() << qt << pair.key, pair.value);
     data.append(qtExtraList);
 

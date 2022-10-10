@@ -666,7 +666,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *
                     QStringList nCompletions;
                     QString prefix(libVersion.left(toSkip));
                     nCompletions.reserve(completions.size());
-                    for (const QString &completion : qAsConst(completions))
+                    for (const QString &completion : std::as_const(completions))
                         if (completion.startsWith(prefix))
                             nCompletions.append(completion.right(completion.size()-toSkip));
                     completions = nCompletions;
@@ -1031,7 +1031,7 @@ void QmlJSAssistProposalModel::filter(const QString &prefix)
         return;
     QList<AssistProposalItemInterface *> newCurrentItems;
     newCurrentItems.reserve(m_currentItems.size());
-    for (AssistProposalItemInterface *item : qAsConst(m_currentItems))
+    for (AssistProposalItemInterface *item : std::as_const(m_currentItems))
         if (!item->text().startsWith(QLatin1String("__")))
             newCurrentItems << item;
     m_currentItems = newCurrentItems;

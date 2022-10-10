@@ -229,7 +229,7 @@ void SnippetsCollection::restoreRemovedSnippets(const QString &groupId)
     const QVector<Snippet> toRestore = m_snippets[group].mid(m_activeSnippetsCount[group]);
     m_snippets[group].resize(m_activeSnippetsCount[group]);
 
-    for (Snippet snippet : qAsConst(toRestore)) {
+    for (Snippet snippet : std::as_const(toRestore)) {
         snippet.setIsRemoved(false);
         insertSnippet(snippet);
     }
@@ -275,7 +275,7 @@ void SnippetsCollection::reload()
         insertSnippet(snippet);
     }
 
-    for (const Snippet &snippet : qAsConst(activeBuiltInSnippets))
+    for (const Snippet &snippet : std::as_const(activeBuiltInSnippets))
         insertSnippet(snippet);
 }
 

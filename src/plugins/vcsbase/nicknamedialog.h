@@ -13,7 +13,10 @@ class QSortFilterProxyModel;
 class QStandardItemModel;
 QT_END_NAMESPACE
 
-namespace Utils { class TreeView; }
+namespace Utils {
+class FilePath;
+class TreeView;
+}
 
 namespace VcsBase::Internal {
 
@@ -29,7 +32,7 @@ public:
 
     // Utilities to initialize/populate the model
     static QStandardItemModel *createModel(QObject *parent);
-    static bool populateModelFromMailCapFile(const QString &file,
+    static bool populateModelFromMailCapFile(const Utils::FilePath &file,
                                              QStandardItemModel *model,
                                              QString *errorMessage);
 

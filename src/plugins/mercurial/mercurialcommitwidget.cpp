@@ -3,21 +3,26 @@
 
 #include "mercurialcommitwidget.h"
 
+#include "mercurialtr.h"
+
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorconstants.h>
+
 #include <utils/completingtextedit.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QLabel>
+#include <QLineEdit>
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
 
 //see the git submit widget for details of the syntax Highlighter
 
-namespace Mercurial {
-namespace Internal {
+namespace Mercurial::Internal {
 
 // Highlighter for Mercurial submit messages. Make the first line bold, indicates
 // comments as such (retrieving the format from the text editor) and marks up
@@ -85,11 +90,48 @@ void MercurialSubmitHighlighter::highlightBlock(const QString &text)
     }
 }
 
-
-MercurialCommitWidget::MercurialCommitWidget() :
-    mercurialCommitPanel(new QWidget)
+class MercurialCommitPanel : public QWidget
 {
-    mercurialCommitPanelUi.setupUi(mercurialCommitPanel);
+public:
+    MercurialCommitPanel()
+    {
+        m_repositoryLabel = new QLabel;
+        m_branchLabel = new QLabel;
+
+        m_authorLineEdit = new QLineEdit;
+        m_emailLineEdit = new QLineEdit;
+
+        using namespace Utils::Layouting;
+
+        Column {
+            Group {
+                title(Tr::tr("General Information")),
+                Form {
+                    Tr::tr("Repository:"), m_repositoryLabel, br,
+                    Tr::tr("Branch:"), m_branchLabel,
+                }
+            },
+            Group {
+                title(Tr::tr("Commit Information")),
+                Row {
+                    Form {
+                        Tr::tr("Author:"), m_authorLineEdit, br,
+                        Tr::tr("Email:"), m_emailLineEdit,
+                    },
+                }
+            }
+        }.attachTo(this, Utils::Layouting::WithoutMargins);
+    }
+
+    QLabel *m_repositoryLabel;
+    QLabel *m_branchLabel;
+    QLineEdit *m_authorLineEdit;
+    QLineEdit *m_emailLineEdit;
+};
+
+MercurialCommitWidget::MercurialCommitWidget()
+    : mercurialCommitPanel(new MercurialCommitPanel)
+{
     insertTopWidget(mercurialCommitPanel);
     new MercurialSubmitHighlighter(descriptionEdit());
 }
@@ -97,16 +139,16 @@ MercurialCommitWidget::MercurialCommitWidget() :
 void MercurialCommitWidget::setFields(const QString &repositoryRoot, const QString &branch,
                                       const QString &userName, const QString &email)
 {
-    mercurialCommitPanelUi.repositoryLabel->setText(repositoryRoot);
-    mercurialCommitPanelUi.branchLabel->setText(branch);
-    mercurialCommitPanelUi.authorLineEdit->setText(userName);
-    mercurialCommitPanelUi.emailLineEdit->setText(email);
+    mercurialCommitPanel->m_repositoryLabel->setText(repositoryRoot);
+    mercurialCommitPanel->m_branchLabel->setText(branch);
+    mercurialCommitPanel->m_authorLineEdit->setText(userName);
+    mercurialCommitPanel->m_emailLineEdit->setText(email);
 }
 
-QString MercurialCommitWidget::committer()
+QString MercurialCommitWidget::committer() const
 {
-    const QString author = mercurialCommitPanelUi.authorLineEdit->text();
-    const QString email = mercurialCommitPanelUi.emailLineEdit->text();
+    const QString author = mercurialCommitPanel->m_authorLineEdit->text();
+    const QString email = mercurialCommitPanel->m_emailLineEdit->text();
     if (author.isEmpty())
         return QString();
 
@@ -119,9 +161,9 @@ QString MercurialCommitWidget::committer()
     return user;
 }
 
-QString MercurialCommitWidget::repoRoot()
+QString MercurialCommitWidget::repoRoot() const
 {
-    return mercurialCommitPanelUi.repositoryLabel->text();
+    return mercurialCommitPanel->m_repositoryLabel->text();
 }
 
 QString MercurialCommitWidget::cleanupDescription(const QString &input) const
@@ -133,5 +175,4 @@ QString MercurialCommitWidget::cleanupDescription(const QString &input) const
     return message;
 }
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

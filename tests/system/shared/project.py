@@ -146,7 +146,7 @@ def __selectQtVersionDesktop__(buildSystem, checks, available=None):
         for target in checkedTargets:
             detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' visible='1' "
                                           "summaryText='%s'}" % Targets.getStringForTarget(target))
-            detailsButton = getChildByClass(detailsWidget, "Utils::DetailsButton")
+            detailsButton = getChildByClass(detailsWidget, "QToolButton")
             if test.verify(detailsButton != None, "Verifying if 'Details' button could be found"):
                 clickButton(detailsButton)
                 cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "

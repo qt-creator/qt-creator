@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "remotemodel.h"
+
 #include "gitclient.h"
+#include "gittr.h"
 
 #include <utils/algorithm.h>
 
 using namespace Utils;
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
-// ------ RemoteModel
 RemoteModel::RemoteModel(QObject *parent) : QAbstractTableModel(parent)
 { }
 
@@ -120,7 +120,7 @@ QVariant RemoteModel::headerData(int section, Qt::Orientation orientation, int r
     if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
         return QVariant();
 
-    return (section == 0) ? tr("Name") : tr("URL");
+    return (section == 0) ? Tr::tr("Name") : Tr::tr("URL");
 }
 
 bool RemoteModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -190,6 +190,5 @@ int RemoteModel::findRemoteByName(const QString &name) const
     return -1;
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal
 

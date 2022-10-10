@@ -292,7 +292,7 @@ void TransitionEditorToolBar::resizeEvent([[maybe_unused]] QResizeEvent *event)
 {
     int width = 0;
     QWidget *spacer = nullptr;
-    for (auto *object : qAsConst(m_grp)) {
+    for (auto *object : std::as_const(m_grp)) {
         if (isSpacer(object))
             spacer = qobject_cast<QWidget *>(object);
         else

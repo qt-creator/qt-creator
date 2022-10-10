@@ -646,14 +646,11 @@
     </message>
 </context>
 <context>
-    <name>AdbCommandsWidget</name>
+    <name>Android</name>
     <message>
         <source>Widget</source>
         <translation>Programčić</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AddNewAVDDialog</name>
     <message>
         <source>Create new AVD</source>
         <translation>Stvori novi AVD</translation>
@@ -678,9 +675,6 @@
         <source> MiB</source>
         <translation> MiB</translation>
     </message>
-</context>
-<context>
-    <name>AndroidBuildApkWidget</name>
     <message>
         <source>Sign package</source>
         <translation>Potpiši paket</translation>
@@ -737,9 +731,6 @@
         <source>Use Ministro service to install Qt</source>
         <translation>Koristi Ministro uslugu za instaliranje Qt-a</translation>
     </message>
-</context>
-<context>
-    <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a certificate</source>
         <translation>Stvori spremište ključeva i certifikat</translation>
@@ -808,9 +799,6 @@
         <source>Keystore</source>
         <translation>Spremište ključeva</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceDialog</name>
     <message>
         <source>Select Android Device</source>
         <translation>Odaberi Android uređaj</translation>
@@ -838,10 +826,6 @@
     <message>
         <source>Refresh Device List</source>
         <translation>Aktualiziraj popis uređaja</translation>
-    </message>
-    <message>
-        <source>ABI:</source>
-        <translation>ABI:</translation>
     </message>
     <message>
         <source>Compatible devices</source>
@@ -883,9 +867,6 @@
         <source>Looking for default device &lt;b&gt;%1&lt;/b&gt;.</source>
         <translation>Traženje zadanog uređaja &lt;b&gt;%1&lt;/b&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManagerWidget</name>
     <message>
         <source>Android SDK Manager</source>
         <translation>Upravljač za Android SDK</translation>
@@ -929,10 +910,6 @@
     <message>
         <source>Native SDK Manager...</source>
         <translation>Izvorni upravljač za SDK …</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Odustani</translation>
     </message>
     <message>
         <source>Do you want to accept the Android SDK license?</source>
@@ -1042,9 +1019,6 @@ Cancelling pending operations...
 Odustajanje od izvršavanja neriješenih operacija …
 </translation>
     </message>
-</context>
-<context>
-    <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
         <translation>Android konfiguracija</translation>
@@ -3830,7 +3804,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchAddDialog</name>
+    <name>Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>Naziv grane:</translation>
@@ -3859,9 +3833,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Track local branch &apos;%1&apos;</source>
         <translation>Prati lokalnu granu &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchCheckoutDialog</name>
     <message>
         <source>Local Changes Found. Choose Action:</source>
         <translation>Nađene su lokalne promjene. Odaberi radnju:</translation>
@@ -3873,10 +3844,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     <message>
         <source>Discard Local Changes</source>
         <translation>Zanemari lokalne promjene</translation>
-    </message>
-    <message>
-        <source>CheckBox</source>
-        <translation>Potvrdni kvadratić</translation>
     </message>
     <message>
         <source>Checkout branch &quot;%1&quot;</source>
@@ -3898,9 +3865,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Create Branch Stash for Current Branch</source>
         <translation>Stvori skladište grane za trenutačnu granu</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <source>Select a Git Commit</source>
         <translation>Odaberi Git obvezu</translation>
@@ -3965,9 +3929,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Fetching commit data...</source>
         <translation>Dohvaćanje podataka obveze …</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::AuthenticationDialog</name>
     <message>
         <source>Authentication</source>
         <translation>Autentifikacija</translation>
@@ -3992,9 +3953,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>Anonymous</source>
         <translation>Anonimno</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Gerrit</source>
         <translation>Gerrit</translation>
@@ -4020,14 +3978,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <translation>Detalji</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Prikaži</translation>
-    </message>
-    <message>
-        <source>Cherry &amp;Pick</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>C&amp;heckout</source>
         <translation>&amp;Odjava</translation>
     </message>
@@ -4051,9 +4001,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
 Želiš li deaktivirati potvrdu SSL-a za ovaj poslužitelj?
 Napomena: To te može izložiti napadu čovjeka-u-sredini.</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation>Gurni na Gerrit</translation>
@@ -4161,9 +4108,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>... Include older branches ...</source>
         <translation>…&#xa0;Uključi starije grane …</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Opće informacije</translation>
@@ -4204,9 +4148,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>Sign off</source>
         <translation>Odjavi se</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteAdditionDialog</name>
     <message>
         <source>Add Remote</source>
         <translation>Dodaj udaljeni</translation>
@@ -4219,9 +4160,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>URL:</source>
         <translation>URL:</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteDialog</name>
     <message>
         <source>Remotes</source>
         <translation>Udaljeni</translation>
@@ -4262,9 +4200,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>Would you like to delete the remote &quot;%1&quot;?</source>
         <translation>Želiš li ukloniti udaljeni „%1”?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -4333,9 +4268,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>Git Settings</source>
         <translation>Git postavke</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::StashDialog</name>
     <message>
         <source>Stashes</source>
         <translation>Skladišta</translation>
@@ -4361,10 +4293,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <translation>&amp;Ukloni …</translation>
     </message>
     <message>
-        <source>&amp;Show</source>
-        <translation>&amp;Prikaži</translation>
-    </message>
-    <message>
         <source>R&amp;estore...</source>
         <translation>Vrati izvorno stanj&amp;e …</translation>
     </message>
@@ -4372,10 +4300,6 @@ Deaktivirano – Promjena nije skica.</translation>
         <source>Restore to &amp;Branch...</source>
         <extracomment>Restore a git stash to new branch to be created</extracomment>
         <translation>Vrati izvorno stanje u &amp;granu …</translation>
-    </message>
-    <message>
-        <source>Re&amp;fresh</source>
-        <translation>&amp;Aktualiziraj</translation>
     </message>
     <message>
         <source>Delete Stashes</source>
@@ -4404,20 +4328,12 @@ You can choose between stashing the changes or discarding them.</source>
 Možeš birati između skladištenja promjena ili njihovih odbacivanja.</translation>
     </message>
     <message>
-        <source>Stash</source>
-        <translation>Skladište</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>Odbaci</translation>
     </message>
     <message>
         <source>Restore Stash to Branch</source>
         <translation>Vrati izvorno stanje skladišta u granu</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation>Grana:</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -5085,7 +5001,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::AuthenticationDialog</name>
+    <name>Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -5098,9 +5014,6 @@ Greška: %5</translation>
         <source>Password:</source>
         <translation>Lozinka:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialCommitPanel</name>
     <message>
         <source>General Information</source>
         <translation>Opće informacije</translation>
@@ -5133,9 +5046,6 @@ Greška: %5</translation>
         <source>Email:</source>
         <translation>E-pošta:</translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -5185,13 +5095,6 @@ Greška: %5</translation>
         <translation>Broj zapisa:</translation>
     </message>
     <message>
-        <source>Mercurial</source>
-        <translation>Mercurial</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::RevertDialog</name>
-    <message>
         <source>Revert</source>
         <translation>Vrati natrag</translation>
     </message>
@@ -5202,13 +5105,6 @@ Greška: %5</translation>
     <message>
         <source>Revision:</source>
         <translation>Revizija:</translation>
-    </message>
-</context>
-<context>
-    <name>Mercurial::Internal::SrcDestDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dijalog</translation>
     </message>
     <message>
         <source>Default Location</source>
@@ -12156,7 +12052,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation type="unfinished"></translation>
@@ -13813,7 +13709,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>AndroidAvdManager</name>
+    <name>Android</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation type="unfinished"></translation>
@@ -13823,16 +13719,9 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot create AVD. Command timed out.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidAvdManager</name>
     <message>
         <source>AVD Start Error</source>
         <translation type="unfinished"></translation>
@@ -13845,9 +13734,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidBuildApkStep</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -13898,20 +13784,9 @@ The minimum API level required by the kit is %1.</source>
         <source>Failed to run keytool.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::PasswordInputDialog</name>
     <message>
         <source>Incorrect password.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keystore</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Certificate</source>
-        <translation type="unfinished">Certifikat</translation>
     </message>
     <message>
         <source>Enter keystore password</source>
@@ -13921,30 +13796,12 @@ The minimum API level required by the kit is %1.</source>
         <source>Enter certificate password</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidBuildApkInnerWidget</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Keystore files (*.keystore *.jks)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select Keystore File</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidBuildApkWidget</name>
-    <message>
-        <source>Build Android APK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Android</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13960,16 +13817,8 @@ The minimum API level required by the kit is %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Dodaj …</translation>
-    </message>
-    <message>
         <source>Select library to include in package.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Remove currently selected library from list.</source>
@@ -13983,9 +13832,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Libraries (*.so)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfiguration</name>
     <message>
         <source>Could not run: %1</source>
         <translation type="unfinished"></translation>
@@ -13994,9 +13840,6 @@ The minimum API level required by the kit is %1.</source>
         <source>No devices found in output of: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidConfigurations</name>
     <message>
         <source>Android Debugger for %1</source>
         <translation type="unfinished"></translation>
@@ -14005,9 +13848,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Android for %1 (Clang %2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Keystore password is too short.</source>
         <translation type="unfinished"></translation>
@@ -14036,17 +13876,6 @@ The minimum API level required by the kit is %1.</source>
         <source>Keystore Filename</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Keystore files (*.keystore *.jks)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device or emulator</source>
         <translation type="unfinished"></translation>
@@ -14078,7 +13907,7 @@ The minimum API level required by the kit is %1.</source>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployQtStep default display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Implementiraj za Android uređaj</translation>
     </message>
     <message>
         <source>No Android arch set by the .pro file.</source>
@@ -14110,10 +13939,6 @@ The minimum API level required by the kit is %1.</source>
     </message>
     <message>
         <source>Uninstall previous package %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14156,20 +13981,10 @@ Do you want to uninstall the existing package?</source>
         <source>Package deploy: Running command &quot;%1 %2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDevice</name>
     <message>
         <source>Run on Android</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceModelDelegate</name>
     <message>
         <source>OpenGL enabled</source>
         <translation type="unfinished"></translation>
@@ -14178,23 +13993,14 @@ Do you want to uninstall the existing package?</source>
         <source>OpenGL disabled</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidConfig</name>
     <message>
         <source>Error Creating AVD</source>
         <translation>Greška prilikom stvaranja AVD-a</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidDeviceFactory</name>
     <message>
         <source>Android Device</source>
         <translation>Android uređaj</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidErrorMessage</name>
     <message>
         <source>Android: SDK installation error 0x%1</source>
         <translation type="unfinished"></translation>
@@ -14235,16 +14041,10 @@ Do you want to uninstall the existing package?</source>
         <source>Android: Unknown error 0x%1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformation</name>
     <message>
         <source>GDB server</source>
         <translation>GDB poslužitelj</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidGdbServerKitInformationWidget</name>
     <message>
         <source>Manage...</source>
         <translation type="unfinished"></translation>
@@ -14273,9 +14073,6 @@ Do you want to uninstall the existing package?</source>
         <source>GDB Server for &quot;%1&quot;</source>
         <translation>GDB poslužitelj za &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidManager</name>
     <message>
         <source>Unknown Android version. API Level: %1</source>
         <translation>Neposznata Android verzija. API razina: %1</translation>
@@ -14302,9 +14099,6 @@ Do you want to uninstall the existing package?</source>
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditor</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -14313,16 +14107,10 @@ Do you want to uninstall the existing package?</source>
         <source>XML Source</source>
         <translation>XML izvor</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorFactory</name>
     <message>
         <source>Android Manifest editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidManifestEditorWidget</name>
     <message>
         <source>Package</source>
         <translation type="unfinished"></translation>
@@ -14368,10 +14156,6 @@ Do you want to uninstall the existing package?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation>Aplikacija</translation>
-    </message>
-    <message>
         <source>Application name:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14410,10 +14194,6 @@ Do you want to uninstall the existing package?</source>
     <message>
         <source>Include default features for Qt modules.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Add</source>
@@ -14459,9 +14239,6 @@ Do you want to uninstall the existing package?</source>
         <source>Choose High DPI Icon</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
         <translation>Kopiraj podatke aplikacije</translation>
@@ -14474,37 +14251,18 @@ Do you want to uninstall the existing package?</source>
         <source>Deploy to device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
     <message>
         <source>Make install</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal</name>
-    <message>
-        <source>Deploy to Android device</source>
-        <translation>Implementiraj za Android uređaj</translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKit</name>
     <message>
         <source>Configure Android...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidPotentialKitWidget</name>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation type="unfinished"></translation>
@@ -14514,9 +14272,6 @@ Do you want to uninstall the existing package?</source>
         <extracomment>Qt Version is meant for Android</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunConfiguration</name>
     <message>
         <source>Activity manager start options:</source>
         <translation type="unfinished"></translation>
@@ -14549,23 +14304,14 @@ Do you want to uninstall the existing package?</source>
         <source>The project file &quot;%1&quot; could not be parsed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::AndroidRunEnvironmentAspect</name>
     <message>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunner</name>
     <message>
         <source>&quot;%1&quot; terminated.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidRunnerWorker</name>
     <message>
         <source>No free ports available on host for QML debugging.</source>
         <translation type="unfinished"></translation>
@@ -14610,9 +14356,6 @@ Do you want to uninstall the existing package?</source>
         <source>&quot;%1&quot; died.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkManager</name>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
         <translation type="unfinished"></translation>
@@ -14623,9 +14366,6 @@ Do you want to uninstall the existing package?</source>
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidSdkManager</name>
     <message>
         <source>Updating installed packages.</source>
         <translation type="unfinished"></translation>
@@ -14652,9 +14392,6 @@ Do you want to uninstall the existing package?</source>
         <source>Failed</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::OptionsDialog</name>
     <message>
         <source>SDK Manager Arguments</source>
         <translation type="unfinished"></translation>
@@ -14669,13 +14406,6 @@ Do you want to uninstall the existing package?</source>
     </message>
     <message>
         <source>Available arguments:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSdkModel</name>
-    <message>
-        <source>Package</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14710,16 +14440,6 @@ Do you want to uninstall the existing package?</source>
         <source>Install</source>
         <translation type="unfinished">Instaliraj</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsPage</name>
-    <message>
-        <source>Android</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Android::Internal::AvdModel</name>
     <message>
         <source>AVD Name</source>
         <extracomment>AVD - Android Virtual Device</extracomment>
@@ -14733,9 +14453,6 @@ Do you want to uninstall the existing package?</source>
         <source>CPU/ABI</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>JDK path exists.</source>
         <translation type="unfinished"></translation>
@@ -14832,23 +14549,14 @@ Do you want to uninstall the existing package?</source>
         <source>AVD manager UI tool is not available in the installed SDK tools(version %1). Use the command line tool &quot;avdmanager&quot; for advanced AVD management.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android Clang</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AndroidToolManager</name>
     <message>
         <source>Could not start process &quot;%1 %2&quot;</source>
         <translation>Nije bilo moguće pokrenuti proces &quot;%1 %2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::AvdDialog</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -14862,9 +14570,6 @@ Install an SDK of at least API version %1.</source>
         <source>Allowed characters are: a-z A-Z 0-9 and . _ -</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::NoApplicationProFilePage</name>
     <message>
         <source>No application .pro file found in this project.</source>
         <translation type="unfinished"></translation>
@@ -14873,9 +14578,6 @@ Install an SDK of at least API version %1.</source>
         <source>No Application .pro File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::ChooseProFilePage</name>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
         <translation type="unfinished"></translation>
@@ -14888,9 +14590,6 @@ Install an SDK of at least API version %1.</source>
         <source>Select a .pro File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::ChooseDirectoryPage</name>
     <message>
         <source>Android package source directory:</source>
         <translation type="unfinished"></translation>
@@ -14917,9 +14616,6 @@ The files in the Android package source directory are copied to the build direct
         <source>The Android template files will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::CreateAndroidManifestWizard</name>
     <message>
         <source>Create Android Template Files Wizard</source>
         <translation type="unfinished"></translation>
@@ -14948,9 +14644,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Could not update the project file %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Android::Internal::JavaEditorFactory</name>
     <message>
         <source>Java Editor</source>
         <translation type="unfinished"></translation>
@@ -15497,7 +15190,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -24491,7 +24184,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>Git::Internal::BranchModel</name>
+    <name>Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokalne grane</translation>
@@ -24508,9 +24201,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Tags</source>
         <translation>Oznake</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchView</name>
     <message>
         <source>Include Old Entries</source>
         <translation>Uključi stare unose</translation>
@@ -24542,10 +24232,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     <message>
         <source>Add Branch...</source>
         <translation>Dodaj granu …</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation>&amp;Dodaj …</translation>
     </message>
     <message>
         <source>&amp;Fetch</source>
@@ -24596,16 +24282,8 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cherry &amp;Pick</source>
-        <translation>Izabrano &amp;biranje</translation>
-    </message>
-    <message>
         <source>&amp;Track</source>
         <translation>&amp;Prati</translation>
-    </message>
-    <message>
-        <source>&amp;Push</source>
-        <translation>&amp;Gurni</translation>
     </message>
     <message>
         <source>Would you like to delete the tag &quot;%1&quot;?</source>
@@ -24639,9 +24317,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Hard reset branch &quot;%1&quot; to &quot;%2&quot;?</source>
         <translation>Svakako resetiraj granu &quot;%1&quot; na &quot;%2&quot;?</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BranchViewFactory</name>
     <message>
         <source>Git Branches</source>
         <translation>Git grane</translation>
@@ -24650,9 +24325,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Filter</source>
         <translation>Filtar</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::CommitData</name>
     <message>
         <source>untracked</source>
         <translation>nepraćeno</translation>
@@ -24697,9 +24369,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source> by them</source>
         <translation> od njih</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritModel</name>
     <message>
         <source> (Draft)</source>
         <translation> (koncept)</translation>
@@ -24756,9 +24425,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Parse error: &quot;%1&quot;</source>
         <translation>Greška u obradi: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Querying Gerrit</source>
         <translation>Pretraživanje Gerrita</translation>
@@ -24795,16 +24461,6 @@ Najvjerojatniji uzrok tome su problemi s SSH autentifikacijom.
         <source>Keep Running</source>
         <translation>Nastavi s pokretanjem</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsPage</name>
-    <message>
-        <source>Gerrit</source>
-        <translation>Gerrit</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
         <translation>HTTPS</translation>
@@ -24812,10 +24468,6 @@ Najvjerojatniji uzrok tome su problemi s SSH autentifikacijom.
     <message>
         <source>&amp;Host:</source>
         <translation>&amp;Glavno računalo:</translation>
-    </message>
-    <message>
-        <source>&amp;User:</source>
-        <translation>K&amp;orisnik:</translation>
     </message>
     <message>
         <source>&amp;ssh:</source>
@@ -24839,28 +24491,10 @@ Najvjerojatniji uzrok tome su problemi s SSH autentifikacijom.
 &quot;gerrit.config&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Fetching from Gerrit</source>
         <translation>Dohvaćanje od Gerrita</translation>
     </message>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 se urušio.</translation>
-    </message>
-    <message>
-        <source>%1 returned %2.</source>
-        <translation>%1 je vratio %2.</translation>
-    </message>
-    <message>
-        <source>Error running %1: %2</source>
-        <translation>Greška u pokretanju %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
         <translation>Gerrit …</translation>
@@ -24903,9 +24537,6 @@ nisu provjereni između daljinskih u %3. Odabrati jednu drugu mapu?</translation
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
         <translation>Uđi u lokalno spremište za &quot;%1&quot; (%2)</translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritRemoteChooser</name>
     <message>
         <source>Refresh Remote Servers</source>
         <translation>Obnovi udaljene poslužitelje</translation>
@@ -24914,9 +24545,6 @@ nisu provjereni između daljinskih u %3. Odabrati jednu drugu mapu?</translation
         <source>Fallback</source>
         <translation>Rezerva</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitClient</name>
     <message numerus="yes">
         <source>and %n more</source>
         <extracomment>Displayed after the untranslated message &quot;Branches: branch1, branch2 &apos;and %n more&apos;&quot;</extracomment>
@@ -25049,10 +24677,6 @@ nisu provjereni između daljinskih u %3. Odabrati jednu drugu mapu?</translation
         <translation>Neispravna revizija</translation>
     </message>
     <message>
-        <source>Detached HEAD</source>
-        <translation>Odvojeni HEAD</translation>
-    </message>
-    <message>
         <source>Cannot describe revision &quot;%1&quot; in &quot;%2&quot;: %3</source>
         <translation>Nije moguće  opisati reviziju &quot;%1&quot; u &quot;%2&quot;: %3</translation>
     </message>
@@ -25133,10 +24757,6 @@ Commit now?</source>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Continue Revert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -25292,10 +24912,6 @@ Commit now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Discard</source>
-        <translation>Odbaci</translation>
-    </message>
-    <message>
         <source>Discard (reset) local changes and execute %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25307,16 +24923,10 @@ Commit now?</source>
         <source>Cancel %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitDiffEditorController</name>
     <message>
         <source>&lt;None&gt;</source>
         <translation>&lt;bez&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
         <source>Patience</source>
         <translation>Patience</translation>
@@ -25325,17 +24935,6 @@ Commit now?</source>
         <source>Use the patience algorithm for calculating the differences.</source>
         <translation>Koristi patience algoritam za izračunavanje razlika.</translation>
     </message>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>Zanemari bjeline</translation>
-    </message>
-    <message>
-        <source>Ignore whitespace only changes.</source>
-        <translation>Zanemari promjene samo u bjelinama.</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitBlameArgumentsWidget</name>
     <message>
         <source>Omit Date</source>
         <translation>Zanemari datum</translation>
@@ -25372,9 +24971,6 @@ Commit now?</source>
         <source>Reload</source>
         <translation>Učitaj ponovo</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitLogArgumentsWidget</name>
     <message>
         <source>Show Diff</source>
         <translation>Prikaži razlike</translation>
@@ -25400,22 +24996,11 @@ Commit now?</source>
         <translation>Prikaži log-zapis tekstovnim dijagramom.</translation>
     </message>
     <message>
-        <source>Reload</source>
-        <translation>Učitaj ponovo</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitEditorWidget</name>
-    <message>
         <source>&amp;Blame %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Blame &amp;Parent Revision %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Chunk successfully staged</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -25458,9 +25043,6 @@ Commit now?</source>
         <source>&amp;Soft</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GitGrep</name>
     <message>
         <source>Tree (optional)</source>
         <translation type="unfinished"></translation>
@@ -25482,13 +25064,6 @@ Leave empty to search through the file system.</source>
     <message>
         <source>Git Show %1:%2</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::GitPlugin</name>
-    <message>
-        <source>&lt;No repository&gt;</source>
-        <translation>&lt;Nema spremišta&gt;</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -25663,10 +25238,6 @@ Leave empty to search through the file system.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Status</source>
-        <translation>Stanje</translation>
-    </message>
-    <message>
         <source>Commit...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25719,10 +25290,6 @@ Leave empty to search through the file system.</source>
         <translation>Prekini obnavljanje</translation>
     </message>
     <message>
-        <source>Continue Rebase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Skip Rebase</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25760,10 +25327,6 @@ Leave empty to search through the file system.</source>
     </message>
     <message>
         <source>Stashes...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -25851,10 +25414,6 @@ Leave empty to search through the file system.</source>
         <translation>Git ala&amp;ti</translation>
     </message>
     <message>
-        <source>Gitk</source>
-        <translation>Gitk</translation>
-    </message>
-    <message>
         <source>Gitk Current File</source>
         <translation>Gitk trenutačna datoteka</translation>
     </message>
@@ -25873,10 +25432,6 @@ Leave empty to search through the file system.</source>
     <message>
         <source>Git Gui</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Repository Browser</source>
-        <translation>Preglednik spremišta</translation>
     </message>
     <message>
         <source>Merge Tool</source>
@@ -25942,30 +25497,17 @@ Leave empty to search through the file system.</source>
         <source>Patch %1 successfully applied to %2</source>
         <translation>Zakrpa %1 uspješno primijenjena na %2</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSettings</name>
     <message>
         <source>The binary &quot;%1&quot; could not be located in the path &quot;%2&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditor</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::GitSubmitEditorWidget</name>
     <message>
         <source>Provide a valid email to commit.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Detached HEAD</source>
-        <translation>Odvojeni HEAD</translation>
     </message>
     <message>
         <source>Select Change</source>
@@ -26007,20 +25549,10 @@ Leave empty to search through the file system.</source>
         <source>&amp;Commit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeWidget</name>
     <message>
         <source>Sha1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Subject</source>
-        <translation>Predmet</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LogChangeDialog</name>
     <message>
         <source>Reset to:</source>
         <translation>Resetiraj na:</translation>
@@ -26045,9 +25577,6 @@ Leave empty to search through the file system.</source>
         <source>Soft</source>
         <translation>Meko</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::MergeTool</name>
     <message>
         <source>Normal</source>
         <translation>Normalna</translation>
@@ -26129,10 +25658,6 @@ Udaljeni: %4</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Merge Tool</source>
-        <translation>Alat za sjedinjavanje</translation>
-    </message>
-    <message>
         <source>Merge tool is not configured.</source>
         <translation>Alat za sjedinjavanje nije konfiguriran.</translation>
     </message>
@@ -26148,20 +25673,6 @@ Udaljeni: %4</translation>
         <source>Merge tool process terminated with exit code %1</source>
         <translation>Proces alata za sjedinjavanje je prekinut s izlaznim kodom %1</translation>
     </message>
-</context>
-<context>
-    <name>Git::Internal::RemoteModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Naziv</translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::SettingsPageWidget</name>
     <message>
         <source>Set the environment variable HOME to &quot;%1&quot;
 (%2).
@@ -27153,14 +26664,11 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial::Internal::CommitEditor</name>
+    <name>Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialClient</name>
     <message>
         <source>Unable to find parent revisions of %1 in %2: %3</source>
         <translation type="unfinished"></translation>
@@ -27185,16 +26693,10 @@ Rok upotrebe: %3</translation>
         <source>Mercurial Diff &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialControl</name>
     <message>
         <source>Mercurial</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation type="unfinished"></translation>
@@ -27203,9 +26705,6 @@ Rok upotrebe: %3</translation>
         <source>Annotate &amp;parent revision %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::MercurialPlugin</name>
     <message>
         <source>Me&amp;rcurial</source>
         <translation type="unfinished"></translation>
@@ -27374,9 +26873,6 @@ Rok upotrebe: %3</translation>
         <source>Commit changes for &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Mercurial::Internal::OptionsPageWidget</name>
     <message>
         <source>Mercurial Command</source>
         <translation>Mercurial naredba</translation>
@@ -35020,14 +34516,11 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>QML Functions</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation type="unfinished"></translation>
@@ -35036,9 +34529,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Qt Quick</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>Reset Code Model</source>
         <translation type="unfinished"></translation>
@@ -35047,9 +34537,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>&amp;QML/JS</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>

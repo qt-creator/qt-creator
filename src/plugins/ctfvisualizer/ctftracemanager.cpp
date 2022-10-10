@@ -177,7 +177,7 @@ void CtfTraceManager::finalize()
             ++it;
         }
     }
-    for (CtfTimelineModel *model: qAsConst(m_threadModels)) {
+    for (CtfTimelineModel *model: std::as_const(m_threadModels)) {
         model->finalize(m_traceBegin, m_traceEnd,
                         m_processNames[model->m_processId], m_threadNames[model->m_threadId]);
     }
@@ -256,7 +256,7 @@ void CtfTraceManager::updateStatistics()
     });
 
     m_statisticsModel->beginLoading();
-    for (auto thread : qAsConst(m_threadModels)) {
+    for (auto thread : std::as_const(m_threadModels)) {
         if (showAll || m_threadRestrictions[thread->tid()])
         {
             const int eventCount = thread->count();
@@ -273,7 +273,7 @@ void CtfTraceManager::updateStatistics()
 void CtfTraceManager::clearAll()
 {
     m_modelAggregator->clear();
-    for (CtfTimelineModel *model: qAsConst(m_threadModels)) {
+    for (CtfTimelineModel *model: std::as_const(m_threadModels)) {
         model->deleteLater();
     }
     m_threadModels.clear();

@@ -212,7 +212,7 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
         importsPerDocument.insert(document.data(), QSharedPointer<Imports>(imports));
     }
 
-    for (const Document::Ptr &doc : qAsConst(m_snapshot)) {
+    for (const Document::Ptr &doc : std::as_const(m_snapshot)) {
         if (doc == document)
             continue;
 
@@ -413,7 +413,7 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
     }
 
     if (!importFound) {
-        for (const Utils::FilePath &dir : qAsConst(m_applicationDirectories)) {
+        for (const Utils::FilePath &dir : std::as_const(m_applicationDirectories)) {
             auto qmltypes = dir.dirEntries(
                 Utils::FileFilter(QStringList{"*.qmltypes"}, QDir::Files));
 

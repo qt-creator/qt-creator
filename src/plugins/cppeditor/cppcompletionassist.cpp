@@ -1153,7 +1153,7 @@ void InternalCppCompletionAssistProcessor::completeObjCMsgSend(ClassOrNamespace 
             memberScopes.append(c);
     }
 
-    for (Scope *scope : qAsConst(memberScopes)) {
+    for (Scope *scope : std::as_const(memberScopes)) {
         for (int i = 0; i < scope->memberCount(); ++i) {
             Symbol *symbol = scope->memberAt(i);
 
@@ -1218,7 +1218,7 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
 
     const QStringList suffixes = Utils::mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
 
-    for (const ProjectExplorer::HeaderPath &headerPath : qAsConst(headerPaths)) {
+    for (const ProjectExplorer::HeaderPath &headerPath : std::as_const(headerPaths)) {
         QString realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
@@ -1476,7 +1476,7 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
         }
     }
 
-    for (ClassOrNamespace *b : qAsConst(usingBindings))
+    for (ClassOrNamespace *b : std::as_const(usingBindings))
         completeNamespace(b);
 
     addKeywords();
@@ -1750,7 +1750,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
 
         const bool wantSignals = type == CompleteQt4Signals || type == CompleteQt5Signals;
         const bool wantQt5SignalOrSlot = type == CompleteQt5Signals || type == CompleteQt5Slots;
-        for (Scope *scope : qAsConst(scopes)) {
+        for (Scope *scope : std::as_const(scopes)) {
             Class *klass = scope->asClass();
             if (!klass)
                 continue;
@@ -1850,7 +1850,7 @@ void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,
 
     addMacros_helper(snapshot, fileName, &processed, &definedMacros);
 
-    for (const QString &macroName : qAsConst(definedMacros))
+    for (const QString &macroName : std::as_const(definedMacros))
         addCompletionItem(macroName, Icons::macroIcon(), MacrosOrder);
 }
 
@@ -1932,7 +1932,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
 
                 bool newOverload = true;
 
-                for (Function *f : qAsConst(functions)) {
+                for (Function *f : std::as_const(functions)) {
                     if (fun->match(f)) {
                         newOverload = false;
                         break;
@@ -2045,7 +2045,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
                 Control *control = context.bindings()->control().data();
 
                 // set up signature autocompletion
-                for (Function *f : qAsConst(functions)) {
+                for (Function *f : std::as_const(functions)) {
                     Overview overview;
                     overview.showArgumentNames = true;
                     overview.showDefaultArguments = false;

@@ -74,7 +74,7 @@ QString BundleImporter::importComponent(const QString &qmlFile,
     if (!bundleImportPathExists && !bundleImportPath.createDir())
         return QStringLiteral("Failed to create bundle import folder: '%1'").arg(bundleImportPath.toString());
 
-    for (const QString &file : qAsConst(m_sharedFiles)) {
+    for (const QString &file : std::as_const(m_sharedFiles)) {
         FilePath target = bundleImportPath.resolvePath(file);
         if (!target.exists()) {
             FilePath parentDir = target.parentDir();
@@ -111,7 +111,7 @@ QString BundleImporter::importComponent(const QString &qmlFile,
     QStringList allFiles;
     allFiles.append(files);
     allFiles.append(qmlFile);
-    for (const QString &file : qAsConst(allFiles)) {
+    for (const QString &file : std::as_const(allFiles)) {
         FilePath target = bundleImportPath.resolvePath(file);
         FilePath parentDir = target.parentDir();
         if (!parentDir.exists() && !parentDir.createDir())

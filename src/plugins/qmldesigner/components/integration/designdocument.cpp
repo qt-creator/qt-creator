@@ -449,7 +449,7 @@ void DesignDocument::deleteSelected()
         Utils::sort(lockedNodes);
         QString detailedText = QString("<b>" + tr("Locked items:") + "</b><br>");
 
-        for (const auto &id : qAsConst(lockedNodes))
+        for (const auto &id : std::as_const(lockedNodes))
             detailedText.append("- " + id + "<br>");
 
         detailedText.chop(QString("<br>").size());
@@ -588,8 +588,8 @@ void DesignDocument::paste()
         if (!targetNode.isValid())
             targetNode = view.rootModelNode();
 
-        for (const ModelNode &node : qAsConst(selectedNodes)) {
-            for (const ModelNode &node2 : qAsConst(selectedNodes)) {
+        for (const ModelNode &node : std::as_const(selectedNodes)) {
+            for (const ModelNode &node2 : std::as_const(selectedNodes)) {
                 if (node.isAncestorOf(node2))
                     selectedNodes.removeAll(node2);
             }
@@ -603,7 +603,7 @@ void DesignDocument::paste()
 
             const auto defaultPropertyName = targetNode.metaInfo().defaultPropertyName();
             auto parentProperty = targetNode.nodeListProperty(defaultPropertyName);
-            for (const ModelNode &node : qAsConst(selectedNodes)) {
+            for (const ModelNode &node : std::as_const(selectedNodes)) {
                 ModelNode pastedNode(view.insertModel(node));
                 pastedNodeList.append(pastedNode);
                 scatterItem(pastedNode, targetNode, offset);

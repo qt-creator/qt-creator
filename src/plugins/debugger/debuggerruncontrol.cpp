@@ -188,7 +188,7 @@ void DebuggerRunTool::setStartMode(DebuggerStartMode startMode)
             projects.removeOne(startupProject);
             projects.insert(0, startupProject);
         }
-        for (Project *project : qAsConst(projects))
+        for (Project *project : std::as_const(projects))
             m_runParameters.projectSourceFiles.append(project->files(Project::SourceFiles));
         if (!projects.isEmpty())
             m_runParameters.projectSourceDirectory = projects.first()->projectDirectory();

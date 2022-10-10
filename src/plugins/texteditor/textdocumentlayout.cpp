@@ -14,7 +14,7 @@ CodeFormatterData::~CodeFormatterData() = default;
 
 TextBlockUserData::~TextBlockUserData()
 {
-    for (TextMark *mrk : qAsConst(m_marks)) {
+    for (TextMark *mrk : std::as_const(m_marks)) {
         mrk->baseTextDocument()->removeMarkFromMarksCache(mrk);
         mrk->setBaseTextDocument(nullptr);
         mrk->removedFromEditor();
@@ -577,7 +577,7 @@ TextMarks TextDocumentLayout::documentClosing()
 
 void TextDocumentLayout::documentReloaded(TextMarks marks, TextDocument *baseTextDocument)
 {
-    for (TextMark *mark : qAsConst(marks)) {
+    for (TextMark *mark : std::as_const(marks)) {
         int blockNumber = mark->lineNumber() - 1;
         QTextBlock block = document()->findBlockByNumber(blockNumber);
         if (block.isValid()) {

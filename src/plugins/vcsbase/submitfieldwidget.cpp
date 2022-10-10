@@ -185,7 +185,7 @@ void SubmitFieldWidget::setHasBrowseButton(bool on)
     if (d->hasBrowseButton == on)
         return;
     d->hasBrowseButton = on;
-    for (const FieldEntry &fe : qAsConst(d->fieldEntries))
+    for (const FieldEntry &fe : std::as_const(d->fieldEntries))
         fe.browseButton->setVisible(on);
 }
 
@@ -209,7 +209,7 @@ void SubmitFieldWidget::setCompleter(QCompleter *c)
     if (c == d->completer)
         return;
     d->completer = c;
-    for (const FieldEntry &fe : qAsConst(d->fieldEntries))
+    for (const FieldEntry &fe : std::as_const(d->fieldEntries))
         fe.lineEdit->setCompleter(c);
 }
 
@@ -229,7 +229,7 @@ QString SubmitFieldWidget::fieldValues() const
     const QChar newLine = QLatin1Char('\n');
     // Format as "RevBy: value\nSigned-Off: value\n"
     QString rc;
-    for (const FieldEntry &fe : qAsConst(d->fieldEntries)) {
+    for (const FieldEntry &fe : std::as_const(d->fieldEntries)) {
         const QString value = fe.lineEdit->text().trimmed();
         if (!value.isEmpty()) {
             rc += fe.combo->currentText();

@@ -635,7 +635,7 @@ Toolchains KeilToolChainFactory::autoDetectToolchains(
 {
     Toolchains result;
 
-    for (const Candidate &candidate : qAsConst(candidates)) {
+    for (const Candidate &candidate : std::as_const(candidates)) {
         const Toolchains filtered = Utils::filtered(
                     alreadyKnown, [candidate](ToolChain *tc) {
             return tc->typeId() == Constants::IAREW_TOOLCHAIN_TYPEID

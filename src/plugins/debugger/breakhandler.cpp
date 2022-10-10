@@ -2035,7 +2035,7 @@ void BreakHandler::releaseAllBreakpoints()
     }
     clear();
     // Make now-unclaimed breakpoints globally visible again.
-    for (GlobalBreakpoint gbp: qAsConst(gbps)) {
+    for (GlobalBreakpoint gbp: std::as_const(gbps)) {
         if (gbp)
             gbp->updateMarker();
     }

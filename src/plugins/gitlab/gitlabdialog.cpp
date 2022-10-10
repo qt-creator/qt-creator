@@ -161,7 +161,7 @@ void GitLabDialog::updateRemotes()
 {
     m_remoteComboBox->clear();
     const GitLabParameters *global = GitLabPlugin::globalParameters();
-    for (const GitLabServer &server : qAsConst(global->gitLabServers))
+    for (const GitLabServer &server : std::as_const(global->gitLabServers))
         m_remoteComboBox->addItem(server.displayString(), QVariant::fromValue(server));
 
     m_remoteComboBox->setCurrentIndex(m_remoteComboBox->findData(

@@ -73,7 +73,7 @@ static void extractAllFiles(const DebuggerRunTool *runTool, QStringList &include
         return;
     const QVector<ProjectPart::ConstPtr> parts = info->projectParts();
     for (const ProjectPart::ConstPtr &part : parts) {
-        for (const ProjectFile &file : qAsConst(part->files)) {
+        for (const ProjectFile &file : std::as_const(part->files)) {
             if (!file.active)
                 continue;
             const auto path = FilePath::fromString(file.path);
@@ -84,7 +84,7 @@ static void extractAllFiles(const DebuggerRunTool *runTool, QStringList &include
             else if (file.path.endsWith(".s") && !assemblers.contains(path))
                 assemblers.push_back(path);
         }
-        for (const HeaderPath &include : qAsConst(part->headerPaths)) {
+        for (const HeaderPath &include : std::as_const(part->headerPaths)) {
             if (!includes.contains(include.path))
                 includes.push_back(include.path);
         }

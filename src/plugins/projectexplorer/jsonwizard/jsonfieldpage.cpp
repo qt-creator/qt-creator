@@ -1391,7 +1391,7 @@ bool JsonFieldPage::isComplete() const
 
     bool result = true;
     bool hasErrorMessage = false;
-    for (Field *f : qAsConst(m_fields)) {
+    for (Field *f : std::as_const(m_fields)) {
         f->adjustState(m_expander);
         if (!f->validate(m_expander, &message)) {
             if (!message.isEmpty()) {
@@ -1411,19 +1411,19 @@ bool JsonFieldPage::isComplete() const
 
 void JsonFieldPage::initializePage()
 {
-    for (Field *f : qAsConst(m_fields))
+    for (Field *f : std::as_const(m_fields))
         f->initialize(m_expander);
 }
 
 void JsonFieldPage::cleanupPage()
 {
-    for (Field *f : qAsConst(m_fields))
+    for (Field *f : std::as_const(m_fields))
         f->cleanup(m_expander);
 }
 
 bool JsonFieldPage::validatePage()
 {
-    for (Field * const f : qAsConst(m_fields))
+    for (Field * const f : std::as_const(m_fields))
         if (!f->persistenceKey().isEmpty() && f->hasUserChanges()) {
             const QVariant value = f->toSettings();
             if (value.isValid())

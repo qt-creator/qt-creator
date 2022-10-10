@@ -77,7 +77,7 @@ void InternalNodeListProperty::slide(int from, int to)
 QList<InternalNode::Pointer> InternalNodeListProperty::allSubNodes() const
 {
     QList<InternalNode::Pointer> nodeList;
-    for (const InternalNode::Pointer &childNode : qAsConst(m_nodeList)) {
+    for (const InternalNode::Pointer &childNode : std::as_const(m_nodeList)) {
         nodeList.append(childNode->allSubNodes());
         nodeList.append(childNode);
     }

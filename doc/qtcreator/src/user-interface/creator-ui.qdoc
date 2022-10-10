@@ -379,9 +379,13 @@
        \li \uicontrol{Version Control}
 
        \if defined(qtcreator)
-       \li \uicontrol{Test Results}
+       \li \l{Running Autotests}{Test Results}
+
+       \li \l{Using Squish}{Squish} test results and Squish Server and
+            Runner logs
 
        \li \uicontrol {To-Do Entries}
+
        \endif
 
     \endlist

@@ -174,7 +174,7 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
 
     if (m_files.isEmpty() && errorMessage.isEmpty()) {
         emit preGenerateFiles();
-        for (JsonWizardGenerator *gen : qAsConst(m_generators)) {
+        for (JsonWizardGenerator *gen : std::as_const(m_generators)) {
             const Utils::FilePath wizardDir =
                     Utils::FilePath::fromString(stringValue(QLatin1String("WizardDir")));
             const Core::GeneratedFiles tmp =

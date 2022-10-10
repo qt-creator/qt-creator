@@ -1543,7 +1543,7 @@ MemoryMarkupList WatchModel::variableMemoryMarkup(WatchItem *item,
                 name = ranges.at(i).second;
             }
         dbg << '\n';
-        for (const MemoryMarkup &m : qAsConst(result))
+        for (const MemoryMarkup &m : std::as_const(result))
             dbg << m.address <<  ' ' << m.length << ' '  << m.toolTip << '\n';
     }
 
@@ -2139,7 +2139,7 @@ void WatchHandler::cleanup()
 {
     m_model->m_expandedINames.clear();
     theWatcherNames.remove(QString());
-    for (const QString &exp : qAsConst(theTemporaryWatchers))
+    for (const QString &exp : std::as_const(theTemporaryWatchers))
         theWatcherNames.remove(exp);
     theTemporaryWatchers.clear();
     saveWatchers();
@@ -2171,7 +2171,7 @@ void WatchHandler::insertItems(const GdbMi &data)
             itemsToSort.insert(static_cast<WatchItem *>(item->parent()));
     }
 
-    for (WatchItem *toplevel : qAsConst(itemsToSort))
+    for (WatchItem *toplevel : std::as_const(itemsToSort))
         toplevel->sortChildren(&sortByName);
 }
 
@@ -2210,7 +2210,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 
 void WatchModel::reexpandItems()
 {
-    for (const QString &iname : qAsConst(m_expandedINames)) {
+    for (const QString &iname : std::as_const(m_expandedINames)) {
         if (WatchItem *item = findItem(iname)) {
             emit itemIsExpanded(indexForItem(item));
             emit inameIsExpanded(iname);
@@ -2266,7 +2266,7 @@ void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
             item->forAllChildren(marker);
         });
     } else {
-        for (const QString &iname : qAsConst(inames)) {
+        for (const QString &iname : std::as_const(inames)) {
             if (WatchItem *item = m_model->findItem(iname))
                 item->forAllChildren(marker);
         }
@@ -2288,7 +2288,7 @@ void WatchHandler::notifyUpdateFinished()
         return true;
     });
 
-    for (WatchItem *item : qAsConst(toRemove))
+    for (WatchItem *item : std::as_const(toRemove))
         m_model->destroyItem(item);
 
     m_model->forAllItems([this](WatchItem *item) {
@@ -2712,7 +2712,7 @@ QString WatchHandler::individualFormatRequests() const
 void WatchHandler::appendFormatRequests(DebuggerCommand *cmd) const
 {
     QJsonArray expanded;
-    for (const QString &name : qAsConst(m_model->m_expandedINames))
+    for (const QString &name : std::as_const(m_model->m_expandedINames))
         expanded.append(name);
 
     cmd->arg("expanded", expanded);

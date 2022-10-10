@@ -477,7 +477,7 @@ void DocumentManager::renamedFile(const Utils::FilePath &from, const Utils::File
     }
 
     // rename the IDocuments
-    for (IDocument *document : qAsConst(documentsToRename)) {
+    for (IDocument *document : std::as_const(documentsToRename)) {
         d->m_blockedIDocument = document;
         removeFileInfo(document);
         document->setFilePath(to);
@@ -572,7 +572,7 @@ QList<IDocument *> DocumentManager::modifiedDocuments()
             modified << document;
     }
 
-    for (IDocument *document : qAsConst(d->m_documentsWithoutWatch)) {
+    for (IDocument *document : std::as_const(d->m_documentsWithoutWatch)) {
         if (document->isModified())
             modified << document;
     }
@@ -682,7 +682,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
         }
         // Check for files without write permissions.
         QList<IDocument *> roDocuments;
-        for (IDocument *document : qAsConst(documentsToSave)) {
+        for (IDocument *document : std::as_const(documentsToSave)) {
             if (document->isFileReadOnly())
                 roDocuments << document;
         }
@@ -699,7 +699,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
                 return false;
             }
         }
-        for (IDocument *document : qAsConst(documentsToSave)) {
+        for (IDocument *document : std::as_const(documentsToSave)) {
             if (!EditorManagerPrivate::saveDocument(document)) {
                 if (cancelled)
                     *cancelled = true;
@@ -1088,7 +1088,7 @@ void DocumentManager::checkForReload()
     QMap<FilePath, FileStateItem> currentStates;
     QMap<FilePath, IDocument::ChangeType> changeTypes;
     QSet<IDocument *> changedIDocuments;
-    for (const FilePath &filePath : qAsConst(d->m_changedFiles)) {
+    for (const FilePath &filePath : std::as_const(d->m_changedFiles)) {
         const FilePath fileKey = filePathKey(filePath, KeepLinks);
         qCDebug(log) << "handling file change for" << filePath << "(" << fileKey << ")";
         IDocument::ChangeType type = IDocument::TypeContents;
@@ -1119,7 +1119,7 @@ void DocumentManager::checkForReload()
     // if the resolved names are different when unexpectFileChange is called
     // we would end up with never-unexpected file names
     QSet<FilePath> expectedFileKeys;
-    for (const FilePath &filePath : qAsConst(d->m_expectedFileNames)) {
+    for (const FilePath &filePath : std::as_const(d->m_expectedFileNames)) {
         const FilePath cleanAbsFilePath = filePathKey(filePath, KeepLinks);
         expectedFileKeys.insert(filePathKey(filePath, KeepLinks));
         const FilePath resolvedCleanAbsFilePath = cleanAbsFilePath.canonicalPath();
@@ -1130,7 +1130,7 @@ void DocumentManager::checkForReload()
     // handle the IDocuments
     QStringList errorStrings;
     QStringList filesToDiff;
-    for (IDocument *document : qAsConst(changedIDocuments)) {
+    for (IDocument *document : std::as_const(changedIDocuments)) {
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
         std::optional<IDocument::ChangeType> type;
         bool changed = false;
@@ -1355,7 +1355,7 @@ void DocumentManager::saveSettings()
 {
     QVariantList recentFiles;
     QStringList recentEditorIds;
-    for (const RecentFile &file : qAsConst(d->m_recentFiles)) {
+    for (const RecentFile &file : std::as_const(d->m_recentFiles)) {
         recentFiles.append(file.first.toVariant());
         recentEditorIds.append(file.second.toString());
     }

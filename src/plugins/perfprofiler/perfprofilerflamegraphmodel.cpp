@@ -310,7 +310,7 @@ void PerfProfilerFlameGraphModel::finalize(PerfProfilerFlameGraphData *data)
             node->resourcePeak = node->resourceUsage;
             node->lastResourceChangeId = data->resourcePeakId();
         }
-        for (const auto &child : qAsConst(node->children))
+        for (const auto &child : std::as_const(node->children))
             nodes.enqueue(child.get());
     }
 

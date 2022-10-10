@@ -374,7 +374,7 @@ void TestTreeModel::synchronizeTestTools()
     for (ITestTreeItem *oldFrameworkRoot : oldFrameworkRoots)
         takeItem(oldFrameworkRoot);  // do NOT delete the ptr is still held by TestFrameworkManager
 
-    for (ITestTool *testTool : qAsConst(tools)) {
+    for (ITestTool *testTool : std::as_const(tools)) {
         ITestTreeItem *testToolRootNode = testTool->rootNode();
         invisibleRoot->appendChild(testToolRootNode);
         if (!oldFrameworkRoots.removeOne(testToolRootNode))

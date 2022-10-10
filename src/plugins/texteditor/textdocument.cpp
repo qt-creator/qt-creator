@@ -918,7 +918,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
     const IndentationForBlock &indentations
         = d->m_indenter->indentationForBlocks(blocks, currentTabSettings);
 
-    for (QTextBlock block : qAsConst(blocks)) {
+    for (QTextBlock block : std::as_const(blocks)) {
         QString blockText = block.text();
 
         if (removeTrailingWhitespace)

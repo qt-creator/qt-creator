@@ -448,7 +448,7 @@ private:
 
             extraGeneratorCombo->clear();
             extraGeneratorCombo->addItem(Tr::tr("<none>"), QString());
-            for (const QString &eg : qAsConst(it->extraGenerators))
+            for (const QString &eg : std::as_const(it->extraGenerators))
                 extraGeneratorCombo->addItem(eg, eg);
             extraGeneratorCombo->setEnabled(extraGeneratorCombo->count() > 1);
 

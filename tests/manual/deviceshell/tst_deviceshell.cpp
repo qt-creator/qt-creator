@@ -100,7 +100,7 @@ class tst_DeviceShell : public QObject
 
         const QList<QByteArray> result
             = mapped<QList>(testArray, [&shell](QByteArray data) -> QByteArray {
-                  return shell.outputForRunInShell({"cat", {}}, data).stdOut;
+                  return shell.runInShell({"cat", {}}, data).stdOut;
               }, MapReduceOption::Ordered, QThreadPool::globalInstance());
 
         QCOMPARE(result, testArray);
@@ -164,7 +164,7 @@ private slots:
         TestShell shell;
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        const DeviceShell::RunResult r = shell.outputForRunInShell({"cat", {}}, utf8string.toUtf8());
+        const RunResult r = shell.runInShell({"cat", {}}, utf8string.toUtf8());
         const QString output = QString::fromUtf8(r.stdOut);
         QCOMPARE(output, utf8string);
     }

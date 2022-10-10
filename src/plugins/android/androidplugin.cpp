@@ -1,8 +1,6 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidplugin.h"
-
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androiddebugsupport.h"
@@ -11,6 +9,7 @@
 #include "androidmanager.h"
 #include "androidmanifesteditorfactory.h"
 #include "androidpackageinstallationstep.h"
+#include "androidplugin.h"
 #include "androidpotentialkit.h"
 #include "androidqmlpreviewworker.h"
 #include "androidqmltoolingsupport.h"
@@ -19,6 +18,7 @@
 #include "androidruncontrol.h"
 #include "androidsettingswidget.h"
 #include "androidtoolchain.h"
+#include "androidtr.h"
 #include "javaeditor.h"
 #include "javalanguageserver.h"
 
@@ -58,8 +58,7 @@ public:
     {
         setConfigBaseId("Qt4ProjectManager.AndroidDeployConfiguration2");
         addSupportedTargetDeviceType(Constants::ANDROID_DEVICE_TYPE);
-        setDefaultDisplayName(QCoreApplication::translate("Android::Internal",
-                                                          "Deploy to Android Device"));
+        setDefaultDisplayName(Tr::tr("Deploy to Android Device"));
         addInitialStep(Constants::ANDROID_DEPLOY_QT_ID);
     }
 };
@@ -133,7 +132,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
             this, &AndroidPlugin::kitsRestored);
 
     LanguageClient::LanguageClientSettings::registerClientType({Android::Constants::JLS_SETTINGS_ID,
-                                                                tr("Java Language Server"),
+                                                                Tr::tr("Java Language Server"),
                                                                 []() { return new JLSSettings; }});
 
     return true;
@@ -169,12 +168,12 @@ void AndroidPlugin::askUserAboutAndroidSetup()
         return;
 
     Utils::InfoBarEntry
-        info(kSetupAndroidSetting,
-             tr("Would you like to configure Android options? This will ensure "
-                "Android kits can be usable and all essential packages are installed. "
-                "To do it later, select Edit > Preferences > Devices > Android."),
-             Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(tr("Configure Android"), [this] {
+            info(kSetupAndroidSetting,
+                 Tr::tr("Would you like to configure Android options? This will ensure "
+                        "Android kits can be usable and all essential packages are installed. "
+                        "To do it later, select Edit > Preferences > Devices > Android."),
+                 Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    info.addCustomButton(Tr::tr("Configure Android"), [this] {
         Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
         Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);
         QTimer::singleShot(0, this, [this] { d->potentialKit.executeFromMenu(); });

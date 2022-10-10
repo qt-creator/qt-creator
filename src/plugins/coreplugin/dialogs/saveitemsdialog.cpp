@@ -144,7 +144,7 @@ void SaveItemsDialog::adjustButtonWidths()
         possibleTexts << tr("Save Selected");
     int maxTextWidth = 0;
     QPushButton *saveButton = m_buttonBox->button(QDialogButtonBox::Save);
-    for (const QString &text : qAsConst(possibleTexts)) {
+    for (const QString &text : std::as_const(possibleTexts)) {
         saveButton->setText(text);
         int hint = saveButton->sizeHint().width();
         if (hint > maxTextWidth)

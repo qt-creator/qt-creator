@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "mercurialclient.h"
+
 #include "constants.h"
+#include "mercurialtr.h"
 
 #include <coreplugin/idocument.h>
 
@@ -31,8 +33,7 @@ using namespace DiffEditor;
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Mercurial {
-namespace Internal  {
+namespace Mercurial::Internal {
 
 class MercurialDiffEditorController : public VcsBaseDiffEditorController
 {
@@ -50,7 +51,7 @@ public:
 void MercurialDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
 {
     // at this moment, don't ignore any errors
-    VcsBaseDiffEditorController::runCommand(args, 0u, codec);
+    VcsBaseDiffEditorController::runCommand(args, RunFlags::None, codec);
 }
 
 QStringList MercurialDiffEditorController::addConfigurationArguments(const QStringList &args) const
@@ -96,7 +97,7 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
 {
     Q_UNUSED(srcLocation)
     Q_UNUSED(extraOptions)
-    const unsigned flags = VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
+    const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         // Let's make first init
@@ -142,7 +143,7 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
 
     const CommandResult result = vcsSynchronousExec(workingDir, args,
-          VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage | VcsCommand::ForceCLocale);
+          RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage | RunFlags::ForceCLocale);
 
     parsePullOutput(result.cleanedStdOut().trimmed());
     return result.result() == ProcessResult::FinishedWithSuccess;
@@ -163,13 +164,13 @@ static QString msgParentRevisionFailed(const FilePath &workingDirectory,
                                        const QString &revision,
                                        const QString &why)
 {
-    return MercurialClient::tr("Unable to find parent revisions of %1 in %2: %3").
+    return Tr::tr("Unable to find parent revisions of %1 in %2: %3").
             arg(revision, workingDirectory.toUserOutput(), why);
 }
 
 static inline QString msgParseParentsOutputFailed(const QString &output)
 {
-    return MercurialClient::tr("Cannot parse output: %1").arg(output);
+    return Tr::tr("Cannot parse output: %1").arg(output);
 }
 
 QStringList MercurialClient::parentRevisionsSync(const FilePath &workingDirectory,
@@ -257,7 +258,7 @@ void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &re
     if (!repository.isEmpty())
         id += QLatin1Char('/') + repository;
 
-    const QString title = tr("Hg incoming %1").arg(id);
+    const QString title = Tr::tr("Hg incoming %1").arg(id);
 
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot.toString(),
                                                   VcsBaseEditor::getCodec(repositoryRoot.toString()),
@@ -270,7 +271,7 @@ void MercurialClient::outgoing(const FilePath &repositoryRoot)
     QStringList args;
     args << QLatin1String("outgoing") << QLatin1String("-g") << QLatin1String("-p");
 
-    const QString title = tr("Hg outgoing %1").arg(repositoryRoot.toUserOutput());
+    const QString title = Tr::tr("Hg outgoing %1").arg(repositoryRoot.toUserOutput());
 
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot.toString(),
                                                   VcsBaseEditor::getCodec(repositoryRoot.toString()),
@@ -304,20 +305,20 @@ void MercurialClient::diff(const FilePath &workingDir, const QStringList &files,
     QString fileName;
 
     if (files.empty()) {
-        const QString title = tr("Mercurial Diff");
+        const QString title = Tr::tr("Mercurial Diff");
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffRepo." + sourceFile;
         requestReload(documentId, sourceFile, title, workingDir, {"diff"});
     } else if (files.size() == 1) {
         fileName = files.at(0);
-        const QString title = tr("Mercurial Diff \"%1\"").arg(fileName);
+        const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(fileName);
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + sourceFile;
         requestReload(documentId, sourceFile, title, workingDir, {"diff", fileName});
     } else {
-        const QString title = tr("Mercurial Diff \"%1\"").arg(workingDir.toString());
+        const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(workingDir.toString());
         const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + workingDir.toString();
@@ -443,5 +444,4 @@ void MercurialClient::parsePullOutput(const QString &output)
         emit needMerge();
 }
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

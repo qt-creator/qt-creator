@@ -390,7 +390,7 @@ QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
                 }
             } else {
                 if (!crossedRangeStart) {
-                    for (auto stashed : qAsConst(stack)) {
+                    for (auto stashed : std::as_const(stack)) {
                         stashed.setTimestamp(rangeStart);
                         loader(stashed, eventType(stashed.typeIndex()));
                     }

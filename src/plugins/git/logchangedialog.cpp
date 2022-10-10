@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "logchangedialog.h"
+
 #include "gitclient.h"
+#include "gittr.h"
 
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -23,8 +25,7 @@
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 enum Columns
 {
@@ -46,7 +47,7 @@ public:
             if (it != m_descriptions.constEnd())
                 return *it;
             const QString desc = QString::fromUtf8(GitClient::instance()->synchronousShow(
-                                 m_workingDirectory, revision, VcsCommand::NoOutput));
+                                 m_workingDirectory, revision, RunFlags::NoOutput));
             m_descriptions[revision] = desc;
             return desc;
         }
@@ -65,7 +66,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     , m_hasCustomDelegate(false)
 {
     QStringList headers;
-    headers << tr("Sha1")<< tr("Subject");
+    headers << Tr::tr("Sha1")<< Tr::tr("Subject");
     m_model->setHorizontalHeaderLabels(headers);
     setModel(m_model);
     setMinimumWidth(300);
@@ -169,7 +170,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
     arguments << "--";
     QString output;
     if (!GitClient::instance()->synchronousLog(
-                repository, arguments, &output, nullptr, VcsCommand::NoOutput)) {
+                repository, arguments, &output, nullptr, RunFlags::NoOutput)) {
         return false;
     }
     const QStringList lines = output.split('\n');
@@ -214,15 +215,15 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     , m_dialogButtonBox(new QDialogButtonBox(this))
 {
     auto layout = new QVBoxLayout(this);
-    layout->addWidget(new QLabel(isReset ? tr("Reset to:") : tr("Select change:"), this));
+    layout->addWidget(new QLabel(isReset ? Tr::tr("Reset to:") : Tr::tr("Select change:"), this));
     layout->addWidget(m_widget);
     auto popUpLayout = new QHBoxLayout;
     if (isReset) {
-        popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
+        popUpLayout->addWidget(new QLabel(Tr::tr("Reset type:"), this));
         m_resetTypeComboBox = new QComboBox(this);
-        m_resetTypeComboBox->addItem(tr("Hard"), "--hard");
-        m_resetTypeComboBox->addItem(tr("Mixed"), "--mixed");
-        m_resetTypeComboBox->addItem(tr("Soft"), "--soft");
+        m_resetTypeComboBox->addItem(Tr::tr("Hard"), "--hard");
+        m_resetTypeComboBox->addItem(Tr::tr("Mixed"), "--mixed");
+        m_resetTypeComboBox->addItem(Tr::tr("Soft"), "--soft");
         m_resetTypeComboBox->setCurrentIndex(GitClient::settings().lastResetIndex.value());
         popUpLayout->addWidget(m_resetTypeComboBox);
         popUpLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
@@ -306,5 +307,4 @@ void IconItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     QStyledItemDelegate::paint(painter, o, index);
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

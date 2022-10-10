@@ -119,7 +119,7 @@ public:
 
     QmakePriFile *parent() const;
     QmakeProject *project() const;
-    QVector<QmakePriFile *> children() const;
+    const QVector<QmakePriFile *> children() const;
 
     QmakePriFile *findPriFile(const Utils::FilePath &fileName);
     const QmakePriFile *findPriFile(const Utils::FilePath &fileName) const;

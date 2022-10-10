@@ -178,7 +178,7 @@ bool MacroManagerPrivate::executeMacro(Macro *macro)
     for (const MacroEvent &macroEvent : macroEvents) {
         if (error)
             break;
-        for (IMacroHandler *handler : qAsConst(handlers)) {
+        for (IMacroHandler *handler : std::as_const(handlers)) {
             if (handler->canExecuteEvent(macroEvent)) {
                 if (!handler->executeEvent(macroEvent))
                     error = true;
@@ -256,7 +256,7 @@ void MacroManager::startMacro()
     Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(true);
     Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
     Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(false);
-    for (IMacroHandler *handler : qAsConst(d->handlers))
+    for (IMacroHandler *handler : std::as_const(d->handlers))
         handler->startRecording(d->currentMacro);
 
     const QString endShortcut = Core::ActionManager::command(Constants::END_MACRO)
@@ -281,7 +281,7 @@ void MacroManager::endMacro()
     Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(false);
     Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
     Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
-    for (IMacroHandler *handler : qAsConst(d->handlers))
+    for (IMacroHandler *handler : std::as_const(d->handlers))
         handler->endRecordingMacro(d->currentMacro);
 
     d->isRecording = false;

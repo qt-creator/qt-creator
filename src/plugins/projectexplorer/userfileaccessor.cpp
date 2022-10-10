@@ -680,8 +680,8 @@ QVariantMap UserFileVersion16Upgrader::upgrade(const QVariantMap &data)
 
         NamePolicy policy = oldSteps.size() > 1 ? RenameBuildConfiguration : KeepName;
 
-        for (const QVariantMap &oldBuildConfiguration : qAsConst(oldBuildConfigurations)) {
-            for (const OldStepMaps &oldStep : qAsConst(oldSteps)) {
+        for (const QVariantMap &oldBuildConfiguration : std::as_const(oldBuildConfigurations)) {
+            for (const OldStepMaps &oldStep : std::as_const(oldSteps)) {
                 QVariantMap newBuildConfiguration = insertSteps(oldBuildConfiguration, oldStep, policy);
                 if (!newBuildConfiguration.isEmpty())
                     newBuildConfigurations.append(newBuildConfiguration);

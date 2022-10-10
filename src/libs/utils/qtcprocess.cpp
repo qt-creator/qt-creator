@@ -126,7 +126,7 @@ private:
                      hitThisMainField, totalThisMainField, hitAllMainField, totalAllMainField);
         qDebug("%s", qPrintable(totalString));
     }
-    static QString formatField(int number, int fieldWidth, const QString &suffix = QString())
+    static QString formatField(int number, int fieldWidth, const QString &suffix = {})
     {
         return QString("%1%2").arg(number, fieldWidth - suffix.count()).arg(suffix);
     }
@@ -201,33 +201,8 @@ private:
     bool ensureProgramExists(const QString &program);
 };
 
-static QString blockingMessage(const QVariant &variant)
-{
-    if (!variant.isValid())
-        return "non blocking";
-    if (variant.toInt() == int(EventLoopMode::On))
-        return "blocking with event loop";
-    return "blocking without event loop";
-}
-
 void DefaultImpl::start()
 {
-    if (processLog().isDebugEnabled()) {
-        using namespace std::chrono;
-        const quint64 msSinceEpoc =
-                duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-        setProperty(QTC_PROCESS_STARTTIME, msSinceEpoc);
-
-        static std::atomic_int startCounter = 0;
-        const int currentNumber = startCounter.fetch_add(1);
-        qCDebug(processLog).nospace().noquote()
-                << "Process " << currentNumber << " starting ("
-                << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
-                << "): "
-                << m_setup.m_commandLine.toUserOutput();
-        setProperty(QTC_PROCESS_NUMBER, currentNumber);
-    }
-
     QString program;
     QStringList arguments;
     if (!dissolveCommand(&program, &arguments))
@@ -261,7 +236,7 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
         m_setup.m_nativeArguments = args;
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
-        *arguments = QStringList();
+        *arguments = {};
     } else {
         if (!success) {
             const ProcessResultData result = {0,
@@ -637,7 +612,11 @@ public:
             m_killTimer.stop();
             sendControlSignal(ControlSignal::Kill);
         });
+        setupDebugLog();
     }
+
+    void setupDebugLog();
+    void storeEventLoopDebugInfo(const QVariant &value);
 
     ProcessInterface *createProcessInterface()
     {
@@ -704,10 +683,10 @@ public:
     void handleDone(const ProcessResultData &data);
     void clearForRun();
 
-    void emitStarted();
-    void emitDone();
-    void emitReadyReadStandardOutput();
-    void emitReadyReadStandardError();
+    void emitGuardedSignal(void (QtcProcess::* signalName)()) {
+        GuardLocker locker(m_guard);
+        emit (q->*signalName)();
+    }
 
     ProcessResult interpretExitCode(int exitCode);
 
@@ -860,7 +839,7 @@ QList<ProcessInterfaceSignal *> GeneralProcessBlockingImpl::takeSignalsFor(Proce
         return takeAllSignals();
 
     QMutexLocker locker(&m_mutex);
-    const QList<ProcessSignalType> storedSignals = transform(qAsConst(m_signals),
+    const QList<ProcessSignalType> storedSignals = transform(std::as_const(m_signals),
                             [](const ProcessInterfaceSignal *aSignal) {
         return aSignal->signalType();
     });
@@ -887,7 +866,7 @@ bool GeneralProcessBlockingImpl::flushSignals(const QList<ProcessInterfaceSignal
                                      ProcessSignalType *signalType)
 {
     bool signalMatched = false;
-    for (const ProcessInterfaceSignal *storedSignal : qAsConst(signalList)) {
+    for (const ProcessInterfaceSignal *storedSignal : std::as_const(signalList)) {
         const ProcessSignalType storedSignalType = storedSignal->signalType();
         if (signalType && storedSignalType == *signalType)
             signalMatched = true;
@@ -1008,38 +987,6 @@ QtcProcess::QtcProcess(QObject *parent)
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
     Q_UNUSED(qProcessExitStatusMeta)
     Q_UNUSED(qProcessProcessErrorMeta)
-
-    if (processLog().isDebugEnabled()) {
-        connect(this, &QtcProcess::done, [this] {
-            if (!d->m_process.get())
-                return;
-            const QVariant n = d->m_process.get()->property(QTC_PROCESS_NUMBER);
-            if (!n.isValid())
-                return;
-            using namespace std::chrono;
-            const quint64 msSinceEpoc =
-                    duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-            const quint64 msStarted =
-                    d->m_process.get()->property(QTC_PROCESS_STARTTIME).toULongLong();
-            const quint64 msElapsed = msSinceEpoc - msStarted;
-
-            const int number = n.toInt();
-            qCDebug(processLog).nospace() << "Process " << number << " finished: "
-                                          << "result=" << int(result())
-                                          << ", ex=" << exitCode()
-                                          << ", " << cleanedStdOut().size() << " bytes stdout: "
-                                          << cleanedStdOut().left(20)
-                                          << ", " << cleanedStdErr().size() << " bytes stderr: "
-                                          << cleanedStdErr().left(1000)
-                                          << ", " << msElapsed << " ms elapsed";
-            if (processStdoutLog().isDebugEnabled() && !cleanedStdOut().isEmpty())
-                qCDebug(processStdoutLog).nospace()
-                        << "Process " << number << " sdout: " << cleanedStdOut();
-            if (processStderrLog().isDebugEnabled() && !cleanedStdErr().isEmpty())
-                qCDebug(processStderrLog).nospace()
-                        << "Process " << number << " stderr: " << cleanedStdErr();
-        });
-    }
 }
 
 QtcProcess::~QtcProcess()
@@ -1145,10 +1092,7 @@ void QtcProcess::start()
     d->m_process->m_setup = d->m_setup;
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
     d->m_process->m_setup.m_environment = d->fullEnvironment();
-    if (processLog().isDebugEnabled()) {
-        // Pass a dynamic property with info about blocking type
-        d->m_process->setProperty(QTC_PROCESS_BLOCKING_TYPE, property(QTC_PROCESS_BLOCKING_TYPE));
-    }
+    d->emitGuardedSignal(&QtcProcess::starting);
     d->m_process->start();
 }
 
@@ -1394,10 +1338,10 @@ static QString checkBinary(const QDir &dir, const QString &binary)
     // Does the OS have some weird extension concept or does the
     // binary have a 3 letter extension?
     if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-        return QString();
+        return {};
     const int dotIndex = binary.lastIndexOf(QLatin1Char('.'));
     if (dotIndex != -1 && dotIndex == binary.size() - 4)
-        return  QString();
+        return {};
 
     switch (HostOsInfo::hostOs()) {
     case OsTypeLinux:
@@ -1429,7 +1373,7 @@ static QString checkBinary(const QDir &dir, const QString &binary)
         }
         break;
     }
-    return QString();
+    return {};
 }
 
 QString QtcProcess::locateBinary(const QString &path, const QString &binary)
@@ -1448,7 +1392,7 @@ QString QtcProcess::locateBinary(const QString &path, const QString &binary)
 
     const QStringList paths = path.split(HostOsInfo::pathListSeparator());
     if (paths.empty())
-        return QString();
+        return {};
     const QStringList::const_iterator cend = paths.constEnd();
     for (QStringList::const_iterator it = paths.constBegin(); it != cend; ++it) {
         const QDir dir(*it);
@@ -1456,7 +1400,7 @@ QString QtcProcess::locateBinary(const QString &path, const QString &binary)
         if (!rc.isEmpty())
             return rc;
     }
-    return QString();
+    return {};
 }
 
 Environment QtcProcess::systemEnvironmentForBinary(const FilePath &filePath)
@@ -1640,7 +1584,7 @@ QString QtcProcess::exitMessage() const
         return QtcProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
             .arg(fullCmd).arg(d->m_maxHangTimerCount);
     }
-    return QString();
+    return {};
 }
 
 QByteArray QtcProcess::allRawOutput() const
@@ -1839,16 +1783,14 @@ static bool isGuiThread()
 
 void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
 {
-    if (processLog().isDebugEnabled()) {
-        // Attach a dynamic property with info about blocking type
-        setProperty(QTC_PROCESS_BLOCKING_TYPE, int(eventLoopMode));
-    }
+    // Attach a dynamic property with info about blocking type
+    d->storeEventLoopDebugInfo(int(eventLoopMode));
 
     QtcProcess::start();
-    if (processLog().isDebugEnabled()) {
-        // Remove the dynamic property so that it's not reused in subseqent start()
-        setProperty(QTC_PROCESS_BLOCKING_TYPE, QVariant());
-    }
+
+    // Remove the dynamic property so that it's not reused in subseqent start()
+    d->storeEventLoopDebugInfo({});
+
     if (eventLoopMode == EventLoopMode::On) {
         // Start failure is triggered immediately if the executable cannot be found in the path.
         // In this case the process is left in NotRunning state.
@@ -1944,7 +1886,7 @@ void QtcProcessPrivate::handleStarted(qint64 processId, qint64 applicationMainTh
 
     m_processId = processId;
     m_applicationMainThreadId = applicationMainThreadId;
-    emitStarted();
+    emitGuardedSignal(&QtcProcess::started);
 }
 
 void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByteArray &errorData)
@@ -1962,7 +1904,7 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
             std::cout << outputData.constData() << std::flush;
         } else {
             m_stdOut.append(outputData);
-            emitReadyReadStandardOutput();
+            emitGuardedSignal(&QtcProcess::readyReadStandardOutput);
         }
     }
     if (!errorData.isEmpty()) {
@@ -1971,7 +1913,7 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
             std::cerr << errorData.constData() << std::flush;
         } else {
             m_stdErr.append(errorData);
-            emitReadyReadStandardError();
+            emitGuardedSignal(&QtcProcess::readyReadStandardError);
         }
     }
 }
@@ -2026,33 +1968,73 @@ void QtcProcessPrivate::handleDone(const ProcessResultData &data)
     m_stdOut.handleRest();
     m_stdErr.handleRest();
 
-    emitDone();
+    emitGuardedSignal(&QtcProcess::done);
     m_processId = 0;
     m_applicationMainThreadId = 0;
 }
 
-void QtcProcessPrivate::emitStarted()
+static QString blockingMessage(const QVariant &variant)
 {
-    GuardLocker locker(m_guard);
-    emit q->started();
+    if (!variant.isValid())
+        return "non blocking";
+    if (variant.toInt() == int(EventLoopMode::On))
+        return "blocking with event loop";
+    return "blocking without event loop";
 }
 
-void QtcProcessPrivate::emitDone()
+void QtcProcessPrivate::setupDebugLog()
 {
-    GuardLocker locker(m_guard);
-    emit q->done();
+    if (!processLog().isDebugEnabled())
+        return;
+
+    auto now = [] {
+        using namespace std::chrono;
+        return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    };
+
+    connect(q, &QtcProcess::starting, this, [=] {
+        const quint64 msNow = now();
+        setProperty(QTC_PROCESS_STARTTIME, msNow);
+
+        static std::atomic_int startCounter = 0;
+        const int currentNumber = startCounter.fetch_add(1);
+        qCDebug(processLog).nospace().noquote()
+                << "Process " << currentNumber << " starting ("
+                << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
+                << "): " << m_setup.m_commandLine.toUserOutput();
+        setProperty(QTC_PROCESS_NUMBER, currentNumber);
+    });
+
+    connect(q, &QtcProcess::done, this, [=] {
+        if (!m_process.get())
+            return;
+        const QVariant n = property(QTC_PROCESS_NUMBER);
+        if (!n.isValid())
+            return;
+        const quint64 msNow = now();
+        const quint64 msStarted = property(QTC_PROCESS_STARTTIME).toULongLong();
+        const quint64 msElapsed = msNow - msStarted;
+
+        const int number = n.toInt();
+        const QString stdOut = q->cleanedStdOut();
+        const QString stdErr = q->cleanedStdErr();
+        qCDebug(processLog).nospace()
+                << "Process " << number << " finished: result=" << int(m_result)
+                << ", ex=" << m_resultData.m_exitCode
+                << ", " << stdOut.size() << " bytes stdout: " << stdOut.left(20)
+                << ", " << stdErr.size() << " bytes stderr: " << stdErr.left(1000)
+                << ", " << msElapsed << " ms elapsed";
+        if (processStdoutLog().isDebugEnabled() && !stdOut.isEmpty())
+            qCDebug(processStdoutLog).nospace() << "Process " << number << " sdout: " << stdOut;
+        if (processStderrLog().isDebugEnabled() && !stdErr.isEmpty())
+            qCDebug(processStderrLog).nospace() << "Process " << number << " stderr: " << stdErr;
+    });
 }
 
-void QtcProcessPrivate::emitReadyReadStandardOutput()
+void QtcProcessPrivate::storeEventLoopDebugInfo(const QVariant &value)
 {
-    GuardLocker locker(m_guard);
-    emit q->readyReadStandardOutput();
-}
-
-void QtcProcessPrivate::emitReadyReadStandardError()
-{
-    GuardLocker locker(m_guard);
-    emit q->readyReadStandardError();
+    if (processLog().isDebugEnabled())
+        setProperty(QTC_PROCESS_BLOCKING_TYPE, value);
 }
 
 } // namespace Utils

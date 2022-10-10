@@ -154,7 +154,7 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     const QList<Core::LocatorFilterEntry> lspMatches = m_lspFilter->matchesFor(future, entry);
     if (!lspMatches.isEmpty()) {
         std::set<std::tuple<Utils::FilePath, int, int>> locations;
-        for (const auto &entry : qAsConst(matches)) {
+        for (const auto &entry : std::as_const(matches)) {
             const CppEditor::IndexItem::Ptr item
                     = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
             locations.insert(std::make_tuple(Utils::FilePath::fromString(item->fileName()),

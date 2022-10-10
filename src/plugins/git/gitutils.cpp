@@ -6,8 +6,7 @@
 #include <QInputDialog>
 #include <QLineEdit>
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 void Stash::clear()
 {
@@ -72,5 +71,4 @@ QString versionString(unsigned ver)
             .arg(versionPart(ver));
 }
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

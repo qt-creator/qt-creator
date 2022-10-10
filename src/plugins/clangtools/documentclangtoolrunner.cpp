@@ -102,9 +102,9 @@ static void removeClangToolRefactorMarkers(TextEditor::TextEditorWidget *editor)
 
 void DocumentClangToolRunner::scheduleRun()
 {
-    for (DiagnosticMark *mark : qAsConst(m_marks))
+    for (DiagnosticMark *mark : std::as_const(m_marks))
         mark->disable();
-    for (TextEditor::TextEditorWidget *editor : qAsConst(m_editorsWithMarkers))
+    for (TextEditor::TextEditorWidget *editor : std::as_const(m_editorsWithMarkers))
         removeClangToolRefactorMarkers(editor);
     m_runTimer.start();
 }
@@ -131,7 +131,7 @@ static FileInfo getFileInfo(const FilePath &file, Project *project)
     for (const ProjectPart::ConstPtr &projectPart : projectInfo->projectParts()) {
         QTC_ASSERT(projectPart, continue);
 
-        for (const ProjectFile &projectFile : qAsConst(projectPart->files)) {
+        for (const ProjectFile &projectFile : std::as_const(projectPart->files)) {
             QTC_ASSERT(projectFile.kind != ProjectFile::Unclassified, continue);
             QTC_ASSERT(projectFile.kind != ProjectFile::Unsupported, continue);
             if (projectFile.path == CppModelManager::configurationFileName())

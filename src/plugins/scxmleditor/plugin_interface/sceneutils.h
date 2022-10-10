@@ -54,7 +54,7 @@ bool hasSiblingStates(T *item)
                     children << it;
         }
 
-        for (QGraphicsItem *it : qAsConst(children))
+        for (QGraphicsItem *it : std::as_const(children))
             if (it != item && it->type() == item->type())
                 return true;
     }

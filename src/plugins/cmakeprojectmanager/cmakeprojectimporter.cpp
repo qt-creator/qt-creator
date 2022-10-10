@@ -510,7 +510,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             buildConfigurationTypes = buildConfigurationTypesString.split(';');
     }
 
-    for (auto const &buildType: qAsConst(buildConfigurationTypes)) {
+    for (auto const &buildType: std::as_const(buildConfigurationTypes)) {
         auto data = std::make_unique<DirectoryData>();
 
         data->cmakeHomeDirectory =
@@ -745,7 +745,7 @@ void CMakeProjectPlugin::testCMakeProjectImporterQt()
     QFETCH(QString, expectedQmake);
 
     CMakeConfig config;
-    for (const QString &c : qAsConst(cache)) {
+    for (const QString &c : std::as_const(cache)) {
         const int pos = c.indexOf('=');
         Q_ASSERT(pos > 0);
         const QString key = c.left(pos);
@@ -802,7 +802,7 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
     QCOMPARE(expectedLanguages.count(), expectedToolChains.count());
 
     CMakeConfig config;
-    for (const QString &c : qAsConst(cache)) {
+    for (const QString &c : std::as_const(cache)) {
         const int pos = c.indexOf('=');
         Q_ASSERT(pos > 0);
         const QString key = c.left(pos);

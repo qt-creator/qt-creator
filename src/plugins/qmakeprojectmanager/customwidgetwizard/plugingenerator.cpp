@@ -247,7 +247,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
     // Copy icons that are not in the plugin source base directory yet (that is,
     // probably all), add them to the resource file
     QString iconFiles;
-    foreach (QString icon, pluginIcons) {
+    for (QString icon : qAsConst(pluginIcons)) {
         const QFileInfo qfi(icon);
         if (qfi.dir() != slashLessBaseDir) {
             const QString newIcon = baseDir + qfi.fileName();

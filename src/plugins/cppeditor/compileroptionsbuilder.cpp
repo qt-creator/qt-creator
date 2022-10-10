@@ -348,9 +348,9 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 
     filter.process();
 
-    for (const HeaderPath &headerPath : qAsConst(filter.userHeaderPaths))
+    for (const HeaderPath &headerPath : std::as_const(filter.userHeaderPaths))
         addIncludeDirOptionForPath(headerPath);
-    for (const HeaderPath &headerPath : qAsConst(filter.systemHeaderPaths))
+    for (const HeaderPath &headerPath : std::as_const(filter.systemHeaderPaths))
         addIncludeDirOptionForPath(headerPath);
 
     if (m_useTweakedHeaderPaths != UseTweakedHeaderPaths::No) {
@@ -359,7 +359,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
         m_options.prepend("-nostdinc++");
         m_options.prepend("-nostdinc");
 
-        for (const HeaderPath &headerPath : qAsConst(filter.builtInHeaderPaths))
+        for (const HeaderPath &headerPath : std::as_const(filter.builtInHeaderPaths))
             addIncludeDirOptionForPath(headerPath);
     }
 }

@@ -347,7 +347,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             QInputDialog dlg(sessionsView);
             QStringList sessions = ProjectExplorer::SessionManager::sessions();
             QStringList currentSessions = d->sessionsModel.stringList();
-            for (const QString &s : qAsConst(currentSessions))
+            for (const QString &s : std::as_const(currentSessions))
                 sessions.removeOne(s);
             if (sessions.isEmpty())
                 return;

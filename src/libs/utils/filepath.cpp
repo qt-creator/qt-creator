@@ -1630,6 +1630,8 @@ bool FilePath::isRelativePath() const
         return false;
     if (path().size() > 1 && isWindowsDriveLetter(path()[0]) && path().at(1) == ':')
         return false;
+    if (path().startsWith(":/")) // QRC
+        return false;
     return true;
 }
 
@@ -1826,6 +1828,81 @@ FileFilter::FileFilter(const QStringList &nameFilters,
       fileFilters(fileFilters),
       iteratorFlags(flags)
 {
+}
+
+QStringList FileFilter::asFindArguments() const
+{
+    QStringList arguments;
+
+    const QDir::Filters filters = fileFilters;
+    if (filters & QDir::NoSymLinks)
+        arguments.prepend("-H");
+    else
+        arguments.prepend("-L");
+
+    arguments.append({"-mindepth", "1"});
+
+    if (!iteratorFlags.testFlag(QDirIterator::Subdirectories))
+        arguments.append({"-maxdepth", "1"});
+
+    QStringList filterOptions;
+
+    if (!(filters & QDir::Hidden))
+        filterOptions << "!" << "-name" << ".*";
+
+    QStringList filterFilesAndDirs;
+    if (filters & QDir::Dirs)
+        filterFilesAndDirs << "-type" << "d";
+    if (filters & QDir::Files) {
+        if (!filterFilesAndDirs.isEmpty())
+            filterFilesAndDirs << "-o";
+        filterFilesAndDirs << "-type" << "f";
+    }
+    if (!filterFilesAndDirs.isEmpty())
+        filterOptions << "(" << filterFilesAndDirs << ")";
+
+    QStringList accessOptions;
+    if (filters & QDir::Readable)
+        accessOptions << "-readable";
+    if (filters & QDir::Writable) {
+        if (!accessOptions.isEmpty())
+            accessOptions << "-o";
+        accessOptions << "-writable";
+    }
+    if (filters & QDir::Executable) {
+        if (!accessOptions.isEmpty())
+            accessOptions << "-o";
+        accessOptions << "-executable";
+    }
+
+    if (!accessOptions.isEmpty())
+        filterOptions << "(" << accessOptions << ")";
+
+    QTC_CHECK(filters ^ QDir::AllDirs);
+    QTC_CHECK(filters ^ QDir::Drives);
+    QTC_CHECK(filters ^ QDir::NoDot);
+    QTC_CHECK(filters ^ QDir::NoDotDot);
+    QTC_CHECK(filters ^ QDir::System);
+
+    const QString nameOption = (filters & QDir::CaseSensitive) ? QString{"-name"}
+                                                               : QString{"-iname"};
+    if (!nameFilters.isEmpty()) {
+        const QRegularExpression oneChar("\\[.*?\\]");
+        bool addedFirst = false;
+        for (const QString &current : nameFilters) {
+            if (current.indexOf(oneChar) != -1) {
+                qDebug() << "Skipped" << current << "due to presence of [] wildcard";
+                continue;
+            }
+
+            if (addedFirst)
+                filterOptions << "-o";
+            filterOptions << nameOption << current;
+            addedFirst = true;
+        }
+    }
+    arguments << filterOptions;
+    return arguments;
 }
 
 DeviceFileHooks &DeviceFileHooks::instance()

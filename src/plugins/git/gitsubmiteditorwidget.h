@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "gitsettings.h"
 #include "commitdata.h"
 
 #include <texteditor/syntaxhighlighter.h>
@@ -16,8 +15,7 @@ QT_BEGIN_NAMESPACE
 class QValidator;
 QT_END_NAMESPACE
 
-namespace Git {
-namespace Internal {
+namespace Git::Internal {
 
 class GitSubmitPanel;
 class GitSubmitEditorPanelInfo;
@@ -75,5 +73,4 @@ private:
     bool m_isInitialized = false;
 };
 
-} // namespace Internal
-} // namespace Git
+} // Git::Internal

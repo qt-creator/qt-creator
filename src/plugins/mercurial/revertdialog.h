@@ -3,17 +3,16 @@
 
 #pragma once
 
-#include "ui_revertdialog.h"
-
 #include <QDialog>
 
-namespace Mercurial {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
+
+namespace Mercurial::Internal {
 
 class RevertDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     RevertDialog(QWidget *parent = nullptr);
     ~RevertDialog() override;
@@ -21,8 +20,7 @@ public:
     QString revision() const;
 
 private:
-    Ui::RevertDialog *m_ui;
+    QLineEdit *m_revisionLineEdit;
 };
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

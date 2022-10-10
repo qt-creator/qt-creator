@@ -16,7 +16,9 @@ enum class HighlightingItemRole {
     Length,
     Foreground,
     Background,
-    User
+    User,
+    DisplayExtra,
+    DisplayExtraForeground
 };
 
 class QTCREATOR_UTILS_EXPORT HighlightingItemDelegate : public QItemDelegate

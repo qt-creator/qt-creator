@@ -192,7 +192,7 @@ void QmakeMakeStep::setupOutputFormatter(OutputFormatter *formatter)
     additionalParsers << new QMakeParser;
 
     if (xcodeBuildParser) {
-        for (OutputLineParser * const p : qAsConst(additionalParsers))
+        for (OutputLineParser * const p : std::as_const(additionalParsers))
             p->setRedirectionDetector(xcodeBuildParser);
     }
     formatter->addLineParsers(additionalParsers);

@@ -5,26 +5,26 @@
 
 #include <QDialog>
 
-namespace Mercurial {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
 
-namespace Ui { class AuthenticationDialog; }
+namespace Mercurial::Internal {
 
 class AuthenticationDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit AuthenticationDialog(const QString &username, const QString &password,
                                   QWidget *parent = nullptr);
     ~AuthenticationDialog() override;
+
     void setPasswordEnabled(bool enabled);
     QString getUserName();
     QString getPassword();
 
 private:
-    Ui::AuthenticationDialog *ui;
+    QLineEdit *m_username;
+    QLineEdit *m_password;
 };
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

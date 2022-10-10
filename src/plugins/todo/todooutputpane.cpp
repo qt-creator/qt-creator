@@ -168,7 +168,7 @@ void TodoOutputPane::updateTodoCount()
 void TodoOutputPane::updateKeywordFilter()
 {
     QStringList keywords;
-    for (const QToolButton *btn: qAsConst(m_filterButtons)) {
+    for (const QToolButton *btn: std::as_const(m_filterButtons)) {
         if (btn->isChecked())
             keywords.append(btn->property(Constants::FILTER_KEYWORD_NAME).toString());
     }
@@ -185,7 +185,7 @@ void TodoOutputPane::updateKeywordFilter()
 
 void TodoOutputPane::clearKeywordFilter()
 {
-    for (QToolButton *btn: qAsConst(m_filterButtons))
+    for (QToolButton *btn: std::as_const(m_filterButtons))
         btn->setChecked(false);
 
     updateKeywordFilter();

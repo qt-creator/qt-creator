@@ -54,20 +54,20 @@ void GraphicsScene::unselectAll()
 
 void GraphicsScene::unhighlightAll()
 {
-    for (BaseItem *it : qAsConst(m_baseItems))
+    for (BaseItem *it : std::as_const(m_baseItems))
         it->setHighlight(false);
 }
 
 void GraphicsScene::highlightItems(const QVector<ScxmlTag*> &lstIds)
 {
-    for (BaseItem *it : qAsConst(m_baseItems))
+    for (BaseItem *it : std::as_const(m_baseItems))
         it->setHighlight(lstIds.contains(it->tag()));
 }
 
 QRectF GraphicsScene::selectedBoundingRect() const
 {
     QRectF r;
-    for (BaseItem *item : qAsConst(m_baseItems)) {
+    for (BaseItem *item : std::as_const(m_baseItems)) {
         if (item->isSelected())
             r = r.united(item->sceneBoundingRect());
     }
@@ -77,7 +77,7 @@ QRectF GraphicsScene::selectedBoundingRect() const
 qreal GraphicsScene::selectedMaxWidth() const
 {
     qreal maxw = 0;
-    for (BaseItem *item : qAsConst(m_baseItems)) {
+    for (BaseItem *item : std::as_const(m_baseItems)) {
         if (item->isSelected() && item->type() >= InitialStateType)
             maxw = qMax(maxw, item->sceneBoundingRect().width());
     }
@@ -87,7 +87,7 @@ qreal GraphicsScene::selectedMaxWidth() const
 qreal GraphicsScene::selectedMaxHeight() const
 {
     qreal maxh = 0;
-    for (BaseItem *item : qAsConst(m_baseItems)) {
+    for (BaseItem *item : std::as_const(m_baseItems)) {
         if (item->isSelected() && item->type() >= InitialStateType)
             maxh = qMax(maxh, item->sceneBoundingRect().height());
     }
@@ -103,37 +103,37 @@ void GraphicsScene::alignStates(int alignType)
         if (r.isValid()) {
             switch (alignType) {
             case ActionAlignLeft:
-                for (BaseItem *item : qAsConst(m_baseItems)) {
+                for (BaseItem *item : std::as_const(m_baseItems)) {
                     if (item->isSelected() && item->type() >= InitialStateType)
                         item->moveStateBy(r.left() - item->sceneBoundingRect().left(), 0);
                 }
                 break;
             case ActionAlignRight:
-                for (BaseItem *item : qAsConst(m_baseItems)) {
+                for (BaseItem *item : std::as_const(m_baseItems)) {
                     if (item->isSelected() && item->type() >= InitialStateType)
                         item->moveStateBy(r.right() - item->sceneBoundingRect().right(), 0);
                 }
                 break;
             case ActionAlignTop:
-                for (BaseItem *item : qAsConst(m_baseItems)) {
+                for (BaseItem *item : std::as_const(m_baseItems)) {
                     if (item->isSelected() && item->type() >= InitialStateType)
                         item->moveStateBy(0, r.top() - item->sceneBoundingRect().top());
                 }
                 break;
             case ActionAlignBottom:
-                for (BaseItem *item : qAsConst(m_baseItems)) {
+                for (BaseItem *item : std::as_const(m_baseItems)) {
                     if (item->isSelected() && item->type() >= InitialStateType)
                         item->moveStateBy(0, r.bottom() - item->sceneBoundingRect().bottom());
                 }
                 break;
             case ActionAlignHorizontal:
-                for (BaseItem *item : qAsConst(m_baseItems)) {
+                for (BaseItem *item : std::as_const(m_baseItems)) {
                     if (item->isSelected() && item->type() >= InitialStateType)
                         item->moveStateBy(0, r.center().y() - item->sceneBoundingRect().center().y());
                 }
                 break;
             case ActionAlignVertical:
-                for (BaseItem *item : qAsConst(m_baseItems)) {
+                for (BaseItem *item : std::as_const(m_baseItems)) {
                     if (item->isSelected() && item->type() >= InitialStateType)
                         item->moveStateBy(r.center().x() - item->sceneBoundingRect().center().x(), 0);
                 }
@@ -154,7 +154,7 @@ void GraphicsScene::adjustStates(int adjustType)
         qreal maxw = selectedMaxWidth();
         qreal maxh = selectedMaxHeight();
 
-        for (BaseItem *item : qAsConst(m_baseItems)) {
+        for (BaseItem *item : std::as_const(m_baseItems)) {
             if (item->isSelected() && item->type() >= InitialStateType) {
                 QRectF rr = item->boundingRect();
                 if ((adjustType == ActionAdjustWidth || adjustType == ActionAdjustSize) && !qFuzzyCompare(rr.width(), maxw))
@@ -202,7 +202,7 @@ void GraphicsScene::copy()
     QVector<ScxmlTag*> tags;
     if (m_document->currentTag()->tagType() == Scxml) {
         QVector<BaseItem*> items;
-        for (BaseItem *item : qAsConst(m_baseItems)) {
+        for (BaseItem *item : std::as_const(m_baseItems)) {
             if (!item->parentItem())
                 items << item;
         }
@@ -220,7 +220,7 @@ void GraphicsScene::copy()
         mime->setText(QLatin1String(result));
         mime->setData("StateChartEditor/StateData", result);
         QStringList strTypes;
-        for (const ScxmlTag *tag : qAsConst(tags))
+        for (const ScxmlTag *tag : std::as_const(tags))
             strTypes << tag->tagName(false);
 
         mime->setData("StateChartEditor/CopiedTagTypes", strTypes.join(",").toLocal8Bit());
@@ -246,7 +246,7 @@ void GraphicsScene::paste(const QPointF &targetPos)
     QPointF startPos(targetPos);
 
     BaseItem *targetItem = nullptr;
-    for (BaseItem *item : qAsConst(m_baseItems)) {
+    for (BaseItem *item : std::as_const(m_baseItems)) {
         if (item->isSelected() && item->type() >= StateType) {
             targetItem = item;
             break;
@@ -275,7 +275,7 @@ void GraphicsScene::paste(const QPointF &targetPos)
 
 void GraphicsScene::setEditorInfo(const QString &key, const QString &value)
 {
-    for (BaseItem *item : qAsConst(m_baseItems)) {
+    for (BaseItem *item : std::as_const(m_baseItems)) {
         if (item->isSelected() && item->type() >= TransitionType)
             item->setEditorInfo(key, value);
     }
@@ -350,7 +350,7 @@ void GraphicsScene::runLayoutToSelectedStates()
     m_document->undoStack()->beginMacro(Tr::tr("Re-layout"));
 
     QVector<BaseItem*> selectedItems;
-    for (BaseItem *node : qAsConst(m_baseItems)) {
+    for (BaseItem *node : std::as_const(m_baseItems)) {
         if (node->isSelected()) {
             int index = 0;
             for (int i = 0; i < selectedItems.count(); ++i) {
@@ -370,19 +370,19 @@ void GraphicsScene::runLayoutToSelectedStates()
     // Layout scene items if necessary
     if (selectedItems.isEmpty()) {
         QList<QGraphicsItem*> sceneItems;
-        for (BaseItem *item : qAsConst(m_baseItems)) {
+        for (BaseItem *item : std::as_const(m_baseItems)) {
             if (item->type() >= InitialStateType && !item->parentItem())
                 sceneItems << item;
         }
         SceneUtils::layout(sceneItems);
 
-        for (QGraphicsItem *item : qAsConst(sceneItems))
+        for (QGraphicsItem *item : std::as_const(sceneItems))
             if (item->type() >= StateType)
                 static_cast<StateItem*>(item)->shrink();
     }
 
     // Update properties
-    for (BaseItem *node : qAsConst(selectedItems))
+    for (BaseItem *node : std::as_const(selectedItems))
         node->updateUIProperties();
 
     m_document->undoStack()->endMacro();
@@ -394,31 +394,31 @@ void GraphicsScene::runAutomaticLayout()
 
     // 1. Find max depth
     int maxDepth = 0;
-    for (BaseItem *node : qAsConst(m_baseItems)) {
+    for (BaseItem *node : std::as_const(m_baseItems)) {
         maxDepth = qMax(maxDepth, node->depth());
         node->setBlockUpdates(true);
     }
 
     // 2. Layout every depth-level separately
     for (int d = (maxDepth + 1); d--;) {
-        for (BaseItem *node : qAsConst(m_baseItems))
+        for (BaseItem *node : std::as_const(m_baseItems))
             node->doLayout(d);
     }
 
     // 3. Layout scene items
     QList<QGraphicsItem*> sceneItems;
-    for (BaseItem *item : qAsConst(m_baseItems)) {
+    for (BaseItem *item : std::as_const(m_baseItems)) {
         if (item->type() >= InitialStateType && !item->parentItem())
             sceneItems << item;
     }
     SceneUtils::layout(sceneItems);
 
-    for (QGraphicsItem *item : qAsConst(sceneItems)) {
+    for (QGraphicsItem *item : std::as_const(sceneItems)) {
         if (item->type() >= StateType)
             static_cast<StateItem*>(item)->shrink();
     }
 
-    for (BaseItem *node : qAsConst(m_baseItems)) {
+    for (BaseItem *node : std::as_const(m_baseItems)) {
         node->updateUIProperties();
         node->setBlockUpdates(false);
     }
@@ -445,21 +445,21 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
 
     switch (change) {
     case ScxmlDocument::TagAttributesChanged: {
-        for (BaseItem *item : qAsConst(m_baseItems)) {
+        for (BaseItem *item : std::as_const(m_baseItems)) {
             if (item->tag() == tag)
                 item->updateAttributes();
         }
         break;
     }
     case ScxmlDocument::TagEditorInfoChanged: {
-        for (BaseItem *item : qAsConst(m_baseItems)) {
+        for (BaseItem *item : std::as_const(m_baseItems)) {
             if (item->tag() == tag)
                 item->updateEditorInfo();
         }
         break;
     }
     case ScxmlDocument::TagCurrentChanged: {
-        for (BaseItem *item : qAsConst(m_baseItems)) {
+        for (BaseItem *item : std::as_const(m_baseItems)) {
             if (!item->isSelected() && item->tag() == tag)
                 item->setSelected(true);
         }
@@ -702,7 +702,7 @@ BaseItem *GraphicsScene::findItem(const ScxmlTag *tag) const
     if (!tag)
         return nullptr;
 
-    for (BaseItem *it : qAsConst(m_baseItems)) {
+    for (BaseItem *it : std::as_const(m_baseItems)) {
         if (it->tag() == tag)
             return it;
     }
@@ -715,7 +715,7 @@ void GraphicsScene::removeItems(const ScxmlTag *tag)
     if (tag) {
         // Find right items
         QVector<BaseItem*> items;
-        for (BaseItem *it : qAsConst(m_baseItems)) {
+        for (BaseItem *it : std::as_const(m_baseItems)) {
             if (it->tag() == tag)
                 items << it;
         }
@@ -741,7 +741,7 @@ QPair<bool, bool> GraphicsScene::checkSnapToItem(BaseItem *item, const QPointF &
     qreal diffY = 8;
     qreal diffYdX = 2000;
 
-    for (BaseItem *it : qAsConst(m_baseItems)) {
+    for (BaseItem *it : std::as_const(m_baseItems)) {
         if (!it->isSelected() && it != item && it->parentItem() == parentItem && it->type() >= InitialStateType) {
             QPointF c = it->sceneCenter();
             qreal dX = qAbs(c.x() - p.x());
@@ -779,7 +779,7 @@ void GraphicsScene::selectionChanged(bool para)
     int baseCount = 0;
     int stateTypeCount = 0;
 
-    for (BaseItem *item : qAsConst(m_baseItems)) {
+    for (BaseItem *item : std::as_const(m_baseItems)) {
         if (item->isSelected()) {
             if (item->type() >= TransitionType)
                 baseCount++;
@@ -825,7 +825,7 @@ void GraphicsScene::removeWarningItem(WarningItem *item)
 void GraphicsScene::warningVisibilityChanged(int type, WarningItem *item)
 {
     if (!m_autoLayoutRunning && !m_initializing) {
-        for (WarningItem *it : qAsConst(m_allWarnings))
+        for (WarningItem *it : std::as_const(m_allWarnings))
             if (it != item && (type == 0 || it->type() == type))
                 it->check();
     }
@@ -834,7 +834,7 @@ void GraphicsScene::warningVisibilityChanged(int type, WarningItem *item)
 ScxmlTag *GraphicsScene::tagByWarning(const ScxmlEditor::OutputPane::Warning *w) const
 {
     ScxmlTag *tag = nullptr;
-    for (WarningItem *it : qAsConst(m_allWarnings))
+    for (WarningItem *it : std::as_const(m_allWarnings))
         if (it->warning() == w) {
             tag = it->tag();
             break;
@@ -896,7 +896,7 @@ void GraphicsScene::removeChild(BaseItem *item)
 
 void GraphicsScene::checkItemsVisibility(double scaleFactor)
 {
-    for (BaseItem *item : qAsConst(m_baseItems)) {
+    for (BaseItem *item : std::as_const(m_baseItems)) {
         item->checkVisibility(scaleFactor);
     }
 }
@@ -905,7 +905,7 @@ void GraphicsScene::checkInitialState()
 {
     if (m_document) {
         QList<QGraphicsItem*> sceneItems;
-        for (BaseItem *item : qAsConst(m_baseItems)) {
+        for (BaseItem *item : std::as_const(m_baseItems)) {
             if (item->type() >= InitialStateType && !item->parentItem())
                 sceneItems << item;
         }
@@ -919,14 +919,14 @@ void GraphicsScene::checkInitialState()
 
 void GraphicsScene::clearAllTags()
 {
-    for (BaseItem *it : qAsConst(m_baseItems)) {
+    for (BaseItem *it : std::as_const(m_baseItems)) {
         it->setTag(nullptr);
     }
 }
 
 void GraphicsScene::setBlockUpdates(bool block)
 {
-    for (BaseItem *it : qAsConst(m_baseItems)) {
+    for (BaseItem *it : std::as_const(m_baseItems)) {
         it->setBlockUpdates(block);
     }
 }

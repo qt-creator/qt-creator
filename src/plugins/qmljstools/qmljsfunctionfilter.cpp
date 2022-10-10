@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmljsfunctionfilter.h"
-
 #include "qmljslocatordata.h"
+#include "qmljstoolstr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
@@ -21,7 +21,7 @@ FunctionFilter::FunctionFilter(LocatorData *data, QObject *parent)
     , m_data(data)
 {
     setId("Functions");
-    setDisplayName(tr("QML Functions"));
+    setDisplayName(Tr::tr("QML Functions"));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }

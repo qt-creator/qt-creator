@@ -67,6 +67,11 @@ int Indenter::indentFor(const QTextBlock &block,
     return codeFormatter.indentFor(block);
 }
 
+int Indenter::visualIndentFor(const QTextBlock &block, const TextEditor::TabSettings &tabSettings)
+{
+    return indentFor(block, tabSettings);
+}
+
 TextEditor::IndentationForBlock Indenter::indentationForBlocks(
     const QVector<QTextBlock> &blocks,
     const TextEditor::TabSettings &tabSettings,

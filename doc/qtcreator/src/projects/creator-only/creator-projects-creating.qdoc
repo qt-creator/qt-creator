@@ -208,6 +208,11 @@
             \li Imports an existing project that does not use any of the
                 supported build systems: qmake, Qbs, CMake, or Autotools.
                 This enables you to use \QC as a code editor.
+        \row
+            \li Squish
+            \li Squish Test Suite
+            \li Creates a new \l {Using Squish}{Squish test suite}.
+
     \endtable
 
     To create a new project, select \uicontrol File > \uicontrol{New Project} and

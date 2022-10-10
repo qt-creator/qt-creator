@@ -111,7 +111,7 @@ void ProjectTestSettingsWidget::populateFrameworks(const QHash<ITestFramework *,
         item->setData(0, BaseTypeRole, frameworkOrTestTool->type());
     };
 
-    for (ITestFramework *framework : qAsConst(sortedFrameworks))
+    for (ITestFramework *framework : std::as_const(sortedFrameworks))
         generateItem(framework, frameworks.value(framework));
 
     // FIXME: testTools aren't sorted and we cannot use priority here

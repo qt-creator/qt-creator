@@ -2019,7 +2019,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             }
         }
 
-        for (const auto &nameAndLoc : qAsConst(namesAndLocations)) {
+        for (const auto &nameAndLoc : std::as_const(namesAndLocations)) {
             const int sourceLocation = nameAndLoc.second;
             Declaration *decl = control()->newDeclaration(sourceLocation, nameAndLoc.first);
             if (const Type * const t = declTy.type(); t && declTy.isTypedef() && t->asClassType()

@@ -159,7 +159,7 @@ void DiagnosticManager::setExtraSelectionsId(const Utils::Id &extraSelectionsId)
 
 void DiagnosticManager::forAllMarks(std::function<void (TextEditor::TextMark *)> func)
 {
-    for (const Marks &marks : qAsConst(m_marks)) {
+    for (const Marks &marks : std::as_const(m_marks)) {
         for (TextEditor::TextMark *mark : marks.marks)
             func(mark);
     }

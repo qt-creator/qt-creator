@@ -78,7 +78,7 @@ QVariantMap DeviceSelection::toMap() const
     map.insert(deviceMpuKeyC, cpu.mpu);
     // Device MEMORY.
     QVariantList memoryList;
-    for (const DeviceSelection::Memory &memory : qAsConst(memories)) {
+    for (const DeviceSelection::Memory &memory : std::as_const(memories)) {
         QVariantMap m;
         m.insert(deviceMemoryIdKeyC, memory.id);
         m.insert(deviceMemoryStartKeyC, memory.start);
@@ -88,7 +88,7 @@ QVariantMap DeviceSelection::toMap() const
     map.insert(deviceMemoryKeyC, memoryList);
     // Device ALGORITHM.
     QVariantList algorithmList;
-    for (const DeviceSelection::Algorithm &algorithm : qAsConst(algorithms)) {
+    for (const DeviceSelection::Algorithm &algorithm : std::as_const(algorithms)) {
         QVariantMap m;
         m.insert(deviceAlgorithmPathKeyC, algorithm.path);
         m.insert(deviceAlgorithmFlashStartKeyC, algorithm.flashStart);

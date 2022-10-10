@@ -157,6 +157,12 @@ int CppQtStyleIndenter::indentFor(const QTextBlock &block,
     return indent;
 }
 
+int CppQtStyleIndenter::visualIndentFor(const QTextBlock &block,
+                                        const TextEditor::TabSettings &tabSettings)
+{
+    return indentFor(block, tabSettings);
+}
+
 CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const
 {
     if (m_cppCodeStylePreferences)

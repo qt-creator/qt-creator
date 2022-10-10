@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "mercurialeditor.h"
+
 #include "annotationhighlighter.h"
 #include "constants.h"
-#include "mercurialplugin.h"
 #include "mercurialclient.h"
+#include "mercurialtr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <vcsbase/diffandloghighlighter.h>
@@ -19,8 +20,7 @@
 
 using namespace Utils;
 
-namespace Mercurial {
-namespace Internal  {
+namespace Mercurial::Internal {
 
 // use QRegularExpression::anchoredPattern() when minimum Qt is raised to 5.12+
 MercurialEditorWidget::MercurialEditorWidget(MercurialClient *client) :
@@ -31,8 +31,8 @@ MercurialEditorWidget::MercurialEditorWidget(MercurialClient *client) :
 {
     setDiffFilePattern(Constants::DIFFIDENTIFIER);
     setLogEntryPattern("^changeset:\\s+(\\S+)$");
-    setAnnotateRevisionTextFormat(tr("&Annotate %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));
+    setAnnotateRevisionTextFormat(Tr::tr("&Annotate %1"));
+    setAnnotatePreviousRevisionTextFormat(Tr::tr("Annotate &parent revision %1"));
     setAnnotationEntryPattern(Constants::CHANGESETID12);
 }
 
@@ -71,5 +71,4 @@ QStringList MercurialEditorWidget::annotationPreviousVersions(const QString &rev
     return m_client->parentRevisionsSync(FilePath::fromString(workingDirectory), fi.fileName(), revision);
 }
 
-} // namespace Internal
-} // namespace Mercurial
+} // Mercurial::Internal

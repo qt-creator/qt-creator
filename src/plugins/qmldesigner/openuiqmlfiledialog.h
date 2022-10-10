@@ -5,11 +5,11 @@
 
 #include <QDialog>
 
-namespace QmlDesigner {
+QT_BEGIN_NAMESPACE
+class QListWidget;
+QT_END_NAMESPACE
 
-namespace Ui {
-class OpenUiQmlFileDialog;
-}
+namespace QmlDesigner {
 
 class OpenUiQmlFileDialog : public QDialog
 {
@@ -23,7 +23,7 @@ public:
     QString uiQmlFile() const;
 
 private:
-    Ui::OpenUiQmlFileDialog *ui;
+    QListWidget *m_listWidget;
     bool m_uiFileOpened = false;
     QString m_uiQmlFile;
 };

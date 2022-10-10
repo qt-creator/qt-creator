@@ -551,7 +551,7 @@ bool UvscClient::inspectLocal(const QStringList &expandedLocalINames,
     }
 
     if (localIName == "local") {
-        for (const GdbMi &child : qAsConst(children))
+        for (const GdbMi &child : std::as_const(children))
             data.addChild(child);
     } else {
         const GdbMi childrenEntry = UvscUtils::buildChildrenEntry(children);

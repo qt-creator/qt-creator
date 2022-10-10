@@ -1,9 +1,10 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "androidtoolchain.h"
-#include "androidconstants.h"
 #include "androidconfigurations.h"
+#include "androidconstants.h"
+#include "androidtoolchain.h"
+#include "androidtr.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -48,7 +49,7 @@ static ToolChain *findToolChain(FilePath &compilerPath, Id lang, const QString &
 AndroidToolChain::AndroidToolChain()
     : ClangToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(AndroidToolChain::tr("Android Clang"));
+    setTypeDisplayName(Tr::tr("Android Clang"));
 }
 
 FilePath AndroidToolChain::ndkLocation() const
@@ -135,7 +136,7 @@ GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 
 AndroidToolChainFactory::AndroidToolChainFactory()
 {
-    setDisplayName(AndroidToolChain::tr("Android Clang"));
+    setDisplayName(Tr::tr("Android Clang"));
     setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new AndroidToolChain; });

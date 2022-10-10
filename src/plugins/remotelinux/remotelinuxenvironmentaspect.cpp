@@ -43,7 +43,8 @@ QString RemoteLinuxEnvironmentAspect::userEnvironmentChangesAsString() const
 {
     QString env;
     QString placeHolder = QLatin1String("%1=%2 ");
-    foreach (const Utils::EnvironmentItem &item, userEnvironmentChanges())
+    const Utils::EnvironmentItems items = userEnvironmentChanges();
+    for (const Utils::EnvironmentItem &item : items)
         env.append(placeHolder.arg(item.name, item.value));
     return env.mid(0, env.size() - 1);
 }

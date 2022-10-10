@@ -187,7 +187,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent)
 
     setTitle(tr("Kit Selection"));
 
-    for (IPotentialKit *pk : qAsConst(g_potentialKits))
+    for (IPotentialKit *pk : std::as_const(g_potentialKits))
         if (pk->isEnabled())
             m_potentialWidgets.append(pk->createWidget(this));
 
@@ -443,9 +443,9 @@ void TargetSetupPage::updateVisibility()
 void TargetSetupPage::reLayout()
 {
     removeAdditionalWidgets();
-    for (TargetSetupWidget * const w : qAsConst(m_widgets))
+    for (TargetSetupWidget * const w : std::as_const(m_widgets))
         m_baseLayout->removeWidget(w);
-    for (TargetSetupWidget * const w : qAsConst(m_widgets))
+    for (TargetSetupWidget * const w : std::as_const(m_widgets))
         m_baseLayout->addWidget(w);
     addAdditionalWidgets();
 }
@@ -509,7 +509,7 @@ void TargetSetupPage::kitFilterChanged(const QString &filterText)
     setupWidgets(filterText);
 
     // Re-select kits:
-    for (TargetSetupWidget *w : qAsConst(m_widgets))
+    for (TargetSetupWidget *w : std::as_const(m_widgets))
         w->setKitSelected(selectedKitIds.contains(w->kit()->id()));
 
     emit completeChanged();
@@ -613,7 +613,7 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 void TargetSetupPage::addAdditionalWidgets()
 {
     m_baseLayout->addWidget(m_importWidget);
-    for (QWidget * const widget : qAsConst(m_potentialWidgets))
+    for (QWidget * const widget : std::as_const(m_potentialWidgets))
         m_baseLayout->addWidget(widget);
     m_baseLayout->addItem(m_spacer);
 }
@@ -621,7 +621,7 @@ void TargetSetupPage::addAdditionalWidgets()
 void TargetSetupPage::removeAdditionalWidgets(QLayout *layout)
 {
     layout->removeWidget(m_importWidget);
-    for (QWidget * const potentialWidget : qAsConst(m_potentialWidgets))
+    for (QWidget * const potentialWidget : std::as_const(m_potentialWidgets))
         layout->removeWidget(potentialWidget);
     layout->removeItem(m_spacer);
 }

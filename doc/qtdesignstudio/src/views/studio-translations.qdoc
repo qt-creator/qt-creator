@@ -8,6 +8,9 @@
 
     \title Translations
 
+    The \uicontrol Translations view is included in the
+    \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.
+
     You handle translations and multi-language support in the
     \uicontrol {Translations} view.
 

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "vcsbase_global.h"
+#include "vcsenums.h"
 
 #include "vcsbaseclientsettings.h"
 
@@ -77,10 +78,11 @@ public:
 
     // Fully synchronous VCS execution (QProcess-based)
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
-                                     const QStringList &args, unsigned flags = 0,
+                                     const QStringList &args, RunFlags flags = RunFlags::None,
                                      int timeoutS = -1, QTextCodec *codec = nullptr) const;
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
-                                     const Utils::CommandLine &cmdLine, unsigned flags = 0,
+                                     const Utils::CommandLine &cmdLine,
+                                     RunFlags flags = RunFlags::None,
                                      int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
     // Simple helper to execute a single command using createCommand and enqueueJob.
@@ -88,7 +90,7 @@ public:
                         const QStringList &arguments,
                         VcsBaseEditorWidget *editor = nullptr,
                         bool useOutputToWindow = false,
-                        unsigned additionalFlags = 0) const;
+                        RunFlags additionalFlags = RunFlags::None) const;
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);

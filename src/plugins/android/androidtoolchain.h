@@ -14,8 +14,6 @@ using ToolChainList = QList<ProjectExplorer::ToolChain *>;
 
 class AndroidToolChain : public ProjectExplorer::ClangToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidToolChain)
-
 public:
     ~AndroidToolChain() override;
 
