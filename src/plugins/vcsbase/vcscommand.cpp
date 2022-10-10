@@ -13,12 +13,9 @@
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/threadutils.h>
 
-#include <QCoreApplication>
-#include <QFuture>
-#include <QFutureWatcher>
 #include <QTextCodec>
-#include <QThread>
 
 using namespace Core;
 using namespace Utils;
@@ -43,7 +40,6 @@ public:
         , m_environment(environment)
     {
         VcsBase::setProcessEnvironment(&m_environment);
-        m_futureInterface.setProgressRange(0, 1);
     }
 
     Environment environment()
@@ -56,7 +52,6 @@ public:
         return m_environment;
     }
 
-    QString displayName() const;
     int timeoutS() const;
 
     void setup();
@@ -76,7 +71,6 @@ public:
     Environment m_environment;
     QTextCodec *m_codec = nullptr;
     ProgressParser m_progressParser = {};
-    QFutureWatcher<void> m_watcher;
     QList<Job> m_jobs;
 
     int m_currentJob = 0;
@@ -84,27 +78,9 @@ public:
     QString m_stdOut;
     QString m_stdErr;
     ProcessResult m_result = ProcessResult::StartFailed;
-    QFutureInterface<void> m_futureInterface;
 
     RunFlags m_flags = RunFlags::None;
 };
-
-QString VcsCommandPrivate::displayName() const
-{
-    if (!m_displayName.isEmpty())
-        return m_displayName;
-    if (m_jobs.isEmpty())
-        return tr("Unknown");
-    const Job &job = m_jobs.at(0);
-    QString result = job.command.executable().baseName();
-    if (!result.isEmpty())
-        result[0] = result.at(0).toTitleCase();
-    else
-        result = tr("UNKNOWN");
-    if (!job.command.arguments().isEmpty())
-        result += ' ' + job.command.splitArguments().at(0);
-    return result;
-}
 
 int VcsCommandPrivate::timeoutS() const
 {
@@ -114,15 +90,12 @@ int VcsCommandPrivate::timeoutS() const
 
 void VcsCommandPrivate::setup()
 {
-    m_futureInterface.reportStarted();
     if (m_flags & RunFlags::ExpectRepoChanges)
         GlobalFileChangeBlocker::instance()->forceBlocked(true);
 }
 
 void VcsCommandPrivate::cleanup()
 {
-    QTC_ASSERT(m_futureInterface.isRunning(), return);
-    m_futureInterface.reportFinished();
     if (m_flags & RunFlags::ExpectRepoChanges)
         GlobalFileChangeBlocker::instance()->forceBlocked(false);
 }
@@ -145,15 +118,22 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
         process->setCodec(m_codec);
 
     installStdCallbacks(process);
+
+    if (m_flags & RunFlags::SuppressCommandLogging)
+        return;
+
+    ProcessProgress *progress = new ProcessProgress(process);
+    progress->setDisplayName(m_displayName);
+    if (m_progressParser)
+        progress->setProgressParser(m_progressParser);
 }
 
 void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 {
     if (!(m_flags & RunFlags::MergeOutputChannels) && (m_flags & RunFlags::ProgressiveOutput
-                                                  || !(m_flags & RunFlags::SuppressStdErr))) {
-        process->setStdErrCallback([this](const QString &text) {
-            if (m_progressParser)
-                m_progressParser(m_futureInterface, text);
+                              || m_progressParser || !(m_flags & RunFlags::SuppressStdErr))) {
+        process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
+        connect(process, &QtcProcess::textOnStandardError, [this](const QString &text) {
             if (!(m_flags & RunFlags::SuppressStdErr))
                 emit q->appendError(text);
             if (m_flags & RunFlags::ProgressiveOutput)
@@ -163,9 +143,8 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
     // connect stdout to the output window if desired
     if (m_progressParser || m_flags & RunFlags::ProgressiveOutput
                          || m_flags & RunFlags::ShowStdOut) {
-        process->setStdOutCallback([this](const QString &text) {
-            if (m_progressParser)
-                m_progressParser(m_futureInterface, text);
+        process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
+        connect(process, &QtcProcess::textOnStandardOutput, [this](const QString &text) {
             if (m_flags & RunFlags::ShowStdOut) {
                 if (m_flags & RunFlags::SilentOutput)
                     emit q->appendSilently(text);
@@ -182,7 +161,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 
 EventLoopMode VcsCommandPrivate::eventLoopMode() const
 {
-    if ((m_flags & RunFlags::UseEventLoop) && QThread::currentThread() == qApp->thread())
+    if ((m_flags & RunFlags::UseEventLoop) && isMainThread())
         return EventLoopMode::On;
     return EventLoopMode::Off;
 }
@@ -232,8 +211,6 @@ void VcsCommandPrivate::processDone()
         return;
     }
     emit q->done();
-    if (!success)
-        m_futureInterface.reportCanceled();
     cleanup();
     // As it is used asynchronously, we need to delete ourselves
     q->deleteLater();
@@ -244,8 +221,6 @@ void VcsCommandPrivate::processDone()
 VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
     d(new Internal::VcsCommandPrivate(this, workingDirectory, environment))
 {
-    connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &VcsCommand::cancel);
-
     VcsOutputWindow::setRepository(d->m_defaultWorkingDirectory);
     VcsOutputWindow *outputWindow = VcsOutputWindow::instance(); // Keep me here, just to be sure it's not instantiated in other thread
     connect(this, &VcsCommand::append, outputWindow, [outputWindow](const QString &t) {
@@ -259,11 +234,9 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
                                     this, &VcsCommand::postRunCommand);
     connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
         disconnect(connection);
-        d->m_process.reset();
-        if (d->m_futureInterface.isRunning()) {
-            d->m_futureInterface.reportCanceled();
+        if (d->m_process && d->m_process->isRunning())
             d->cleanup();
-        }
+        d->m_process.reset();
     });
 }
 
@@ -278,10 +251,8 @@ void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 
 VcsCommand::~VcsCommand()
 {
-    if (d->m_futureInterface.isRunning()) {
-        d->m_futureInterface.reportCanceled();
+    if (d->m_process && d->m_process->isRunning())
         d->cleanup();
-    }
     delete d;
 }
 
@@ -310,21 +281,10 @@ void VcsCommand::start()
         return;
 
     d->startAll();
-    d->m_watcher.setFuture(d->m_futureInterface.future());
-    if ((d->m_flags & RunFlags::SuppressCommandLogging))
-        return;
-
-    const QString name = d->displayName();
-    const auto id = Id::fromString(name + QLatin1String(".action"));
-    if (d->m_progressParser)
-        ProgressManager::addTask(d->m_futureInterface.future(), name, id);
-    else
-        ProgressManager::addTimedTask(d->m_futureInterface, name, id, qMax(2, d->timeoutS() / 5));
 }
 
 void VcsCommand::cancel()
 {
-    d->m_futureInterface.reportCanceled();
     if (d->m_process) {
         // TODO: we may want to call cancel here...
         d->m_process->stop();

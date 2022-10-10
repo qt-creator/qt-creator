@@ -6,17 +6,14 @@
 #include "vcsbase_global.h"
 #include "vcsenums.h"
 
+#include <coreplugin/progressmanager/processprogress.h>
+
 #include <utils/filepath.h>
 #include <utils/processenums.h>
 
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
-class QVariant;
-template <typename T>
-class QFuture;
-template <typename T>
-class QFutureInterface;
 class QTextCodec;
 QT_END_NAMESPACE
 
@@ -29,8 +26,6 @@ class QtcProcess;
 namespace VcsBase {
 
 namespace Internal { class VcsCommandPrivate; }
-
-using ProgressParser = std::function<void(QFutureInterface<void> &, const QString &)>;
 
 class VCSBASE_EXPORT CommandResult
 {
@@ -79,7 +74,7 @@ public:
 
     void setCodec(QTextCodec *codec);
 
-    void setProgressParser(const ProgressParser &parser);
+    void setProgressParser(const Core::ProgressParser &parser);
 
     static CommandResult runBlocking(const Utils::FilePath &workingDirectory,
                                      const Utils::Environment &environmentconst,
