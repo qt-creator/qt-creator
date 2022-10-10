@@ -3,7 +3,7 @@
 
 #include "mesonprocess.h"
 
-#include "mesonoutputparser.h"
+#include "mesonprojectmanagertr.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -44,7 +44,7 @@ bool MesonProcess::run(const Command &command,
     setupProcess(command, env, captureStdo);
     m_future.setProgressRange(0, 1);
     Core::ProgressManager::addTimedTask(m_future,
-                                        tr("Configuring \"%1\".").arg(projectName),
+                                        Tr::tr("Configuring \"%1\".").arg(projectName),
                                         "Meson.Configure",
                                         10);
     emit started();
@@ -121,7 +121,7 @@ void MesonProcess::setupProcess(const Command &command,
     m_process->setWorkingDirectory(command.workDir());
     m_process->setEnvironment(env);
     Core::MessageManager::writeFlashing(
-        tr("Running %1 in %2.").arg(command.toUserOutput()).arg(command.workDir().toUserOutput()));
+        Tr::tr("Running %1 in %2.").arg(command.toUserOutput()).arg(command.workDir().toUserOutput()));
     m_process->setCommand(command.cmdLine());
 }
 
@@ -132,15 +132,15 @@ bool MesonProcess::sanityCheck(const Command &command) const
         //Should only reach this point if Meson exe is removed while a Meson project is opened
         ProjectExplorer::TaskHub::addTask(
             ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::TaskType::Error,
-                                             tr("Executable does not exist: %1")
+                                             Tr::tr("Executable does not exist: %1")
                                                  .arg(exe.toUserOutput())});
         return false;
     }
     if (!exe.toFileInfo().isExecutable()) {
         ProjectExplorer::TaskHub::addTask(
             ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::TaskType::Error,
-                                             tr("Command is not executable: %1")
-                                                 .arg(exe.toUserOutput())});
+                                             Tr::tr("Command is not executable: %1")
+                                                    .arg(exe.toUserOutput())});
         return false;
     }
     return true;

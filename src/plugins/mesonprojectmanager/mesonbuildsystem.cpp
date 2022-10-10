@@ -6,6 +6,7 @@
 #include "kithelper.h"
 #include "machinefilemanager.h"
 #include "mesonbuildconfiguration.h"
+#include "mesonprojectmanagertr.h"
 #include "mesontoolkitaspect.h"
 #include "settings.h"
 
@@ -82,7 +83,7 @@ void MesonBuildSystem::parsingCompleted(bool success)
         UNLOCK(true);
         emitBuildSystemUpdated();
     } else {
-        TaskHub::addTask(BuildSystemTask(Task::Error, tr("Meson build: Parsing failed")));
+        TaskHub::addTask(BuildSystemTask(Task::Error, Tr::tr("Meson build: Parsing failed")));
         UNLOCK(false);
         emitBuildSystemUpdated();
     }

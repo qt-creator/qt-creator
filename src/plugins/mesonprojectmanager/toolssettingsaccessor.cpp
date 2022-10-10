@@ -4,6 +4,7 @@
 #include "toolssettingsaccessor.h"
 
 #include "mesonpluginconstants.h"
+#include "mesonprojectmanagertr.h"
 
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
@@ -18,18 +19,15 @@
 namespace MesonProjectManager {
 namespace Internal {
 
-namespace {
-inline QString entryName(int index)
+static QString entryName(int index)
 {
     using namespace Constants;
     return QString("%1%2").arg(ToolsSettings::ENTRY_KEY).arg(index);
 }
-} // namespace
 
 ToolsSettingsAccessor::ToolsSettingsAccessor()
     : UpgradingSettingsAccessor("QtCreatorMesonTools",
-                                QCoreApplication::translate("MesonProjectManager::MesonToolManager",
-                                                            "Meson"),
+                                Tr::tr("Meson"),
                                 Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(Core::ICore::userResourcePath(Constants::ToolsSettings::FILENAME));

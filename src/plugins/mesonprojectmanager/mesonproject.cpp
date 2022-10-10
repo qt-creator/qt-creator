@@ -4,6 +4,7 @@
 #include "mesonproject.h"
 
 #include "mesonpluginconstants.h"
+#include "mesonprojectmanagertr.h"
 #include "mesontoolkitaspect.h"
 #include "ninjatoolkitaspect.h"
 
@@ -13,11 +14,13 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
+using namespace ProjectExplorer;
+
 namespace MesonProjectManager {
 namespace Internal {
 
 MesonProject::MesonProject(const Utils::FilePath &path)
-    : ProjectExplorer::Project{Constants::Project::MIMETYPE, path}
+    : Project{Constants::Project::MIMETYPE, path}
 {
     setId(Constants::Project::ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -26,33 +29,33 @@ MesonProject::MesonProject(const Utils::FilePath &path)
     setHasMakeInstallEquivalent(true);
 }
 
-ProjectExplorer::Tasks MesonProject::projectIssues(const ProjectExplorer::Kit *k) const
+Tasks MesonProject::projectIssues(const Kit *k) const
 {
-    ProjectExplorer::Tasks result = Project::projectIssues(k);
+    Tasks result = Project::projectIssues(k);
 
     if (!MesonToolKitAspect::isValid(k))
         result.append(
-            createProjectTask(ProjectExplorer::Task::TaskType::Error, tr("No Meson tool set.")));
+            createProjectTask(Task::TaskType::Error, Tr::tr("No Meson tool set.")));
     if (!NinjaToolKitAspect::isValid(k))
         result.append(
-            createProjectTask(ProjectExplorer::Task::TaskType::Error, tr("No Ninja tool set.")));
-    if (ProjectExplorer::ToolChainKitAspect::toolChains(k).isEmpty())
-        result.append(createProjectTask(ProjectExplorer::Task::TaskType::Warning,
-                                        tr("No compilers set in kit.")));
+            createProjectTask(Task::TaskType::Error, Tr::tr("No Ninja tool set.")));
+    if (ToolChainKitAspect::toolChains(k).isEmpty())
+        result.append(createProjectTask(Task::TaskType::Warning,
+                                        Tr::tr("No compilers set in kit.")));
     return result;
 }
 
-ProjectExplorer::ProjectImporter *MesonProject::projectImporter() const
+ProjectImporter *MesonProject::projectImporter() const
 {
     if (m_projectImporter)
         m_projectImporter = std::make_unique<MesonProjectImporter>(projectFilePath());
     return m_projectImporter.get();
 }
 
-ProjectExplorer::DeploymentKnowledge MesonProject::deploymentKnowledge() const
+DeploymentKnowledge MesonProject::deploymentKnowledge() const
 {
     // TODO in next releases
-    return ProjectExplorer::DeploymentKnowledge::Bad;
+    return DeploymentKnowledge::Bad;
 }
 
 } // namespace Internal

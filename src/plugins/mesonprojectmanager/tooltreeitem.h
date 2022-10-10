@@ -4,7 +4,6 @@
 #pragma once
 
 #include "mesontools.h"
-#include "toolssettingspage.h"
 
 #include <utils/fileutils.h>
 #include <utils/id.h>
@@ -20,11 +19,11 @@ namespace Internal {
 
 class ToolTreeItem final : public Utils::TreeItem
 {
-    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::ToolsSettingsPage)
 public:
     ToolTreeItem(const QString &name);
     ToolTreeItem(const MesonTools::Tool_t &tool);
     ToolTreeItem(const ToolTreeItem &other);
+
     QVariant data(int column, int role) const override;
     inline bool isAutoDetected() const noexcept { return m_autoDetected; }
     inline QString name() const noexcept { return m_name; }

@@ -12,8 +12,6 @@ namespace Internal {
 
 class Settings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::Settings)
-
 public:
     Settings();
 
@@ -25,8 +23,6 @@ public:
 
 class GeneralSettingsPage final : public Core::IOptionsPage
 {
-    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::GeneralSettingsPage)
-
 public:
     GeneralSettingsPage();
 };

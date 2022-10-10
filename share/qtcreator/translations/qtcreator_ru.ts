@@ -26527,7 +26527,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>MesonBuildStepConfigWidget</name>
+    <name>Meson</name>
     <message>
         <source>Form</source>
         <translation></translation>
@@ -26540,9 +26540,6 @@ Error: %5</translation>
         <source>Targets:</source>
         <translation>Цели:</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::BuidOptionsModel</name>
     <message>
         <source>Key</source>
         <translation>Ключ</translation>
@@ -26551,19 +26548,9 @@ Error: %5</translation>
         <source>Value</source>
         <translation>Значение</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::GeneralSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation></translation>
     </message>
     <message>
         <source>Automatically run Meson when needed.</source>
@@ -26581,9 +26568,6 @@ Error: %5</translation>
         <source>Ninja verbose mode</source>
         <translation>Ninja в подробном режиме</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonActionsManager</name>
     <message>
         <source>Configure</source>
         <translation>Configure</translation>
@@ -26596,16 +26580,9 @@ Error: %5</translation>
         <source>Build &quot;%1&quot;</source>
         <translation>Сборка «%1»</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonBuildSettingsWidget</name>
     <message>
         <source>Meson</source>
         <translation>Meson</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation></translation>
     </message>
     <message>
         <source>Apply Configuration Changes</source>
@@ -26625,17 +26602,11 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Filter</source>
         <translation>Фильтр</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonBuildStepConfigWidget</name>
     <message>
         <source>Build</source>
         <comment>MesonProjectManager::MesonBuildStepConfigWidget display name.</comment>
         <translation>Сборка</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonProcess</name>
     <message>
         <source>Configuring &quot;%1&quot;.</source>
         <translation>Настройка «%1».</translation>
@@ -26680,9 +26651,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Command is not executable: %1</source>
         <translation>Команда не запускается: %1</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonProject</name>
     <message>
         <source>No Meson tool set.</source>
         <translation>Программа Meson не указана.</translation>
@@ -26695,9 +26663,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>No compilers set in kit.</source>
         <translation>У комплекта не заданы компиляторы.</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonToolKitAspect</name>
     <message>
         <source>Meson Tool</source>
         <translation>Утилита Meson</translation>
@@ -26711,27 +26676,13 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <translation>Невозможно проверить эту программу Meson.</translation>
     </message>
     <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
-    </message>
-    <message>
         <source>Unconfigured</source>
         <translation>Не настроено</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaBuildStep</name>
     <message>
         <source>Meson Build</source>
         <translation>Сборка Meson</translation>
     </message>
-    <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaToolKitAspect</name>
     <message>
         <source>Ninja Tool</source>
         <translation>Утилита Ninja</translation>
@@ -26749,17 +26700,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <translation>Ninja</translation>
     </message>
     <message>
-        <source>Unconfigured</source>
-        <translation>Не настроено</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolItemSettings</name>
-    <message>
-        <source>Form</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Name:</source>
         <translation>Имя:</translation>
     </message>
@@ -26767,9 +26707,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Path:</source>
         <translation>Путь:</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolTreeItem</name>
     <message>
         <source>Meson executable path does not exist.</source>
         <translation>Не найден путь к программе Meson.</translation>
@@ -26782,9 +26719,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Meson executable path is not executable.</source>
         <translation>Путь к программе Meson не исполняемый.</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolsSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>Имя</translation>
@@ -26821,13 +26755,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Cannot get tool version.</source>
         <translation>Не удалось получить версию инструмента.</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolsSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation></translation>
-    </message>
     <message>
         <source>Add</source>
         <translation>Добавить</translation>
@@ -26847,13 +26774,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     <message>
         <source>Make Default</source>
         <translation>Сделать по умолчанию</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::MesonToolManager</name>
-    <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
     </message>
 </context>
 <context>

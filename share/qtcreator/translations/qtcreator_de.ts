@@ -47917,7 +47917,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>MesonBuildSettingsWidget</name>
+    <name>Meson</name>
     <message>
         <source>Apply Configuration Changes</source>
         <translation>Konfigurationsänderungen anwenden</translation>
@@ -47926,9 +47926,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Filter</source>
         <translation>Filter</translation>
     </message>
-</context>
-<context>
-    <name>MesonBuildStepConfigWidget</name>
     <message>
         <source>Tool arguments:</source>
         <translation>Toolparameter:</translation>
@@ -48420,7 +48417,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>MesonProjectManager::Internal::MesonActionsManager</name>
+    <name>Meson</name>
     <message>
         <source>Configure</source>
         <translation>Konfigurieren</translation>
@@ -48433,24 +48430,15 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Build &quot;%1&quot;</source>
         <translation>&quot;%1&quot; erstellen</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonBuildSettingsWidget</name>
     <message>
         <source>Meson</source>
         <translation>Meson</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonBuildStepConfigWidget</name>
     <message>
         <source>Build</source>
         <comment>MesonProjectManager::MesonBuildStepConfigWidget display name.</comment>
         <translation>Erstellen</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::BuidOptionsModel</name>
     <message>
         <source>Key</source>
         <translation>Schlüssel</translation>
@@ -48459,9 +48447,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Value</source>
         <translation>Wert</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonProcess</name>
     <message>
         <source>Configuring &quot;%1&quot;.</source>
         <translation>Konfiguriere &quot;%1&quot;</translation>
@@ -48502,48 +48487,18 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Executable does not exist: %1</source>
         <translation>Ausführbare Datei existiert nicht: %1</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonProject</name>
     <message>
         <source>No compilers set in kit.</source>
         <translation>Im Kit sind keine Compiler eingerichtet.</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaBuildStep</name>
-    <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonToolKitAspect</name>
-    <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
-    </message>
     <message>
         <source>Unconfigured</source>
         <translation>Nicht konfiguriert</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaToolKitAspect</name>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Nicht konfiguriert</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolsSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>Name</translation>
@@ -48571,13 +48526,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Clone of %1</source>
         <translation>Kopie von %1</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::MesonToolManager</name>
-    <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
     </message>
 </context>
 <context>

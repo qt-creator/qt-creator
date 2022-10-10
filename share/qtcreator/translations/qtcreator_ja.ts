@@ -45835,7 +45835,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>MesonProjectManager::Internal::MesonBuildSettingsWidget</name>
+    <name>Meson</name>
     <message>
         <source>Apply Configuration Changes</source>
         <translation>設定の変更を適用</translation>
@@ -45844,9 +45844,6 @@ Output:
         <source>Filter</source>
         <translation>フィルタ</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolItemSettings</name>
     <message>
         <source>Name:</source>
         <translation>名前:</translation>
@@ -45855,9 +45852,6 @@ Output:
         <source>Path:</source>
         <translation>パス:</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolsSettingsWidget</name>
     <message>
         <source>Clone</source>
         <translation>複製</translation>
@@ -49749,7 +49743,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>MesonProjectManager::Internal::MesonActionsManager</name>
+    <name>Meson</name>
     <message>
         <source>Configure</source>
         <translation>設定する</translation>
@@ -49762,16 +49756,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Build &quot;%1&quot;</source>
         <translation>&quot;%1&quot; のビルド</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::BuidOptionsModel</name>
     <message>
         <source>Value</source>
         <translation>値</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonProcess</name>
     <message>
         <source>Process timed out.</source>
         <translation>プロセスがタイムアウトしました。</translation>
@@ -49780,9 +49768,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Executable does not exist: %1</source>
         <translation>実行ファイル が存在しません: %1</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaBuildStep</name>
     <message>
         <source>Build</source>
         <comment>MesonProjectManager::MesonBuildStepConfigWidget display name.</comment>
@@ -49796,30 +49781,14 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Targets:</source>
         <translation>ターゲット:</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonToolKitAspect</name>
     <message>
         <source>Unconfigured</source>
         <translation>未設定</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaToolKitAspect</name>
-    <message>
-        <source>Unconfigured</source>
-        <translation>未設定</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolsSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>名前</translation>

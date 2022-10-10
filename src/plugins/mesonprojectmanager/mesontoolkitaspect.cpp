@@ -3,6 +3,7 @@
 
 #include "mesontoolkitaspect.h"
 
+#include "mesonprojectmanagertr.h"
 #include "toolkitaspectwidget.h"
 
 #include <utils/qtcassert.h>
@@ -16,8 +17,8 @@ MesonToolKitAspect::MesonToolKitAspect()
 {
     setObjectName(QLatin1String("MesonKitAspect"));
     setId(TOOL_ID);
-    setDisplayName(tr("Meson Tool"));
-    setDescription(tr("The Meson tool to use when building a project with Meson.<br>"
+    setDisplayName(Tr::tr("Meson Tool"));
+    setDescription(Tr::tr("The Meson tool to use when building a project with Meson.<br>"
                       "This setting is ignored when using other build systems."));
     setPriority(9000);
 }
@@ -28,7 +29,7 @@ ProjectExplorer::Tasks MesonToolKitAspect::validate(const ProjectExplorer::Kit *
     const auto tool = mesonTool(k);
     if (tool && !tool->isValid())
         tasks << ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::Warning,
-                                                  tr("Cannot validate this meson executable.")};
+                                                  Tr::tr("Cannot validate this meson executable.")};
     return tasks;
 }
 
@@ -52,8 +53,8 @@ ProjectExplorer::KitAspect::ItemList MesonToolKitAspect::toUserOutput(
 {
     const auto tool = mesonTool(k);
     if (tool)
-        return {{tr("Meson"), tool->name()}};
-    return {{tr("Meson"), tr("Unconfigured")}};
+        return {{Tr::tr("Meson"), tool->name()}};
+    return {{Tr::tr("Meson"), Tr::tr("Unconfigured")}};
 }
 
 ProjectExplorer::KitAspectWidget *MesonToolKitAspect::createConfigWidget(ProjectExplorer::Kit *k) const

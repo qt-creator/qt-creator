@@ -3,6 +3,7 @@
 
 #include "ninjatoolkitaspect.h"
 
+#include "mesonprojectmanagertr.h"
 #include "toolkitaspectwidget.h"
 
 #include <utils/qtcassert.h>
@@ -16,9 +17,9 @@ NinjaToolKitAspect::NinjaToolKitAspect()
 {
     setObjectName(QLatin1String("NinjaKitAspect"));
     setId(TOOL_ID);
-    setDisplayName(tr("Ninja Tool"));
-    setDescription(tr("The Ninja tool to use when building a project with Meson.<br>"
-                      "This setting is ignored when using other build systems."));
+    setDisplayName(Tr::tr("Ninja Tool"));
+    setDescription(Tr::tr("The Ninja tool to use when building a project with Meson.<br>"
+                          "This setting is ignored when using other build systems."));
     setPriority(9000);
 }
 
@@ -28,7 +29,7 @@ ProjectExplorer::Tasks NinjaToolKitAspect::validate(const ProjectExplorer::Kit *
     const auto tool = ninjaTool(k);
     if (tool && !tool->isValid())
         tasks << ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::Warning,
-                                                  tr("Cannot validate this Ninja executable.")};
+                                                  Tr::tr("Cannot validate this Ninja executable.")};
     return tasks;
 }
 
@@ -52,8 +53,8 @@ ProjectExplorer::KitAspect::ItemList NinjaToolKitAspect::toUserOutput(
 {
     const auto tool = ninjaTool(k);
     if (tool)
-        return {{tr("Ninja"), tool->name()}};
-    return {{tr("Ninja"), tr("Unconfigured")}};
+        return {{Tr::tr("Ninja"), tool->name()}};
+    return {{Tr::tr("Ninja"), Tr::tr("Unconfigured")}};
 }
 
 ProjectExplorer::KitAspectWidget *NinjaToolKitAspect::createConfigWidget(ProjectExplorer::Kit *k) const

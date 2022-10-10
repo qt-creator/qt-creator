@@ -3,6 +3,7 @@
 
 #include "toolssettingswidget.h"
 
+#include "mesonprojectmanagertr.h"
 #include "toolsmodel.h"
 #include "tooltreeitem.h"
 
@@ -33,19 +34,19 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     m_mesonDetails->setVisible(false);
     m_mesonDetails->setWidget(m_itemSettings);
 
-    auto addButton = new QPushButton(tr("Add"));
+    auto addButton = new QPushButton(Tr::tr("Add"));
 
-    m_cloneButton = new QPushButton(tr("Clone"));
+    m_cloneButton = new QPushButton(Tr::tr("Clone"));
     m_cloneButton->setEnabled(false);
 
-    m_removeButton = new QPushButton(tr("Remove"));
+    m_removeButton = new QPushButton(Tr::tr("Remove"));
     m_removeButton->setEnabled(false);
 
-    auto makeDefaultButton = new QPushButton(tr("Make Default"));
+    auto makeDefaultButton = new QPushButton(Tr::tr("Make Default"));
     makeDefaultButton->setEnabled(false);
     makeDefaultButton->setVisible(false);
-    makeDefaultButton->setToolTip(tr("Set as the default Meson executable to use "
-                                     "when creating a new kit or when no value is set."));
+    makeDefaultButton->setToolTip(Tr::tr("Set as the default Meson executable to use "
+                                         "when creating a new kit or when no value is set."));
 
     using namespace Layouting;
 

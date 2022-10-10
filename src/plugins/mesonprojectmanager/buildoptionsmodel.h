@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "mesoninfoparser.h"
+#include "buildoptions.h"
 
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
@@ -66,6 +66,7 @@ public:
     }
     inline BuildOption::Type type() { return m_currentValue->type(); }
 };
+
 using CancellableOptionsList = std::vector<std::unique_ptr<CancellableOption>>;
 class BuidOptionsModel final : public Utils::TreeModel<>
 {
