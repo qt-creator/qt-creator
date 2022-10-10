@@ -1,7 +1,4 @@
-Project {
-    name: "C++ unit tests"
-    condition: project.withAutotests
-    references: [
-        "unittest/unittest.qbs",
-    ]
+Product {
+    name: "QmlDesigner unit tests"
+    files: ["*", "**/*"]
 }
