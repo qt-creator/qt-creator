@@ -5,6 +5,7 @@
 #include "nimbuildconfiguration.h"
 
 #include "../nimconstants.h"
+#include "../nimtr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -21,10 +22,8 @@ namespace Nim {
 
 class NimCompilerCleanStep final : public BuildStep
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim::NimCompilerCleanStep)
-
 public:
-    NimCompilerCleanStep(BuildStepList *parentList, Utils::Id id);
+    NimCompilerCleanStep(BuildStepList *parentList, Id id);
 
 private:
     bool init() final;
@@ -34,14 +33,14 @@ private:
     bool removeCacheDirectory();
     bool removeOutFilePath();
 
-    Utils::FilePath m_buildDir;
+    FilePath m_buildDir;
 };
 
-NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Utils::Id id)
+NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList, Id id)
     : BuildStep(parentList, id)
 {
     auto workingDirectory = addAspect<StringAspect>();
-    workingDirectory->setLabelText(tr("Working directory:"));
+    workingDirectory->setLabelText(Tr::tr("Working directory:"));
     workingDirectory->setDisplayStyle(StringAspect::LineEditDisplay);
 
     setSummaryUpdater([this, workingDirectory] {
@@ -62,24 +61,24 @@ bool NimCompilerCleanStep::init()
 void NimCompilerCleanStep::doRun()
 {
     if (!m_buildDir.exists()) {
-        emit addOutput(tr("Build directory \"%1\" does not exist.").arg(m_buildDir.toUserOutput()), OutputFormat::ErrorMessage);
+        emit addOutput(Tr::tr("Build directory \"%1\" does not exist.").arg(m_buildDir.toUserOutput()), OutputFormat::ErrorMessage);
         emit finished(false);
         return;
     }
 
     if (!removeCacheDirectory()) {
-        emit addOutput(tr("Failed to delete the cache directory."), OutputFormat::ErrorMessage);
+        emit addOutput(Tr::tr("Failed to delete the cache directory."), OutputFormat::ErrorMessage);
         emit finished(false);
         return;
     }
 
     if (!removeOutFilePath()) {
-        emit addOutput(tr("Failed to delete the out file."), OutputFormat::ErrorMessage);
+        emit addOutput(Tr::tr("Failed to delete the out file."), OutputFormat::ErrorMessage);
         emit finished(false);
         return;
     }
 
-    emit addOutput(tr("Clean step completed successfully."), OutputFormat::NormalMessage);
+    emit addOutput(Tr::tr("Clean step completed successfully."), OutputFormat::NormalMessage);
     emit finished(true);
 }
 
@@ -115,7 +114,7 @@ NimCompilerCleanStepFactory::NimCompilerCleanStepFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     setSupportedConfiguration(Constants::C_NIMBUILDCONFIGURATION_ID);
     setRepeatable(false);
-    setDisplayName(NimCompilerCleanStep::tr("Nim Clean Step"));
+    setDisplayName(Tr::tr("Nim Clean Step"));
 }
 
 } // Nim

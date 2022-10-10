@@ -15,12 +15,11 @@
 #include <QTemporaryFile>
 #include <QTextDocument>
 
-using namespace Nim;
-using namespace Suggest;
+using namespace Nim::Suggest;
 
-namespace {
+namespace Nim {
 
-std::unique_ptr<QTemporaryFile> writeDirtyFile(const TextEditor::TextDocument *doc)
+static std::unique_ptr<QTemporaryFile> writeDirtyFile(const TextEditor::TextDocument *doc)
 {
     auto result = std::make_unique<QTemporaryFile>("qtcnim.XXXXXX.nim");
     QTC_ASSERT(result->open(), return nullptr);
@@ -28,8 +27,6 @@ std::unique_ptr<QTemporaryFile> writeDirtyFile(const TextEditor::TextDocument *d
     stream << doc->plainText();
     result->close();
     return result;
-}
-
 }
 
 NimTextEditorWidget::NimTextEditorWidget(QWidget *parent)
@@ -87,3 +84,5 @@ void NimTextEditorWidget::onFindLinkFinished(Suggest::NimSuggestClientRequest *r
     const Line &line = m_request->lines().front();
     m_callback(Utils::Link{Utils::FilePath::fromString(line.abs_path), line.row, line.column});
 }
+
+} // Nim

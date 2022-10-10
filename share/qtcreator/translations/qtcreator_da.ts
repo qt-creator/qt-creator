@@ -21036,21 +21036,15 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimBuildConfigurationFactory</name>
+    <name>Nim</name>
     <message>
         <source>Build</source>
         <translation>Byg</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Bygmappe:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Target:</source>
         <translation>Mål:</translation>
@@ -21079,16 +21073,10 @@ Fejl: %5</translation>
         <source>Release</source>
         <translation>Udgivelse</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepFactory</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Nim-kompiler byggetrin</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Nim renstrin</translation>
@@ -21109,24 +21097,15 @@ Fejl: %5</translation>
         <source>Clean step completed successfully.</source>
         <translation>Renstrin fuldført.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStepConfigWidget</name>
     <message>
         <source>Working directory:</source>
         <translation>Arbejdsmappe:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimPlugin</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProject</name>
     <message>
         <source>Scanning for Nim files</source>
         <translation>Skanner efter Nim-filer</translation>
@@ -21139,9 +21118,6 @@ Fejl: %5</translation>
         <source>Nim compiler does not exist.</source>
         <translation>Nim-kompiler findes ikke.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -21151,9 +21127,6 @@ Fejl: %5</translation>
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Kompilersti:</translation>
@@ -21162,62 +21135,22 @@ Fejl: %5</translation>
         <source>&amp;Compiler version:</source>
         <translation>&amp;Kompiler-version:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimBuildConfigurationWidget</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Kodestil</translation>
     </message>
     <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Nim-kompiler byggetrin</translation>
-    </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
-    <message>
         <source>Nim build step</source>
         <translation>Nim-byggetrin</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
         <translation>Nim-kompiler renstrin</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
         <translation>Nim renstrin</translation>
@@ -42742,17 +42675,10 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimRunConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>Aktuelle byggemål</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCodeStyleSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>

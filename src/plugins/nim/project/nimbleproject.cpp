@@ -9,8 +9,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-using namespace Nim;
 using namespace ProjectExplorer;
+
+namespace Nim {
 
 NimbleProject::NimbleProject(const Utils::FilePath &fileName)
     : ProjectExplorer::Project(Constants::C_NIMBLE_MIMETYPE, fileName)
@@ -46,4 +47,4 @@ void NimbleProject::setExcludedFiles(const QStringList &excludedFiles)
     m_excludedFiles = excludedFiles;
 }
 
-
+} // Nim

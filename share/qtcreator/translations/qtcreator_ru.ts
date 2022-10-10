@@ -26906,28 +26906,19 @@ If set to false, the target will be moved straight to the current mouse position
     </message>
 </context>
 <context>
-    <name>Nim::CodeStyleSettings</name>
+    <name>Nim</name>
     <message>
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfiguration</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStep</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Этап сборки компилятора Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Target:</source>
         <translation>Цель:</translation>
@@ -26956,9 +26947,6 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Release</source>
         <translation>Выпуск</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Этап очистки компилятора Nim</translation>
@@ -26987,17 +26975,11 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Nim Compiler Clean Step</source>
         <translation>Этап очистки компилятора Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimPlugin</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProject</name>
     <message>
         <source>No Nim compiler set.</source>
         <translation>Компилятор Nim не задан.</translation>
@@ -27006,35 +26988,15 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Nim compiler does not exist.</source>
         <translation>Компилятор Nim отсутствует.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimRunConfiguration</name>
     <message>
         <source>Current Build Target</source>
         <translation>Цель текущей сборки</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Общие</translation>
     </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChain</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Путь к &amp;компилятору:</translation>
@@ -27043,9 +27005,6 @@ If set to false, the target will be moved straight to the current mouse position
         <source>&amp;Compiler version:</source>
         <translation>&amp;Версия компилятора:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolsSettingsWidget</name>
     <message>
         <source>Nimsuggest</source>
         <translation>Nimsuggest</translation>
@@ -27054,23 +27013,10 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Path</source>
         <translation>Путь</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimbleBuildConfiguration</name>
-    <message>
-        <source>General</source>
-        <translation>Основное</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimbleBuildStep</name>
     <message>
         <source>Nimble Build</source>
         <translation>Сборка Nimble</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimbleBuildStepWidget</name>
     <message>
         <source>Form</source>
         <translation></translation>
@@ -27083,9 +27029,6 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Reset to Default</source>
         <translation>Сбросить на умолчальные</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimbleTaskStep</name>
     <message>
         <source>Nimble task %1 not found.</source>
         <translation>Не удалось найти задачу Nimble %1.</translation>
@@ -27093,13 +27036,6 @@ If set to false, the target will be moved straight to the current mouse position
     <message>
         <source>Nimble Task</source>
         <translation>Задача Nimble</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimbleTaskStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation></translation>
     </message>
     <message>
         <source>Task arguments:</source>
@@ -27109,76 +27045,21 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Tasks:</source>
         <translation>Задачи:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimbleTestConfiguration</name>
     <message>
         <source>Nimble Test</source>
         <translation>Тест Nimble</translation>
     </message>
-</context>
-<context>
-    <name>Nim::ToolSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Стиль кода</translation>
     </message>
     <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Этап сборки компилятора Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
-    <message>
         <source>Nim build step</source>
         <translation>Этап сборки Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimToolsSettingsPage</name>
     <message>
         <source>Tools</source>
         <translation>Инструменты</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimbleBuildStep</name>
-    <message>
-        <source>Nimble Build</source>
-        <translation>Сборка Nimble</translation>
-    </message>
-</context>
-<context>
-    <name>NimbleTaskStep</name>
-    <message>
-        <source>Nimble Task</source>
-        <translation>Задача Nimble</translation>
     </message>
 </context>
 <context>

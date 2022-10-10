@@ -2,14 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "nimtoolchain.h"
+
 #include "nimconstants.h"
 #include "nimtoolchainfactory.h"
+#include "nimtr.h"
 
 #include <projectexplorer/abi.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
-#include <QFileInfo>
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -26,7 +27,7 @@ NimToolChain::NimToolChain(Utils::Id typeId)
     , m_version(std::make_tuple(-1,-1,-1))
 {
     setLanguage(Constants::C_NIMLANGUAGE_ID);
-    setTypeDisplayName(tr("Nim"));
+    setTypeDisplayName(Tr::tr("Nim"));
     setTargetAbiNoSignal(Abi::hostAbi());
     setCompilerCommandKey("Nim.NimToolChain.CompilerCommand");
 }

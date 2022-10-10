@@ -37874,7 +37874,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <name>Nim</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -37906,13 +37906,6 @@ Czy nadpisać go?</translation>
     <message>
         <source>Release</source>
         <translation>Release</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStepConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -38469,49 +38462,31 @@ Komunikat:
     </message>
 </context>
 <context>
-    <name>NimRunConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>Bieżący cel budowania</translation>
     </message>
-</context>
-<context>
-    <name>NimBuildConfigurationWidget</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Krok budowania kompilatora Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
         <translation>Krok budowania Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
         <translation>Krok czyszczenia kompilatora Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
         <translation>Krok czyszczenia Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Styl kodu</translation>
@@ -38520,37 +38495,14 @@ Komunikat:
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Katalog budowania:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepFactory</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Krok budowania kompilatora Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Krok czyszczenia Nim</translation>
@@ -38571,17 +38523,10 @@ Komunikat:
         <source>Clean step completed successfully.</source>
         <translation>Krok czyszczenia poprawnie zakończony.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globalne</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -41422,7 +41367,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimProject</name>
+    <name>Nim</name>
     <message>
         <source>Scanning for Nim files</source>
         <translation>Skanowanie w poszukiwaniu plików Nim</translation>
@@ -41435,16 +41380,6 @@ Termin wygaśnięcia: %3</translation>
         <source>Nim compiler does not exist</source>
         <translation>Brak kompilatora Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Ścieżka do &amp;kompilatora:</translation>
@@ -42111,7 +42046,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimPlugin</name>
+    <name>Nim</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>

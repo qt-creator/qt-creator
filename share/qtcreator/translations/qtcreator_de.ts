@@ -35294,7 +35294,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <name>Nim</name>
     <message>
         <source>Target:</source>
         <translation>Ziel:</translation>
@@ -35771,21 +35771,15 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>NimCompilerBuildStep</name>
+    <name>Nim</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Nim-Compiler Build-Schritt</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
         <translation>Nim-Build-Schritt</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Coding-Stil</translation>
@@ -35794,16 +35788,6 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Nim-Schritt zur Bereinigung</translation>
@@ -35832,17 +35816,10 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <source>Nim Compiler Clean Step</source>
         <translation>Nim-Compiler-Schritt zur Bereinigung</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Global</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -37741,15 +37718,12 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimPlugin</name>
+    <name>Nim</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProject</name>
     <message>
         <source>No Nim compiler set.</source>
         <translation>Es ist kein Nim-Compiler eingerichtet.</translation>
@@ -37758,9 +37732,6 @@ Ablaufdatum: %3</translation>
         <source>Nim compiler does not exist.</source>
         <translation>Der Nim-Compiler existiert nicht.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Compiler-Pfad:</translation>
@@ -40861,7 +40832,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimRunConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>Aktuelles Build-Ziel</translation>
@@ -41922,11 +41893,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStep</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Nim-Compiler Build-Schritt</translation>
-    </message>
+    <name>Nim</name>
 </context>
 <context>
     <name>ProjectExplorer::MakeStep</name>
@@ -42198,7 +42165,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Nim::NimToolsSettingsWidget</name>
+    <name>Nim</name>
     <message>
         <source>Nimsuggest</source>
         <translation>Nimsuggest</translation>
@@ -42821,14 +42788,10 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>NimToolsSettingsPage</name>
+    <name>Nim</name>
     <message>
         <source>Tools</source>
         <translation>Werkzeuge</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -43865,7 +43828,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Nim::NimbleBuildStepWidget</name>
+    <name>Nim</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumente:</translation>
@@ -46401,24 +46364,10 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Nim::NimbleBuildConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfiguration</name>
-    <message>
-        <source>General</source>
-        <translation>Allgemein</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::CodeStyleSettings</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -47462,11 +47411,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Nim::ToolSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
+    <name>Nim</name>
 </context>
 <context>
     <name>ProjextExplorer::Internal::KitOptionsPageWidget</name>
@@ -48273,11 +48218,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Nim::NimToolChain</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
+    <name>Nim</name>
 </context>
 <context>
     <name>ProjectExplorer::Internal::BuildEnvironmentWidget</name>

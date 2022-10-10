@@ -6,6 +6,7 @@
 #include "nimconstants.h"
 #include "nimbuildsystem.h"
 #include "nimoutputtaskparser.h"
+#include "nimtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
@@ -19,8 +20,6 @@ namespace Nim {
 
 class NimbleBuildStep : public AbstractProcessStep
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim::NimbleBuilStep)
-
 public:
     NimbleBuildStep(BuildStepList *parentList, Id id);
 
@@ -77,7 +76,7 @@ QString NimbleBuildStep::defaultArguments() const
 NimbleBuildStepFactory::NimbleBuildStepFactory()
 {
     registerStep<NimbleBuildStep>(Constants::C_NIMBLEBUILDSTEP_ID);
-    setDisplayName(NimbleBuildStep::tr("Nimble Build"));
+    setDisplayName(Tr::tr("Nimble Build"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setSupportedConfiguration(Constants::C_NIMBLEBUILDCONFIGURATION_ID);
     setRepeatable(true);

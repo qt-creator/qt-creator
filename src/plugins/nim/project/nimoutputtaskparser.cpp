@@ -10,7 +10,7 @@ using namespace Utils;
 
 namespace Nim {
 
-NimParser::Result NimParser::handleLine(const QString &lne, Utils::OutputFormat)
+NimParser::Result NimParser::handleLine(const QString &lne, OutputFormat)
 {
     const QString line = lne.trimmed();
     static const QRegularExpression regex("(.+.nim)\\((\\d+), (\\d+)\\) (.+)");
@@ -44,7 +44,7 @@ NimParser::Result NimParser::handleLine(const QString &lne, Utils::OutputFormat)
     return {Status::Done, linkSpecs};
 }
 
-} // namespace Nim
+} // Nim
 
 #ifdef WITH_TESTS
 

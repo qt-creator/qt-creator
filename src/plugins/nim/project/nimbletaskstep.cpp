@@ -5,7 +5,7 @@
 
 #include "nimconstants.h"
 #include "nimblebuildsystem.h"
-#include "nimbleproject.h"
+#include "nimtr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
@@ -32,8 +32,6 @@ namespace Nim {
 
 class NimbleTaskStep final : public AbstractProcessStep
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim::NimbleTaskStep)
-
 public:
     NimbleTaskStep(BuildStepList *parentList, Id id);
 
@@ -59,8 +57,9 @@ private:
 NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Id id)
     : AbstractProcessStep(parentList, id)
 {
-    setDefaultDisplayName(tr(Constants::C_NIMBLETASKSTEP_DISPLAY));
-    setDisplayName(tr(Constants::C_NIMBLETASKSTEP_DISPLAY));
+    const QString display = Tr::tr("Nimble Task");
+    setDefaultDisplayName(display);
+    setDisplayName(display);
 
     setCommandLineProvider([this] {
         QString args = m_taskName->value() + " " + m_taskArgs->value();
@@ -75,7 +74,7 @@ NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Id id)
     m_taskArgs = addAspect<StringAspect>();
     m_taskArgs->setSettingsKey(Constants::C_NIMBLETASKSTEP_TASKARGS);
     m_taskArgs->setDisplayStyle(StringAspect::LineEditDisplay);
-    m_taskArgs->setLabelText(tr("Task arguments:"));
+    m_taskArgs->setLabelText(Tr::tr("Task arguments:"));
 }
 
 QWidget *NimbleTaskStep::createConfigWidget()
@@ -89,7 +88,7 @@ QWidget *NimbleTaskStep::createConfigWidget()
     using namespace Layouting;
     auto widget = Form {
         m_taskArgs,
-        tr("Tasks:"), taskList
+        Tr::tr("Tasks:"), taskList
     }.emerge(WithoutMargins);
 
     auto buildSystem = dynamic_cast<NimbleBuildSystem *>(this->buildSystem());
@@ -215,7 +214,7 @@ bool NimbleTaskStep::validate()
 
     auto matchName = [this](const NimbleTask &task) { return task.name == m_taskName->value(); };
     if (!Utils::contains(nimbleBuildSystem->tasks(), matchName)) {
-        emit addTask(BuildSystemTask(Task::Error, tr("Nimble task %1 not found.")
+        emit addTask(BuildSystemTask(Task::Error, Tr::tr("Nimble task %1 not found.")
                                      .arg(m_taskName->value())));
         emitFaultyConfigurationMessage();
         return false;
@@ -229,7 +228,7 @@ bool NimbleTaskStep::validate()
 NimbleTaskStepFactory::NimbleTaskStepFactory()
 {
     registerStep<NimbleTaskStep>(Constants::C_NIMBLETASKSTEP_ID);
-    setDisplayName(NimbleTaskStep::tr("Nimble Task"));
+    setDisplayName(Tr::tr("Nimble Task"));
     setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
                            ProjectExplorer::Constants::BUILDSTEPS_CLEAN,
                            ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});

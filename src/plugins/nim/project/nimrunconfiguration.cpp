@@ -5,6 +5,7 @@
 #include "nimbuildconfiguration.h"
 
 #include "../nimconstants.h"
+#include "../nimtr.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/localenvironmentaspect.h>
@@ -21,8 +22,6 @@ namespace Nim {
 
 class NimRunConfiguration final : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim::NimRunConfiguration)
-
 public:
     NimRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
@@ -33,8 +32,8 @@ public:
         addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
         addAspect<TerminalAspect>();
 
-        setDisplayName(tr("Current Build Target"));
-        setDefaultDisplayName(tr("Current Build Target"));
+        setDisplayName(Tr::tr("Current Build Target"));
+        setDefaultDisplayName(Tr::tr("Current Build Target"));
 
         setUpdater([this, target] {
             auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(target->activeBuildConfiguration());

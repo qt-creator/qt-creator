@@ -44262,7 +44262,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <name>Nim</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -44294,13 +44294,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
     <message>
         <source>Release</source>
         <translation>リリース</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStepConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -44586,49 +44579,31 @@ Output:
     </message>
 </context>
 <context>
-    <name>NimRunConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>現在のビルドターゲット</translation>
     </message>
-</context>
-<context>
-    <name>NimBuildConfigurationWidget</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Nim コンパイラビルドステップ</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
         <translation>Nim ビルドステップ</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
         <translation>Nim コンパイラクリーンステップ</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
         <translation>Nim クリーンステップ</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>コードスタイル</translation>
@@ -44637,44 +44612,14 @@ Output:
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimSnippetProvider</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation>ビルド</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepFactory</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Nim コンパイラビルドステップ</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Nim クリーンステップ</translation>
@@ -44682,10 +44627,6 @@ Output:
     <message>
         <source>Build directory &quot;%1&quot; does not exist.</source>
         <translation>ビルドディレクトリ &quot;%1&quot; が存在しません。</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>作業ディレクトリ:</translation>
     </message>
     <message>
         <source>Failed to delete the cache directory.</source>
@@ -44699,16 +44640,10 @@ Output:
         <source>Clean step completed successfully.</source>
         <translation>クリーンステップが正常に完了しました。</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProjectManager</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません。</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimRunControl</name>
     <message>
         <source>%1 crashed</source>
         <translation>%1 がクラッシュしました</translation>
@@ -44717,17 +44652,10 @@ Output:
         <source>%1 exited with code %2</source>
         <translation>%1 は終了コード %2 で終了しました</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>グローバル</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -45709,7 +45637,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Nim::NimToolsSettingsWidget</name>
+    <name>Nim</name>
     <message>
         <source>Path</source>
         <translation>パス</translation>
@@ -49342,94 +49270,15 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>NimToolsSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimPlugin</name>
+    <name>Nim</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimbleBuildConfiguration</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfiguration</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStep</name>
-    <message>
-        <source>Nim build step</source>
-        <translation>Nim ビルドステップ</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation>ターゲット:</translation>
-    </message>
-    <message>
-        <source>Default arguments:</source>
-        <translation>デフォルト引数:</translation>
-    </message>
-    <message>
-        <source>Extra arguments:</source>
-        <translation>追加引数:</translation>
-    </message>
-    <message>
-        <source>Command:</source>
-        <translation>コマンド:</translation>
-    </message>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Nim コンパイラビルドステップ</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimRunConfiguration</name>
-    <message>
-        <source>Current Build Target</source>
-        <translation>現在のビルドターゲット</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChain</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>コンパイラのパス(&amp;C):</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::CodeStyleSettings</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::ToolSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>

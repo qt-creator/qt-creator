@@ -5128,7 +5128,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <name>Nim</name>
     <message>
         <source>Target:</source>
         <translation>Odredište:</translation>
@@ -5150,23 +5150,13 @@ Greška: %5</translation>
         <translation>Bez</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <translation>Ukloni greške</translation>
-    </message>
-    <message>
         <source>Release</source>
         <translation>Objavi</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStepConfigWidget</name>
     <message>
         <source>Working directory:</source>
         <translation>Radni direktorij:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolsSettingsWidget</name>
     <message>
         <source>Nimsuggest</source>
         <translation>Nimsuggest</translation>
@@ -27012,42 +27002,27 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>NimBuildConfigurationWidget</name>
+    <name>Nim</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Stil kodiranja</translation>
@@ -27056,35 +27031,15 @@ Rok upotrebe: %3</translation>
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimToolsSettingsPage</name>
     <message>
         <source>Tools</source>
         <translation>Alati</translation>
     </message>
     <message>
         <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimPlugin</name>
-    <message>
-        <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationFactory</name>
     <message>
         <source>Debug</source>
         <translation>Uklanjanje grešaka</translation>
@@ -27094,26 +27049,9 @@ Rok upotrebe: %3</translation>
         <translation>Profil</translation>
     </message>
     <message>
-        <source>Release</source>
-        <translation>Objavljivanje</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationWidget</name>
-    <message>
         <source>Build directory:</source>
         <translation>Direktorij gradnje:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStep</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation type="unfinished"></translation>
@@ -27134,9 +27072,6 @@ Rok upotrebe: %3</translation>
         <source>Clean step completed successfully.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProject</name>
     <message>
         <source>Scanning for Nim files</source>
         <translation>Traženje Nim datoteka</translation>
@@ -27149,23 +27084,10 @@ Rok upotrebe: %3</translation>
         <source>Nim compiler does not exist.</source>
         <translation>Nim kompajler ne postoji.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimRunConfiguration</name>
     <message>
         <source>Current Build Target</source>
         <translation>Trenutačno odredište gradnje</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Staza za &amp;kompajler:</translation>
@@ -27174,31 +27096,10 @@ Rok upotrebe: %3</translation>
         <source>&amp;Compiler version:</source>
         <translation>Verzija &amp;kompajlera:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCodeStyleSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globalno</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolsSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>

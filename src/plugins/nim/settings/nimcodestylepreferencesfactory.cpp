@@ -4,12 +4,16 @@
 #include "nimcodestylepreferencesfactory.h"
 #include "nimcodestylepreferenceswidget.h"
 
-#include "../nimconstants.h"
 #include "../editor/nimindenter.h"
+#include "../nimconstants.h"
+#include "../nimtr.h"
 
 #include <utils/id.h>
 
 #include <texteditor/simplecodestylepreferences.h>
+
+#include <QWidget>
+#include <QLayout>
 
 using namespace TextEditor;
 
@@ -26,16 +30,16 @@ Utils::Id NimCodeStylePreferencesFactory::languageId()
 
 QString NimCodeStylePreferencesFactory::displayName()
 {
-    return tr(Constants::C_NIMLANGUAGE_NAME);
+    return Tr::tr(Constants::C_NIMLANGUAGE_NAME);
 }
 
-TextEditor::ICodeStylePreferences *NimCodeStylePreferencesFactory::createCodeStyle() const
+ICodeStylePreferences *NimCodeStylePreferencesFactory::createCodeStyle() const
 {
-    return new TextEditor::SimpleCodeStylePreferences();
+    return new SimpleCodeStylePreferences();
 }
 
-TextEditor::CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createEditor(
-    TextEditor::ICodeStylePreferences *preferences,
+CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createEditor(
+    ICodeStylePreferences *preferences,
     ProjectExplorer::Project *project,
     QWidget *parent) const
 {
@@ -44,7 +48,7 @@ TextEditor::CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createEditor(
     return result;
 }
 
-TextEditor::Indenter *NimCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
+Indenter *NimCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
     return new NimIndenter(doc);
 }
@@ -59,4 +63,4 @@ QString NimCodeStylePreferencesFactory::previewText() const
     return QLatin1String(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
 }
 
-}
+} // Nim
