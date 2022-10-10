@@ -47917,7 +47917,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Meson</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Apply Configuration Changes</source>
         <translation>Konfigurationsänderungen anwenden</translation>
@@ -48417,7 +48417,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Meson</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Configure</source>
         <translation>Konfigurieren</translation>

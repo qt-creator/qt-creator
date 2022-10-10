@@ -45835,7 +45835,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Meson</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Apply Configuration Changes</source>
         <translation>設定の変更を適用</translation>
@@ -49743,7 +49743,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Meson</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Configure</source>
         <translation>設定する</translation>

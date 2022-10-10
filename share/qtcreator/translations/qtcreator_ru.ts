@@ -26527,7 +26527,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>Meson</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Form</source>
         <translation></translation>
