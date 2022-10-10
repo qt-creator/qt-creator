@@ -1985,6 +1985,8 @@ CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildT
         return BuildTypeRelWithDebInfo;
     if (bt == "minsizerel")
         return BuildTypeMinSizeRel;
+    if (bt == "profile")
+        return BuildTypeProfile;
     return BuildTypeNone;
 }
 

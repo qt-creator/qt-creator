@@ -467,9 +467,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         const CMakeConfig cache = configurePreset.cacheVariables
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
-        data->cmakeBuildType = cache.valueOf("CMAKE_BUILD_TYPE");
-        if (data->cmakeBuildType.isEmpty())
-            data->cmakeBuildType = "Debug";
 
         data->sysroot = cache.filePathValueOf("CMAKE_SYSROOT");
 
@@ -497,7 +494,29 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         // ToolChains:
         data->toolChains = extractToolChainsFromCache(config);
 
-        result.push_back(static_cast<void *>(data.release()));
+        QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
+        if (buildConfigurationTypes.front().isEmpty()) {
+            buildConfigurationTypes.clear();
+            QByteArray buildConfigurationTypesString = cache.valueOf("CMAKE_CONFIGURATION_TYPES");
+            if (!buildConfigurationTypesString.isEmpty()) {
+                buildConfigurationTypes = buildConfigurationTypesString.split(';');
+            } else {
+                for (int type = CMakeBuildConfigurationFactory::BuildTypeDebug;
+                     type != CMakeBuildConfigurationFactory::BuildTypeLast;
+                     ++type) {
+                    BuildInfo info = CMakeBuildConfigurationFactory::createBuildInfo(
+                        CMakeBuildConfigurationFactory::BuildType(type));
+                    buildConfigurationTypes << info.typeName.toUtf8();
+                }
+            }
+        }
+        for (const auto &buildType : buildConfigurationTypes) {
+            DirectoryData *newData = new DirectoryData(*data);
+            newData->cmakeBuildType = buildType;
+
+            result.emplace_back(newData);
+        }
+
         return result;
     }
 
