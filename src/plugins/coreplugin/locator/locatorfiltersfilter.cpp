@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "locatorfiltersfilter.h"
+#include "../actionmanager/actionmanager.h"
 
 #include "locator.h"
 #include "locatorwidget.h"
 
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-
-#include <actionmanager/actionmanager.h>
 
 using namespace Core;
 using namespace Core::Internal;
