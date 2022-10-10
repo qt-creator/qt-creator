@@ -31,11 +31,8 @@ public:
     void run(const BuildDirParameters &parameters, const QStringList &arguments);
     void stop();
 
-    int lastExitCode() const { return m_lastExitCode; }
-
 signals:
-    void started();
-    void finished();
+    void finished(int exitCode);
 
 private:
     void handleProcessDone(const Utils::ProcessResultData &resultData);
@@ -43,7 +40,6 @@ private:
     std::unique_ptr<Utils::QtcProcess> m_process;
     Utils::OutputFormatter m_parser;
     QElapsedTimer m_elapsed;
-    int m_lastExitCode = 0;
 };
 
 } // CMakeProjectManager::Internal

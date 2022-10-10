@@ -69,7 +69,7 @@ private:
     void startState();
     void endState(const Utils::FilePath &replyFilePath, bool restoredFromBackup);
     void startCMakeState(const QStringList &configurationArguments);
-    void cmakeFinishedState();
+    void cmakeFinishedState(int exitCode);
 
     void replyDirectoryHasChanged(const QString &directory) const;
     void makeBackupConfiguration(bool store);

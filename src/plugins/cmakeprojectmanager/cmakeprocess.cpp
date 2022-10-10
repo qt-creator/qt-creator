@@ -36,6 +36,8 @@ CMakeProcess::~CMakeProcess()
     m_parser.flush();
 }
 
+static const int failedToStartExitCode = 0xFF; // See QtcProcessPrivate::handleDone() impl
+
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
     QTC_ASSERT(!m_process, return);
@@ -46,20 +48,20 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     const FilePath cmakeExecutable = cmake->cmakeExecutable();
 
     if (!cmakeExecutable.ensureReachable(parameters.sourceDirectory)) {
-        QString msg = ::CMakeProjectManager::Tr::tr(
+        const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The source directory %1 is not reachable by the CMake executable %2.")
             .arg(parameters.sourceDirectory.displayName()).arg(cmakeExecutable.displayName());
         BuildSystem::appendBuildSystemOutput(msg + '\n');
-        emit finished();
+        emit finished(failedToStartExitCode);
         return;
     }
 
     if (!cmakeExecutable.ensureReachable(parameters.buildDirectory)) {
-        QString msg = ::CMakeProjectManager::Tr::tr(
+        const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The build directory %1 is not reachable by the CMake executable %2.")
             .arg(parameters.buildDirectory.displayName()).arg(cmakeExecutable.displayName());
         BuildSystem::appendBuildSystemOutput(msg + '\n');
-        emit finished();
+        emit finished(failedToStartExitCode);
         return;
     }
 
@@ -67,21 +69,20 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     const FilePath buildDirectory = parameters.buildDirectory.onDevice(cmakeExecutable);
 
     if (!buildDirectory.exists()) {
-        QString msg = ::CMakeProjectManager::Tr::tr( "The build directory \"%1\" does not exist")
-                          .arg(buildDirectory.toUserOutput());
+        const QString msg = ::CMakeProjectManager::Tr::tr(
+                "The build directory \"%1\" does not exist").arg(buildDirectory.toUserOutput());
         BuildSystem::appendBuildSystemOutput(msg + '\n');
-        emit finished();
+        emit finished(failedToStartExitCode);
         return;
     }
 
     if (buildDirectory.needsDevice()) {
         if (cmake->cmakeExecutable().host() != buildDirectory.host()) {
-            QString msg = ::CMakeProjectManager::Tr::tr("CMake executable \"%1\" and build directory "
-                                                        "\"%2\" must be on the same device.")
-                              .arg(cmake->cmakeExecutable().toUserOutput(),
-                                   buildDirectory.toUserOutput());
+            const QString msg = ::CMakeProjectManager::Tr::tr(
+                  "CMake executable \"%1\" and build directory \"%2\" must be on the same device.")
+                    .arg(cmake->cmakeExecutable().toUserOutput(), buildDirectory.toUserOutput());
             BuildSystem::appendBuildSystemOutput(msg + '\n');
-            emit finished();
+            emit finished(failedToStartExitCode);
             return;
         }
     }
@@ -125,7 +126,6 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
                              .arg(parameters.projectName));
     m_process->setTimeoutS(10); // for process progress timeout estimation
     m_process->setCommand(commandLine);
-    emit started();
     m_elapsed.start();
     m_process->start();
 }
@@ -139,7 +139,6 @@ void CMakeProcess::stop()
 void CMakeProcess::handleProcessDone(const Utils::ProcessResultData &resultData)
 {
     const int code = resultData.m_exitCode;
-
     QString msg;
     if (resultData.m_error == QProcess::FailedToStart) {
         msg = ::CMakeProjectManager::Tr::tr("CMake process failed to start.");
@@ -149,16 +148,15 @@ void CMakeProcess::handleProcessDone(const Utils::ProcessResultData &resultData)
         else
             msg = ::CMakeProjectManager::Tr::tr("CMake process crashed.");
     } else if (code != 0) {
-        msg = ::CMakeProjectManager::Tr::tr("CMake process exited with exit code %1.") .arg(code);
+        msg = ::CMakeProjectManager::Tr::tr("CMake process exited with exit code %1.").arg(code);
     }
-    m_lastExitCode = code;
 
     if (!msg.isEmpty()) {
         BuildSystem::appendBuildSystemOutput(msg + '\n');
         TaskHub::addTask(BuildSystemTask(Task::Error, msg));
     }
 
-    emit finished();
+    emit finished(code);
 
     const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
     BuildSystem::appendBuildSystemOutput(elapsedTime + '\n');

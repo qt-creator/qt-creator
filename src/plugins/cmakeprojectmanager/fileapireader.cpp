@@ -350,11 +350,11 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
     m_cmakeProcess->run(m_parameters, configurationArguments);
 }
 
-void FileApiReader::cmakeFinishedState()
+void FileApiReader::cmakeFinishedState(int exitCode)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: CMAKE FINISHED STATE.";
 
-    m_lastCMakeExitCode = m_cmakeProcess->lastExitCode();
+    m_lastCMakeExitCode = exitCode;
     m_cmakeProcess.release()->deleteLater();
 
     if (m_lastCMakeExitCode != 0)
