@@ -36,9 +36,7 @@ bool MesonProcess::run(const Command &command,
 {
     if (!sanityCheck(command))
         return false;
-    m_currentCommand = command;
     m_stdo.clear();
-    m_processWasCanceled = false;
     m_future = decltype(m_future){};
     ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     setupProcess(command, env, captureStdo);
@@ -47,32 +45,11 @@ bool MesonProcess::run(const Command &command,
                                         Tr::tr("Configuring \"%1\".").arg(projectName),
                                         "Meson.Configure",
                                         10);
-    emit started();
     m_elapsed.start();
     m_process->start();
     m_cancelTimer.start(500);
     qCDebug(mesonProcessLog()) << "Starting:" << command.toUserOutput();
     return true;
-}
-
-QProcess::ProcessState MesonProcess::state() const
-{
-    return m_process->state();
-}
-
-void MesonProcess::reportCanceled()
-{
-    m_future.reportCanceled();
-}
-
-void MesonProcess::reportFinished()
-{
-    m_future.reportFinished();
-}
-
-void MesonProcess::setProgressValue(int p)
-{
-    m_future.setProgressValue(p);
 }
 
 void MesonProcess::handleProcessDone()
@@ -100,7 +77,6 @@ void MesonProcess::checkForCancelled()
 {
     if (m_future.isCanceled()) {
         m_cancelTimer.stop();
-        m_processWasCanceled = true;
         m_process->close();
     }
 }
