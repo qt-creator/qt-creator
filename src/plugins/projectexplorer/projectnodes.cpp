@@ -3,11 +3,9 @@
 
 #include "projectnodes.h"
 
-#include "buildconfiguration.h"
 #include "buildsystem.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
-#include "projecttree.h"
 #include "target.h"
 
 #include <coreplugin/icore.h>
@@ -21,14 +19,12 @@
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/threadutils.h>
 #include <utils/utilsicons.h>
 
 #include <QDir>
 #include <QFileInfo>
 #include <QIcon>
-#include <QStyle>
-#include <QThread>
-#include <QTimer>
 
 #include <memory>
 
@@ -445,7 +441,7 @@ QString FolderNode::displayName() const
  */
 QIcon FolderNode::icon() const
 {
-    QTC_CHECK(QThread::currentThread() == QCoreApplication::instance()->thread());
+    QTC_CHECK(isMainThread());
 
     // Instantiating the Icon provider is expensive.
     if (auto strPtr = std::get_if<QString>(&m_icon)) {
@@ -1063,7 +1059,7 @@ DirectoryIcon::DirectoryIcon(const QString &overlay)
 */
 QIcon DirectoryIcon::icon() const
 {
-    QTC_CHECK(QThread::currentThread() == QCoreApplication::instance()->thread());
+    QTC_CHECK(isMainThread());
     const auto it = m_cache.find(m_overlay);
     if (it != m_cache.end())
         return it.value();

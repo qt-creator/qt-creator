@@ -4,6 +4,7 @@
 #include "processreaper.h"
 #include "processutils.h"
 #include "qtcassert.h"
+#include "threadutils.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -224,7 +225,7 @@ ProcessReaper::ProcessReaper()
 
 ProcessReaper::~ProcessReaper()
 {
-    QTC_CHECK(QThread::currentThread() == qApp->thread());
+    QTC_CHECK(isMainThread());
     QMutexLocker locker(&s_instanceMutex);
     instance()->m_private->waitForFinished();
     m_thread.quit();

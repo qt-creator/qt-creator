@@ -12,6 +12,7 @@
 #include "processreaper.h"
 #include "processutils.h"
 #include "terminalprocess_p.h"
+#include "threadutils.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -62,25 +63,25 @@ public:
         timer.start();
         auto cleanup = qScopeGuard([this, &timer] {
             const qint64 currentNsecs = timer.nsecsElapsed();
-            const bool isMainThread = QThread::currentThread() == qApp->thread();
+            const bool mainThread = isMainThread();
             const int hitThisAll = m_hitThisAll.fetch_add(1) + 1;
             const int hitAllAll = m_hitAllAll.fetch_add(1) + 1;
-            const int hitThisMain = isMainThread
+            const int hitThisMain = mainThread
                     ? m_hitThisMain.fetch_add(1) + 1
                     : m_hitThisMain.load();
-            const int hitAllMain = isMainThread
+            const int hitAllMain = mainThread
                     ? m_hitAllMain.fetch_add(1) + 1
                     : m_hitAllMain.load();
             const qint64 totalThisAll = toMs(m_totalThisAll.fetch_add(currentNsecs) + currentNsecs);
             const qint64 totalAllAll = toMs(m_totalAllAll.fetch_add(currentNsecs) + currentNsecs);
-            const qint64 totalThisMain = toMs(isMainThread
+            const qint64 totalThisMain = toMs(mainThread
                     ? m_totalThisMain.fetch_add(currentNsecs) + currentNsecs
                     : m_totalThisMain.load());
-            const qint64 totalAllMain = toMs(isMainThread
+            const qint64 totalAllMain = toMs(mainThread
                     ? m_totalAllMain.fetch_add(currentNsecs) + currentNsecs
                     : m_totalAllMain.load());
             printMeasurement(QLatin1String(m_functionName), hitThisAll, toMs(currentNsecs),
-                             totalThisAll, hitAllAll, totalAllAll, isMainThread,
+                             totalThisAll, hitAllAll, totalAllAll, mainThread,
                              hitThisMain, totalThisMain, hitAllMain, totalAllMain);
         });
         return std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
@@ -1212,7 +1213,7 @@ void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
 static bool askToKill(const QString &command)
 {
 #ifdef QT_GUI_LIB
-    if (QThread::currentThread() != QCoreApplication::instance()->thread())
+    if (!isMainThread())
         return true;
     const QString title = QtcProcess::tr("Process Not Responding");
     QString msg = command.isEmpty() ?
@@ -1775,13 +1776,6 @@ void QtcProcess::setWriteData(const QByteArray &writeData)
     d->m_setup.m_writeData = writeData;
 }
 
-#ifdef QT_GUI_LIB
-static bool isGuiThread()
-{
-    return QThread::currentThread() == QCoreApplication::instance()->thread();
-}
-#endif
-
 void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
 {
     // Attach a dynamic property with info about blocking type
@@ -1802,7 +1796,7 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
             timer.setInterval(1000);
             timer.start();
 #ifdef QT_GUI_LIB
-            if (isGuiThread())
+            if (isMainThread())
                 QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
             QEventLoop eventLoop(this);
@@ -1812,7 +1806,7 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
             d->m_eventLoop = nullptr;
             timer.stop();
 #ifdef QT_GUI_LIB
-            if (isGuiThread())
+            if (isMainThread())
                 QApplication::restoreOverrideCursor();
 #endif
         }

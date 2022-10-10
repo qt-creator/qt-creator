@@ -21,6 +21,8 @@ add_qtc_executable(qtcreator_processlauncher
     ${UTILSDIR}/qtcassert.h
     ${UTILSDIR}/singleton.cpp
     ${UTILSDIR}/singleton.h
+    ${UTILSDIR}/threadutils.cpp
+    ${UTILSDIR}/threadutils.h
     )
 
 if (MSVC)

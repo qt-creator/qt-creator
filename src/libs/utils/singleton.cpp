@@ -3,10 +3,9 @@
 
 #include "qtcassert.h"
 #include "singleton.h"
+#include "threadutils.h"
 
-#include <QCoreApplication>
 #include <QList>
-#include <QThread>
 
 #include <unordered_map>
 
@@ -45,7 +44,7 @@ SingletonStaticData &Singleton::staticData(std::type_index index)
 // only.
 void Singleton::deleteAll()
 {
-    QTC_ASSERT(QThread::currentThread() == qApp->thread(), return);
+    QTC_ASSERT(isMainThread(), return);
     QList<Singleton *> oldList;
     {
         QMutexLocker locker(&s_mutex);

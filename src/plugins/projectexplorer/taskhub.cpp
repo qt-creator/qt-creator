@@ -9,10 +9,10 @@
 #include <texteditor/textmark.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/threadutils.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
-#include <QThread>
 
 using namespace Utils;
 
@@ -131,7 +131,7 @@ void TaskHub::addTask(Task::TaskType type, const QString &description, Utils::Id
 
 void TaskHub::addTask(Task task)
 {
-    if (QThread::currentThread() != qApp->thread()) {
+    if (!isMainThread()) {
         QMetaObject::invokeMethod(qApp, [task = std::move(task)] {
             TaskHub::addTask(task);
         });
