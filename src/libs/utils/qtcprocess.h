@@ -159,7 +159,6 @@ public:
     bool readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int timeoutS = 30);
 
     ProcessResult result() const;
-    void setResult(const ProcessResult &result);
 
     QByteArray allRawOutput() const;
     QString allOutput() const;

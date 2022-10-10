@@ -1296,11 +1296,6 @@ ProcessResult QtcProcess::result() const
     return d->m_result;
 }
 
-void QtcProcess::setResult(const ProcessResult &result)
-{
-    d->m_result = result;
-}
-
 ProcessResultData QtcProcess::resultData() const
 {
     return d->m_resultData;
