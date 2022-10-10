@@ -58,7 +58,9 @@ public:
     std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
                                            qint64 limit,
                                            qint64 offset) const override;
-    bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
+    bool writeFileContents(const Utils::FilePath &filePath,
+                           const QByteArray &data,
+                           qint64 offset) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     Utils::ProcessInterface *createProcessInterface() const override;
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(

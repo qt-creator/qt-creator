@@ -910,10 +910,17 @@ std::optional<QByteArray> DockerDevice::fileContents(const FilePath &filePath,
     return d->fileContents(filePath, limit, offset);
 }
 
-bool DockerDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
+bool DockerDevice::writeFileContents(const FilePath &filePath,
+                                     const QByteArray &data,
+                                     qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    return d->runInShellSuccess({"dd", {"of=" + filePath.path()}}, data);
+    CommandLine cmd({"dd", {"of=" + filePath.path()}});
+    if (offset != 0) {
+        cmd.addArg("bs=1");
+        cmd.addArg(QString("seek=%1").arg(offset));
+    }
+    return d->runInShellSuccess(cmd, data);
 }
 
 Environment DockerDevice::systemEnvironment() const

@@ -118,7 +118,7 @@ public:
     FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
     FilePaths dirEntries(QDir::Filters filters) const;
     std::optional<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
-    bool writeFileContents(const QByteArray &data) const;
+    bool writeFileContents(const QByteArray &data, qint64 offset = 0) const;
 
     bool operator==(const FilePath &other) const;
     bool operator!=(const FilePath &other) const;
@@ -180,7 +180,9 @@ public:
     void asyncFileContents(const Continuation<const std::optional<QByteArray> &> &cont,
                            qint64 maxSize = -1,
                            qint64 offset = 0) const;
-    void asyncWriteFileContents(const Continuation<bool> &cont, const QByteArray &data) const;
+    void asyncWriteFileContents(const Continuation<bool> &cont,
+                                const QByteArray &data,
+                                qint64 offset = 0) const;
 
     // Prefer not to use
     // Using needsDevice() in "user" code is likely to result in code that
@@ -259,7 +261,7 @@ public:
                        const std::function<bool(const FilePath &)> &, // Abort on 'false' return.
                        const FileFilter &)> iterateDirectory;
     std::function<std::optional<QByteArray>(const FilePath &, qint64, qint64)> fileContents;
-    std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
+    std::function<bool(const FilePath &, const QByteArray &, qint64)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
     std::function<QFile::Permissions(const FilePath &)> permissions;
     std::function<bool(const FilePath &, QFile::Permissions)> setPermissions;
@@ -276,7 +278,8 @@ public:
     std::function<void(
         const Continuation<const std::optional<QByteArray> &> &, const FilePath &, qint64, qint64)>
         asyncFileContents;
-    std::function<void(const Continuation<bool> &, const FilePath &, const QByteArray &)> asyncWriteFileContents;
+    std::function<void(const Continuation<bool> &, const FilePath &, const QByteArray &, qint64)>
+        asyncWriteFileContents;
     std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
 };
 

@@ -586,28 +586,32 @@ void FilePath::asyncFileContents(const Continuation<const std::optional<QByteArr
     cont(fileContents(maxSize, offset));
 }
 
-bool FilePath::writeFileContents(const QByteArray &data) const
+bool FilePath::writeFileContents(const QByteArray &data, qint64 offset) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.writeFileContents, return {});
-        return s_deviceHooks.writeFileContents(*this, data);
+        return s_deviceHooks.writeFileContents(*this, data, offset);
     }
 
     QFile file(path());
     QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return false);
+    if (offset != 0)
+        file.seek(offset);
     qint64 res = file.write(data);
     return res == data.size();
 }
 
-void FilePath::asyncWriteFileContents(const Continuation<bool> &cont, const QByteArray &data) const
+void FilePath::asyncWriteFileContents(const Continuation<bool> &cont,
+                                      const QByteArray &data,
+                                      qint64 offset) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.asyncWriteFileContents, return);
-        s_deviceHooks.asyncWriteFileContents(cont, *this, data);
+        s_deviceHooks.asyncWriteFileContents(cont, *this, data, offset);
         return;
     }
 
-    cont(writeFileContents(data));
+    cont(writeFileContents(data, offset));
 }
 
 bool FilePath::needsDevice() const

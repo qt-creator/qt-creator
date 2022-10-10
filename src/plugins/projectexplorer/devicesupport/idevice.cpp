@@ -384,19 +384,21 @@ void IDevice::asyncFileContents(const Continuation<std::optional<QByteArray>> &c
     cont(fileContents(filePath, limit, offset));
 }
 
-bool IDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
+bool IDevice::writeFileContents(const FilePath &filePath, const QByteArray &data, qint64 offset) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(data);
+    Q_UNUSED(offset);
     QTC_CHECK(false);
     return {};
 }
 
 void IDevice::asyncWriteFileContents(const Continuation<bool> &cont,
                                      const FilePath &filePath,
-                                     const QByteArray &data) const
+                                     const QByteArray &data,
+                                     qint64 offset) const
 {
-    cont(writeFileContents(filePath, data));
+    cont(writeFileContents(filePath, data, offset));
 }
 
 QDateTime IDevice::lastModified(const FilePath &filePath) const

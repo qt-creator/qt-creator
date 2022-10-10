@@ -1318,10 +1318,17 @@ std::optional<QByteArray> LinuxDevice::fileContents(const FilePath &filePath,
     return result.stdOut;
 }
 
-bool LinuxDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
+bool LinuxDevice::writeFileContents(const FilePath &filePath,
+                                    const QByteArray &data,
+                                    qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    return d->runInShellSuccess({"dd", {"of=" + filePath.path()}}, data);
+    CommandLine cmd({"dd", {"of=" + filePath.path()}});
+    if (offset != 0) {
+        cmd.addArg("bs=1");
+        cmd.addArg(QString("seek=%1").arg(offset));
+    }
+    return d->runInShellSuccess(cmd, data);
 }
 
 static FilePaths dirsToCreate(const FilesToTransfer &files)

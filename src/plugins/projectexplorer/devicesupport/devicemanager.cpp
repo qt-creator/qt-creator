@@ -544,10 +544,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         device->asyncFileContents(cont, filePath, maxSize, offset);
     };
 
-    deviceHooks.writeFileContents = [](const FilePath &filePath, const QByteArray &data) {
+    deviceHooks.writeFileContents = [](const FilePath &filePath,
+                                       const QByteArray &data,
+                                       qint64 offset) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
-        return device->writeFileContents(filePath, data);
+        return device->writeFileContents(filePath, data, offset);
     };
 
     deviceHooks.lastModified = [](const FilePath &filePath) {

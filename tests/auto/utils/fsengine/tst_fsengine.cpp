@@ -134,8 +134,10 @@ void tst_fsengine::initTestCase()
                                        qint64 offset) {
         return FilePath::fromString(filePath.path()).asyncFileContents(cont, maxSize, offset);
     };
-    deviceHooks.writeFileContents = [](const FilePath &filePath, const QByteArray &data) {
-        return FilePath::fromString(filePath.path()).writeFileContents(data);
+    deviceHooks.writeFileContents = [](const FilePath &filePath,
+                                       const QByteArray &data,
+                                       qint64 offset) {
+        return FilePath::fromString(filePath.path()).writeFileContents(data, offset);
     };
     deviceHooks.lastModified = [](const FilePath &filePath) {
         return FilePath::fromString(filePath.path()).lastModified();

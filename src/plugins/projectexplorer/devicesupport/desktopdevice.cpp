@@ -278,10 +278,12 @@ std::optional<QByteArray> DesktopDevice::fileContents(const FilePath &filePath,
     return filePath.fileContents(limit, offset);
 }
 
-bool DesktopDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const
+bool DesktopDevice::writeFileContents(const FilePath &filePath,
+                                      const QByteArray &data,
+                                      qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.writeFileContents(data);
+    return filePath.writeFileContents(data, offset);
 }
 
 } // namespace ProjectExplorer

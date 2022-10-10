@@ -243,7 +243,9 @@ public:
     virtual std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
                                                    qint64 limit,
                                                    qint64 offset) const;
-    virtual bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const;
+    virtual bool writeFileContents(const Utils::FilePath &filePath,
+                                   const QByteArray &data,
+                                   qint64 offset) const;
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
     virtual bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const;
@@ -262,7 +264,8 @@ public:
                                    qint64 offset) const;
     virtual void asyncWriteFileContents(const Continuation<bool> &cont,
                                         const Utils::FilePath &filePath,
-                                        const QByteArray &data) const;
+                                        const QByteArray &data,
+                                        qint64 offset) const;
 
     virtual bool ensureReachable(const Utils::FilePath &other) const;
 
