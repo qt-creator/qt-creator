@@ -11,8 +11,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // Helpers:
 
@@ -222,8 +221,7 @@ void IarParser::flush()
     m_lines = 0;
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal
 
 // Unit tests:
 

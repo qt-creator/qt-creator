@@ -2,25 +2,22 @@
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "baremetaldeviceconfigurationwizard.h"
+
 #include "baremetalconstants.h"
 #include "baremetaldevice.h"
-#include "baremetaldeviceconfigurationwizard.h"
 #include "baremetaldeviceconfigurationwizardpages.h"
+#include "baremetaltr.h"
 
-#include <utils/fileutils.h>
-
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 enum PageId { SetupPageId };
-
-// BareMetalDeviceConfigurationWizard
 
 BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *parent) :
    Utils::Wizard(parent),
    m_setupPage(new BareMetalDeviceConfigurationWizardSetupPage(this))
 {
-    setWindowTitle(tr("New Bare Metal Device Configuration Setup"));
+    setWindowTitle(Tr::tr("New Bare Metal Device Configuration Setup"));
     setPage(SetupPageId, m_setupPage);
     m_setupPage->setCommitPage(true);
 }
@@ -36,5 +33,4 @@ ProjectExplorer::IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
     return dev;
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

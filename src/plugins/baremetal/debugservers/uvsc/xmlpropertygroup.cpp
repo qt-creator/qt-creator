@@ -4,9 +4,7 @@
 #include "xmlnodevisitor.h"
 #include "xmlpropertygroup.h"
 
-namespace BareMetal {
-namespace Gen {
-namespace Xml {
+namespace BareMetal::Gen::Xml {
 
 PropertyGroup::PropertyGroup(QByteArray name)
 {
@@ -28,6 +26,4 @@ void PropertyGroup::accept(INodeVisitor *visitor) const
     visitor->visitPropertyGroupEnd(this);
 }
 
-} // namespace Xml
-} // namespace Gen
-} // namespace BareMetal
+} // BareMetal::Gen::Xml

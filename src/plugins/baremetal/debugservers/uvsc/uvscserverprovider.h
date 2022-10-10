@@ -28,8 +28,6 @@ class DriverSelector;
 
 class UvscServerProvider : public IDebugServerProvider
 {
-    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::UvscServerProvider)
-
 public:
     enum ToolsetNumber {
         UnknownToolsetNumber = -1,

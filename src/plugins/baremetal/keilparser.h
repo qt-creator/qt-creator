@@ -6,15 +6,10 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
-namespace BareMetal {
-namespace Internal {
-
-// KeilParser
+namespace BareMetal::Internal {
 
 class KeilParser final : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     explicit KeilParser();
     static Utils::Id id();
@@ -40,5 +35,4 @@ private:
     QStringList m_snippets;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

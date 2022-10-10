@@ -10,9 +10,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 // DeviceSelection
 
@@ -142,8 +140,6 @@ private:
     QComboBox *m_comboBox = nullptr;
 };
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv
 
 Q_DECLARE_METATYPE(BareMetal::Internal::Uv::DeviceSelection)

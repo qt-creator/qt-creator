@@ -4,6 +4,7 @@
 #include "genericgdbserverprovider.h"
 
 #include <baremetal/baremetalconstants.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <utils/qtcassert.h>
@@ -13,8 +14,7 @@
 #include <QFormLayout>
 #include <QPlainTextEdit>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // GenericGdbServerProvider
 
@@ -22,7 +22,7 @@ GenericGdbServerProvider::GenericGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_GENERIC_PROVIDER_ID)
 {
     setChannel("localhost", 3333);
-    setTypeDisplayName(GdbServerProvider::tr("Generic"));
+    setTypeDisplayName(Tr::tr("Generic"));
     setConfigurationWidgetCreator([this] { return new GenericGdbServerProviderConfigWidget(this); });
 }
 
@@ -36,7 +36,7 @@ QSet<GdbServerProvider::StartupMode> GenericGdbServerProvider::supportedStartupM
 GenericGdbServerProviderFactory::GenericGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_GENERIC_PROVIDER_ID);
-    setDisplayName(GdbServerProvider::tr("Generic"));
+    setDisplayName(Tr::tr("Generic"));
     setCreator([] { return new GenericGdbServerProvider; });
 }
 
@@ -49,17 +49,17 @@ GenericGdbServerProviderConfigWidget::GenericGdbServerProviderConfigWidget(
     Q_ASSERT(provider);
 
     m_hostWidget = new HostWidget(this);
-    m_mainLayout->addRow(tr("Host:"), m_hostWidget);
+    m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
 
     m_useExtendedRemoteCheckBox = new QCheckBox(this);
-    m_useExtendedRemoteCheckBox->setToolTip("Use GDB target extended-remote");
-    m_mainLayout->addRow(tr("Extended mode:"), m_useExtendedRemoteCheckBox);
+    m_useExtendedRemoteCheckBox->setToolTip(Tr::tr("Use GDB target extended-remote"));
+    m_mainLayout->addRow(Tr::tr("Extended mode:"), m_useExtendedRemoteCheckBox);
     m_initCommandsTextEdit = new QPlainTextEdit(this);
     m_initCommandsTextEdit->setToolTip(defaultInitCommandsTooltip());
-    m_mainLayout->addRow(tr("Init commands:"), m_initCommandsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Init commands:"), m_initCommandsTextEdit);
     m_resetCommandsTextEdit = new QPlainTextEdit(this);
     m_resetCommandsTextEdit->setToolTip(defaultResetCommandsTooltip());
-    m_mainLayout->addRow(tr("Reset commands:"), m_resetCommandsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Reset commands:"), m_resetCommandsTextEdit);
 
     addErrorLabel();
     setFromProvider();
@@ -108,5 +108,4 @@ void GenericGdbServerProviderConfigWidget::setFromProvider()
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

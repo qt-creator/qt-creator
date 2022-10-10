@@ -54923,7 +54923,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>BareMetal::BareMetalDeviceConfigurationWidget</name>
+    <name>BareMetal</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -54939,13 +54939,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     <message>
         <source>GDB commands:</source>
         <translation>Commandes GDB :</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -54954,18 +54947,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     <message>
         <source>localhost</source>
         <translation>localhost</translation>
-    </message>
-    <message>
-        <source>GDB port:</source>
-        <translation>Port GDB :</translation>
-    </message>
-    <message>
-        <source>GDB host:</source>
-        <translation>Hôte GDB :</translation>
-    </message>
-    <message>
-        <source>GDB commands:</source>
-        <translation>Commandes GDB :</translation>
     </message>
     <message>
         <source>load
@@ -55834,53 +55815,27 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
+    <name>BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationFactory</name>
     <message>
         <source>Bare Metal Device</source>
         <translation>Périphérique Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>Nouveau paramètres de configuration du périphérique Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>Set up GDB Server or Hardware Debugger</source>
         <translation>Définir un serveur GDB ou un débogueur hardware</translation>
     </message>
     <message>
-        <source>Bare Metal Device</source>
-        <translation>Périphérique Bare Metal</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
-    <message>
-        <source>GDB commands:</source>
-        <translation>Commandes GDB :</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalGdbCommandsDeployStep</name>
-    <message>
         <source>GDB commands</source>
         <translation>Commandes GDB</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalRunConfiguration</name>
     <message>
         <source>%1 (via GDB server or hardware debugger)</source>
         <translation>%1 (via le serveur GDB ou le débogueur hardware)</translation>
@@ -55890,16 +55845,10 @@ réinitialisation du moniteur</translation>
         <extracomment>Bare Metal run configuration default run name</extracomment>
         <translation>Exécuter sur un serveur GDB ou un débogueur hardware</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfigurationFactory</name>
     <message>
         <source>%1 (on GDB server or hardware debugger)</source>
         <translation>%1 (via le serveur GDB ou le débogueur hardware)</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Exécutable :</translation>
@@ -55920,9 +55869,6 @@ réinitialisation du moniteur</translation>
         <source>Unknown</source>
         <translation>Inconnue</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunControlFactory</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>Impossible de déboguer : le kit n&apos;a pas de périphérique.</translation>

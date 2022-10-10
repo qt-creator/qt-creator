@@ -3,9 +3,7 @@
 
 #include "uvprojectwriter.h"
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 // ProjectWriter
 
@@ -51,6 +49,4 @@ void ProjectOptionsWriter::visitProjectOptionsEnd(
     writer()->writeEndElement();
 }
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv

@@ -11,8 +11,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // OpenOcdGdbServerProvider
 
@@ -59,11 +58,8 @@ public:
 class OpenOcdGdbServerProviderConfigWidget final
         : public GdbServerProviderConfigWidget
 {
-    Q_OBJECT
-
 public:
-    explicit OpenOcdGdbServerProviderConfigWidget(
-            OpenOcdGdbServerProvider *provider);
+    explicit OpenOcdGdbServerProviderConfigWidget(OpenOcdGdbServerProvider *provider);
 
 private:
     void apply() final;
@@ -81,5 +77,4 @@ private:
     QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

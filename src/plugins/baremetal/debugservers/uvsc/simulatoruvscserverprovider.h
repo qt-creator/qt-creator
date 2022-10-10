@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QCheckBox;
 QT_END_NAMESPACE
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // SimulatorUvscServerProvider
 
@@ -48,8 +47,6 @@ public:
 
 class SimulatorUvscServerProviderConfigWidget final : public UvscServerProviderConfigWidget
 {
-    Q_OBJECT
-
 public:
     explicit SimulatorUvscServerProviderConfigWidget(SimulatorUvscServerProvider *provider);
 
@@ -62,5 +59,4 @@ private:
     QCheckBox *m_limitSpeedCheckBox = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

@@ -3,6 +3,8 @@
 
 #include "uvtargetdevicemodel.h"
 
+#include <baremetal/baremetaltr.h>
+
 #include <utils/algorithm.h>
 
 #include <QDirIterator>
@@ -12,9 +14,7 @@
 
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 static QString extractPacksPath(const FilePath &toolsIniFile)
 {
@@ -188,7 +188,7 @@ public:
 DeviceSelectionModel::DeviceSelectionModel(QObject *parent)
     : TreeModel<DeviceSelectionItem>(parent)
 {
-    setHeader({tr("Name"), tr("Version"), tr("Vendor")});
+    setHeader({Tr::tr("Name"), Tr::tr("Version"), Tr::tr("Vendor")});
 }
 
 void DeviceSelectionModel::fillAllPacks(const FilePath &toolsIniFile)
@@ -478,6 +478,4 @@ DeviceSelection DeviceSelectionView::buildSelection(const DeviceSelectionItem *i
     return selection;
 }
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv

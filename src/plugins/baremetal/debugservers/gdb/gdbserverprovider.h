@@ -7,23 +7,18 @@
 
 #include <projectexplorer/runcontrol.h>
 
-#include <utils/fileutils.h>
-
 QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // GdbServerProvider
 
 class GdbServerProvider : public IDebugServerProvider
 {
-    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::GdbServerProvider)
-
 public:
     enum StartupMode {
         StartupOnNetwork,
@@ -75,8 +70,6 @@ protected:
 
 class GdbServerProviderConfigWidget : public IDebugServerProviderConfigWidget
 {
-    Q_OBJECT
-
 public:
     explicit GdbServerProviderConfigWidget(GdbServerProvider *provider);
     void apply() override;
@@ -107,5 +100,4 @@ public:
                                      const Utils::CommandLine &commandLine);
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

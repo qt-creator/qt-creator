@@ -10,17 +10,12 @@ QT_BEGIN_NAMESPACE
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class DebugServerProviderChooser;
 
-// BareMetalDeviceConfigurationWizardSetupPage
-
 class BareMetalDeviceConfigurationWizardSetupPage final : public QWizardPage
 {
-    Q_OBJECT
-
 public:
     explicit BareMetalDeviceConfigurationWizardSetupPage(QWidget *parent = nullptr);
 
@@ -34,5 +29,4 @@ private:
     DebugServerProviderChooser *m_debugServerProviderChooser = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

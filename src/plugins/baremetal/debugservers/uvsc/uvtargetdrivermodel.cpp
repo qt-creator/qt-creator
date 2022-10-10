@@ -3,14 +3,14 @@
 
 #include "uvtargetdrivermodel.h"
 
+#include <baremetal/baremetaltr.h>
+
 #include <QFile>
 #include <QTextStream>
 
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 constexpr char cpuDllKey[] = "CPUDLL";
 constexpr char driverKey[] = "TDRV";
@@ -106,7 +106,7 @@ public:
 DriverSelectionModel::DriverSelectionModel(QObject *parent)
     : TreeModel<DriverSelectionItem>(parent)
 {
-    setHeader({tr("Path")});
+    setHeader({Tr::tr("Path")});
 }
 
 void DriverSelectionModel::fillDrivers(const FilePath &toolsIniFile,
@@ -181,6 +181,4 @@ void DriverSelectionView::currentChanged(const QModelIndex &current, const QMode
         emit driverSelected(selection);
 }
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv

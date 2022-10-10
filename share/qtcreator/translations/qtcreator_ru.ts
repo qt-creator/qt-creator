@@ -3402,9 +3402,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Enter GDB commands to reset the hardware. The MCU should be halted after these commands.</source>
         <translation>Введите команды GDB для аппаратного сброса. После этих команд процессор должен быть остановлен.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfiguration</name>
     <message>
         <source>Unknown</source>
         <translation>Неизвестно</translation>
@@ -3417,9 +3414,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Custom Executable</source>
         <translation>Особая программа</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>Отладка невозможна: отсутствует устройство в комплекте.</translation>
@@ -3448,70 +3442,30 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Unable to create an uVision project options template.</source>
         <translation>Не удалось создать шаблон проекта настроек uVision.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
-    <message>
-        <source>Bare Metal</source>
-        <translation>Голое железо</translation>
-    </message>
     <message>
         <source>Bare Metal Device</source>
         <translation>Устройство на голом железе</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWidget</name>
     <message>
         <source>Debug server provider:</source>
         <translation>Тип сервера отладки:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>Настройка новой конфигурации голого устройства</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>Set up Debug Server or Hardware Debugger</source>
         <translation>Настройка сервера отладки или аппаратного отладчика</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>Название:</translation>
-    </message>
-    <message>
-        <source>Debug server provider:</source>
-        <translation>Тип сервера отладки:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStep</name>
-    <message>
         <source>GDB commands</source>
         <translation>Команды GDB</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
     <message>
         <source>GDB commands:</source>
         <translation>Команды GDB:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfiguration</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Неизвестно</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DebugServerProviderChooser</name>
     <message>
         <source>Manage...</source>
         <translation>Управление...</translation>
@@ -3520,9 +3474,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>None</source>
         <translation>Нет</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DebugServerProviderModel</name>
     <message>
         <source>Not recognized</source>
         <translation>Не определён</translation>
@@ -3548,10 +3499,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
 (используется совместно с KEIL uVision).</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Имя</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>Тип</translation>
     </message>
@@ -3567,9 +3514,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>Следующие провайдеры уже настроены:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Повторно настраиваться не будут.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DebugServerProvidersSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Добавить</translation>
@@ -3594,9 +3538,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Bare Metal</source>
         <translation>Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::EBlinkGdbServerProviderConfigWidget</name>
     <message>
         <source>Host:</source>
         <translation>Хост:</translation>
@@ -3673,9 +3614,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>JTAG</source>
         <translation>JTAG</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvider</name>
     <message>
         <source>EBlink</source>
         <translation>EBlink</translation>
@@ -3692,9 +3630,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>ST-LINK Utility</source>
         <translation>Утилита ST-LINK</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderConfigWidget</name>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
         <translation>Выберите желаемый метод запуска сервера GDB.</translation>
@@ -3723,9 +3658,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Startup in Pipe Mode</source>
         <translation>Запуск в локальном режиме (pipe)</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::HostWidget</name>
     <message>
         <source>Enter TCP/IP hostname of the debug server, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
         <translation>Введите TCP/IP имя сервера отладки, например: «localhost» или «192.0.2.1».</translation>
@@ -3734,9 +3666,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Enter TCP/IP port which will be listened by the debug server.</source>
         <translation>Введите порт TCP/IP, который будет прослушиваться сервером отладки.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::IDebugServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the debugger server provider.</source>
         <translation>Введите имя провайдера сервера отладки.</translation>
@@ -3745,9 +3674,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Name:</source>
         <translation>Имя:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::IarToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Путь к &amp;компилятору:</translation>
@@ -3760,13 +3686,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::JLinkGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Хост:</translation>
-    </message>
     <message>
         <source>JLink GDB Server (JLinkGDBServerCL.exe)</source>
         <translation>JLink сервер GDB (JLinkGDBServerCL.exe)</translation>
@@ -3774,10 +3693,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
     <message>
         <source>JLink GDB Server (JLinkGDBServer)</source>
         <translation>JLink сервер GDB (JLinkGDBServer)</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Исполняемый файл:</translation>
     </message>
     <message>
         <source>Default</source>
@@ -3812,31 +3727,8 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>Дополнительные параметры:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>Команды инициализации:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Команды сброса:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::JLinkUvscAdapterOptionsWidget</name>
-    <message>
         <source>Port:</source>
         <translation>Порт:</translation>
-    </message>
-    <message>
-        <source>Speed:</source>
-        <translation>Скорость:</translation>
-    </message>
-    <message>
-        <source>JTAG</source>
-        <translation>JTAG</translation>
-    </message>
-    <message>
-        <source>SWD</source>
-        <translation>SWD</translation>
     </message>
     <message>
         <source>50MHz</source>
@@ -3886,38 +3778,9 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>100kHz</source>
         <translation>100 кГц</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::JLinkUvscServerProviderConfigWidget</name>
     <message>
         <source>Adapter options:</source>
         <translation>Параметры адаптера:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::KeilToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>Путь к &amp;компилятору:</translation>
-    </message>
-    <message>
-        <source>Platform codegen flags:</source>
-        <translation>Флаги генерации кода для платформы:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Хост:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Исполняемый файл:</translation>
     </message>
     <message>
         <source>Root scripts directory:</source>
@@ -3928,32 +3791,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>Файл конфигурации:</translation>
     </message>
     <message>
-        <source>Additional arguments:</source>
-        <translation>Дополнительные параметры:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation>Команды инициализации:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Команды сброса:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::SdccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>Путь к &amp;компилятору:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::SimulatorUvscServerProviderConfigWidget</name>
-    <message>
         <source>Limit speed to real-time.</source>
         <translation>Ограничить скорость реальным временем.</translation>
     </message>
@@ -3961,24 +3798,9 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Limit speed to real-time:</source>
         <translation>Ограничить скорость:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Хост:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Исполняемый файл:</translation>
-    </message>
     <message>
         <source>Specify the verbosity level (0..99).</source>
         <translation>Укажите уровень информативности (0...99).</translation>
-    </message>
-    <message>
-        <source>Verbosity level:</source>
-        <translation>Уровень информативности:</translation>
     </message>
     <message>
         <source>Continue listening for connections after disconnect.</source>
@@ -4005,39 +3827,12 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>Версия:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>Команды инициализации:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Команды сброса:</translation>
-    </message>
-    <message>
         <source>ST-LINK/V1</source>
         <translation>ST-LINK/V1</translation>
     </message>
     <message>
         <source>ST-LINK/V2</source>
         <translation>ST-LINK/V2</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUvscAdapterOptionsWidget</name>
-    <message>
-        <source>Port:</source>
-        <translation>Порт:</translation>
-    </message>
-    <message>
-        <source>Speed:</source>
-        <translation>Скорость:</translation>
-    </message>
-    <message>
-        <source>JTAG</source>
-        <translation>JTAG</translation>
-    </message>
-    <message>
-        <source>SWD</source>
-        <translation>SWD</translation>
     </message>
     <message>
         <source>9MHz</source>
@@ -4092,10 +3887,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>125 кГц</translation>
     </message>
     <message>
-        <source>100kHz</source>
-        <translation>100 кГц</translation>
-    </message>
-    <message>
         <source>50kHz</source>
         <translation>50 кГц</translation>
     </message>
@@ -4111,16 +3902,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>5kHz</source>
         <translation>5 кГц</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUvscServerProviderConfigWidget</name>
-    <message>
-        <source>Adapter options:</source>
-        <translation>Параметры адаптера:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionAlgorithmModel</name>
     <message>
         <source>Name</source>
         <translation>Название</translation>
@@ -4141,9 +3922,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>RAM Size</source>
         <translation>RAM Объём</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionAlgorithmView</name>
     <message>
         <source>Algorithm path.</source>
         <translation>Путь к алгоритму.</translation>
@@ -4164,16 +3942,10 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>RAM:</source>
         <translation>RAM:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionDialog</name>
     <message>
         <source>Available Target Devices</source>
         <translation>Доступные устройства</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionMemoryModel</name>
     <message>
         <source>ID</source>
         <translation>ID</translation>
@@ -4186,13 +3958,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Size</source>
         <translation>Размер</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Название</translation>
-    </message>
     <message>
         <source>Version</source>
         <translation>Версия</translation>
@@ -4201,16 +3966,10 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Vendor</source>
         <translation>Поставщик</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelector</name>
     <message>
         <source>Target device not selected.</source>
         <translation>Устройство не выбрано.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectorDetailsPanel</name>
     <message>
         <source>Vendor:</source>
         <translation>Поставщик:</translation>
@@ -4232,62 +3991,21 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>Алгоритм прошивания:</translation>
     </message>
     <message>
-        <source>Peripheral description files (*.svd)</source>
-        <translation>Файлы описания устройств (*.svd)</translation>
-    </message>
-    <message>
-        <source>Select Peripheral Description File</source>
-        <translation>Выбор файла описания внешнего устройства</translation>
-    </message>
-    <message>
-        <source>Peripheral description file:</source>
-        <translation>Файл описания устройства:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectorToolPanel</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Управление...</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionCpuDllModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Название</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionCpuDllView</name>
-    <message>
         <source>Debugger CPU library (depends on a CPU core).</source>
         <translation>Библиотека поддержки процессора для отладчика (зависит от ядра процессора).</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionDialog</name>
     <message>
         <source>Available Target Drivers</source>
         <translation>Доступные драйвера</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionModel</name>
     <message>
         <source>Path</source>
         <translation>Путь</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelector</name>
     <message>
         <source>Target driver not selected.</source>
         <translation>Драйвер не выбран.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectorDetailsPanel</name>
     <message>
         <source>Debugger driver library.</source>
         <translation>Библиотека драйвера отладчика.</translation>
@@ -4300,16 +4018,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>CPU library:</source>
         <translation>Библиотека процессора:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectorToolPanel</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Управление...</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::UvscServerProvider</name>
     <message>
         <source>uVision Simulator</source>
         <translation>Симулятор uVision</translation>
@@ -4321,13 +4029,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
     <message>
         <source>uVision JLink</source>
         <translation>uVision JLink</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::UvscServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Хост:</translation>
     </message>
     <message>
         <source>Choose Keil Toolset Configuration File</source>
@@ -4345,9 +4046,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Target driver:</source>
         <translation>Драйвер:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetalDeployConfiguration</name>
     <message>
         <source>Deploy to BareMetal Device</source>
         <translation>Развёртывание на устройство на голом железе</translation>
@@ -23728,7 +23426,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>IarToolChain</name>
+    <name>BareMetal</name>
     <message>
         <source>IAREW %1 (%2, %3)</source>
         <translation>IAREW %1 (%2, %3)</translation>
@@ -25092,7 +24790,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>KeilToolChain</name>
+    <name>BareMetal</name>
     <message>
         <source>KEIL %1 (%2, %3)</source>
         <translation>KEIL %1 (%2, %3)</translation>
@@ -44893,7 +44591,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>SdccToolChain</name>
+    <name>BareMetal</name>
     <message>
         <source>SDCC %1 (%2, %3)</source>
         <translation>SDCC %1 (%2, %3)</translation>

@@ -11,8 +11,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // Helpers:
 
@@ -243,8 +242,7 @@ void KeilParser::flush()
     m_lines = 0;
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal
 
 // Unit tests:
 
@@ -253,8 +251,7 @@ void KeilParser::flush()
 #include <projectexplorer/outputparser_test.h>
 #include <QTest>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 void BareMetalPlugin::testKeilOutputParsers_data()
 {
@@ -523,7 +520,6 @@ void BareMetalPlugin::testKeilOutputParsers()
                           outputLines);
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal
 
 #endif // WITH_TESTS

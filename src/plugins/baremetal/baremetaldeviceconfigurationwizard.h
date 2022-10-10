@@ -6,17 +6,12 @@
 #include <projectexplorer/devicesupport/idevicefwd.h>
 #include <utils/wizard.h>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class BareMetalDeviceConfigurationWizardSetupPage;
 
-// BareMetalDeviceConfigurationWizard
-
 class BareMetalDeviceConfigurationWizard final : public Utils::Wizard
 {
-    Q_OBJECT
-
 public:
     explicit BareMetalDeviceConfigurationWizard(QWidget *parent = nullptr);
 
@@ -26,5 +21,4 @@ private:
     BareMetalDeviceConfigurationWizardSetupPage *m_setupPage = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

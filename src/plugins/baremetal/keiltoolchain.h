@@ -14,22 +14,16 @@ class QPushButton;
 class QTextEdit;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FilePath;
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace ProjectExplorer { class AbiWidget; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // KeilToolChain
 
 class KeilToolChain final : public ProjectExplorer::ToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(KeilToolChain)
-
 public:
     MacroInspectionRunner createMacroInspectionRunner() const final;
 
@@ -83,8 +77,6 @@ private:
 
 class KeilToolChainConfigWidget final : public ProjectExplorer::ToolChainConfigWidget
 {
-    Q_OBJECT
-
 public:
     explicit KeilToolChainConfigWidget(KeilToolChain *tc);
 
@@ -104,5 +96,4 @@ private:
     ProjectExplorer::Macros m_macros;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

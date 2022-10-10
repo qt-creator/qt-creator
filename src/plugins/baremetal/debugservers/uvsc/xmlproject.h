@@ -7,9 +7,7 @@
 
 #include <memory>
 
-namespace BareMetal {
-namespace Gen {
-namespace Xml {
+namespace BareMetal::Gen::Xml {
 
 // Project
 
@@ -27,6 +25,4 @@ public:
     void accept(INodeVisitor *visitor) const final;
 };
 
-} // namespace Xml
-} // namespace Gen
-} // namespace BareMetal
+} // BareMetal::Gen::Xml

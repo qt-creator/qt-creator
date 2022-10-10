@@ -24,10 +24,7 @@
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
-
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 const char dataKeyC[] = "DebugServerProvider.";
 const char countKeyC[] = "DebugServerProvider.Count";
@@ -199,5 +196,4 @@ void DebugServerProviderManager::deregisterProvider(IDebugServerProvider *provid
     delete provider;
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

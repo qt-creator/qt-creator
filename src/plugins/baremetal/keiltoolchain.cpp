@@ -3,6 +3,7 @@
 
 #include "baremetalconstants.h"
 
+#include "baremetaltr.h"
 #include "keilparser.h"
 #include "keiltoolchain.h"
 
@@ -32,8 +33,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // Helpers:
 
@@ -373,7 +373,7 @@ static Abi::BinaryFormat guessFormat(Abi::Architecture arch)
 
 static Abi guessAbi(const Macros &macros)
 {
-    const auto arch = guessArchitecture(macros);
+    const Abi::Architecture arch = guessArchitecture(macros);
     return {arch, Abi::OS::BareMetalOS, Abi::OSFlavor::GenericFlavor,
                 guessFormat(arch), guessWordWidth(macros, arch)};
 }
@@ -381,10 +381,9 @@ static Abi guessAbi(const Macros &macros)
 static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
                                 const QString &version)
 {
-    const auto archName = Abi::toString(arch);
-    const auto langName = ToolChainManager::displayNameOfLanguageId(language);
-    return KeilToolChain::tr("KEIL %1 (%2, %3)")
-            .arg(version, langName, archName);
+    const QString archName = Abi::toString(arch);
+    const QString langName = ToolChainManager::displayNameOfLanguageId(language);
+    return Tr::tr("KEIL %1 (%2, %3)").arg(version, langName, archName);
 }
 
 static void addDefaultCpuArgs(const FilePath &compiler, QStringList &extraArgs)
@@ -406,7 +405,7 @@ static void addDefaultCpuArgs(const FilePath &compiler, QStringList &extraArgs)
 KeilToolChain::KeilToolChain() :
     ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(tr("KEIL"));
+    setTypeDisplayName(Tr::tr("KEIL"));
     setTargetAbiKey("TargetAbi");
     setCompilerCommandKey("CompilerPath");
 }
@@ -527,7 +526,7 @@ FilePath KeilToolChain::makeCommand(const Environment &env) const
 
 KeilToolChainFactory::KeilToolChainFactory()
 {
-    setDisplayName(KeilToolChain::tr("KEIL"));
+    setDisplayName(Tr::tr("KEIL"));
     setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
@@ -701,11 +700,11 @@ KeilToolChainConfigWidget::KeilToolChainConfigWidget(KeilToolChain *tc) :
 {
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setHistoryCompleter("PE.KEIL.Command.History");
-    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
-    m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
-    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(Tr::tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
+    m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
 
     m_abiWidget->setEnabled(false);
 
@@ -798,5 +797,4 @@ void KeilToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
         handleCompilerCommandChange();
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

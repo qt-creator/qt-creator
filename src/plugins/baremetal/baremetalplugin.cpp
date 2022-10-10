@@ -2,11 +2,13 @@
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "baremetalplugin.h"
+
 #include "baremetalconstants.h"
 #include "baremetaldebugsupport.h"
 #include "baremetaldevice.h"
-#include "baremetalplugin.h"
 #include "baremetalrunconfiguration.h"
+#include "baremetaltr.h"
 
 #include "debugserverprovidermanager.h"
 #include "debugserverproviderssettingspage.h"
@@ -27,8 +29,7 @@
 
 using namespace ProjectExplorer;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class BareMetalDeployConfigurationFactory : public DeployConfigurationFactory
 {
@@ -36,8 +37,7 @@ public:
     BareMetalDeployConfigurationFactory()
     {
         setConfigBaseId("BareMetal.DeployConfiguration");
-        setDefaultDisplayName(QCoreApplication::translate("BareMetalDeployConfiguration",
-                                                          "Deploy to BareMetal Device"));
+        setDefaultDisplayName(Tr::tr("Deploy to BareMetal Device"));
         addSupportedTargetDeviceType(Constants::BareMetalOsType);
     }
 };
@@ -87,5 +87,4 @@ void BareMetalPlugin::extensionsInitialized()
     DebugServerProviderManager::instance()->restoreProviders();
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

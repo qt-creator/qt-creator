@@ -1,14 +1,15 @@
 // Copyright (C) 2019 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "baremetaldevice.h"
-#include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
+
+#include "baremetaldevice.h"
+#include "baremetaltr.h"
+#include "debugserverprovidermanager.h"
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -18,8 +19,7 @@
 using namespace Debugger;
 using namespace ProjectExplorer;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 const char idKeyC[] = "Id";
 const char displayNameKeyC[] = "DisplayName";
@@ -255,8 +255,8 @@ IDebugServerProviderConfigWidget::IDebugServerProviderConfigWidget(
     m_mainLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     m_nameLineEdit = new QLineEdit(this);
-    m_nameLineEdit->setToolTip(tr("Enter the name of the debugger server provider."));
-    m_mainLayout->addRow(tr("Name:"), m_nameLineEdit);
+    m_nameLineEdit->setToolTip(Tr::tr("Enter the name of the debugger server provider."));
+    m_mainLayout->addRow(Tr::tr("Name:"), m_nameLineEdit);
 
     setFromProvider();
 
@@ -315,12 +315,12 @@ HostWidget::HostWidget(QWidget *parent)
     : QWidget(parent)
 {
     m_hostLineEdit = new QLineEdit(this);
-    m_hostLineEdit->setToolTip(tr("Enter TCP/IP hostname of the debug server, "
-                                  "like \"localhost\" or \"192.0.2.1\"."));
+    m_hostLineEdit->setToolTip(Tr::tr("Enter TCP/IP hostname of the debug server, "
+                                      "like \"localhost\" or \"192.0.2.1\"."));
     m_portSpinBox = new QSpinBox(this);
     m_portSpinBox->setRange(0, 65535);
-    m_portSpinBox->setToolTip(tr("Enter TCP/IP port which will be listened by "
-                                 "the debug server."));
+    m_portSpinBox->setToolTip(Tr::tr("Enter TCP/IP port which will be listened by "
+                                     "the debug server."));
     const auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_hostLineEdit);
@@ -345,5 +345,4 @@ QUrl HostWidget::channel() const
     return url;
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

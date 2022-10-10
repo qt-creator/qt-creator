@@ -1,10 +1,11 @@
 // Copyright (C) 2019 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "baremetalconstants.h"
-
-#include "iarewparser.h"
 #include "iarewtoolchain.h"
+
+#include "baremetalconstants.h"
+#include "baremetaltr.h"
+#include "iarewparser.h"
 
 #include <projectexplorer/abiwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -30,8 +31,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // Helpers:
 
@@ -259,7 +259,7 @@ static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
 {
     const auto archName = Abi::toString(arch);
     const auto langName = ToolChainManager::displayNameOfLanguageId(language);
-    return IarToolChain::tr("IAREW %1 (%2, %3)").arg(version, langName, archName);
+    return Tr::tr("IAREW %1 (%2, %3)").arg(version, langName, archName);
 }
 
 // IarToolChain
@@ -267,7 +267,7 @@ static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
 IarToolChain::IarToolChain() :
     ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(Internal::IarToolChain::tr("IAREW"));
+    setTypeDisplayName(Tr::tr("IAREW"));
     setTargetAbiKey("TargetAbi");
     setCompilerCommandKey("CompilerPath");
 }
@@ -401,7 +401,7 @@ FilePath IarToolChain::makeCommand(const Environment &env) const
 
 IarToolChainFactory::IarToolChainFactory()
 {
-    setDisplayName(IarToolChain::tr("IAREW"));
+    setDisplayName(Tr::tr("IAREW"));
     setSupportedToolChainType(Constants::IAREW_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
@@ -545,11 +545,11 @@ IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
 {
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setHistoryCompleter("PE.IAREW.Command.History");
-    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
-    m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
-    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(Tr::tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
+    m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
 
     m_abiWidget->setEnabled(false);
 
@@ -639,5 +639,4 @@ void IarToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
         handleCompilerCommandChange();
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

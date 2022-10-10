@@ -8,6 +8,7 @@
 
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaldebugsupport.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <debugger/debuggerruncontrol.h>
@@ -25,8 +26,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 using namespace Uv;
 
@@ -155,7 +155,7 @@ bool JLinkUvscAdapterOptions::operator==(const JLinkUvscAdapterOptions &other) c
 JLinkUvscServerProvider::JLinkUvscServerProvider()
     : UvscServerProvider(Constants::UVSC_JLINK_PROVIDER_ID)
 {
-    setTypeDisplayName(UvscServerProvider::tr("uVision JLink"));
+    setTypeDisplayName(Tr::tr("uVision JLink"));
     setConfigurationWidgetCreator([this] { return new JLinkUvscServerProviderConfigWidget(this); });
     setSupportedDrivers({"Segger\\JL2CM3.dll"});
 }
@@ -192,8 +192,7 @@ FilePath JLinkUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
     Uv::ProjectOptionsWriter writer(&ofs);
     const JLinkUvProjectOptions projectOptions(this);
     if (!writer.write(&projectOptions)) {
-        errorMessage = BareMetalDebugSupport::tr(
-                    "Unable to create a uVision project options template.");
+        errorMessage = Tr::tr("Unable to create a uVision project options template.");
         return {};
     }
     return optionsPath;
@@ -204,7 +203,7 @@ FilePath JLinkUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
 JLinkUvscServerProviderFactory::JLinkUvscServerProviderFactory()
 {
     setId(Constants::UVSC_JLINK_PROVIDER_ID);
-    setDisplayName(UvscServerProvider::tr("uVision JLink"));
+    setDisplayName(Tr::tr("uVision JLink"));
     setCreator([] { return new JLinkUvscServerProvider; });
 }
 
@@ -217,7 +216,7 @@ JLinkUvscServerProviderConfigWidget::JLinkUvscServerProviderConfigWidget(
     Q_ASSERT(p);
 
     m_adapterOptionsWidget = new JLinkUvscAdapterOptionsWidget;
-    m_mainLayout->addRow(tr("Adapter options:"), m_adapterOptionsWidget);
+    m_mainLayout->addRow(Tr::tr("Adapter options:"), m_adapterOptionsWidget);
 
     setFromProvider();
 
@@ -265,10 +264,10 @@ JLinkUvscAdapterOptionsWidget::JLinkUvscAdapterOptionsWidget(QWidget *parent)
 {
     const auto layout = new QHBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(new QLabel(tr("Port:")));
+    layout->addWidget(new QLabel(Tr::tr("Port:")));
     m_portBox = new QComboBox;
     layout->addWidget(m_portBox);
-    layout->addWidget(new QLabel(tr("Speed:")));
+    layout->addWidget(new QLabel(Tr::tr("Speed:")));
     m_speedBox = new QComboBox;
     layout->addWidget(m_speedBox);
     setLayout(layout);
@@ -324,26 +323,25 @@ JLinkUvscAdapterOptions::Speed JLinkUvscAdapterOptionsWidget::speedAt(int index)
 
 void JLinkUvscAdapterOptionsWidget::populatePorts()
 {
-    m_portBox->addItem(tr("JTAG"), JLinkUvscAdapterOptions::JTAG);
-    m_portBox->addItem(tr("SWD"), JLinkUvscAdapterOptions::SWD);
+    m_portBox->addItem(Tr::tr("JTAG"), JLinkUvscAdapterOptions::JTAG);
+    m_portBox->addItem(Tr::tr("SWD"), JLinkUvscAdapterOptions::SWD);
 }
 
 void JLinkUvscAdapterOptionsWidget::populateSpeeds()
 {
     m_speedBox->clear();
-    m_speedBox->addItem(tr("50MHz"), JLinkUvscAdapterOptions::Speed_50MHz);
-    m_speedBox->addItem(tr("33MHz"), JLinkUvscAdapterOptions::Speed_33MHz);
-    m_speedBox->addItem(tr("25MHz"), JLinkUvscAdapterOptions::Speed_25MHz);
-    m_speedBox->addItem(tr("20MHz"), JLinkUvscAdapterOptions::Speed_20MHz);
-    m_speedBox->addItem(tr("10MHz"), JLinkUvscAdapterOptions::Speed_10MHz);
-    m_speedBox->addItem(tr("5MHz"), JLinkUvscAdapterOptions::Speed_5MHz);
-    m_speedBox->addItem(tr("3MHz"), JLinkUvscAdapterOptions::Speed_3MHz);
-    m_speedBox->addItem(tr("2MHz"), JLinkUvscAdapterOptions::Speed_2MHz);
-    m_speedBox->addItem(tr("1MHz"), JLinkUvscAdapterOptions::Speed_1MHz);
-    m_speedBox->addItem(tr("500kHz"), JLinkUvscAdapterOptions::Speed_500kHz);
-    m_speedBox->addItem(tr("200kHz"), JLinkUvscAdapterOptions::Speed_200kHz);
-    m_speedBox->addItem(tr("100kHz"), JLinkUvscAdapterOptions::Speed_100kHz);
+    m_speedBox->addItem(Tr::tr("50MHz"), JLinkUvscAdapterOptions::Speed_50MHz);
+    m_speedBox->addItem(Tr::tr("33MHz"), JLinkUvscAdapterOptions::Speed_33MHz);
+    m_speedBox->addItem(Tr::tr("25MHz"), JLinkUvscAdapterOptions::Speed_25MHz);
+    m_speedBox->addItem(Tr::tr("20MHz"), JLinkUvscAdapterOptions::Speed_20MHz);
+    m_speedBox->addItem(Tr::tr("10MHz"), JLinkUvscAdapterOptions::Speed_10MHz);
+    m_speedBox->addItem(Tr::tr("5MHz"), JLinkUvscAdapterOptions::Speed_5MHz);
+    m_speedBox->addItem(Tr::tr("3MHz"), JLinkUvscAdapterOptions::Speed_3MHz);
+    m_speedBox->addItem(Tr::tr("2MHz"), JLinkUvscAdapterOptions::Speed_2MHz);
+    m_speedBox->addItem(Tr::tr("1MHz"), JLinkUvscAdapterOptions::Speed_1MHz);
+    m_speedBox->addItem(Tr::tr("500kHz"), JLinkUvscAdapterOptions::Speed_500kHz);
+    m_speedBox->addItem(Tr::tr("200kHz"), JLinkUvscAdapterOptions::Speed_200kHz);
+    m_speedBox->addItem(Tr::tr("100kHz"), JLinkUvscAdapterOptions::Speed_100kHz);
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

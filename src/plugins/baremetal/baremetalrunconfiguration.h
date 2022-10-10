@@ -5,8 +5,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class BareMetalRunConfigurationFactory final
         : public ProjectExplorer::RunConfigurationFactory
@@ -22,5 +21,4 @@ public:
     BareMetalCustomRunConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

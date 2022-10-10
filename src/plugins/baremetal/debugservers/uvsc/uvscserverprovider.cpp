@@ -1,15 +1,16 @@
 // Copyright (C) 2020 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "uvscserverprovider.h"
+
 #include "uvproject.h"
 #include "uvprojectwriter.h"
 #include "uvtargetdeviceviewer.h"
 #include "uvtargetdriverviewer.h"
 
-#include "uvscserverprovider.h"
-
 #include <baremetal/baremetaldebugsupport.h>
 #include <baremetal/baremetaldevice.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <debugger/debuggerkitinformation.h>
@@ -30,8 +31,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 using namespace Uv;
 
@@ -174,10 +174,10 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
 
     const FilePath bin = exeAspect->executable;
     if (bin.isEmpty()) {
-        errorMessage = BareMetalDebugSupport::tr("Cannot debug: Local executable is not set.");
+        errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
         return false;
     } else if (!bin.exists()) {
-        errorMessage = BareMetalDebugSupport::tr(
+        errorMessage = Tr::tr(
                     "Cannot debug: Could not find executable for \"%1\".").arg(bin.toString());
         return false;
     }
@@ -236,8 +236,7 @@ FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool, QString &
     Uv::ProjectWriter writer(&ofs);
     const Uv::Project project(this, runTool);
     if (!writer.write(&project)) {
-        errorMessage = BareMetalDebugSupport::tr(
-                    "Unable to create a uVision project template.");
+        errorMessage = Tr::tr("Unable to create a uVision project template.");
         return {};
     }
     return projectPath;
@@ -262,16 +261,16 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
     : IDebugServerProviderConfigWidget(provider)
 {
     m_hostWidget = new HostWidget;
-    m_mainLayout->addRow(tr("Host:"), m_hostWidget);
+    m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
     m_toolsIniChooser = new PathChooser;
     m_toolsIniChooser->setExpectedKind(PathChooser::File);
     m_toolsIniChooser->setPromptDialogFilter("tools.ini");
-    m_toolsIniChooser->setPromptDialogTitle(tr("Choose Keil Toolset Configuration File"));
-    m_mainLayout->addRow(tr("Tools file path:"), m_toolsIniChooser);
+    m_toolsIniChooser->setPromptDialogTitle(Tr::tr("Choose Keil Toolset Configuration File"));
+    m_mainLayout->addRow(Tr::tr("Tools file path:"), m_toolsIniChooser);
     m_deviceSelector = new DeviceSelector;
-    m_mainLayout->addRow(tr("Target device:"), m_deviceSelector);
+    m_mainLayout->addRow(Tr::tr("Target device:"), m_deviceSelector);
     m_driverSelector = new DriverSelector(provider->supportedDrivers());
-    m_mainLayout->addRow(tr("Target driver:"), m_driverSelector);
+    m_mainLayout->addRow(Tr::tr("Target driver:"), m_driverSelector);
 
     setFromProvider();
 
@@ -371,7 +370,8 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
 
 void UvscServerProviderRunner::start()
 {
-    const QString msg = RunControl::tr("Starting %1 ...").arg(m_process.commandLine().displayName());
+    const QString msg = Tr::tr("Starting %1 ...")
+            .arg(m_process.commandLine().displayName());
     appendMessage(msg, NormalMessageFormat);
 
     m_process.start();
@@ -382,5 +382,4 @@ void UvscServerProviderRunner::stop()
     m_process.terminate();
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

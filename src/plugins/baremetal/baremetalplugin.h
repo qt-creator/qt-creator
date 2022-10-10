@@ -6,10 +6,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace BareMetal {
-namespace Internal {
-
-// BareMetalPlugin
+namespace BareMetal::Internal {
 
 class BareMetalPlugin final : public ExtensionSystem::IPlugin
 {
@@ -34,5 +31,4 @@ private slots:
 #endif // WITH_TESTS
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

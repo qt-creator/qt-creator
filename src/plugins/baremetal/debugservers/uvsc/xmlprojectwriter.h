@@ -7,9 +7,7 @@
 
 #include <memory>
 
-namespace BareMetal {
-namespace Gen {
-namespace Xml {
+namespace BareMetal::Gen::Xml {
 
 // ProjectWriter
 
@@ -59,6 +57,4 @@ private:
     std::unique_ptr<QXmlStreamWriter> m_writer;
 };
 
-} // namespace Xml
-} // namespace Gen
-} // namespace BareMetal
+} // BareMetal::Gen::Xml

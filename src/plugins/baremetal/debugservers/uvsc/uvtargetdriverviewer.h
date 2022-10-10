@@ -15,9 +15,7 @@ QT_BEGIN_NAMESPACE
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 class DriverSelectionModel;
 class DriverSelectionView;
@@ -102,6 +100,4 @@ private:
     DriverSelectionView *m_view = nullptr;
 };
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv

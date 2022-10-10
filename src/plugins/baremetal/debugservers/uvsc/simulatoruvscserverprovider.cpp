@@ -8,6 +8,7 @@
 
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaldebugsupport.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <debugger/debuggerruncontrol.h>
@@ -23,8 +24,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 using namespace Uv;
 
@@ -60,7 +60,7 @@ public:
 SimulatorUvscServerProvider::SimulatorUvscServerProvider()
     : UvscServerProvider(Constants::UVSC_SIMULATOR_PROVIDER_ID)
 {
-    setTypeDisplayName(UvscServerProvider::tr("uVision Simulator"));
+    setTypeDisplayName(Tr::tr("uVision Simulator"));
     setConfigurationWidgetCreator([this] { return new SimulatorUvscServerProviderConfigWidget(this); });
     setDriverSelection(defaultSimulatorDriverSelection());
 }
@@ -96,8 +96,7 @@ FilePath SimulatorUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
     Uv::ProjectOptionsWriter writer(&ofs);
     const SimulatorUvProjectOptions projectOptions(this);
     if (!writer.write(&projectOptions)) {
-        errorMessage = BareMetalDebugSupport::tr(
-                    "Unable to create a uVision project options template.");
+        errorMessage = Tr::tr("Unable to create a uVision project options template.");
         return {};
     }
     return optionsPath;
@@ -108,7 +107,7 @@ FilePath SimulatorUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
 SimulatorUvscServerProviderFactory::SimulatorUvscServerProviderFactory()
 {
     setId(Constants::UVSC_SIMULATOR_PROVIDER_ID);
-    setDisplayName(UvscServerProvider::tr("uVision Simulator"));
+    setDisplayName(Tr::tr("uVision Simulator"));
     setCreator([] { return new SimulatorUvscServerProvider; });
 }
 
@@ -121,8 +120,8 @@ SimulatorUvscServerProviderConfigWidget::SimulatorUvscServerProviderConfigWidget
     Q_ASSERT(p);
 
     m_limitSpeedCheckBox = new QCheckBox;
-    m_limitSpeedCheckBox->setToolTip(tr("Limit speed to real-time."));
-    m_mainLayout->addRow(tr("Limit speed to real-time:"), m_limitSpeedCheckBox);
+    m_limitSpeedCheckBox->setToolTip(Tr::tr("Limit speed to real-time."));
+    m_mainLayout->addRow(Tr::tr("Limit speed to real-time:"), m_limitSpeedCheckBox);
 
     setFromProvider();
 
@@ -152,5 +151,4 @@ void SimulatorUvscServerProviderConfigWidget::setFromProvider()
     m_limitSpeedCheckBox->setChecked(p->m_limitSpeed);
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

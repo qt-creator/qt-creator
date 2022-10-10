@@ -21,15 +21,12 @@ class PathChooser;
 
 namespace ProjectExplorer { class AbiWidget; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // IarToolChain
 
 class IarToolChain final : public ProjectExplorer::ToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(IarToolChain)
-
 public:
     MacroInspectionRunner createMacroInspectionRunner() const final;
 
@@ -105,5 +102,4 @@ private:
     ProjectExplorer::Macros m_macros;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

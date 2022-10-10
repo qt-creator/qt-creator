@@ -56809,7 +56809,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>BareMetal::BareMetalDeviceConfigurationWidget</name>
+    <name>BareMetal</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -56825,13 +56825,6 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     <message>
         <source>GDB commands:</source>
         <translation>Příkazy GDB:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -56840,18 +56833,6 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     <message>
         <source>localhost</source>
         <translation>localhost</translation>
-    </message>
-    <message>
-        <source>GDB port:</source>
-        <translation>Port GDB:</translation>
-    </message>
-    <message>
-        <source>GDB host:</source>
-        <translation>Hostitel GDB:</translation>
-    </message>
-    <message>
-        <source>GDB commands:</source>
-        <translation>Příkazy GDB:</translation>
     </message>
     <message>
         <source>load
@@ -57779,53 +57760,27 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
+    <name>BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationFactory</name>
     <message>
         <source>Bare Metal Device</source>
         <translation>Zařízení Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>Zřízení nového nastavení zařízení Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>Set up GDB Server or Hardware Debugger</source>
         <translation>Nastavit server GDB nebo hardwarový ladicí program</translation>
     </message>
     <message>
-        <source>Bare Metal Device</source>
-        <translation>Zařízení Bare Metal</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
-    <message>
-        <source>GDB commands:</source>
-        <translation>Příkazy GDB:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalGdbCommandsDeployStep</name>
-    <message>
         <source>GDB commands</source>
         <translation>Příkazy GDB</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalRunConfiguration</name>
     <message>
         <source>%1 (via GDB server or hardware debugger)</source>
         <translation>%1 (pomocí serveru GDB nebo hardwarového ladicího programu)</translation>
@@ -57835,16 +57790,10 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <extracomment>Bare Metal run configuration default run name</extracomment>
         <translation>Spustit na serveru GDB nebo hardwarovém ladicím programu</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfigurationFactory</name>
     <message>
         <source>%1 (on GDB server or hardware debugger)</source>
         <translation>%1 (na serveru GDB nebo hardwarovém ladicím programu)</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Spustitelný soubor:</translation>
@@ -57865,9 +57814,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Unknown</source>
         <translation>Neznámý</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunControlFactory</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>Nelze ladit: Kit nemá žádné zařízení.</translation>

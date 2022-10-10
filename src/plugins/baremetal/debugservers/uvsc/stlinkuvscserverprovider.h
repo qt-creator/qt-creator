@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // StLinkUvscAdapterOptions
 
@@ -69,8 +68,6 @@ public:
 class StLinkUvscAdapterOptionsWidget;
 class StLinkUvscServerProviderConfigWidget final : public UvscServerProviderConfigWidget
 {
-    Q_OBJECT
-
 public:
     explicit StLinkUvscServerProviderConfigWidget(StLinkUvscServerProvider *provider);
 
@@ -110,5 +107,4 @@ private:
     QComboBox *m_speedBox = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

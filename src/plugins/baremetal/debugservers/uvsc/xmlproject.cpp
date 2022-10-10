@@ -4,9 +4,7 @@
 #include "xmlnodevisitor.h"
 #include "xmlproject.h"
 
-namespace BareMetal {
-namespace Gen {
-namespace Xml {
+namespace BareMetal::Gen::Xml {
 
 // Project
 
@@ -32,6 +30,4 @@ void ProjectOptions::accept(INodeVisitor *visitor) const
     visitor->visitProjectOptionsEnd(this);
 }
 
-} // namespace Xml
-} // namespace Gen
-} // namespace BareMetal
+} // BareMetal::Gen::Xml

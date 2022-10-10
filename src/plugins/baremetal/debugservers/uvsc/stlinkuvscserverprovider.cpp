@@ -7,6 +7,7 @@
 #include "uvprojectwriter.h"
 
 #include <baremetal/baremetalconstants.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/baremetaldebugsupport.h>
 #include <baremetal/debugserverprovidermanager.h>
 
@@ -25,8 +26,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 using namespace Uv;
 
@@ -111,7 +111,7 @@ bool StLinkUvscAdapterOptions::operator==(const StLinkUvscAdapterOptions &other)
 StLinkUvscServerProvider::StLinkUvscServerProvider()
     : UvscServerProvider(Constants::UVSC_STLINK_PROVIDER_ID)
 {
-    setTypeDisplayName(UvscServerProvider::tr("uVision St-Link"));
+    setTypeDisplayName(Tr::tr("uVision St-Link"));
     setConfigurationWidgetCreator([this] { return new StLinkUvscServerProviderConfigWidget(this); });
     setSupportedDrivers({"STLink\\ST-LINKIII-KEIL_SWO.dll"});
 }
@@ -148,8 +148,7 @@ FilePath StLinkUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
     Uv::ProjectOptionsWriter writer(&ofs);
     const StLinkUvProjectOptions projectOptions(this);
     if (!writer.write(&projectOptions)) {
-        errorMessage = BareMetalDebugSupport::tr(
-                    "Unable to create a uVision project options template.");
+        errorMessage = Tr::tr("Unable to create a uVision project options template.");
         return {};
     }
     return optionsPath;
@@ -160,7 +159,7 @@ FilePath StLinkUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
 StLinkUvscServerProviderFactory::StLinkUvscServerProviderFactory()
 {
     setId(Constants::UVSC_STLINK_PROVIDER_ID);
-    setDisplayName(UvscServerProvider::tr("uVision St-Link"));
+    setDisplayName(Tr::tr("uVision St-Link"));
     setCreator([] { return new StLinkUvscServerProvider; });
 }
 
@@ -173,7 +172,7 @@ StLinkUvscServerProviderConfigWidget::StLinkUvscServerProviderConfigWidget(
     Q_ASSERT(p);
 
     m_adapterOptionsWidget = new StLinkUvscAdapterOptionsWidget;
-    m_mainLayout->addRow(tr("Adapter options:"), m_adapterOptionsWidget);
+    m_mainLayout->addRow(Tr::tr("Adapter options:"), m_adapterOptionsWidget);
 
     setFromProvider();
 
@@ -221,10 +220,10 @@ StLinkUvscAdapterOptionsWidget::StLinkUvscAdapterOptionsWidget(QWidget *parent)
 {
     const auto layout = new QHBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(new QLabel(tr("Port:")));
+    layout->addWidget(new QLabel(Tr::tr("Port:")));
     m_portBox = new QComboBox;
     layout->addWidget(m_portBox);
-    layout->addWidget(new QLabel(tr("Speed:")));
+    layout->addWidget(new QLabel(Tr::tr("Speed:")));
     m_speedBox = new QComboBox;
     layout->addWidget(m_speedBox);
     setLayout(layout);
@@ -280,8 +279,8 @@ StLinkUvscAdapterOptions::Speed StLinkUvscAdapterOptionsWidget::speedAt(int inde
 
 void StLinkUvscAdapterOptionsWidget::populatePorts()
 {
-    m_portBox->addItem(tr("JTAG"), StLinkUvscAdapterOptions::JTAG);
-    m_portBox->addItem(tr("SWD"), StLinkUvscAdapterOptions::SWD);
+    m_portBox->addItem(Tr::tr("JTAG"), StLinkUvscAdapterOptions::JTAG);
+    m_portBox->addItem(Tr::tr("SWD"), StLinkUvscAdapterOptions::SWD);
 }
 
 void StLinkUvscAdapterOptionsWidget::populateSpeeds()
@@ -290,27 +289,26 @@ void StLinkUvscAdapterOptionsWidget::populateSpeeds()
 
     const auto port = portAt(m_portBox->currentIndex());
     if (port == StLinkUvscAdapterOptions::JTAG) {
-        m_speedBox->addItem(tr("9MHz"), StLinkUvscAdapterOptions::Speed_9MHz);
-        m_speedBox->addItem(tr("4.5MHz"), StLinkUvscAdapterOptions::Speed_4_5MHz);
-        m_speedBox->addItem(tr("2.25MHz"), StLinkUvscAdapterOptions::Speed_2_25MHz);
-        m_speedBox->addItem(tr("1.12MHz"), StLinkUvscAdapterOptions::Speed_1_12MHz);
-        m_speedBox->addItem(tr("560kHz"), StLinkUvscAdapterOptions::Speed_560kHz);
-        m_speedBox->addItem(tr("280kHz"), StLinkUvscAdapterOptions::Speed_280kHz);
-        m_speedBox->addItem(tr("140kHz"), StLinkUvscAdapterOptions::Speed_140kHz);
+        m_speedBox->addItem(Tr::tr("9MHz"), StLinkUvscAdapterOptions::Speed_9MHz);
+        m_speedBox->addItem(Tr::tr("4.5MHz"), StLinkUvscAdapterOptions::Speed_4_5MHz);
+        m_speedBox->addItem(Tr::tr("2.25MHz"), StLinkUvscAdapterOptions::Speed_2_25MHz);
+        m_speedBox->addItem(Tr::tr("1.12MHz"), StLinkUvscAdapterOptions::Speed_1_12MHz);
+        m_speedBox->addItem(Tr::tr("560kHz"), StLinkUvscAdapterOptions::Speed_560kHz);
+        m_speedBox->addItem(Tr::tr("280kHz"), StLinkUvscAdapterOptions::Speed_280kHz);
+        m_speedBox->addItem(Tr::tr("140kHz"), StLinkUvscAdapterOptions::Speed_140kHz);
     } else if (port == StLinkUvscAdapterOptions::SWD) {
-        m_speedBox->addItem(tr("4MHz"), StLinkUvscAdapterOptions::Speed_4MHz);
-        m_speedBox->addItem(tr("1.8MHz"), StLinkUvscAdapterOptions::Speed_1_8MHz);
-        m_speedBox->addItem(tr("950kHz"), StLinkUvscAdapterOptions::Speed_950kHz);
-        m_speedBox->addItem(tr("480kHz"), StLinkUvscAdapterOptions::Speed_480kHz);
-        m_speedBox->addItem(tr("240kHz"), StLinkUvscAdapterOptions::Speed_240kHz);
-        m_speedBox->addItem(tr("125kHz"), StLinkUvscAdapterOptions::Speed_125kHz);
-        m_speedBox->addItem(tr("100kHz"), StLinkUvscAdapterOptions::Speed_100kHz);
-        m_speedBox->addItem(tr("50kHz"), StLinkUvscAdapterOptions::Speed_50kHz);
-        m_speedBox->addItem(tr("25kHz"), StLinkUvscAdapterOptions::Speed_25kHz);
-        m_speedBox->addItem(tr("15kHz"), StLinkUvscAdapterOptions::Speed_15kHz);
-        m_speedBox->addItem(tr("5kHz"), StLinkUvscAdapterOptions::Speed_5kHz);
+        m_speedBox->addItem(Tr::tr("4MHz"), StLinkUvscAdapterOptions::Speed_4MHz);
+        m_speedBox->addItem(Tr::tr("1.8MHz"), StLinkUvscAdapterOptions::Speed_1_8MHz);
+        m_speedBox->addItem(Tr::tr("950kHz"), StLinkUvscAdapterOptions::Speed_950kHz);
+        m_speedBox->addItem(Tr::tr("480kHz"), StLinkUvscAdapterOptions::Speed_480kHz);
+        m_speedBox->addItem(Tr::tr("240kHz"), StLinkUvscAdapterOptions::Speed_240kHz);
+        m_speedBox->addItem(Tr::tr("125kHz"), StLinkUvscAdapterOptions::Speed_125kHz);
+        m_speedBox->addItem(Tr::tr("100kHz"), StLinkUvscAdapterOptions::Speed_100kHz);
+        m_speedBox->addItem(Tr::tr("50kHz"), StLinkUvscAdapterOptions::Speed_50kHz);
+        m_speedBox->addItem(Tr::tr("25kHz"), StLinkUvscAdapterOptions::Speed_25kHz);
+        m_speedBox->addItem(Tr::tr("15kHz"), StLinkUvscAdapterOptions::Speed_15kHz);
+        m_speedBox->addItem(Tr::tr("5kHz"), StLinkUvscAdapterOptions::Speed_5kHz);
     }
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

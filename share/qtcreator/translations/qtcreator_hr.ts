@@ -15273,7 +15273,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfiguration</name>
+    <name>BareMetal</name>
     <message>
         <source>Unknown</source>
         <translation>Nepoznato</translation>
@@ -15286,9 +15286,6 @@ Check the test environment.</source>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation type="unfinished"></translation>
@@ -15305,37 +15302,22 @@ Check the test environment.</source>
         <source>Cannot debug: Could not find executable for &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
     <message>
         <source>Bare Metal</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationFactory</name>
     <message>
         <source>Bare Metal Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWidget</name>
     <message>
         <source>GDB server provider:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>Set up GDB Server or Hardware Debugger</source>
         <translation type="unfinished"></translation>
@@ -15345,44 +15327,17 @@ Check the test environment.</source>
         <translation>Naziv:</translation>
     </message>
     <message>
-        <source>GDB server provider:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bare Metal Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
-    <message>
         <source>GDB commands:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStep</name>
     <message>
         <source>GDB commands</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfiguration</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Nepoznato</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderFactory</name>
     <message>
         <source>Default</source>
         <translation>Standardno</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderConfigWidget</name>
     <message>
         <source>Host:</source>
         <translation type="unfinished"></translation>
@@ -15395,23 +15350,13 @@ Check the test environment.</source>
         <source>Reset commands:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::GdbServerProvider</name>
     <message>
         <source>Clone of %1</source>
         <translation>Klon od %1</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the GDB server provider.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Naziv:</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -15433,9 +15378,6 @@ Check the test environment.</source>
         <source>Startup in Pipe Mode</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal</name>
     <message>
         <source>Enter GDB commands to reset the board and to write the nonvolatile memory.</source>
         <translation type="unfinished"></translation>
@@ -15444,9 +15386,6 @@ Check the test environment.</source>
         <source>Enter GDB commands to reset the hardware. The MCU should be halted after these commands.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::HostWidget</name>
     <message>
         <source>Enter TCP/IP hostname of the GDB server provider, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -15455,9 +15394,6 @@ Check the test environment.</source>
         <source>Enter TCP/IP port which will be listened by the GDB server provider.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderChooser</name>
     <message>
         <source>Manage...</source>
         <translation type="unfinished"></translation>
@@ -15466,9 +15402,6 @@ Check the test environment.</source>
         <source>None</source>
         <translation>Bez</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderModel</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -15485,9 +15418,6 @@ Check the test environment.</source>
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvidersSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -15505,21 +15435,7 @@ Check the test environment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Bare Metal</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderFactory</name>
-    <message>
         <source>OpenOCD</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15539,29 +15455,7 @@ Check the test environment.</source>
         <translation type="unfinished">Dodatni argumenti:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderFactory</name>
-    <message>
         <source>ST-LINK Utility</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15595,14 +15489,6 @@ Check the test environment.</source>
     <message>
         <source>Version:</source>
         <translation>Verzija:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ST-LINK/V1</source>

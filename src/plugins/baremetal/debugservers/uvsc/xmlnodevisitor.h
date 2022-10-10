@@ -5,9 +5,7 @@
 
 #include <QXmlStreamAttribute>
 
-namespace BareMetal {
-namespace Gen {
-namespace Xml {
+namespace BareMetal::Gen::Xml {
 
 class Project;
 class ProjectOptions;
@@ -34,6 +32,4 @@ public:
     virtual void visitPropertyGroupEnd(const PropertyGroup *propertyGroup) = 0;
 };
 
-} // namespace Xml
-} // namespace Gen
-} // namespace BareMetal
+} // BareMetal::Gen::Xml

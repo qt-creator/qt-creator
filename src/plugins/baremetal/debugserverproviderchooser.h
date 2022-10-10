@@ -10,12 +10,9 @@ class QComboBox;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class IDebugServerProvider;
-
-// DebugServerProviderChooser
 
 class DebugServerProviderChooser final : public QWidget
 {
@@ -42,5 +39,4 @@ private:
     QPushButton *m_manageButton = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

@@ -3,6 +3,7 @@
 
 #include "baremetalconstants.h"
 
+#include "baremetaltr.h"
 #include "debugserverproviderchooser.h"
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
@@ -14,8 +15,7 @@
 #include <QPushButton>
 #include <QSettings>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // DebugServerProviderChooser
 
@@ -25,7 +25,7 @@ DebugServerProviderChooser::DebugServerProviderChooser(
 {
     m_chooser = new QComboBox(this);
     m_chooser->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    m_manageButton = new QPushButton(tr("Manage..."), this);
+    m_manageButton = new QPushButton(Tr::tr("Manage..."), this);
     m_manageButton->setEnabled(useManageButton);
     m_manageButton->setVisible(useManageButton);
 
@@ -83,7 +83,7 @@ void DebugServerProviderChooser::populate()
 {
     const QSignalBlocker blocker(m_chooser);
     m_chooser->clear();
-    m_chooser->addItem(tr("None"));
+    m_chooser->addItem(Tr::tr("None"));
 
     for (const IDebugServerProvider *p : DebugServerProviderManager::providers()) {
         if (!providerMatches(p))
@@ -92,5 +92,4 @@ void DebugServerProviderChooser::populate()
     }
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

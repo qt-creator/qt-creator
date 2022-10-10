@@ -4,6 +4,7 @@
 #include "openocdgdbserverprovider.h"
 
 #include <baremetal/baremetalconstants.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <utils/fileutils.h>
@@ -19,8 +20,7 @@
 
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 const char executableFileKeyC[] = "ExecutableFile";
 const char rootScriptsDirKeyC[] = "RootScriptsDir";
@@ -35,7 +35,7 @@ OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 3333);
-    setTypeDisplayName(GdbServerProvider::tr("OpenOCD"));
+    setTypeDisplayName(Tr::tr("OpenOCD"));
     setConfigurationWidgetCreator([this] { return new OpenOcdGdbServerProviderConfigWidget(this); });
 }
 
@@ -164,7 +164,7 @@ bool OpenOcdGdbServerProvider::operator==(const IDebugServerProvider &other) con
 OpenOcdGdbServerProviderFactory::OpenOcdGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_OPENOCD_PROVIDER_ID);
-    setDisplayName(GdbServerProvider::tr("OpenOCD"));
+    setDisplayName(Tr::tr("OpenOCD"));
     setCreator([] { return new OpenOcdGdbServerProvider; });
 }
 
@@ -177,31 +177,31 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
     Q_ASSERT(provider);
 
     m_hostWidget = new HostWidget(this);
-    m_mainLayout->addRow(tr("Host:"), m_hostWidget);
+    m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
 
     m_executableFileChooser = new Utils::PathChooser;
     m_executableFileChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_executableFileChooser->setCommandVersionArguments({"--version"});
-    m_mainLayout->addRow(tr("Executable file:"), m_executableFileChooser);
+    m_mainLayout->addRow(Tr::tr("Executable file:"), m_executableFileChooser);
 
     m_rootScriptsDirChooser = new Utils::PathChooser;
     m_rootScriptsDirChooser->setExpectedKind(Utils::PathChooser::Directory);
-    m_mainLayout->addRow(tr("Root scripts directory:"), m_rootScriptsDirChooser);
+    m_mainLayout->addRow(Tr::tr("Root scripts directory:"), m_rootScriptsDirChooser);
 
     m_configurationFileChooser = new Utils::PathChooser;
     m_configurationFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_configurationFileChooser->setPromptDialogFilter("*.cfg");
-    m_mainLayout->addRow(tr("Configuration file:"), m_configurationFileChooser);
+    m_mainLayout->addRow(Tr::tr("Configuration file:"), m_configurationFileChooser);
 
     m_additionalArgumentsLineEdit = new QLineEdit(this);
-    m_mainLayout->addRow(tr("Additional arguments:"), m_additionalArgumentsLineEdit);
+    m_mainLayout->addRow(Tr::tr("Additional arguments:"), m_additionalArgumentsLineEdit);
 
     m_initCommandsTextEdit = new QPlainTextEdit(this);
     m_initCommandsTextEdit->setToolTip(defaultInitCommandsTooltip());
-    m_mainLayout->addRow(tr("Init commands:"), m_initCommandsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Init commands:"), m_initCommandsTextEdit);
     m_resetCommandsTextEdit = new QPlainTextEdit(this);
     m_resetCommandsTextEdit->setToolTip(defaultResetCommandsTooltip());
-    m_mainLayout->addRow(tr("Reset commands:"), m_resetCommandsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Reset commands:"), m_resetCommandsTextEdit);
 
     addErrorLabel();
     setFromProvider();
@@ -274,5 +274,4 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // BareMetal::Internal

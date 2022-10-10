@@ -22,7 +22,7 @@ BareMetalGdbCommandsDeployStepWidget::BareMetalGdbCommandsDeployStepWidget(BareM
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
     m_commands = new QPlainTextEdit(this);
-    fl->addRow(tr("GDB commands:"), m_commands);
+    fl->addRow(Tr::tr("GDB commands:"), m_commands);
     m_commands->setPlainText(m_step.gdbCommands());
     connect(m_commands, &QPlainTextEdit::textChanged, this, &BareMetalGdbCommandsDeployStepWidget::update);
 }
@@ -82,7 +82,7 @@ Core::Id BareMetalGdbCommandsDeployStep::stepId()
 
 QString BareMetalGdbCommandsDeployStep::displayName()
 {
-    return tr("GDB commands");
+    return Tr::tr("GDB commands");
 }
 
 void BareMetalGdbCommandsDeployStep::updateGdbCommands(const QString &newCommands)
