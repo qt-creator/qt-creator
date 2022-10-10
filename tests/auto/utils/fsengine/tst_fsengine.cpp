@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include <utils/filepath.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
 #include <QDebug>
@@ -57,119 +57,6 @@ void tst_fsengine::initTestCase()
 
     if (HostOsInfo::isWindowsHost())
         QSKIP("The fsengine tests are not supported on Windows.");
-
-    DeviceFileHooks &deviceHooks = DeviceFileHooks::instance();
-
-    deviceHooks.fileContents =
-        [](const FilePath &path, qint64 maxSize, qint64 offset) -> std::optional<QByteArray> {
-        return FilePath::fromString(path.path()).fileContents(maxSize, offset);
-    };
-
-    deviceHooks.isExecutableFile = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).isExecutableFile();
-    };
-    deviceHooks.isReadableFile = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).isReadableFile();
-    };
-    deviceHooks.isReadableDir = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).isReadableDir();
-    };
-    deviceHooks.isWritableDir = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).isWritableDir();
-    };
-    deviceHooks.isWritableFile = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).isWritableFile();
-    };
-    deviceHooks.isFile = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).isFile();
-    };
-    deviceHooks.isDir = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).isDir();
-    };
-    deviceHooks.ensureWritableDir = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).ensureWritableDir();
-    };
-    deviceHooks.ensureExistingFile = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).ensureExistingFile();
-    };
-    deviceHooks.createDir = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).createDir();
-    };
-    deviceHooks.exists = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).exists();
-    };
-    deviceHooks.removeFile = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).removeFile();
-    };
-    deviceHooks.removeRecursively = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).removeRecursively();
-    };
-    deviceHooks.copyFile = [](const FilePath &filePath, const FilePath &target) {
-        return FilePath::fromString(filePath.path()).copyFile(target);
-    };
-    deviceHooks.renameFile = [](const FilePath &filePath, const FilePath &target) {
-        return FilePath::fromString(filePath.path()).renameFile(target);
-    };
-    deviceHooks.searchInPath = [](const FilePath &filePath, const FilePaths &dirs) {
-        return FilePath::fromString(filePath.path()).searchInPath(dirs);
-    };
-    deviceHooks.symLinkTarget = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).symLinkTarget();
-    };
-    deviceHooks.iterateDirectory = [](const FilePath &filePath,
-                                      const FilePath::IterateDirCallback &callBack,
-                                      const FileFilter &filter) {
-        const FilePath fp = FilePath::fromString(filePath.path());
-        if (callBack.index() == 0) {
-            fp.iterateDirectory(
-                [&filePath, cb = std::get<0>(callBack)](const FilePath &path) {
-                    return cb(path.onDevice(filePath));
-                },
-                filter);
-        } else {
-            fp.iterateDirectory(
-                [&filePath, cb = std::get<1>(callBack)](const FilePath &path, const FilePathInfo &fpi) {
-                    return cb(path.onDevice(filePath), fpi);
-                },
-                filter);
-        }
-    };
-    deviceHooks.asyncFileContents = [](const Continuation<const std::optional<QByteArray> &> &cont,
-                                       const FilePath &filePath,
-                                       qint64 maxSize,
-                                       qint64 offset) {
-        return FilePath::fromString(filePath.path()).asyncFileContents(cont, maxSize, offset);
-    };
-    deviceHooks.writeFileContents = [](const FilePath &filePath,
-                                       const QByteArray &data,
-                                       qint64 offset) {
-        return FilePath::fromString(filePath.path()).writeFileContents(data, offset);
-    };
-    deviceHooks.lastModified = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).lastModified();
-    };
-    deviceHooks.permissions = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).permissions();
-    };
-    deviceHooks.setPermissions = [](const FilePath &filePath, QFile::Permissions permissions) {
-        return FilePath::fromString(filePath.path()).setPermissions(permissions);
-    };
-    deviceHooks.osType = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).osType();
-    };
-    // deviceHooks.environment = [](const FilePath &filePath) -> Environment {return {};};
-    deviceHooks.fileSize = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).fileSize();
-    };
-    deviceHooks.bytesAvailable = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).bytesAvailable();
-    };
-    deviceHooks.filePathInfo = [](const FilePath &filePath) {
-        return FilePath::fromString(filePath.path()).filePathInfo();
-    };
-
-
-    deviceHooks.mapToDevicePath = [](const FilePath &filePath) { return filePath.path(); };
 
     FSEngine::addDevice(FilePath::fromString("device://test"));
 

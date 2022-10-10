@@ -86,13 +86,6 @@ public:
 
     static FilePaths toFilePathList(const QStringList &paths);
 
-    static void iterateUnixDirectory(
-            const FilePath &base,
-            const FileFilter &filter,
-            bool *useFind,
-            const std::function<RunResult(const CommandLine &)> &runInShell,
-            const FilePath::IterateDirCallback &callBack);
-
     static qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
 
     static FilePathInfo filePathInfoFromTriple(const QString &infos);

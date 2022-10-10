@@ -4,6 +4,7 @@
 #include "filepath.h"
 
 #include "algorithm.h"
+#include "devicefileaccess.h"
 #include "environment.h"
 #include "fileutils.h"
 #include "hostosinfo.h"
@@ -15,7 +16,6 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QRegularExpression>
-#include <QStorageInfo>
 #include <QUrl>
 #include <QStringView>
 
@@ -30,7 +30,6 @@
 namespace Utils {
 
 static DeviceFileHooks s_deviceHooks;
-static bool removeRecursivelyLocal(const FilePath &filePath, QString *error);
 inline bool isWindowsDriveLetter(QChar ch);
 
 
@@ -359,136 +358,68 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, const 
 /// FilePath exists.
 bool FilePath::exists() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.exists, return false);
-        return s_deviceHooks.exists(*this);
-    }
-    return !isEmpty() && QFileInfo::exists(path());
+    return fileAccess()->exists(*this);
 }
 
 /// \returns a bool indicating whether a path is writable.
 bool FilePath::isWritableDir() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.isWritableDir, return false);
-        return s_deviceHooks.isWritableDir(*this);
-    }
-    const QFileInfo fi{path()};
-    return exists() && fi.isDir() && fi.isWritable();
+    return fileAccess()->isWritableDirectory(*this);
 }
 
 bool FilePath::isWritableFile() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.isWritableFile, return false);
-        return s_deviceHooks.isWritableFile(*this);
-    }
-    const QFileInfo fi{path()};
-    return fi.isWritable() && !fi.isDir();
+    return fileAccess()->isWritableFile(*this);
 }
 
 bool FilePath::ensureWritableDir() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.ensureWritableDir, return false);
-        return s_deviceHooks.ensureWritableDir(*this);
-    }
-    const QFileInfo fi{path()};
-    if (fi.isDir() && fi.isWritable())
-        return true;
-    return QDir().mkpath(path());
+    return fileAccess()->ensureWritableDirectory(*this);
 }
 
 bool FilePath::ensureExistingFile() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.ensureExistingFile, return false);
-        return s_deviceHooks.ensureExistingFile(*this);
-    }
-    QFile f(path());
-    if (f.exists())
-        return true;
-    f.open(QFile::WriteOnly);
-    f.close();
-    return f.exists();
+    return fileAccess()->ensureExistingFile(*this);
 }
 
 bool FilePath::isExecutableFile() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.isExecutableFile, return false);
-        return s_deviceHooks.isExecutableFile(*this);
-    }
-    const QFileInfo fi{path()};
-    return fi.isExecutable() && !fi.isDir();
+    return fileAccess()->isExecutableFile(*this);
 }
 
 bool FilePath::isReadableFile() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.isReadableFile, return false);
-        return s_deviceHooks.isReadableFile(*this);
-    }
-    const QFileInfo fi{path()};
-    return fi.isReadable() && !fi.isDir();
+    return fileAccess()->isReadableFile(*this);
 }
 
 bool FilePath::isReadableDir() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.isReadableDir, return false);
-        return s_deviceHooks.isReadableDir(*this);
-    }
-    const QFileInfo fi{path()};
-    return fi.isReadable() && fi.isDir();
+    return fileAccess()->isReadableDirectory(*this);
 }
 
 bool FilePath::isFile() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.isFile, return false);
-        return s_deviceHooks.isFile(*this);
-    }
-    const QFileInfo fi{path()};
-    return fi.isFile();
+    return fileAccess()->isFile(*this);
 }
 
 bool FilePath::isDir() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.isDir, return false);
-        return s_deviceHooks.isDir(*this);
-    }
-    const QFileInfo fi{path()};
-    return fi.isDir();
+    return fileAccess()->isDirectory(*this);
 }
 
 bool FilePath::createDir() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.createDir, return false);
-        return s_deviceHooks.createDir(*this);
-    }
-    QDir dir(path());
-    return dir.mkpath(dir.absolutePath());
+    return fileAccess()->createDirectory(*this);
 }
 
 FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) const
 {
     FilePaths result;
 
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.iterateDirectory, return {});
-        const auto callBack = [&result](const FilePath &path) { result.append(path); return true; };
-        s_deviceHooks.iterateDirectory(*this, callBack, filter);
-    } else {
-        QDirIterator dit(path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
-        while (dit.hasNext())
-            result.append(FilePath::fromString(dit.next()));
-    }
+    const auto callBack = [&result](const FilePath &path) { result.append(path); return true; };
+    iterateDirectory(callBack, filter);
 
     // FIXME: Not all flags supported here.
-
     const QDir::SortFlags sortBy = (sort & QDir::SortByMask);
     if (sortBy == QDir::Name) {
         Utils::sort(result);
@@ -515,23 +446,7 @@ FilePaths FilePath::dirEntries(QDir::Filters filters) const
 
 void FilePath::iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.iterateDirectory, return);
-        s_deviceHooks.iterateDirectory(*this, callBack, filter);
-        return;
-    }
-
-    QDirIterator it(path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
-    while (it.hasNext()) {
-        const FilePath path = FilePath::fromString(it.next());
-        bool res = false;
-        if (callBack.index() == 0)
-            res = std::get<0>(callBack)(path);
-        else
-            res = std::get<1>(callBack)(path, path.filePathInfo());
-        if (!res)
-            return;
-    }
+    fileAccess()->iterateDirectory(*this, callBack, filter);
 }
 
 void FilePath::iterateDirectories(const FilePaths &dirs,
@@ -544,26 +459,7 @@ void FilePath::iterateDirectories(const FilePaths &dirs,
 
 std::optional<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.fileContents, return {});
-        return s_deviceHooks.fileContents(*this, maxSize, offset);
-    }
-
-    const QString path = toString();
-    QFile f(path);
-    if (!f.exists())
-        return {};
-
-    if (!f.open(QFile::ReadOnly))
-        return {};
-
-    if (offset != 0)
-        f.seek(offset);
-
-    if (maxSize != -1)
-        return f.read(maxSize);
-
-    return f.readAll();
+    return fileAccess()->fileContents(*this, maxSize, offset);
 }
 
 bool FilePath::ensureReachable(const FilePath &other) const
@@ -577,78 +473,30 @@ bool FilePath::ensureReachable(const FilePath &other) const
     return false;
 }
 
-
-void FilePath::asyncFileContents(const Continuation<const std::optional<QByteArray> &> &cont,
-                                 qint64 maxSize,
-                                 qint64 offset) const
+void FilePath::asyncFileContents(
+        const Continuation<const std::optional<QByteArray> &> &cont,
+        qint64 maxSize,
+        qint64 offset) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.asyncFileContents, return);
-        s_deviceHooks.asyncFileContents(cont, *this, maxSize, offset);
-        return;
-    }
-
-    cont(fileContents(maxSize, offset));
+    return fileAccess()->asyncFileContents(*this, cont, maxSize, offset);
 }
 
 bool FilePath::writeFileContents(const QByteArray &data, qint64 offset) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.writeFileContents, return {});
-        return s_deviceHooks.writeFileContents(*this, data, offset);
-    }
-
-    QFile file(path());
-    QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return false);
-    if (offset != 0)
-        file.seek(offset);
-    qint64 res = file.write(data);
-    return res == data.size();
+    return fileAccess()->writeFileContents(*this, data, offset);
 }
 
 FilePathInfo FilePath::filePathInfo() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.filePathInfo, return {});
-        return s_deviceHooks.filePathInfo(*this);
-    }
-
-    FilePathInfo result;
-
-    QFileInfo fi(path());
-    result.fileSize = fi.size();
-    result.lastModified = fi.lastModified();
-    result.fileFlags = (FilePathInfo::FileFlag) int(fi.permissions());
-
-    if (fi.isDir())
-        result.fileFlags |= FilePathInfo::DirectoryType;
-    if (fi.isFile())
-        result.fileFlags |= FilePathInfo::FileType;
-    if (fi.exists())
-        result.fileFlags |= FilePathInfo::ExistsFlag;
-    if (fi.isSymbolicLink())
-        result.fileFlags |= FilePathInfo::LinkType;
-    if (fi.isBundle())
-        result.fileFlags |= FilePathInfo::BundleType;
-    if (fi.isHidden())
-        result.fileFlags |= FilePathInfo::HiddenFlag;
-    if (fi.isRoot())
-        result.fileFlags |= FilePathInfo::RootFlag;
-
-    return result;
+    return fileAccess()->filePathInfo(*this);
 }
 
-void FilePath::asyncWriteFileContents(const Continuation<bool> &cont,
-                                      const QByteArray &data,
-                                      qint64 offset) const
+void FilePath::asyncWriteFileContents(
+        const Continuation<bool> &cont,
+        const QByteArray &data,
+        qint64 offset) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.asyncWriteFileContents, return);
-        s_deviceHooks.asyncWriteFileContents(cont, *this, data, offset);
-        return;
-    }
-
-    cont(writeFileContents(data, offset));
+    return fileAccess()->asyncWriteFileContents(*this, cont, data, offset);
 }
 
 bool FilePath::needsDevice() const
@@ -670,23 +518,12 @@ bool FilePath::isSameDevice(const FilePath &other) const
 /// \returns an empty FilePath if this is not a symbolic linl
 FilePath FilePath::symLinkTarget() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.symLinkTarget, return {});
-        return s_deviceHooks.symLinkTarget(*this);
-    }
-    const QFileInfo info(path());
-    if (!info.isSymLink())
-        return {};
-    return FilePath::fromString(info.symLinkTarget());
+    return fileAccess()->symLinkTarget(*this);
 }
 
 QString FilePath::mapToDevicePath() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.mapToDevicePath, return path());
-        return s_deviceHooks.mapToDevicePath(*this);
-    }
-    return path();
+    return fileAccess()->mapToDevicePath(*this);
 }
 
 FilePath FilePath::withExecutableSuffix() const
@@ -935,6 +772,23 @@ void FilePath::setFromString(const QString &unnormalizedFileName)
     }
 
     setParts({}, {}, fileName);
+}
+
+DeviceFileAccess *FilePath::fileAccess() const
+{
+    if (!needsDevice())
+        return DesktopDeviceFileAccess::instance();
+
+    if (!s_deviceHooks.fileAccess) {
+        // Happens during startup and in tst_fsengine
+        QTC_CHECK(false);
+        return DesktopDeviceFileAccess::instance();
+    }
+
+    static DeviceFileAccess dummy;
+    DeviceFileAccess *access = s_deviceHooks.fileAccess(*this);
+    QTC_ASSERT(access, return &dummy);
+    return access;
 }
 
 /// Constructs a FilePath from \a filePath. The \a defaultExtension is appended
@@ -1241,10 +1095,10 @@ FilePath FilePath::withNewPath(const QString &newPath) const
 */
 FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.searchInPath, return {});
-        return s_deviceHooks.searchInPath(*this, dirs);
-    }
+    if (isAbsolutePath())
+        return *this;
+    // FIXME: Ramp down use.
+    QTC_ASSERT(!needsDevice(), return {});
     return Environment::systemEnvironment().searchInDirectories(path(), dirs);
 }
 
@@ -1252,6 +1106,7 @@ FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending am
 {
     if (isAbsolutePath())
         return *this;
+    // FIXME: Ramp down use.
     FilePaths directories = deviceEnvironment().path();
     if (!additionalDirs.isEmpty()) {
         if (amending == AppendToPath)
@@ -1259,7 +1114,8 @@ FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending am
         else
             directories = additionalDirs + directories;
     }
-    return searchInDirectories(directories);
+    QTC_ASSERT(!needsDevice(), return {});
+    return Environment::systemEnvironment().searchInDirectories(path(), directories);
 }
 
 Environment FilePath::deviceEnvironment() const
@@ -1338,47 +1194,27 @@ size_t FilePath::hash(uint seed) const
 
 QDateTime FilePath::lastModified() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.lastModified, return {});
-        return s_deviceHooks.lastModified(*this);
-    }
-    return toFileInfo().lastModified();
+    return fileAccess()->lastModified(*this);
 }
 
 QFile::Permissions FilePath::permissions() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.permissions, return {});
-        return s_deviceHooks.permissions(*this);
-    }
-    return toFileInfo().permissions();
+    return fileAccess()->permissions(*this);
 }
 
 bool FilePath::setPermissions(QFile::Permissions permissions) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.setPermissions, return false);
-        return s_deviceHooks.setPermissions(*this, permissions);
-    }
-    return QFile(path()).setPermissions(permissions);
+    return fileAccess()->setPermissions(*this, permissions);
 }
 
 OsType FilePath::osType() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.osType, return OsType::OsTypeLinux);
-        return s_deviceHooks.osType(*this);
-    }
-    return HostOsInfo::hostOs();
+    return fileAccess()->osType(*this);
 }
 
 bool FilePath::removeFile() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.removeFile, return false);
-        return s_deviceHooks.removeFile(*this);
-    }
-    return QFile::remove(path());
+    return fileAccess()->removeFile(*this);
 }
 
 /*!
@@ -1390,11 +1226,7 @@ bool FilePath::removeFile() const
 */
 bool FilePath::removeRecursively(QString *error) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.removeRecursively, return false);
-        return s_deviceHooks.removeRecursively(*this);
-    }
-    return removeRecursivelyLocal(*this, error);
+    return fileAccess()->removeRecursively(*this, error);
 }
 
 bool FilePath::copyFile(const FilePath &target) const
@@ -1406,11 +1238,7 @@ bool FilePath::copyFile(const FilePath &target) const
             return false;
         return target.writeFileContents(*ba);
     }
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.copyFile, return false);
-        return s_deviceHooks.copyFile(*this, target);
-    }
-    return QFile::copy(path(), target.path());
+    return fileAccess()->copyFile(*this, target);
 }
 
 void FilePath::asyncCopyFile(const std::function<void(bool)> &cont, const FilePath &target) const
@@ -1420,90 +1248,24 @@ void FilePath::asyncCopyFile(const std::function<void(bool)> &cont, const FilePa
             if (ba)
                 target.asyncWriteFileContents(cont, *ba);
         });
-    } else if (needsDevice()) {
-        s_deviceHooks.asyncCopyFile(cont, *this, target);
-    } else {
-        cont(copyFile(target));
+        return;
     }
+    return fileAccess()->asyncCopyFile(*this, cont, target);
 }
 
 bool FilePath::renameFile(const FilePath &target) const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.renameFile, return false);
-        return s_deviceHooks.renameFile(*this, target);
-    }
-    return QFile::rename(path(), target.path());
+    return fileAccess()->renameFile(*this, target);
 }
 
 qint64 FilePath::fileSize() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.fileSize, return false);
-        return s_deviceHooks.fileSize(*this);
-    }
-    return QFileInfo(path()).size();
+    return fileAccess()->fileSize(*this);
 }
 
 qint64 FilePath::bytesAvailable() const
 {
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.bytesAvailable, return false);
-        return s_deviceHooks.bytesAvailable(*this);
-    }
-    return QStorageInfo(path()).bytesAvailable();
-}
-
-static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
-{
-    QTC_ASSERT(!filePath.needsDevice(), return false);
-    QFileInfo fileInfo = filePath.toFileInfo();
-    if (!fileInfo.exists() && !fileInfo.isSymLink())
-        return true;
-
-    QFile::setPermissions(fileInfo.absoluteFilePath(), fileInfo.permissions() | QFile::WriteUser);
-
-    if (fileInfo.isDir()) {
-        QDir dir(fileInfo.absoluteFilePath());
-        dir.setPath(dir.canonicalPath());
-        if (dir.isRoot()) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                    "Refusing to remove root directory.");
-            }
-            return false;
-        }
-        if (dir.path() == QDir::home().canonicalPath()) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                    "Refusing to remove your home directory.");
-            }
-            return false;
-        }
-
-        const QStringList fileNames = dir.entryList(
-                    QDir::Files | QDir::Hidden | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const QString &fileName : fileNames) {
-            if (!removeRecursivelyLocal(filePath / fileName, error))
-                return false;
-        }
-        if (!QDir::root().rmdir(dir.path())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove directory \"%1\".")
-                        .arg(filePath.toUserOutput());
-            }
-            return false;
-        }
-    } else {
-        if (!QFile::remove(filePath.toString())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove file \"%1\".")
-                        .arg(filePath.toUserOutput());
-            }
-            return false;
-        }
-    }
-    return true;
+    return fileAccess()->bytesAvailable(*this);
 }
 
 /*!

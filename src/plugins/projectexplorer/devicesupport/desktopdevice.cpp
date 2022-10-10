@@ -11,6 +11,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
@@ -27,6 +28,8 @@ namespace ProjectExplorer {
 
 DesktopDevice::DesktopDevice()
 {
+    setFileAccess(DesktopDeviceFileAccess::instance());
+
     setupId(IDevice::AutoDetected, DESKTOP_DEVICE_ID);
     setType(DESKTOP_DEVICE_TYPE);
     setDefaultDisplayName(tr("Local PC"));
@@ -136,33 +139,6 @@ bool DesktopDevice::handlesFile(const FilePath &filePath) const
     return !filePath.needsDevice();
 }
 
-void DesktopDevice::iterateDirectory(
-        const FilePath &filePath,
-        const FilePath::IterateDirCallback &callBack,
-        const FileFilter &filter) const
-{
-    QTC_CHECK(!filePath.needsDevice());
-    filePath.iterateDirectory(callBack, filter);
-}
-
-qint64 DesktopDevice::fileSize(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return -1);
-    return filePath.fileSize();
-}
-
-QFile::Permissions DesktopDevice::permissions(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.permissions();
-}
-
-bool DesktopDevice::setPermissions(const FilePath &filePath, QFile::Permissions permissions) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.setPermissions(permissions);
-}
-
 FilePath DesktopDevice::mapToGlobalPath(const Utils::FilePath &pathOnDevice) const
 {
     QTC_CHECK(!pathOnDevice.needsDevice());
@@ -172,119 +148,6 @@ FilePath DesktopDevice::mapToGlobalPath(const Utils::FilePath &pathOnDevice) con
 Environment DesktopDevice::systemEnvironment() const
 {
     return Environment::systemEnvironment();
-}
-
-bool DesktopDevice::isExecutableFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.isExecutableFile();
-}
-
-bool DesktopDevice::isReadableFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.isReadableFile();
-}
-
-bool DesktopDevice::isWritableFile(const Utils::FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.isWritableFile();
-}
-
-bool DesktopDevice::isReadableDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.isReadableDir();
-}
-
-bool DesktopDevice::isWritableDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.isWritableDir();
-}
-
-bool DesktopDevice::isFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.isFile();
-}
-
-bool DesktopDevice::isDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.isDir();
-}
-
-bool DesktopDevice::createDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.createDir();
-}
-
-bool DesktopDevice::exists(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.exists();
-}
-
-bool DesktopDevice::ensureExistingFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.ensureExistingFile();
-}
-
-bool DesktopDevice::removeFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.removeFile();
-}
-
-bool DesktopDevice::removeRecursively(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.removeRecursively();
-}
-
-bool DesktopDevice::copyFile(const FilePath &filePath, const FilePath &target) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return filePath.copyFile(target);
-}
-
-bool DesktopDevice::renameFile(const FilePath &filePath, const FilePath &target) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    QTC_ASSERT(handlesFile(target), return false);
-    return filePath.renameFile(target);
-}
-
-QDateTime DesktopDevice::lastModified(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.lastModified();
-}
-
-FilePath DesktopDevice::symLinkTarget(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.symLinkTarget();
-}
-
-std::optional<QByteArray> DesktopDevice::fileContents(const FilePath &filePath,
-                                                      qint64 limit,
-                                                      qint64 offset) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.fileContents(limit, offset);
-}
-
-bool DesktopDevice::writeFileContents(const FilePath &filePath,
-                                      const QByteArray &data,
-                                      qint64 offset) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.writeFileContents(data, offset);
 }
 
 } // namespace ProjectExplorer

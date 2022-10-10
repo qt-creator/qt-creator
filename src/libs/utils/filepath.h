@@ -28,8 +28,11 @@ class tst_fileutils; // This becomes a friend of Utils::FilePath for testing pri
 
 namespace Utils {
 
+class DeviceFileAccess;
 class Environment;
 class EnvironmentChange;
+
+template <class ...Args> using Continuation = std::function<void(Args...)>;
 
 class QTCREATOR_UTILS_EXPORT FileFilter
 {
@@ -188,7 +191,6 @@ public:
     static void sort(FilePaths &files);
 
     // Asynchronous interface
-    template <class ...Args> using Continuation = std::function<void(Args...)>;
     void asyncCopyFile(const Continuation<bool> &cont, const FilePath &target) const;
     void asyncFileContents(const Continuation<const std::optional<QByteArray> &> &cont,
                            qint64 maxSize = -1,
@@ -232,6 +234,7 @@ private:
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
     void setPath(QStringView path);
     void setFromString(const QString &filepath);
+    DeviceFileAccess *fileAccess() const;
 
     [[nodiscard]] QString mapToDevicePath() const;
     [[nodiscard]] QString encodedHost() const;
@@ -252,50 +255,11 @@ class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 public:
     static DeviceFileHooks &instance();
 
-    std::function<bool(const FilePath &)> isExecutableFile;
-    std::function<bool(const FilePath &)> isReadableFile;
-    std::function<bool(const FilePath &)> isReadableDir;
-    std::function<bool(const FilePath &)> isWritableDir;
-    std::function<bool(const FilePath &)> isWritableFile;
-    std::function<bool(const FilePath &)> isFile;
-    std::function<bool(const FilePath &)> isDir;
-    std::function<bool(const FilePath &)> ensureWritableDir;
-    std::function<bool(const FilePath &)> ensureExistingFile;
-    std::function<bool(const FilePath &)> createDir;
-    std::function<bool(const FilePath &)> exists;
-    std::function<bool(const FilePath &)> removeFile;
-    std::function<bool(const FilePath &)> removeRecursively;
-    std::function<bool(const FilePath &, const FilePath &)> copyFile;
-    std::function<bool(const FilePath &, const FilePath &)> renameFile;
-    std::function<FilePath(const FilePath &, const FilePaths &)> searchInPath;
-    std::function<FilePath(const FilePath &)> symLinkTarget;
-    std::function<QString(const FilePath &)> mapToDevicePath;
-    std::function<void(const FilePath &,
-                       const FilePath::IterateDirCallback &, // Abort on 'false' return.
-                       const FileFilter &)>
-        iterateDirectory;
-    std::function<std::optional<QByteArray>(const FilePath &, qint64, qint64)> fileContents;
-    std::function<bool(const FilePath &, const QByteArray &, qint64)> writeFileContents;
-    std::function<QDateTime(const FilePath &)> lastModified;
-    std::function<QFile::Permissions(const FilePath &)> permissions;
-    std::function<bool(const FilePath &, QFile::Permissions)> setPermissions;
-    std::function<OsType(const FilePath &)> osType;
-    std::function<Environment(const FilePath &)> environment;
-    std::function<qint64(const FilePath &)> fileSize;
-    std::function<qint64(const FilePath &)> bytesAvailable;
+    std::function<DeviceFileAccess *(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
-    std::function<bool(const FilePath &, const FilePath &)> isSameDevice;
-    std::function<FilePathInfo(const FilePath &)> filePathInfo;
-
-
-    template <class ...Args> using Continuation = std::function<void(Args...)>;
-    std::function<void(const Continuation<bool> &, const FilePath &, const FilePath &)> asyncCopyFile;
-    std::function<void(
-        const Continuation<const std::optional<QByteArray> &> &, const FilePath &, qint64, qint64)>
-        asyncFileContents;
-    std::function<void(const Continuation<bool> &, const FilePath &, const QByteArray &, qint64)>
-        asyncWriteFileContents;
     std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
+    std::function<Environment(const FilePath &)> environment;
+    std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
 };
 
 } // namespace Utils

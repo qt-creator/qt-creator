@@ -83,6 +83,8 @@ Project {
             "detailsbutton.h",
             "detailswidget.cpp",
             "detailswidget.h",
+            "devicefileaccess.cpp",
+            "devicefileaccess.h",
             "deviceshell.cpp",
             "deviceshell.h",
             "differ.cpp",

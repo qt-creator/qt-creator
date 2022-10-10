@@ -15,6 +15,7 @@
 
 #include <projectexplorer/target.h>
 
+#include <utils/devicefileaccess.h>
 #include <utils/displayname.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
@@ -130,6 +131,7 @@ public:
     IDevice::DeviceState deviceState = IDevice::DeviceStateUnknown;
     IDevice::MachineType machineType = IDevice::Hardware;
     OsType osType = OsTypeOther;
+    DeviceFileAccess *fileAccess = nullptr;
     int version = 0; // This is used by devices that have been added by the SDK.
 
     QReadWriteLock lock; // Currently used to protect sshParameters only
@@ -152,6 +154,8 @@ DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
+
+IDevice::~IDevice() = default;
 
 void IDevice::setOpenTerminal(const IDevice::OpenTerminal &openTerminal)
 {
@@ -191,6 +195,11 @@ bool IDevice::isAnyUnixDevice() const
     return d->osType == OsTypeLinux || d->osType == OsTypeMac || d->osType == OsTypeOtherUnix;
 }
 
+DeviceFileAccess *IDevice::fileAccess() const
+{
+    return d->fileAccess;
+}
+
 FilePath IDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 {
     if (pathOnDevice.needsDevice()) {
@@ -219,113 +228,6 @@ bool IDevice::handlesFile(const FilePath &filePath) const
     return false;
 }
 
-bool IDevice::isExecutableFile(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::isReadableFile(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::isWritableFile(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::isReadableDirectory(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::isWritableDirectory(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::isFile(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::isDirectory(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::ensureWritableDirectory(const FilePath &filePath) const
-{
-    if (isWritableDirectory(filePath))
-        return true;
-    return createDirectory(filePath);
-}
-
-bool IDevice::ensureExistingFile(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::createDirectory(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::exists(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::removeFile(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::removeRecursively(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::copyFile(const FilePath &filePath, const FilePath &target) const
-{
-    Q_UNUSED(filePath);
-    Q_UNUSED(target);
-    QTC_CHECK(false);
-    return false;
-}
-
-bool IDevice::renameFile(const FilePath &filePath, const FilePath &target) const
-{
-    Q_UNUSED(filePath);
-    Q_UNUSED(target);
-    QTC_CHECK(false);
-    return false;
-}
-
 FilePath IDevice::searchExecutableInPath(const QString &fileName) const
 {
     FilePaths paths;
@@ -341,106 +243,11 @@ FilePath IDevice::searchExecutable(const QString &fileName, const FilePaths &dir
             dir = mapToGlobalPath(dir);
         QTC_CHECK(handlesFile(dir));
         const FilePath candidate = dir / fileName;
-        if (isExecutableFile(candidate))
+        if (candidate.isExecutableFile())
             return candidate;
     }
 
     return {};
-}
-
-FilePath IDevice::symLinkTarget(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return {};
-}
-
-void IDevice::iterateDirectory(const FilePath &filePath,
-                               const FilePath::IterateDirCallback &callBack,
-                               const FileFilter &filter) const
-{
-    Q_UNUSED(filePath);
-    Q_UNUSED(callBack);
-    Q_UNUSED(filter);
-    QTC_CHECK(false);
-}
-
-std::optional<QByteArray> IDevice::fileContents(const FilePath &filePath,
-                                                qint64 limit,
-                                                qint64 offset) const
-{
-    Q_UNUSED(filePath);
-    Q_UNUSED(limit);
-    Q_UNUSED(offset);
-    QTC_CHECK(false);
-    return {};
-}
-
-void IDevice::asyncFileContents(const Continuation<std::optional<QByteArray>> &cont,
-                                const FilePath &filePath,
-                                qint64 limit,
-                                qint64 offset) const
-{
-    cont(fileContents(filePath, limit, offset));
-}
-
-bool IDevice::writeFileContents(const FilePath &filePath, const QByteArray &data, qint64 offset) const
-{
-    Q_UNUSED(filePath);
-    Q_UNUSED(data);
-    Q_UNUSED(offset);
-    QTC_CHECK(false);
-    return {};
-}
-
-FilePathInfo IDevice::filePathInfo(const Utils::FilePath &filePath) const
-{
-    bool exists = filePath.exists();
-    if (!exists)
-        return {};
-
-    FilePathInfo result {
-        filePath.fileSize(),
-        {FilePathInfo::ExistsFlag},
-        filePath.lastModified(),
-    };
-
-    if (filePath.isDir())
-        result.fileFlags |= FilePathInfo::DirectoryType;
-    if (filePath.isFile())
-        result.fileFlags |= FilePathInfo::FileType;
-    if (filePath.isRootPath())
-        result.fileFlags |= FilePathInfo::RootFlag;
-
-    return result;
-}
-
-void IDevice::asyncWriteFileContents(const Continuation<bool> &cont,
-                                     const FilePath &filePath,
-                                     const QByteArray &data,
-                                     qint64 offset) const
-{
-    cont(writeFileContents(filePath, data, offset));
-}
-
-QDateTime IDevice::lastModified(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    return {};
-}
-
-QFileDevice::Permissions IDevice::permissions(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return {};
-}
-
-bool IDevice::setPermissions(const FilePath &filePath, QFile::Permissions) const
-{
-    Q_UNUSED(filePath);
-    QTC_CHECK(false);
-    return false;
 }
 
 ProcessInterface *IDevice::createProcessInterface() const
@@ -462,22 +269,6 @@ Environment IDevice::systemEnvironment() const
     QTC_CHECK(false);
     return Environment::systemEnvironment();
 }
-
-qint64 IDevice::fileSize(const FilePath &filePath) const
-{
-    Q_UNUSED(filePath)
-    QTC_CHECK(false);
-    return -1;
-}
-
-qint64 IDevice::bytesAvailable(const Utils::FilePath &filePath) const
-{
-    Q_UNUSED(filePath)
-    QTC_CHECK(false);
-    return -1;
-}
-
-IDevice::~IDevice() = default;
 
 /*!
     Specifies a free-text name for the device to be displayed in GUI elements.
@@ -511,6 +302,11 @@ void IDevice::setDisplayType(const QString &type)
 void IDevice::setOsType(OsType osType)
 {
     d->osType = osType;
+}
+
+void IDevice::setFileAccess(DeviceFileAccess *fileAccess)
+{
+    d->fileAccess = fileAccess;
 }
 
 IDevice::DeviceInfo IDevice::deviceInformation() const

@@ -25,6 +25,7 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
+#include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -349,6 +350,21 @@ private:
 // LinuxDevicePrivate
 
 class ShellThreadHandler;
+class LinuxDevicePrivate;
+
+class LinuxDeviceFileAccess : public UnixDeviceFileAccess
+{
+public:
+    LinuxDeviceFileAccess(LinuxDevicePrivate *dev)
+        : m_dev(dev)
+    {}
+
+    RunResult runInShell(const QString &executable,
+                         const QStringList &arguments,
+                         const QByteArray &stdInData) const override;
+
+    LinuxDevicePrivate *m_dev;
+};
 
 class LinuxDevicePrivate
 {
@@ -358,9 +374,6 @@ public:
 
     bool setupShell();
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
-    bool runInShellSuccess(const CommandLine &cmd, const QByteArray &stdInData = {}) {
-        return runInShell(cmd, stdInData).exitCode == 0;
-    }
 
     void attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                   const SshParameters &sshParameters);
@@ -370,8 +383,15 @@ public:
     ShellThreadHandler *m_handler = nullptr;
     mutable QMutex m_shellMutex;
     QList<QtcProcess *> m_terminals;
-    bool m_useFind = true;
+    LinuxDeviceFileAccess m_fileAccess{this};
 };
+
+RunResult LinuxDeviceFileAccess::runInShell(const QString &executable,
+                                            const QStringList &arguments,
+                                            const QByteArray &stdInData) const
+{
+    return m_dev->runInShell({FilePath::fromString(executable), arguments}, stdInData);
+}
 
 // SshProcessImpl
 
@@ -465,7 +485,7 @@ qint64 SshProcessInterface::processId() const
 
 bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
 {
-    return d->m_devicePrivate->runInShellSuccess(command, data);
+    return d->m_devicePrivate->runInShell(command, data).exitCode == 0;
 }
 
 void SshProcessInterface::start()
@@ -904,6 +924,7 @@ private:
 LinuxDevice::LinuxDevice()
     : d(new LinuxDevicePrivate(this))
 {
+    setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Remote Linux"));
     setDefaultDisplayName(Tr::tr("Remote Linux Device"));
     setOsType(OsTypeLinux);
@@ -1119,223 +1140,6 @@ void LinuxDevicePrivate::attachToSharedConnection(SshConnectionHandle *connectio
 
     if (!socketFilePath.isEmpty())
         emit connectionHandle->connected(socketFilePath);
-}
-
-bool LinuxDevice::isExecutableFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-x", path}});
-}
-
-bool LinuxDevice::isReadableFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-r", path, "-a", "-f", path}});
-}
-
-bool LinuxDevice::isWritableFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-w", path, "-a", "-f", path}});
-}
-
-bool LinuxDevice::isReadableDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-r", path, "-a", "-d", path}});
-}
-
-bool LinuxDevice::isWritableDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-w", path, "-a", "-d", path}});
-}
-
-bool LinuxDevice::isFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-f", path}});
-}
-
-bool LinuxDevice::isDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-d", path}});
-}
-
-bool LinuxDevice::createDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"mkdir", {"-p", path}});
-}
-
-bool LinuxDevice::exists(const FilePath &filePath) const
-{
-    DEBUG("filepath " << filePath.path());
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-e", path}});
-}
-
-bool LinuxDevice::ensureExistingFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"touch", {path}});
-}
-
-bool LinuxDevice::removeFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return d->runInShellSuccess({"rm", {filePath.path()}});
-}
-
-bool LinuxDevice::removeRecursively(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    QTC_ASSERT(filePath.path().startsWith('/'), return false);
-
-    const QString path = filePath.cleanPath().path();
-    // We are expecting this only to be called in a context of build directories or similar.
-    // Chicken out in some cases that _might_ be user code errors.
-    QTC_ASSERT(path.startsWith('/'), return false);
-    const int levelsNeeded = path.startsWith("/home/") ? 3 : 2;
-    QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
-
-    return d->runInShellSuccess({"rm", {"-rf", "--", path}});
-}
-
-bool LinuxDevice::copyFile(const FilePath &filePath, const FilePath &target) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    QTC_ASSERT(handlesFile(target), return false);
-    return d->runInShellSuccess({"cp", {filePath.path(), target.path()}});
-}
-
-bool LinuxDevice::renameFile(const FilePath &filePath, const FilePath &target) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    QTC_ASSERT(handlesFile(target), return false);
-    return d->runInShellSuccess({"mv", {filePath.path(), target.path()}});
-}
-
-QDateTime LinuxDevice::lastModified(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%Y", filePath.path()}});
-    const qint64 secs = result.stdOut.toLongLong();
-    const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
-    return dt;
-}
-
-FilePath LinuxDevice::symLinkTarget(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    const RunResult result = d->runInShell({"readlink", {"-n", "-e", filePath.path()}});
-    return result.stdOut.isEmpty() ? FilePath()
-                                   : filePath.withNewPath(QString::fromUtf8(result.stdOut));
-}
-
-qint64 LinuxDevice::fileSize(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return -1);
-    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%s", filePath.path()}});
-    return result.stdOut.toLongLong();
-}
-
-qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return -1);
-    CommandLine cmd("df", {"-k"});
-    cmd.addArg(filePath.path());
-    const RunResult result = d->runInShell(cmd);
-    return FileUtils::bytesAvailableFromDFOutput(result.stdOut);
-}
-
-QFileDevice::Permissions LinuxDevice::permissions(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%a", filePath.path()}});
-    const uint bits = result.stdOut.toUInt(nullptr, 8);
-    QFileDevice::Permissions perm = {};
-#define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
-    BIT(0, ExeOther);
-    BIT(1, WriteOther);
-    BIT(2, ReadOther);
-    BIT(3, ExeGroup);
-    BIT(4, WriteGroup);
-    BIT(5, ReadGroup);
-    BIT(6, ExeUser);
-    BIT(7, WriteUser);
-    BIT(8, ReadUser);
-#undef BIT
-    return perm;
-}
-
-bool LinuxDevice::setPermissions(const FilePath &filePath, QFileDevice::Permissions permissions) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const int flags = int(permissions);
-    return d->runInShellSuccess({"chmod", {QString::number(flags, 16), filePath.path()}});
-}
-
-void LinuxDevice::iterateDirectory(const FilePath &filePath,
-                                   const FilePath::IterateDirCallback &callBack,
-                                   const FileFilter &filter) const
-{
-    QTC_ASSERT(handlesFile(filePath), return);
-    auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };
-    FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
-}
-
-FilePathInfo LinuxDevice::filePathInfo(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    const RunResult stat = d->runInShell({"stat", {"-L", "-c", "%f %Y %s", filePath.path()}});
-    return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut));
-}
-
-std::optional<QByteArray> LinuxDevice::fileContents(const FilePath &filePath,
-                                                    qint64 limit,
-                                                    qint64 offset) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    QString args = "if=" + filePath.path() + " status=none";
-    if (limit > 0 || offset > 0) {
-        const qint64 gcd = std::gcd(limit, offset);
-        args += QString(" bs=%1 count=%2 seek=%3").arg(gcd).arg(limit / gcd).arg(offset / gcd);
-    }
-    CommandLine cmd(FilePath::fromString("dd"), args, CommandLine::Raw);
-
-    const RunResult result = d->runInShell(cmd);
-    if (result.exitCode != 0) {
-        DEBUG("fileContents failed");
-        return {};
-    }
-
-    DEBUG(result.stdOut << QByteArray::fromHex(result.stdOut));
-    return result.stdOut;
-}
-
-bool LinuxDevice::writeFileContents(const FilePath &filePath,
-                                    const QByteArray &data,
-                                    qint64 offset) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    CommandLine cmd({"dd", {"of=" + filePath.path()}});
-    if (offset != 0) {
-        cmd.addArg("bs=1");
-        cmd.addArg(QString("seek=%1").arg(offset));
-    }
-    return d->runInShellSuccess(cmd, data);
 }
 
 static FilePaths dirsToCreate(const FilesToTransfer &files)

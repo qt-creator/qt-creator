@@ -92,6 +92,7 @@ QtcLibrary {
         prefix: libsDir + "/utils/"
         files: [
             "commandline.cpp", "commandline.h",
+            "devicefileaccess.cpp", "devicefileaccess.h",
             "environment.cpp", "environment.h",
             "filepath.cpp", "filepath.h",
             "fileutils.cpp", "fileutils.h",
