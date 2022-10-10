@@ -97,6 +97,7 @@ Debugging
 * Added warning for missing QML debugging functionality for mobile and embedded
   devices
 * Fixed display of strings with characters more than 2 bytes long
+* Improved type name lookup performance for heavily templated code
 
 Version Control Systems
 -----------------------
@@ -137,11 +138,13 @@ Platforms
 
 * Added option for SSH port to wizard
 * Added fallback for devices without `base64`
+* Added experimental support to user remote linux build devices (QTCREATORBUG-28242)
 
 ### Docker
 
 * Added option for `docker` command
 * Added detection of Python
+* Added option to auto-detect in PATH plus additional directories
 * Improved device wizard
 
 Credits for these changes go to:
