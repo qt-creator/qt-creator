@@ -48,6 +48,7 @@ public:
     QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
     QProcess::ProcessError m_error = QProcess::UnknownError;
     QString m_errorString;
+    bool m_canceledByUser = false;
 };
 
 enum class ControlSignal {

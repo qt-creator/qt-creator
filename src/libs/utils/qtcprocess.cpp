@@ -940,6 +940,9 @@ void QtcProcessPrivate::sendControlSignal(ControlSignal controlSignal)
     if (!m_process || (m_state == QProcess::NotRunning))
         return;
 
+    if (controlSignal == ControlSignal::Terminate || controlSignal == ControlSignal::Kill)
+        m_resultData.m_canceledByUser = true;
+
     QMetaObject::invokeMethod(m_process.get(), [this, controlSignal] {
         m_process->sendControlSignal(controlSignal);
     }, connectionType());
@@ -1958,7 +1961,9 @@ void QtcProcessPrivate::handleReadyRead(const QByteArray &outputData, const QByt
 void QtcProcessPrivate::handleDone(const ProcessResultData &data)
 {
     m_killTimer.stop();
+    const bool wasCanceled = m_resultData.m_canceledByUser;
     m_resultData = data;
+    m_resultData.m_canceledByUser = wasCanceled;
 
     switch (m_state) {
     case QProcess::NotRunning:
