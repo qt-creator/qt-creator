@@ -50,4 +50,13 @@ enum class View3DActionType {
     SyncBackgroundColor,
     GetNodeAtPos
 };
+
+constexpr bool isNanotraceEnabled()
+{
+#ifdef NANOTRACE_ENABLED
+    return true;
+#else
+    return false;
+#endif
+}
 }

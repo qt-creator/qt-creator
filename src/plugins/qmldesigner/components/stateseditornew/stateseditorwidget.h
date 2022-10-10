@@ -55,7 +55,7 @@ public:
 
     int currentStateInternalId() const;
     void setCurrentStateInternalId(int internalId);
-    void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
+    void setNodeInstanceView(const NodeInstanceView *nodeInstanceView);
 
     void showAddNewStatesButton(bool showAddNewStatesButton);
 

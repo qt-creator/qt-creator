@@ -19,12 +19,12 @@ Model *QmlModelNodeFacade::model() const
     return m_modelNode.model();
 }
 
-NodeInstanceView *QmlModelNodeFacade::nodeInstanceView(const ModelNode &modelNode)
+const NodeInstanceView *QmlModelNodeFacade::nodeInstanceView(const ModelNode &modelNode)
 {
     return modelNode.model()->nodeInstanceView();
 }
 
-NodeInstanceView *QmlModelNodeFacade::nodeInstanceView() const
+const NodeInstanceView *QmlModelNodeFacade::nodeInstanceView() const
 {
     return nodeInstanceView(m_modelNode);
 }

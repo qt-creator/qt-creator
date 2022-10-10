@@ -150,8 +150,6 @@ public:
     void emitNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d);
     void emitView3DAction(View3DActionType type, const QVariant &value);
 
-    void sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector);
-
     virtual void modelAttached(Model *model);
     virtual void modelAboutToBeDetached(Model *model);
 
@@ -230,7 +228,7 @@ public:
     ModelNode materialLibraryNode();
     void assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode = {});
 
-    NodeInstanceView *nodeInstanceView() const;
+    const NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;
 
     void setCurrentStateNode(const ModelNode &node);
@@ -282,7 +280,7 @@ public:
     };
 
 protected:
-    void setModel(Model * model);
+    void setModel(Model *model);
     void removeModel();
     static WidgetInfo createWidgetInfo(QWidget *widget = nullptr,
                                        const QString &uniqueId = QString(),

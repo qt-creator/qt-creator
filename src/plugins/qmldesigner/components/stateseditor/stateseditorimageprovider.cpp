@@ -49,7 +49,7 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
     return image;
 }
 
-void StatesEditorImageProvider::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
+void StatesEditorImageProvider::setNodeInstanceView(const NodeInstanceView *nodeInstanceView)
 {
     m_nodeInstanceView = nodeInstanceView;
 }

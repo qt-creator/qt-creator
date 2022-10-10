@@ -127,7 +127,7 @@ public:
     RewriterView *rewriterView() const;
     void setRewriterView(RewriterView *rewriterView);
 
-    NodeInstanceView *nodeInstanceView() const;
+    const NodeInstanceView *nodeInstanceView() const;
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
     Model *metaInfoProxyModel() const;

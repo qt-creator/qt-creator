@@ -71,7 +71,7 @@ public:
     void pushInFileComponentOnCrumbleBar(const ModelNode &modelNode);
     void nextFileIsCalledInternally();
 
-    NodeInstanceView *nodeInstanceView() const;
+    const AbstractView *view() const;
 
     void exportAsImage();
     void reformatFileUsingTextEditorView();
@@ -107,6 +107,8 @@ private: // functions
     void switchStateEditorViewToBaseState();
     void switchStateEditorViewToSavedState();
     QList<AbstractView *> standardViews() const;
+
+    void registerNanotraceActions();
 
 private: // variables
     std::unique_ptr<ViewManagerData> d;

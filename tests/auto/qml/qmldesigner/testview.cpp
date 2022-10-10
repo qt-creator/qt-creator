@@ -198,7 +198,7 @@ QString TestView::lastFunction() const
     return m_methodCalls.last().name;
 }
 
-QmlDesigner::NodeInstanceView *TestView::nodeInstanceView() const
+const QmlDesigner::NodeInstanceView *TestView::nodeInstanceView() const
 {
     return QmlDesigner::AbstractView::nodeInstanceView();
 

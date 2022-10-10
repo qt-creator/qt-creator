@@ -1672,7 +1672,7 @@ void Model::setRewriterView(RewriterView *rewriterView)
     d->setRewriterView(rewriterView);
 }
 
-NodeInstanceView *Model::nodeInstanceView() const
+const NodeInstanceView *Model::nodeInstanceView() const
 {
     return d->nodeInstanceView();
 }

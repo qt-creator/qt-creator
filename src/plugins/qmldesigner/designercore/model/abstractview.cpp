@@ -528,7 +528,7 @@ bool AbstractView::hasModelNodeForInternalId(qint32 internalId) const
     return model()->d->hasNodeForInternalId(internalId);
 }
 
-NodeInstanceView *AbstractView::nodeInstanceView() const
+const NodeInstanceView *AbstractView::nodeInstanceView() const
 {
     if (model())
         return model()->d->nodeInstanceView();
@@ -735,12 +735,6 @@ void AbstractView::emitRewriterBeginTransaction()
 {
     if (model())
         model()->d->notifyRewriterBeginTransaction();
-}
-
-void AbstractView::sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector)
-{
-    if (nodeInstanceView())
-        nodeInstanceView()->sendToken(token, number, nodeVector);
 }
 
 void AbstractView::emitInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)

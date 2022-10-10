@@ -25,8 +25,8 @@ public:
 
     AbstractView *view() const;
     Model *model() const;
-    static NodeInstanceView *nodeInstanceView(const ModelNode &modelNode);
-    NodeInstanceView *nodeInstanceView() const;
+    static const NodeInstanceView *nodeInstanceView(const ModelNode &modelNode);
+    const NodeInstanceView *nodeInstanceView() const;
     bool isRootNode() const;
 
     static void enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests();

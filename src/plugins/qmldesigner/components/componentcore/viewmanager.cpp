@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "viewmanager.h"
+#include "modelnodecontextmenu_helper.h"
 
 #include <abstractview.h>
 #include <assetslibraryview.h>
@@ -106,6 +107,8 @@ ViewManager::ViewManager(AsynchronousImageCache &imageCache,
                                                                ->mainWidget())
             designModeWidget->showDockWidget("TextEditor");
     });
+
+    registerNanotraceActions();
 }
 
 ViewManager::~ViewManager() = default;
@@ -117,7 +120,7 @@ DesignDocument *ViewManager::currentDesignDocument() const
 
 void ViewManager::attachNodeInstanceView()
 {
-    if (nodeInstanceView()->isAttached())
+    if (d->nodeInstanceView.isAttached())
         return;
 
     QElapsedTimer time;
@@ -227,6 +230,43 @@ QList<AbstractView *> ViewManager::standardViews() const
         list.append(&d->debugView);
 
     return list;
+}
+
+void ViewManager::registerNanotraceActions()
+{
+    if constexpr (isNanotraceEnabled()) {
+        auto handleShutdownNanotraceAction = [](const SelectionContext &) {};
+        auto shutdownNanotraceIcon = []() { return QIcon(); };
+        auto startNanotraceAction = new ModelNodeAction("Start Nanotrace",
+                                                        QObject::tr("Start Nanotrace"),
+                                                        shutdownNanotraceIcon(),
+                                                        QObject::tr("Start Nanotrace"),
+                                                        ComponentCoreConstants::eventListCategory,
+                                                        QKeySequence(),
+                                                        220,
+                                                        handleShutdownNanotraceAction);
+
+        QObject::connect(startNanotraceAction->defaultAction(), &QAction::triggered, [&]() {
+            d->nodeInstanceView.startNanotrace();
+        });
+
+        d->designerActionManagerView.designerActionManager().addDesignerAction(startNanotraceAction);
+
+        auto shutDownNanotraceAction = new ModelNodeAction("ShutDown Nanotrace",
+                                                           QObject::tr("Shut Down Nanotrace"),
+                                                           shutdownNanotraceIcon(),
+                                                           QObject::tr("Shut Down Nanotrace"),
+                                                           ComponentCoreConstants::eventListCategory,
+                                                           QKeySequence(),
+                                                           220,
+                                                           handleShutdownNanotraceAction);
+
+        QObject::connect(shutDownNanotraceAction->defaultAction(), &QAction::triggered, [&]() {
+            d->nodeInstanceView.endNanotrace();
+        });
+
+        d->designerActionManagerView.designerActionManager().addDesignerAction(shutDownNanotraceAction);
+    }
 }
 
 void ViewManager::resetPropertyEditorView()
@@ -411,7 +451,7 @@ void ViewManager::nextFileIsCalledInternally()
     crumbleBar()->nextFileIsCalledInternally();
 }
 
-NodeInstanceView *ViewManager::nodeInstanceView() const
+const AbstractView *ViewManager::view() const
 {
     return &d->nodeInstanceView;
 }

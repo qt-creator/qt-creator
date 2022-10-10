@@ -82,7 +82,7 @@ void StatesEditorWidget::setCurrentStateInternalId(int internalId)
     rootObject()->setProperty("currentStateInternalId", internalId);
 }
 
-void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
+void StatesEditorWidget::setNodeInstanceView(const NodeInstanceView *nodeInstanceView)
 {
     m_imageProvider->setNodeInstanceView(nodeInstanceView);
 }

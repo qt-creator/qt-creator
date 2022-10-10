@@ -77,7 +77,7 @@ public:
 
     QString lastFunction() const;
 
-    QmlDesigner::NodeInstanceView *nodeInstanceView() const;
+    const QmlDesigner::NodeInstanceView *nodeInstanceView() const;
 
     QmlDesigner::QmlObjectNode rootQmlObjectNode() const;
 

@@ -734,9 +734,9 @@ void NodeInstanceView::currentStateChanged(const ModelNode &node)
     NodeInstance newStateInstance = instanceForModelNode(node);
 
     if (newStateInstance.isValid() && node.metaInfo().isQtQuickState())
-        nodeInstanceView()->activateState(newStateInstance);
+        activateState(newStateInstance);
     else
-        nodeInstanceView()->activateBaseState();
+        activateBaseState();
 }
 
 void NodeInstanceView::sceneCreated(const SceneCreatedCommand &) {}
@@ -780,7 +780,7 @@ bool NodeInstanceView::hasInstanceForModelNode(const ModelNode &node) const
     return m_nodeInstanceHash.contains(node);
 }
 
-NodeInstance NodeInstanceView::instanceForId(qint32 id)
+NodeInstance NodeInstanceView::instanceForId(qint32 id) const
 {
     if (id < 0 || !hasModelNodeForInternalId(id))
         return NodeInstance();
@@ -788,14 +788,13 @@ NodeInstance NodeInstanceView::instanceForId(qint32 id)
     return m_nodeInstanceHash.value(modelNodeForInternalId(id));
 }
 
-bool NodeInstanceView::hasInstanceForId(qint32 id)
+bool NodeInstanceView::hasInstanceForId(qint32 id) const
 {
     if (id < 0 || !hasModelNodeForInternalId(id))
         return false;
 
     return m_nodeInstanceHash.contains(modelNodeForInternalId(id));
 }
-
 
 /*!
     Returns the root node instance of this view.
@@ -1743,7 +1742,8 @@ void NodeInstanceView::view3DAction(View3DActionType type, const QVariant &value
     m_nodeInstanceServer->view3DAction({type, value});
 }
 
-void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode)
+void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
+                                                    const ModelNode &renderNode) const
 {
     if (m_nodeInstanceServer && node.isValid()) {
         auto instance = instanceForModelNode(node);
@@ -1779,7 +1779,7 @@ void NodeInstanceView::timerEvent(QTimerEvent *event)
         restartProcess();
 }
 
-QVariant NodeInstanceView::modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData)
+QVariant NodeInstanceView::modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData) const
 {
     static QPixmap placeHolder;
     if (placeHolder.isNull()) {
@@ -1803,7 +1803,7 @@ QVariant NodeInstanceView::modelNodePreviewImageDataToVariant(const ModelNodePre
     return map;
 }
 
-QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNode)
+QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNode) const
 {
     if (!modelNode.isValid())
         return {};
@@ -1922,7 +1922,8 @@ void NodeInstanceView::endNanotrace()
     m_connectionManager.writeCommand(QVariant::fromValue(EndNanotraceCommand()) );
 }
 
-QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode)
+QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode,
+                                                          const ModelNode &renderNode) const
 {
     if (!modelNode.isValid())
         return {};

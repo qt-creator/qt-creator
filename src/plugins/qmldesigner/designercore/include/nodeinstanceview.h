@@ -98,8 +98,8 @@ public:
     NodeInstance instanceForModelNode(const ModelNode &node) const ;
     bool hasInstanceForModelNode(const ModelNode &node) const;
 
-    NodeInstance instanceForId(qint32 id);
-    bool hasInstanceForId(qint32 id);
+    NodeInstance instanceForId(qint32 id) const;
+    bool hasInstanceForId(qint32 id) const;
 
     QRectF sceneRect() const;
 
@@ -131,13 +131,14 @@ public:
 
     void sendInputEvent(QInputEvent *e) const;
     void view3DAction(View3DActionType type, const QVariant &value) override;
-    void requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode);
+    void requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode) const;
     void edit3DViewResized(const QSize &size) const;
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
 
-    QVariant previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode);
-    QVariant previewImageDataForImageNode(const ModelNode &modelNode);
+    QVariant previewImageDataForGenericNode(const ModelNode &modelNode,
+                                            const ModelNode &renderNode) const;
+    QVariant previewImageDataForImageNode(const ModelNode &modelNode) const;
 
     void setCrashCallback(std::function<void()> crashCallback)
     {
@@ -221,7 +222,7 @@ private: // functions
         QString id;
         QString info;
     };
-    QVariant modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData);
+    QVariant modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData) const;
     void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
 
     void updateWatcher(const QString &path);
@@ -250,7 +251,7 @@ private:
     QList<NodeInstance> loadInstancesFromCache(const QList<ModelNode> &nodeList,
                                                const NodeInstanceCacheData &cache);
 
-    QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
+    mutable QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
 
     NodeInstance m_rootNodeInstance;
     NodeInstance m_activeStateInstance;

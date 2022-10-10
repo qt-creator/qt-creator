@@ -144,7 +144,7 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
 
 const AbstractView *DesignDocument::view() const
 {
-    return viewManager().nodeInstanceView();
+    return viewManager().view();
 }
 
 std::unique_ptr<Model> DesignDocument::createInFileComponentModel()

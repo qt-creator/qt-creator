@@ -840,8 +840,7 @@ void Edit3DView::dropMaterial(const ModelNode &matNode, const QPointF &pos)
 void Edit3DView::dropBundleMaterial(const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::BundleMaterialDrop;
-    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->view3DAction(
-        View3DActionType::GetNodeAtPos, pos);
+    emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 
 } // namespace QmlDesigner
