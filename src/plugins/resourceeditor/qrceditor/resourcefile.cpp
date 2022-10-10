@@ -356,7 +356,7 @@ bool ResourceFile::renameFile(const QString &fileName, const QString &newFileNam
 
     entries.at(0)->checkExistence();
     if (entries.at(0)->exists()) {
-        for (File *file : qAsConst(entries))
+        for (File *file : std::as_const(entries))
             file->setExists(true);
         success = Core::FileUtils::renameFile(Utils::FilePath::fromString(entries.at(0)->name),
                                               Utils::FilePath::fromString(newFileName));
@@ -364,7 +364,7 @@ bool ResourceFile::renameFile(const QString &fileName, const QString &newFileNam
 
     if (success) {
         const bool exists = QFile::exists(newFileName);
-        for (File *file : qAsConst(entries)) {
+        for (File *file : std::as_const(entries)) {
             file->name = newFileName;
             file->setExists(exists);
         }
@@ -715,7 +715,7 @@ bool ResourceModel::iconFileExtension(const QString &path)
         }
     }
 
-    for (const QString &ext : qAsConst(ext_list)) {
+    for (const QString &ext : std::as_const(ext_list)) {
         if (path.endsWith(ext, Qt::CaseInsensitive))
             return true;
     }

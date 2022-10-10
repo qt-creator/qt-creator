@@ -6070,13 +6070,13 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     //qDebug() << "MAPPING: " << modes << lhs << rhs;
     switch (type) {
         case Unmap:
-            for (char c : qAsConst(modes))
+            for (char c : std::as_const(modes))
                 MappingsIterator(&g.mappings, c, key).remove();
             break;
         case Map: Q_FALLTHROUGH();
         case Noremap: {
             const Inputs inputs(rhs, type == Noremap, silent);
-            for (char c : qAsConst(modes))
+            for (char c : std::as_const(modes))
                 MappingsIterator(&g.mappings, c).setInputs(key, inputs, unique);
             break;
         }

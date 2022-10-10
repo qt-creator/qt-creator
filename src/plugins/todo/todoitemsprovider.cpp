@@ -47,7 +47,7 @@ TodoItemsModel *TodoItemsProvider::todoItemsModel()
 void TodoItemsProvider::settingsChanged(const Settings &newSettings)
 {
     if (newSettings.keywords != m_settings.keywords) {
-        for (TodoItemsScanner *scanner : qAsConst(m_scanners))
+        for (TodoItemsScanner *scanner : std::as_const(m_scanners))
             scanner->setParams(newSettings.keywords);
     }
 
@@ -92,7 +92,7 @@ void TodoItemsProvider::createScanners()
     if (QmlJS::ModelManagerInterface::instance())
         m_scanners << new QmlJsTodoItemsScanner(m_settings.keywords, this);
 
-    for (TodoItemsScanner *scanner : qAsConst(m_scanners)) {
+    for (TodoItemsScanner *scanner : std::as_const(m_scanners)) {
         connect(scanner, &TodoItemsScanner::itemsFetched, this,
             &TodoItemsProvider::itemsFetched, Qt::QueuedConnection);
     }

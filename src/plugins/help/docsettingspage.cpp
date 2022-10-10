@@ -250,7 +250,7 @@ void DocSettingsPageWidget::addDocumentation()
             QSet<QString> values = Utils::toSet(m_filesToUnregister.values(nameSpace));
             values.remove(filePath);
             m_filesToUnregister.remove(nameSpace);
-            for (const QString &value : qAsConst(values))
+            for (const QString &value : std::as_const(values))
                 m_filesToUnregister.insert(nameSpace, value);
         }
     }

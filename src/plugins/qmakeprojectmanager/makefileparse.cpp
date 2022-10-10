@@ -348,7 +348,7 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
         ProcessArgs::addArg(&m_unparsedArguments, qa.variable + qa.op + qa.value);
     if (!afterAssignments.isEmpty()) {
         ProcessArgs::addArg(&m_unparsedArguments, QLatin1String("-after"));
-        for (const QMakeAssignment &qa : qAsConst(afterAssignments))
+        for (const QMakeAssignment &qa : std::as_const(afterAssignments))
             ProcessArgs::addArg(&m_unparsedArguments, qa.variable + qa.op + qa.value);
     }
 }

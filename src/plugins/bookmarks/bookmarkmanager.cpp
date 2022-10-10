@@ -748,7 +748,7 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
 void BookmarkManager::saveBookmarks()
 {
     QStringList list;
-    for (const Bookmark *bookmark : qAsConst(m_bookmarksList))
+    for (const Bookmark *bookmark : std::as_const(m_bookmarksList))
         list << bookmarkToString(bookmark);
 
     SessionManager::setValue(QLatin1String("Bookmarks"), list);

@@ -276,7 +276,7 @@ void QmakeBuildConfiguration::updateProblemLabel()
 
         if (!issues.isEmpty()) {
             QString text = QLatin1String("<nobr>");
-            for (const ProjectExplorer::Task &task : qAsConst(issues)) {
+            for (const ProjectExplorer::Task &task : std::as_const(issues)) {
                 QString type;
                 switch (task.type) {
                 case ProjectExplorer::Task::Error:
