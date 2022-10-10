@@ -6,16 +6,10 @@
 #include <utils/outputformatter.h>
 
 #include <QElapsedTimer>
-#include <QFutureInterface>
 #include <QObject>
 #include <QStringList>
 
 #include <memory>
-
-QT_BEGIN_NAMESPACE
-template<class T>
-class QFutureWatcher;
-QT_END_NAMESPACE
 
 namespace Utils {
 class ProcessResultData;
@@ -48,8 +42,6 @@ private:
 
     std::unique_ptr<Utils::QtcProcess> m_process;
     Utils::OutputFormatter m_parser;
-    QFutureInterface<void> m_futureInterface;
-    std::unique_ptr<QFutureWatcher<void>> m_futureWatcher;
     QElapsedTimer m_elapsed;
     int m_lastExitCode = 0;
 };
