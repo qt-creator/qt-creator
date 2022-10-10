@@ -11,9 +11,6 @@
 
 #include <texteditor/simplecodestylepreferences.h>
 
-#include <QWidget>
-#include <QLayout>
-
 using namespace TextEditor;
 
 namespace Nim {
@@ -44,7 +41,6 @@ TextEditor::CodeStyleEditorWidget *NimCodeStylePreferencesFactory::createEditor(
 {
     Q_UNUSED(project)
     auto result = new NimCodeStylePreferencesWidget(preferences, parent);
-    result->layout()->setContentsMargins(0, 0, 0, 0);
     return result;
 }
 

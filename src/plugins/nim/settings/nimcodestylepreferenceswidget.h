@@ -3,17 +3,14 @@
 
 #pragma once
 
-#include <QWidget>
 #include <texteditor/icodestylepreferencesfactory.h>
 
 namespace TextEditor {
-class ICodeStylePreferences;
 class FontSettings;
-}
+class SnippetEditorWidget;
+} // TextEditor
 
 namespace Nim {
-
-namespace Ui { class NimCodeStylePreferencesWidget; }
 
 class NimCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
@@ -29,7 +26,7 @@ private:
     void updatePreview();
 
     TextEditor::ICodeStylePreferences *m_preferences;
-    Ui::NimCodeStylePreferencesWidget *m_ui;
+    TextEditor::SnippetEditorWidget *m_previewTextEdit;
 };
 
-} // namespace Nim
+} // Nim
