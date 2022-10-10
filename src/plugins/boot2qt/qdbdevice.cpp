@@ -252,6 +252,8 @@ QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
     setConstructionFunction(&QdbDevice::create);
     setCreator([] {
         QdbDeviceWizard wizard(Core::ICore::dialogParent());
+        if (!creatorTheme()->preferredStyles().isEmpty())
+            wizard.setWizardStyle(QWizard::ModernStyle);
         if (wizard.exec() != QDialog::Accepted)
             return IDevice::Ptr();
         return wizard.device();
