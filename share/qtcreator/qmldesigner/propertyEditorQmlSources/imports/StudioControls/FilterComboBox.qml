@@ -547,20 +547,27 @@ Item {
             ]
 
             Text {
-                visible: root.autocompleteString !== ""
+                id: tmpSelectionName
+                visible: root.autocompleteString !== "" && root.open
                 text: root.autocompleteString
                 x: textInput.leftPadding + textMetrics.advanceWidth
-                y: (textInput.height - Math.ceil(textMetrics.height)) / 2
+                y: (textInput.height - Math.ceil(tmpSelectionTextMetrics.height)) / 2
                 color: "gray" // TODO proper color value
                 font: textInput.font
                 renderType: textInput.renderType
+
+                TextMetrics {
+                    id: textMetrics
+                    font: textInput.font
+                    text: textInput.text
+                }
+                TextMetrics {
+                    id: tmpSelectionTextMetrics
+                    font: tmpSelectionName.font
+                    text: "Xq"
+                }
             }
 
-            TextMetrics {
-                id: textMetrics
-                font: textInput.font
-                text: textInput.text
-            }
 
             Rectangle {
                 id: checkIndicator
