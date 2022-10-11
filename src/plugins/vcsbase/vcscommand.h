@@ -91,17 +91,8 @@ signals:
     void stdErrText(const QString &);
     void done();
 
-    void append(const QString &text);
-    void appendSilently(const QString &text);
-    void appendError(const QString &text);
-    void appendCommand(const Utils::FilePath &workingDirectory, const Utils::CommandLine &command);
-    void appendMessage(const QString &text);
-
-    void runCommandFinished(const Utils::FilePath &workingDirectory);
-
 private:
     CommandResult runBlockingHelper(const Utils::CommandLine &command, int timeoutS);
-    void postRunCommand(const Utils::FilePath &workingDirectory);
 
     class Internal::VcsCommandPrivate *const d;
 };

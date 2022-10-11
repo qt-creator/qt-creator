@@ -108,7 +108,7 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
     if (!job.workingDirectory.isEmpty())
         process->setWorkingDirectory(job.workingDirectory);
     if (!(m_flags & RunFlags::SuppressCommandLogging))
-        emit q->appendCommand(job.workingDirectory, job.command);
+        VcsOutputWindow::appendCommand(job.workingDirectory, job.command);
     process->setCommand(job.command);
     process->setDisableUnixTerminal();
     process->setEnvironment(environment());
@@ -135,7 +135,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
         connect(process, &QtcProcess::textOnStandardError, [this](const QString &text) {
             if (!(m_flags & RunFlags::SuppressStdErr))
-                emit q->appendError(text);
+                VcsOutputWindow::appendError(text);
             if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdErrText(text);
         });
@@ -147,9 +147,9 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
         connect(process, &QtcProcess::textOnStandardOutput, [this](const QString &text) {
             if (m_flags & RunFlags::ShowStdOut) {
                 if (m_flags & RunFlags::SilentOutput)
-                    emit q->appendSilently(text);
+                    VcsOutputWindow::appendSilently(text);
                 else
-                    emit q->append(text);
+                    VcsOutputWindow::append(text);
             }
             if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdOutText(text);
@@ -171,11 +171,15 @@ void VcsCommandPrivate::handleDone(QtcProcess *process)
     // Success/Fail message in appropriate window?
     if (process->result() == ProcessResult::FinishedWithSuccess) {
         if (m_flags & RunFlags::ShowSuccessMessage)
-            emit q->appendMessage(process->exitMessage());
+            VcsOutputWindow::appendMessage(process->exitMessage());
     } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
-        emit q->appendError(process->exitMessage());
+        VcsOutputWindow::appendError(process->exitMessage());
     }
-    emit q->runCommandFinished(process->workingDirectory());
+    if (!(m_flags & RunFlags::ExpectRepoChanges))
+        return;
+    // TODO tell the document manager that the directory now received all expected changes
+    // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+    VcsManager::emitRepositoryChanged(process->workingDirectory());
 }
 
 void VcsCommandPrivate::startAll()
@@ -222,31 +226,11 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     d(new Internal::VcsCommandPrivate(this, workingDirectory, environment))
 {
     VcsOutputWindow::setRepository(d->m_defaultWorkingDirectory);
-    VcsOutputWindow *outputWindow = VcsOutputWindow::instance(); // Keep me here, just to be sure it's not instantiated in other thread
-    connect(this, &VcsCommand::append, outputWindow, [outputWindow](const QString &t) {
-        outputWindow->append(t);
-    });
-    connect(this, &VcsCommand::appendSilently, outputWindow, &VcsOutputWindow::appendSilently);
-    connect(this, &VcsCommand::appendError, outputWindow, &VcsOutputWindow::appendError);
-    connect(this, &VcsCommand::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
-    connect(this, &VcsCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
-    const auto connection = connect(this, &VcsCommand::runCommandFinished,
-                                    this, &VcsCommand::postRunCommand);
-    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
-        disconnect(connection);
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] {
         if (d->m_process && d->m_process->isRunning())
             d->cleanup();
         d->m_process.reset();
     });
-}
-
-void VcsCommand::postRunCommand(const FilePath &workingDirectory)
-{
-    if (!(d->m_flags & RunFlags::ExpectRepoChanges))
-        return;
-    // TODO tell the document manager that the directory now received all expected changes
-    // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-    VcsManager::emitRepositoryChanged(workingDirectory);
 }
 
 VcsCommand::~VcsCommand()
