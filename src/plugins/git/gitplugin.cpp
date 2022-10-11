@@ -85,29 +85,6 @@ namespace Git::Internal {
 
 using GitClientMemberFunc = void (GitClient::*)(const FilePath &) const;
 
-class GitTopicCache : public IVersionControl::TopicCache
-{
-public:
-    GitTopicCache(GitClient *client) :
-        m_client(client)
-    { }
-
-protected:
-    FilePath trackFile(const FilePath &repository) override
-    {
-        const QString gitDir = m_client->findGitDirForRepository(repository);
-        return gitDir.isEmpty() ? FilePath() : FilePath::fromString(gitDir + "/HEAD");
-    }
-
-    QString refreshTopic(const FilePath &repository) override
-    {
-        return m_client->synchronousTopic(repository);
-    }
-
-private:
-    GitClient *m_client;
-};
-
 class GitReflogEditorWidget : public GitEditorWidget
 {
 public:
@@ -436,6 +413,30 @@ public:
 };
 
 static GitPluginPrivate *dd = nullptr;
+
+class GitTopicCache : public IVersionControl::TopicCache
+{
+public:
+    GitTopicCache(GitClient *client) :
+        m_client(client)
+    { }
+
+protected:
+    FilePath trackFile(const FilePath &repository) override
+    {
+        const QString gitDir = m_client->findGitDirForRepository(repository);
+        return gitDir.isEmpty() ? FilePath() : FilePath::fromString(gitDir + "/HEAD");
+    }
+
+    QString refreshTopic(const FilePath &repository) override
+    {
+        emit dd->repositoryChanged(repository);
+        return m_client->synchronousTopic(repository);
+    }
+
+private:
+    GitClient *m_client;
+};
 
 GitPluginPrivate::~GitPluginPrivate()
 {
