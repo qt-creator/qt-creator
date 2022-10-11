@@ -785,9 +785,9 @@ FilePath FilePath::absolutePath() const
 FilePath FilePath::absoluteFilePath() const
 {
     if (isAbsolutePath())
-        return *this;
+        return cleanPath();
     if (!needsDevice() && isEmpty())
-        return *this;
+        return cleanPath();
 
     return FilePath::currentWorkingPath().resolvePath(*this);
 }
