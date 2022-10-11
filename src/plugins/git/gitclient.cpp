@@ -1531,7 +1531,9 @@ bool GitClient::synchronousAdd(const FilePath &workingDirectory,
                                const QStringList &extraOptions)
 {
     QStringList args{"add"};
-    args += extraOptions + files;
+    args += extraOptions;
+    args += "--";
+    args += files;
     return vcsSynchronousExec(workingDirectory, args).result()
             == ProcessResult::FinishedWithSuccess;
 }
@@ -1543,6 +1545,7 @@ bool GitClient::synchronousDelete(const FilePath &workingDirectory,
     QStringList arguments = {"rm"};
     if (force)
         arguments << "--force";
+    arguments << "--";
     arguments.append(files);
     return vcsSynchronousExec(workingDirectory, arguments).result()
             == ProcessResult::FinishedWithSuccess;
