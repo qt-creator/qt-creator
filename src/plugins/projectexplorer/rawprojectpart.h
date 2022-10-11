@@ -21,8 +21,16 @@
 
 namespace ProjectExplorer {
 
+class BuildSystem;
 class Kit;
 class Project;
+
+void PROJECTEXPLORER_EXPORT addTargetFlagForIos(
+        QStringList &cFlags,
+        QStringList &cxxFlags,
+        const BuildSystem *bs,
+        const std::function<QString()> &getDeploymentTarget
+        );
 
 class PROJECTEXPLORER_EXPORT RawProjectPartFlags
 {

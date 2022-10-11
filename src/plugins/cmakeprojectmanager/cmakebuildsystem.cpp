@@ -607,24 +607,24 @@ void CMakeBuildSystem::updateProjectData()
         setError(errorMessage);
     qCDebug(cmakeBuildSystemLog) << "Raw project parts created." << errorMessage;
 
-    {
-        for (RawProjectPart &rpp : rpps) {
-            rpp.setQtVersion(
-                kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
-            const QString includeFileBaseDir = buildConfiguration()->buildDirectory().toString();
-            if (kitInfo.cxxToolChain) {
-                rpp.setFlagsForCxx({kitInfo.cxxToolChain, rpp.flagsForCxx.commandLineFlags,
-                                    includeFileBaseDir});
-            }
-            if (kitInfo.cToolChain) {
-                rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags,
-                                  includeFileBaseDir});
-            }
-        }
-
-        m_cppCodeModelUpdater->update({p, kitInfo, buildConfiguration()->environment(), rpps},
-                                      m_extraCompilers);
+    for (RawProjectPart &rpp : rpps) {
+        rpp.setQtVersion(
+                    kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
+        const QString includeFileBaseDir = buildConfiguration()->buildDirectory().toString();
+        QStringList cxxFlags = rpp.flagsForCxx.commandLineFlags;
+        QStringList cFlags = rpp.flagsForC.commandLineFlags;
+        addTargetFlagForIos(cxxFlags, cFlags, this, [this] {
+            return m_configurationFromCMake.stringValueOf("CMAKE_OSX_DEPLOYMENT_TARGET");
+        });
+        if (kitInfo.cxxToolChain)
+            rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxFlags, includeFileBaseDir});
+        if (kitInfo.cToolChain)
+            rpp.setFlagsForC({kitInfo.cToolChain, cFlags, includeFileBaseDir});
     }
+
+    m_cppCodeModelUpdater->update({p, kitInfo, buildConfiguration()->environment(), rpps},
+                                  m_extraCompilers);
+
     {
         const bool mergedHeaderPathsAndQmlImportPaths = kit()->value(
                     QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), false).toBool();
