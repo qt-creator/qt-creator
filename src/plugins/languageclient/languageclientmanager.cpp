@@ -35,6 +35,7 @@ namespace LanguageClient {
 static Q_LOGGING_CATEGORY(Log, "qtc.languageclient.manager", QtWarningMsg)
 
 static LanguageClientManager *managerInstance = nullptr;
+static bool g_shuttingDown = false;
 
 LanguageClientManager::LanguageClientManager(QObject *parent)
     : QObject (parent)
@@ -112,7 +113,7 @@ void LanguageClientManager::clientStarted(Client *client)
     qCDebug(Log) << "client started: " << client->name() << client;
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
-    if (managerInstance->m_shuttingDown) {
+    if (g_shuttingDown) {
         clientFinished(client);
         return;
     }
@@ -131,7 +132,7 @@ void LanguageClientManager::clientFinished(Client *client)
                                   && client->state() != Client::ShutdownRequested;
 
     if (unexpectedFinish) {
-        if (!managerInstance->m_shuttingDown) {
+        if (!g_shuttingDown) {
             const QList<TextEditor::TextDocument *> &clientDocs
                 = managerInstance->m_clientForDocument.keys(client);
             if (client->reset()) {
@@ -153,7 +154,7 @@ void LanguageClientManager::clientFinished(Client *client)
         }
     }
     deleteClient(client);
-    if (managerInstance->m_shuttingDown && managerInstance->m_clients.isEmpty())
+    if (g_shuttingDown && managerInstance->m_clients.isEmpty())
         emit managerInstance->shutdownFinished();
 }
 
@@ -218,17 +219,17 @@ void LanguageClientManager::deleteClient(Client *client)
     for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
         clients.removeAll(client);
     client->deleteLater();
-    if (!managerInstance->m_shuttingDown)
+    if (!g_shuttingDown)
         emit instance()->clientRemoved(client);
 }
 
 void LanguageClientManager::shutdown()
 {
     QTC_ASSERT(managerInstance, return);
-    if (managerInstance->m_shuttingDown)
+    if (g_shuttingDown)
         return;
     qCDebug(Log) << "shutdown manager";
-    managerInstance->m_shuttingDown = true;
+    g_shuttingDown = true;
     const auto clients = managerInstance->clients();
     for (Client *client : clients)
         shutdownClient(client);
@@ -242,7 +243,7 @@ void LanguageClientManager::shutdown()
 
 bool LanguageClientManager::isShuttingDown()
 {
-    return managerInstance->m_shuttingDown;
+    return g_shuttingDown;
 }
 
 LanguageClientManager *LanguageClientManager::instance()
