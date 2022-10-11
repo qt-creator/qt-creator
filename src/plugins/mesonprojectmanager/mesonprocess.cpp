@@ -4,18 +4,21 @@
 #include "mesonprocess.h"
 
 #include "mesonprojectmanagertr.h"
+#include "toolwrapper.h"
 
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 
+#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QLoggingCategory>
 
+using namespace Core;
 using namespace Utils;
 
 namespace MesonProjectManager {
@@ -23,11 +26,7 @@ namespace Internal {
 
 static Q_LOGGING_CATEGORY(mesonProcessLog, "qtc.meson.buildsystem", QtWarningMsg);
 
-MesonProcess::MesonProcess()
-{
-    connect(&m_cancelTimer, &QTimer::timeout, this, &MesonProcess::checkForCancelled);
-    m_cancelTimer.setInterval(500);
-}
+MesonProcess::~MesonProcess() = default;
 
 bool MesonProcess::run(const Command &command,
                        const Environment &env,
@@ -37,17 +36,10 @@ bool MesonProcess::run(const Command &command,
     if (!sanityCheck(command))
         return false;
     m_stdo.clear();
-    m_future = decltype(m_future){};
     ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    setupProcess(command, env, captureStdo);
-    m_future.setProgressRange(0, 1);
-    Core::ProgressManager::addTimedTask(m_future,
-                                        Tr::tr("Configuring \"%1\".").arg(projectName),
-                                        "Meson.Configure",
-                                        10);
+    setupProcess(command, env, projectName, captureStdo);
     m_elapsed.start();
     m_process->start();
-    m_cancelTimer.start(500);
     qCDebug(mesonProcessLog()) << "Starting:" << command.toUserOutput();
     return true;
 }
@@ -58,32 +50,15 @@ void MesonProcess::handleProcessDone()
         ProjectExplorer::TaskHub::addTask(ProjectExplorer::BuildSystemTask{
                 ProjectExplorer::Task::TaskType::Error, m_process->exitMessage()});
     }
-    m_cancelTimer.stop();
     m_stdo = m_process->readAllStandardOutput();
     m_stderr = m_process->readAllStandardError();
-    if (m_process->exitStatus() == QProcess::NormalExit) {
-        m_future.setProgressValue(1);
-        m_future.reportFinished();
-    } else {
-        m_future.reportCanceled();
-        m_future.reportFinished();
-    }
     const QString elapsedTime = formatElapsedTime(m_elapsed.elapsed());
-    Core::MessageManager::writeSilently(elapsedTime);
+    MessageManager::writeSilently(elapsedTime);
     emit finished(m_process->exitCode(), m_process->exitStatus());
 }
 
-void MesonProcess::checkForCancelled()
-{
-    if (m_future.isCanceled()) {
-        m_cancelTimer.stop();
-        m_process->close();
-    }
-}
-
-void MesonProcess::setupProcess(const Command &command,
-                                const Environment env,
-                                bool captureStdo)
+void MesonProcess::setupProcess(const Command &command, const Environment &env,
+                                const QString &projectName, bool captureStdo)
 {
     m_process.reset(new QtcProcess);
     connect(m_process.get(), &QtcProcess::done, this, &MesonProcess::handleProcessDone);
@@ -96,9 +71,12 @@ void MesonProcess::setupProcess(const Command &command,
 
     m_process->setWorkingDirectory(command.workDir());
     m_process->setEnvironment(env);
-    Core::MessageManager::writeFlashing(
-        Tr::tr("Running %1 in %2.").arg(command.toUserOutput()).arg(command.workDir().toUserOutput()));
+    MessageManager::writeFlashing(Tr::tr("Running %1 in %2.")
+                                  .arg(command.toUserOutput(), command.workDir().toUserOutput()));
     m_process->setCommand(command.cmdLine());
+    m_process->setTimeoutS(10);
+    ProcessProgress *progress = new ProcessProgress(m_process.get());
+    progress->setDisplayName(Tr::tr("Configuring \"%1\".").arg(projectName));
 }
 
 bool MesonProcess::sanityCheck(const Command &command) const
@@ -125,13 +103,13 @@ bool MesonProcess::sanityCheck(const Command &command) const
 void MesonProcess::processStandardOutput()
 {
     const auto data = m_process->readAllStandardOutput();
-    Core::MessageManager::writeSilently(QString::fromLocal8Bit(data));
+    MessageManager::writeSilently(QString::fromLocal8Bit(data));
     emit readyReadStandardOutput(data);
 }
 
 void MesonProcess::processStandardError()
 {
-    Core::MessageManager::writeSilently(QString::fromLocal8Bit(m_process->readAllStandardError()));
+    MessageManager::writeSilently(QString::fromLocal8Bit(m_process->readAllStandardError()));
 }
 
 } // namespace Internal
