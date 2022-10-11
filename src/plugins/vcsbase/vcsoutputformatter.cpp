@@ -21,10 +21,10 @@ namespace VcsBase {
 
 VcsOutputLineParser::VcsOutputLineParser() :
     m_regexp(
-        "(https?://\\S*)"                             // https://codereview.org/c/1234
-        "|(v[0-9]+\\.[0-9]+\\.[0-9]+[\\-A-Za-z0-9]*)" // v0.1.2-beta3
-        "|([0-9a-f]{6,}(?:\\.{2,3}[0-9a-f]{6,}"       // 789acf or 123abc..456cde
-        "|\\^+|~\\d+)?)")                             // or 789acf^ or 123abc~99
+        R"((https?://\S*))"                                   // https://codereview.org/c/1234
+        R"(|\b(v[0-9]+\.[0-9]+\.[0-9]+[\-A-Za-z0-9]*))"       // v0.1.2-beta3
+        R"(|\b(?<!mode )([0-9a-f]{6,}(?:\.{2,3}[0-9a-f]{6,})" // 789acf or 123abc..456cde
+        R"(|\^+|~\d+)?)\b)")                                  // or 789acf^ or 123abc~99
 {
 }
 
