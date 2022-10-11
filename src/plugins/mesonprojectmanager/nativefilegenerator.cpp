@@ -3,8 +3,6 @@
 
 #include "nativefilegenerator.h"
 
-#include "kithelper.h"
-
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>

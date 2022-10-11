@@ -15576,8 +15576,8 @@ to project &apos;%2&apos;.</source>
         <translation>Ви&amp;далити</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Перемкнутись до</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Відкрити</translation>
     </message>
     <message>
         <source>New session name</source>
@@ -36314,7 +36314,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>BareMetal::BareMetalDeviceConfigurationWidget</name>
+    <name>BareMetal</name>
     <message>
         <source>Form</source>
         <translation type="vanished">Форма</translation>
@@ -36322,25 +36322,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     <message>
         <source>GDB host:</source>
         <translation type="vanished">Вузол GDB:</translation>
-    </message>
-    <message>
-        <source>GDB port:</source>
-        <translation type="vanished">Порт GDB:</translation>
-    </message>
-    <message>
-        <source>GDB commands:</source>
-        <translation type="vanished">Команди GDB:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
-    <message>
-        <source>Set up GDB Server or Hardware Debugger</source>
-        <translation>Налаштування сервера GDB або апаратного зневаджувача</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -36351,32 +36332,8 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <translation>Постачальник сервера GDB:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation type="vanished">Команди ініціалізації:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation type="vanished">Команди скидання:</translation>
-    </message>
-    <message>
-        <source>Bare Metal Device</source>
-        <translation>Голий пристрій</translation>
-    </message>
-    <message>
         <source>localhost</source>
         <translation type="vanished">localhost</translation>
-    </message>
-    <message>
-        <source>GDB port:</source>
-        <translation type="vanished">Порт GDB:</translation>
-    </message>
-    <message>
-        <source>GDB host:</source>
-        <translation type="vanished">Вузол GDB:</translation>
-    </message>
-    <message>
-        <source>GDB commands:</source>
-        <translation type="vanished">Команди GDB:</translation>
     </message>
     <message>
         <source>load
@@ -37410,95 +37367,27 @@ Do you want to uninstall the existing package next time?</source>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
+    <name>BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>Голе залізо</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationFactory</name>
     <message>
         <source>Bare Metal Device</source>
         <translation type="vanished">Голий пристрій</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationWizard</name>
-    <message>
-        <source>New Bare Metal Device Configuration Setup</source>
-        <translation type="vanished">Налаштування нової конфігурації голого пристрою</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>Set up GDB Server or Hardware Debugger</source>
         <translation type="vanished">Налаштування сервера GDB або апаратного зневаджувача</translation>
     </message>
     <message>
-        <source>Bare Metal Device</source>
-        <translation type="vanished">Голий пристрій</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
-    <message>
         <source>GDB commands:</source>
         <translation>Команди GDB:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalGdbCommandsDeployStep</name>
-    <message>
-        <source>GDB commands</source>
-        <translation type="vanished">Команди GDB</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalRunConfiguration</name>
-    <message>
-        <source>%1 (via GDB server or hardware debugger)</source>
-        <translation type="vanished">%1 (через сервер GDB або апаратний зневаджувач)</translation>
-    </message>
-    <message>
-        <source>Run on GDB server or hardware debugger</source>
-        <extracomment>Bare Metal run configuration default run name</extracomment>
-        <translation type="vanished">Виконати на сервері GDB або апаратному зневаджувачі</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfigurationFactory</name>
     <message>
         <source>%1 (on GDB server or hardware debugger)</source>
         <translation>%1 (через сервер GDB або апаратний зневаджувач)</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::BareMetalRunConfigurationWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation type="vanished">Виконуваний модуль:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="vanished">Аргументи:</translation>
-    </message>
-    <message>
-        <source>&lt;default&gt;</source>
-        <translation type="vanished">&lt;типово&gt;</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="vanished">Робоча тека:</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Невідомо</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunControlFactory</name>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
         <translation>Неможливо зневадити: локальний виконуваний модуль не задано.</translation>
@@ -41068,56 +40957,13 @@ Install an SDK of at least API version %1.</source>
         <translation>Введіть команди GDB для апаратного скидання. Мікроконтролер має бути зупинено після цих команд.</translation>
     </message>
     <message>
-        <source>Bare Metal</source>
-        <translation>Голе залізо</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationFactory</name>
-    <message>
-        <source>Bare Metal Device</source>
-        <translation>Голий пристрій</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWidget</name>
-    <message>
-        <source>GDB host:</source>
-        <translation type="vanished">Вузол GDB:</translation>
-    </message>
-    <message>
-        <source>GDB port:</source>
-        <translation type="vanished">Порт GDB:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation type="vanished">Команди ініціалізації:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation type="vanished">Команди скидання:</translation>
-    </message>
-    <message>
-        <source>GDB server provider:</source>
-        <translation>Постачальник сервера GDB:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
-    <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>Налаштування нової конфігурації голого пристрою</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStep</name>
     <message>
         <source>GDB commands</source>
         <translation>Команди GDB</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfiguration</name>
     <message>
         <source>%1 (via GDB server or hardware debugger)</source>
         <translation>%1 (через сервер GDB або апаратний зневаджувач)</translation>
@@ -41127,16 +40973,9 @@ Install an SDK of at least API version %1.</source>
         <extracomment>Bare Metal run configuration default run name</extracomment>
         <translation>Виконати на сервері GDB або апаратному зневаджувачі</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Виконуваний модуль:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="vanished">Аргументи:</translation>
     </message>
     <message>
         <source>&lt;default&gt;</source>
@@ -45881,22 +45720,11 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfigWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Виконуваний модуль:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="vanished">Аргументи:</translation>
-    </message>
+    <name>BareMetal</name>
     <message>
         <source>Work directory:</source>
         <translation>Робоча тека:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfiguration</name>
     <message>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
         <translation>Має бути заданий віддалений виконуваний модуль, щоб виконати користувацьку віддалену конфігурацію запуску.</translation>
@@ -45905,9 +45733,6 @@ Affected are breakpoints %1</source>
         <source>Custom Executable (on GDB server or hardware debugger)</source>
         <translation>Виконуваний модуль (через сервер GDB або апаратний зневаджувач)</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
         <source>Debugging failed.</source>
         <translation>Збій зневадження.</translation>
@@ -45920,16 +45745,10 @@ Affected are breakpoints %1</source>
         <source>Starting GDB server...</source>
         <translation>Запуск сервера GDB...</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderFactory</name>
     <message>
         <source>Default</source>
         <translation>Типовий</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderConfigWidget</name>
     <message>
         <source>Host:</source>
         <translation>Вузол:</translation>
@@ -45942,23 +45761,13 @@ Affected are breakpoints %1</source>
         <source>Reset commands:</source>
         <translation>Команди скидання:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::GdbServerProvider</name>
     <message>
         <source>Clone of %1</source>
         <translation>Клон %1</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the GDB server provider.</source>
         <translation>Введіть назву постачальника сервера GDB.</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Назва:</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -45980,9 +45789,6 @@ Affected are breakpoints %1</source>
         <source>Startup in Pipe Mode</source>
         <translation>Запуск в режимі конвеєра</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::HostWidget</name>
     <message>
         <source>Enter TCP/IP hostname of the GDB server provider, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
         <translation>Введіть назву вузла постачальника сервера GDB (напр., &quot;localhost&quot; або &quot;192.0.2.1&quot;).</translation>
@@ -45991,9 +45797,6 @@ Affected are breakpoints %1</source>
         <source>Enter TCP/IP port which will be listened by the GDB server provider.</source>
         <translation>Введіть порт, на якому буде слухати постачальник сервера GDB.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderChooser</name>
     <message>
         <source>Manage...</source>
         <translation>Управління...</translation>
@@ -46002,9 +45805,6 @@ Affected are breakpoints %1</source>
         <source>None</source>
         <translation>Немає</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderModel</name>
     <message>
         <source>Name</source>
         <translation>Назва</translation>
@@ -46025,9 +45825,6 @@ Affected are breakpoints %1</source>
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>Наступні постачальники вже сконфігуровано:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Їх не буде сконфігуровано знову.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvidersSettingsPage</name>
     <message>
         <source>GDB Server Providers</source>
         <translation>Постачальники сервера GDB</translation>
@@ -46044,19 +45841,9 @@ Affected are breakpoints %1</source>
         <source>Remove</source>
         <translation>Видалити</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderFactory</name>
     <message>
         <source>OpenOCD</source>
         <translation>OpenOCD</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Вузол:</translation>
     </message>
     <message>
         <source>Executable file:</source>
@@ -46075,30 +45862,8 @@ Affected are breakpoints %1</source>
         <translation>Додаткові аргументи:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>Команди ініціалізації:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Команди скидання:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderFactory</name>
-    <message>
         <source>ST-LINK Utility</source>
         <translation>Утиліта ST-LINK</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Вузол:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Виконуваний файл:</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0..99).</source>
@@ -46131,14 +45896,6 @@ Affected are breakpoints %1</source>
     <message>
         <source>Version:</source>
         <translation>Версія:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation>Команди ініціалізації:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Команди скидання:</translation>
     </message>
     <message>
         <source>ST-LINK/V1</source>

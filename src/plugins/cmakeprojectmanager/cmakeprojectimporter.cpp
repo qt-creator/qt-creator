@@ -131,6 +131,20 @@ FilePaths CMakeProjectImporter::importCandidates()
         const FilePath configPresetDir = m_presetsTempDir.filePath(configPreset.name);
         configPresetDir.createDir();
         candidates << configPresetDir;
+
+        // If the binaryFilePath exists, do not try to import the existing build, so that
+        // we don't have duplicates, one from the preset and one from the previous configuration.
+        if (configPreset.binaryDir) {
+            Environment env = Environment::systemEnvironment();
+            CMakePresets::Macros::expand(configPreset, env, projectDirectory());
+
+            QString binaryDir = configPreset.binaryDir.value();
+            CMakePresets::Macros::expand(configPreset, env, projectDirectory(), binaryDir);
+
+            const FilePath binaryFilePath = FilePath::fromString(binaryDir);
+            candidates.removeIf(
+                [&binaryFilePath] (const FilePath &path) { return path == binaryFilePath; });
+        }
     }
 
     const FilePaths finalists = Utils::filteredUnique(candidates);
@@ -439,13 +453,11 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (configurePreset.toolset && configurePreset.toolset.value().value)
             data->toolset = configurePreset.toolset.value().value.value();
 
-        QString binaryDir = importPath.toString();
         if (configurePreset.binaryDir) {
-            binaryDir = configurePreset.binaryDir.value();
+            QString binaryDir = configurePreset.binaryDir.value();
             CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), binaryDir);
+            data->buildDirectory = Utils::FilePath::fromString(binaryDir);
         }
-
-        data->buildDirectory = Utils::FilePath::fromString(binaryDir);
 
         CMakePresets::Macros::updateToolchainFile(configurePreset,
                                                   env,
@@ -455,9 +467,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         const CMakeConfig cache = configurePreset.cacheVariables
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
-        data->cmakeBuildType = cache.valueOf("CMAKE_BUILD_TYPE");
-        if (data->cmakeBuildType.isEmpty())
-            data->cmakeBuildType = "Debug";
 
         data->sysroot = cache.filePathValueOf("CMAKE_SYSROOT");
 
@@ -485,7 +494,29 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         // ToolChains:
         data->toolChains = extractToolChainsFromCache(config);
 
-        result.push_back(static_cast<void *>(data.release()));
+        QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
+        if (buildConfigurationTypes.front().isEmpty()) {
+            buildConfigurationTypes.clear();
+            QByteArray buildConfigurationTypesString = cache.valueOf("CMAKE_CONFIGURATION_TYPES");
+            if (!buildConfigurationTypesString.isEmpty()) {
+                buildConfigurationTypes = buildConfigurationTypesString.split(';');
+            } else {
+                for (int type = CMakeBuildConfigurationFactory::BuildTypeDebug;
+                     type != CMakeBuildConfigurationFactory::BuildTypeLast;
+                     ++type) {
+                    BuildInfo info = CMakeBuildConfigurationFactory::createBuildInfo(
+                        CMakeBuildConfigurationFactory::BuildType(type));
+                    buildConfigurationTypes << info.typeName.toUtf8();
+                }
+            }
+        }
+        for (const auto &buildType : buildConfigurationTypes) {
+            DirectoryData *newData = new DirectoryData(*data);
+            newData->cmakeBuildType = buildType;
+
+            result.emplace_back(newData);
+        }
+
         return result;
     }
 
@@ -552,9 +583,24 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
     return result;
 }
 
+void CMakeProjectImporter::ensureBuildDirectory(DirectoryData &data, const Kit *k) const
+{
+    if (!data.buildDirectory.isEmpty())
+        return;
+
+    const auto cmakeBuildType = CMakeBuildConfigurationFactory::buildTypeFromByteArray(
+        data.cmakeBuildType);
+    auto buildInfo = CMakeBuildConfigurationFactory::createBuildInfo(cmakeBuildType);
+
+    data.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
+                                                                        k,
+                                                                        buildInfo.typeName,
+                                                                        buildInfo.buildType);
+}
+
 bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 {
-    const DirectoryData *data = static_cast<DirectoryData *>(directoryData);
+    DirectoryData *data = static_cast<DirectoryData *>(directoryData);
 
     CMakeTool *cm = CMakeKitAspect::cmakeTool(k);
     if (!cm || cm->cmakeExecutable() != data->cmakeBinary)
@@ -586,6 +632,8 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
         if (data->cmakePreset != presetConfigItem.expandedValue(k))
             return false;
+
+        ensureBuildDirectory(*data, k);
     }
 
     qCDebug(cmInputLog) << k->displayName()
@@ -595,7 +643,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
 Kit *CMakeProjectImporter::createKit(void *directoryData) const
 {
-    const DirectoryData *data = static_cast<DirectoryData *>(directoryData);
+    DirectoryData *data = static_cast<DirectoryData *>(directoryData);
 
     return QtProjectImporter::createTemporaryKit(data->qt, [&data, this](Kit *k) {
         const CMakeToolData cmtd = findOrCreateCMakeTool(data->cmakeBinary);
@@ -615,6 +663,8 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
             CMakeConfigurationKitAspect::setCMakePreset(k, data->cmakePreset);
         }
+        if (!data->cmakePreset.isEmpty())
+            ensureBuildDirectory(*data, k);
 
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 

@@ -4,9 +4,10 @@
 #include "stlinkutilgdbserverprovider.h"
 
 #include <baremetal/baremetalconstants.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
@@ -19,8 +20,7 @@
 
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 const char executableFileKeyC[] = "ExecutableFile";
 const char verboseLevelKeyC[] = "VerboseLevel";
@@ -36,7 +36,7 @@ StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 4242);
-    setTypeDisplayName(GdbServerProvider::tr("ST-LINK Utility"));
+    setTypeDisplayName(Tr::tr("ST-LINK Utility"));
     setConfigurationWidgetCreator([this] { return new StLinkUtilGdbServerProviderConfigWidget(this); });
 }
 
@@ -151,7 +151,7 @@ bool StLinkUtilGdbServerProvider::operator==(const IDebugServerProvider &other) 
 StLinkUtilGdbServerProviderFactory::StLinkUtilGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID);
-    setDisplayName(GdbServerProvider::tr("ST-LINK Utility"));
+    setDisplayName(Tr::tr("ST-LINK Utility"));
     setCreator([] { return new StLinkUtilGdbServerProvider; });
 }
 
@@ -164,36 +164,36 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
     Q_ASSERT(p);
 
     m_hostWidget = new HostWidget(this);
-    m_mainLayout->addRow(tr("Host:"), m_hostWidget);
+    m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
 
     m_executableFileChooser = new Utils::PathChooser;
     m_executableFileChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_mainLayout->addRow(tr("Executable file:"), m_executableFileChooser);
+    m_mainLayout->addRow(Tr::tr("Executable file:"), m_executableFileChooser);
 
     m_verboseLevelSpinBox = new QSpinBox;
     m_verboseLevelSpinBox->setRange(0, 99);
-    m_verboseLevelSpinBox->setToolTip(tr("Specify the verbosity level (0..99)."));
-    m_mainLayout->addRow(tr("Verbosity level:"), m_verboseLevelSpinBox);
+    m_verboseLevelSpinBox->setToolTip(Tr::tr("Specify the verbosity level (0..99)."));
+    m_mainLayout->addRow(Tr::tr("Verbosity level:"), m_verboseLevelSpinBox);
 
     m_extendedModeCheckBox = new QCheckBox;
-    m_extendedModeCheckBox->setToolTip(tr("Continue listening for connections "
+    m_extendedModeCheckBox->setToolTip(Tr::tr("Continue listening for connections "
                                           "after disconnect."));
-    m_mainLayout->addRow(tr("Extended mode:"), m_extendedModeCheckBox);
+    m_mainLayout->addRow(Tr::tr("Extended mode:"), m_extendedModeCheckBox);
 
     m_resetBoardCheckBox = new QCheckBox;
-    m_resetBoardCheckBox->setToolTip(tr("Reset board on connection."));
-    m_mainLayout->addRow(tr("Reset on connection:"), m_resetBoardCheckBox);
+    m_resetBoardCheckBox->setToolTip(Tr::tr("Reset board on connection."));
+    m_mainLayout->addRow(Tr::tr("Reset on connection:"), m_resetBoardCheckBox);
 
     m_transportLayerComboBox = new QComboBox;
-    m_transportLayerComboBox->setToolTip(tr("Transport layer type."));
-    m_mainLayout->addRow(tr("Version:"), m_transportLayerComboBox);
+    m_transportLayerComboBox->setToolTip(Tr::tr("Transport layer type."));
+    m_mainLayout->addRow(Tr::tr("Version:"), m_transportLayerComboBox);
 
     m_initCommandsTextEdit = new QPlainTextEdit(this);
     m_initCommandsTextEdit->setToolTip(defaultInitCommandsTooltip());
-    m_mainLayout->addRow(tr("Init commands:"), m_initCommandsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Init commands:"), m_initCommandsTextEdit);
     m_resetCommandsTextEdit = new QPlainTextEdit(this);
     m_resetCommandsTextEdit->setToolTip(defaultResetCommandsTooltip());
-    m_mainLayout->addRow(tr("Reset commands:"), m_resetCommandsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Reset commands:"), m_resetCommandsTextEdit);
 
     populateTransportLayers();
     addErrorLabel();
@@ -273,13 +273,13 @@ void StLinkUtilGdbServerProviderConfigWidget::setTransportLayer(
 void StLinkUtilGdbServerProviderConfigWidget::populateTransportLayers()
 {
     m_transportLayerComboBox->insertItem(
-                m_transportLayerComboBox->count(), tr("ST-LINK/V1"),
+                m_transportLayerComboBox->count(), Tr::tr("ST-LINK/V1"),
                 StLinkUtilGdbServerProvider::ScsiOverUsb);
     m_transportLayerComboBox->insertItem(
-                m_transportLayerComboBox->count(), tr("ST-LINK/V2"),
+                m_transportLayerComboBox->count(), Tr::tr("ST-LINK/V2"),
                 StLinkUtilGdbServerProvider::RawUsb);
     m_transportLayerComboBox->insertItem(
-                m_transportLayerComboBox->count(), tr("Keep unspecified"),
+                m_transportLayerComboBox->count(), Tr::tr("Keep unspecified"),
                 StLinkUtilGdbServerProvider::UnspecifiedTransport);
 }
 
@@ -299,5 +299,4 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

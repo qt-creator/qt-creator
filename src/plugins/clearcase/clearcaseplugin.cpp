@@ -2392,7 +2392,7 @@ IVersionControl::OpenSupportMode ClearCasePluginPrivate::openSupportMode(const F
 
 bool ClearCasePluginPrivate::vcsOpen(const FilePath &filePath)
 {
-    return vcsOpen(filePath.parentDir().absolutePath(), filePath.fileName());
+    return vcsOpen(filePath.absolutePath(), filePath.fileName());
 }
 
 IVersionControl::SettingsFlags ClearCasePluginPrivate::settingsFlags() const
@@ -2405,22 +2405,22 @@ IVersionControl::SettingsFlags ClearCasePluginPrivate::settingsFlags() const
 
 bool ClearCasePluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    return vcsAdd(filePath.parentDir().absolutePath(), filePath.fileName());
+    return vcsAdd(filePath.absolutePath(), filePath.fileName());
 }
 
 bool ClearCasePluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    return vcsDelete(filePath.parentDir().absoluteFilePath(), filePath.fileName());
+    return vcsDelete(filePath.absoluteFilePath(), filePath.fileName());
 }
 
 bool ClearCasePluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    return vcsMove(from.parentDir().absolutePath(), from.fileName(), to.fileName());
+    return vcsMove(from.absolutePath(), from.fileName(), to.fileName());
 }
 
 void ClearCasePluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    vcsAnnotateHelper(filePath.parentDir().absolutePath(), filePath.fileName(), QString(), line);
+    vcsAnnotateHelper(filePath.absolutePath(), filePath.fileName(), QString(), line);
 }
 
 QString ClearCasePluginPrivate::vcsOpenText() const

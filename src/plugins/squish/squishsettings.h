@@ -17,6 +17,8 @@ QT_END_NAMESPACE
 namespace Squish {
 namespace Internal {
 
+enum class Language;
+
 class SquishServerSettings : public Utils::AspectContainer
 {
 public:
@@ -38,6 +40,8 @@ class SquishSettings : public Utils::AspectContainer
 {
 public:
     SquishSettings();
+
+    Utils::FilePath scriptsPath(Language language) const;
 
     Utils::StringAspect squishPath;
     Utils::StringAspect licensePath;

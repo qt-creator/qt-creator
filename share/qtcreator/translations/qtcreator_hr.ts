@@ -5128,7 +5128,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <name>Nim</name>
     <message>
         <source>Target:</source>
         <translation>Odredište:</translation>
@@ -5150,23 +5150,13 @@ Greška: %5</translation>
         <translation>Bez</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <translation>Ukloni greške</translation>
-    </message>
-    <message>
         <source>Release</source>
         <translation>Objavi</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStepConfigWidget</name>
     <message>
         <source>Working directory:</source>
         <translation>Radni direktorij:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolsSettingsWidget</name>
     <message>
         <source>Nimsuggest</source>
         <translation>Nimsuggest</translation>
@@ -5957,8 +5947,8 @@ Greška: %5</translation>
         <translation>&amp;Ukloni</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Prebaci na</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Otvori</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>
@@ -15273,7 +15263,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfiguration</name>
+    <name>BareMetal</name>
     <message>
         <source>Unknown</source>
         <translation>Nepoznato</translation>
@@ -15286,9 +15276,6 @@ Check the test environment.</source>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation type="unfinished"></translation>
@@ -15305,37 +15292,22 @@ Check the test environment.</source>
         <source>Cannot debug: Could not find executable for &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
     <message>
         <source>Bare Metal</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationFactory</name>
     <message>
         <source>Bare Metal Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWidget</name>
     <message>
         <source>GDB server provider:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>Set up GDB Server or Hardware Debugger</source>
         <translation type="unfinished"></translation>
@@ -15345,44 +15317,17 @@ Check the test environment.</source>
         <translation>Naziv:</translation>
     </message>
     <message>
-        <source>GDB server provider:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bare Metal Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
-    <message>
         <source>GDB commands:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStep</name>
     <message>
         <source>GDB commands</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfiguration</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Nepoznato</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderFactory</name>
     <message>
         <source>Default</source>
         <translation>Standardno</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderConfigWidget</name>
     <message>
         <source>Host:</source>
         <translation type="unfinished"></translation>
@@ -15395,23 +15340,13 @@ Check the test environment.</source>
         <source>Reset commands:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::GdbServerProvider</name>
     <message>
         <source>Clone of %1</source>
         <translation>Klon od %1</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the GDB server provider.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Naziv:</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -15433,9 +15368,6 @@ Check the test environment.</source>
         <source>Startup in Pipe Mode</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal</name>
     <message>
         <source>Enter GDB commands to reset the board and to write the nonvolatile memory.</source>
         <translation type="unfinished"></translation>
@@ -15444,9 +15376,6 @@ Check the test environment.</source>
         <source>Enter GDB commands to reset the hardware. The MCU should be halted after these commands.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::HostWidget</name>
     <message>
         <source>Enter TCP/IP hostname of the GDB server provider, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -15455,9 +15384,6 @@ Check the test environment.</source>
         <source>Enter TCP/IP port which will be listened by the GDB server provider.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderChooser</name>
     <message>
         <source>Manage...</source>
         <translation type="unfinished"></translation>
@@ -15466,9 +15392,6 @@ Check the test environment.</source>
         <source>None</source>
         <translation>Bez</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderModel</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -15485,9 +15408,6 @@ Check the test environment.</source>
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvidersSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -15505,21 +15425,7 @@ Check the test environment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Bare Metal</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderFactory</name>
-    <message>
         <source>OpenOCD</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15539,29 +15445,7 @@ Check the test environment.</source>
         <translation type="unfinished">Dodatni argumenti:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderFactory</name>
-    <message>
         <source>ST-LINK Utility</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15595,14 +15479,6 @@ Check the test environment.</source>
     <message>
         <source>Version:</source>
         <translation>Verzija:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ST-LINK/V1</source>
@@ -27126,42 +27002,27 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>NimBuildConfigurationWidget</name>
+    <name>Nim</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Stil kodiranja</translation>
@@ -27170,35 +27031,15 @@ Rok upotrebe: %3</translation>
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimToolsSettingsPage</name>
     <message>
         <source>Tools</source>
         <translation>Alati</translation>
     </message>
     <message>
         <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimPlugin</name>
-    <message>
-        <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationFactory</name>
     <message>
         <source>Debug</source>
         <translation>Uklanjanje grešaka</translation>
@@ -27208,26 +27049,9 @@ Rok upotrebe: %3</translation>
         <translation>Profil</translation>
     </message>
     <message>
-        <source>Release</source>
-        <translation>Objavljivanje</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationWidget</name>
-    <message>
         <source>Build directory:</source>
         <translation>Direktorij gradnje:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStep</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation type="unfinished"></translation>
@@ -27248,9 +27072,6 @@ Rok upotrebe: %3</translation>
         <source>Clean step completed successfully.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProject</name>
     <message>
         <source>Scanning for Nim files</source>
         <translation>Traženje Nim datoteka</translation>
@@ -27263,23 +27084,10 @@ Rok upotrebe: %3</translation>
         <source>Nim compiler does not exist.</source>
         <translation>Nim kompajler ne postoji.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimRunConfiguration</name>
     <message>
         <source>Current Build Target</source>
         <translation>Trenutačno odredište gradnje</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Staza za &amp;kompajler:</translation>
@@ -27288,31 +27096,10 @@ Rok upotrebe: %3</translation>
         <source>&amp;Compiler version:</source>
         <translation>Verzija &amp;kompajlera:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCodeStyleSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globalno</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolsSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>

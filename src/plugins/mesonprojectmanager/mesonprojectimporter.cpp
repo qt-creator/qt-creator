@@ -5,12 +5,10 @@
 
 #include <QLoggingCategory>
 
-namespace {
-static Q_LOGGING_CATEGORY(mInputLog, "qtc.meson.import", QtWarningMsg);
-}
-
 namespace MesonProjectManager {
 namespace Internal {
+
+static Q_LOGGING_CATEGORY(mInputLog, "qtc.meson.import", QtWarningMsg);
 
 MesonProjectImporter::MesonProjectImporter(const Utils::FilePath &path)
     : QtSupport::QtProjectImporter{path}

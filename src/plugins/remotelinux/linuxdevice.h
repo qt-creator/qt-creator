@@ -53,12 +53,18 @@ public:
     bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
     void iterateDirectory(const Utils::FilePath &filePath,
-                          const std::function<bool(const Utils::FilePath &)> &callBack,
+                          const Utils::FilePath::IterateDirCallback &callBack,
+                          const Utils::FileFilter &filter) const override;
+    void iterateDirectory(const Utils::FilePath &filePath,
+                          const Utils::FilePath::IterateDirWithInfoCallback &callBack,
                           const Utils::FileFilter &filter) const override;
     std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
                                            qint64 limit,
                                            qint64 offset) const override;
-    bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
+    bool writeFileContents(const Utils::FilePath &filePath,
+                           const QByteArray &data,
+                           qint64 offset) const override;
+    Utils::FilePathInfo filePathInfo(const Utils::FilePath &filePath) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     Utils::ProcessInterface *createProcessInterface() const override;
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(

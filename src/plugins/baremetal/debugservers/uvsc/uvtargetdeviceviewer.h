@@ -18,9 +18,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 class DeviceSelectionModel;
 class DeviceSelectionView;
@@ -108,6 +106,4 @@ private:
     DeviceSelectionView *m_view = nullptr;
 };
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv

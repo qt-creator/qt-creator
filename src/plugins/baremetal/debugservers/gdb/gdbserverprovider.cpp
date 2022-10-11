@@ -5,6 +5,7 @@
 
 #include <baremetal/baremetaldebugsupport.h>
 #include <baremetal/baremetaldevice.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <projectexplorer/runconfigurationaspects.h>
@@ -22,8 +23,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 const char startupModeKeyC[] = "Mode";
 const char peripheralDescriptionFileKeyC[] = "PeripheralDescriptionFile";
@@ -144,13 +144,11 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
 
     const FilePath bin = FilePath::fromString(exeAspect->executable.path());
     if (bin.isEmpty()) {
-        errorMessage = BareMetalDebugSupport::tr(
-                    "Cannot debug: Local executable is not set.");
+        errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
         return false;
     }
     if (!bin.exists()) {
-        errorMessage = BareMetalDebugSupport::tr(
-                    "Cannot debug: Could not find executable for \"%1\".")
+        errorMessage = Tr::tr("Cannot debug: Could not find executable for \"%1\".")
                 .arg(bin.toString());
         return false;
     }
@@ -201,17 +199,17 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
     : IDebugServerProviderConfigWidget(provider)
 {
     m_startupModeComboBox = new QComboBox(this);
-    m_startupModeComboBox->setToolTip(tr("Choose the desired startup mode "
-                                         "of the GDB server provider."));
-    m_mainLayout->addRow(tr("Startup mode:"), m_startupModeComboBox);
+    m_startupModeComboBox->setToolTip(Tr::tr("Choose the desired startup mode "
+                                             "of the GDB server provider."));
+    m_mainLayout->addRow(Tr::tr("Startup mode:"), m_startupModeComboBox);
 
     m_peripheralDescriptionFileChooser = new PathChooser(this);
     m_peripheralDescriptionFileChooser->setExpectedKind(PathChooser::File);
     m_peripheralDescriptionFileChooser->setPromptDialogFilter(
-                tr("Peripheral description files (*.svd)"));
+                Tr::tr("Peripheral description files (*.svd)"));
     m_peripheralDescriptionFileChooser->setPromptDialogTitle(
-                tr("Select Peripheral Description File"));
-    m_mainLayout->addRow(tr("Peripheral description file:"),
+                Tr::tr("Select Peripheral Description File"));
+    m_mainLayout->addRow(Tr::tr("Peripheral description file:"),
                          m_peripheralDescriptionFileChooser);
 
     populateStartupModes();
@@ -264,9 +262,9 @@ static QString startupModeName(GdbServerProvider::StartupMode m)
 {
     switch (m) {
     case GdbServerProvider::StartupOnNetwork:
-        return GdbServerProviderConfigWidget::tr("Startup in TCP/IP Mode");
+        return Tr::tr("Startup in TCP/IP Mode");
     case GdbServerProvider::StartupOnPipe:
-        return GdbServerProviderConfigWidget::tr("Startup in Pipe Mode");
+        return Tr::tr("Startup in Pipe Mode");
     default:
         return {};
     }
@@ -299,16 +297,14 @@ void GdbServerProviderConfigWidget::setFromProvider()
 
 QString GdbServerProviderConfigWidget::defaultInitCommandsTooltip()
 {
-    return QCoreApplication::translate("BareMetal",
-                                       "Enter GDB commands to reset the board "
-                                       "and to write the nonvolatile memory.");
+    return Tr::tr("Enter GDB commands to reset the board "
+                  "and to write the nonvolatile memory.");
 }
 
 QString GdbServerProviderConfigWidget::defaultResetCommandsTooltip()
 {
-    return QCoreApplication::translate("BareMetal",
-                                       "Enter GDB commands to reset the hardware. "
-                                       "The MCU should be halted after these commands.");
+    return Tr::tr("Enter GDB commands to reset the hardware. "
+                  "The MCU should be halted after these commands.");
 }
 
 // GdbServerProviderRunner
@@ -325,5 +321,4 @@ GdbServerProviderRunner::GdbServerProviderRunner(ProjectExplorer::RunControl *ru
     });
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

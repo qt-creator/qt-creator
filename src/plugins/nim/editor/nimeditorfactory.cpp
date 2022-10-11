@@ -7,7 +7,6 @@
 #include "nimcompletionassistprovider.h"
 
 #include "../nimconstants.h"
-#include "../nimplugin.h"
 #include "nimtexteditorwidget.h"
 
 #include <texteditor/texteditoractionhandler.h>
@@ -55,4 +54,4 @@ void NimEditorFactory::decorateEditor(TextEditorWidget *editor)
     editor->textDocument()->setIndenter(new NimIndenter(editor->textDocument()->document()));
 }
 
-}
+} // Nim

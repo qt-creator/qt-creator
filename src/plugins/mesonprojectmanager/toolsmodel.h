@@ -17,9 +17,9 @@ class ToolTreeItem;
 
 class ToolsModel final : public Utils::TreeModel<Utils::TreeItem, Utils::TreeItem, ToolTreeItem>
 {
-    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::ToolsSettingsPage)
 public:
     ToolsModel();
+
     ToolTreeItem *mesoneToolTreeItem(const QModelIndex &index) const;
     void updateItem(const Utils::Id &itemId, const QString &name, const Utils::FilePath &exe);
     void addMesonTool();

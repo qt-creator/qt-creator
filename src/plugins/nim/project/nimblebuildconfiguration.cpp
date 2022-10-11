@@ -4,9 +4,7 @@
 #include "nimblebuildconfiguration.h"
 
 #include "nimconstants.h"
-//#include "nimblebuildstep.h"
-#include "nimbleproject.h"
-#include "nimblebuildsystem.h"
+#include "nimtr.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildstep.h>
@@ -14,20 +12,16 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <utils/fileutils.h>
-#include <utils/osspecificaspects.h>
 
-#include <QFileInfo>
-#include <QDir>
-
-using namespace Nim;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Utils::Id id)
+namespace Nim {
+
+NimbleBuildConfiguration::NimbleBuildConfiguration(Target *target, Id id)
     : BuildConfiguration(target, id)
 {
-    setConfigWidgetDisplayName(tr("General"));
+    setConfigWidgetDisplayName(Tr::tr("General"));
     setConfigWidgetHasFrame(true);
     setBuildDirectorySettingsKey("Nim.NimbleBuildConfiguration.BuildDirectory");
     appendInitialBuildStep(Constants::C_NIMBLEBUILDSTEP_ID);
@@ -82,8 +76,10 @@ NimbleBuildConfigurationFactory::NimbleBuildConfigurationFactory()
             return info;
         };
         return QList<BuildInfo>{
-            oneBuild(BuildConfiguration::Debug, BuildConfiguration::tr("Debug")),
-            oneBuild(BuildConfiguration::Release, BuildConfiguration::tr("Release"))
+            oneBuild(BuildConfiguration::Debug, Tr::tr("Debug")),
+            oneBuild(BuildConfiguration::Release, Tr::tr("Release"))
         };
     });
 }
+
+} // Nim

@@ -3,6 +3,7 @@
 
 #include "toolitemsettings.h"
 
+#include "mesonprojectmanagertr.h"
 #include "tooltreeitem.h"
 
 #include <utils/layoutbuilder.h>
@@ -26,8 +27,8 @@ ToolItemSettings::ToolItemSettings(QWidget *parent)
     using namespace Layouting;
 
     Form {
-        tr("Name:"), m_mesonNameLineEdit, br,
-        tr("Path:"), m_mesonPathChooser, br,
+        Tr::tr("Name:"), m_mesonNameLineEdit, br,
+        Tr::tr("Path:"), m_mesonPathChooser, br,
     }.attachTo(this, WithoutMargins);
 
     connect(m_mesonPathChooser, &PathChooser::rawPathChanged, this, &ToolItemSettings::store);

@@ -12,8 +12,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // EBlinkGdbServerProvider
 
@@ -71,8 +70,6 @@ public:
 class EBlinkGdbServerProviderConfigWidget final
         : public GdbServerProviderConfigWidget
 {
-    Q_OBJECT
-
 public:
     explicit EBlinkGdbServerProviderConfigWidget(
             EBlinkGdbServerProvider *provider);
@@ -101,6 +98,5 @@ private:
     QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal
 

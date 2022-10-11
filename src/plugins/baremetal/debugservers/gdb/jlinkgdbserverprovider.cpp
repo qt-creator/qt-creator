@@ -4,6 +4,7 @@
 #include "jlinkgdbserverprovider.h"
 
 #include <baremetal/baremetalconstants.h>
+#include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
 #include <utils/fileutils.h>
@@ -21,8 +22,7 @@
 
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 const char executableFileKeyC[] = "ExecutableFile";
 const char jlinkDeviceKeyC[] = "JLinkDevice";
@@ -40,7 +40,7 @@ JLinkGdbServerProvider::JLinkGdbServerProvider()
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 2331);
-    setTypeDisplayName(GdbServerProvider::tr("JLink"));
+    setTypeDisplayName(Tr::tr("JLink"));
     setConfigurationWidgetCreator([this] { return new JLinkGdbServerProviderConfigWidget(this); });
 }
 
@@ -166,7 +166,7 @@ bool JLinkGdbServerProvider::operator==(const IDebugServerProvider &other) const
 JLinkGdbServerProviderFactory::JLinkGdbServerProviderFactory()
 {
     setId(Constants::GDBSERVER_JLINK_PROVIDER_ID);
-    setDisplayName(GdbServerProvider::tr("JLink"));
+    setDisplayName(Tr::tr("JLink"));
     setCreator([] { return new JLinkGdbServerProvider; });
 }
 
@@ -179,58 +179,58 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
     Q_ASSERT(provider);
 
     m_hostWidget = new HostWidget(this);
-    m_mainLayout->addRow(tr("Host:"), m_hostWidget);
+    m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
 
     m_executableFileChooser = new Utils::PathChooser;
     m_executableFileChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_executableFileChooser->setCommandVersionArguments({"--version"});
     if (HostOsInfo::hostOs() == OsTypeWindows) {
-        m_executableFileChooser->setPromptDialogFilter(tr("JLink GDB Server (JLinkGDBServerCL.exe)"));
+        m_executableFileChooser->setPromptDialogFilter(Tr::tr("JLink GDB Server (JLinkGDBServerCL.exe)"));
         m_executableFileChooser->lineEdit()->setPlaceholderText("JLinkGDBServerCL.exe");
     } else {
-        m_executableFileChooser->setPromptDialogFilter(tr("JLink GDB Server (JLinkGDBServer)"));
+        m_executableFileChooser->setPromptDialogFilter(Tr::tr("JLink GDB Server (JLinkGDBServer)"));
         m_executableFileChooser->lineEdit()->setPlaceholderText("JLinkGDBServer");
     }
-    m_mainLayout->addRow(tr("Executable file:"), m_executableFileChooser);
+    m_mainLayout->addRow(Tr::tr("Executable file:"), m_executableFileChooser);
 
     // Host interface settings.
     m_hostInterfaceWidget = new QWidget(this);
     m_hostInterfaceComboBox = new QComboBox(m_hostInterfaceWidget);
     m_hostInterfaceAddressLabel = new QLabel(m_hostInterfaceWidget);
-    m_hostInterfaceAddressLabel->setText(tr("IP Address"));
+    m_hostInterfaceAddressLabel->setText(Tr::tr("IP Address"));
     m_hostInterfaceAddressLineEdit = new QLineEdit(m_hostInterfaceWidget);
     const auto hostInterfaceLayout = new QHBoxLayout(m_hostInterfaceWidget);
     hostInterfaceLayout->setContentsMargins(0, 0, 0, 0);
     hostInterfaceLayout->addWidget(m_hostInterfaceComboBox);
     hostInterfaceLayout->addWidget(m_hostInterfaceAddressLabel);
     hostInterfaceLayout->addWidget(m_hostInterfaceAddressLineEdit);
-    m_mainLayout->addRow(tr("Host interface:"), m_hostInterfaceWidget);
+    m_mainLayout->addRow(Tr::tr("Host interface:"), m_hostInterfaceWidget);
 
     // Target interface settings.
     m_targetInterfaceWidget = new QWidget(this);
     m_targetInterfaceComboBox = new QComboBox(m_targetInterfaceWidget);
     m_targetInterfaceSpeedLabel = new QLabel(m_targetInterfaceWidget);
-    m_targetInterfaceSpeedLabel->setText(tr("Speed"));
+    m_targetInterfaceSpeedLabel->setText(Tr::tr("Speed"));
     m_targetInterfaceSpeedComboBox = new QComboBox(m_targetInterfaceWidget);
     const auto targetInterfaceLayout = new QHBoxLayout(m_targetInterfaceWidget);
     targetInterfaceLayout->setContentsMargins(0, 0, 0, 0);
     targetInterfaceLayout->addWidget(m_targetInterfaceComboBox);
     targetInterfaceLayout->addWidget(m_targetInterfaceSpeedLabel);
     targetInterfaceLayout->addWidget(m_targetInterfaceSpeedComboBox);
-    m_mainLayout->addRow(tr("Target interface:"), m_targetInterfaceWidget);
+    m_mainLayout->addRow(Tr::tr("Target interface:"), m_targetInterfaceWidget);
 
     m_jlinkDeviceLineEdit = new QLineEdit(this);
-    m_mainLayout->addRow(tr("Device:"), m_jlinkDeviceLineEdit);
+    m_mainLayout->addRow(Tr::tr("Device:"), m_jlinkDeviceLineEdit);
 
     m_additionalArgumentsTextEdit = new QPlainTextEdit(this);
-    m_mainLayout->addRow(tr("Additional arguments:"), m_additionalArgumentsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Additional arguments:"), m_additionalArgumentsTextEdit);
 
     m_initCommandsTextEdit = new QPlainTextEdit(this);
     m_initCommandsTextEdit->setToolTip(defaultInitCommandsTooltip());
-    m_mainLayout->addRow(tr("Init commands:"), m_initCommandsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Init commands:"), m_initCommandsTextEdit);
     m_resetCommandsTextEdit = new QPlainTextEdit(this);
     m_resetCommandsTextEdit->setToolTip(defaultResetCommandsTooltip());
-    m_mainLayout->addRow(tr("Reset commands:"), m_resetCommandsTextEdit);
+    m_mainLayout->addRow(Tr::tr("Reset commands:"), m_resetCommandsTextEdit);
 
     populateHostInterfaces();
     populateTargetInterfaces();
@@ -297,26 +297,26 @@ void JLinkGdbServerProviderConfigWidget::discard()
 
 void JLinkGdbServerProviderConfigWidget::populateHostInterfaces()
 {
-    m_hostInterfaceComboBox->addItem(tr("Default"));
-    m_hostInterfaceComboBox->addItem(tr("USB"), "USB");
-    m_hostInterfaceComboBox->addItem(tr("TCP/IP"), "IP");
+    m_hostInterfaceComboBox->addItem(Tr::tr("Default"));
+    m_hostInterfaceComboBox->addItem(Tr::tr("USB"), "USB");
+    m_hostInterfaceComboBox->addItem(Tr::tr("TCP/IP"), "IP");
 }
 
 void JLinkGdbServerProviderConfigWidget::populateTargetInterfaces()
 {
-    m_targetInterfaceComboBox->addItem(tr("Default"));
-    m_targetInterfaceComboBox->addItem(tr("JTAG"), "JTAG");
-    m_targetInterfaceComboBox->addItem(tr("Compact JTAG"), "cJTAG");
-    m_targetInterfaceComboBox->addItem(tr("SWD"), "SWD");
-    m_targetInterfaceComboBox->addItem(tr("Renesas RX FINE"), "FINE");
-    m_targetInterfaceComboBox->addItem(tr("ICSP"), "ICSP");
+    m_targetInterfaceComboBox->addItem(Tr::tr("Default"));
+    m_targetInterfaceComboBox->addItem(Tr::tr("JTAG"), "JTAG");
+    m_targetInterfaceComboBox->addItem(Tr::tr("Compact JTAG"), "cJTAG");
+    m_targetInterfaceComboBox->addItem(Tr::tr("SWD"), "SWD");
+    m_targetInterfaceComboBox->addItem(Tr::tr("Renesas RX FINE"), "FINE");
+    m_targetInterfaceComboBox->addItem(Tr::tr("ICSP"), "ICSP");
 }
 
 void JLinkGdbServerProviderConfigWidget::populateTargetSpeeds()
 {
-    m_targetInterfaceSpeedComboBox->addItem(tr("Default"));
-    m_targetInterfaceSpeedComboBox->addItem(tr("Auto"), "auto");
-    m_targetInterfaceSpeedComboBox->addItem(tr("Adaptive"), "adaptive");
+    m_targetInterfaceSpeedComboBox->addItem(Tr::tr("Default"));
+    m_targetInterfaceSpeedComboBox->addItem(Tr::tr("Auto"), "auto");
+    m_targetInterfaceSpeedComboBox->addItem(Tr::tr("Adaptive"), "adaptive");
 
     const QStringList fixedSpeeds = {"1", "5", "10", "20", "30", "50", "100", "200", "300",
                                      "400", "500", "600", "750", "800", "900", "1000", "1334",
@@ -324,7 +324,7 @@ void JLinkGdbServerProviderConfigWidget::populateTargetSpeeds()
                                      "6000", "8000", "9600", "12000", "15000", "20000", "25000",
                                      "30000", "40000", "50000"};
     for (const auto &fixedSpeed : fixedSpeeds)
-        m_targetInterfaceSpeedComboBox->addItem(tr("%1 kHz").arg(fixedSpeed), fixedSpeed);
+        m_targetInterfaceSpeedComboBox->addItem(Tr::tr("%1 kHz").arg(fixedSpeed), fixedSpeed);
 }
 
 void JLinkGdbServerProviderConfigWidget::setHostInterface(const QString &newIface)
@@ -388,7 +388,6 @@ void JLinkGdbServerProviderConfigWidget::setFromProvider()
     m_hostInterfaceAddressLineEdit->setText(p->m_jlinkHostAddr);
     m_hostWidget->setChannel(p->channel());
     m_initCommandsTextEdit->setPlainText(p->initCommands());
-    m_jlinkDeviceLineEdit->setText( p->m_jlinkDevice);
     m_jlinkDeviceLineEdit->setText(p->m_jlinkDevice);
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
 
@@ -399,5 +398,4 @@ void JLinkGdbServerProviderConfigWidget::setFromProvider()
     updateAllowedControls();
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

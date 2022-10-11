@@ -281,7 +281,7 @@ void QmakePriFile::extractSources(
         QHash<int, QmakePriFileEvalResult *> proToResult, QmakePriFileEvalResult *fallback,
         QVector<ProFileEvaluator::SourceFile> sourceFiles, FileType type, bool cumulative)
 {
-    for (const ProFileEvaluator::SourceFile &source : qAsConst(sourceFiles)) {
+    for (const ProFileEvaluator::SourceFile &source : std::as_const(sourceFiles)) {
         auto *result = proToResult.value(source.proFileId);
         if (!result)
             result = fallback;
@@ -447,7 +447,7 @@ bool QmakePriFile::deploysFolder(const QString &folder) const
     if (!f.endsWith(slash))
         f.append(slash);
 
-    for (const QString &wf : qAsConst(m_watchedFolders)) {
+    for (const QString &wf : std::as_const(m_watchedFolders)) {
         if (f.startsWith(wf)
             && (wf.endsWith(slash)
                 || (wf.length() < f.length() && f.at(wf.length()) == slash)))
@@ -1644,7 +1644,7 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
         return;
     }
 
-    for (const QString &error : qAsConst(result->errors))
+    for (const QString &error : std::as_const(result->errors))
         QmakeBuildSystem::proFileParseError(error, filePath());
 
     // we are changing what is executed in that case

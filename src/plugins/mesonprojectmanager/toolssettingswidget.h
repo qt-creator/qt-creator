@@ -8,23 +8,21 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QCoreApplication>
-
 namespace Utils { class DetailsWidget; }
 
 namespace MesonProjectManager::Internal {
 
 class ToolTreeItem;
+
 class ToolsSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::ToolsSettingsWidget)
-    void apply() final;
-
 public:
     explicit ToolsSettingsWidget();
     ~ToolsSettingsWidget();
 
 private:
+    void apply() final;
+
     void cloneMesonTool();
     void removeMesonTool();
     void currentMesonToolChanged(const QModelIndex &newCurrent);

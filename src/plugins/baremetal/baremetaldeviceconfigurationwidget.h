@@ -6,18 +6,13 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class DebugServerProviderChooser;
-
-// BareMetalDeviceConfigurationWidget
 
 class BareMetalDeviceConfigurationWidget final
       : public ProjectExplorer::IDeviceWidget
 {
-    Q_OBJECT
-
 public:
     explicit BareMetalDeviceConfigurationWidget(const ProjectExplorer::IDevicePtr &deviceConfig);
 
@@ -28,5 +23,4 @@ private:
     DebugServerProviderChooser *m_debugServerProviderChooser = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

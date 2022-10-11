@@ -4,6 +4,7 @@
 #include "nimproject.h"
 
 #include "../nimconstants.h"
+#include "../nimtr.h"
 #include "nimbuildsystem.h"
 #include "nimtoolchain.h"
 
@@ -31,11 +32,11 @@ Tasks NimProject::projectIssues(const Kit *k) const
     Tasks result = Project::projectIssues(k);
     auto tc = dynamic_cast<NimToolChain *>(ToolChainKitAspect::toolChain(k, Constants::C_NIMLANGUAGE_ID));
     if (!tc) {
-        result.append(createProjectTask(Task::TaskType::Error, tr("No Nim compiler set.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Nim compiler set.")));
         return result;
     }
     if (!tc->compilerCommand().exists())
-        result.append(createProjectTask(Task::TaskType::Error, tr("Nim compiler does not exist.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Nim compiler does not exist.")));
 
     return result;
 }
@@ -64,4 +65,4 @@ void NimProject::setExcludedFiles(const QStringList &excludedFiles)
     m_excludedFiles = excludedFiles;
 }
 
-} // namespace Nim
+} // Nim

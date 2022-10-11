@@ -5,6 +5,7 @@
 
 #include "nimconstants.h"
 #include "nimtoolchain.h"
+#include "nimtr.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 
@@ -23,7 +24,7 @@ namespace Nim {
 
 NimToolChainFactory::NimToolChainFactory()
 {
-    setDisplayName(NimToolChain::tr("Nim"));
+    setDisplayName(Tr::tr("Nim"));
     setSupportedToolChainType(Constants::C_NIMTOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_NIMLANGUAGE_ID});
     setToolchainConstructor([] { return new NimToolChain; });
@@ -77,9 +78,9 @@ NimToolChainConfigWidget::NimToolChainConfigWidget(NimToolChain *tc)
     const auto gnuVersionArgs = QStringList("--version");
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
-    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     m_compilerVersion->setReadOnly(true);
-    m_mainLayout->addRow(tr("&Compiler version:"), m_compilerVersion);
+    m_mainLayout->addRow(Tr::tr("&Compiler version:"), m_compilerVersion);
 
     // Fill
     fillUI();

@@ -40,6 +40,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -1953,6 +1954,11 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
 
         FilePath path = forSetup ? Project::projectDirectory(projectPath) : projectPath;
 
+        // Skip the default shadow build directories for build types if we have presets
+        const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+        if (!presetItem.isNull())
+            return result;
+
         for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
             BuildInfo info = createBuildInfo(BuildType(type));
             if (forSetup) {
@@ -1979,6 +1985,8 @@ CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildT
         return BuildTypeRelWithDebInfo;
     if (bt == "minsizerel")
         return BuildTypeMinSizeRel;
+    if (bt == "profile")
+        return BuildTypeProfile;
     return BuildTypeNone;
 }
 

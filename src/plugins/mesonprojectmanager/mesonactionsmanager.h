@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "mesonprojectmanagertr.h"
+
 #include <utils/parameteraction.h>
 
 namespace MesonProjectManager {
@@ -12,7 +14,8 @@ class MesonActionsManager : public QObject
 {
     Q_OBJECT
     Utils::ParameterAction buildTargetContextAction{
-        tr("Build"), tr("Build \"%1\""), Utils::ParameterAction::AlwaysEnabled /*handled manually*/
+        Tr::tr("Build"), Tr::tr("Build \"%1\""),
+        Utils::ParameterAction::AlwaysEnabled /*handled manually*/
     };
     QAction configureActionMenu;
     QAction configureActionContextMenu;

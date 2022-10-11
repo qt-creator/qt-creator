@@ -148,15 +148,17 @@ public:
     void setTimeOutMessageBoxEnabled(bool);
     void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
 
-    void setStdOutCallback(const std::function<void(const QString &)> &callback);
-    void setStdOutLineCallback(const std::function<void(const QString &)> &callback);
-    void setStdErrCallback(const std::function<void(const QString &)> &callback);
-    void setStdErrLineCallback(const std::function<void(const QString &)> &callback);
+    void setStdOutCallback(const TextChannelCallback &callback);
+    void setStdOutLineCallback(const TextChannelCallback &callback);
+    void setStdErrCallback(const TextChannelCallback &callback);
+    void setStdErrLineCallback(const TextChannelCallback &callback);
+
+    void setTextChannelMode(Channel channel, TextChannelMode mode);
+    TextChannelMode textChannelMode(Channel channel) const;
 
     bool readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int timeoutS = 30);
 
     ProcessResult result() const;
-    void setResult(const ProcessResult &result);
 
     QByteArray allRawOutput() const;
     QString allOutput() const;
@@ -182,6 +184,8 @@ signals:
     void done();     // On Starting | Running -> NotRunning state transition
     void readyReadStandardOutput();
     void readyReadStandardError();
+    void textOnStandardOutput(const QString &text);
+    void textOnStandardError(const QString &text);
 
 private:
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const QtcProcess &r);

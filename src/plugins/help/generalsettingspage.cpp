@@ -425,7 +425,7 @@ void GeneralSettingsPage::updateFontSizeSelector()
     //  try to maintain selection or select closest.
     if (!pointSizes.empty()) {
         QString n;
-        for (int pointSize : qAsConst(pointSizes))
+        for (int pointSize : std::as_const(pointSizes))
             m_widget->sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
         const int closestIndex = closestPointSizeIndex(m_font.pointSize());
         if (closestIndex != -1)

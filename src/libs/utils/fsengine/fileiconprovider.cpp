@@ -121,27 +121,22 @@ QIcon FileIconProviderImplementation::icon(IconType type) const
     return QFileIconProvider::icon(type);
 }
 
-QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
-{
-    return icon(FilePath::fromString(fi.filePath()));
-}
-
 QString FileIconProviderImplementation::type(const QFileInfo &fi) const
 {
     const FilePath fPath = FilePath::fromString(fi.filePath());
     if (fPath.needsDevice()) {
-        if (fPath.isDir()) {
+        if (fi.isDir()) {
 #ifdef Q_OS_WIN
         return QGuiApplication::translate("QAbstractFileIconProvider", "File Folder", "Match Windows Explorer");
 #else
         return QGuiApplication::translate("QAbstractFileIconProvider", "Folder", "All other platforms");
 #endif
         }
-        if (fPath.isExecutableFile()) {
+        if (fi.isExecutable()) {
             return "Program";
         }
 
-        return QFileIconProvider::type(fi);
+        return "File";
     }
     return QFileIconProvider::type(fi);
 }
@@ -166,6 +161,55 @@ static const QIcon &unknownFileIcon()
 static const QIcon &dirIcon()
 {
     static const QIcon icon(QApplication::style()->standardIcon(QStyle::SP_DirIcon));
+    return icon;
+}
+
+QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
+{
+    qCDebug(fileIconProvider) << "FileIconProvider::icon" << fi.absoluteFilePath();
+
+    const FilePath filePath = FilePath::fromString(fi.filePath());
+
+    if (filePath.isEmpty())
+        return unknownFileIcon();
+
+    // Check if its one of the virtual devices directories
+    if (filePath.path().startsWith(
+            FilePath::specialPath(FilePath::SpecialPathComponent::RootPath))) {
+        // If the filepath does not need a device, it is a virtual device directory
+        if (!filePath.needsDevice())
+            return dirIcon();
+    }
+
+    bool isDir = fi.isDir();
+
+    // Check for cached overlay icons by file suffix.
+    const QString filename = !isDir ? fi.fileName() : QString();
+    if (!filename.isEmpty()) {
+        const std::optional<QIcon> icon = getIcon(m_filenameCache, filename);
+        if (icon)
+            return *icon;
+    }
+
+    const QString suffix = !isDir ? fi.suffix() : QString();
+    if (!suffix.isEmpty()) {
+        const std::optional<QIcon> icon = getIcon(m_suffixCache, suffix);
+        if (icon)
+            return *icon;
+    }
+
+    if (filePath.needsDevice())
+        return isDir ? dirIcon() : unknownFileIcon();
+
+    // Get icon from OS (and cache it based on suffix!)
+    QIcon icon;
+    if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
+        icon = QFileIconProvider::icon(filePath.toFileInfo());
+    else // File icons are unknown on linux systems.
+        icon = isDir ? QFileIconProvider::icon(filePath.toFileInfo()) : unknownFileIcon();
+
+    if (!isDir && !suffix.isEmpty())
+        m_suffixCache.insert(suffix, icon);
     return icon;
 }
 

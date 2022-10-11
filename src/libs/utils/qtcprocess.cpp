@@ -12,6 +12,7 @@
 #include "processreaper.h"
 #include "processutils.h"
 #include "terminalprocess_p.h"
+#include "threadutils.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -62,25 +63,25 @@ public:
         timer.start();
         auto cleanup = qScopeGuard([this, &timer] {
             const qint64 currentNsecs = timer.nsecsElapsed();
-            const bool isMainThread = QThread::currentThread() == qApp->thread();
+            const bool mainThread = isMainThread();
             const int hitThisAll = m_hitThisAll.fetch_add(1) + 1;
             const int hitAllAll = m_hitAllAll.fetch_add(1) + 1;
-            const int hitThisMain = isMainThread
+            const int hitThisMain = mainThread
                     ? m_hitThisMain.fetch_add(1) + 1
                     : m_hitThisMain.load();
-            const int hitAllMain = isMainThread
+            const int hitAllMain = mainThread
                     ? m_hitAllMain.fetch_add(1) + 1
                     : m_hitAllMain.load();
             const qint64 totalThisAll = toMs(m_totalThisAll.fetch_add(currentNsecs) + currentNsecs);
             const qint64 totalAllAll = toMs(m_totalAllAll.fetch_add(currentNsecs) + currentNsecs);
-            const qint64 totalThisMain = toMs(isMainThread
+            const qint64 totalThisMain = toMs(mainThread
                     ? m_totalThisMain.fetch_add(currentNsecs) + currentNsecs
                     : m_totalThisMain.load());
-            const qint64 totalAllMain = toMs(isMainThread
+            const qint64 totalAllMain = toMs(mainThread
                     ? m_totalAllMain.fetch_add(currentNsecs) + currentNsecs
                     : m_totalAllMain.load());
             printMeasurement(QLatin1String(m_functionName), hitThisAll, toMs(currentNsecs),
-                             totalThisAll, hitAllAll, totalAllAll, isMainThread,
+                             totalThisAll, hitAllAll, totalAllAll, mainThread,
                              hitThisMain, totalThisMain, hitAllMain, totalAllMain);
         });
         return std::invoke(std::forward<Function>(function), std::forward<Args>(args)...);
@@ -187,6 +188,7 @@ public:
     QTextCodec *codec = nullptr; // Not owner
     std::unique_ptr<QTextCodec::ConverterState> codecState;
     std::function<void(const QString &lines)> outputCallback;
+    TextChannelMode m_textChannelMode = TextChannelMode::Off;
 
     bool emitSingleLines = true;
     bool keepRawData = true;
@@ -1211,7 +1213,7 @@ void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
 static bool askToKill(const QString &command)
 {
 #ifdef QT_GUI_LIB
-    if (QThread::currentThread() != QCoreApplication::instance()->thread())
+    if (!isMainThread())
         return true;
     const QString title = QtcProcess::tr("Process Not Responding");
     QString msg = command.isEmpty() ?
@@ -1292,11 +1294,6 @@ QString QtcProcess::normalizeNewlines(const QString &text)
 ProcessResult QtcProcess::result() const
 {
     return d->m_result;
-}
-
-void QtcProcess::setResult(const ProcessResult &result)
-{
-    d->m_result = result;
 }
 
 ProcessResultData QtcProcess::resultData() const
@@ -1774,13 +1771,6 @@ void QtcProcess::setWriteData(const QByteArray &writeData)
     d->m_setup.m_writeData = writeData;
 }
 
-#ifdef QT_GUI_LIB
-static bool isGuiThread()
-{
-    return QThread::currentThread() == QCoreApplication::instance()->thread();
-}
-#endif
-
 void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
 {
     // Attach a dynamic property with info about blocking type
@@ -1801,7 +1791,7 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
             timer.setInterval(1000);
             timer.start();
 #ifdef QT_GUI_LIB
-            if (isGuiThread())
+            if (isMainThread())
                 QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
             QEventLoop eventLoop(this);
@@ -1811,7 +1801,7 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
             d->m_eventLoop = nullptr;
             timer.stop();
 #ifdef QT_GUI_LIB
-            if (isGuiThread())
+            if (isMainThread())
                 QApplication::restoreOverrideCursor();
 #endif
         }
@@ -1831,30 +1821,72 @@ void QtcProcess::runBlocking(EventLoopMode eventLoopMode)
     }
 }
 
-void QtcProcess::setStdOutCallback(const std::function<void (const QString &)> &callback)
+void QtcProcess::setStdOutCallback(const TextChannelCallback &callback)
 {
     d->m_stdOut.outputCallback = callback;
     d->m_stdOut.emitSingleLines = false;
 }
 
-void QtcProcess::setStdOutLineCallback(const std::function<void (const QString &)> &callback)
+void QtcProcess::setStdOutLineCallback(const TextChannelCallback &callback)
 {
     d->m_stdOut.outputCallback = callback;
     d->m_stdOut.emitSingleLines = true;
     d->m_stdOut.keepRawData = false;
 }
 
-void QtcProcess::setStdErrCallback(const std::function<void (const QString &)> &callback)
+void QtcProcess::setStdErrCallback(const TextChannelCallback &callback)
 {
     d->m_stdErr.outputCallback = callback;
     d->m_stdErr.emitSingleLines = false;
 }
 
-void QtcProcess::setStdErrLineCallback(const std::function<void (const QString &)> &callback)
+void QtcProcess::setStdErrLineCallback(const TextChannelCallback &callback)
 {
     d->m_stdErr.outputCallback = callback;
     d->m_stdErr.emitSingleLines = true;
     d->m_stdErr.keepRawData = false;
+}
+
+void QtcProcess::setTextChannelMode(Channel channel, TextChannelMode mode)
+{
+    const TextChannelCallback outputCb = [this](const QString &text) {
+        GuardLocker locker(d->m_guard);
+        emit textOnStandardOutput(text);
+    };
+    const TextChannelCallback errorCb = [this](const QString &text) {
+        GuardLocker locker(d->m_guard);
+        emit textOnStandardError(text);
+    };
+    const TextChannelCallback callback = (channel == Channel::Output) ? outputCb : errorCb;
+    ChannelBuffer *buffer = channel == Channel::Output ? &d->m_stdOut : &d->m_stdErr;
+    QTC_ASSERT(buffer->m_textChannelMode == TextChannelMode::Off, qWarning()
+               << "QtcProcess::setTextChannelMode(): Changing text channel mode for"
+               << (channel == Channel::Output ? "Output": "Error")
+               << "channel while it was previously set for this channel.");
+    buffer->m_textChannelMode = mode;
+    switch (mode) {
+    case TextChannelMode::Off:
+        buffer->outputCallback = {};
+        buffer->emitSingleLines = true;
+        buffer->keepRawData = true;
+        break;
+    case TextChannelMode::SingleLine:
+        buffer->outputCallback = callback;
+        buffer->emitSingleLines = true;
+        buffer->keepRawData = false;
+        break;
+    case TextChannelMode::MultiLine:
+        buffer->outputCallback = callback;
+        buffer->emitSingleLines = false;
+        buffer->keepRawData = true;
+        break;
+    }
+}
+
+TextChannelMode QtcProcess::textChannelMode(Channel channel) const
+{
+    ChannelBuffer *buffer = channel == Channel::Output ? &d->m_stdOut : &d->m_stdErr;
+    return buffer->m_textChannelMode;
 }
 
 void QtcProcessPrivate::slotTimeout()

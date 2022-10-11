@@ -718,7 +718,7 @@ void QmakeBuildSystem::asyncUpdate()
         project()->updateExtraProjectFiles(docUpdater);
         rootProFile()->asyncUpdate();
     } else {
-        for (QmakeProFile *file : qAsConst(m_partialEvaluate))
+        for (QmakeProFile *file : std::as_const(m_partialEvaluate))
             file->asyncUpdate();
     }
 
@@ -1024,7 +1024,7 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qma
         // where a given directory watcher actual comes from...
 
         QStringList toRemove;
-        for (const QString &rwf : qAsConst(m_recursiveWatchedFolders)) {
+        for (const QString &rwf : std::as_const(m_recursiveWatchedFolders)) {
             if (rwf.startsWith(folder)) {
                 // So the rwf is a subdirectory of a folder we aren't watching
                 // but maybe someone else wants us to watch
@@ -1043,7 +1043,7 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qma
             }
         }
 
-        for (const QString &tr : qAsConst(toRemove))
+        for (const QString &tr : std::as_const(toRemove))
             m_recursiveWatchedFolders.remove(tr);
     }
 }
@@ -1056,7 +1056,7 @@ void CentralizedFolderWatcher::folderChanged(const QString &folder)
 
 void CentralizedFolderWatcher::onTimer()
 {
-    for (const QString &folder : qAsConst(m_changedFolders))
+    for (const QString &folder : std::as_const(m_changedFolders))
         delayedFolderChanged(folder);
     m_changedFolders.clear();
 }

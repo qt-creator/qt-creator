@@ -7,9 +7,7 @@
 
 #include <memory>
 
-namespace BareMetal {
-namespace Gen {
-namespace Xml {
+namespace BareMetal::Gen::Xml {
 
 class INodeVisitor;
 
@@ -55,6 +53,4 @@ private:
     std::vector<std::unique_ptr<Property>> m_children;
 };
 
-} // namespace Xml
-} // namespace Gen
-} // namespace BareMetal
+} // BareMetal::Gen::Xml

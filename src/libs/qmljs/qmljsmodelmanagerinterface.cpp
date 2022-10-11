@@ -7,7 +7,6 @@
 #include "qmljsinterpreter.h"
 #include "qmljsmodelmanagerinterface.h"
 #include "qmljsplugindumper.h"
-#include "qmljstypedescriptionreader.h"
 #include "qmljsdialect.h"
 #include "qmljsviewercontext.h"
 #include "qmljsutils.h"
@@ -989,7 +988,7 @@ void ModelManagerInterface::parseLoop(QSet<Utils::FilePath> &scannedPaths,
             ExtensionSystem::PluginManager::waitForScenarioFullyInitialized();
             if (ExtensionSystem::PluginManager::finishScenario()) {
                 qDebug() << "Point 1: Shutdown triggered";
-                QThread::currentThread()->sleep(2);
+                QThread::sleep(2);
                 qDebug() << "Point 3: If Point 2 was already reached, expect a crash now";
             }
         }

@@ -11,8 +11,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // Helpers:
 
@@ -137,8 +136,7 @@ void SdccParser::flush()
     m_lines = 0;
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal
 
 // Unit tests:
 
@@ -147,8 +145,7 @@ void SdccParser::flush()
 #include <projectexplorer/outputparser_test.h>
 #include <QTest>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 void BareMetalPlugin::testSdccOutputParsers_data()
 {
@@ -310,7 +307,6 @@ void BareMetalPlugin::testSdccOutputParsers()
                           outputLines);
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal
 
 #endif // WITH_TESTS

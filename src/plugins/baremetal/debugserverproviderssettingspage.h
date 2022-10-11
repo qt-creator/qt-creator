@@ -15,8 +15,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class DetailsWidget; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class DebugServerProviderNode;
 class DebugServerProvidersSettingsWidget;
@@ -66,5 +65,4 @@ public:
     DebugServerProvidersSettingsPage();
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

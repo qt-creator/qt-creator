@@ -4,6 +4,7 @@
 #include "fsengine_impl.h"
 
 #include "diriterator.h"
+#include "filepathinfocache.h"
 
 #include "../filepath.h"
 #include "../qtcassert.h"
@@ -14,6 +15,15 @@
 namespace Utils {
 
 namespace Internal {
+
+FilePathInfoCache g_filePathInfoCache;
+
+FilePathInfoCache::CachedData createCacheData(const FilePath &filePath) {
+    FilePathInfoCache::CachedData data;
+    data.filePathInfo = filePath.filePathInfo();
+    data.timeout = QDateTime::currentDateTime().addSecs(60);
+    return data;
+};
 
 FSEngineImpl::FSEngineImpl(FilePath filePath)
     : m_filePath(std::move(filePath))
@@ -30,6 +40,10 @@ bool FSEngineImpl::open(QIODeviceBase::OpenMode openMode, std::optional<QFile::P
 bool FSEngineImpl::open(QIODevice::OpenMode openMode)
 #endif
 {
+    const FilePathInfoCache::CachedData data = g_filePathInfoCache.cached(m_filePath,
+                                                                          createCacheData);
+    bool exists = (data.filePathInfo.fileFlags & QAbstractFileEngine::ExistsFlag);
+
     ensureStorage();
 
     QTC_ASSERT(m_tempStorage->open(), return false);
@@ -38,10 +52,10 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
     bool write = openMode & QIODevice::WriteOnly;
     bool append = openMode & QIODevice::Append;
 
-    if (!write && !m_filePath.exists())
+    if (!write && !exists)
         return false;
 
-    if (openMode & QIODevice::NewOnly && m_filePath.exists())
+    if (openMode & QIODevice::NewOnly && exists)
         return false;
 
     if (read || append) {
@@ -88,7 +102,7 @@ bool FSEngineImpl::syncToDisk()
 
 qint64 FSEngineImpl::size() const
 {
-    return m_filePath.fileSize();
+    return g_filePathInfoCache.cached(m_filePath, createCacheData).filePathInfo.fileSize;
 }
 
 qint64 FSEngineImpl::pos() const
@@ -175,8 +189,12 @@ QStringList FSEngineImpl::entryList(QDir::Filters filters, const QStringList &fi
 {
     QStringList result;
     m_filePath.iterateDirectory(
-        [&result](const FilePath &p) {
+        [&result](const FilePath &p, const FilePathInfo &fi) {
             result.append(p.toFSPathString());
+            g_filePathInfoCache
+                .cache(p,
+                       new FilePathInfoCache::CachedData{fi,
+                                                         QDateTime::currentDateTime().addSecs(60)});
             return true;
         },
         {filterNames, filters});
@@ -185,22 +203,8 @@ QStringList FSEngineImpl::entryList(QDir::Filters filters, const QStringList &fi
 
 QAbstractFileEngine::FileFlags FSEngineImpl::fileFlags(FileFlags type) const
 {
-    FileFlags result{0};
-
-    if (type & FileInfoAll && m_filePath.exists()) {
-        result |= QAbstractFileEngine::ExistsFlag;
-
-        if (type & DirectoryType && m_filePath.isDir())
-            result |= QAbstractFileEngine::DirectoryType;
-        if (type & FileType && m_filePath.isFile())
-            result |= QAbstractFileEngine::FileType;
-
-        if (type & PermsMask) {
-            result |= FileFlags::fromInt(m_filePath.permissions().toInt());
-        }
-    }
-
-    return result;
+    Q_UNUSED(type);
+    return {g_filePathInfoCache.cached(m_filePath, createCacheData).filePathInfo.fileFlags.toInt()};
 }
 
 bool FSEngineImpl::setPermissions(uint /*perms*/)
@@ -265,7 +269,7 @@ bool FSEngineImpl::setFileTime(const QDateTime &newDate, FileTime time)
 QDateTime FSEngineImpl::fileTime(FileTime time) const
 {
     Q_UNUSED(time)
-    return m_filePath.lastModified();
+    return g_filePathInfoCache.cached(m_filePath, createCacheData).filePathInfo.lastModified;
 }
 
 void FSEngineImpl::setFileName(const QString &file)
@@ -289,8 +293,12 @@ QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filter
 {
     FilePaths paths{m_filePath.pathAppended(".")};
     m_filePath.iterateDirectory(
-        [&paths](const FilePath &p) {
+        [&paths](const FilePath &p, const FilePathInfo &fi) {
             paths.append(p);
+            FilePathInfoCache::CachedData *data
+                = new FilePathInfoCache::CachedData{fi,
+                                                    QDateTime::currentDateTime().addSecs(60)};
+            g_filePathInfoCache.cache(p, data);
             return true;
         },
         {filterNames, filters});

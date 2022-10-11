@@ -29,17 +29,9 @@ public:
              const QString &projectName,
              bool captureStdo = false);
 
-    QProcess::ProcessState state() const;
-
-    // Update progress information:
-    void reportCanceled();
-    void reportFinished();
-    void setProgressValue(int p);
-
     const QByteArray &stdOut() const { return m_stdo; }
     const QByteArray &stdErr() const { return m_stderr; }
 signals:
-    void started();
     void finished(int exitCode, QProcess::ExitStatus exitStatus);
     void readyReadStandardOutput(const QByteArray &data);
 
@@ -55,12 +47,10 @@ private:
 
     std::unique_ptr<Utils::QtcProcess> m_process;
     QFutureInterface<void> m_future;
-    bool m_processWasCanceled = false;
     QTimer m_cancelTimer;
     QElapsedTimer m_elapsed;
     QByteArray m_stdo;
     QByteArray m_stderr;
-    Command m_currentCommand;
 };
 
 } // namespace Internal

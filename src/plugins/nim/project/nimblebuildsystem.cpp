@@ -4,8 +4,6 @@
 #include "nimblebuildsystem.h"
 
 #include "nimbuildsystem.h"
-#include "nimbleproject.h"
-#include "nimproject.h"
 #include "../nimconstants.h"
 
 #include <projectexplorer/target.h>

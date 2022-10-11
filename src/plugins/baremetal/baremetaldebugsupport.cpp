@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "baremetaldebugsupport.h"
+
 #include "baremetaldevice.h"
+#include "baremetaltr.h"
 
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
@@ -27,24 +29,21 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
-
-// BareMetalDebugSupport
+namespace BareMetal::Internal {
 
 BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
     : Debugger::DebuggerRunTool(runControl)
 {
     const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
     if (!dev) {
-        reportFailure(tr("Cannot debug: Kit has no device."));
+        reportFailure(Tr::tr("Cannot debug: Kit has no device."));
         return;
     }
 
     const QString providerId = dev->debugServerProviderId();
     IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
     if (!p) {
-        reportFailure(tr("No debug server provider found for %1").arg(providerId));
+        reportFailure(Tr::tr("No debug server provider found for %1").arg(providerId));
         return;
     }
 
@@ -67,5 +66,4 @@ void BareMetalDebugSupport::start()
         DebuggerRunTool::start();
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

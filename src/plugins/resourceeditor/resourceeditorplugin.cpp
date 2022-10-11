@@ -28,10 +28,8 @@
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/threadutils.h>
 
 #include <QAction>
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QFormLayout>

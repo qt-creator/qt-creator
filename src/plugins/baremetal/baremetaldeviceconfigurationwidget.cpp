@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "baremetaldevice.h"
-#include "baremetaldeviceconfigurationwidget.h"
 
+#include "baremetaldeviceconfigurationwidget.h"
+#include "baremetaltr.h"
 #include "debugserverproviderchooser.h"
 
 #include <utils/qtcassert.h>
@@ -12,10 +13,7 @@
 
 #include <QFormLayout>
 
-namespace BareMetal {
-namespace Internal {
-
-// BareMetalDeviceConfigurationWidget
+namespace BareMetal::Internal {
 
 BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
         const ProjectExplorer::IDevice::Ptr &deviceConfig)
@@ -30,7 +28,7 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
     m_debugServerProviderChooser = new DebugServerProviderChooser(true, this);
     m_debugServerProviderChooser->populate();
     m_debugServerProviderChooser->setCurrentProviderId(dev->debugServerProviderId());
-    formLayout->addRow(tr("Debug server provider:"), m_debugServerProviderChooser);
+    formLayout->addRow(Tr::tr("Debug server provider:"), m_debugServerProviderChooser);
 
     connect(m_debugServerProviderChooser, &DebugServerProviderChooser::providerChanged,
             this, &BareMetalDeviceConfigurationWidget::debugServerProviderChanged);
@@ -48,5 +46,4 @@ void BareMetalDeviceConfigurationWidget::updateDeviceFromUi()
     debugServerProviderChanged();
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

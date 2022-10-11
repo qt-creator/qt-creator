@@ -127,7 +127,7 @@ void SquishToolkitsPage::fetchServerSettings()
     QTC_ASSERT(squishTools, return);
 
     connect(squishTools, &SquishTools::queryFinished, this,
-            [this] (const QString &out) {
+            [this] (const QString &out, const QString &error) {
         SquishServerSettings s;
         s.setFromXmlOutput(out);
         QApplication::restoreOverrideCursor();
@@ -143,6 +143,11 @@ void SquishToolkitsPage::fetchServerSettings()
             }
         }
         m_hiddenLineEdit->setText(s.mappedAuts.keys().join('\n'));
+
+        if (!error.isEmpty()) {
+            m_errorLabel->setText(error);
+            m_errorLabel->setVisible(true);
+        }
     });
     QApplication::setOverrideCursor(Qt::WaitCursor);
     squishTools->queryServerSettings();

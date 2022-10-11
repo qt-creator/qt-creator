@@ -3,6 +3,9 @@
 
 #include "suiteconf.h"
 
+#include "squishplugin.h"
+#include "squishsettings.h"
+
 #include <coreplugin/documentmanager.h>
 
 #include <utils/algorithm.h>
@@ -186,7 +189,7 @@ Utils::FilePath SuiteConf::objectMapPath() const
     if (m_objectMapStyle == "script")
         return suiteDir.resolvePath("shared/scripts/names" + scriptExtension());
 
-    return suiteDir.resolvePath(m_objectMap);
+    return suiteDir.resolvePath(m_objectMap.isEmpty() ? QString{"objects.map"} : m_objectMap);
 }
 
 QString SuiteConf::scriptExtension() const
@@ -282,6 +285,32 @@ SuiteConf SuiteConf::readSuiteConf(const Utils::FilePath &suiteConfPath)
     SuiteConf suiteConf(suiteConfPath);
     suiteConf.read();
     return suiteConf;
+}
+
+bool SuiteConf::ensureObjectMapExists() const
+{
+    if (m_objectMapStyle != "script") {
+        const Utils::FilePath objectMap = objectMapPath();
+        bool ok = objectMap.parentDir().ensureWritableDir();
+        ok |= objectMap.ensureExistingFile();
+        return ok;
+    }
+
+    const Utils::FilePath scripts = SquishPlugin::squishSettings()->scriptsPath(language());
+    QTC_ASSERT(scripts.exists(), return false);
+
+    const QString extension = scriptExtension();
+    const Utils::FilePath destinationObjectMap = m_filePath.parentDir()
+            .pathAppended("shared/scripts/names" + extension);
+    if (destinationObjectMap.exists()) // do not overwrite existing
+        return true;
+
+    const Utils::FilePath objectMap = scripts.pathAppended("objectmap_template" + extension);
+    bool ok = destinationObjectMap.parentDir().ensureWritableDir();
+    QTC_ASSERT(ok, return false);
+    ok = objectMap.copyFile(destinationObjectMap);
+    QTC_ASSERT(ok, return false);
+    return ok;
 }
 
 } // namespace Internal

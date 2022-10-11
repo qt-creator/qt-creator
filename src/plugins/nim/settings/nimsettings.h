@@ -12,8 +12,6 @@ namespace Nim {
 
 class NimSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim::NimSettings)
-
 public:
     NimSettings();
     ~NimSettings();
@@ -33,5 +31,5 @@ public:
     explicit NimToolsSettingsPage(NimSettings *settings);
 };
 
-} // namespace Nim
+} // Nim
 

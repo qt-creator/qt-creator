@@ -41,13 +41,13 @@
     The following image displays the context sensitive help in the \uicontrol Edit
     mode.
 
-    \image qtcreator-context-sensitive-help.png
+    \image qtcreator-context-sensitive-help.png "Context-sensitive help in Edit mode"
 
     If the help HTML file does not use a style sheet, you can change the font
     family, style, and size in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Help > \uicontrol General.
 
-    \image qtcreator-help-options.png "Help General preferences"
+    \image qtcreator-help-options.png "General tab in Help preferences"
 
     You can set the default zoom level in the \uicontrol Zoom field. When
     viewing help pages, you can use the mouse scroll wheel to zoom them. To

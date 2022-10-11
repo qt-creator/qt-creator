@@ -185,9 +185,11 @@ protected:
     // Make sure to call this function when deriving!
     virtual bool fromMap(const QVariantMap &data);
 
+    enum class PossiblyConcatenatedFlag { No, Yes };
     static QStringList includedFiles(const QString &option,
                                      const QStringList &flags,
-                                     const QString &directoryPath);
+                                     const QString &directoryPath,
+                                     PossiblyConcatenatedFlag possiblyConcatenated);
 
 private:
     ToolChain(const ToolChain &) = delete;

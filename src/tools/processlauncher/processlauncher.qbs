@@ -40,6 +40,8 @@ QtcTool {
             "qtcassert.h",
             "singleton.cpp",
             "singleton.h",
+            "threadutils.cpp",
+            "threadutils.h",
         ]
     }
 }

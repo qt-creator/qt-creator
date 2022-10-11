@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "nimcodestylesettingspage.h"
-#include "nimcodestylepreferencesfactory.h"
-#include "nimsettings.h"
 
 #include "../nimconstants.h"
+#include "../nimtr.h"
+#include "nimsettings.h"
 
 #include <texteditor/simplecodestylepreferences.h>
 #include <texteditor/codestyleeditor.h>
@@ -20,8 +20,6 @@ namespace Nim {
 
 class NimCodeStyleSettingsWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim::CodeStyleSettings)
-
 public:
     NimCodeStyleSettingsWidget()
     {
@@ -38,6 +36,7 @@ public:
 
         auto layout = new QVBoxLayout(this);
         layout->addWidget(editor);
+        layout->setContentsMargins(0, 0, 0, 0);
     }
 
 private:
@@ -50,9 +49,9 @@ private:
 NimCodeStyleSettingsPage::NimCodeStyleSettingsPage()
 {
     setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
-    setDisplayName(tr(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_DISPLAY));
+    setDisplayName(Tr::tr("Code Style"));
     setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
-    setDisplayCategory(NimCodeStyleSettingsWidget::tr("Nim"));
+    setDisplayCategory(Tr::tr("Nim"));
     setCategoryIconPath(":/nim/images/settingscategory_nim.png");
     setWidgetCreator([] { return new NimCodeStyleSettingsWidget; });
 }

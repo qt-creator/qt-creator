@@ -513,8 +513,7 @@ FilePaths FilePath::dirEntries(QDir::Filters filters) const
 // either of the specified \a nameFilters.
 // An empty \nameFilters list matches every name.
 
-void FilePath::iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
-                                const FileFilter &filter) const
+void FilePath::iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.iterateDirectory, return);
@@ -529,8 +528,25 @@ void FilePath::iterateDirectory(const std::function<bool(const FilePath &item)> 
     }
 }
 
+void FilePath::iterateDirectory(const IterateDirWithInfoCallback &callBack,
+                                const FileFilter &filter) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.iterateDirectoryWithInfo, return);
+        s_deviceHooks.iterateDirectoryWithInfo(*this, callBack, filter);
+        return;
+    }
+
+    QDirIterator it(path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
+    while (it.hasNext()) {
+        const FilePath path = FilePath::fromString(it.next());
+        if (!callBack(path, path.filePathInfo()))
+            return;
+    }
+}
+
 void FilePath::iterateDirectories(const FilePaths &dirs,
-                                  const std::function<bool(const FilePath &)> &callBack,
+                                  const IterateDirCallback &callBack,
                                   const FileFilter &filter)
 {
     for (const FilePath &dir : dirs)
@@ -586,28 +602,64 @@ void FilePath::asyncFileContents(const Continuation<const std::optional<QByteArr
     cont(fileContents(maxSize, offset));
 }
 
-bool FilePath::writeFileContents(const QByteArray &data) const
+bool FilePath::writeFileContents(const QByteArray &data, qint64 offset) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.writeFileContents, return {});
-        return s_deviceHooks.writeFileContents(*this, data);
+        return s_deviceHooks.writeFileContents(*this, data, offset);
     }
 
     QFile file(path());
     QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return false);
+    if (offset != 0)
+        file.seek(offset);
     qint64 res = file.write(data);
     return res == data.size();
 }
 
-void FilePath::asyncWriteFileContents(const Continuation<bool> &cont, const QByteArray &data) const
+FilePathInfo FilePath::filePathInfo() const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.filePathInfo, return {});
+        return s_deviceHooks.filePathInfo(*this);
+    }
+
+    FilePathInfo result;
+
+    QFileInfo fi(path());
+    result.fileSize = fi.size();
+    result.lastModified = fi.lastModified();
+    result.fileFlags = (FilePathInfo::FileFlag) fi.permissions().toInt();
+
+    if (fi.isDir())
+        result.fileFlags |= FilePathInfo::DirectoryType;
+    if (fi.isFile())
+        result.fileFlags |= FilePathInfo::FileType;
+    if (fi.exists())
+        result.fileFlags |= FilePathInfo::ExistsFlag;
+    if (fi.isSymbolicLink())
+        result.fileFlags |= FilePathInfo::LinkType;
+    if (fi.isBundle())
+        result.fileFlags |= FilePathInfo::BundleType;
+    if (fi.isHidden())
+        result.fileFlags |= FilePathInfo::HiddenFlag;
+    if (fi.isRoot())
+        result.fileFlags |= FilePathInfo::RootFlag;
+
+    return result;
+}
+
+void FilePath::asyncWriteFileContents(const Continuation<bool> &cont,
+                                      const QByteArray &data,
+                                      qint64 offset) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.asyncWriteFileContents, return);
-        s_deviceHooks.asyncWriteFileContents(cont, *this, data);
+        s_deviceHooks.asyncWriteFileContents(cont, *this, data, offset);
         return;
     }
 
-    cont(writeFileContents(data));
+    cont(writeFileContents(data, offset));
 }
 
 bool FilePath::needsDevice() const
@@ -733,9 +785,9 @@ FilePath FilePath::absolutePath() const
 FilePath FilePath::absoluteFilePath() const
 {
     if (isAbsolutePath())
-        return *this;
+        return cleanPath();
     if (!needsDevice() && isEmpty())
-        return *this;
+        return cleanPath();
 
     return FilePath::currentWorkingPath().resolvePath(*this);
 }
@@ -1830,17 +1882,18 @@ FileFilter::FileFilter(const QStringList &nameFilters,
 {
 }
 
-QStringList FileFilter::asFindArguments() const
+QStringList FileFilter::asFindArguments(const QString &path) const
 {
     QStringList arguments;
 
     const QDir::Filters filters = fileFilters;
-    if (filters & QDir::NoSymLinks)
-        arguments.prepend("-H");
-    else
-        arguments.prepend("-L");
 
-    arguments.append({"-mindepth", "1"});
+    if (iteratorFlags.testFlag(QDirIterator::FollowSymlinks))
+        arguments << "-L";
+    else
+        arguments << "-H";
+
+    arguments << path;
 
     if (!iteratorFlags.testFlag(QDirIterator::Subdirectories))
         arguments.append({"-maxdepth", "1"});
@@ -1850,14 +1903,23 @@ QStringList FileFilter::asFindArguments() const
     if (!(filters & QDir::Hidden))
         filterOptions << "!" << "-name" << ".*";
 
+    QStringList typesToList;
+
     QStringList filterFilesAndDirs;
-    if (filters & QDir::Dirs)
+    if (filters.testFlag(QDir::Dirs))
         filterFilesAndDirs << "-type" << "d";
-    if (filters & QDir::Files) {
+    if (filters.testFlag(QDir::Files)) {
         if (!filterFilesAndDirs.isEmpty())
             filterFilesAndDirs << "-o";
         filterFilesAndDirs << "-type" << "f";
     }
+
+    if (!filters.testFlag(QDir::NoSymLinks)) {
+        if (!filterFilesAndDirs.isEmpty())
+            filterFilesAndDirs << "-o";
+        filterFilesAndDirs << "-type" << "l";
+    }
+
     if (!filterFilesAndDirs.isEmpty())
         filterOptions << "(" << filterFilesAndDirs << ")";
 

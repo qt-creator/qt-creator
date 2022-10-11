@@ -119,7 +119,7 @@ void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
 #ifdef WITH_TESTS
     if (ExtensionSystem::PluginManager::isScenarioRunning("TestStringTable")) {
         if (ExtensionSystem::PluginManager::finishScenario())
-            QThread::currentThread()->sleep(5);
+            QThread::sleep(5);
     }
 #endif
 

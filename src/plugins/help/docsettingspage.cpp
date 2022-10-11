@@ -150,6 +150,7 @@ DocSettingsPageWidget::DocSettingsPageWidget()
 
     auto filterLineEdit = new Utils::FancyLineEdit(groupBox);
     m_docsListView = new QListView(groupBox);
+    m_docsListView->setObjectName("docsListView");
     m_docsListView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_docsListView->setUniformItemSizes(true);
 
@@ -158,7 +159,9 @@ DocSettingsPageWidget::DocSettingsPageWidget()
     treeLayout->addWidget(m_docsListView);
 
     auto addButton = new QPushButton(groupBox);
+    addButton->setObjectName("addButton");
     auto removeButton = new QPushButton(groupBox);
+    removeButton->setObjectName("removeButton");
 
     auto buttonLayout = new QVBoxLayout();
     buttonLayout->addWidget(addButton);
@@ -250,7 +253,7 @@ void DocSettingsPageWidget::addDocumentation()
             QSet<QString> values = Utils::toSet(m_filesToUnregister.values(nameSpace));
             values.remove(filePath);
             m_filesToUnregister.remove(nameSpace);
-            for (const QString &value : qAsConst(values))
+            for (const QString &value : std::as_const(values))
                 m_filesToUnregister.insert(nameSpace, value);
         }
     }

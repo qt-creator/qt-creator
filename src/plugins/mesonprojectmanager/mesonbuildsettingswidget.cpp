@@ -5,6 +5,7 @@
 
 #include "mesonbuildconfiguration.h"
 #include "mesonbuildsystem.h"
+#include "mesonprojectmanagertr.h"
 
 #include <coreplugin/find/itemviewfind.h>
 
@@ -25,19 +26,19 @@ using namespace Utils;
 namespace MesonProjectManager::Internal {
 
 MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buildCfg)
-    : ProjectExplorer::NamedWidget{tr("Meson")}
+    : ProjectExplorer::NamedWidget(Tr::tr("Meson"))
     , m_progressIndicator(ProgressIndicatorSize::Large)
 {
-    auto configureButton = new QPushButton(tr("Apply Configuration Changes"));
+    auto configureButton = new QPushButton(Tr::tr("Apply Configuration Changes"));
     configureButton->setEnabled(false);
     configureButton->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
-    auto wipeButton = new QPushButton(tr("Wipe Project"));
+    auto wipeButton = new QPushButton(Tr::tr("Wipe Project"));
     wipeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     wipeButton->setIcon(Utils::Icons::WARNING.icon());
-    wipeButton->setToolTip(tr("Wipes build directory and reconfigures using previous command "
-                              "line options.\nUseful if build directory is corrupted or when "
-                              "rebuilding with a newer version of Meson."));
+    wipeButton->setToolTip(Tr::tr("Wipes build directory and reconfigures using previous command "
+                                  "line options.\nUseful if build directory is corrupted or when "
+                                  "rebuilding with a newer version of Meson."));
 
     auto container = new DetailsWidget;
 
@@ -62,7 +63,7 @@ MesonBuildSettingsWidget::MesonBuildSettingsWidget(MesonBuildConfiguration *buil
     using namespace Layouting;
 
     Column {
-        Form { tr("Parameters"), parametersLineEdit, br, },
+        Form { Tr::tr("Parameters"), parametersLineEdit, br, },
         buildDirWidget,
         optionsFilterLineEdit,
         optionsTreeView,

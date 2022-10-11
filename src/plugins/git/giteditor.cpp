@@ -29,7 +29,7 @@
 #include <QTextCodec>
 #include <QTextCursor>
 
-#define CHANGE_PATTERN "[a-f0-9]{7,40}"
+#define CHANGE_PATTERN "\\b[a-f0-9]{7,40}\\b"
 
 using namespace Core;
 using namespace Utils;

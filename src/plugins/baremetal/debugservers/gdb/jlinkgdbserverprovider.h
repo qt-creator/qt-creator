@@ -11,8 +11,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // JLinkGdbServerProvider
 
@@ -62,11 +61,8 @@ public:
 class JLinkGdbServerProviderConfigWidget final
         : public GdbServerProviderConfigWidget
 {
-    Q_OBJECT
-
 public:
-    explicit JLinkGdbServerProviderConfigWidget(
-            JLinkGdbServerProvider *provider);
+    explicit JLinkGdbServerProviderConfigWidget(JLinkGdbServerProvider *provider);
 
 private:
     void apply() final;
@@ -103,5 +99,4 @@ private:
     QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

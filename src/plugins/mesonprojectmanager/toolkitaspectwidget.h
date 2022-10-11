@@ -3,7 +3,6 @@
 #pragma once
 
 #include "mesontoolkitaspect.h"
-#include "mesonwrapper.h"
 #include "ninjatoolkitaspect.h"
 
 #include <projectexplorer/kitmanager.h>
@@ -18,7 +17,6 @@ namespace Internal {
 
 class ToolKitAspectWidget final : public ProjectExplorer::KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::ToolKitAspect)
 public:
     enum class ToolType { Meson, Ninja };
 

@@ -151,4 +151,4 @@ QString NimIndenter::rightTrimmed(const QString &str)
     return QString();
 }
 
-}
+} // Nim

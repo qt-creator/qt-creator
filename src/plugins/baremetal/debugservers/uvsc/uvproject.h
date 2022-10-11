@@ -10,8 +10,7 @@
 
 namespace Debugger { class DebuggerRunTool; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class UvscServerProvider;
 
@@ -49,6 +48,6 @@ protected:
     Gen::Xml::PropertyGroup *m_debugOpt = nullptr;
 };
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // Uv
+
+} // BareMetal::Internal

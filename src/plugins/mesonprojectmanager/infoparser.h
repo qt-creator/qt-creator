@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "common.h"
 #include "mesoninfo.h"
 #include "mesonpluginconstants.h"
 

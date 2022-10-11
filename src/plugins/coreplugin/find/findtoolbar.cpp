@@ -65,6 +65,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     m_findLabel->setText(QCoreApplication::translate("Core::Internal::FindWidget", "Find:", nullptr));
 
     m_findEdit = new FancyLineEdit;
+    m_findEdit->setObjectName("findEdit");
     m_findEdit->setMinimumWidth(100);
     m_findEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -90,6 +91,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     m_findButtonLayout->addWidget(m_close);
 
     m_replaceEdit = new FancyLineEdit(this);
+    m_replaceEdit->setObjectName("replaceEdit");
     m_replaceEdit->setMinimumWidth(100);
     m_replaceEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_replaceEdit->setFiltering(true);

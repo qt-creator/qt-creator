@@ -21,9 +21,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 const char kProjectSchema[] = "2.1";
 
@@ -238,6 +236,4 @@ ProjectOptions::ProjectOptions(const UvscServerProvider *provider)
     m_debugOpt->appendProperty("uTrg", int(!useSimulator));
 }
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // namespace BareMetal::Internal::Uv

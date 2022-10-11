@@ -3,8 +3,8 @@
 
 #include "nimbuildconfiguration.h"
 #include "nimcompilerbuildstep.h"
-#include "nimproject.h"
 
+#include "../nimtr.h"
 #include "../nimconstants.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -12,6 +12,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -37,7 +38,7 @@ static FilePath defaultBuildDirectory(const Kit *k,
 NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
     : BuildConfiguration(target, id)
 {
-    setConfigWidgetDisplayName(tr("General"));
+    setConfigWidgetDisplayName(Tr::tr("General"));
     setConfigWidgetHasFrame(true);
     setBuildDirectorySettingsKey("Nim.NimBuildConfiguration.BuildDirectory");
 
@@ -90,8 +91,8 @@ NimBuildConfigurationFactory::NimBuildConfigurationFactory()
             return info;
         };
         return QList<BuildInfo>{
-            oneBuild(BuildConfiguration::Debug, BuildConfiguration::tr("Debug")),
-            oneBuild(BuildConfiguration::Release, BuildConfiguration::tr("Release"))
+            oneBuild(BuildConfiguration::Debug, Tr::tr("Debug")),
+            oneBuild(BuildConfiguration::Release, Tr::tr("Release"))
         };
     });
 }

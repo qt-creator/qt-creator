@@ -14,6 +14,8 @@ class CMakeTool;
 
 namespace Internal {
 
+struct DirectoryData;
+
 class CMakeProjectImporter : public QtSupport::QtProjectImporter
 {
 public:
@@ -38,6 +40,8 @@ private:
 
     void cleanupTemporaryCMake(ProjectExplorer::Kit *k, const QVariantList &vl);
     void persistTemporaryCMake(ProjectExplorer::Kit *k, const QVariantList &vl);
+
+    void ensureBuildDirectory(DirectoryData &data, const ProjectExplorer::Kit *k) const;
 
     Internal::PresetsData m_presetsData;
     Utils::TemporaryDirectory m_presetsTempDir;

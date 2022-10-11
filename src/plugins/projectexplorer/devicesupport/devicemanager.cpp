@@ -521,10 +521,18 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     };
 
     deviceHooks.iterateDirectory = [](const FilePath &filePath,
-                                      const std::function<bool(const FilePath &)> &callBack,
+                                      const FilePath::IterateDirCallback &callBack,
                                       const FileFilter &filter) {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return);
+        QTC_ASSERT(device, return );
+        device->iterateDirectory(filePath, callBack, filter);
+    };
+
+    deviceHooks.iterateDirectoryWithInfo = [](const FilePath &filePath,
+                                              const FilePath::IterateDirWithInfoCallback &callBack,
+                                              const FileFilter &filter) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return );
         device->iterateDirectory(filePath, callBack, filter);
     };
 
@@ -544,10 +552,18 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         device->asyncFileContents(cont, filePath, maxSize, offset);
     };
 
-    deviceHooks.writeFileContents = [](const FilePath &filePath, const QByteArray &data) {
+    deviceHooks.writeFileContents = [](const FilePath &filePath,
+                                       const QByteArray &data,
+                                       qint64 offset) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);
-        return device->writeFileContents(filePath, data);
+        return device->writeFileContents(filePath, data, offset);
+    };
+
+    deviceHooks.filePathInfo = [](const FilePath &filePath) -> FilePathInfo {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return {});
+        return device->filePathInfo(filePath);
     };
 
     deviceHooks.lastModified = [](const FilePath &filePath) {

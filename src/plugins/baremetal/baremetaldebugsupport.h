@@ -5,21 +5,10 @@
 
 #include <debugger/debuggerruncontrol.h>
 
-namespace ProjectExplorer {
-class RunControl;
-}
-
-namespace BareMetal {
-namespace Internal {
-
-class IDebugServerProvider;
-
-// BareMetalDebugSupport
+namespace BareMetal::Internal {
 
 class BareMetalDebugSupport final : public Debugger::DebuggerRunTool
 {
-    Q_OBJECT
-
 public:
     explicit BareMetalDebugSupport(ProjectExplorer::RunControl *runControl);
 
@@ -27,5 +16,4 @@ private:
     void start() final;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

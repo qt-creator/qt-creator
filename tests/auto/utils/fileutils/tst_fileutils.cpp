@@ -46,8 +46,8 @@ private slots:
     void relativePath_data();
     void relativePath();
 
-    void absoluteFilePath_data();
-    void absoluteFilePath();
+    void absolute_data();
+    void absolute();
 
     void fromToString_data();
     void fromToString();
@@ -379,26 +379,46 @@ void tst_fileutils::schemeAndHostLength()
     QCOMPARE(actual, result);
 }
 
-void tst_fileutils::absoluteFilePath_data()
+void tst_fileutils::absolute_data()
 {
     QTest::addColumn<FilePath>("path");
-    QTest::addColumn<FilePath>("result");
+    QTest::addColumn<FilePath>("absoluteFilePath");
+    QTest::addColumn<FilePath>("absolutePath");
 
-    QTest::newRow("absolute1") << FilePath::fromString("/") << FilePath::fromString("/");
-    QTest::newRow("absolute2") << FilePath::fromString("C:/a/b") << FilePath::fromString("C:/a/b");
-    QTest::newRow("absolute3") << FilePath::fromString("/a/b") << FilePath::fromString("/a/b");
-    QTest::newRow("default-constructed") << FilePath() << FilePath();
+    QTest::newRow("absolute1") << FilePath::fromString("/")
+                               << FilePath::fromString("/")
+                               << FilePath::fromString("/");
+    QTest::newRow("absolute2") << FilePath::fromString("C:/a/b")
+                               << FilePath::fromString("C:/a/b")
+                               << FilePath::fromString("C:/a");
+    QTest::newRow("absolute3") << FilePath::fromString("/a/b")
+                               << FilePath::fromString("/a/b")
+                               << FilePath::fromString("/a");
+    QTest::newRow("absolute4") << FilePath::fromString("/a/b/..")
+                               << FilePath::fromString("/a")
+                               << FilePath::fromString("/");
+    QTest::newRow("absolute5") << FilePath::fromString("/a/b/c/../d")
+                               << FilePath::fromString("/a/b/d")
+                               << FilePath::fromString("/a/b");
+    QTest::newRow("absolute6") << FilePath::fromString("/a/../b/c/d")
+                               << FilePath::fromString("/b/c/d")
+                               << FilePath::fromString("/b/c");
+    QTest::newRow("default-constructed") << FilePath() << FilePath() << FilePath();
     QTest::newRow("relative") << FilePath::fromString("a/b")
-                              << FilePath::fromString(QDir::currentPath() + "/a/b");
+                              << FilePath::fromString(QDir::currentPath() + "/a/b")
+                              << FilePath::fromString(QDir::currentPath() + "/a");
     QTest::newRow("qrc") << FilePath::fromString(":/foo/bar.txt")
-                         << FilePath::fromString(":/foo/bar.txt");
+                         << FilePath::fromString(":/foo/bar.txt")
+                         << FilePath::fromString(":/foo");
 }
 
-void tst_fileutils::absoluteFilePath()
+void tst_fileutils::absolute()
 {
     QFETCH(FilePath, path);
-    QFETCH(FilePath, result);
-    QCOMPARE(path.absoluteFilePath(), result);
+    QFETCH(FilePath, absoluteFilePath);
+    QFETCH(FilePath, absolutePath);
+    QCOMPARE(path.absoluteFilePath(), absoluteFilePath);
+    QCOMPARE(path.absolutePath(), absolutePath);
 }
 
 void tst_fileutils::toString_data()

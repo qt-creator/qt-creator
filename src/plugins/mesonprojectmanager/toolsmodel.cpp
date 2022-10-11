@@ -4,6 +4,7 @@
 #include "toolsmodel.h"
 
 #include "tooltreeitem.h"
+#include "mesonprojectmanagertr.h"
 #include "mesontools.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -15,7 +16,7 @@ namespace Internal {
 
 ToolsModel::ToolsModel()
 {
-    setHeader({tr("Name"), tr("Location")});
+    setHeader({Tr::tr("Name"), Tr::tr("Location")});
     rootItem()->appendChild(
         new Utils::StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                   {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
@@ -39,7 +40,7 @@ void ToolsModel::updateItem(const Utils::Id &itemId, const QString &name, const 
 
 void ToolsModel::addMesonTool()
 {
-    manualGroup()->appendChild(new ToolTreeItem{uniqueName(tr("New Meson or Ninja tool"))});
+    manualGroup()->appendChild(new ToolTreeItem{uniqueName(Tr::tr("New Meson or Ninja tool"))});
 }
 
 void ToolsModel::removeMesonTool(ToolTreeItem *item)

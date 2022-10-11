@@ -3,7 +3,7 @@
 
 #include "mesonprocess.h"
 
-#include "mesonoutputparser.h"
+#include "mesonprojectmanagertr.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -36,43 +36,20 @@ bool MesonProcess::run(const Command &command,
 {
     if (!sanityCheck(command))
         return false;
-    m_currentCommand = command;
     m_stdo.clear();
-    m_processWasCanceled = false;
     m_future = decltype(m_future){};
     ProjectExplorer::TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     setupProcess(command, env, captureStdo);
     m_future.setProgressRange(0, 1);
     Core::ProgressManager::addTimedTask(m_future,
-                                        tr("Configuring \"%1\".").arg(projectName),
+                                        Tr::tr("Configuring \"%1\".").arg(projectName),
                                         "Meson.Configure",
                                         10);
-    emit started();
     m_elapsed.start();
     m_process->start();
     m_cancelTimer.start(500);
     qCDebug(mesonProcessLog()) << "Starting:" << command.toUserOutput();
     return true;
-}
-
-QProcess::ProcessState MesonProcess::state() const
-{
-    return m_process->state();
-}
-
-void MesonProcess::reportCanceled()
-{
-    m_future.reportCanceled();
-}
-
-void MesonProcess::reportFinished()
-{
-    m_future.reportFinished();
-}
-
-void MesonProcess::setProgressValue(int p)
-{
-    m_future.setProgressValue(p);
 }
 
 void MesonProcess::handleProcessDone()
@@ -100,7 +77,6 @@ void MesonProcess::checkForCancelled()
 {
     if (m_future.isCanceled()) {
         m_cancelTimer.stop();
-        m_processWasCanceled = true;
         m_process->close();
     }
 }
@@ -121,7 +97,7 @@ void MesonProcess::setupProcess(const Command &command,
     m_process->setWorkingDirectory(command.workDir());
     m_process->setEnvironment(env);
     Core::MessageManager::writeFlashing(
-        tr("Running %1 in %2.").arg(command.toUserOutput()).arg(command.workDir().toUserOutput()));
+        Tr::tr("Running %1 in %2.").arg(command.toUserOutput()).arg(command.workDir().toUserOutput()));
     m_process->setCommand(command.cmdLine());
 }
 
@@ -132,15 +108,15 @@ bool MesonProcess::sanityCheck(const Command &command) const
         //Should only reach this point if Meson exe is removed while a Meson project is opened
         ProjectExplorer::TaskHub::addTask(
             ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::TaskType::Error,
-                                             tr("Executable does not exist: %1")
+                                             Tr::tr("Executable does not exist: %1")
                                                  .arg(exe.toUserOutput())});
         return false;
     }
     if (!exe.toFileInfo().isExecutable()) {
         ProjectExplorer::TaskHub::addTask(
             ProjectExplorer::BuildSystemTask{ProjectExplorer::Task::TaskType::Error,
-                                             tr("Command is not executable: %1")
-                                                 .arg(exe.toUserOutput())});
+                                             Tr::tr("Command is not executable: %1")
+                                                    .arg(exe.toUserOutput())});
         return false;
     }
     return true;

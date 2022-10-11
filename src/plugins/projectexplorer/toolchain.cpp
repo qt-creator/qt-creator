@@ -468,13 +468,23 @@ Utils::LanguageVersion ToolChain::languageVersion(const Utils::Id &language, con
 
 QStringList ToolChain::includedFiles(const QString &option,
                                      const QStringList &flags,
-                                     const QString &directoryPath)
+                                     const QString &directoryPath,
+                                     PossiblyConcatenatedFlag possiblyConcatenated)
 {
     QStringList result;
 
     for (int i = 0; i < flags.size(); ++i) {
-        if (flags[i] == option && i + 1 < flags.size()) {
-            QString includeFile = flags[++i];
+        QString includeFile;
+        const QString flag = flags[i];
+        if (possiblyConcatenated == PossiblyConcatenatedFlag::Yes
+                && flag.startsWith(option)
+                && flag.size() > option.size()) {
+            includeFile = flag.mid(option.size());
+        }
+        if (includeFile.isEmpty() && flag == option && i + 1 < flags.size())
+            includeFile = flags[++i];
+
+        if (!includeFile.isEmpty()) {
             if (!QFileInfo(includeFile).isAbsolute())
                 includeFile = directoryPath + "/" + includeFile;
             result.append(QDir::cleanPath(includeFile));

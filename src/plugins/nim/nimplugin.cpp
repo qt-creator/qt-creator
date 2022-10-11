@@ -4,6 +4,7 @@
 #include "nimplugin.h"
 
 #include "nimconstants.h"
+#include "nimtr.h"
 #include "editor/nimeditorfactory.h"
 #include "project/nimblerunconfiguration.h"
 #include "project/nimblebuildconfiguration.h"
@@ -94,7 +95,7 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
 
     TextEditor::SnippetProvider::registerGroup(Constants::C_NIMSNIPPETSGROUP_ID,
-                                               tr("Nim", "SnippetProvider"),
+                                               Tr::tr("Nim", "SnippetProvider"),
                                                &NimEditorFactory::decorateEditor);
 
     ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);

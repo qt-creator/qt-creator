@@ -5,17 +5,11 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QCoreApplication>
-
 namespace MesonProjectManager {
 namespace Internal {
 
-class MesonTools;
-
 class ToolsSettingsPage final : public Core::IOptionsPage
 {
-    Q_DECLARE_TR_FUNCTIONS(MesonProjectManager::Internal::ToolsSettingsPage)
-
 public:
     ToolsSettingsPage();
 };

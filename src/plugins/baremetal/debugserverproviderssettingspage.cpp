@@ -1,10 +1,11 @@
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "baremetalconstants.h"
-
-#include "debugserverprovidermanager.h"
 #include "debugserverproviderssettingspage.h"
+
+#include "baremetalconstants.h"
+#include "baremetaltr.h"
+#include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
 #include <coreplugin/icore.h>
@@ -32,8 +33,7 @@
 using namespace Debugger;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // DebugServerProviderNode
 
@@ -47,11 +47,11 @@ static QString engineTypeName(DebuggerEngineType engineType)
 {
     switch (engineType) {
     case NoEngineType:
-        return DebugServerProviderModel::tr("Not recognized");
+        return Tr::tr("Not recognized");
     case GdbEngineType:
-        return DebugServerProviderModel::tr("GDB");
+        return Tr::tr("GDB");
     case UvscEngineType:
-        return DebugServerProviderModel::tr("UVSC");
+        return Tr::tr("UVSC");
     default:
         return {};
     }
@@ -61,13 +61,13 @@ static QString engineTypeDescription(DebuggerEngineType engineType)
 {
     switch (engineType) {
     case NoEngineType:
-        return DebugServerProviderModel::tr("Not recognized");
+        return Tr::tr("Not recognized");
     case GdbEngineType:
-        return DebugServerProviderModel::tr("GDB compatible provider engine\n" \
-                                            "(used together with the GDB debuggers).");
+        return Tr::tr("GDB compatible provider engine\n" \
+                      "(used together with the GDB debuggers).");
     case UvscEngineType:
-        return DebugServerProviderModel::tr("UVSC compatible provider engine\n" \
-                                            "(used together with the KEIL uVision).");
+        return Tr::tr("UVSC compatible provider engine\n" \
+                      "(used together with the KEIL uVision).");
     default:
         return {};
     }
@@ -114,7 +114,7 @@ public:
 
 DebugServerProviderModel::DebugServerProviderModel()
 {
-    setHeader({tr("Name"), tr("Type"), tr("Engine")});
+    setHeader({Tr::tr("Name"), Tr::tr("Type"), Tr::tr("Engine")});
 
     const DebugServerProviderManager *manager = DebugServerProviderManager::instance();
 
@@ -175,8 +175,8 @@ void DebugServerProviderModel::apply()
 
     if (!skippedProviders.isEmpty()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             tr("Duplicate Providers Detected"),
-                             tr("The following providers were already configured:<br>"
+                             Tr::tr("Duplicate Providers Detected"),
+                             Tr::tr("The following providers were already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "They were not configured again.")
                              .arg(skippedProviders.join(",<br>&nbsp;")));
@@ -254,8 +254,6 @@ void DebugServerProviderModel::removeProvider(IDebugServerProvider *provider)
 
 class DebugServerProvidersSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::DebugServerProvidersSettingsPage)
-
 public:
     DebugServerProvidersSettingsWidget();
 
@@ -284,9 +282,9 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
     m_providerView->setUniformRowHeights(true);
     m_providerView->header()->setStretchLastSection(false);
 
-    m_addButton = new QPushButton(tr("Add"), this);
-    m_cloneButton = new QPushButton(tr("Clone"), this);
-    m_delButton = new QPushButton(tr("Remove"), this);
+    m_addButton = new QPushButton(Tr::tr("Add"), this);
+    m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
+    m_delButton = new QPushButton(Tr::tr("Remove"), this);
 
     m_container = new Utils::DetailsWidget(this);
     m_container->setState(Utils::DetailsWidget::NoSummary);
@@ -310,7 +308,7 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addWidget(m_container);
 
-    const auto groupBox = new QGroupBox(tr("Debug Server Providers"), this);
+    const auto groupBox = new QGroupBox(Tr::tr("Debug Server Providers"), this);
     groupBox->setLayout(horizontalLayout);
 
     const auto topLayout = new QVBoxLayout(this);
@@ -351,7 +349,7 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
                 if (id.startsWith(f->id())) {
                     IDebugServerProvider *p = f->create();
                     p->fromMap(old->toMap());
-                    p->setDisplayName(tr("Clone of %1").arg(old->displayName()));
+                    p->setDisplayName(Tr::tr("Clone of %1").arg(old->displayName()));
                     p->resetId();
                     addProviderToModel(p);
                 }
@@ -432,10 +430,9 @@ QModelIndex DebugServerProvidersSettingsWidget::currentIndex() const
 DebugServerProvidersSettingsPage::DebugServerProvidersSettingsPage()
 {
     setId(Constants::DEBUG_SERVER_PROVIDERS_SETTINGS_ID);
-    setDisplayName(DebugServerProvidersSettingsWidget::tr("Bare Metal"));
+    setDisplayName(Tr::tr("Bare Metal"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new DebugServerProvidersSettingsWidget; });
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

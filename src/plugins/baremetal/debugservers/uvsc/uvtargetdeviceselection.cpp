@@ -3,6 +3,8 @@
 
 #include "uvtargetdeviceselection.h"
 
+#include <baremetal/baremetaltr.h>
+
 #include <QComboBox>
 #include <QDataWidgetMapper>
 #include <QGridLayout>
@@ -11,9 +13,7 @@
 
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 // Software package data keys.
 constexpr char packageDescrKeyC[] = "PackageDescription";
@@ -243,7 +243,7 @@ private:
 DeviceSelectionMemoryModel::DeviceSelectionMemoryModel(DeviceSelection &selection, QObject *parent)
     : TreeModel<TreeItem, DeviceSelectionMemoryItem>(parent), m_selection(selection)
 {
-    setHeader({tr("ID"), tr("Start"), tr("Size")});
+    setHeader({Tr::tr("ID"), Tr::tr("Start"), Tr::tr("Size")});
     refresh();
 }
 
@@ -347,7 +347,7 @@ DeviceSelectionAlgorithmModel::DeviceSelectionAlgorithmModel(DeviceSelection &se
                                                              QObject *parent)
     : TreeModel<TreeItem, DeviceSelectionAlgorithmItem>(parent), m_selection(selection)
 {
-    setHeader({tr("Name"), tr("FLASH Start"), tr("FLASH Size"), tr("RAM Start"), tr("RAM Size")});
+    setHeader({Tr::tr("Name"), Tr::tr("FLASH Start"), Tr::tr("FLASH Size"), Tr::tr("RAM Start"), Tr::tr("RAM Size")});
     refresh();
 }
 
@@ -373,27 +373,27 @@ DeviceSelectionAlgorithmView::DeviceSelectionAlgorithmView(DeviceSelection &sele
     const auto layout = new QGridLayout;
     layout->setContentsMargins(0, 0, 0, 0);
     m_comboBox = new QComboBox;
-    m_comboBox->setToolTip(tr("Algorithm path."));
+    m_comboBox->setToolTip(Tr::tr("Algorithm path."));
     m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_comboBox->setModel(model);
     layout->addWidget(m_comboBox, 0, 0, 1, 0);
     // Add FLASH area settings.
-    const auto flashLabel = new QLabel(tr("FLASH:"));
+    const auto flashLabel = new QLabel(Tr::tr("FLASH:"));
     layout->addWidget(flashLabel, 1, 0);
     const auto flashStartEdit = new QLineEdit;
-    flashStartEdit->setToolTip(tr("Start address."));
+    flashStartEdit->setToolTip(Tr::tr("Start address."));
     layout->addWidget(flashStartEdit, 1, 1);
     const auto flashSizeEdit = new QLineEdit;
-    flashSizeEdit->setToolTip(tr("Size."));
+    flashSizeEdit->setToolTip(Tr::tr("Size."));
     layout->addWidget(flashSizeEdit, 1, 2);
     // Add RAM area settings.
-    const auto ramLabel = new QLabel(tr("RAM:"));
+    const auto ramLabel = new QLabel(Tr::tr("RAM:"));
     layout->addWidget(ramLabel, 2, 0);
     const auto ramStartEdit = new QLineEdit;
-    ramStartEdit->setToolTip(tr("Start address."));
+    ramStartEdit->setToolTip(Tr::tr("Start address."));
     layout->addWidget(ramStartEdit, 2, 1);
     const auto ramSizeEdit = new QLineEdit;
-    ramSizeEdit->setToolTip(tr("Size."));
+    ramSizeEdit->setToolTip(Tr::tr("Size."));
     layout->addWidget(ramSizeEdit, 2, 2);
 
     setLayout(layout);
@@ -431,6 +431,4 @@ void DeviceSelectionAlgorithmView::refresh()
     qobject_cast<DeviceSelectionAlgorithmModel *>(m_comboBox->model())->refresh();
 }
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv

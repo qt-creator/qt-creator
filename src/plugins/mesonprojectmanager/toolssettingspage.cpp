@@ -4,6 +4,7 @@
 #include "toolssettingspage.h"
 
 #include "mesonpluginconstants.h"
+#include "mesonprojectmanagertr.h"
 #include "toolssettingswidget.h"
 
 namespace MesonProjectManager {
@@ -12,7 +13,7 @@ namespace Internal {
 ToolsSettingsPage::ToolsSettingsPage()
 {
     setId(Constants::SettingsPage::TOOLS_ID);
-    setDisplayName(tr("Tools"));
+    setDisplayName(Tr::tr("Tools"));
     setCategory(Constants::SettingsPage::CATEGORY);
     setWidgetCreator([]() { return new ToolsSettingsWidget; });
 }

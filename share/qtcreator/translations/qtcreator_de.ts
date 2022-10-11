@@ -6605,8 +6605,8 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Was ist eine Sitzung?&lt;/a&gt;</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Verwenden</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Öffnen</translation>
     </message>
 </context>
 <context>
@@ -23474,7 +23474,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
+    <name>BareMetal</name>
     <message>
         <source>Set up Debug Server or Hardware Debugger</source>
         <translation>Debug-Server oder Hardware-Debugger einrichten</translation>
@@ -23885,7 +23885,7 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
+    <name>BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>Bare Metal</translation>
@@ -23894,9 +23894,6 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
         <source>Bare Metal Device</source>
         <translation>Bare-Metal-Gerät</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
     <message>
         <source>GDB commands:</source>
         <translation>GDB-Kommandos:</translation>
@@ -26963,30 +26960,14 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
         <source>Enter GDB commands to reset the hardware. The MCU should be halted after these commands.</source>
         <translation>Geben Sie GDB-Kommandos ein, um die Hardware zurückzusetzen. Die MCU sollte danach angehalten sein.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWidget</name>
-    <message>
-        <source>Debug server provider:</source>
-        <translation>Debug-Server-Provider:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>Einrichtung der Konfiguration für neues Bare-Metal-Gerät</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStep</name>
     <message>
         <source>GDB commands</source>
         <translation>GDB-Kommandos</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfiguration</name>
     <message>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
@@ -31414,11 +31395,7 @@ Senden selbst auch Zeit benötigt.</translation>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfiguration</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Unbekannt</translation>
-    </message>
+    <name>BareMetal</name>
     <message>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
         <translation>Die entfernte ausführbare Datei muss eingestellt sein um eine benutzerdefinierte enternte Ausführungskonfiguration zu verwenden.</translation>
@@ -31427,9 +31404,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <source>Custom Executable</source>
         <translation>Benutzerdefinierte ausführbare Datei</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>Kann nicht debuggen: Das Kit hat kein Gerät.</translation>
@@ -31458,9 +31432,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <source>Unable to create an uVision project options template.</source>
         <translation>Es kann keine uVision-Projekteinstellungsvorlage erzeugt werden.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderConfigWidget</name>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
         <translation>Wählen Sie den gewünschten Startmodus des GDB-Server-Providers.</translation>
@@ -31474,10 +31445,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Peripherie-Beschreibungsdatei (*.svd)</translation>
     </message>
     <message>
-        <source>Select Peripheral Description File</source>
-        <translation>Wählen Sie eine Peripherie-Beschreibungsdateien</translation>
-    </message>
-    <message>
         <source>Peripheral description file:</source>
         <translation>Peripherie-Beschreibungsdatei:</translation>
     </message>
@@ -31489,9 +31456,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <source>Startup in Pipe Mode</source>
         <translation>Im Pipe-Modus starten</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::HostWidget</name>
     <message>
         <source>Enter TCP/IP hostname of the debug server, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
         <translation>Geben Sie den TCP/IP-Hostnamen des Debug-Servers ein, etwa &quot;localhost&quot; oder &quot;192.0.2.1&quot;.</translation>
@@ -31500,9 +31464,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <source>Enter TCP/IP port which will be listened by the debug server.</source>
         <translation>Geben Sie den TCP/IP-Port ein, an dem der Debug-Server Verbindungen annehmen wird.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderConfigWidget</name>
     <message>
         <source>Host:</source>
         <translation>Host:</translation>
@@ -31530,17 +31491,6 @@ Senden selbst auch Zeit benötigt.</translation>
     <message>
         <source>Reset commands:</source>
         <translation>Kommandos zum Zurücksetzen:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Host:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0..99).</source>
@@ -31573,14 +31523,6 @@ Senden selbst auch Zeit benötigt.</translation>
     <message>
         <source>Version:</source>
         <translation>Version:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation>Kommandos zum Einrichten:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Kommandos zum Zurücksetzen:</translation>
     </message>
     <message>
         <source>ST-LINK/V1</source>
@@ -35352,7 +35294,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <name>Nim</name>
     <message>
         <source>Target:</source>
         <translation>Ziel:</translation>
@@ -35829,21 +35771,15 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>NimCompilerBuildStep</name>
+    <name>Nim</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Nim-Compiler Build-Schritt</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
         <translation>Nim-Build-Schritt</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Coding-Stil</translation>
@@ -35852,16 +35788,6 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Nim-Schritt zur Bereinigung</translation>
@@ -35890,17 +35816,10 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <source>Nim Compiler Clean Step</source>
         <translation>Nim-Compiler-Schritt zur Bereinigung</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Global</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -37799,15 +37718,12 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimPlugin</name>
+    <name>Nim</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProject</name>
     <message>
         <source>No Nim compiler set.</source>
         <translation>Es ist kein Nim-Compiler eingerichtet.</translation>
@@ -37816,9 +37732,6 @@ Ablaufdatum: %3</translation>
         <source>Nim compiler does not exist.</source>
         <translation>Der Nim-Compiler existiert nicht.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Compiler-Pfad:</translation>
@@ -40919,7 +40832,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimRunConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>Aktuelles Build-Ziel</translation>
@@ -41980,11 +41893,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStep</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Nim-Compiler Build-Schritt</translation>
-    </message>
+    <name>Nim</name>
 </context>
 <context>
     <name>ProjectExplorer::MakeStep</name>
@@ -42256,7 +42165,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>Nim::NimToolsSettingsWidget</name>
+    <name>Nim</name>
     <message>
         <source>Nimsuggest</source>
         <translation>Nimsuggest</translation>
@@ -42879,14 +42788,10 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>NimToolsSettingsPage</name>
+    <name>Nim</name>
     <message>
         <source>Tools</source>
         <translation>Werkzeuge</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -43923,7 +43828,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Nim::NimbleBuildStepWidget</name>
+    <name>Nim</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumente:</translation>
@@ -44363,7 +44268,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::DebugServerProviderChooser</name>
+    <name>BareMetal</name>
     <message>
         <source>Manage...</source>
         <translation>Verwalten...</translation>
@@ -44372,9 +44277,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>None</source>
         <translation>Keine</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DebugServerProviderModel</name>
     <message>
         <source>Not recognized</source>
         <translation>Nicht erkannt</translation>
@@ -44399,9 +44301,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>Die folgenden Provider wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht noch einmal konfiguriert.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DebugServerProvidersSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Hinzufügen</translation>
@@ -44423,13 +44322,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Kopie von %1</translation>
     </message>
     <message>
-        <source>Bare Metal</source>
-        <translation>Bare Metal</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvider</name>
-    <message>
         <source>EBlink</source>
         <translation>EBlink</translation>
     </message>
@@ -44445,24 +44337,9 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>ST-LINK Utility</source>
         <translation>ST-LINK-Werkzeug</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::EBlinkGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Host:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Ausführbare Datei:</translation>
-    </message>
     <message>
         <source>Script file:</source>
         <translation>Skriptdatei:</translation>
-    </message>
-    <message>
-        <source>Verbosity level:</source>
-        <translation>Detailgrad:</translation>
     </message>
     <message>
         <source>Type:</source>
@@ -44473,27 +44350,12 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Geschwindigkeit:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>Kommandos zum Einrichten:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Kommandos zum Zurücksetzen:</translation>
-    </message>
-    <message>
         <source>SWD</source>
         <translation>SWD</translation>
     </message>
     <message>
         <source>JTAG</source>
         <translation>JTAG</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::JLinkGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Host:</translation>
     </message>
     <message>
         <source>JLink GDB Server (JLinkGDBServerCL.exe)</source>
@@ -44502,10 +44364,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>JLink GDB Server (JLinkGDBServer)</source>
         <translation>JLink GDB-Server (JLinkGDBServer)</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Default</source>
@@ -44528,21 +44386,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Geräte:</translation>
     </message>
     <message>
-        <source>Additional arguments:</source>
-        <translation>Zusätzliche Argumente:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation>Kommandos zum Einrichten:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Kommandos zum Zurücksetzen:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::UvscServerProvider</name>
-    <message>
         <source>uVision Simulator</source>
         <translation>uVision Simulator</translation>
     </message>
@@ -44550,24 +44393,9 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>uVision St-Link</source>
         <translation>uVision St-Link</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUvscAdapterOptionsWidget</name>
     <message>
         <source>Port:</source>
         <translation>Port:</translation>
-    </message>
-    <message>
-        <source>Speed:</source>
-        <translation>Geschwindigkeit:</translation>
-    </message>
-    <message>
-        <source>JTAG</source>
-        <translation>JTAG</translation>
-    </message>
-    <message>
-        <source>SWD</source>
-        <translation>SWD</translation>
     </message>
     <message>
         <source>9MHz</source>
@@ -44641,20 +44469,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>5kHz</source>
         <translation>5kHz</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::UvscServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Host:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
     <message>
         <source>Version</source>
         <translation>Version</translation>
@@ -44663,9 +44477,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Vendor</source>
         <translation>Anbieter</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionMemoryModel</name>
     <message>
         <source>ID</source>
         <translation>ID</translation>
@@ -44678,23 +44489,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Size</source>
         <translation>Größe</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionAlgorithmModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectorToolPanel</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Verwalten...</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectorDetailsPanel</name>
     <message>
         <source>Vendor:</source>
         <translation>Anbieter:</translation>
@@ -44712,41 +44506,13 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Speicher:</translation>
     </message>
     <message>
-        <source>Peripheral description files (*.svd)</source>
-        <translation>Peripherie-Beschreibungsdatei (*.svd)</translation>
-    </message>
-    <message>
         <source>Select Peripheral Description File</source>
         <translation>Wählen Sie eine Peripherie-Beschreibungsdatei</translation>
     </message>
     <message>
-        <source>Peripheral description file:</source>
-        <translation>Peripherie-Beschreibungsdatei:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionModel</name>
-    <message>
         <source>Path</source>
         <translation>Pfad</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionCpuDllModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectorToolPanel</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Verwalten...</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::IarToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Compiler-Pfad:</translation>
@@ -44759,20 +44525,10 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::IDebugServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the debugger server provider.</source>
         <translation>Geben Sie den Namen des Debug-Server-Providers ein.</translation>
     </message>
-    <message>
-        <source>Name:</source>
-        <translation>Name:</translation>
-    </message>
-</context>
-<context>
-    <name>SdccToolChain</name>
     <message>
         <source>SDCC %1 (%2, %3)</source>
         <translation>SDCC %1 (%2, %3)</translation>
@@ -44780,17 +44536,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>SDCC</source>
         <translation>SDCC</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::SdccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>&amp;Compiler-Pfad:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
     </message>
 </context>
 <context>
@@ -46619,24 +46364,10 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Nim::NimbleBuildConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfiguration</name>
-    <message>
-        <source>General</source>
-        <translation>Allgemein</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::CodeStyleSettings</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -47680,11 +47411,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Nim::ToolSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
+    <name>Nim</name>
 </context>
 <context>
     <name>ProjextExplorer::Internal::KitOptionsPageWidget</name>
@@ -47917,7 +47644,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>MesonBuildSettingsWidget</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Apply Configuration Changes</source>
         <translation>Konfigurationsänderungen anwenden</translation>
@@ -47926,9 +47653,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Filter</source>
         <translation>Filter</translation>
     </message>
-</context>
-<context>
-    <name>MesonBuildStepConfigWidget</name>
     <message>
         <source>Tool arguments:</source>
         <translation>Toolparameter:</translation>
@@ -48177,23 +47901,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::JLinkUvscAdapterOptionsWidget</name>
-    <message>
-        <source>Port:</source>
-        <translation>Port:</translation>
-    </message>
-    <message>
-        <source>Speed:</source>
-        <translation>Geschwindigkeit:</translation>
-    </message>
-    <message>
-        <source>JTAG</source>
-        <translation>JTAG</translation>
-    </message>
-    <message>
-        <source>SWD</source>
-        <translation>SWD</translation>
-    </message>
+    <name>BareMetal</name>
     <message>
         <source>50MHz</source>
         <translation>50MHz</translation>
@@ -48239,34 +47947,12 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>200kHz</translation>
     </message>
     <message>
-        <source>100kHz</source>
-        <translation>100kHz</translation>
-    </message>
-</context>
-<context>
-    <name>KeilToolChain</name>
-    <message>
         <source>KEIL %1 (%2, %3)</source>
         <translation>KEIL %1 (%2, %3)</translation>
     </message>
     <message>
         <source>KEIL</source>
         <translation>KEIL</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::KeilToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>&amp;Compiler-Pfad:</translation>
-    </message>
-    <message>
-        <source>Platform codegen flags:</source>
-        <translation>Plattformspezifische Optionen für codegen:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
     </message>
 </context>
 <context>
@@ -48420,7 +48106,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>MesonProjectManager::Internal::MesonActionsManager</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Configure</source>
         <translation>Konfigurieren</translation>
@@ -48433,24 +48119,15 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Build &quot;%1&quot;</source>
         <translation>&quot;%1&quot; erstellen</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonBuildSettingsWidget</name>
     <message>
         <source>Meson</source>
         <translation>Meson</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonBuildStepConfigWidget</name>
     <message>
         <source>Build</source>
         <comment>MesonProjectManager::MesonBuildStepConfigWidget display name.</comment>
         <translation>Erstellen</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::BuidOptionsModel</name>
     <message>
         <source>Key</source>
         <translation>Schlüssel</translation>
@@ -48459,9 +48136,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Value</source>
         <translation>Wert</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonProcess</name>
     <message>
         <source>Configuring &quot;%1&quot;.</source>
         <translation>Konfiguriere &quot;%1&quot;</translation>
@@ -48502,48 +48176,18 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Executable does not exist: %1</source>
         <translation>Ausführbare Datei existiert nicht: %1</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonProject</name>
     <message>
         <source>No compilers set in kit.</source>
         <translation>Im Kit sind keine Compiler eingerichtet.</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaBuildStep</name>
-    <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonToolKitAspect</name>
-    <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
-    </message>
     <message>
         <source>Unconfigured</source>
         <translation>Nicht konfiguriert</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaToolKitAspect</name>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Nicht konfiguriert</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolsSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>Name</translation>
@@ -48574,18 +48218,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>MesonProjectManager::MesonToolManager</name>
-    <message>
-        <source>Meson</source>
-        <translation>Meson</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChain</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
+    <name>Nim</name>
 </context>
 <context>
     <name>ProjectExplorer::Internal::BuildEnvironmentWidget</name>

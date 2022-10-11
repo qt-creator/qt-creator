@@ -76,7 +76,7 @@
 
     \endlist
 
-    To switch between sessions, select \uicontrol {Switch To}.
+    To switch between sessions, select \uicontrol {Open}.
 
     \if defined(qtcreator)
     When you launch \QC, a list of existing sessions is displayed in the

@@ -30,7 +30,6 @@ const char C_NIMBLEBUILDSTEP_ARGUMENTS[] = "Nim.NimbleBuildStep.Arguments";
 
 // NimbleTaskStep
 const char C_NIMBLETASKSTEP_ID[] = "Nim.NimbleTaskStep";
-const char C_NIMBLETASKSTEP_DISPLAY[] = QT_TRANSLATE_NOOP("NimbleTaskStep", "Nimble Task");
 const QString C_NIMBLETASKSTEP_TASKNAME = QStringLiteral("Nim.NimbleTaskStep.TaskName");
 const QString C_NIMBLETASKSTEP_TASKARGS = QStringLiteral("Nim.NimbleTaskStep.TaskArgs");
 
@@ -48,16 +47,12 @@ const char C_NIMPARSE_ID[] = "Nim.NimParse";
 
 const char C_NIMLANGUAGE_ID[] = "Nim";
 const char C_NIMCODESTYLESETTINGSPAGE_ID[] = "Nim.NimCodeStyleSettings";
-const char C_NIMCODESTYLESETTINGSPAGE_DISPLAY[] = QT_TRANSLATE_NOOP("NimCodeStyleSettingsPage", "Code Style");
 const char C_NIMCODESTYLESETTINGSPAGE_CATEGORY[] = "Z.Nim";
-const char C_NIMCODESTYLESETTINGSPAGE_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("NimCodeStyleSettingsPage", "Nim");
 
 const char C_NIMTOOLSSETTINGSPAGE_ID[] = "Nim.NimToolsSettings";
-const char C_NIMTOOLSSETTINGSPAGE_DISPLAY[] = QT_TRANSLATE_NOOP("NimToolsSettingsPage", "Tools");
 const char C_NIMTOOLSSETTINGSPAGE_CATEGORY[] = "Z.Nim";
-const char C_NIMTOOLSSETTINGSPAGE_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("NimToolsSettingsPage", "Nim");
 
-const char C_NIMLANGUAGE_NAME[] = QT_TRANSLATE_NOOP("NimCodeStylePreferencesFactory", "Nim");
+const char C_NIMLANGUAGE_NAME[] = QT_TRANSLATE_NOOP("Nim", "Nim");
 const char C_NIMGLOBALCODESTYLE_ID[] = "NimGlobal";
 const QString C_NIMSNIPPETSGROUP_ID = QStringLiteral("Nim.NimSnippetsGroup");
 

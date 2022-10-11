@@ -10,8 +10,7 @@ class QCheckBox;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // GenericGdbServerProvider
 
@@ -39,8 +38,6 @@ public:
 class GenericGdbServerProviderConfigWidget final
         : public GdbServerProviderConfigWidget
 {
-    Q_OBJECT
-
 public:
     explicit GenericGdbServerProviderConfigWidget(
             GenericGdbServerProvider *provider);
@@ -57,5 +54,4 @@ private:
     QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

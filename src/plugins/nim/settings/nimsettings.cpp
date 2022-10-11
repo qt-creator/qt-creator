@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "nimsettings.h"
-#include "nimcodestylepreferencesfactory.h"
 
 #include "../nimconstants.h"
+#include "../nimtr.h"
+#include "nimcodestylepreferencesfactory.h"
 
 #include <coreplugin/icore.h>
 
@@ -34,7 +35,7 @@ NimSettings::NimSettings()
     nimSuggestPath.setSettingsKey("Command");
     nimSuggestPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
-    nimSuggestPath.setLabelText(tr("Path:"));
+    nimSuggestPath.setLabelText(Tr::tr("Path:"));
 
     readSettings(Core::ICore::settings());
 }
@@ -61,14 +62,14 @@ void NimSettings::InitializeCodeStyleSettings()
 
     m_globalCodeStyle = new SimpleCodeStylePreferences();
     m_globalCodeStyle->setDelegatingPool(pool);
-    m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
+    m_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
     m_globalCodeStyle->setId(Nim::Constants::C_NIMGLOBALCODESTYLE_ID);
     pool->addCodeStyle(m_globalCodeStyle);
     TextEditorSettings::registerCodeStyle(Nim::Constants::C_NIMLANGUAGE_ID, m_globalCodeStyle);
 
     auto nimCodeStyle = new SimpleCodeStylePreferences();
     nimCodeStyle->setId("nim");
-    nimCodeStyle->setDisplayName(tr("Nim"));
+    nimCodeStyle->setDisplayName(Tr::tr("Nim"));
     nimCodeStyle->setReadOnly(true);
 
     TabSettings nimTabSettings;
@@ -110,9 +111,9 @@ void NimSettings::TerminateCodeStyleSettings()
 NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
 {
     setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
-    setDisplayName(NimSettings::tr(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_DISPLAY));
+    setDisplayName(Tr::tr("Tools"));
     setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
-    setDisplayCategory(NimSettings::tr("Nim"));
+    setDisplayCategory(Tr::tr("Nim"));
     setCategoryIconPath(":/nim/images/settingscategory_nim.png");
     setSettings(settings);
 

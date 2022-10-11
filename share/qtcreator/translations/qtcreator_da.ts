@@ -2340,16 +2340,10 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Enter GDB commands to reset the hardware. The MCU should be halted after these commands.</source>
         <translation>Indtast GDB-kommandoer for at nulstille hardwaren. MCU&apos;en bør standses efter disse kommandoer.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::GdbServerProvider</name>
     <message>
         <source>Clone of %1</source>
         <translation>Klon af %1</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfiguration</name>
     <message>
         <source>Unknown</source>
         <translation>Ukendt</translation>
@@ -2366,9 +2360,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Custom Executable</source>
         <translation>Brugerdefineret eksekverbar</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>Kan ikke fejlrette: kit har ingen enhed.</translation>
@@ -2385,37 +2376,22 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Cannot debug: Could not find executable for &quot;%1&quot;.</source>
         <translation>Kan ikke fejlrette: kunne ikke finde eksekverbar for &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
     <message>
         <source>Bare Metal</source>
         <translation>Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationFactory</name>
     <message>
         <source>Bare Metal Device</source>
         <translation>Bare Metal-enhed</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWidget</name>
     <message>
         <source>GDB server provider:</source>
         <translation>GDB-serverudbyder:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>Ny Bare Metal-enhed konfigurationsopsætning</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
     <message>
         <source>Set up GDB Server or Hardware Debugger</source>
         <translation>Opsæt GDB-server eller hardware-fejlretter</translation>
@@ -2425,37 +2401,13 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <translation>Navn:</translation>
     </message>
     <message>
-        <source>GDB server provider:</source>
-        <translation>GDB-serverudbyder:</translation>
-    </message>
-    <message>
-        <source>Bare Metal Device</source>
-        <translation>Bare Metal-enhed</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStep</name>
-    <message>
         <source>GDB commands</source>
         <translation>GDB-kommandoer</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
     <message>
         <source>GDB commands:</source>
         <translation>GDB-kommandoer:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfiguration</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Ukendt</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderConfigWidget</name>
     <message>
         <source>Host:</source>
         <translation>Vært:</translation>
@@ -2468,16 +2420,10 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Reset commands:</source>
         <translation>Nulstil-kommandoer:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderFactory</name>
     <message>
         <source>Default</source>
         <translation>Standard</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderChooser</name>
     <message>
         <source>Manage...</source>
         <translation>Håndter...</translation>
@@ -2486,16 +2432,9 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>None</source>
         <translation>Ingen</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the GDB server provider.</source>
         <translation>Indtast navnet på GDB-serverudbyderen.</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Navn:</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -2517,9 +2456,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Startup in Pipe Mode</source>
         <translation>Opstart i pipe-tilstand</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderModel</name>
     <message>
         <source>Name</source>
         <translation>Navn</translation>
@@ -2536,9 +2472,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>Følgende udbydere var allerede konfigureret:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;De blev ikke konfigureret igen.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvidersSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Tilføj</translation>
@@ -2556,26 +2489,12 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <translation>GDB-serverudbydere</translation>
     </message>
     <message>
-        <source>Bare Metal</source>
-        <translation>Bare Metal</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::HostWidget</name>
-    <message>
         <source>Enter TCP/IP hostname of the GDB server provider, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
         <translation>Indtast TCP/IP-værtsnavn af GDB-serverudbyderen, såsom &quot;localhost&quot; eller &quot;192.0.2.1&quot;.</translation>
     </message>
     <message>
         <source>Enter TCP/IP port which will be listened by the GDB server provider.</source>
         <translation>Indtast TCP/IP-port som skal lyttes på af GDB-serverudbyderen.</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Vært:</translation>
     </message>
     <message>
         <source>Executable file:</source>
@@ -2594,30 +2513,8 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <translation>Yderligere argumenter:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>Init-kommandoer:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Nulstil-kommandoer:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderFactory</name>
-    <message>
         <source>OpenOCD</source>
         <translation>OpenOCD</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Vært:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Eksekverbar fil:</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0..99).</source>
@@ -2652,14 +2549,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <translation>Version:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>Init-kommandoer:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Nulstil-kommandoer:</translation>
-    </message>
-    <message>
         <source>ST-LINK/V1</source>
         <translation>ST-LINK/V1</translation>
     </message>
@@ -2667,9 +2556,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>ST-LINK/V2</source>
         <translation>ST-LINK/V2</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderFactory</name>
     <message>
         <source>ST-LINK Utility</source>
         <translation>ST-LINK-redskab</translation>
@@ -21150,21 +21036,15 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimBuildConfigurationFactory</name>
+    <name>Nim</name>
     <message>
         <source>Build</source>
         <translation>Byg</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Bygmappe:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Target:</source>
         <translation>Mål:</translation>
@@ -21193,16 +21073,10 @@ Fejl: %5</translation>
         <source>Release</source>
         <translation>Udgivelse</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepFactory</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Nim-kompiler byggetrin</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Nim renstrin</translation>
@@ -21223,24 +21097,15 @@ Fejl: %5</translation>
         <source>Clean step completed successfully.</source>
         <translation>Renstrin fuldført.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStepConfigWidget</name>
     <message>
         <source>Working directory:</source>
         <translation>Arbejdsmappe:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimPlugin</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProject</name>
     <message>
         <source>Scanning for Nim files</source>
         <translation>Skanner efter Nim-filer</translation>
@@ -21253,9 +21118,6 @@ Fejl: %5</translation>
         <source>Nim compiler does not exist.</source>
         <translation>Nim-kompiler findes ikke.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -21265,9 +21127,6 @@ Fejl: %5</translation>
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Kompilersti:</translation>
@@ -21276,62 +21135,22 @@ Fejl: %5</translation>
         <source>&amp;Compiler version:</source>
         <translation>&amp;Kompiler-version:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimBuildConfigurationWidget</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Kodestil</translation>
     </message>
     <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Nim-kompiler byggetrin</translation>
-    </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
-    <message>
         <source>Nim build step</source>
         <translation>Nim-byggetrin</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
         <translation>Nim-kompiler renstrin</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
         <translation>Nim renstrin</translation>
@@ -24586,8 +24405,8 @@ til projektet &quot;%2&quot;.</translation>
         <translation>&amp;Slet</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Skift til</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Åbn</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>
@@ -42856,17 +42675,10 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimRunConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>Aktuelle byggemål</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCodeStyleSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>

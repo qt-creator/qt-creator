@@ -27,10 +27,10 @@ public:
 private:
     void updateActions(const QStringList &sessions);
 
+    QPushButton *m_openButton;
     QPushButton *m_renameButton;
     QPushButton *m_cloneButton;
     QPushButton *m_deleteButton;
-    QPushButton *m_switchButton;
     QCheckBox *m_autoLoadCheckBox;
 };
 

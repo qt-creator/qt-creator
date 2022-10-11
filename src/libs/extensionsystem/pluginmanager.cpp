@@ -35,6 +35,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
+#include <utils/threadutils.h>
 
 #ifdef WITH_TESTS
 #include <utils/hostosinfo.h>
@@ -851,7 +852,7 @@ bool PluginManager::finishScenario()
 // Waits until the running scenario is fully initialized
 void PluginManager::waitForScenarioFullyInitialized()
 {
-    if (QThread::currentThread() == qApp->thread()) {
+    if (isMainThread()) {
         qWarning("The waitForScenarioFullyInitialized() function can't be called from main thread.");
         return;
     }
@@ -1378,7 +1379,7 @@ void PluginManagerPrivate::shutdown()
 #ifdef WITH_TESTS
     if (PluginManager::isScenarioRunning("TestModelManagerInterface")) {
         qDebug() << "Point 2: Expect the next call to Point 3 triggers a crash";
-        QThread::currentThread()->sleep(5);
+        QThread::sleep(5);
     }
 #endif
     if (!allObjects.isEmpty()) {

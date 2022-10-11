@@ -6,15 +6,10 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
-namespace BareMetal {
-namespace Internal {
-
-// SdccParser
+namespace BareMetal::Internal {
 
 class SdccParser final : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     explicit SdccParser();
     static Utils::Id id();
@@ -30,5 +25,4 @@ private:
     int m_lines = 0;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

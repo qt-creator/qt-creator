@@ -5,9 +5,7 @@
 
 #include "xmlprojectwriter.h"
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 // ProjectWriter
 
@@ -35,6 +33,4 @@ private:
     void visitProjectOptionsEnd(const Gen::Xml::ProjectOptions *projectOptions) final;
 };
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv

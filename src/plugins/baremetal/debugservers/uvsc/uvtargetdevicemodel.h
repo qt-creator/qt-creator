@@ -13,9 +13,7 @@ QT_BEGIN_NAMESPACE
 class QXmlStreamReader;
 QT_END_NAMESPACE
 
-namespace BareMetal {
-namespace Internal {
-namespace Uv {
+namespace BareMetal::Internal::Uv {
 
 // DeviceSelectionModel
 
@@ -56,6 +54,4 @@ private:
     DeviceSelection buildSelection(const DeviceSelectionItem *item) const;
 };
 
-} // namespace Uv
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal::Uv

@@ -858,7 +858,7 @@
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
+    <name>BareMetal</name>
     <message>
         <source>Set up Debug Server or Hardware Debugger</source>
         <translation>デバッグサーバーまたはハードウェアデバッガをセットアップ</translation>
@@ -866,10 +866,6 @@
     <message>
         <source>Name:</source>
         <translation>名前:</translation>
-    </message>
-    <message>
-        <source>Debug server provider:</source>
-        <translation>デバッグサーバーを選択:</translation>
     </message>
     <message>
         <source>GDB server provider:</source>
@@ -4613,8 +4609,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>セッションのリネーム</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>切り替え(&amp;S)</translation>
+        <source>&amp;Open</source>
+        <translation>開く(&amp;O)</translation>
     </message>
 </context>
 <context>
@@ -12181,39 +12177,18 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
+    <name>BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>ベアメタル</translation>
     </message>
     <message>
-        <source>Bare Metal Device</source>
-        <translation>ベアメタルデバイス</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
-    <message>
         <source>GDB commands:</source>
         <translation>GDB コマンド:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfigurationFactory</name>
     <message>
         <source>%1 (on GDB server or hardware debugger)</source>
         <translation>%1 (GDB サーバーあるいはハードウェアデバッガ経由)</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunControlFactory</name>
-    <message>
-        <source>Cannot debug: Local executable is not set.</source>
-        <translation>デバッグエラー: ローカル実行ファイルが設定されていません。</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Could not find executable for &quot;%1&quot;.</source>
-        <translation>デバッグエラー: &quot;%1&quot; に実行ファイルが見つかりませんでした。</translation>
     </message>
     <message>
         <source>Cannot debug: Kit has no device.</source>
@@ -34900,28 +34875,15 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationFactory</name>
-    <message>
-        <source>Bare Metal Device</source>
-        <translation>ベアメタルデバイス</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
+    <name>BareMetal</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>新しいベアメタルデバイスの設定</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStep</name>
     <message>
         <source>GDB commands</source>
         <translation>GDB コマンド</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfiguration</name>
     <message>
         <source>%1 (via GDB server or hardware debugger)</source>
         <translation>%1 (GDB サーバーあるいはハードウェアデバッガ経由)</translation>
@@ -34935,9 +34897,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>実行ファイル:</translation>
@@ -34949,10 +34908,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
     <message>
         <source>Working directory:</source>
         <translation>作業ディレクトリ:</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
     </message>
 </context>
 <context>
@@ -37775,10 +37730,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
 <context>
     <name>BareMetal</name>
     <message>
-        <source>Bare Metal</source>
-        <translation>ベアメタル</translation>
-    </message>
-    <message>
         <source>Enter GDB commands to reset the board and to write the nonvolatile memory.</source>
         <translation>ボードのリセットと不揮発メモリに書き込むための GDB コマンドを入力してください。</translation>
     </message>
@@ -37786,23 +37737,9 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Enter GDB commands to reset the hardware. The MCU should be halted after these commands.</source>
         <translation>ハードウェアリセットコマンドを入力してください。実行後に MCU が停止するコマンドを入力してください。</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfigWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation>実行ファイル:</translation>
-    </message>
     <message>
         <source>Work directory:</source>
         <translation>作業ディレクトリ:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfiguration</name>
-    <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
     </message>
     <message>
         <source>Custom Executable</source>
@@ -37816,9 +37753,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Custom Executable (on GDB server or hardware debugger)</source>
         <translation>カスタム実行ファイル (GDB サーバーあるいはハードウェアデバッガ経由)</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
         <source>Debugging failed.</source>
         <translation>デバッグに失敗しました。</translation>
@@ -37832,34 +37766,17 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <translation>GDB サーバー起動中...</translation>
     </message>
     <message>
-        <source>Cannot debug: Kit has no device.</source>
-        <translation>デバッグエラー: キットにデバイスがありません。</translation>
-    </message>
-    <message>
         <source>No debug server provider found for %1</source>
         <translation>デバッグ・サーバー・プロバイダが見つかりませんでした。%1</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWidget</name>
-    <message>
-        <source>GDB server provider:</source>
-        <translation>GDB サーバープロバイダ:</translation>
     </message>
     <message>
         <source>Debug server provider:</source>
         <translation>サーバー・プロバイダーをデバッグする:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderFactory</name>
     <message>
         <source>Default</source>
         <translation>既定</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderConfigWidget</name>
     <message>
         <source>Host:</source>
         <translation>ホスト:</translation>
@@ -37872,23 +37789,13 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Reset commands:</source>
         <translation>リセットコマンド:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::GdbServerProvider</name>
     <message>
         <source>Clone of %1</source>
         <translation>%1 を複製</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the GDB server provider.</source>
         <translation>GDB サーバープロバイダの名前を入力してください。</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -37922,9 +37829,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Startup in Pipe Mode</source>
         <translation>パイプモードで起動</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::HostWidget</name>
     <message>
         <source>Enter TCP/IP hostname of the GDB server provider, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
         <translation>GDB サーバープロバイダの TCP/IP ホスト名を入力してください。例: &quot;localhost&quot; や &quot;192.0.2.1&quot;.</translation>
@@ -37941,27 +37845,13 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Enter TCP/IP port which will be listened by the debug server.</source>
         <translation>デバッグ サーバーが待ち受けに使用している TCP/IP ポート番号を入力してください。</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderChooser</name>
     <message>
         <source>Manage...</source>
         <translation>管理...</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>なし</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderModel</name>
-    <message>
         <source>Name</source>
         <translation>名前</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>タイプ</translation>
     </message>
     <message>
         <source>Duplicate Providers Detected</source>
@@ -37971,9 +37861,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>以下のプロバイダは既に設定済みです。&lt;br&gt;&amp;nbsp;%1&lt;br&gt;重複した設定は行いません。</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvidersSettingsPage</name>
     <message>
         <source>GDB Server Providers</source>
         <translation>GDB サーバープロバイダ</translation>
@@ -37990,19 +37877,9 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Remove</source>
         <translation>削除</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderFactory</name>
     <message>
         <source>OpenOCD</source>
         <translation>OpenOCD</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>ホスト:</translation>
     </message>
     <message>
         <source>Executable file:</source>
@@ -38021,30 +37898,8 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <translation>追加の引数:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>初期化コマンド:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>リセットコマンド:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderFactory</name>
-    <message>
         <source>ST-LINK Utility</source>
         <translation>ST-LINK ユーティリティ</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>ホスト:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>実行ファイル:</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0..99).</source>
@@ -38077,14 +37932,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     <message>
         <source>Version:</source>
         <translation>バージョン:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation>初期化コマンド:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>リセットコマンド:</translation>
     </message>
     <message>
         <source>ST-LINK/V1</source>
@@ -44415,7 +44262,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <name>Nim</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -44447,13 +44294,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
     <message>
         <source>Release</source>
         <translation>リリース</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStepConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -44739,49 +44579,31 @@ Output:
     </message>
 </context>
 <context>
-    <name>NimRunConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>現在のビルドターゲット</translation>
     </message>
-</context>
-<context>
-    <name>NimBuildConfigurationWidget</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Nim コンパイラビルドステップ</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
         <translation>Nim ビルドステップ</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
         <translation>Nim コンパイラクリーンステップ</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
         <translation>Nim クリーンステップ</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>コードスタイル</translation>
@@ -44790,44 +44612,14 @@ Output:
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>NimSnippetProvider</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation>ビルド</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepFactory</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Nim コンパイラビルドステップ</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Nim クリーンステップ</translation>
@@ -44835,10 +44627,6 @@ Output:
     <message>
         <source>Build directory &quot;%1&quot; does not exist.</source>
         <translation>ビルドディレクトリ &quot;%1&quot; が存在しません。</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>作業ディレクトリ:</translation>
     </message>
     <message>
         <source>Failed to delete the cache directory.</source>
@@ -44852,16 +44640,10 @@ Output:
         <source>Clean step completed successfully.</source>
         <translation>クリーンステップが正常に完了しました。</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimProjectManager</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません。</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimRunControl</name>
     <message>
         <source>%1 crashed</source>
         <translation>%1 がクラッシュしました</translation>
@@ -44870,17 +44652,10 @@ Output:
         <source>%1 exited with code %2</source>
         <translation>%1 は終了コード %2 で終了しました</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>グローバル</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -45835,7 +45610,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>MesonProjectManager::Internal::MesonBuildSettingsWidget</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Apply Configuration Changes</source>
         <translation>設定の変更を適用</translation>
@@ -45844,9 +45619,6 @@ Output:
         <source>Filter</source>
         <translation>フィルタ</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolItemSettings</name>
     <message>
         <source>Name:</source>
         <translation>名前:</translation>
@@ -45855,9 +45627,6 @@ Output:
         <source>Path:</source>
         <translation>パス:</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolsSettingsWidget</name>
     <message>
         <source>Clone</source>
         <translation>複製</translation>
@@ -45868,7 +45637,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Nim::NimToolsSettingsWidget</name>
+    <name>Nim</name>
     <message>
         <source>Path</source>
         <translation>パス</translation>
@@ -47079,25 +46848,15 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>BareMetalDeployConfiguration</name>
+    <name>BareMetal</name>
     <message>
         <source>Deploy to BareMetal Device</source>
         <translation>ベアメタルデバイスにデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DebugServerProviderChooser</name>
-    <message>
-        <source>Manage...</source>
-        <translation>管理...</translation>
     </message>
     <message>
         <source>None</source>
         <translation>しない</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DebugServerProviderModel</name>
     <message>
         <source>Not recognized</source>
         <translation>不明</translation>
@@ -47123,10 +46882,6 @@ The name of the release build configuration created by default for a qmake proje
 (KEIL uVision と併用)。</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>型</translation>
     </message>
@@ -47135,43 +46890,9 @@ The name of the release build configuration created by default for a qmake proje
         <translation>エンジン</translation>
     </message>
     <message>
-        <source>Duplicate Providers Detected</source>
-        <translation>重複したプロバイダの検出</translation>
-    </message>
-    <message>
-        <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation>以下のプロバイダは既に設定済みです。&lt;br&gt;&amp;nbsp;%1&lt;br&gt;重複した設定は行いません。</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DebugServerProvidersSettingsPage</name>
-    <message>
-        <source>Add</source>
-        <translation>追加</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>Debug Server Providers</source>
         <translation>サーバー・プロバイダーをデバッグする</translation>
     </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>%1 を複製</translation>
-    </message>
-    <message>
-        <source>Bare Metal</source>
-        <translation>ベアメタル</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvider</name>
     <message>
         <source>EBlink</source>
         <translation>EBlink</translation>
@@ -47185,35 +46906,12 @@ The name of the release build configuration created by default for a qmake proje
         <translation>JLink</translation>
     </message>
     <message>
-        <source>OpenOCD</source>
-        <translation>OpenOCD</translation>
-    </message>
-    <message>
-        <source>ST-LINK Utility</source>
-        <translation>ST-LINK ユーティリティ</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::EBlinkGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>ホスト:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>実行ファイル:</translation>
-    </message>
-    <message>
         <source>Script file:</source>
         <translation>スクリプトファイル:</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0 to 7).</source>
         <translation>詳細レベル (0 ～ 7) を指定してください。</translation>
-    </message>
-    <message>
-        <source>Verbosity level:</source>
-        <translation>詳細レベル:</translation>
     </message>
     <message>
         <source>Connect under reset (hotplug).</source>
@@ -47256,25 +46954,6 @@ The name of the release build configuration created by default for a qmake proje
         <translation>自動シャットダウン:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>初期化コマンド:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>リセットコマンド:</translation>
-    </message>
-    <message>
-        <source>SWD</source>
-        <translation>SWD</translation>
-    </message>
-    <message>
-        <source>JTAG</source>
-        <translation>JTAG</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetalDebugSupport</name>
-    <message>
         <source>Cannot debug: Local executable is not set.</source>
         <translation>デバッグエラー: ローカル実行ファイルが設定されていません。</translation>
     </message>
@@ -47290,40 +46969,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Unable to create a uVision project template.</source>
         <translation>uVision プロジェクトのテンプレートを作成できません。</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GenericGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>ホスト:</translation>
-    </message>
-    <message>
-        <source>Extended mode:</source>
-        <translation>拡張モード:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation>初期化コマンド:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>リセットコマンド:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::JLinkGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>ホスト:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>実行ファイル:</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation>既定</translation>
-    </message>
     <message>
         <source>JTAG</source>
         <translation type="unfinished">JTAG</translation>
@@ -47337,21 +46982,6 @@ The name of the release build configuration created by default for a qmake proje
         <translation>デバイス:</translation>
     </message>
     <message>
-        <source>Additional arguments:</source>
-        <translation>追加の引数:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation>初期化コマンド:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>リセットコマンド:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::UvscServerProvider</name>
-    <message>
         <source>uVision JLink</source>
         <translation>uVision JLink</translation>
     </message>
@@ -47363,31 +46993,13 @@ The name of the release build configuration created by default for a qmake proje
         <source>uVision St-Link</source>
         <translation>uVision St-Link</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::JLinkUvscServerProviderConfigWidget</name>
     <message>
         <source>Adapter options:</source>
         <translation>アダプタオプション:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::JLinkUvscAdapterOptionsWidget</name>
     <message>
         <source>Port:</source>
         <translation>ポート:</translation>
-    </message>
-    <message>
-        <source>Speed:</source>
-        <translation>速度:</translation>
-    </message>
-    <message>
-        <source>JTAG</source>
-        <translation>JTAG</translation>
-    </message>
-    <message>
-        <source>SWD</source>
-        <translation>SWD</translation>
     </message>
     <message>
         <source>50MHz</source>
@@ -47437,9 +47049,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>100kHz</source>
         <translation>100kHz</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::SimulatorUvscServerProviderConfigWidget</name>
     <message>
         <source>Limit speed to real-time.</source>
         <translation>速度をリアルタイムに制限する。</translation>
@@ -47447,32 +47056,6 @@ The name of the release build configuration created by default for a qmake proje
     <message>
         <source>Limit speed to real-time:</source>
         <translation>速度をリアルタイムに制限する:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUvscServerProviderConfigWidget</name>
-    <message>
-        <source>Adapter options:</source>
-        <translation>アダプタオプション:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUvscAdapterOptionsWidget</name>
-    <message>
-        <source>Port:</source>
-        <translation>ポート:</translation>
-    </message>
-    <message>
-        <source>Speed:</source>
-        <translation>速度:</translation>
-    </message>
-    <message>
-        <source>JTAG</source>
-        <translation>JTAG</translation>
-    </message>
-    <message>
-        <source>SWD</source>
-        <translation>SWD</translation>
     </message>
     <message>
         <source>9MHz</source>
@@ -47527,10 +47110,6 @@ The name of the release build configuration created by default for a qmake proje
         <translation>125kHz</translation>
     </message>
     <message>
-        <source>100kHz</source>
-        <translation>100kHz</translation>
-    </message>
-    <message>
         <source>50kHz</source>
         <translation>50kHz</translation>
     </message>
@@ -47545,13 +47124,6 @@ The name of the release build configuration created by default for a qmake proje
     <message>
         <source>5kHz</source>
         <translation>5kHz</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::UvscServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>ホスト:</translation>
     </message>
     <message>
         <source>Choose Keil Toolset Configuration File</source>
@@ -47586,11 +47158,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionModel</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
+    <name>BareMetal</name>
     <message>
         <source>Version</source>
         <translation>バージョン</translation>
@@ -47599,9 +47167,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Vendor</source>
         <translation>ベンダー</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionMemoryModel</name>
     <message>
         <source>ID</source>
         <translation>ID</translation>
@@ -47613,13 +47178,6 @@ The name of the release build configuration created by default for a qmake proje
     <message>
         <source>Size</source>
         <translation>サイズ</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionAlgorithmModel</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
     </message>
     <message>
         <source>FLASH Start</source>
@@ -47637,9 +47195,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>RAM Size</source>
         <translation>RAM サイズ</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionAlgorithmView</name>
     <message>
         <source>Algorithm path.</source>
         <translation>アルゴリズムのパス。</translation>
@@ -47660,16 +47215,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>RAM:</source>
         <translation>RAM:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectorToolPanel</name>
-    <message>
-        <source>Manage...</source>
-        <translation>管理...</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectorDetailsPanel</name>
     <message>
         <source>Vendor:</source>
         <translation>ベンダー:</translation>
@@ -47691,62 +47236,21 @@ The name of the release build configuration created by default for a qmake proje
         <translation>FLASH アルゴリズム:</translation>
     </message>
     <message>
-        <source>Peripheral description files (*.svd)</source>
-        <translation>ペリフェラル説明ファイル (*.svd)</translation>
-    </message>
-    <message>
-        <source>Select Peripheral Description File</source>
-        <translation>ペリフェラル説明ファイルを選択する</translation>
-    </message>
-    <message>
-        <source>Peripheral description file:</source>
-        <translation>ペリフェラル説明ファイル:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelector</name>
-    <message>
         <source>Target device not selected.</source>
         <translation>ターゲットデバイスが選択されていません。</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DeviceSelectionDialog</name>
     <message>
         <source>Available Target Devices</source>
         <translation>使用可能なターゲットデバイス</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionModel</name>
     <message>
         <source>Path</source>
         <translation>パス</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionCpuDllModel</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionCpuDllView</name>
     <message>
         <source>Debugger CPU library (depends on a CPU core).</source>
         <translation>デバッガ CPU ライブラリ(CPU コアに依存)。</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectorToolPanel</name>
-    <message>
-        <source>Manage...</source>
-        <translation>管理...</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectorDetailsPanel</name>
     <message>
         <source>Debugger driver library.</source>
         <translation>デバッガドライバライブラリ。</translation>
@@ -47759,23 +47263,14 @@ The name of the release build configuration created by default for a qmake proje
         <source>CPU library:</source>
         <translation>CPU ライブラリ:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelector</name>
     <message>
         <source>Target driver not selected.</source>
         <translation>ターゲットドライバーが選択されていません。</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::Uv::DriverSelectionDialog</name>
     <message>
         <source>Available Target Drivers</source>
         <translation>使用可能なターゲットドライバー</translation>
     </message>
-</context>
-<context>
-    <name>IarToolChain</name>
     <message>
         <source>IAREW %1 (%2, %3)</source>
         <translation>IAREW %1 (%2, %3)</translation>
@@ -47784,9 +47279,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>IAREW</source>
         <translation>IAREW</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::IarToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>コンパイラのパス(&amp;C):</translation>
@@ -47799,20 +47291,10 @@ The name of the release build configuration created by default for a qmake proje
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::IDebugServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the debugger server provider.</source>
         <translation>デバッガ サーバー プロバイダの名前を入力してください。</translation>
     </message>
-    <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
-    </message>
-</context>
-<context>
-    <name>KeilToolChain</name>
     <message>
         <source>KEIL %1 (%2, %3)</source>
         <translation>KEIL %1 (%2, %3)</translation>
@@ -47821,24 +47303,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>KEIL</source>
         <translation>KEIL</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::KeilToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>コンパイラのパス(&amp;C):</translation>
-    </message>
-    <message>
-        <source>Platform codegen flags:</source>
-        <translation>プラットフォーム用コード生成オプション:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>SdccToolChain</name>
     <message>
         <source>SDCC %1 (%2, %3)</source>
         <translation>SDCC %1 (%2, %3)</translation>
@@ -47846,17 +47310,6 @@ The name of the release build configuration created by default for a qmake proje
     <message>
         <source>SDCC</source>
         <translation>SDCC</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::SdccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>コンパイラのパス(&amp;C):</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
     </message>
 </context>
 <context>
@@ -49749,7 +49202,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>MesonProjectManager::Internal::MesonActionsManager</name>
+    <name>MesonProjectManager</name>
     <message>
         <source>Configure</source>
         <translation>設定する</translation>
@@ -49762,16 +49215,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Build &quot;%1&quot;</source>
         <translation>&quot;%1&quot; のビルド</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::BuidOptionsModel</name>
     <message>
         <source>Value</source>
         <translation>値</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonProcess</name>
     <message>
         <source>Process timed out.</source>
         <translation>プロセスがタイムアウトしました。</translation>
@@ -49780,9 +49227,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Executable does not exist: %1</source>
         <translation>実行ファイル が存在しません: %1</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaBuildStep</name>
     <message>
         <source>Build</source>
         <comment>MesonProjectManager::MesonBuildStepConfigWidget display name.</comment>
@@ -49796,30 +49240,14 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Targets:</source>
         <translation>ターゲット:</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::GeneralSettingsPage</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::MesonToolKitAspect</name>
     <message>
         <source>Unconfigured</source>
         <translation>未設定</translation>
     </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::NinjaToolKitAspect</name>
-    <message>
-        <source>Unconfigured</source>
-        <translation>未設定</translation>
-    </message>
-</context>
-<context>
-    <name>MesonProjectManager::Internal::ToolsSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>名前</translation>
@@ -49842,94 +49270,15 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>NimToolsSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimPlugin</name>
+    <name>Nim</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimbleBuildConfiguration</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfiguration</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStep</name>
-    <message>
-        <source>Nim build step</source>
-        <translation>Nim ビルドステップ</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation>ターゲット:</translation>
-    </message>
-    <message>
-        <source>Default arguments:</source>
-        <translation>デフォルト引数:</translation>
-    </message>
-    <message>
-        <source>Extra arguments:</source>
-        <translation>追加引数:</translation>
-    </message>
-    <message>
-        <source>Command:</source>
-        <translation>コマンド:</translation>
-    </message>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Nim コンパイラビルドステップ</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimRunConfiguration</name>
-    <message>
-        <source>Current Build Target</source>
-        <translation>現在のビルドターゲット</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChain</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>コンパイラのパス(&amp;C):</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::CodeStyleSettings</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::ToolSettingsPage</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>

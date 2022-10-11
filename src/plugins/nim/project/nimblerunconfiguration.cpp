@@ -5,6 +5,7 @@
 
 #include "nimbuildsystem.h"
 #include "nimconstants.h"
+#include "nimtr.h"
 
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -23,8 +24,6 @@ namespace Nim {
 
 class NimbleRunConfiguration : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim::NimbleRunConfiguration)
-
 public:
     NimbleRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
@@ -61,8 +60,6 @@ NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
 
 class NimbleTestConfiguration : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim::NimbleTestConfiguration)
-
 public:
     NimbleTestConfiguration(ProjectExplorer::Target *target, Utils::Id id)
         : RunConfiguration(target, id)
@@ -74,8 +71,8 @@ public:
                 ->setDefaultWorkingDirectory(project()->projectDirectory());
         addAspect<TerminalAspect>();
 
-        setDisplayName(tr("Nimble Test"));
-        setDefaultDisplayName(tr("Nimble Test"));
+        setDisplayName(Tr::tr("Nimble Test"));
+        setDefaultDisplayName(Tr::tr("Nimble Test"));
     }
 };
 

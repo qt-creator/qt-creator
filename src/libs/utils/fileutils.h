@@ -35,7 +35,7 @@ class CommandLine;
 
 struct QTCREATOR_UTILS_EXPORT RunResult
 {
-    int exitCode = 0;
+    int exitCode = -1;
     QByteArray stdOut;
     QByteArray stdErr;
 };
@@ -97,9 +97,18 @@ public:
             const FileFilter &filter,
             bool *useFind,
             const std::function<RunResult(const CommandLine &)> &runInShell,
-            const std::function<bool(const FilePath &)> &callBack);
+            const FilePath::IterateDirCallback &callBack);
+
+    static void iterateUnixDirectory(
+            const FilePath &base,
+            const FileFilter &filter,
+            bool *useFind,
+            const std::function<RunResult(const CommandLine &)> &runInShell,
+            const FilePath::IterateDirWithInfoCallback &callBack);
 
     static qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
+
+    static FilePathInfo filePathInfoFromTriple(const QString &infos);
 
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);

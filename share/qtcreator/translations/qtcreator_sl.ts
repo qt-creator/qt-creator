@@ -7537,8 +7537,8 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <location/>
-        <source>&amp;Switch To</source>
-        <translation>P&amp;reklopi na</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Odpri</translation>
     </message>
     <message>
         <location/>

@@ -226,7 +226,7 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
 
 bool ObjectsMapDocument::writeFile(const Utils::FilePath &fileName) const
 {
-    if (fileName.endsWith("object.map")) {
+    if (fileName.endsWith("objects.map")) {
         Utils::FileSaver saver(fileName);
         return saver.write(contents()) && saver.finalize();
     }

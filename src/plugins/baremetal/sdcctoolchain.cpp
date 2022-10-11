@@ -1,10 +1,11 @@
 // Copyright (C) 2019 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "baremetalconstants.h"
-
-#include "sdccparser.h"
 #include "sdcctoolchain.h"
+
+#include "baremetalconstants.h"
+#include "baremetaltr.h"
+#include "sdccparser.h"
 
 #include <projectexplorer/abiwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -31,8 +32,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // Helpers:
 
@@ -163,7 +163,7 @@ static Abi::BinaryFormat guessFormat(Abi::Architecture arch)
 
 static Abi guessAbi(const Macros &macros)
 {
-    const auto arch = guessArchitecture(macros);
+    const Abi::Architecture arch = guessArchitecture(macros);
     return {arch, Abi::OS::BareMetalOS, Abi::OSFlavor::GenericFlavor,
             guessFormat(arch), guessWordWidth(macros)};
 }
@@ -171,10 +171,9 @@ static Abi guessAbi(const Macros &macros)
 static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
                                 const QString &version)
 {
-    const auto archName = Abi::toString(arch);
-    const auto langName = ToolChainManager::displayNameOfLanguageId(language);
-    return SdccToolChain::tr("SDCC %1 (%2, %3)")
-            .arg(version, langName, archName);
+    const QString archName = Abi::toString(arch);
+    const QString langName = ToolChainManager::displayNameOfLanguageId(language);
+    return Tr::tr("SDCC %1 (%2, %3)").arg(version, langName, archName);
 }
 
 static Utils::FilePath compilerPathFromEnvironment(const QString &compilerName)
@@ -188,7 +187,7 @@ static Utils::FilePath compilerPathFromEnvironment(const QString &compilerName)
 SdccToolChain::SdccToolChain() :
     ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(Internal::SdccToolChain::tr("SDCC"));
+    setTypeDisplayName(Tr::tr("SDCC"));
     setTargetAbiKey("TargetAbi");
     setCompilerCommandKey("CompilerPath");
 }
@@ -277,7 +276,7 @@ FilePath SdccToolChain::makeCommand(const Environment &env) const
 
 SdccToolChainFactory::SdccToolChainFactory()
 {
-    setDisplayName(SdccToolChain::tr("SDCC"));
+    setDisplayName(Tr::tr("SDCC"));
     setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new SdccToolChain; });
@@ -413,8 +412,8 @@ SdccToolChainConfigWidget::SdccToolChainConfigWidget(SdccToolChain *tc) :
 {
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setHistoryCompleter("PE.SDCC.Command.History");
-    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
-    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
 
     m_abiWidget->setEnabled(false);
 
@@ -486,5 +485,4 @@ void SdccToolChainConfigWidget::handleCompilerCommandChange()
     emit dirty();
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

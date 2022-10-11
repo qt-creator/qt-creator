@@ -4,6 +4,7 @@
 #include "settings.h"
 
 #include "mesonpluginconstants.h"
+#include "mesonprojectmanagertr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -16,12 +17,12 @@ Settings::Settings()
     setAutoApply(false);
 
     autorunMeson.setSettingsKey("meson.autorun");
-    autorunMeson.setLabelText(tr("Autorun Meson"));
-    autorunMeson.setToolTip(tr("Automatically run Meson when needed."));
+    autorunMeson.setLabelText(Tr::tr("Autorun Meson"));
+    autorunMeson.setToolTip(Tr::tr("Automatically run Meson when needed."));
 
     verboseNinja.setSettingsKey("ninja.verbose");
-    verboseNinja.setLabelText(tr("Ninja verbose mode"));
-    verboseNinja.setToolTip(tr("Enables verbose mode by default when invoking Ninja."));
+    verboseNinja.setLabelText(Tr::tr("Ninja verbose mode"));
+    verboseNinja.setToolTip(Tr::tr("Enables verbose mode by default when invoking Ninja."));
 
     registerAspect(&autorunMeson);
     registerAspect(&verboseNinja);
@@ -36,7 +37,7 @@ Settings *Settings::instance()
 GeneralSettingsPage::GeneralSettingsPage()
 {
     setId(Constants::SettingsPage::GENERAL_ID);
-    setDisplayName(tr("General"));
+    setDisplayName(Tr::tr("General"));
     setDisplayCategory("Meson");
     setCategory(Constants::SettingsPage::CATEGORY);
     setCategoryIconPath(Constants::Icons::MESON_BW);

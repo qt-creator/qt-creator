@@ -28,4 +28,4 @@ protected:
     QStringList m_excludedFiles;
 };
 
-}
+} // Nim

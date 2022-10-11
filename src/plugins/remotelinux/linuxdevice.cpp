@@ -1288,12 +1288,28 @@ bool LinuxDevice::setPermissions(const FilePath &filePath, QFileDevice::Permissi
 }
 
 void LinuxDevice::iterateDirectory(const FilePath &filePath,
-                                   const std::function<bool(const FilePath &)> &callBack,
+                                   const FilePath::IterateDirCallback &callBack,
                                    const FileFilter &filter) const
 {
     QTC_ASSERT(handlesFile(filePath), return);
     auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };
     FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
+}
+
+void LinuxDevice::iterateDirectory(const FilePath &filePath,
+                                   const FilePath::IterateDirWithInfoCallback &callBack,
+                                   const FileFilter &filter) const
+{
+    QTC_ASSERT(handlesFile(filePath), return);
+    auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };
+    FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
+}
+
+FilePathInfo LinuxDevice::filePathInfo(const FilePath &filePath) const
+{
+    QTC_ASSERT(handlesFile(filePath), return {});
+    const RunResult stat = d->runInShell({"stat", {"-L", "-c", "%f %Y %s", filePath.path()}});
+    return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut));
 }
 
 std::optional<QByteArray> LinuxDevice::fileContents(const FilePath &filePath,
@@ -1318,10 +1334,17 @@ std::optional<QByteArray> LinuxDevice::fileContents(const FilePath &filePath,
     return result.stdOut;
 }
 
-bool LinuxDevice::writeFileContents(const FilePath &filePath, const QByteArray &data) const
+bool LinuxDevice::writeFileContents(const FilePath &filePath,
+                                    const QByteArray &data,
+                                    qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    return d->runInShellSuccess({"dd", {"of=" + filePath.path()}}, data);
+    CommandLine cmd({"dd", {"of=" + filePath.path()}});
+    if (offset != 0) {
+        cmd.addArg("bs=1");
+        cmd.addArg(QString("seek=%1").arg(offset));
+    }
+    return d->runInShellSuccess(cmd, data);
 }
 
 static FilePaths dirsToCreate(const FilesToTransfer &files)

@@ -2,10 +2,12 @@
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "baremetalconstants.h"
 #include "baremetaldevice.h"
+
+#include "baremetalconstants.h"
 #include "baremetaldeviceconfigurationwidget.h"
 #include "baremetaldeviceconfigurationwizard.h"
+#include "baremetaltr.h"
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
@@ -13,8 +15,7 @@
 
 using namespace ProjectExplorer;
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 const char debugServerProviderIdKeyC[] = "IDebugServerProviderId";
 
@@ -22,7 +23,7 @@ const char debugServerProviderIdKeyC[] = "IDebugServerProviderId";
 
 BareMetalDevice::BareMetalDevice()
 {
-    setDisplayType(tr("Bare Metal"));
+    setDisplayType(Tr::tr("Bare Metal"));
     setDefaultDisplayName(defaultDisplayName());
     setOsType(Utils::OsTypeOther);
 }
@@ -36,7 +37,7 @@ BareMetalDevice::~BareMetalDevice()
 
 QString BareMetalDevice::defaultDisplayName()
 {
-    return tr("Bare Metal Device");
+    return Tr::tr("Bare Metal Device");
 }
 
 QString BareMetalDevice::debugServerProviderId() const
@@ -100,7 +101,7 @@ IDeviceWidget *BareMetalDevice::createWidget()
 BareMetalDeviceFactory::BareMetalDeviceFactory()
     : IDeviceFactory(Constants::BareMetalOsType)
 {
-    setDisplayName(BareMetalDevice::tr("Bare Metal Device"));
+    setDisplayName(Tr::tr("Bare Metal Device"));
     setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
                     ":/baremetal/images/baremetaldevice.png");
     setConstructionFunction(&BareMetalDevice::create);
@@ -112,5 +113,4 @@ BareMetalDeviceFactory::BareMetalDeviceFactory()
     });
 }
 
-} //namespace Internal
-} //namespace BareMetal
+} // BareMetal::Internal

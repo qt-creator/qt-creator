@@ -8,9 +8,7 @@
 
 #include <ostream>
 
-namespace BareMetal {
-namespace Gen {
-namespace Xml {
+namespace BareMetal::Gen::Xml {
 
 // ProjectWriter
 
@@ -114,6 +112,4 @@ QXmlStreamWriter *ProjectOptionsWriter::writer() const
     return m_writer.get();
 }
 
-} // namespace Xml
-} // namespace Gen
-} // namespace BareMetal
+} // BareMetal::Gen::Xml

@@ -10,8 +10,7 @@
 
 namespace Utils { class PersistentSettingsWriter; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class BareMetalPlugin;
 class BareMetalPluginPrivate;
@@ -59,5 +58,4 @@ private:
     friend class IDebugServerProvider;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

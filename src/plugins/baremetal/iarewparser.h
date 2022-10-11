@@ -6,15 +6,10 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
-namespace BareMetal {
-namespace Internal {
-
-// IarParser
+namespace BareMetal::Internal {
 
 class IarParser final : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     explicit IarParser();
     static Utils::Id id();
@@ -43,5 +38,4 @@ private:
     QStringList m_descriptionParts;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

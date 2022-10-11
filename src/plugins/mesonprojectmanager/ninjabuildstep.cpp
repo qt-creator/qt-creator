@@ -6,6 +6,7 @@
 #include "mesonbuildconfiguration.h"
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
+#include "mesonprojectmanagertr.h"
 #include "mesonoutputparser.h"
 #include "ninjatoolkitaspect.h"
 #include "settings.h"
@@ -32,8 +33,8 @@ namespace Internal {
 const char TARGETS_KEY[] = "MesonProjectManager.BuildStep.BuildTargets";
 const char TOOL_ARGUMENTS_KEY[] = "MesonProjectManager.BuildStep.AdditionalArguments";
 
-NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
-    : ProjectExplorer::AbstractProcessStep{bsl, id}
+NinjaBuildStep::NinjaBuildStep(BuildStepList *bsl, Id id)
+    : AbstractProcessStep{bsl, id}
 {
     if (m_targetName.isEmpty())
         setBuildTarget(defaultBuildTarget());
@@ -43,16 +44,14 @@ NinjaBuildStep::NinjaBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id
     setUseEnglishOutput();
 
     connect(target(), &ProjectExplorer::Target::parsingFinished, this, &NinjaBuildStep::update);
-    connect(&Settings::instance()->verboseNinja,
-            &BaseAspect::changed,
-            this,
-            &NinjaBuildStep::commandChanged);
+    connect(&Settings::instance()->verboseNinja, &BaseAspect::changed,
+            this, &NinjaBuildStep::commandChanged);
 }
 
 QWidget *NinjaBuildStep::createConfigWidget()
 {
     auto widget = new QWidget;
-    setDisplayName(tr("Build", "MesonProjectManager::MesonBuildStepConfigWidget display name."));
+    setDisplayName(Tr::tr("Build", "MesonProjectManager::MesonBuildStepConfigWidget display name."));
 
     auto buildTargetsList = new QListWidget(widget);
     buildTargetsList->setMinimumHeight(200);
@@ -67,8 +66,8 @@ QWidget *NinjaBuildStep::createConfigWidget()
     auto formLayout = new QFormLayout(widget);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     formLayout->setContentsMargins(0, 0, 0, 0);
-    formLayout->addRow(tr("Tool arguments:"), toolArguments);
-    formLayout->addRow(tr("Targets:"), wrapper);
+    formLayout->addRow(Tr::tr("Tool arguments:"), toolArguments);
+    formLayout->addRow(Tr::tr("Targets:"), wrapper);
 
     auto updateDetails = [this] {
         ProcessParameters param;
@@ -188,7 +187,7 @@ MesonBuildStepFactory::MesonBuildStepFactory()
 {
     registerStep<NinjaBuildStep>(Constants::MESON_BUILD_STEP_ID);
     setSupportedProjectType(Constants::Project::ID);
-    setDisplayName(NinjaBuildStep::tr("Meson Build"));
+    setDisplayName(Tr::tr("Meson Build"));
 }
 
 void MesonProjectManager::Internal::NinjaBuildStep::setBuildTarget(const QString &targetName)

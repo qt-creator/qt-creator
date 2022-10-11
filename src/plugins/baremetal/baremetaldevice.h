@@ -7,8 +7,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class IDebugServerProvider;
 
@@ -16,8 +15,6 @@ class IDebugServerProvider;
 
 class BareMetalDevice final : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(BareMetal::Internal::BareMetalDevice)
-
 public:
     using Ptr = QSharedPointer<BareMetalDevice>;
     using ConstPtr = QSharedPointer<const BareMetalDevice>;
@@ -52,5 +49,4 @@ public:
     BareMetalDeviceFactory();
 };
 
-} //namespace Internal
-} //namespace BareMetal
+} // BareMetal::Internal

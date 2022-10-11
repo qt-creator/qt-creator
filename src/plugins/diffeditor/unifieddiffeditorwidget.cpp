@@ -332,7 +332,7 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
         for (int j = 0; j < buffer[side].count(); j++) {
             const TextLineData &lineData = buffer[side].at(j);
             const QString line = DiffUtils::makePatchLine(
-                        '-',
+                        side == LeftSide ? '-' : '+',
                         lineData.text,
                         lastChunk,
                         chunkIndex == chunkData.rows.count() && j == buffer[side].count() - 1);

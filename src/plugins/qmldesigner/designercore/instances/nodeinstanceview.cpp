@@ -29,7 +29,6 @@
 #include "nodeabstractproperty.h"
 #include "nodeinstanceserverproxy.h"
 #include "nodelistproperty.h"
-#include "nodeproperty.h"
 #include "pixmapchangedcommand.h"
 #include "puppettocreatorcommand.h"
 #include "qml3dnode.h"
@@ -78,19 +77,18 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
+#include <utils/threadutils.h>
 
 #include <qtsupport/qtkitinformation.h>
 
-#include <QUrl>
-#include <QMultiHash>
-#include <QTimerEvent>
-#include <QPicture>
-#include <QPainter>
 #include <QDirIterator>
 #include <QFileSystemWatcher>
+#include <QMultiHash>
+#include <QPainter>
+#include <QPicture>
 #include <QScopedPointer>
-#include <QThread>
-#include <QApplication>
+#include <QTimerEvent>
+#include <QUrl>
 
 enum {
     debug = false
@@ -258,7 +256,7 @@ void NodeInstanceView::modelAttached(Model *model)
     // If model gets attached on non-main thread of the application, do not attempt to monitor
     // file changes. Such models are typically short lived for specific purpose, and timers
     // will not work at all, if the thread is not based on QThread.
-    if (QThread::currentThread() == qApp->thread()) {
+    if (Utils::isMainThread()) {
         m_generateQsbFilesTimer.stop();
         m_qsbTargets.clear();
         updateQsbPathToFilterMap();

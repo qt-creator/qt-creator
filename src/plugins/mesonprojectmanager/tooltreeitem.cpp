@@ -3,6 +3,8 @@
 
 #include "tooltreeitem.h"
 
+#include "mesonprojectmanagertr.h"
+
 #include <utils/utilsicons.h>
 
 #include <QFileInfo>
@@ -27,12 +29,12 @@ ToolTreeItem::ToolTreeItem(const MesonTools::Tool_t &tool)
     , m_autoDetected{tool->autoDetected()}
     , m_id{tool->id()}
 {
-    m_tooltip = tr("Version: %1").arg(tool->version().toQString());
+    m_tooltip = Tr::tr("Version: %1").arg(tool->version().toQString());
     self_check();
 }
 
 ToolTreeItem::ToolTreeItem(const ToolTreeItem &other)
-    : m_name{tr("Clone of %1").arg(other.m_name)}
+    : m_name{Tr::tr("Clone of %1").arg(other.m_name)}
     , m_executable{other.m_executable}
     , m_autoDetected{false}
     , m_id{Utils::Id::fromString(QUuid::createUuid().toString())}
@@ -63,14 +65,11 @@ QVariant ToolTreeItem::data(int column, int role) const
     }
     case Qt::ToolTipRole: {
         if (!m_pathExists)
-            return QCoreApplication::translate("MesonProjectManager::Internal::ToolTreeItem",
-                                               "Meson executable path does not exist.");
+            return Tr::tr("Meson executable path does not exist.");
         if (!m_pathIsFile)
-            return QCoreApplication::translate("MesonProjectManager::Internal::ToolTreeItem",
-                                               "Meson executable path is not a file.");
+            return Tr::tr("Meson executable path is not a file.");
         if (!m_pathIsExecutable)
-            return QCoreApplication::translate("MesonProjectManager::Internal::ToolTreeItem",
-                                               "Meson executable path is not executable.");
+            return Tr::tr("Meson executable path is not executable.");
         return m_tooltip;
     }
     case Qt::DecorationRole: {
@@ -103,9 +102,9 @@ void ToolTreeItem::self_check()
 void ToolTreeItem::update_tooltip(const Version &version)
 {
     if (version.isValid)
-        m_tooltip = tr("Version: %1").arg(version.toQString());
+        m_tooltip = Tr::tr("Version: %1").arg(version.toQString());
     else
-        m_tooltip = tr("Cannot get tool version.");
+        m_tooltip = Tr::tr("Cannot get tool version.");
 }
 
 void ToolTreeItem::update_tooltip()

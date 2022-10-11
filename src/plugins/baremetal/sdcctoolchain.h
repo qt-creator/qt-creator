@@ -13,22 +13,16 @@ class QPushButton;
 class QTextEdit;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FilePath;
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace ProjectExplorer { class AbiWidget; }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 // SdccToolChain
 
 class SdccToolChain final : public ProjectExplorer::ToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(SdccToolChain)
-
 public:
     MacroInspectionRunner createMacroInspectionRunner() const final;
 
@@ -74,8 +68,6 @@ private:
 
 class SdccToolChainConfigWidget final : public ProjectExplorer::ToolChainConfigWidget
 {
-    Q_OBJECT
-
 public:
     explicit SdccToolChainConfigWidget(SdccToolChain *tc);
 
@@ -93,5 +85,4 @@ private:
     ProjectExplorer::Macros m_macros;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal

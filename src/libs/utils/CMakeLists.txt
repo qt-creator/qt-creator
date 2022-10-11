@@ -48,6 +48,7 @@ add_qtc_library(Utils
     fileinprojectfinder.cpp fileinprojectfinder.h
     filenamevalidatinglineedit.cpp filenamevalidatinglineedit.h
     filepath.cpp filepath.h
+    filepathinfo.h
     filesearch.cpp filesearch.h
     filesystemmodel.cpp filesystemmodel.h
     filesystemwatcher.cpp filesystemwatcher.h
@@ -264,6 +265,7 @@ extend_qtc_library(Utils
           fsengine/fixedlistfsengine.h
           fsengine/fsenginehandler.cpp
           fsengine/fsenginehandler.h
+          fsengine/filepathinfocache.h
 )
 
 if (WIN32)

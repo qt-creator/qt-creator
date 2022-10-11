@@ -958,8 +958,8 @@
         <translation>&amp;Usuń</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Przełącz sesję</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Otwórz</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
@@ -26284,7 +26284,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
+    <name>BareMetal</name>
     <message>
         <source>Set up GDB Server or Hardware Debugger</source>
         <translation>Ustaw serwer GDB lub debugger sprzętowy</translation>
@@ -27062,21 +27062,15 @@ Czy odinstalować istniejący pakiet?</translation>
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalDevice</name>
+    <name>BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
     <message>
         <source>GDB commands:</source>
         <translation>Komendy GDB:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfigurationFactory</name>
     <message>
         <source>%1 (on GDB server or hardware debugger)</source>
         <translation>%1 (na serwerze GDB lub debuggerze sprzętowym)</translation>
@@ -29876,37 +29870,14 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
         <source>Enter GDB commands to reset the hardware. The MCU should be halted after these commands.</source>
         <translation>Wprowadź komendy GDB resetujące sprzęt. MCU powinien zostać zatrzymany po tych komendach.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationFactory</name>
-    <message>
-        <source>Bare Metal Device</source>
-        <translation>Urządzenie Bare Metal</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWidget</name>
-    <message>
-        <source>GDB server provider:</source>
-        <translation>Dostawca serwera GDB:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizard</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>Nowa konfiguracja urządzenia Bare Metal</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStep</name>
     <message>
         <source>GDB commands</source>
         <translation>Komendy GDB</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfiguration</name>
     <message>
         <source>%1 (via GDB server or hardware debugger)</source>
         <translation>%1 (poprzez serwer GDB lub debugger sprzętowy)</translation>
@@ -29916,9 +29887,6 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
         <extracomment>Bare Metal run configuration default run name</extracomment>
         <translation>Uruchom na serwerze GDB lub debuggerze sprzętowym</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Plik wykonywalny:</translation>
@@ -33396,18 +33364,11 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfigWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Plik wykonywalny:</translation>
-    </message>
+    <name>BareMetal</name>
     <message>
         <source>Work directory:</source>
         <translation>Katalog roboczy:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalCustomRunConfiguration</name>
     <message>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
         <translation>W celu uruchomienia własnej, zdalnej konfiguracji uruchamiania, należy ustawić zdalny plik wykonywalny.</translation>
@@ -33416,9 +33377,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Custom Executable (on GDB server or hardware debugger)</source>
         <translation>Własny plik wykonywalny (na serwerze GDB lub debuggerze sprzętowym)</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::BareMetalDebugSupport</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>Nie można debugować: brak urządzenia w zestawie narzędzi.</translation>
@@ -33431,16 +33389,10 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Cannot debug: Could not find executable for &quot;%1&quot;.</source>
         <translation>Nie można debugować: nie można odnaleźć pliku wykonywalnego dla &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderFactory</name>
     <message>
         <source>Default</source>
         <translation>Domyślny</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::DefaultGdbServerProviderConfigWidget</name>
     <message>
         <source>Host:</source>
         <translation>Host:</translation>
@@ -33453,23 +33405,13 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Reset commands:</source>
         <translation>Komendy resetujące:</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::GdbServerProvider</name>
     <message>
         <source>Clone of %1</source>
         <translation>Klon %1</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderConfigWidget</name>
     <message>
         <source>Enter the name of the GDB server provider.</source>
         <translation>Podaj nazwę dostawcy serwera GDB.</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Nazwa:</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -33491,9 +33433,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Startup in Pipe Mode</source>
         <translation>Start w trybie potokowym</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::HostWidget</name>
     <message>
         <source>Enter TCP/IP hostname of the GDB server provider, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
         <translation>Podaj nazwę TCP/IP hosta dostawcy serwera GDB, np. &quot;localhost&quot; lub &quot;192.0.2.1&quot;.</translation>
@@ -33502,9 +33441,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Enter TCP/IP port which will be listened by the GDB server provider.</source>
         <translation>Podaj port TCP/IP, na którym będzie nasłuchiwał dostawca serwera GDB.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderChooser</name>
     <message>
         <source>Manage...</source>
         <translation>Zarządzaj...</translation>
@@ -33513,9 +33449,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>None</source>
         <translation>Brak</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProviderModel</name>
     <message>
         <source>Name</source>
         <translation>Nazwa</translation>
@@ -33532,9 +33465,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>Następujący dostawcy zostali już skonfigurowani:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Nie zostali oni ponownie skonfigurowani.</translation>
     </message>
-</context>
-<context>
-    <name>BareMetal::Internal::GdbServerProvidersSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -33552,22 +33482,8 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <translation>Dostawcy serwera GDB</translation>
     </message>
     <message>
-        <source>Bare Metal</source>
-        <translation>Bare Metal</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderFactory</name>
-    <message>
         <source>OpenOCD</source>
         <translation>OpenOCD</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::OpenOcdGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Host:</translation>
     </message>
     <message>
         <source>Executable file:</source>
@@ -33586,30 +33502,8 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <translation>Dodatkowe argumenty:</translation>
     </message>
     <message>
-        <source>Init commands:</source>
-        <translation>Komendy inicjalizujące:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Komendy resetujące:</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderFactory</name>
-    <message>
         <source>ST-LINK Utility</source>
         <translation>Narzędzie ST-LINK</translation>
-    </message>
-</context>
-<context>
-    <name>BareMetal::Internal::StLinkUtilGdbServerProviderConfigWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation>Host:</translation>
-    </message>
-    <message>
-        <source>Executable file:</source>
-        <translation>Plik wykonywalny:</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0..99).</source>
@@ -33642,14 +33536,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     <message>
         <source>Version:</source>
         <translation>Wersja:</translation>
-    </message>
-    <message>
-        <source>Init commands:</source>
-        <translation>Komendy inicjalizujące:</translation>
-    </message>
-    <message>
-        <source>Reset commands:</source>
-        <translation>Komendy resetujące:</translation>
     </message>
     <message>
         <source>ST-LINK/V1</source>
@@ -37988,7 +37874,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimCompilerBuildStepConfigWidget</name>
+    <name>Nim</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -38020,13 +37906,6 @@ Czy nadpisać go?</translation>
     <message>
         <source>Release</source>
         <translation>Release</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStepConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -38583,49 +38462,31 @@ Komunikat:
     </message>
 </context>
 <context>
-    <name>NimRunConfiguration</name>
+    <name>Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>Bieżący cel budowania</translation>
     </message>
-</context>
-<context>
-    <name>NimBuildConfigurationWidget</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStep</name>
     <message>
         <source>Nim Compiler Build Step</source>
         <translation>Krok budowania kompilatora Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerBuildStepConfigWidget</name>
     <message>
         <source>Nim build step</source>
         <translation>Krok budowania Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepFactory</name>
     <message>
         <source>Nim Compiler Clean Step</source>
         <translation>Krok czyszczenia kompilatora Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCompilerCleanStepWidget</name>
     <message>
         <source>Nim clean step</source>
         <translation>Krok czyszczenia Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStyleSettingsPage</name>
     <message>
         <source>Code Style</source>
         <translation>Styl kodu</translation>
@@ -38634,37 +38495,14 @@ Komunikat:
         <source>Nim</source>
         <translation>Nim</translation>
     </message>
-</context>
-<context>
-    <name>NimCodeStylePreferencesFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Katalog budowania:</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimCompilerBuildStepFactory</name>
-    <message>
-        <source>Nim Compiler Build Step</source>
-        <translation>Krok budowania kompilatora Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimCompilerCleanStep</name>
     <message>
         <source>Nim Clean Step</source>
         <translation>Krok czyszczenia Nim</translation>
@@ -38685,17 +38523,10 @@ Komunikat:
         <source>Clean step completed successfully.</source>
         <translation>Krok czyszczenia poprawnie zakończony.</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globalne</translation>
-    </message>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
     </message>
 </context>
 <context>
@@ -41536,7 +41367,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimProject</name>
+    <name>Nim</name>
     <message>
         <source>Scanning for Nim files</source>
         <translation>Skanowanie w poszukiwaniu plików Nim</translation>
@@ -41549,16 +41380,6 @@ Termin wygaśnięcia: %3</translation>
         <source>Nim compiler does not exist</source>
         <translation>Brak kompilatora Nim</translation>
     </message>
-</context>
-<context>
-    <name>Nim::NimToolChainFactory</name>
-    <message>
-        <source>Nim</source>
-        <translation>Nim</translation>
-    </message>
-</context>
-<context>
-    <name>Nim::NimToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Ścieżka do &amp;kompilatora:</translation>
@@ -42225,7 +42046,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Nim::NimPlugin</name>
+    <name>Nim</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>

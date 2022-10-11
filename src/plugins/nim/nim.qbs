@@ -60,7 +60,7 @@ QtcPlugin {
         prefix: "settings/"
         files: [
             "nimcodestylepreferencesfactory.h", "nimcodestylepreferencesfactory.cpp",
-            "nimcodestylepreferenceswidget.h", "nimcodestylepreferenceswidget.cpp", "nimcodestylepreferenceswidget.ui",
+            "nimcodestylepreferenceswidget.h", "nimcodestylepreferenceswidget.cpp",
             "nimcodestylesettingspage.h", "nimcodestylesettingspage.cpp",
             "nimsettings.h", "nimsettings.cpp",
         ]

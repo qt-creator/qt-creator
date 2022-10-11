@@ -86,6 +86,20 @@ SquishSettings::SquishSettings()
     });
 }
 
+Utils::FilePath SquishSettings::scriptsPath(Language language) const
+{
+    Utils::FilePath scripts = squishPath.filePath().pathAppended("scriptmodules");
+    switch (language) {
+    case Language::Python: scripts = scripts.pathAppended("python"); break;
+    case Language::Perl: scripts = scripts.pathAppended("perl"); break;
+    case Language::JavaScript: scripts = scripts.pathAppended("javascript"); break;
+    case Language::Ruby: scripts = scripts.pathAppended("ruby"); break;
+    case Language::Tcl: scripts = scripts.pathAppended("tcl"); break;
+    }
+
+    return scripts.isReadableDir() ? scripts : Utils::FilePath();
+}
+
 SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
 {
     setId("A.Squish.General");
@@ -393,7 +407,7 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     // query settings
     SquishTools *squishTools = SquishTools::instance();
     connect(squishTools, &SquishTools::queryFinished, this,
-            [this, progress] (const QString &out) {
+            [this, progress] (const QString &out, const QString &) {
         m_serverSettings.setFromXmlOutput(out);
         m_originalSettings.setFromXmlOutput(out);
         repopulateApplicationView();
