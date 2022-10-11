@@ -4,6 +4,7 @@
 #include "executefilter.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -114,6 +115,7 @@ void ExecuteFilter::done()
 {
     QTC_ASSERT(m_process, return);
     MessageManager::writeFlashing(m_process->exitMessage());
+    EditorManager::updateWindowTitles(); // Refresh VCS topic if needed
 
     removeProcess();
     runHeadCommand();
