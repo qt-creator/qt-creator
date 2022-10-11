@@ -182,6 +182,8 @@ signals:
     void customParsersChanged();
 
     void runActionsUpdated();
+    void runControlStarted(ProjectExplorer::RunControl *runControl);
+    void runControlStoped(ProjectExplorer::RunControl *runControl);
 
     void filesRenamed(const QList<std::pair<Utils::FilePath, Utils::FilePath>> &oldAndNewPaths);
 

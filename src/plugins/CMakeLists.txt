@@ -99,6 +99,7 @@ add_subdirectory(perfprofiler)
 add_subdirectory(qbsprojectmanager)
 add_subdirectory(ctfvisualizer)
 add_subdirectory(squish)
+add_subdirectory(appstatisticsmonitor)
 
 # Level 8:
 add_subdirectory(boot2qt)

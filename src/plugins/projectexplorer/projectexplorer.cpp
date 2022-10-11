@@ -1890,7 +1890,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #ifdef WITH_TESTS
     addTestCreator(&createSanitizerOutputParserTest);
 #endif
-
     return true;
 }
 
@@ -2456,6 +2455,12 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     ++m_activeRunControlCount;
     runControl->initiateStart();
     doUpdateRunActions();
+    connect(runControl, &RunControl::started, m_instance, [runControl] {
+        emit m_instance->runControlStarted(runControl);
+    });
+    connect(runControl, &RunControl::stopped, m_instance, [runControl] {
+        emit m_instance->runControlStoped(runControl);
+    });
 }
 
 void ProjectExplorerPluginPrivate::showOutputPaneForRunControl(RunControl *runControl)
