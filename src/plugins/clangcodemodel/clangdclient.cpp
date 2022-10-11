@@ -260,7 +260,7 @@ public:
         : q(q), settings(CppEditor::ClangdProjectSettings(project).settings()) {}
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
-                    const QString &searchTerm,
+                    const QString &searchTerm, const std::optional<QString> &replacement,
                     bool categorize);
 
     void handleDeclDefSwitchReplies();
@@ -462,11 +462,13 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     if (searchTerm.isEmpty())
         return;
 
-    if (replacement) {
-        symbolSupport().renameSymbol(document, adjustedCursor, *replacement,
-                                     CppEditor::preferLowerCaseFileNames());
-        return;
-    }
+    // TODO: Fix hard file limit in clangd, then uncomment this with version check.
+    //       Will fix QTCREATORBUG-27978 and QTCREATORBUG-28109.
+    //    if (replacement) {
+    //        symbolSupport().renameSymbol(document, adjustedCursor, *replacement,
+    //                                     CppEditor::preferLowerCaseFileNames());
+    //        return;
+    //    }
 
     const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
 
@@ -474,19 +476,19 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     if (searchTerm != "operator" && Utils::allOf(searchTerm, [](const QChar &c) {
             return c.isLetterOrNumber() || c == '_';
     })) {
-        d->findUsages(document, adjustedCursor, searchTerm, categorize);
+        d->findUsages(document, adjustedCursor, searchTerm, replacement, categorize);
         return;
     }
 
     // Otherwise get the proper spelling of the search term from clang, so we can put it into the
     // search widget.
-    const auto symbolInfoHandler = [this, doc = QPointer(document), adjustedCursor, categorize]
+    const auto symbolInfoHandler = [this, doc = QPointer(document), adjustedCursor, replacement, categorize]
             (const QString &name, const QString &, const MessageId &) {
         if (!doc)
             return;
         if (name.isEmpty())
             return;
-        d->findUsages(doc.data(), adjustedCursor, name, categorize);
+        d->findUsages(doc.data(), adjustedCursor, name, replacement, categorize);
     };
     requestSymbolInfo(document->filePath(), Range(adjustedCursor).start(), symbolInfoHandler);
 }
@@ -642,9 +644,11 @@ QVersionNumber ClangdClient::versionNumber() const
 CppEditor::ClangdSettings::Data ClangdClient::settingsData() const { return d->settings; }
 
 void ClangdClient::Private::findUsages(TextDocument *document,
-        const QTextCursor &cursor, const QString &searchTerm, bool categorize)
+        const QTextCursor &cursor, const QString &searchTerm,
+        const std::optional<QString> &replacement, bool categorize)
 {
-    const auto findRefs = new ClangdFindReferences(q, document, cursor, searchTerm, categorize);
+    const auto findRefs = new ClangdFindReferences(q, document, cursor, searchTerm, replacement,
+                                                   categorize);
     if (isTesting) {
         connect(findRefs, &ClangdFindReferences::foundReferences,
                 q, &ClangdClient::foundReferences);
