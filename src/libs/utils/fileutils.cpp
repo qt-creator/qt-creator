@@ -711,6 +711,9 @@ static bool iterateWithFindHelper(
     }
 
     QStringList entries = out.split("\n", Qt::SkipEmptyParts);
+    if (entries.isEmpty())
+        return true;
+
     // Remove the first line, it is always the directory we are searching in.
     // as long as we do not specify "mindepth > 0"
     entries.pop_front();
