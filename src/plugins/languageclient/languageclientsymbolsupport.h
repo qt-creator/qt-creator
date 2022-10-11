@@ -65,7 +65,7 @@ private:
                               const QString &oldSymbolName,
                               bool preferLowerCaseFileNames);
     void requestRename(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
-                       const QString &newName, Core::SearchResult *search);
+                       Core::SearchResult *search);
     Core::SearchResult *createSearch(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
                                      const QString &placeholder, const QString &oldSymbolName,
                                      bool preferLowerCaseFileNames);

@@ -443,17 +443,15 @@ void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
 }
 
 void SymbolSupport::requestRename(const TextDocumentPositionParams &positionParams,
-                                  const QString &newName,
                                   Core::SearchResult *search)
 {
     RenameParams params(positionParams);
-    params.setNewName(newName);
+    params.setNewName(search->textToReplace());
     RenameRequest request(params);
     request.setResponseCallback([this, search](const RenameRequest::Response &response) {
         handleRenameResponse(search, response);
     });
     m_client->sendMessage(request);
-    search->setTextToReplace(newName);
     search->popup();
 }
 
@@ -492,39 +490,33 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
         "",
         placeholder,
         Core::SearchResultWindow::SearchAndReplace);
-    search->setSearchAgainSupported(true);
     search->setUserData(QVariantList{oldSymbolName, preferLowerCaseFileNames});
     const auto extraWidget = new ReplaceWidget;
     search->setAdditionalReplaceWidget(extraWidget);
+    search->setTextToReplace(placeholder);
 
     connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
         Core::EditorManager::openEditorAtSearchResult(item);
     });
-    connect(search, &Core::SearchResult::replaceTextChanged, this, [search, extraWidget]() {
-        extraWidget->showLabel(true);
+    connect(search, &Core::SearchResult::replaceTextChanged, this, [this, search, positionParams]() {
         search->setUserData(search->userData().toList().first(2));
-        search->setSearchAgainEnabled(true);
         search->setReplaceEnabled(false);
+        search->restart();
+        requestRename(positionParams, search);
     });
-    connect(search,
-            &Core::SearchResult::searchAgainRequested,
-            this,
-            [this, positionParams, search]() {
-                search->restart();
-                requestRename(positionParams, search->textToReplace(), search);
-            });
-    connect(search,
-            &Core::SearchResult::replaceButtonClicked,
-            this,
-            [this, positionParams, search](const QString & /*replaceText*/,
-                                           const QList<Core::SearchResultItem> &checkedItems) {
-                applyRename(checkedItems, search);
-            });
 
-    connect(this, &QObject::destroyed, search, [search, clientName = m_client->name()]() {
-        search->restart(); // clears potential current results
-        search->finishSearch(true, tr("%1 is not reachable anymore.").arg(clientName));
-    });
+    auto resetConnection
+        = connect(this, &QObject::destroyed, search, [search, clientName = m_client->name()]() {
+              search->restart(); // clears potential current results
+              search->finishSearch(true, tr("%1 is not reachable anymore.").arg(clientName));
+          });
+
+    connect(search, &Core::SearchResult::replaceButtonClicked, this,
+            [this, search, resetConnection](const QString & /*replaceText*/,
+                                            const QList<Core::SearchResultItem> &checkedItems) {
+                applyRename(checkedItems, search);
+                disconnect(resetConnection);
+            });
 
     return search;
 }
@@ -535,7 +527,6 @@ void SymbolSupport::startRenameSymbol(const TextDocumentPositionParams &position
                                       bool preferLowerCaseFileNames)
 {
     requestRename(positionParams,
-                  placeholder,
                   createSearch(positionParams, placeholder, oldSymbolName, preferLowerCaseFileNames));
 }
 
@@ -558,7 +549,6 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
                            Core::SearchResult::AddOrdered);
         qobject_cast<ReplaceWidget *>(search->additionalReplaceWidget())->showLabel(false);
         search->setReplaceEnabled(true);
-        search->setSearchAgainEnabled(false);
         search->finishSearch(false);
     } else {
         search->finishSearch(error.has_value(), errorMessage);
