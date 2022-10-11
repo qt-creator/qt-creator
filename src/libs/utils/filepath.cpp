@@ -523,24 +523,13 @@ void FilePath::iterateDirectory(const IterateDirCallback &callBack, const FileFi
 
     QDirIterator it(path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
     while (it.hasNext()) {
-        if (!callBack(FilePath::fromString(it.next())))
-            return;
-    }
-}
-
-void FilePath::iterateDirectory(const IterateDirWithInfoCallback &callBack,
-                                const FileFilter &filter) const
-{
-    if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.iterateDirectoryWithInfo, return);
-        s_deviceHooks.iterateDirectoryWithInfo(*this, callBack, filter);
-        return;
-    }
-
-    QDirIterator it(path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
-    while (it.hasNext()) {
         const FilePath path = FilePath::fromString(it.next());
-        if (!callBack(path, path.filePathInfo()))
+        bool res = false;
+        if (callBack.index() == 0)
+            res = std::get<0>(callBack)(path);
+        else
+            res = std::get<1>(callBack)(path, path.filePathInfo());
+        if (!res)
             return;
     }
 }

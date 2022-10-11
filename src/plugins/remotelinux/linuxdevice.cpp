@@ -1296,15 +1296,6 @@ void LinuxDevice::iterateDirectory(const FilePath &filePath,
     FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
 }
 
-void LinuxDevice::iterateDirectory(const FilePath &filePath,
-                                   const FilePath::IterateDirWithInfoCallback &callBack,
-                                   const FileFilter &filter) const
-{
-    QTC_ASSERT(handlesFile(filePath), return);
-    auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };
-    FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
-}
-
 FilePathInfo LinuxDevice::filePathInfo(const FilePath &filePath) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});

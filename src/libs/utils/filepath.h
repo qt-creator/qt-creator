@@ -154,17 +154,20 @@ public:
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
 
-    using IterateDirCallback = std::function<bool(const FilePath &item)>;
-    using IterateDirWithInfoCallback
-        = std::function<bool(const FilePath &item, const FilePathInfo &info)>;
+    using IterateDirCallback
+        = std::variant<
+            std::function<bool(const FilePath &item)>,
+            std::function<bool(const FilePath &item, const FilePathInfo &info)>
+          >;
 
-    void iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const;
-    void iterateDirectory(const IterateDirWithInfoCallback &callBack,
-                          const FileFilter &filter) const;
+    void iterateDirectory(
+            const IterateDirCallback &callBack,
+            const FileFilter &filter) const;
 
-    static void iterateDirectories(const FilePaths &dirs,
-                                   const IterateDirCallback &callBack,
-                                   const FileFilter &filter);
+    static void iterateDirectories(
+            const FilePaths &dirs,
+            const IterateDirCallback &callBack,
+            const FileFilter &filter);
 
     enum PathAmending { AppendToPath, PrependToPath };
     [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
@@ -270,10 +273,6 @@ public:
                        const FilePath::IterateDirCallback &, // Abort on 'false' return.
                        const FileFilter &)>
         iterateDirectory;
-    std::function<void(const FilePath &,
-                       const FilePath::IterateDirWithInfoCallback &, // Abort on 'false' return.
-                       const FileFilter &)>
-        iterateDirectoryWithInfo;
     std::function<std::optional<QByteArray>(const FilePath &, qint64, qint64)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &, qint64)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;

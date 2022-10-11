@@ -528,14 +528,6 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         device->iterateDirectory(filePath, callBack, filter);
     };
 
-    deviceHooks.iterateDirectoryWithInfo = [](const FilePath &filePath,
-                                              const FilePath::IterateDirWithInfoCallback &callBack,
-                                              const FileFilter &filter) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return );
-        device->iterateDirectory(filePath, callBack, filter);
-    };
-
     deviceHooks.fileContents =
         [](const FilePath &filePath, qint64 maxSize, qint64 offset) -> std::optional<QByteArray> {
         auto device = DeviceManager::deviceForPath(filePath);

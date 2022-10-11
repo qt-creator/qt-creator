@@ -117,16 +117,22 @@ void tst_fsengine::initTestCase()
         return FilePath::fromString(filePath.path()).symLinkTarget();
     };
     deviceHooks.iterateDirectory = [](const FilePath &filePath,
-                                      const std::function<bool(const FilePath &)> &callBack,
+                                      const FilePath::IterateDirCallback &callBack,
                                       const FileFilter &filter) {
-        return FilePath::fromString(filePath.path())
-            .iterateDirectory(
-                [&filePath, &callBack](const FilePath &path) -> bool {
-                    const FilePath devicePath = path.onDevice(filePath);
-
-                    return callBack(devicePath);
+        const FilePath fp = FilePath::fromString(filePath.path());
+        if (callBack.index() == 0) {
+            fp.iterateDirectory(
+                [&filePath, cb = std::get<0>(callBack)](const FilePath &path) {
+                    return cb(path.onDevice(filePath));
                 },
                 filter);
+        } else {
+            fp.iterateDirectory(
+                [&filePath, cb = std::get<1>(callBack)](const FilePath &path, const FilePathInfo &fpi) {
+                    return cb(path.onDevice(filePath), fpi);
+                },
+                filter);
+        }
     };
     deviceHooks.asyncFileContents = [](const Continuation<const std::optional<QByteArray> &> &cont,
                                        const FilePath &filePath,

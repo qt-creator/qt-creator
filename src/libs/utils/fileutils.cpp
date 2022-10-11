@@ -587,10 +587,10 @@ FilePath FileUtils::getOpenFilePathFromDevice(QWidget *parent,
 #endif // QT_WIDGETS_LIB
 
 // Used on 'ls' output on unix-like systems.
-void FileUtils::iterateLsOutput(const FilePath &base,
-                                const QStringList &entries,
-                                const FileFilter &filter,
-                                const std::function<bool (const FilePath &)> &callBack)
+static void iterateLsOutput(const FilePath &base,
+                            const QStringList &entries,
+                            const FileFilter &filter,
+                            const FilePath::IterateDirCallback &callBack)
 {
     const QList<QRegularExpression> nameRegexps =
             transform(filter.nameFilters, [](const QString &filter) {
@@ -615,7 +615,13 @@ void FileUtils::iterateLsOutput(const FilePath &base,
     for (const QString &entry : entries) {
         if (!nameMatches(entry))
             continue;
-        if (!callBack(base.pathAppended(entry)))
+        const FilePath current = base.pathAppended(entry);
+        bool res = false;
+        if (callBack.index() == 0)
+            res = std::get<0>(callBack)(current);
+        else
+            res = std::get<1>(callBack)(current, current.filePathInfo());
+        if (!res)
             break;
     }
 }
@@ -675,11 +681,12 @@ FilePathInfo FileUtils::filePathInfoFromTriple(const QString &infos)
     return {size, flags, dt};
 }
 
-bool iterateWithFind(const FilePath &filePath,
-                     const FileFilter &filter,
-                     const std::function<RunResult(const CommandLine &)> &runInShell,
-                     const std::function<bool(const QString &)> callBack,
-                     const QString &extraArguments)
+static bool iterateWithFindHelper(
+        const FilePath &filePath,
+        const FileFilter &filter,
+        const std::function<RunResult(const CommandLine &)> &runInShell,
+        const std::function<bool(const QString &)> callBack,
+        const QString &extraArguments)
 {
     QTC_CHECK(filePath.isAbsolutePath());
     const QStringList arguments = filter.asFindArguments(filePath.path());
@@ -716,29 +723,16 @@ bool iterateWithFind(const FilePath &filePath,
 }
 
 // returns whether 'find' could be used.
-static bool iterateWithFind(const FilePath &filePath,
-                            const FileFilter &filter,
-                            const std::function<RunResult(const CommandLine &)> &runInShell,
-                            const FilePath::IterateDirCallback &callBack)
+static bool iterateWithFind(
+        const FilePath &filePath,
+        const FileFilter &filter,
+        const std::function<RunResult(const CommandLine &)> &runInShell,
+        const FilePath::IterateDirCallback &callBack)
 {
-    const auto toFilePath = [&filePath, &callBack](const QString &entry){
-        return callBack(filePath.withNewPath(entry));
-    };
+    const auto toFilePath = [&filePath, &callBack](const QString &entry) {
+        if (callBack.index() == 0)
+            return std::get<0>(callBack)(filePath.withNewPath(entry));
 
-    return iterateWithFind(filePath, filter, runInShell, toFilePath, {});
-}
-
-// returns whether 'find' could be used.
-static bool iterateWithFind(const FilePath &filePath,
-                            const FileFilter &filter,
-                            const std::function<RunResult(const CommandLine &)> &runInShell,
-                            const FilePath::IterateDirWithInfoCallback &callBack)
-{
-    // TODO: Using stat -L will always return the link target, not the link itself.
-    // We may wan't to add the information that it is a link at some point.
-    const QString infoArgs(R"(-exec echo -n \"{}\"" " \; -exec stat -L -c "%f %Y %s" "{}" \;)");
-
-    const auto toFilePathAndInfo = [&filePath, &callBack](const QString &entry) {
         const QString fileName = entry.mid(1, entry.lastIndexOf('\"') - 1);
         const QString infos = entry.mid(fileName.length() + 3);
 
@@ -747,10 +741,16 @@ static bool iterateWithFind(const FilePath &filePath,
             return true;
 
         const FilePath fp = filePath.withNewPath(fileName);
-        return callBack(fp, fi);
+        return std::get<1>(callBack)(fp, fi);
     };
 
-    return iterateWithFind(filePath, filter, runInShell, toFilePathAndInfo, infoArgs);
+    // TODO: Using stat -L will always return the link target, not the link itself.
+    // We may wan't to add the information that it is a link at some point.
+    QString infoArgs;
+    if (callBack.index() == 1)
+        infoArgs = R"(-exec echo -n \"{}\"" " \; -exec stat -L -c "%f %Y %s" "{}" \;)";
+
+    return iterateWithFindHelper(filePath, filter, runInShell, toFilePath, infoArgs);
 }
 
 static void findUsingLs(const QString &current,
@@ -777,8 +777,6 @@ void FileUtils::iterateUnixDirectory(const FilePath &filePath,
                                      const std::function<RunResult (const CommandLine &)> &runInShell,
                                      const FilePath::IterateDirCallback &callBack)
 {
-    QTC_ASSERT(callBack, return);
-
     // We try to use 'find' first, because that can filter better directly.
     // Unfortunately, it's not installed on all devices by default.
     if (useFind && *useFind) {
@@ -790,31 +788,7 @@ void FileUtils::iterateUnixDirectory(const FilePath &filePath,
     // if we do not have find - use ls as fallback
     QStringList entries;
     findUsingLs(filePath.path(), filter, runInShell, &entries);
-    FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
-}
-
-void FileUtils::iterateUnixDirectory(const FilePath &filePath,
-                                     const FileFilter &filter,
-                                     bool *useFind,
-                                     const std::function<RunResult(const CommandLine &)> &runInShell,
-                                     const FilePath::IterateDirWithInfoCallback &callBack)
-{
-    QTC_ASSERT(callBack, return);
-
-    // We try to use 'find' first, because that can filter better directly.
-    // Unfortunately, it's not installed on all devices by default.
-    if (useFind && *useFind) {
-        if (iterateWithFind(filePath, filter, runInShell, callBack))
-            return;
-        *useFind = false; // remember the failure for the next time and use the 'ls' fallback below.
-    }
-
-    // if we do not have find - use ls as fallback
-    QStringList entries;
-    findUsingLs(filePath.path(), filter, runInShell, &entries);
-    FileUtils::iterateLsOutput(filePath, entries, filter, [&callBack](const FilePath & filePath){
-        return callBack(filePath, filePath.filePathInfo());
-    });
+    iterateLsOutput(filePath, entries, filter, callBack);
 }
 
 /*!

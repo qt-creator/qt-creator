@@ -50,9 +50,10 @@ public:
     bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
-    void iterateDirectory(const Utils::FilePath &filePath,
-                          const std::function<bool(const Utils::FilePath &)> &callBack,
-                          const Utils::FileFilter &filter) const override;
+    void iterateDirectory(
+            const Utils::FilePath &filePath,
+            const Utils::FilePath::IterateDirCallback &callBack,
+            const Utils::FileFilter &filter) const override;
     std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
                                            qint64 limit,
                                            qint64 offset) const override;

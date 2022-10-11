@@ -365,15 +365,6 @@ void IDevice::iterateDirectory(const FilePath &filePath,
     QTC_CHECK(false);
 }
 
-void IDevice::iterateDirectory(const FilePath &filePath,
-                               const FilePath::IterateDirWithInfoCallback &callBack,
-                               const FileFilter &filter) const
-{
-    iterateDirectory(filePath, [callBack](const FilePath &path) {
-        return callBack(path, path.filePathInfo());
-    }, filter);
-}
-
 std::optional<QByteArray> IDevice::fileContents(const FilePath &filePath,
                                                 qint64 limit,
                                                 qint64 offset) const

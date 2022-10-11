@@ -948,17 +948,8 @@ bool DockerDevice::ensureReachable(const FilePath &other) const
 }
 
 void DockerDevice::iterateDirectory(const FilePath &filePath,
-                                    const FilePath::IterateDirCallback &callBack,
-                                    const FileFilter &filter) const
-{
-    QTC_ASSERT(handlesFile(filePath), return);
-    auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };
-    FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
-}
-
-void DockerDevice::iterateDirectory(const FilePath &filePath,
-                                    const FilePath::IterateDirWithInfoCallback &callBack,
-                                    const FileFilter &filter) const
+        const FilePath::IterateDirCallback &callBack,
+        const FileFilter &filter) const
 {
     QTC_ASSERT(handlesFile(filePath), return);
     auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };

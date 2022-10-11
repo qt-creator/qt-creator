@@ -136,9 +136,10 @@ bool DesktopDevice::handlesFile(const FilePath &filePath) const
     return !filePath.needsDevice();
 }
 
-void DesktopDevice::iterateDirectory(const FilePath &filePath,
-                                     const std::function<bool(const FilePath &)> &callBack,
-                                     const FileFilter &filter) const
+void DesktopDevice::iterateDirectory(
+        const FilePath &filePath,
+        const FilePath::IterateDirCallback &callBack,
+        const FileFilter &filter) const
 {
     QTC_CHECK(!filePath.needsDevice());
     filePath.iterateDirectory(callBack, filter);

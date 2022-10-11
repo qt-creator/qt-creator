@@ -99,12 +99,10 @@ public:
     bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
     Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
-    void iterateDirectory(const Utils::FilePath &filePath,
-                          const Utils::FilePath::IterateDirCallback &callBack,
-                          const Utils::FileFilter &filter) const override;
-    void iterateDirectory(const Utils::FilePath &filePath,
-                          const Utils::FilePath::IterateDirWithInfoCallback &callBack,
-                          const Utils::FileFilter &filter) const override;
+    void iterateDirectory(
+            const Utils::FilePath &filePath,
+            const Utils::FilePath::IterateDirCallback &callBack,
+            const Utils::FileFilter &filter) const override;
     std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
                                            qint64 limit,
                                            qint64 offset) const override;
