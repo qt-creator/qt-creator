@@ -32,7 +32,7 @@ def handleDebuggerWarnings(config, isMsvcBuild=False):
 def takeDebuggerLog():
     invokeMenuItem("View", "Views", "Global Debugger Log")
     debuggerLogWindow = waitForObject("{container=':DebugModeWidget.Debugger Log_QDockWidget' "
-                                      "type='Debugger::Internal::DebuggerPane' unnamed='1' visible='1'}")
+                                      "type='QPlainTextEdit' unnamed='1' visible='1'}")
     debuggerLog = str(debuggerLogWindow.plainText)
     mouseClick(debuggerLogWindow)
     invokeContextMenuItem(debuggerLogWindow, "Clear Contents")

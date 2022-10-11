@@ -112,7 +112,7 @@ def main():
             invokeContextMenuItem(editor, "Toggle Comment Selection")
             virtualFunctionsAdded = True
             invokeMenuItem('File', 'Save All')
-            selectFromLocator("t rebuild", "Rebuild (Rebuild Project)")
+            selectFromLocator("t rebuild", "Rebuild Project")
             waitForCompile(10000)
         checkCompile()
 

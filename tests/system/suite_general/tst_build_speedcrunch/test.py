@@ -36,7 +36,7 @@ def main():
         test.log("Testing build configuration: " + config)
         invokeMenuItem("Build", "Run qmake")
         waitForCompile()
-        selectFromLocator("t rebuild", "Rebuild (Rebuild All Projects)")
+        selectFromLocator("t rebuild", "Rebuild All Projects")
         waitForCompile(300000)
         checkCompile()
         checkLastBuild()
