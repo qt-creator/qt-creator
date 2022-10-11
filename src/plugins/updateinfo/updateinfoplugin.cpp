@@ -59,7 +59,7 @@ namespace Internal {
 class UpdateInfoPluginPrivate
 {
 public:
-    QString m_maintenanceTool;
+    FilePath m_maintenanceTool;
     std::unique_ptr<QtcProcess> m_maintenanceToolProcess;
     QPointer<FutureProgress> m_progress;
     QString m_updateOutput;
@@ -138,7 +138,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
     });
 
     d->m_maintenanceToolProcess.reset(new QtcProcess);
-    d->m_maintenanceToolProcess->setCommand({Utils::FilePath::fromString(d->m_maintenanceTool),
+    d->m_maintenanceToolProcess->setCommand({d->m_maintenanceTool,
                                              {"ch", "-g", "*=false,ifw.package.*=true"}});
     d->m_maintenanceToolProcess->setTimeoutS(3 * 60); // 3 minutes
     // TODO handle error
@@ -151,8 +151,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
                 d->m_updateOutput = d->m_maintenanceToolProcess->cleanedStdOut();
                 if (d->m_settings.checkForQtVersions) {
                     d->m_maintenanceToolProcess.reset(new QtcProcess);
-                    d->m_maintenanceToolProcess->setCommand(
-                        {Utils::FilePath::fromString(d->m_maintenanceTool),
+                    d->m_maintenanceToolProcess->setCommand({d->m_maintenanceTool,
                          {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"}});
                     d->m_maintenanceToolProcess->setTimeoutS(3 * 60); // 3 minutes
                     connect(
@@ -315,9 +314,9 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
         return false;
     }
 
-    if (!QFileInfo(d->m_maintenanceTool).isExecutable()) {
+    if (!d->m_maintenanceTool.isExecutableFile()) {
         *errorMessage = tr("The maintenance tool at \"%1\" is not an executable. Check your installation.")
-            .arg(d->m_maintenanceTool);
+            .arg(d->m_maintenanceTool.toUserOutput());
         d->m_maintenanceTool.clear();
         return false;
     }
@@ -358,7 +357,7 @@ void UpdateInfoPlugin::loadSettings() const
     UpdateInfoPluginPrivate::Settings def;
     QSettings *settings = ICore::settings();
     const QString updaterKey = QLatin1String(UpdaterGroup) + '/';
-    d->m_maintenanceTool = settings->value(updaterKey + MaintenanceToolKey).toString();
+    d->m_maintenanceTool = FilePath::fromVariant(settings->value(updaterKey + MaintenanceToolKey));
     d->m_lastCheckDate = settings->value(updaterKey + LastCheckDateKey, QDate()).toDate();
     d->m_settings.automaticCheck
         = settings->value(updaterKey + AutomaticCheckKey, def.automaticCheck).toBool();
@@ -479,7 +478,7 @@ QDate UpdateInfoPlugin::nextCheckDate(CheckUpdateInterval interval) const
 
 void UpdateInfoPlugin::startMaintenanceTool(const QStringList &args) const
 {
-    QtcProcess::startDetached(CommandLine{FilePath::fromString(d->m_maintenanceTool), args});
+    QtcProcess::startDetached(CommandLine{d->m_maintenanceTool, args});
 }
 
 void UpdateInfoPlugin::startUpdater() const
