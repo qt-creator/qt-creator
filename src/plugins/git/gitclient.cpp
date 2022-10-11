@@ -916,11 +916,12 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
         const CommandResult result = vcsSynchronousExec(it.key(), args, RunFlags::NoOutput);
         if (result.result() != ProcessResult::FinishedWithSuccess)
             return filePaths;
-        const QStringList managedFilePaths
-            = transform(result.cleanedStdOut().split('\0', Qt::SkipEmptyParts),
-                            [&wd](const QString &fp) { return wd.absoluteFilePath(fp); });
-        const QStringList filtered = Utils::filtered(it.value(), [&managedFilePaths, &wd](const QString &fp) {
-            return !managedFilePaths.contains(wd.absoluteFilePath(fp));
+        const auto toAbs = [&wd](const QString &fp) { return wd.absoluteFilePath(fp); };
+        const QStringList managedFilePaths =
+                Utils::transform(result.cleanedStdOut().split('\0', Qt::SkipEmptyParts), toAbs);
+        const QStringList absPaths = Utils::transform(it.value(), toAbs);
+        const QStringList filtered = Utils::filtered(absPaths, [&managedFilePaths](const QString &fp) {
+            return !managedFilePaths.contains(fp);
         });
         res += FileUtils::toFilePathList(filtered);
     }
