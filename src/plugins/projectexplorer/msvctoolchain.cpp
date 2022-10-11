@@ -1113,7 +1113,7 @@ WarningFlags MsvcToolChain::warningFlags(const QStringList &cflags) const
 QStringList MsvcToolChain::includedFiles(const QStringList &flags,
                                          const QString &directoryPath) const
 {
-    return ToolChain::includedFiles("/FI", flags, directoryPath);
+    return ToolChain::includedFiles("/FI", flags, directoryPath, PossiblyConcatenatedFlag::Yes);
 }
 
 ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunner(
