@@ -370,8 +370,6 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     setActivateDocumentAutomatically(true);
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     setQuickFixAssistProvider(new ClangdQuickFixProvider(this));
-    symbolSupport().setDefaultRenamingSymbolMapper(
-                [](const QString &oldSymbol) { return oldSymbol + "_new"; });
     symbolSupport().setLimitRenamingToProjects(true);
     if (!project) {
         QJsonObject initOptions;
