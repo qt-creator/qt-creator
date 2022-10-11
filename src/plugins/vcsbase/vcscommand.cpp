@@ -7,7 +7,6 @@
 #include "vcsoutputwindow.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/environment.h>
 #include <utils/globalfilechangeblocker.h>
@@ -103,7 +102,6 @@ void VcsCommandPrivate::cleanup()
 void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
 {
     process->setExitCodeInterpreter(job.exitCodeInterpreter);
-    // TODO: Handle it properly in QtcProcess when QtcProcess::runBlocking() isn't used.
     process->setTimeoutS(job.timeoutS);
     if (!job.workingDirectory.isEmpty())
         process->setWorkingDirectory(job.workingDirectory);
@@ -140,7 +138,6 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
                 emit q->stdErrText(text);
         });
     }
-    // connect stdout to the output window if desired
     if (m_progressParser || m_flags & RunFlags::ProgressiveOutput
                          || m_flags & RunFlags::ShowStdOut) {
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
@@ -155,8 +152,6 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
                 emit q->stdOutText(text);
         });
     }
-    // TODO: Implement it here
-//    m_process->setTimeOutMessageBoxEnabled(true);
 }
 
 EventLoopMode VcsCommandPrivate::eventLoopMode() const
@@ -216,7 +211,6 @@ void VcsCommandPrivate::processDone()
     }
     emit q->done();
     cleanup();
-    // As it is used asynchronously, we need to delete ourselves
     q->deleteLater();
 }
 
@@ -325,7 +319,6 @@ void VcsCommand::setCodec(QTextCodec *codec)
     d->m_codec = codec;
 }
 
-//! Use \a parser to parse progress data from stdout. Command takes ownership of \a parser
 void VcsCommand::setProgressParser(const ProgressParser &parser)
 {
     d->m_progressParser = parser;
