@@ -115,22 +115,16 @@ int VcsCommandPrivate::timeoutS() const
 void VcsCommandPrivate::setup()
 {
     m_futureInterface.reportStarted();
-    if (m_flags & RunFlags::ExpectRepoChanges) {
-        QMetaObject::invokeMethod(GlobalFileChangeBlocker::instance(), [] {
-            GlobalFileChangeBlocker::instance()->forceBlocked(true);
-        });
-    }
+    if (m_flags & RunFlags::ExpectRepoChanges)
+        GlobalFileChangeBlocker::instance()->forceBlocked(true);
 }
 
 void VcsCommandPrivate::cleanup()
 {
     QTC_ASSERT(m_futureInterface.isRunning(), return);
     m_futureInterface.reportFinished();
-    if (m_flags & RunFlags::ExpectRepoChanges) {
-        QMetaObject::invokeMethod(GlobalFileChangeBlocker::instance(), [] {
-            GlobalFileChangeBlocker::instance()->forceBlocked(false);
-        });
-    }
+    if (m_flags & RunFlags::ExpectRepoChanges)
+        GlobalFileChangeBlocker::instance()->forceBlocked(false);
 }
 
 void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
