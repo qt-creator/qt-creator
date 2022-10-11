@@ -1172,7 +1172,7 @@ bool PerforcePluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return vcsMove(from.parentDir().absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
+    return vcsMove(from.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
 bool PerforcePluginPrivate::vcsCreateRepository(const FilePath &)

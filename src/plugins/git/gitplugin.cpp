@@ -1841,7 +1841,7 @@ bool GitPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return m_gitClient.synchronousMove(from.parentDir().absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
+    return m_gitClient.synchronousMove(from.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
 bool GitPluginPrivate::vcsCreateRepository(const FilePath &directory)
