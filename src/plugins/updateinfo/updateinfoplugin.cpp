@@ -204,10 +204,10 @@ void UpdateInfoPlugin::stopCheckForUpdates()
 
 static void showUpdateInfo(const QList<Update> &updates, const std::function<void()> &startUpdater)
 {
-    Utils::InfoBarEntry info(InstallUpdates,
-                             UpdateInfoPlugin::tr("New updates are available. Start the update?"));
+    InfoBarEntry info(InstallUpdates,
+                      UpdateInfoPlugin::tr("New updates are available. Start the update?"));
     info.addCustomButton(UpdateInfoPlugin::tr("Start Update"), [startUpdater] {
-        Core::ICore::infoBar()->removeInfo(InstallUpdates);
+        ICore::infoBar()->removeInfo(InstallUpdates);
         startUpdater();
     });
     info.setDetailsWidgetCreator([updates]() -> QWidget * {
@@ -224,30 +224,28 @@ static void showUpdateInfo(const QList<Update> &updates, const std::function<voi
         label->setContentsMargins(0, 0, 0, 8);
         return label;
     });
-    Core::ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
-    Core::ICore::infoBar()->unsuppressInfo(InstallUpdates);
-    Core::ICore::infoBar()->addInfo(info);
+    ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
+    ICore::infoBar()->unsuppressInfo(InstallUpdates);
+    ICore::infoBar()->addInfo(info);
 }
 
 static void showQtUpdateInfo(const QtPackage &package,
                              const std::function<void()> &startPackageManager)
 {
-    Utils::InfoBarEntry info(InstallQtUpdates,
-                             UpdateInfoPlugin::tr(
-                                 "%1 is available. Check the <a %2>Qt blog</a> for details.")
-                                 .arg(package.displayName,
-                                      QString("href=\"https://www.qt.io/blog/tag/releases\"")));
+    InfoBarEntry info(InstallQtUpdates, UpdateInfoPlugin::tr(
+        "%1 is available. Check the <a %2>Qt blog</a> for details.")
+        .arg(package.displayName, QString("href=\"https://www.qt.io/blog/tag/releases\"")));
     info.addCustomButton(UpdateInfoPlugin::tr("Start Package Manager"), [startPackageManager] {
-        Core::ICore::infoBar()->removeInfo(InstallQtUpdates);
+        ICore::infoBar()->removeInfo(InstallQtUpdates);
         startPackageManager();
     });
     info.addCustomButton(UpdateInfoPlugin::tr("Open Settings"), [] {
-        Core::ICore::infoBar()->removeInfo(InstallQtUpdates);
-        Core::ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID);
+        ICore::infoBar()->removeInfo(InstallQtUpdates);
+        ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID);
     });
-    Core::ICore::infoBar()->removeInfo(InstallQtUpdates); // remove any existing notifications
-    Core::ICore::infoBar()->unsuppressInfo(InstallQtUpdates);
-    Core::ICore::infoBar()->addInfo(info);
+    ICore::infoBar()->removeInfo(InstallQtUpdates); // remove any existing notifications
+    ICore::infoBar()->unsuppressInfo(InstallQtUpdates);
+    ICore::infoBar()->addInfo(info);
 }
 
 void UpdateInfoPlugin::checkForUpdatesFinished()
@@ -328,23 +326,23 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
 
     auto mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     ActionContainer *mmaintenanceTool = ActionManager::createMenu(M_MAINTENANCE_TOOL);
-    mmaintenanceTool->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
-    mmaintenanceTool->menu()->setTitle(Tr::tr("Qt Maintenance Tool")); mtools->addMenu(mmaintenanceTool);
+    mmaintenanceTool->setOnAllDisabledBehavior(ActionContainer::Hide);
+    mmaintenanceTool->menu()->setTitle(Tr::tr("Qt Maintenance Tool"));
+    mtools->addMenu(mmaintenanceTool);
 
     QAction *checkForUpdatesAction = new QAction(tr("Check for Updates"), this);
     checkForUpdatesAction->setMenuRole(QAction::ApplicationSpecificRole);
-    Core::Command *checkForUpdatesCommand
-        = Core::ActionManager::registerAction(checkForUpdatesAction, "Updates.CheckForUpdates");
+    Command *checkForUpdatesCommand = ActionManager::registerAction(checkForUpdatesAction,
+                                      "Updates.CheckForUpdates");
     connect(checkForUpdatesAction, &QAction::triggered,
             this, &UpdateInfoPlugin::startCheckForUpdates);
     mmaintenanceTool->addAction(checkForUpdatesCommand);
 
     QAction *startMaintenanceToolAction = new QAction(Tr::tr("Start Maintenance Tool"), this);
     startMaintenanceToolAction->setMenuRole(QAction::ApplicationSpecificRole);
-    Core::Command *startMaintenanceToolCommand
-        = Core::ActionManager::registerAction(startMaintenanceToolAction,
-                                              "Updates.StartMaintenanceTool");
-    connect(startMaintenanceToolAction, &QAction::triggered, this, [this]() {
+    Command *startMaintenanceToolCommand = ActionManager::registerAction(startMaintenanceToolAction,
+                                           "Updates.StartMaintenanceTool");
+    connect(startMaintenanceToolAction, &QAction::triggered, this, [this] {
         startMaintenanceTool({});
     });
     mmaintenanceTool->addAction(startMaintenanceToolCommand);
@@ -383,7 +381,7 @@ void UpdateInfoPlugin::loadSettings() const
 void UpdateInfoPlugin::saveSettings()
 {
     UpdateInfoPluginPrivate::Settings def;
-    Utils::QtcSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(UpdaterGroup);
     settings->setValueWithDefault(LastCheckDateKey, d->m_lastCheckDate, QDate());
     settings->setValueWithDefault(AutomaticCheckKey,
