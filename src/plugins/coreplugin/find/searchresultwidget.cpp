@@ -153,7 +153,6 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_replaceTextEdit = new WideEnoughLineEdit(m_topReplaceWidget);
     m_replaceLabel->setBuddy(m_replaceTextEdit);
     m_replaceTextEdit->setMinimumWidth(120);
-    m_replaceTextEdit->setEnabled(false);
     setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
     m_preserveCaseCheck = new QCheckBox(m_topReplaceWidget);
     m_preserveCaseCheck->setText(tr("Preser&ve case"));
@@ -241,16 +240,9 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
             }
         }
 
-        m_replaceTextEdit->setEnabled(true);
-        // We didn't have an item before, set the focus to the search widget or replace text edit
-        setShowReplaceUI(m_replaceSupported);
-        if (m_replaceSupported) {
-            m_replaceTextEdit->setFocus();
-            m_replaceTextEdit->selectAll();
-        } else {
-            m_searchResultTreeView->setFocus();
-        }
-        m_searchResultTreeView->selectionModel()->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
+        m_searchResultTreeView->selectionModel()
+            ->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()),
+                     QItemSelectionModel::Select);
         emit navigateStateChanged();
     } else if (m_count <= SEARCHRESULT_WARNING_LIMIT) {
         return;
@@ -289,6 +281,7 @@ bool SearchResultWidget::supportsReplace() const
 void SearchResultWidget::setTextToReplace(const QString &textToReplace)
 {
     m_replaceTextEdit->setText(textToReplace);
+    m_replaceTextEdit->selectAll();
 }
 
 QString SearchResultWidget::textToReplace() const
@@ -307,6 +300,10 @@ void SearchResultWidget::setShowReplaceUI(bool visible)
     m_searchResultTreeView->model()->setShowReplaceUI(visible);
     m_topReplaceWidget->setVisible(visible);
     m_isShowingReplaceUI = visible;
+    if (visible)
+        m_replaceTextEdit->setFocus();
+    else
+        m_searchResultTreeView->setFocus();
 }
 
 bool SearchResultWidget::hasFocusInternally() const
@@ -316,23 +313,17 @@ bool SearchResultWidget::hasFocusInternally() const
 
 void SearchResultWidget::setFocusInternally()
 {
-    if (m_count > 0) {
-        if (m_isShowingReplaceUI) {
-            if (!focusWidget() || focusWidget() == m_replaceTextEdit) {
-                m_replaceTextEdit->setFocus();
-                m_replaceTextEdit->selectAll();
-            } else {
-                m_searchResultTreeView->setFocus();
-            }
-        } else {
-            m_searchResultTreeView->setFocus();
-        }
-    }
+    if (!canFocusInternally() || hasFocusInternally())
+        return;
+    if (m_isShowingReplaceUI && (!focusWidget() || focusWidget() == m_replaceTextEdit))
+        m_replaceTextEdit->setFocus();
+    else
+        m_searchResultTreeView->setFocus();
 }
 
 bool SearchResultWidget::canFocusInternally() const
 {
-    return m_count > 0;
+    return m_isShowingReplaceUI || m_count > 0;
 }
 
 void SearchResultWidget::notifyVisibilityChanged(bool visible)
@@ -389,7 +380,6 @@ void SearchResultWidget::goToPrevious()
 
 void SearchResultWidget::restart()
 {
-    m_replaceTextEdit->setEnabled(false);
     m_replaceButton->setEnabled(false);
     m_searchResultTreeView->clear();
     m_searching = true;
@@ -440,7 +430,6 @@ void SearchResultWidget::finishSearch(bool canceled, const QString &reason)
     Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
     m_infoBar.unsuppressInfo(sizeWarningId);
-    m_replaceTextEdit->setEnabled(m_count > 0);
     m_replaceButton->setEnabled(m_count > 0);
     m_preserveCaseCheck->setEnabled(m_count > 0);
     m_cancelButton->setVisible(false);
