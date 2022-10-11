@@ -199,10 +199,10 @@ void LanguageClientManager::shutdownClient(Client *client)
     if (!client)
         return;
     qCDebug(Log) << "request client shutdown: " << client->name() << client;
-    // reset the documents for that client already when requesting the shutdown so they can get
-    // reassigned to another server right after this request to another server
+    // reset and deactivate the documents for that client by assigning a null client already when
+    // requesting the shutdown so they can get reassigned to another server right after this request
     for (TextEditor::TextDocument *document : managerInstance->m_clientForDocument.keys(client))
-        managerInstance->m_clientForDocument.remove(document);
+        openDocumentWithClient(document, nullptr);
     if (client->reachable())
         client->shutdown();
     else if (client->state() != Client::Shutdown && client->state() != Client::ShutdownRequested)
@@ -409,6 +409,7 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
     Client *currentClient = clientForDocument(document);
     if (client == currentClient)
         return;
+    managerInstance->m_clientForDocument.remove(document);
     if (currentClient)
         currentClient->deactivateDocument(document);
     managerInstance->m_clientForDocument[document] = client;
