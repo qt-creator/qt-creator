@@ -2243,7 +2243,7 @@ Abis QtVersion::qtAbisFromLibrary(const FilePaths &coreLibraries)
         }
     };
 
-    return QtConcurrent::blockingMappedReduced(coreLibraries, filePathToAbiList, uniqueAbis);
+    return QtConcurrent::blockingMappedReduced<Abis>(coreLibraries, filePathToAbiList, uniqueAbis);
 }
 
 void QtVersion::resetCache() const
