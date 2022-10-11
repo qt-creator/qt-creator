@@ -4,6 +4,7 @@
 #include "vcsoutputformatter.h"
 
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/qtcassert.h>
@@ -24,7 +25,8 @@ VcsOutputLineParser::VcsOutputLineParser() :
         R"((https?://\S*))"                                   // https://codereview.org/c/1234
         R"(|\b(v[0-9]+\.[0-9]+\.[0-9]+[\-A-Za-z0-9]*))"       // v0.1.2-beta3
         R"(|\b(?<!mode )([0-9a-f]{6,}(?:\.{2,3}[0-9a-f]{6,})" // 789acf or 123abc..456cde
-        R"(|\^+|~\d+)?)\b)")                                  // or 789acf^ or 123abc~99
+        R"(|\^+|~\d+)?)\b)"                                   // or 789acf^ or 123abc~99
+        R"(|(?<=\b[ab]/)\S+)")                                // a/path/to/file.cpp
 {
 }
 
@@ -54,8 +56,14 @@ bool VcsOutputLineParser::handleVcsLink(const FilePath &workingDirectory, const 
         QDesktopServices::openUrl(QUrl(href));
         return true;
     }
-    if (IVersionControl *vcs = VcsManager::findVersionControlForDirectory(workingDirectory))
+    if (IVersionControl *vcs = VcsManager::findVersionControlForDirectory(workingDirectory)) {
+        const FilePath file = workingDirectory.pathAppended(href);
+        if (file.exists()) {
+            EditorManager::openEditor(file);
+            return true;
+        }
         return vcs->handleLink(workingDirectory, href);
+    }
     return false;
 }
 
