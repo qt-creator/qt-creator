@@ -155,6 +155,9 @@
     (\uicontrol {Zoom In}) or \inlineimage icons/minus.png
     (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-.
 
+    To hide the output, select the \inlineimage icons/rightsidebaricon.png
+    (\uicontrol {Hide/Show Right Sidebar}) button or press \key {Alt+Shift+0}.
+
     \section1 CMake Build Steps
 
     \QC builds CMake projects by running \c {cmake . --build}, which then runs
