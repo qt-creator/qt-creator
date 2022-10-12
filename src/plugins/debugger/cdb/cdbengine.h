@@ -129,7 +129,6 @@ private:
     void doContinueInferior();
     void parseOutputLine(QString line);
     bool isCdbProcessRunning() const { return m_process.state() != QProcess::NotRunning; }
-    bool canInterruptInferior() const;
     inline void postDisassemblerCommand(quint64 address, DisassemblerAgent *agent);
     void postDisassemblerCommand(quint64 address, quint64 endAddress,
                                  DisassemblerAgent *agent);

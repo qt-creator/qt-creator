@@ -611,9 +611,6 @@ void CdbEngine::shutdownInferior()
         if (commandsPending()) {
             showMessage("Cannot shut down inferior due to pending commands.", LogWarning);
             STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
-        } else if (!canInterruptInferior()) {
-            showMessage("Cannot interrupt the inferior.", LogWarning);
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
         } else {
             interruptInferior(); // Calls us again
             return;
@@ -756,11 +753,6 @@ void CdbEngine::continueInferior()
 void CdbEngine::doContinueInferior()
 {
     runCommand({"g", NoFlags});
-}
-
-bool CdbEngine::canInterruptInferior() const
-{
-    return m_effectiveStartMode != AttachToRemoteServer && inferiorPid();
 }
 
 void CdbEngine::interruptInferior()
