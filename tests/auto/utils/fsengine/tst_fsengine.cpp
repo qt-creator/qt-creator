@@ -164,6 +164,10 @@ void tst_fsengine::initTestCase()
     deviceHooks.bytesAvailable = [](const FilePath &filePath) {
         return FilePath::fromString(filePath.path()).bytesAvailable();
     };
+    deviceHooks.filePathInfo = [](const FilePath &filePath) {
+        return FilePath::fromString(filePath.path()).filePathInfo();
+    };
+
 
     deviceHooks.mapToDevicePath = [](const FilePath &filePath) { return filePath.path(); };
 
