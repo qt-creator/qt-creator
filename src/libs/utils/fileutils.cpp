@@ -476,6 +476,72 @@ static QWidget *dialogParent(QWidget *parent)
     return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
+
+FilePath qUrlToFilePath(const QUrl &url)
+{
+    if (url.isLocalFile())
+        return FilePath::fromString(url.toLocalFile());
+    return FilePath::fromUrl(url);
+}
+
+QUrl filePathToQUrl(const FilePath &filePath)
+{
+   return QUrl::fromLocalFile(filePath.toFSPathString());
+}
+
+void prepareNonNativeDialog(QFileDialog &dialog)
+{
+    // Checking QFileDialog::itemDelegate() seems to be the only way to determine
+    // whether the dialog is native or not.
+    if (dialog.itemDelegate()) {
+        QList<QUrl> sideBarUrls;
+        for (const FilePath &path : FSEngine::registeredDeviceRoots()) {
+            if (path.exists())
+                sideBarUrls.append(filePathToQUrl(path));
+        }
+        dialog.setSidebarUrls(sideBarUrls);
+        dialog.setIconProvider(Utils::FileIconProvider::iconProvider());
+    }
+}
+
+FilePaths getFilePaths(QWidget *parent,
+                       const QString &caption,
+                       const FilePath &dir,
+                       const QString &filter,
+                       QString *selectedFilter,
+                       QFileDialog::Options options,
+                       const QStringList &supportedSchemes,
+                       const bool forceNonNativeDialog,
+                       QFileDialog::FileMode fileMode,
+                       QFileDialog::AcceptMode acceptMode)
+{
+    QFileDialog dialog(parent, caption, dir.toFSPathString(), filter);
+    dialog.setFileMode(fileMode);
+
+    if (forceNonNativeDialog)
+        options.setFlag(QFileDialog::DontUseNativeDialog);
+
+    dialog.setOptions(options);
+    prepareNonNativeDialog(dialog);
+
+    dialog.setSupportedSchemes(supportedSchemes);
+    dialog.setAcceptMode(acceptMode);
+
+    if (selectedFilter && !selectedFilter->isEmpty())
+        dialog.selectNameFilter(*selectedFilter);
+    if (dialog.exec() == QDialog::Accepted) {
+        if (selectedFilter)
+            *selectedFilter = dialog.selectedNameFilter();
+        return Utils::transform(dialog.selectedUrls(), &qUrlToFilePath);
+    }
+    return {};
+}
+
+FilePath firstOrEmpty(const FilePaths &filePaths)
+{
+    return filePaths.isEmpty() ? FilePath() : filePaths.first();
+}
+
 FilePath FileUtils::getOpenFilePath(QWidget *parent,
                                     const QString &caption,
                                     const FilePath &dir,
@@ -484,19 +550,24 @@ FilePath FileUtils::getOpenFilePath(QWidget *parent,
                                     QFileDialog::Options options,
                                     bool fromDeviceIfShiftIsPressed)
 {
+    bool forceNonNativeDialog = dir.needsDevice();
 #ifdef QT_GUI_LIB
     if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
-        return getOpenFilePathFromDevice(parent, caption, dir, filter, selectedFilter, options);
+        forceNonNativeDialog = true;
     }
 #endif
 
-    const QString result = QFileDialog::getOpenFileName(dialogParent(parent),
-                                                        caption,
-                                                        dir.toString(),
-                                                        filter,
-                                                        selectedFilter,
-                                                        options);
-    return FilePath::fromString(result);
+    const QStringList schemes = QStringList(QStringLiteral("file"));
+    return firstOrEmpty(getFilePaths(dialogParent(parent),
+                                     caption,
+                                     dir,
+                                     filter,
+                                     selectedFilter,
+                                     options,
+                                     schemes,
+                                     forceNonNativeDialog,
+                                     QFileDialog::ExistingFile,
+                                     QFileDialog::AcceptOpen));
 }
 
 FilePath FileUtils::getSaveFilePath(QWidget *parent,
@@ -506,13 +577,19 @@ FilePath FileUtils::getSaveFilePath(QWidget *parent,
                                     QString *selectedFilter,
                                     QFileDialog::Options options)
 {
-    const QString result = QFileDialog::getSaveFileName(dialogParent(parent),
-                                                        caption,
-                                                        dir.toString(),
-                                                        filter,
-                                                        selectedFilter,
-                                                        options);
-    return FilePath::fromString(result);
+    bool forceNonNativeDialog = dir.needsDevice();
+
+    const QStringList schemes = QStringList(QStringLiteral("file"));
+    return firstOrEmpty(getFilePaths(dialogParent(parent),
+                                     caption,
+                                     dir,
+                                     filter,
+                                     selectedFilter,
+                                     options,
+                                     schemes,
+                                     forceNonNativeDialog,
+                                     QFileDialog::AnyFile,
+                                     QFileDialog::AcceptSave));
 }
 
 FilePath FileUtils::getExistingDirectory(QWidget *parent,
@@ -520,11 +597,19 @@ FilePath FileUtils::getExistingDirectory(QWidget *parent,
                                          const FilePath &dir,
                                          QFileDialog::Options options)
 {
-    const QString result = QFileDialog::getExistingDirectory(dialogParent(parent),
-                                                             caption,
-                                                             dir.toString(),
-                                                             options);
-    return FilePath::fromString(result);
+    bool forceNonNativeDialog = dir.needsDevice();
+
+    const QStringList schemes = QStringList(QStringLiteral("file"));
+    return firstOrEmpty(getFilePaths(dialogParent(parent),
+                                     caption,
+                                     dir,
+                                     {},
+                                     nullptr,
+                                     options,
+                                     schemes,
+                                     forceNonNativeDialog,
+                                     QFileDialog::Directory,
+                                     QFileDialog::AcceptOpen));
 }
 
 FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
@@ -534,54 +619,19 @@ FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
                                       QString *selectedFilter,
                                       QFileDialog::Options options)
 {
-    const QStringList result = QFileDialog::getOpenFileNames(dialogParent(parent),
-                                                             caption,
-                                                             dir.toString(),
-                                                             filter,
-                                                             selectedFilter,
-                                                             options);
-    return FileUtils::toFilePathList(result);
-}
+    bool forceNonNativeDialog = dir.needsDevice();
 
-FilePath FileUtils::getOpenFilePathFromDevice(QWidget *parent,
-                                              const QString &caption,
-                                              const FilePath &dir,
-                                              const QString &filter,
-                                              QString *selectedFilter,
-                                              QFileDialog::Options options)
-{
-    QFileDialog dialog(parent);
-    dialog.setOptions(options | QFileDialog::DontUseNativeDialog);
-    dialog.setWindowTitle(caption);
-    dialog.setDirectory(dir.toString());
-    dialog.setNameFilter(filter);
-
-    QList<QUrl> sideBarUrls = Utils::transform(Utils::filtered(FSEngine::registeredDeviceRoots(),
-                                                               [](const auto &filePath) {
-                                                                   return filePath.exists();
-                                                               }),
-                                               [](const auto &filePath) {
-                                                   return QUrl::fromLocalFile(
-                                                       filePath.toFSPathString());
-                                               });
-    dialog.setSidebarUrls(sideBarUrls);
-    dialog.setFileMode(QFileDialog::AnyFile);
-
-    dialog.setIconProvider(Utils::FileIconProvider::iconProvider());
-
-    if (dialog.exec()) {
-        FilePaths filePaths = Utils::transform(dialog.selectedFiles(), [](const auto &path) {
-            return FilePath::fromString(path);
-        });
-
-        if (selectedFilter) {
-            *selectedFilter = dialog.selectedNameFilter();
-        }
-
-        return filePaths.first();
-    }
-
-    return {};
+    const QStringList schemes = QStringList(QStringLiteral("file"));
+    return getFilePaths(dialogParent(parent),
+                        caption,
+                        dir,
+                        filter,
+                        selectedFilter,
+                        options,
+                        schemes,
+                        forceNonNativeDialog,
+                        QFileDialog::ExistingFiles,
+                        QFileDialog::AcceptOpen);
 }
 
 #endif // QT_WIDGETS_LIB
@@ -716,7 +766,8 @@ static bool iterateWithFindHelper(
 
     // Remove the first line, it is always the directory we are searching in.
     // as long as we do not specify "mindepth > 0"
-    entries.pop_front();
+    if (entries.size() > 0)
+        entries.pop_front();
     for (const QString &entry : entries) {
         if (!callBack(entry))
             break;
