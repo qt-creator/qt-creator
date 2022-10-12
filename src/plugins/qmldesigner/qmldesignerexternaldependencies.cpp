@@ -5,6 +5,7 @@
 
 #include "qmldesignerplugin.h"
 
+#include <app/app_version.h>
 #include <edit3d/edit3dviewconfig.h>
 #include <itemlibraryimport.h>
 #include <projectexplorer/kit.h>
@@ -179,7 +180,9 @@ Utils::FilePath qmlPuppetWorkingDirectory(ProjectExplorer::Target *target,
 
 QString qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
 {
-    return workingDirectory.pathAppended("qml2puppet").withExecutableSuffix().toString();
+    return workingDirectory.pathAppended(QString{"qml2puppet-"} + Core::Constants::IDE_VERSION_LONG)
+        .withExecutableSuffix()
+        .toString();
 }
 
 bool isForcingFreeType(ProjectExplorer::Target *target)

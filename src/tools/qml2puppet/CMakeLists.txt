@@ -117,6 +117,8 @@ add_qtc_executable(qml2puppet
   DESTINATION ${DESTDIR}
 )
 
+set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-${IDE_VERSION})
+
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
   SOURCES_PREFIX "${SRCDIR}/"
