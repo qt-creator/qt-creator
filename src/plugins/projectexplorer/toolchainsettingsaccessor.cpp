@@ -12,10 +12,15 @@
 
 #include <utils/algorithm.h>
 
+#include <QElapsedTimer>
+#include <QLoggingCategory>
+
 using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
+
+static Q_LOGGING_CATEGORY(Log, "qtc.projectexplorer.toolchain.autodetection", QtWarningMsg)
 
 // --------------------------------------------------------------------
 // ToolChainSettingsUpgraders:
@@ -49,8 +54,12 @@ struct ToolChainOperations
 static Toolchains autoDetectToolChains(const ToolchainDetector &detector)
 {
     Toolchains result;
-    for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories())
+    for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
+        QElapsedTimer et;
+        et.start();
         result.append(f->autoDetect(detector));
+        qCDebug(Log) << f->displayName() << "auto detection took: " << et.elapsed() << "ms";
+    }
 
     // Remove invalid toolchains that might have sneaked in.
     return Utils::filtered(result, [](const ToolChain *tc) { return tc->isValid(); });
