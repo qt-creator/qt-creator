@@ -34,8 +34,8 @@ clang::format::FormatStyle qtcStyle()
     style.AccessModifierOffset = -4;
     style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
 #if LLVM_VERSION_MAJOR >= 15
-    style.AlignConsecutiveAssignments = {false};
-    style.AlignConsecutiveDeclarations = {false};
+    style.AlignConsecutiveAssignments = {false, false, false, false, false};
+    style.AlignConsecutiveDeclarations = {false, false, false, false, false};
 #elif LLVM_VERSION_MAJOR >= 12
     style.AlignConsecutiveAssignments = FormatStyle::ACS_None;
     style.AlignConsecutiveDeclarations = FormatStyle::ACS_None;
