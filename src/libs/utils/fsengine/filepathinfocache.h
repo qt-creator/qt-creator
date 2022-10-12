@@ -60,6 +60,12 @@ public:
             m_cache.insert(path, new CachedData(data));
     }
 
+    void invalidate(const FilePath &path)
+    {
+        QMutexLocker lk(&m_mutex);
+        m_cache.remove(path);
+    }
+
 private:
     QMutex m_mutex;
     QCache<FilePath, CachedData> m_cache;
