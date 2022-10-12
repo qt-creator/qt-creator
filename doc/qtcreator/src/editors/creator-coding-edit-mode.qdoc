@@ -284,6 +284,12 @@
     supported for namespaces, classes, functions, variables, include statements,
     and macros.
 
+    To move to the type definition of a symbol, select
+    \uicontrol {Follow Symbol Under Cursor to Type} or press
+    \key {Ctrl+Shift+F2}. To follow the symbol in the next split, select
+    \uicontrol {Follow Symbol Under Cursor to Type in Next Split} or
+    press \key {Ctrl+E, Ctrl+Shift+F2}.
+
     When the cursor is on a string literal and the string is a QRC file path,
     following the symbol opens the specified resource file for editing in the
     \uicontrol {Resource Browser}.

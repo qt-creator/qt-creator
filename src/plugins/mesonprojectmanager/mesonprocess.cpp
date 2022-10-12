@@ -60,6 +60,8 @@ void MesonProcess::handleProcessDone()
 void MesonProcess::setupProcess(const Command &command, const Environment &env,
                                 const QString &projectName, bool captureStdo)
 {
+    if (m_process)
+        m_process.release()->deleteLater();
     m_process.reset(new QtcProcess);
     connect(m_process.get(), &QtcProcess::done, this, &MesonProcess::handleProcessDone);
     if (!captureStdo) {

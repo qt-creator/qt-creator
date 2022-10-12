@@ -629,7 +629,7 @@ FilePathInfo FilePath::filePathInfo() const
     QFileInfo fi(path());
     result.fileSize = fi.size();
     result.lastModified = fi.lastModified();
-    result.fileFlags = (FilePathInfo::FileFlag) fi.permissions().toInt();
+    result.fileFlags = (FilePathInfo::FileFlag) int(fi.permissions());
 
     if (fi.isDir())
         result.fileFlags |= FilePathInfo::DirectoryType;

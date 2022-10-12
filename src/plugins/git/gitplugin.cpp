@@ -1834,7 +1834,7 @@ bool GitPluginPrivate::vcsAdd(const FilePath &filePath)
 
 bool GitPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    return m_gitClient.synchronousDelete(filePath.parentDir().absolutePath(), true, {filePath.fileName()});
+    return m_gitClient.synchronousDelete(filePath.absolutePath(), true, {filePath.fileName()});
 }
 
 bool GitPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)

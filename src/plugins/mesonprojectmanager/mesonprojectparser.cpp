@@ -196,20 +196,18 @@ QList<ProjectExplorer::BuildTargetInfo> MesonProjectParser::appsTargets() const
     }
     return apps;
 }
+
 bool MesonProjectParser::startParser()
 {
     m_parserFutureResult = Utils::runAsync(
-        ProjectExplorer::ProjectExplorerPlugin::sharedThreadPool(),
-        [process = &m_process,
-         introType = m_introType,
-         buildDir = m_buildDir.toString(),
-         srcDir = m_srcDir]() {
-            if (introType == IntroDataType::file) {
-                return extractParserResults(srcDir, MesonInfoParser::parse(buildDir));
-            } else {
-                return extractParserResults(srcDir, MesonInfoParser::parse(process->stdOut()));
-            }
-        });
+                ProjectExplorer::ProjectExplorerPlugin::sharedThreadPool(),
+                [processOutput = m_process.stdOut(), introType = m_introType,
+                buildDir = m_buildDir.toString(), srcDir = m_srcDir] {
+        if (introType == IntroDataType::file)
+            return extractParserResults(srcDir, MesonInfoParser::parse(buildDir));
+        else
+            return extractParserResults(srcDir, MesonInfoParser::parse(processOutput));
+    });
 
     Utils::onFinished(m_parserFutureResult, this, &MesonProjectParser::update);
     return true;
