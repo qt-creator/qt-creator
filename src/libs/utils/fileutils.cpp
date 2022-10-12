@@ -494,12 +494,22 @@ void prepareNonNativeDialog(QFileDialog &dialog)
     // Checking QFileDialog::itemDelegate() seems to be the only way to determine
     // whether the dialog is native or not.
     if (dialog.itemDelegate()) {
-        QList<QUrl> sideBarUrls;
-        for (const FilePath &path : FSEngine::registeredDeviceRoots()) {
-            if (path.exists())
-                sideBarUrls.append(filePathToQUrl(path));
+        FilePaths sideBarPaths;
+
+        // Check existing urls, remove paths that need a device and no longer exist.
+        for (const QUrl &url : dialog.sidebarUrls()) {
+            FilePath path = qUrlToFilePath(url);
+            if (!path.needsDevice() || path.exists())
+                sideBarPaths.append(path);
         }
-        dialog.setSidebarUrls(sideBarUrls);
+
+        // Add all device roots that are not already in the sidebar and exist.
+        for (const FilePath &path : FSEngine::registeredDeviceRoots()) {
+            if (!sideBarPaths.contains(path) && path.exists())
+                sideBarPaths.append(path);
+        }
+
+        dialog.setSidebarUrls(Utils::transform(sideBarPaths, filePathToQUrl));
         dialog.setIconProvider(Utils::FileIconProvider::iconProvider());
     }
 }
