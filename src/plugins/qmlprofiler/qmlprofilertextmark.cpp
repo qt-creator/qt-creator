@@ -34,13 +34,6 @@ void QmlProfilerTextMark::addTypeId(int typeId)
     setLineAnnotation(statisticsView->summary(m_typeIds));
 }
 
-void QmlProfilerTextMark::clicked()
-{
-    int typeId = m_typeIds.takeFirst();
-    m_typeIds.append(typeId);
-    emit m_viewManager->typeSelected(typeId);
-}
-
 QmlProfilerTextMarkModel::QmlProfilerTextMarkModel(QObject *parent) : QObject(parent)
 {
 }
