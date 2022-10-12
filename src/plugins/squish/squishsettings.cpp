@@ -84,6 +84,8 @@ SquishSettings::SquishSettings()
         serverHost.setEnabled(!checked);
         serverPort.setEnabled(!checked);
     });
+    connect(&squishPath, &Utils::StringAspect::valueChanged,
+            this, &SquishSettings::squishPathChanged);
 }
 
 Utils::FilePath SquishSettings::scriptsPath(Language language) const

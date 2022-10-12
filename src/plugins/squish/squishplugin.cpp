@@ -108,6 +108,7 @@ void SquishPluginPrivate::initializeMenuEntries()
 bool SquishPluginPrivate::initializeGlobalScripts()
 {
     QTC_ASSERT(dd->m_squishTools, return false);
+    SquishFileHandler::instance()->setSharedFolders({});
 
     const Utils::FilePath squishserver = dd->m_squishSettings.squishPath.filePath().pathAppended(
                 Utils::HostOsInfo::withExecutableSuffix("bin/squishserver"));
@@ -135,6 +136,10 @@ bool SquishPlugin::initialize(const QStringList &, QString *)
 
 bool SquishPlugin::delayedInitialize()
 {
+
+    connect(&dd->m_squishSettings, &SquishSettings::squishPathChanged,
+            dd, &SquishPluginPrivate::initializeGlobalScripts);
+
     return dd->initializeGlobalScripts();
 }
 

@@ -38,6 +38,7 @@ public:
 
 class SquishSettings : public Utils::AspectContainer
 {
+    Q_OBJECT
 public:
     SquishSettings();
 
@@ -50,6 +51,9 @@ public:
     Utils::BoolAspect local;
     Utils::BoolAspect verbose;
     Utils::BoolAspect minimizeIDE;
+
+signals:
+    void squishPathChanged();
 };
 
 class SquishSettingsPage final : public Core::IOptionsPage
