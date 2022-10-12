@@ -122,7 +122,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
 
     m_matBundleExists = true;
 
-    const QString bundleId = m_matBundleObj.value("id").toString();
+    QString bundleId = m_matBundleObj.value("id").toString();
 
     const QJsonObject catsObj = m_matBundleObj.value("categories").toObject();
     const QStringList categories = catsObj.keys();
@@ -160,8 +160,17 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
 
     m_importer = new Internal::BundleImporter(matBundleDir.path(), bundleId, sharedFiles);
     connect(m_importer, &Internal::BundleImporter::importFinished, this, [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
+        m_importerRunning = false;
+        emit importerRunningChanged();
         if (metaInfo.isValid())
-            emit addBundleMaterialToProjectRequested(metaInfo);
+            emit bundleMaterialImported(metaInfo);
+    });
+
+    connect(m_importer, &Internal::BundleImporter::unimportFinished, this, [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
+        Q_UNUSED(metaInfo)
+        m_importerRunning = false;
+        emit importerRunningChanged();
+        emit bundleMaterialUnimported(metaInfo);
     });
 }
 
@@ -193,6 +202,11 @@ void MaterialBrowserBundleModel::setHasMaterialRoot(bool b)
     emit hasMaterialRootChanged();
 }
 
+Internal::BundleImporter *MaterialBrowserBundleModel::bundleImporter() const
+{
+    return m_importer;
+}
+
 void MaterialBrowserBundleModel::setSearchText(const QString &searchText)
 {
     QString lowerSearchText = searchText.toLower();
@@ -219,6 +233,16 @@ void MaterialBrowserBundleModel::setSearchText(const QString &searchText)
         resetModel();
 }
 
+void MaterialBrowserBundleModel::updateImportedState(const QStringList &importedMats)
+{
+    bool changed = false;
+    for (BundleMaterialCategory *cat : std::as_const(m_bundleCategories))
+        changed |= cat->updateImportedState(importedMats);
+
+    if (changed)
+        resetModel();
+}
+
 void MaterialBrowserBundleModel::resetModel()
 {
     beginResetModel();
@@ -230,12 +254,30 @@ void MaterialBrowserBundleModel::applyToSelected(BundleMaterial *mat, bool add)
     emit applyToSelectedTriggered(mat, add);
 }
 
-void MaterialBrowserBundleModel::addMaterial(BundleMaterial *mat)
+void MaterialBrowserBundleModel::addToProject(BundleMaterial *mat)
 {
     QString err = m_importer->importComponent(mat->qml(), mat->files());
 
-    if (!err.isEmpty())
+    if (err.isEmpty()) {
+        m_importerRunning = true;
+        emit importerRunningChanged();
+    } else {
         qWarning() << __FUNCTION__ << err;
+    }
+}
+
+void MaterialBrowserBundleModel::removeFromProject(BundleMaterial *mat)
+{
+    emit bundleMaterialAboutToUnimport(mat->type());
+
+     QString err = m_importer->unimportComponent(mat->qml());
+
+    if (err.isEmpty()) {
+        m_importerRunning = true;
+        emit importerRunningChanged();
+    } else {
+        qWarning() << __FUNCTION__ << err;
+    }
 }
 
 } // namespace QmlDesigner

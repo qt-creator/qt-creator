@@ -27,6 +27,7 @@
 
 #include "bindingproperty.h"
 #include "bundlematerial.h"
+#include "bundleimporter.h"
 #include "materialbrowserwidget.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowserbundlemodel.h"
@@ -178,13 +179,28 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             if (defaultMat.isValid())
                 applyBundleMaterialToDropTarget(defaultMat);
             else
-                m_widget->materialBrowserBundleModel()->addMaterial(bundleMat);
+                m_widget->materialBrowserBundleModel()->addToProject(bundleMat);
         });
 
-        connect(matBrowserBundleModel, &MaterialBrowserBundleModel::addBundleMaterialToProjectRequested, this,
+        connect(matBrowserBundleModel, &MaterialBrowserBundleModel::bundleMaterialImported, this,
                 [&] (const QmlDesigner::NodeMetaInfo &metaInfo) {
             applyBundleMaterialToDropTarget({}, metaInfo);
+            updateBundleMaterialsImportedState();
         });
+
+        connect(matBrowserBundleModel, &MaterialBrowserBundleModel::bundleMaterialAboutToUnimport, this,
+                [&] (const QmlDesigner::TypeName &type) {
+            // delete instances of the bundle material that is about to be unimported
+            executeInTransaction("MaterialBrowserView::widgetInfo", [&] {
+                Utils::reverseForeach(m_widget->materialBrowserModel()->materials(), [&](const ModelNode &mat) {
+                    if (mat.isValid() && mat.type() == type)
+                        QmlObjectNode(mat).destroy();
+                });
+            });
+        });
+
+        connect(matBrowserBundleModel, &MaterialBrowserBundleModel::bundleMaterialUnimported, this,
+                &MaterialBrowserView::updateBundleMaterialsImportedState);
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -273,6 +289,7 @@ void MaterialBrowserView::modelAttached(Model *model)
     m_widget->materialBrowserModel()->setHasMaterialRoot(rootModelNode().isSubclassOf("QtQuick3D.Material"));
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
+    updateBundleMaterialsImportedState();
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
     // before refreshing the model
@@ -440,6 +457,22 @@ void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
     m_propertyGroupsLoaded = m_widget->materialBrowserModel()->loadPropertyGroups(matPropsPath);
 }
 
+void MaterialBrowserView::updateBundleMaterialsImportedState()
+{
+    using namespace Utils;
+
+    QStringList importedBundleMats;
+
+    FilePath materialBundlePath = m_widget->materialBrowserBundleModel()->bundleImporter()->resolveBundleImportPath();
+
+    if (materialBundlePath.exists()) {
+        importedBundleMats = transform(materialBundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                       [](const FilePath &f) { return f.fileName().chopped(4); });
+    }
+
+    m_widget->materialBrowserBundleModel()->updateImportedState(importedBundleMats);
+}
+
 ModelNode MaterialBrowserView::getBundleMaterialDefaultInstance(const TypeName &type)
 {
     const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
@@ -505,7 +538,7 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
         if (defaultMat.isValid())
             applyBundleMaterialToDropTarget(defaultMat);
         else
-            m_widget->materialBrowserBundleModel()->addMaterial(m_draggedBundleMaterial);
+            m_widget->materialBrowserBundleModel()->addToProject(m_draggedBundleMaterial);
 
         m_draggedBundleMaterial = nullptr;
     }

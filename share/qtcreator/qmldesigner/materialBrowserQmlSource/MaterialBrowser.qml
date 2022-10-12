@@ -46,8 +46,8 @@ Item {
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()
     {
-        cxtMenu.close()
-        cxtMenuBundle.close()
+        ctxMenu.close()
+        ctxMenuBundle.close()
     }
 
     // Called from C++ to refresh a preview material after it changes
@@ -79,7 +79,7 @@ Item {
             if (!materialBrowserModel.hasMaterialRoot && (!materialBrowserBundleModel.matBundleExists
                                                           || mouse.y < userMatsSecBottom)) {
                 root.currentMaterial = null
-                cxtMenu.popup()
+                ctxMenu.popup()
             }
         }
     }
@@ -97,8 +97,12 @@ Item {
         }
     }
 
+    UnimportBundleMaterialDialog {
+        id: unimportBundleMaterialDialog
+    }
+
     StudioControls.Menu {
-        id: cxtMenu
+        id: ctxMenu
 
         closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
 
@@ -205,7 +209,7 @@ Item {
     }
 
     StudioControls.Menu {
-        id: cxtMenuBundle
+        id: ctxMenuBundle
 
         closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
 
@@ -224,9 +228,22 @@ Item {
         StudioControls.MenuSeparator {}
 
         StudioControls.MenuItem {
-            text: qsTr("Add to project")
+            enabled: !materialBrowserBundleModel.importerRunning
+            text: qsTr("Add an instance to project")
 
-            onTriggered: materialBrowserBundleModel.addMaterial(root.currentBundleMaterial)
+            onTriggered: {
+                materialBrowserBundleModel.addToProject(root.currentBundleMaterial)
+            }
+        }
+
+        StudioControls.MenuItem {
+            enabled: !materialBrowserBundleModel.importerRunning && root.currentBundleMaterial.bundleMaterialImported
+            text: qsTr("Remove from project")
+
+            onTriggered: {
+                unimportBundleMaterialDialog.targetBundleMaterial = root.currentBundleMaterial
+                unimportBundleMaterialDialog.open()
+            }
         }
     }
 
@@ -301,13 +318,14 @@ Item {
             height: root.height - searchBox.height
             clip: true
             visible: materialBrowserModel.hasQuick3DImport && !materialBrowserModel.hasMaterialRoot
+            interactive: !ctxMenu.opened && !ctxMenuBundle.opened
 
             Column {
                 Section {
                     id: userMaterialsSection
 
                     width: root.width
-                    caption: qsTr("User materials")
+                    caption: qsTr("Materials")
                     hideHeader: !materialBrowserBundleModel.matBundleExists
 
                     Grid {
@@ -329,7 +347,7 @@ Item {
 
                                 onShowContextMenu: {
                                     root.currentMaterial = model
-                                    cxtMenu.popup()
+                                    ctxMenu.popup()
                                 }
                             }
                         }
@@ -392,7 +410,7 @@ Item {
 
                                             onShowContextMenu: {
                                                 root.currentBundleMaterial = modelData
-                                                cxtMenuBundle.popup()
+                                                ctxMenuBundle.popup()
                                             }
                                         }
                                     }

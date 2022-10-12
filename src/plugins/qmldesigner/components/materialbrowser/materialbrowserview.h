@@ -68,6 +68,7 @@ private:
     void refreshModel(bool updateImages);
     bool isMaterial(const ModelNode &node) const;
     void loadPropertyGroups();
+    void updateBundleMaterialsImportedState();
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const NodeMetaInfo &metaInfo = {});
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
 
@@ -75,6 +76,7 @@ private:
     QList<ModelNode> m_bundleMaterialTargets;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
     BundleMaterial *m_draggedBundleMaterial = nullptr;
+
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action

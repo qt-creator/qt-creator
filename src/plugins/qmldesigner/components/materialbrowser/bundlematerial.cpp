@@ -70,4 +70,20 @@ bool BundleMaterial::visible() const
     return m_visible;
 }
 
+bool BundleMaterial::setImported(bool imported)
+{
+    if (m_imported != imported) {
+        m_imported = imported;
+        emit materialImportedChanged();
+        return true;
+    }
+
+    return false;
+}
+
+bool BundleMaterial::imported() const
+{
+    return m_imported;
+}
+
 } // namespace QmlDesigner

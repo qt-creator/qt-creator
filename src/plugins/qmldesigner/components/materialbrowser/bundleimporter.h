@@ -51,6 +51,7 @@ public:
     QString importComponent(const QString &qmlFile,
                             const QStringList &files);
     QString unimportComponent(const QString &qmlFile);
+    Utils::FilePath resolveBundleImportPath();
 
 signals:
     // The metaInfo parameter will be invalid if an error was encountered during
@@ -63,7 +64,6 @@ private:
     void handleImportTimer();
     QVariantHash loadAssetRefMap(const Utils::FilePath &bundlePath);
     void writeAssetRefMap(const Utils::FilePath &bundlePath, const QVariantHash &assetRefMap);
-    Utils::FilePath resolveBundleImportPath();
 
     Utils::FilePath m_bundleDir;
     QString m_bundleId;
