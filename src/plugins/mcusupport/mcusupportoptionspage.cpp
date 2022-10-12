@@ -257,9 +257,9 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
     }
 
     for (const auto &package : std::as_const(m_options.sdkRepository.packages)) {
-        QWidget *packageWidget = package->widget();
         if (!mcuTarget->packages().contains(package) || package->label().isEmpty())
             continue;
+        QWidget *packageWidget = package->widget();
         m_packagesLayout->addRow(package->label(), packageWidget);
         packageWidget->show();
     }
