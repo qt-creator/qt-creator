@@ -8,6 +8,7 @@
 #include <utils/filepath.h>
 #include <utils/id.h>
 
+#include <QFileDialog>
 #include <QObject>
 #include <QPair>
 
@@ -64,7 +65,8 @@ public:
 
     static Utils::FilePaths getOpenFileNames(const QString &filters,
                                              const Utils::FilePath &path = {},
-                                             QString *selectedFilter = nullptr);
+                                             QString *selectedFilter = nullptr,
+                                             QFileDialog::Options options = {});
     static Utils::FilePath getSaveFileName(const QString &title,
                                            const Utils::FilePath &pathIn,
                                            const QString &filter = {},
