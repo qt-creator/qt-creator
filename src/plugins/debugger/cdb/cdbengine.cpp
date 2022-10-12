@@ -763,6 +763,18 @@ void CdbEngine::interruptInferior()
     doInterruptInferior();
 }
 
+void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
+{
+    if (errorMessage.isEmpty()) {
+        showMessage("Interrupted " + QString::number(inferiorPid()));
+    } else {
+        showMessage(errorMessage, LogError);
+        notifyInferiorStopFailed();
+    }
+    m_signalOperation->disconnect(this);
+    m_signalOperation.clear();
+}
+
 void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
 {
     const bool requestInterrupt = m_stopMode == NoStopRequested;
@@ -779,6 +791,18 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
     if (!requestInterrupt)
         return; // we already requested a stop no need to interrupt twice
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
+
+    QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed(); return);
+    if (m_effectiveStartMode != AttachToRemoteServer && device()) {
+        m_signalOperation = device()->signalOperation();
+        if (m_signalOperation) {
+            connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
+                    this, &CdbEngine::handleDoInterruptInferior);
+            m_signalOperation->setDebuggerCommand(runParameters().debugger.command.executable());
+            m_signalOperation->interruptProcess(inferiorPid());
+            return;
+        }
+    }
     m_process.interrupt();
 }
 
