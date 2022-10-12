@@ -291,9 +291,7 @@ bool SuiteConf::ensureObjectMapExists() const
 {
     if (m_objectMapStyle != "script") {
         const Utils::FilePath objectMap = objectMapPath();
-        bool ok = objectMap.parentDir().ensureWritableDir();
-        ok |= objectMap.ensureExistingFile();
-        return ok;
+        return objectMap.parentDir().ensureWritableDir() && objectMap.ensureExistingFile();
     }
 
     const Utils::FilePath scripts = SquishPlugin::squishSettings()->scriptsPath(language());
