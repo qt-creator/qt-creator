@@ -15,6 +15,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <variant>
 
 QT_BEGIN_NAMESPACE
 class QDateTime;
