@@ -23,7 +23,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux::Internal {
+namespace RemoteLinux {
 
 class RsyncDeployService : public AbstractRemoteLinuxDeployService
 {
@@ -135,46 +135,44 @@ void RsyncDeployService::setFinished()
 
 // RsyncDeployStep
 
-class RsyncDeployStep : public AbstractRemoteLinuxDeployStep
-{
-public:
-    RsyncDeployStep(BuildStepList *bsl, Id id)
+RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
-    {
-        auto service = createDeployService<Internal::RsyncDeployService>();
-
-        auto flags = addAspect<StringAspect>();
-        flags->setDisplayStyle(StringAspect::LineEditDisplay);
-        flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
-        flags->setLabelText(Tr::tr("Flags:"));
-        flags->setValue(FileTransferSetupData::defaultRsyncFlags());
-
-        auto ignoreMissingFiles = addAspect<BoolAspect>();
-        ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
-        ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files:"),
-                                     BoolAspect::LabelPlacement::InExtraLabel);
-        ignoreMissingFiles->setValue(false);
-
-        setInternalInitializer([service, flags, ignoreMissingFiles] {
-            service->setIgnoreMissingFiles(ignoreMissingFiles->value());
-            service->setFlags(flags->value());
-            return service->isDeploymentPossible();
-        });
-
-        setRunPreparer([this, service] {
-            service->setDeployableFiles(target()->deploymentData().allFiles());
-        });
-    }
-};
-
-// RsyncDeployStepFactory
-
-RsyncDeployStepFactory::RsyncDeployStepFactory()
 {
-    registerStep<RsyncDeployStep>(Constants::RsyncDeployStepId);
-    setDisplayName(Tr::tr("Deploy files via rsync"));
-    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    auto service = createDeployService<RsyncDeployService>();
+
+    auto flags = addAspect<StringAspect>();
+    flags->setDisplayStyle(StringAspect::LineEditDisplay);
+    flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
+    flags->setLabelText(Tr::tr("Flags:"));
+    flags->setValue(FileTransferSetupData::defaultRsyncFlags());
+
+    auto ignoreMissingFiles = addAspect<BoolAspect>();
+    ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
+    ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files:"),
+                                 BoolAspect::LabelPlacement::InExtraLabel);
+    ignoreMissingFiles->setValue(false);
+
+    setInternalInitializer([service, flags, ignoreMissingFiles] {
+        service->setIgnoreMissingFiles(ignoreMissingFiles->value());
+        service->setFlags(flags->value());
+        return service->isDeploymentPossible();
+    });
+
+    setRunPreparer([this, service] {
+        service->setDeployableFiles(target()->deploymentData().allFiles());
+    });
 }
 
-} // RemoteLinux::Internal
+RsyncDeployStep::~RsyncDeployStep() = default;
+
+Utils::Id RsyncDeployStep::stepId()
+{
+    return Constants::RsyncDeployStepId;
+}
+
+QString RsyncDeployStep::displayName()
+{
+    return Tr::tr("Deploy files via rsync");
+}
+
+} // RemoteLinux
