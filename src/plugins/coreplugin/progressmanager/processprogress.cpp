@@ -3,8 +3,8 @@
 
 #include "processprogress.h"
 
-#include "coreplugintr.h"
 #include "progressmanager.h"
+#include "../coreplugintr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

@@ -26,6 +26,7 @@ namespace Internal {
 
 static Q_LOGGING_CATEGORY(mesonProcessLog, "qtc.meson.buildsystem", QtWarningMsg);
 
+MesonProcess::MesonProcess() = default;
 MesonProcess::~MesonProcess() = default;
 
 bool MesonProcess::run(const Command &command,

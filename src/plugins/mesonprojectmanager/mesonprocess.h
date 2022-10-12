@@ -24,7 +24,7 @@ class MesonProcess final : public QObject
 {
     Q_OBJECT
 public:
-    MesonProcess() = default;
+    MesonProcess();
     ~MesonProcess();
     bool run(const Command &command, const Utils::Environment &env,
              const QString &projectName, bool captureStdo = false);
