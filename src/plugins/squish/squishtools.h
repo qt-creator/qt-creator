@@ -70,6 +70,7 @@ public:
                         const SuiteConf &suiteConf);
     void queryGlobalScripts(QueryCallback callback);
     void queryServerSettings(QueryCallback callback);
+    void requestSetSharedFolders(const Utils::FilePaths &sharedFolders);
     void writeServerSettingsChanges(const QList<QStringList> &changes);
     void requestExpansion(const QString &name);
 
@@ -99,7 +100,7 @@ private:
         KillOldBeforeQueryRunner
     };
 
-    enum RunnerQuery { ServerInfo, GetGlobalScriptDirs };
+    enum RunnerQuery { ServerInfo, GetGlobalScriptDirs, SetGlobalScriptDirs };
 
     void setState(State state);
     void handleSetStateStartAppRunner();
@@ -155,6 +156,7 @@ private:
     Utils::FilePaths m_reportFiles;
     Utils::FilePath m_currentResultsDirectory;
     QString m_fullRunnerOutput; // used when querying the server
+    QString m_queryParameter;
     Utils::FilePath m_currentTestCasePath;
     Utils::FilePath m_currentRecorderSnippetFile;
     QFile *m_currentResultsXML = nullptr;

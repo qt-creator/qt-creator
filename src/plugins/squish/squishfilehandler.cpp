@@ -27,6 +27,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTimer>
 #include <QVBoxLayout>
 
 namespace Squish {
@@ -437,6 +438,8 @@ void SquishFileHandler::addSharedFolder()
         return;
 
     m_sharedFolders.append(chosen);
+    updateSquishServerGlobalScripts();
+
     SquishTestTreeItem *item = new SquishTestTreeItem(chosen.toUserOutput(),
                                                       SquishTestTreeItem::SquishSharedFolder);
     item->setFilePath(chosen);
@@ -464,8 +467,12 @@ void SquishFileHandler::setSharedFolders(const Utils::FilePaths &folders)
 
 bool SquishFileHandler::removeSharedFolder(const Utils::FilePath &folder)
 {
-    if (m_sharedFolders.contains(folder))
-        return m_sharedFolders.removeOne(folder);
+    if (m_sharedFolders.contains(folder)) {
+        if (m_sharedFolders.removeOne(folder)) {
+            updateSquishServerGlobalScripts();
+            return true;
+        }
+    }
 
     return false;
 }
@@ -473,6 +480,7 @@ bool SquishFileHandler::removeSharedFolder(const Utils::FilePath &folder)
 void SquishFileHandler::removeAllSharedFolders()
 {
     m_sharedFolders.clear();
+    updateSquishServerGlobalScripts();
 }
 
 void SquishFileHandler::openObjectsMap(const QString &suiteName)
@@ -507,6 +515,20 @@ void SquishFileHandler::onSessionLoaded()
         if (fp.exists())
             openTestSuite(fp);
     }
+}
+
+void SquishFileHandler::updateSquishServerGlobalScripts()
+{
+    auto squishTools = SquishTools::instance();
+    if (squishTools->state() != SquishTools::Idle) {
+        // postpone - we can't queue this currently
+        QTimer::singleShot(1500, [this]() {
+            updateSquishServerGlobalScripts();
+        });
+        return;
+    }
+
+    squishTools->requestSetSharedFolders(m_sharedFolders);
 }
 
 QStringList SquishFileHandler::suitePathsAsStringList() const

@@ -282,7 +282,7 @@ void SquishNavigationWidget::onRowsRemoved(const QModelIndex &parent, int, int)
 
 void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModelIndex &parent)
 {
-    const auto folder = Utils::FilePath::fromVariant(m_model->index(row, 0, parent).data(LinkRole));
+    const auto folder = Utils::FilePath::fromVariant(m_sortModel->index(row, 0, parent).data(LinkRole));
     QTC_ASSERT(!folder.isEmpty(), return );
 
     if (QMessageBox::question(Core::ICore::dialogParent(),
@@ -293,7 +293,7 @@ void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModel
         return;
     }
 
-    const QModelIndex &realIdx = m_sortModel->mapToSource(m_model->index(row, 0, parent));
+    const QModelIndex &realIdx = m_sortModel->mapToSource(m_sortModel->index(row, 0, parent));
     if (SquishFileHandler::instance()->removeSharedFolder(folder))
         m_model->removeTreeItem(realIdx.row(), realIdx.parent());
 }

@@ -20,6 +20,7 @@
 #include <debugger/debuggericons.h>
 #include <texteditor/textmark.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
@@ -271,6 +272,15 @@ void SquishTools::queryServerSettings(QueryCallback callback)
     m_queryCallback = callback;
     queryServer(ServerInfo);
 }
+
+void SquishTools::requestSetSharedFolders(const Utils::FilePaths &sharedFolders)
+{
+    // when sharedFolders is empty we need to pass an (explicit) empty string
+    // otherwise a list of paths, for convenience we quote each path
+    m_queryParameter = '"' + Utils::transform(sharedFolders, &FilePath::toUserOutput).join("\",\"") + '"';
+    queryServer(SetGlobalScriptDirs);
+}
+
 
 void SquishTools::queryServer(RunnerQuery query)
 {
@@ -688,6 +698,11 @@ void SquishTools::executeRunnerQuery()
         cmdLine.addArg("--config");
         cmdLine.addArg("getGlobalScriptDirs");
         break;
+    case SetGlobalScriptDirs:
+        cmdLine.addArg("--config");
+        cmdLine.addArg("setGlobalScriptDirs");
+        cmdLine.addArgs(m_queryParameter, Utils::CommandLine::Raw);
+        break;
     default:
         QTC_ASSERT(false, return);
     }
@@ -721,6 +736,7 @@ void SquishTools::onRunnerFinished()
         setState(RunnerStopped);
         m_fullRunnerOutput.clear();
         m_queryCallback = {};
+        m_queryParameter.clear();
         return;
     }
 

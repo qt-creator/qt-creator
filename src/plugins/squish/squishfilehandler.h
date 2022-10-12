@@ -44,6 +44,7 @@ signals:
 private:
     void closeAllInternal();
     void onSessionLoaded();
+    void updateSquishServerGlobalScripts();
     QStringList suitePathsAsStringList() const;
 
     void modifySuiteItem(const QString &suiteName,
