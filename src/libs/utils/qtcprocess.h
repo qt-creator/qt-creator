@@ -7,6 +7,7 @@
 
 #include "commandline.h"
 #include "processenums.h"
+#include "tasktree.h"
 
 #include <QProcess>
 
@@ -202,4 +203,13 @@ public:
     std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
 
+class QTCREATOR_UTILS_EXPORT QtcProcessAdapter : public Tasking::TaskAdapter<QtcProcess>
+{
+public:
+    QtcProcessAdapter();
+    void start() final;
+};
+
 } // namespace Utils
+
+QTC_DECLARE_CUSTOM_TASK(Process, Utils::QtcProcessAdapter);

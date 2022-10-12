@@ -158,6 +158,7 @@ add_qtc_library(Utils
     stringutils.cpp stringutils.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h
+    tasktree.cpp tasktree.h
     templateengine.cpp templateengine.h
     temporarydirectory.cpp temporarydirectory.h
     temporaryfile.cpp temporaryfile.h

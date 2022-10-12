@@ -292,6 +292,8 @@ Project {
             "styledbar.h",
             "stylehelper.cpp",
             "stylehelper.h",
+            "tasktree.cpp",
+            "tasktree.h",
             "templateengine.cpp",
             "templateengine.h",
             "temporarydirectory.cpp",
