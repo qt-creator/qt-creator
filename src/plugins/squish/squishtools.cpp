@@ -260,11 +260,22 @@ void SquishTools::runTestCases(const FilePath &suitePath,
     startSquishServer(RunTestRequested);
 }
 
+void SquishTools::queryGlobalScripts(QueryCallback callback)
+{
+    m_queryCallback = callback;
+    queryServer(GetGlobalScriptDirs);
+}
+
 void SquishTools::queryServerSettings(QueryCallback callback)
+{
+    m_queryCallback = callback;
+    queryServer(ServerInfo);
+}
+
+void SquishTools::queryServer(RunnerQuery query)
 {
     if (m_shutdownInitiated)
         return;
-    m_queryCallback = callback;
 
     if (m_state != Idle) {
         QMessageBox::critical(Core::ICore::dialogParent(),
@@ -276,6 +287,7 @@ void SquishTools::queryServerSettings(QueryCallback callback)
     }
     m_perspective.setPerspectiveMode(SquishPerspective::Querying);
     m_fullRunnerOutput.clear();
+    m_query = query;
     startSquishServer(RunnerQueryRequested);
 }
 
@@ -663,7 +675,18 @@ void SquishTools::executeRunnerQuery()
     if (!isValidToStartRunner() || !setupRunnerPath())
         return;
 
-    setupAndStartSquishRunnerProcess({ "--port", QString::number(m_serverPort), "--info", "all"});
+    QStringList arguments = { "--port", QString::number(m_serverPort) };
+    switch (m_query) {
+    case ServerInfo:
+        arguments << "--info" << "all";
+        break;
+    case GetGlobalScriptDirs:
+        arguments << "--config" << "getGlobalScriptDirs";
+        break;
+    default:
+        QTC_ASSERT(false, return);
+    }
+    setupAndStartSquishRunnerProcess(arguments);
 }
 
 Environment SquishTools::squishEnvironment()

@@ -444,6 +444,24 @@ void SquishFileHandler::addSharedFolder()
     emit testTreeItemCreated(item);
 }
 
+void SquishFileHandler::setSharedFolders(const Utils::FilePaths &folders)
+{
+    emit clearedSharedFolders();
+    m_sharedFolders.clear();
+
+    for (const Utils::FilePath &folder : folders) {
+        if (m_sharedFolders.contains(folder))
+            continue;
+
+        m_sharedFolders.append(folder);
+        SquishTestTreeItem *item = new SquishTestTreeItem(folder.toUserOutput(),
+                                                          SquishTestTreeItem::SquishSharedFolder);
+        item->setFilePath(folder);
+        addAllEntriesRecursively(item);
+        emit testTreeItemCreated(item);
+    }
+}
+
 bool SquishFileHandler::removeSharedFolder(const Utils::FilePath &folder)
 {
     if (m_sharedFolders.contains(folder))
