@@ -40,8 +40,13 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     addInitialStep(Constants::MakeInstallStepId, needsMakeInstall);
     addInitialStep(Constants::KillAppStepId);
     addInitialStep(Constants::RsyncDeployStepId, [](Target *target) {
-        auto device = DeviceKitAspect::device(target->kit());
-        return device && device->extraData(Constants::SupportsRSync).toBool();
+        auto runDevice = DeviceKitAspect::device(target->kit());
+        auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+        if (runDevice == buildDevice)
+            return false;
+        // FIXME: That's not the full truth, we need support from the build
+        // device, too.
+        return runDevice && runDevice->extraData(Constants::SupportsRSync).toBool();
     });
     addInitialStep(Constants::DirectUploadStepId, [](Target *target) {
         auto device = DeviceKitAspect::device(target->kit());
