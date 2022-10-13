@@ -278,7 +278,8 @@ public:
         : GitBaseDiffEditorController(document, leftCommit, rightCommit)
     {
         setReloader([this, extraArgs] {
-            runCommand({addConfigurationArguments(baseArguments() << extraArgs)});
+            runCommand({addConfigurationArguments(baseArguments() << extraArgs)},
+                       VcsBaseEditor::getCodec(workingDirectory(), {}));
         });
     }
 };
@@ -413,7 +414,7 @@ public:
                 argLists << addConfigurationArguments(baseArguments() << "--" << unstagedFiles);
 
             if (!argLists.isEmpty())
-                runCommand(argLists);
+                runCommand(argLists, VcsBaseEditor::getCodec(workingDirectory(), stagedFiles + unstagedFiles));
         });
     }
 };
