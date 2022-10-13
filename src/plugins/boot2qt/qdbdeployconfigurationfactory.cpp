@@ -6,6 +6,7 @@
 #include "qdbconstants.h"
 
 #include <projectexplorer/deploymentdataview.h>
+#include "projectexplorer/devicesupport/idevice.h"
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -31,7 +32,14 @@ QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
                 && prj->hasMakeInstallEquivalent();
     });
     addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
-    addInitialStep(RemoteLinux::Constants::DirectUploadStepId);
+    addInitialStep(RemoteLinux::Constants::RsyncDeployStepId, [](Target *target) {
+        auto device = DeviceKitAspect::device(target->kit());
+        return device && device->extraData(RemoteLinux::Constants::SupportsRSync).toBool();
+    });
+    addInitialStep(RemoteLinux::Constants::DirectUploadStepId, [](Target *target) {
+        auto device = DeviceKitAspect::device(target->kit());
+        return device && !device->extraData(RemoteLinux::Constants::SupportsRSync).toBool();
+    });
 }
 
 } // namespace Internal
