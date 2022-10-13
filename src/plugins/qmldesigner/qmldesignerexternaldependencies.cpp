@@ -145,6 +145,12 @@ Utils::FilePath defaultPuppetFallbackDirectory()
     return Core::ICore::libexecPath();
 }
 
+Utils::FilePath qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
+{
+    return workingDirectory.pathAppended(QString{"qml2puppet-"} + Core::Constants::IDE_VERSION_LONG)
+        .withExecutableSuffix();
+}
+
 Utils::FilePath qmlPuppetFallbackDirectory(const DesignerSettings &settings)
 {
     auto puppetFallbackDirectory = Utils::FilePath::fromString(
@@ -154,35 +160,37 @@ Utils::FilePath qmlPuppetFallbackDirectory(const DesignerSettings &settings)
     return puppetFallbackDirectory;
 }
 
-Utils::FilePath workingDirectoryForKitPuppet(ProjectExplorer::Target *target)
+std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetFallbackPaths(const DesignerSettings &settings)
+{
+    auto workingDirectory = qmlPuppetFallbackDirectory(settings);
+
+    return {workingDirectory, qmlPuppetExecutablePath(workingDirectory)};
+}
+
+std::pair<Utils::FilePath, Utils::FilePath> pathsForKitPuppet(ProjectExplorer::Target *target)
 {
     if (!target || !target->kit())
         return {};
 
     QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
 
-    if (currentQtVersion)
-        return currentQtVersion->binPath();
+    if (currentQtVersion) {
+        auto path = currentQtVersion->binPath();
+        return {path, qmlPuppetExecutablePath(path)};
+    }
 
     return {};
 }
 
-Utils::FilePath qmlPuppetWorkingDirectory(ProjectExplorer::Target *target,
-                                          const DesignerSettings &settings)
+std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(ProjectExplorer::Target *target,
+                                                           const DesignerSettings &settings)
 {
-    auto path = workingDirectoryForKitPuppet(target);
+    auto [workingDirectoryPath, puppetPath] = pathsForKitPuppet(target);
 
-    if (path.isEmpty())
-        return qmlPuppetFallbackDirectory(settings);
+    if (workingDirectoryPath.isEmpty() || !puppetPath.exists())
+        return qmlPuppetFallbackPaths(settings);
 
-    return path;
-}
-
-QString qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
-{
-    return workingDirectory.pathAppended(QString{"qml2puppet-"} + Core::Constants::IDE_VERSION_LONG)
-        .withExecutableSuffix()
-        .toString();
+    return {workingDirectoryPath, puppetPath};
 }
 
 bool isForcingFreeType(ProjectExplorer::Target *target)
@@ -211,9 +219,9 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 {
     PuppetStartData data;
     auto target = ProjectExplorer::SessionManager::startupTarget();
-    auto workingDirectory = qmlPuppetWorkingDirectory(target, m_designerSettings);
+    auto [workingDirectory, puppetPath] = qmlPuppetPaths(target, m_designerSettings);
 
-    data.puppetPath = qmlPuppetExecutablePath(workingDirectory);
+    data.puppetPath = puppetPath.toString();
     data.workingDirectoryPath = workingDirectory.toString();
     data.environment = PuppetEnvironmentBuilder::createEnvironment(target, m_designerSettings, model);
     data.debugPuppet = m_designerSettings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
