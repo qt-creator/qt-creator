@@ -99,7 +99,7 @@
 
     \section1 Using States to Simulate Page Changes
 
-    You will now add \l{Adding States}{states} to the UI to show and hide UI
+    You will now add \l{Working with States}{states} to the UI to show and hide UI
     components in the \uicontrol {2D} view, depending on the current page:
 
     \list 1
@@ -177,7 +177,7 @@
 
     \section1 Learn More
     \section2 States
-    The \l{Adding States}{state} of a particular visual component is the set of
+    The \l{Working with States}{state} of a particular visual component is the set of
     information which describes how and where the individual parts of the visual
     component are displayed within it, and all the data associated with that
     state. Most visual components in a UI will have a limited number of states,

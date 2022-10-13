@@ -143,7 +143,7 @@
 
     \list
         \li \l{Connections}
-        \li \l{Adding Connections}
+        \li \l{Working with Connections}
     \endlist
 
     \section1 Device
@@ -271,7 +271,7 @@
 
     \list
         \li \l{States}
-        \li \l{Adding States}
+        \li \l{Working with States}
     \endlist
 
     \section1 Transition

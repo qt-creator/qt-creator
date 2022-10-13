@@ -108,7 +108,7 @@
 
     The default values of properties are displayed in white color, while the
     values that you specify explicitly are highlighted with blue color. In
-    addition, property changes in \l{Adding States}{states} are highlighted
+    addition, property changes in \l{Working with States}{states} are highlighted
     with blue.
 
     This allows you to easily see which values are set in the component

@@ -139,7 +139,7 @@
     PNG file, as a border and a background.
 
     Use two border images and suitable graphics to change the appearance of
-    a button when it is clicked. You can use use \l{Adding States}{states}
+    a button when it is clicked. You can use use \l{Working with States}{states}
     to determine which image is visible depending on whether the mouse
     button is pressed down. You could add more images and states to
     change the appearance of the button depending on other mouse events,

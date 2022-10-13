@@ -30,8 +30,8 @@
 
     \title States
 
-    The \uicontrol States view displays the different \l{Adding States}{states}
-    of a UI.
+    The \uicontrol States view displays the different
+    \l{Working with States}{states} of a UI.
 
     \image qmldesigner-transitions.png "States view"
 

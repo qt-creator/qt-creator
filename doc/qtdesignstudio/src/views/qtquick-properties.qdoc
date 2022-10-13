@@ -175,7 +175,7 @@
     If the \uicontrol Clip check box is selected, the component and its children
     are clipped to the bounding rectangle of the component.
 
-    in the \uicontrol State field, select the \l{Adding States}{state} to
+    in the \uicontrol State field, select the \l{Working with States}{state} to
     change the value of a property in that state.
 
     \section1 Picking Colors

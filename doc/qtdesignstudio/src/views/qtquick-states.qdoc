@@ -33,7 +33,7 @@
     \nextpage exporting-3d-assets.html
     \endif
 
-    \title Adding States
+    \title Working with States
 
     You can define states for components and component instances in the
     \l States view by selecting \inlineimage icons/plus.png

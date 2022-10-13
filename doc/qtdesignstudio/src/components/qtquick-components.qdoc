@@ -85,7 +85,7 @@
             your UI.
         \li Use as few components as necessary. To minimize the number of
             components, use \l{Adding Property Aliases}{alias properties} and
-            \l{Adding States}{states} to create the differences in your
+            \l{Working with States}{states} to create the differences in your
             component instances. We recommend reusing components
             instead of duplicating them, so the components do not need to be
             processed as completely new component types. This reduces loading
