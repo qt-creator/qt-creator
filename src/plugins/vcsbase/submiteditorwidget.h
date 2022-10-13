@@ -67,6 +67,7 @@ public:
     QList<SubmitFieldWidget *> submitFieldWidgets() const;
 
     virtual bool canSubmit(QString *whyNot = nullptr) const;
+    bool edited() const;
     void setUpdateInProgress(bool value);
     bool updateInProgress() const;
 

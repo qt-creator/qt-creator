@@ -645,6 +645,11 @@ bool SubmitEditorWidget::canSubmit(QString *whyNot) const
     return res;
 }
 
+bool SubmitEditorWidget::edited() const
+{
+    return !d->m_description.trimmed().isEmpty() || checkedFilesCount() > 0;
+}
+
 void SubmitEditorWidget::setUpdateInProgress(bool value)
 {
     d->m_updateInProgress = value;
