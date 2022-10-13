@@ -1450,9 +1450,9 @@ void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
 void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
 {
     const int currentLine = textCursor().blockNumber() + 1;
-    const FilePath fileName = FilePath::fromString(fileNameForLine(currentLine));
+    const FilePath fileName = FilePath::fromString(fileNameForLine(currentLine)).canonicalPath();
     const FilePath workingDirectory = d->m_workingDirectory.isEmpty()
-            ? fileName.absolutePath()
+            ? VcsManager::findTopLevelForDirectory(fileName.parentDir())
             : d->m_workingDirectory;
     emit annotateRevisionRequested(workingDirectory,
                                    fileName.relativeChildPath(workingDirectory).toString(),

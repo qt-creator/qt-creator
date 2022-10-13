@@ -1055,8 +1055,12 @@ void GitPluginPrivate::blameFile()
             }
         }
     }
-    VcsBaseEditorWidget *editor = m_gitClient.annotate(state.currentFileTopLevel(),
-                                  state.relativeCurrentFile(), {}, lineNumber, extraOptions);
+    const FilePath fileName = FilePath::fromString(state.currentFile()).canonicalPath();
+    FilePath topLevel;
+    VcsManager::findVersionControlForDirectory(fileName.parentDir(), &topLevel);
+    VcsBaseEditorWidget *editor = m_gitClient.annotate(
+                topLevel, fileName.relativeChildPath(topLevel).toString(),
+                {}, lineNumber, extraOptions);
     if (firstLine > 0)
         editor->setFirstLineNumber(firstLine);
 }
