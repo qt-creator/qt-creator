@@ -91,11 +91,11 @@ bool DiffChunk::isValid() const
     return !fileName.isEmpty() && !chunk.isEmpty();
 }
 
-QByteArray DiffChunk::asPatch(const QString &workingDirectory) const
+QByteArray DiffChunk::asPatch(const FilePath &workingDirectory) const
 {
-    QString relativeFile = workingDirectory.isEmpty() ?
-                fileName : QDir(workingDirectory).relativeFilePath(fileName);
-    const QByteArray fileNameBA = QFile::encodeName(relativeFile);
+    const FilePath relativeFile = workingDirectory.isEmpty() ?
+                fileName : fileName.relativeChildPath(workingDirectory);
+    const QByteArray fileNameBA = QFile::encodeName(relativeFile.toString());
     QByteArray rc = "--- ";
     rc += fileNameBA;
     rc += "\n+++ ";
@@ -525,7 +525,7 @@ public:
     TextEditorWidget *q;
     const VcsBaseEditorParameters *m_parameters = nullptr;
 
-    QString m_workingDirectory;
+    FilePath m_workingDirectory;
 
     QRegularExpression m_diffFilePattern;
     QRegularExpression m_logEntryPattern;
@@ -808,12 +808,12 @@ void VcsBaseEditorWidget::setHighlightingEnabled(bool e)
 
 FilePath VcsBaseEditorWidget::workingDirectory() const
 {
-    return FilePath::fromString(d->m_workingDirectory);
+    return d->m_workingDirectory;
 }
 
 void VcsBaseEditorWidget::setWorkingDirectory(const FilePath &wd)
 {
-    d->m_workingDirectory = wd.toString();
+    d->m_workingDirectory = wd;
 }
 
 QTextCodec *VcsBaseEditorWidget::codec() const
@@ -1187,7 +1187,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     if (!chunkStart || !block.isValid())
         return rc;
     QString header;
-    rc.fileName = findDiffFile(fileNameFromDiffSpecification(block, &header));
+    rc.fileName = FilePath::fromString(findDiffFile(fileNameFromDiffSpecification(block, &header)));
     if (rc.fileName.isEmpty())
         return rc;
     // Concatenate chunk and convert
@@ -1317,15 +1317,7 @@ bool VcsBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
 // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
 QString VcsBaseEditor::getSource(const FilePath &workingDirectory, const QString &fileName)
 {
-    if (fileName.isEmpty())
-        return workingDirectory.toString();
-
-    QString rc = workingDirectory.toString();
-    const QChar slash = QLatin1Char('/');
-    if (!rc.isEmpty() && !(rc.endsWith(slash) || rc.endsWith(QLatin1Char('\\'))))
-        rc += slash;
-    rc += fileName;
-    return rc;
+    return workingDirectory.pathAppended(fileName).toString();
 }
 
 QString VcsBaseEditor::getSource(const FilePath &workingDirectory, const QStringList &fileNames)
@@ -1414,25 +1406,24 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
         return in.isFile() ? f : QString();
 
     // 1) Try base dir
-    const QChar slash = QLatin1Char('/');
     if (!d->m_workingDirectory.isEmpty()) {
-        const QFileInfo baseFileInfo(d->m_workingDirectory + slash + f);
+        const FilePath baseFileInfo = d->m_workingDirectory.pathAppended(f);
         if (baseFileInfo.isFile())
-            return baseFileInfo.absoluteFilePath();
+            return baseFileInfo.absoluteFilePath().toString();
     }
     // 2) Try in source (which can be file or directory)
-    if (!source().isEmpty()) {
-        const QFileInfo sourceInfo(source());
-        const QString sourceDir = sourceInfo.isDir() ? sourceInfo.absoluteFilePath()
-                                                     : sourceInfo.absolutePath();
-        const QFileInfo sourceFileInfo(sourceDir + slash + f);
+    const FilePath sourcePath = FilePath::fromString(source());
+    if (!sourcePath.isEmpty()) {
+        const FilePath sourceDir = sourcePath.isDir() ? sourcePath.absoluteFilePath()
+                                                      : sourcePath.absolutePath();
+        const FilePath sourceFileInfo = sourceDir.pathAppended(f);
         if (sourceFileInfo.isFile())
-            return sourceFileInfo.absoluteFilePath();
+            return sourceFileInfo.absoluteFilePath().toString();
 
         const FilePath topLevel =
-            VcsManager::findTopLevelForDirectory(FilePath::fromString(sourceDir));
+            VcsManager::findTopLevelForDirectory(sourceDir);
         if (topLevel.isEmpty())
-            return QString();
+            return {};
 
         const FilePath topLevelFile = topLevel.pathAppended(f);
         if (topLevelFile.isFile())
@@ -1449,7 +1440,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
     if (f.endsWith(QLatin1Char('\t')))
         return findDiffFile(f.left(f.length() - 1));
 
-    return QString();
+    return {};
 }
 
 void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
@@ -1459,12 +1450,12 @@ void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
 void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
 {
     const int currentLine = textCursor().blockNumber() + 1;
-    const QString fileName = fileNameForLine(currentLine);
-    QString workingDirectory = d->m_workingDirectory;
-    if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(fileName).absolutePath();
-    emit annotateRevisionRequested(FilePath::fromString(workingDirectory),
-                                   QDir(workingDirectory).relativeFilePath(fileName),
+    const FilePath fileName = FilePath::fromString(fileNameForLine(currentLine));
+    const FilePath workingDirectory = d->m_workingDirectory.isEmpty()
+            ? fileName.absolutePath()
+            : d->m_workingDirectory;
+    emit annotateRevisionRequested(workingDirectory,
+                                   fileName.relativeChildPath(workingDirectory).toString(),
                                    change, currentLine);
 }
 
@@ -1498,9 +1489,8 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 {
     if (!dc.isValid())
         return false;
-    const QFileInfo fi(dc.fileName);
     // Default implementation using patch.exe relies on absolute paths.
-    return fi.isFile() && fi.isAbsolute() && fi.isWritable();
+    return dc.fileName.isFile() && dc.fileName.isAbsolutePath() && dc.fileName.isWritableFile();
 }
 
 // Default implementation of revert: Apply a chunk by piping it into patch,
@@ -1508,7 +1498,7 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, PatchAction patchAction) const
 {
     return Core::PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),
-                                     FilePath::fromString(d->m_workingDirectory), 0, patchAction);
+                                     d->m_workingDirectory, 0, patchAction);
 }
 
 QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inBlock, QString *header) const
