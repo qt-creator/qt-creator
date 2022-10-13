@@ -2117,7 +2117,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
-    CommandLine cmd(cmdPath, {"/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
+    CommandLine cmd(cmdPath, {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
     qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.toStringList().size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));
