@@ -61,12 +61,14 @@ public:
         Finished
     };
 
+    using QueryCallback = std::function<void(const QString &, const QString &)>;
+
     State state() const { return m_state; }
     void runTestCases(const Utils::FilePath &suitePath,
                       const QStringList &testCases = QStringList());
     void recordTestCase(const Utils::FilePath &suitePath, const QString &testCaseName,
                         const SuiteConf &suiteConf);
-    void queryServerSettings();
+    void queryServerSettings(QueryCallback callback);
     void writeServerSettingsChanges(const QList<QStringList> &changes);
     void requestExpansion(const QString &name);
 
@@ -77,7 +79,6 @@ signals:
     void squishTestRunStarted();
     void squishTestRunFinished();
     void resultOutputCreated(const QByteArray &output);
-    void queryFinished(const QString &output, const QString &error);
     void configChangesFailed(QProcess::ProcessError error);
     void configChangesWritten();
     void localsUpdated(const QString &output);
@@ -161,6 +162,7 @@ private:
     QTimer *m_requestVarsTimer = nullptr;
     qint64 m_readResultsCount;
     int m_autId = 0;
+    QueryCallback m_queryCallback;
     bool m_shutdownInitiated = false;
     bool m_closeRunnerOnEndRecord = false;
     bool m_licenseIssues = false;

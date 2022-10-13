@@ -406,15 +406,13 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
 
     // query settings
     SquishTools *squishTools = SquishTools::instance();
-    connect(squishTools, &SquishTools::queryFinished, this,
-            [this, progress] (const QString &out, const QString &) {
+    squishTools->queryServerSettings([this, progress] (const QString &out, const QString &) {
         m_serverSettings.setFromXmlOutput(out);
         m_originalSettings.setFromXmlOutput(out);
         repopulateApplicationView();
         progress->hide();
         setEnabled(true);
     });
-    squishTools->queryServerSettings();
 }
 
 void SquishServerSettingsWidget::repopulateApplicationView()

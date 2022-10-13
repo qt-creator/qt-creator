@@ -260,10 +260,12 @@ void SquishTools::runTestCases(const FilePath &suitePath,
     startSquishServer(RunTestRequested);
 }
 
-void SquishTools::queryServerSettings()
+void SquishTools::queryServerSettings(QueryCallback callback)
 {
     if (m_shutdownInitiated)
         return;
+    m_queryCallback = callback;
+
     if (m_state != Idle) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               Tr::tr("Error"),
@@ -686,9 +688,11 @@ void SquishTools::onRunnerFinished()
     if (m_request == RunnerQueryRequested) {
         const QString error = m_licenseIssues ? Tr::tr("Could not get Squish license from server.")
                                               : QString();
-        emit queryFinished(m_fullRunnerOutput, error);
+        if (m_queryCallback)
+            m_queryCallback(m_fullRunnerOutput, error);
         setState(RunnerStopped);
         m_fullRunnerOutput.clear();
+        m_queryCallback = {};
         return;
     }
 

@@ -74,17 +74,15 @@ public:
         setWindowTitle(Tr::tr("Recording Settings"));
 
         auto squishTools = SquishTools::instance();
-        connect(squishTools, &SquishTools::queryFinished, this,
-                [this] (const QString &out, const QString &) {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+
+        squishTools->queryServerSettings([this] (const QString &out, const QString &) {
             SquishServerSettings s;
             s.setFromXmlOutput(out);
             QApplication::restoreOverrideCursor();
             for (const QString &app : s.mappedAuts.keys())
                 aut.addItem(app);
         });
-
-        QApplication::setOverrideCursor(Qt::WaitCursor);
-        squishTools->queryServerSettings();
     }
 
 
