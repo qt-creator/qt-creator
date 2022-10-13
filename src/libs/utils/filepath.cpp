@@ -1938,13 +1938,15 @@ QStringList FileFilter::asFindArguments(const QString &path) const
     const QString nameOption = (filters & QDir::CaseSensitive) ? QString{"-name"}
                                                                : QString{"-iname"};
     if (!nameFilters.isEmpty()) {
-        bool addedFirst = false;
+        bool isFirst = true;
+        filterOptions << "(";
         for (const QString &current : nameFilters) {
-            if (addedFirst)
+            if (!isFirst)
                 filterOptions << "-o";
             filterOptions << nameOption << current;
-            addedFirst = true;
+            isFirst = false;
         }
+        filterOptions << ")";
     }
     arguments << filterOptions;
     return arguments;
