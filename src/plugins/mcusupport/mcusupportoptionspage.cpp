@@ -94,8 +94,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
     }
 
     {
-        m_mcuTargetsGroupBox = new QGroupBox(
-            tr("Targets supported by the %1").arg(m_qtForMCUsSdkGroupBox->title()));
+        m_mcuTargetsGroupBox = new QGroupBox(tr("Supported targets"));
         m_mcuTargetsGroupBox->setFlat(true);
         mainLayout->addWidget(m_mcuTargetsGroupBox);
         m_mcuTargetsComboBox = new QComboBox;
