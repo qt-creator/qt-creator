@@ -175,13 +175,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     BuildConfiguration *bc = bs->buildConfiguration();
     CMakeBuildConfiguration *cbc = static_cast<CMakeBuildConfiguration *>(bc);
 
-    auto vbox = new QVBoxLayout(this);
-    vbox->setContentsMargins(0, 0, 0, 0);
     m_configureDetailsWidget = new DetailsWidget;
 
     updateConfigureDetailsWidgetsSummary();
-
-    vbox->addWidget(m_configureDetailsWidget);
 
     auto details = new QWidget(m_configureDetailsWidget);
     m_configureDetailsWidget->setWidget(details);
@@ -333,9 +329,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
         envWidget->setBaseEnvironmentText(cbc->baseConfigureEnvironmentText());
     });
 
-    vbox->addWidget(clearBox);
-    vbox->addWidget(envWidget);
-
     using namespace Layouting;
     Grid cmakeConfiguration {
         m_filterEdit, br,
@@ -372,9 +365,15 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                     },
                     m_reconfigureButton,
                 }
-            }
+            },
+            clearBox,
+            envWidget
         }.setSpacing(0)
     }.attachTo(details, WithoutMargins);
+
+    Column {
+        m_configureDetailsWidget,
+    }.attachTo(this, WithoutMargins);
 
     updateAdvancedCheckBox();
     setError(m_buildSystem->error());
