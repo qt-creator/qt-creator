@@ -57,6 +57,7 @@ signals:
     // asynchronous part of the import. In this case all remaining pending imports have been
     // terminated, and will not receive separate importFinished notifications.
     void importFinished(const QmlDesigner::NodeMetaInfo &metaInfo);
+    void unimportFinished(const QmlDesigner::NodeMetaInfo &metaInfo);
 
 private:
     void handleImportTimer();
@@ -72,7 +73,7 @@ private:
     int m_importTimerCount = 0;
     bool m_importAddPending = false;
     bool m_fullReset = false;
-    QStringList m_pendingTypes;
+    QHash<QString, bool> m_pendingTypes; // <type, isImport>
 };
 
 } // namespace QmlDesigner::Internal
