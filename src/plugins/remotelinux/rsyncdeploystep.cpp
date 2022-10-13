@@ -139,7 +139,8 @@ void RsyncDeployService::setFinished()
 RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    auto service = createDeployService<RsyncDeployService>();
+    auto service = new RsyncDeployService;
+    setDeployService(service);
 
     auto flags = addAspect<StringAspect>();
     flags->setDisplayStyle(StringAspect::LineEditDisplay);

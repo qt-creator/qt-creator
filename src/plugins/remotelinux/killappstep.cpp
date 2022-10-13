@@ -106,7 +106,8 @@ class KillAppStep : public AbstractRemoteLinuxDeployStep
 public:
     KillAppStep(BuildStepList *bsl, Id id) : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto service = createDeployService<Internal::KillAppService>();
+        auto service = new Internal::KillAppService;
+        setDeployService(service);
 
         setWidgetExpandedByDefault(false);
 

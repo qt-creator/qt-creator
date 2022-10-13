@@ -92,7 +92,8 @@ public:
     QdbMakeDefaultAppStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto service = createDeployService<QdbMakeDefaultAppService>();
+        auto service = new QdbMakeDefaultAppService;
+        setDeployService(service);
 
         auto selection = addAspect<SelectionAspect>();
         selection->setSettingsKey("QdbMakeDefaultDeployStep.MakeDefault");

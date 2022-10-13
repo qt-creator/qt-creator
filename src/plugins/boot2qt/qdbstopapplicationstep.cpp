@@ -115,7 +115,8 @@ public:
     QdbStopApplicationStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto service = createDeployService<QdbStopApplicationService>();
+        auto service = new QdbStopApplicationService;
+        setDeployService(service);
 
         setWidgetExpandedByDefault(false);
 
