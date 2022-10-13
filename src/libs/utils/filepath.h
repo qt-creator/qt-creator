@@ -207,6 +207,7 @@ public:
     bool needsDevice() const;
 
     bool isSameDevice(const FilePath &other) const;
+    bool isSameFile(const FilePath &other) const;
 
     [[nodiscard]] QFileInfo toFileInfo() const;
     [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info);

@@ -515,6 +515,25 @@ bool FilePath::isSameDevice(const FilePath &other) const
     return s_deviceHooks.isSameDevice(*this, other);
 }
 
+bool FilePath::isSameFile(const FilePath &other) const
+{
+    if (*this == other)
+        return true;
+
+    if (!isSameDevice(other))
+        return false;
+
+    const QByteArray fileId = fileAccess()->fileId(*this);
+    const QByteArray otherFileId = fileAccess()->fileId(other);
+    if (fileId.isEmpty() || otherFileId.isEmpty())
+        return false;
+
+    if (fileId == otherFileId)
+        return true;
+
+    return false;
+}
+
 /// \returns an empty FilePath if this is not a symbolic linl
 FilePath FilePath::symLinkTarget() const
 {

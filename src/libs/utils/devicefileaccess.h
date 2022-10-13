@@ -44,6 +44,7 @@ protected:
     virtual bool setPermissions(const FilePath &filePath, QFile::Permissions) const;
     virtual qint64 fileSize(const FilePath &filePath) const;
     virtual qint64 bytesAvailable(const FilePath &filePath) const;
+    virtual QByteArray fileId(const FilePath &filePath) const;
 
     virtual void iterateDirectory(
             const FilePath &filePath,
@@ -109,6 +110,7 @@ protected:
     bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
     qint64 fileSize(const FilePath &filePath) const override;
     qint64 bytesAvailable(const FilePath &filePath) const override;
+    QByteArray fileId(const FilePath &filePath) const override;
 
     void iterateDirectory(
             const FilePath &filePath,
@@ -163,6 +165,7 @@ protected:
     bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
     qint64 fileSize(const FilePath &filePath) const override;
     qint64 bytesAvailable(const FilePath &filePath) const override;
+    QByteArray fileId(const FilePath &filePath) const override;
 
     void iterateDirectory(
             const FilePath &filePath,

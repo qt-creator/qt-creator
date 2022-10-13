@@ -101,6 +101,9 @@ private slots:
     void cleanPath_data();
     void cleanPath();
 
+    void isSameFile_data();
+    void isSameFile();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1112,6 +1115,48 @@ void tst_fileutils::cleanPath()
     QFETCH(QString, expected);
     QString cleaned = doCleanPath(path);
     QCOMPARE(cleaned, expected);
+}
+
+void tst_fileutils::isSameFile_data()
+{
+    QTest::addColumn<FilePath>("left");
+    QTest::addColumn<FilePath>("right");
+    QTest::addColumn<bool>("shouldBeEqual");
+
+    QTest::addRow("/==/")
+        << FilePath::fromString("/") << FilePath::fromString("/") << true;
+    QTest::addRow("/!=tmp")
+        << FilePath::fromString("/") << FilePath::fromString(tempDir.path()) << false;
+
+
+    QDir dir(tempDir.path());
+    touch(dir, "target-file", false);
+
+    QFile file(dir.absoluteFilePath("target-file"));
+    if (file.link(dir.absoluteFilePath("source-file"))) {
+        QTest::addRow("real==link")
+            << FilePath::fromString(file.fileName())
+            << FilePath::fromString(dir.absoluteFilePath("target-file"))
+            << true;
+    }
+
+    QTest::addRow("/!=non-existing")
+        << FilePath::fromString("/") << FilePath::fromString("/this-path/does-not-exist") << false;
+
+    QTest::addRow("two-devices") << FilePath::fromString(
+        "docker://boot2qt-raspberrypi4-64:6.5.0/opt/toolchain/sysroots/aarch64-pokysdk-linux/usr/"
+        "bin/aarch64-poky-linux/aarch64-poky-linux-g++")
+                                 << FilePath::fromString("docker://qt-linux:6/usr/bin/g++")
+                                 << false;
+}
+
+void tst_fileutils::isSameFile()
+{
+    QFETCH(FilePath, left);
+    QFETCH(FilePath, right);
+    QFETCH(bool, shouldBeEqual);
+
+    QCOMPARE(left.isSameFile(right), shouldBeEqual);
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)
