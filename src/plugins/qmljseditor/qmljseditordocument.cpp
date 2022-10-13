@@ -587,10 +587,15 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
 
 void QmlJSEditorDocumentPrivate::updateOutlineModel()
 {
-    if (q->isSemanticInfoOutdated())
+    if (isSemanticInfoOutdated())
         return; // outline update will be retriggered when semantic info is updated
 
     m_outlineModel->update(m_semanticInfo);
+}
+
+bool QmlJSEditorDocumentPrivate::isSemanticInfoOutdated() const
+{
+    return m_semanticInfo.revision() != q->document()->revision();
 }
 
 static void cleanMarks(QVector<TextEditor::TextMark *> *marks, TextEditor::TextDocument *doc)
@@ -664,7 +669,7 @@ void QmlJSEditorDocumentPrivate::setSemanticWarningSource(QmllsStatus::Source ne
         m_semanticHighlighter->setEnableWarnings(false);
         cleanDiagnosticMarks();
         cleanSemanticMarks();
-        if (!q->isSemanticInfoOutdated()) {
+        if (m_semanticInfo.isValid() && !isSemanticInfoOutdated()) {
             // clean up underlines for warning messages
             m_semanticHighlightingNecessary = false;
             m_semanticHighlighter->rerun(m_semanticInfo);
@@ -690,7 +695,7 @@ void QmlJSEditorDocumentPrivate::setSemanticHighlightSource(QmllsStatus::Source 
         break;
     case QmllsStatus::Source::EmbeddedCodeModel:
         m_semanticHighlighter->setEnableHighlighting(true);
-        if (!q->isSemanticInfoOutdated()) {
+        if (m_semanticInfo.isValid() && !isSemanticInfoOutdated()) {
             m_semanticHighlightingNecessary = false;
             m_semanticHighlighter->rerun(m_semanticInfo);
         }
@@ -835,7 +840,7 @@ const SemanticInfo &QmlJSEditorDocument::semanticInfo() const
 
 bool QmlJSEditorDocument::isSemanticInfoOutdated() const
 {
-    return d->m_semanticInfo.revision() != document()->revision();
+    return d->isSemanticInfoOutdated();
 }
 
 QVector<QTextLayout::FormatRange> QmlJSEditorDocument::diagnosticRanges() const

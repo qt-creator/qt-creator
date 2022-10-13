@@ -48,6 +48,7 @@ public:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
     void reupdateSemanticInfo();
     void acceptNewSemanticInfo(const QmlJSTools::SemanticInfo &semanticInfo);
+    bool isSemanticInfoOutdated() const;
     void updateOutlineModel();
 
     void createTextMarks(const QList<QmlJS::DiagnosticMessage> &diagnostics);
