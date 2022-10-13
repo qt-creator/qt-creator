@@ -12,6 +12,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -152,7 +153,13 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Id id)
                                  BoolAspect::LabelPlacement::InExtraLabel);
     ignoreMissingFiles->setValue(false);
 
-    setInternalInitializer([service, flags, ignoreMissingFiles] {
+    setInternalInitializer([this, service, flags, ignoreMissingFiles] {
+        if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
+            // rsync transfer on the same device currently not implemented
+            // and typically not wanted.
+            return CheckResult::failure(
+                Tr::tr("rsync is only supported for transfers between different devices."));
+        }
         service->setIgnoreMissingFiles(ignoreMissingFiles->value());
         service->setFlags(flags->value());
         return service->isDeploymentPossible();
