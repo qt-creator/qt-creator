@@ -49,6 +49,7 @@ class QTCREATOR_UTILS_EXPORT DetailsButton : public ExpandButton
 public:
     DetailsButton(QWidget *parent = nullptr);
     QSize sizeHint() const override;
+    static QColor outlineColor();
 
 private:
     void paintEvent(QPaintEvent *e) override;

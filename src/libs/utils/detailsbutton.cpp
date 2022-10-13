@@ -5,6 +5,7 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
+#include <utils/stylehelper.h>
 
 #include <QGraphicsOpacityEffect>
 #include <QGuiApplication>
@@ -81,6 +82,14 @@ QSize DetailsButton::sizeHint() const
                  spacing + fontMetrics().height() + spacing);
 }
 
+QColor DetailsButton::outlineColor()
+{
+    return HostOsInfo::isMacHost()
+            ? QGuiApplication::palette().color(QPalette::Mid)
+            : StyleHelper::mergedColors(creatorTheme()->color(Theme::TextColorNormal),
+                                        creatorTheme()->color(Theme::BackgroundColorNormal), 15);
+}
+
 void DetailsButton::paintEvent(QPaintEvent *e)
 {
     Q_UNUSED(e)
@@ -93,11 +102,8 @@ void DetailsButton::paintEvent(QPaintEvent *e)
         p.restore();
     }
 
-    if (!creatorTheme()->flag(Theme::FlatProjectsMode)) {
-        const QColor outlineColor = palette().color(HostOsInfo::isMacHost() ? QPalette::Mid
-                                                                            : QPalette::Midlight);
-        qDrawPlainRect(&p, rect(), outlineColor);
-    }
+    if (!creatorTheme()->flag(Theme::FlatProjectsMode))
+        qDrawPlainRect(&p, rect(), outlineColor());
 
     const QRect textRect(spacing + 3, 0, width(), height());
     p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text());

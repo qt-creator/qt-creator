@@ -227,11 +227,8 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
                   : palette().color(QPalette::Window);
         p.fillRect(rect(), bgColor);
     }
-    if (!creatorTheme()->flag(Theme::FlatProjectsMode)) {
-        const QColor outlineColor = palette().color(HostOsInfo::isMacHost() ? QPalette::Mid
-                                                                            : QPalette::Midlight);
-        qDrawPlainRect(&p, rect(), outlineColor);
-    }
+    if (!creatorTheme()->flag(Theme::FlatProjectsMode))
+        qDrawPlainRect(&p, rect(), DetailsButton::outlineColor());
 }
 
 void DetailsWidget::enterEvent(QEnterEvent *event)
