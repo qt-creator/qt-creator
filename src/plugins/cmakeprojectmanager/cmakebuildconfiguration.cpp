@@ -368,7 +368,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
             },
             clearBox,
             envWidget
-        }.setSpacing(0)
+        }
     }.attachTo(details, WithoutMargins);
 
     Column {
