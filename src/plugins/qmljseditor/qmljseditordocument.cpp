@@ -3,7 +3,6 @@
 
 #include "qmljseditordocument.h"
 
-#include "qmljseditorconstants.h"
 #include "qmljseditordocument_p.h"
 #include "qmljseditorplugin.h"
 #include "qmljseditortr.h"
