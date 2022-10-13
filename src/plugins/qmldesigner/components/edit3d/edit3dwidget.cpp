@@ -36,6 +36,7 @@
 #include "viewmanager.h"
 #include <seekerslider.h>
 #include <nodeinstanceview.h>
+#include <import.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -231,13 +232,20 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
 void Edit3DWidget::onCreateAction()
 {
     QAction *action = qobject_cast<QAction *>(sender());
-    if (!action)
+    if (!action || !m_view || !m_view->model())
         return;
 
     m_view->executeInTransaction(__FUNCTION__, [&] {
-        int activeScene = m_view->rootModelNode().auxiliaryData("active3dScene@Internal").toInt();
+        ItemLibraryEntry entry = m_nameToEntry.value(action->data().toString());
+        Import import = Import::createLibraryImport(entry.requiredImport(),
+                                                    QString::number(entry.majorVersion())
+                                                    + QLatin1Char('.')
+                                                    + QString::number(entry.minorVersion()));
+        if (!m_view->model()->hasImport(import))
+            m_view->model()->changeImports({import}, {});
 
-        auto modelNode = QmlVisualNode::createQml3DNode(m_view, m_nameToEntry.value(action->data().toString()),
+        int activeScene = m_view->rootModelNode().auxiliaryData("active3dScene@Internal").toInt();
+        auto modelNode = QmlVisualNode::createQml3DNode(m_view, entry,
                                                         activeScene, m_contextMenuPos3d).modelNode();
         QTC_ASSERT(modelNode.isValid(), return);
         m_view->setSelectedModelNode(modelNode);
