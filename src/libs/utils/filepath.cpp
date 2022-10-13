@@ -1938,14 +1938,8 @@ QStringList FileFilter::asFindArguments(const QString &path) const
     const QString nameOption = (filters & QDir::CaseSensitive) ? QString{"-name"}
                                                                : QString{"-iname"};
     if (!nameFilters.isEmpty()) {
-        const QRegularExpression oneChar("\\[.*?\\]");
         bool addedFirst = false;
         for (const QString &current : nameFilters) {
-            if (current.indexOf(oneChar) != -1) {
-                qDebug() << "Skipped" << current << "due to presence of [] wildcard";
-                continue;
-            }
-
             if (addedFirst)
                 filterOptions << "-o";
             filterOptions << nameOption << current;
