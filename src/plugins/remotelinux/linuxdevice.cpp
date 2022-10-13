@@ -1046,8 +1046,7 @@ DeviceEnvironmentFetcher::Ptr LinuxDevice::environmentFetcher() const
 
 bool LinuxDevice::usableAsBuildDevice() const
 {
-    const bool isUsable = qtcEnvironmentVariableIntValue("QTC_ALLOW_REMOTE_LINUX_BUILD_DEVICES");
-    return isUsable;
+    return true;
 }
 
 QString LinuxDevice::userAtHost() const
