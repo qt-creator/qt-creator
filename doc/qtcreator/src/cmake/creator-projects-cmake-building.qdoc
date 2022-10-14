@@ -47,6 +47,19 @@
     Select \uicontrol {Kit Configuration} to edit the CMake settings for the
     build and run kit selected for the project.
 
+    \section CMake Presets
+
+    You can use CMake presets files to specify common configure, build, and test
+    options and share them with others. \c CMakePresets.json contains options for
+    project-wide builds, whereas \c CMakeUserPresets.json contains options for
+    your local builds.
+
+    Create the presets files in the format described in
+    \l{https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html}
+    {cmake-presets(7)} and store the in project's root directory.
+
+    To use the preset files, specify the \c {--preset} option for your project.
+
     \section1 Multi-Config Support
 
     \QC supports
