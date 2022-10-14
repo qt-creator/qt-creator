@@ -624,7 +624,9 @@ void SquishTools::startSquishRunner()
     m_autId = 0;
     if (m_request == RecordTestRequested)
         m_closeRunnerOnEndRecord = true;
-    setupAndStartSquishRunnerProcess(args);
+
+    Utils::CommandLine cmdLine = {toolsSettings.runnerPath, args};
+    setupAndStartSquishRunnerProcess(cmdLine);
 }
 
 void SquishTools::setupAndStartRecorder()
@@ -676,17 +678,20 @@ void SquishTools::executeRunnerQuery()
         return;
 
     QStringList arguments = { "--port", QString::number(m_serverPort) };
+    Utils::CommandLine cmdLine = {toolsSettings.runnerPath, arguments};
     switch (m_query) {
     case ServerInfo:
-        arguments << "--info" << "all";
+        cmdLine.addArg("--info");
+        cmdLine.addArg("all");
         break;
     case GetGlobalScriptDirs:
-        arguments << "--config" << "getGlobalScriptDirs";
+        cmdLine.addArg("--config");
+        cmdLine.addArg("getGlobalScriptDirs");
         break;
     default:
         QTC_ASSERT(false, return);
     }
-    setupAndStartSquishRunnerProcess(arguments);
+    setupAndStartSquishRunnerProcess(cmdLine);
 }
 
 Environment SquishTools::squishEnvironment()
@@ -1418,9 +1423,9 @@ bool SquishTools::setupRunnerPath()
     return true;
 }
 
-void SquishTools::setupAndStartSquishRunnerProcess(const QStringList &args)
+void SquishTools::setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine)
 {
-    m_runnerProcess.setCommand({toolsSettings.runnerPath, args});
+    m_runnerProcess.setCommand(cmdLine);
     m_runnerProcess.setEnvironment(squishEnvironment());
     setState(RunnerStarting);
 

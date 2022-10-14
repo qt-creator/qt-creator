@@ -137,7 +137,7 @@ private:
     QStringList serverArgumentsFromSettings() const;
     QStringList runnerArgumentsFromSettings();
     bool setupRunnerPath();
-    void setupAndStartSquishRunnerProcess(const QStringList &arg);
+    void setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine);
 
     SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
