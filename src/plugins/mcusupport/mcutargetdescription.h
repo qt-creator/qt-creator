@@ -39,6 +39,7 @@ struct McuTargetDescription
 {
     enum class TargetType { MCU, Desktop };
 
+    Utils::FilePath sourceFile;
     QString qulVersion;
     QString compatVersion;
     struct Platform

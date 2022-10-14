@@ -352,6 +352,7 @@ McuSupportTest::McuSupportTest()
     , compilerDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_DIR_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false}
      , toochainFileDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_FILE_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false}
     , targetDescription {
+        "autotest-sourceFile",
         "2.0.1",
         "2",
         platformDescription,

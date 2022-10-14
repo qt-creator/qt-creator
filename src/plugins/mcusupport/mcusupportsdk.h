@@ -5,10 +5,7 @@
 
 #include "mcusupport_global.h"
 #include "settingshandler.h"
-
-namespace Utils {
-class FilePath;
-} // namespace Utils
+#include <utils/fileutils.h>
 
 namespace McuSupport::Internal {
 
@@ -28,7 +25,7 @@ bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
 McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
                                     const SettingsHandler::Ptr &);
 
-McuTargetDescription parseDescriptionJson(const QByteArray &);
+McuTargetDescription parseDescriptionJson(const QByteArray &, const Utils::FilePath &sourceFile = Utils::FilePath());
 McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &,
                                          const SettingsHandler::Ptr &,
                                          const McuPackagePtr &qtForMCUsPackage,

@@ -22,7 +22,6 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>
@@ -658,7 +657,7 @@ static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)
     return result;
 }
 
-McuTargetDescription parseDescriptionJson(const QByteArray &data)
+McuTargetDescription parseDescriptionJson(const QByteArray &data, const Utils::FilePath &sourceFile)
 {
     const QJsonDocument document = QJsonDocument::fromJson(data);
     const QJsonObject target = document.object();
@@ -692,7 +691,8 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
                                                                   });
     const QString platformName = platform.value("platformName").toString();
 
-    return {qulVersion,
+    return {sourceFile,
+            qulVersion,
             compatVersion,
             {platform.value("id").toString(),
              platformName,
@@ -754,7 +754,8 @@ McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
         if (!filePath.isReadableFile())
             continue;
         const McuTargetDescription desc = parseDescriptionJson(
-            filePath.fileContents().value_or(QByteArray()));
+            filePath.fileContents().value_or(QByteArray()),
+            filePath);
         bool ok = false;
         const int compatVersion = desc.compatVersion.toInt(&ok);
         if (!desc.compatVersion.isEmpty() && ok && compatVersion > MAX_COMPATIBILITY_VERSION) {
