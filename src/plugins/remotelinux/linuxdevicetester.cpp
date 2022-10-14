@@ -236,6 +236,7 @@ void GenericLinuxDeviceTester::testFileTransfer(FileTransferMethod method)
     switch (method) {
     case FileTransferMethod::Sftp:  d->state = TestingSftp;  break;
     case FileTransferMethod::Rsync: d->state = TestingRsync; break;
+    case FileTransferMethod::GenericCopy: QTC_CHECK(false) /* not tested */; break;
     }
     emit progressMessage(Tr::tr("Checking whether \"%1\" works...")
                          .arg(FileTransfer::transferMethodName(method)));

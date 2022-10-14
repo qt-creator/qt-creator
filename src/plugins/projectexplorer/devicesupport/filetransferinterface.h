@@ -20,6 +20,7 @@ enum class FileTransferDirection {
 enum class FileTransferMethod {
     Sftp,
     Rsync,
+    GenericCopy,
     Default = Sftp
 };
 

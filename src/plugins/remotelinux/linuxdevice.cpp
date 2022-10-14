@@ -1428,12 +1428,73 @@ private:
     int m_currentIndex = 0;
 };
 
+class GenericTransferImpl : public FileTransferInterface
+{
+public:
+    GenericTransferImpl(const FileTransferSetupData &setup, LinuxDevicePrivate *)
+        : FileTransferInterface(setup)
+    {}
+
+private:
+    void start() final
+    {
+        m_fileCount = m_setup.m_files.size();
+        m_currentIndex = 0;
+        m_checkedDirectories.clear();
+        nextFile();
+    }
+
+    void nextFile()
+    {
+        ProcessResultData result;
+        if (m_currentIndex >= m_fileCount) {
+            emit done(result);
+            return;
+        }
+
+        const FileToTransfer &file = m_setup.m_files.at(m_currentIndex);
+        const FilePath &source = file.m_source;
+        const FilePath &target = file.m_target;
+        ++m_currentIndex;
+
+        const FilePath targetDir = target.parentDir();
+        if (!m_checkedDirectories.contains(targetDir)) {
+            emit progress(tr("Creating directory: %1")
+              .arg(targetDir.toUserOutput()));
+            if (!targetDir.ensureWritableDir()) {
+                result.m_errorString = tr("Failed.");
+                result.m_exitCode = -1; // Random pick
+                emit done(result);
+                return;
+            }
+            m_checkedDirectories.insert(targetDir);
+        }
+
+        emit progress(tr("Copying %1/%2: %3 -> %4")
+          .arg(m_currentIndex).arg(m_fileCount).arg(source.toUserOutput(), target.toUserOutput()));
+        if (!source.copyFile(target)) {
+            result.m_errorString = tr("Failed.");
+            result.m_exitCode = -1; // Random pick
+            emit done(result);
+            return;
+        }
+
+        // FIXME: Use asyncCopyFile instead
+        nextFile();
+    }
+
+    int m_currentIndex = 0;
+    int m_fileCount = 0;
+    QSet<FilePath> m_checkedDirectories;
+};
+
 FileTransferInterface *LinuxDevice::createFileTransferInterface(
         const FileTransferSetupData &setup) const
 {
     switch (setup.m_method) {
     case FileTransferMethod::Sftp:  return new SftpTransferImpl(setup, d);
     case FileTransferMethod::Rsync: return new RsyncTransferImpl(setup, d);
+    case FileTransferMethod::GenericCopy: return new GenericTransferImpl(setup, d);
     }
     QTC_CHECK(false);
     return {};
