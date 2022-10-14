@@ -980,28 +980,26 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
 ///
 FilePath FilePath::relativePath(const FilePath &anchor) const
 {
-    QTC_ASSERT(!needsDevice(), return *this);
+    QTC_ASSERT(isSameDevice(anchor), return *this);
 
-    const QFileInfo fileInfo(toString());
-    QString absolutePath;
+    FilePath absPath;
     QString filename;
-    if (fileInfo.isFile()) {
-        absolutePath = fileInfo.absolutePath();
-        filename = fileInfo.fileName();
-    } else if (fileInfo.isDir()) {
-        absolutePath = fileInfo.absoluteFilePath();
+    if (isFile()) {
+        absPath = absolutePath();
+        filename = fileName();
+    } else if (isDir()) {
+        absPath = absoluteFilePath();
     } else {
         return {};
     }
-    const QFileInfo anchorInfo(anchor.toString());
-    QString absoluteAnchorPath;
-    if (anchorInfo.isFile())
-        absoluteAnchorPath = anchorInfo.absolutePath();
-    else if (anchorInfo.isDir())
-        absoluteAnchorPath = anchorInfo.absoluteFilePath();
+    FilePath absoluteAnchorPath;
+    if (anchor.isFile())
+        absoluteAnchorPath = anchor.absolutePath();
+    else if (anchor.isDir())
+        absoluteAnchorPath = anchor.absoluteFilePath();
     else
         return {};
-    QString relativeFilePath = calcRelativePath(absolutePath, absoluteAnchorPath);
+    QString relativeFilePath = calcRelativePath(absPath.path(), absoluteAnchorPath.path());
     if (!filename.isEmpty()) {
         if (relativeFilePath == ".")
             relativeFilePath.clear();
