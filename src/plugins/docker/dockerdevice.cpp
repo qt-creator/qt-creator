@@ -540,6 +540,9 @@ bool isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
     if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath())
         return false;
 
+    if (mi.containerPath.isRootPath())
+        return false;
+
     if (!mi.path.exists())
         return false;
 
