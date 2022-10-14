@@ -145,9 +145,6 @@ public:
     ~DockerDevicePrivate() { stopCurrentContainer(); }
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
-    bool runInShellSuccess(const CommandLine &cmd, const QByteArray &stdInData = {}) {
-        return runInShell(cmd, stdInData).exitCode == 0;
-    }
 
     void updateContainerAccess();
     void changeMounts(QStringList newMounts);
