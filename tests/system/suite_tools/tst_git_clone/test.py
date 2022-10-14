@@ -69,8 +69,8 @@ def verifyVersionControlView(targetDir, canceled):
                 "Searching for target directory in clone log")
     test.verify(" ".join(["clone", "--progress", cloneUrl, cloneDir]) in vcsLog,
                 "Searching for git parameters in clone log")
-    test.verify(canceled == (" terminated abnormally" in vcsLog),
-                "Searching for result in clone log")
+    test.compare(canceled, " terminated abnormally" in vcsLog,
+                 "Searching for result in clone log")
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
 
 def verifyFiles(targetDir):
@@ -139,5 +139,5 @@ def main():
                     test.fail("The checked out project was not being opened.",
                               str(waitForObject(":Cannot Open Project_QTextEdit").plainText))
                     clickButton(waitForObject(":Cannot Open Project.OK_QPushButton"))
-        verifyVersionControlView(targetDir, button != ":Git Repository Clone.Finish_QPushButton")
+        verifyVersionControlView(targetDir, button == "Cancel immediately")
     invokeMenuItem("File", "Exit")
