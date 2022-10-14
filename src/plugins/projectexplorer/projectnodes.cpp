@@ -57,8 +57,8 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             directoryWithoutPrefix = directory;
         }
     }
-    QStringList parts = directoryWithoutPrefix.toString().split('/', Qt::SkipEmptyParts);
-    if (!Utils::HostOsInfo::isWindowsHost() && !isRelative && !parts.isEmpty())
+    QStringList parts = directoryWithoutPrefix.path().split('/', Qt::SkipEmptyParts);
+    if (directory.osType() != OsTypeWindows && !isRelative && !parts.isEmpty())
         parts[0].prepend('/');
 
     ProjectExplorer::FolderNode *parent = folder;
