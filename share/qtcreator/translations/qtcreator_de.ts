@@ -20070,19 +20070,19 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Create Project...</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt erstellen...</translation>
     </message>
     <message>
         <source>Open Project...</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt öffnen...</translation>
     </message>
     <message>
         <source>Get Started</source>
-        <translation type="unfinished"></translation>
+        <translation>Schnelleinstieg</translation>
     </message>
     <message>
         <source>Get Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt</translation>
     </message>
     <message>
         <source>Qt Account</source>
@@ -20118,7 +20118,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>&lt;p style=&quot;margin-top: 30px&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td style=&quot;padding-right: 20px&quot;&gt;Welcome:&lt;/td&gt;&lt;td&gt;Open examples, tutorials, and recent sessions and projects.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Edit:&lt;/td&gt;&lt;td&gt;Work with code and navigate your project.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Design:&lt;/td&gt;&lt;td&gt;Visually edit Widget-based user interfaces, state charts and UML models.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debug:&lt;/td&gt;&lt;td&gt;Analyze your application with a debugger or other analyzers.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projects:&lt;/td&gt;&lt;td&gt;Manage project settings.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Help:&lt;/td&gt;&lt;td&gt;Browse the help database.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p style=&quot;margin-top: 30px&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td style=&quot;padding-right: 20px&quot;&gt;Willkommen:&lt;/td&gt;&lt;td&gt;Öffnen Sie Beispiele, Anleitungen, sowie kürzlich verwendete Sitzungen und Projekte.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Editieren:&lt;/td&gt;&lt;td&gt;Arbeiten Sie am Quelltext und navigieren Sie im Projekt.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Design:&lt;/td&gt;&lt;td&gt;Bearbeiten Sie Oberflächendesigns für Qt Widgets, State Charts und UML-Modelle.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debug:&lt;/td&gt;&lt;td&gt;Analysieren Sie Ihre Anwendung mit einem Debugger oder anderen Werkzeugen.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projekte:&lt;/td&gt;&lt;td&gt;Verwalten Sie Projekteinstellungen.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Hilfe:&lt;/td&gt;&lt;td&gt;Durchsuchen Sie die Hilfedatenbank.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Kit Selector</source>
@@ -20166,11 +20166,11 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished">Ausgaben</translation>
+        <translation>Ausgaben</translation>
     </message>
     <message>
         <source>Pressing the Escape key brings you back to the editor. Press it multiple times to also hide context help and output, giving the editor more space.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie die &quot;Escape&quot;-Taste betätigen, kommen Sie zurück zum Editor. Betätigen Sie sie mehrmals, um auch Ausgabebereiche sowie Kontexthilfe auszublenden und dem Editor mehr Platz zu geben.</translation>
     </message>
     <message>
         <source>Find compile and application output here, as well as a list of configuration and build issues, and the panel for global searches.</source>
