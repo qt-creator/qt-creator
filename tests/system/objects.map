@@ -111,7 +111,7 @@
 :PasteSelectDialog.listWidget_QListWidget	{name='listWidget' type='QListWidget' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :PasteSelectDialog.pasteEdit_QLineEdit	{name='pasteEdit' type='QLineEdit' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :PasteSelectDialog.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
-:PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster__Internal__PasteSelectDialog' type='CodePaster::PasteSelectDialog' visible='1'}
+:PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster.PasteSelectDialog' type='QDialog' visible='1'}
 :Path.Utils_BaseValidatingLineEdit	{container=':qt_tabwidget_stackedwidget_QWidget' name='LineEdit' type='Utils::FancyLineEdit' visible='1'}
 :Projects.ProjectNavigationTreeView	{container=':*Qt Creator.ProjectSelectorDockWidget_QDockWidget' name='ProjectNavigation' type='Utils::BaseTreeView' visible='1'}
 :QML Debugging.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':QML Debugging_QMessageBox'}
@@ -187,12 +187,10 @@
 :Select a Git Commit_Git::Internal::ChangeSelectionDialog	{name='Git.ChangeSelectionDialog' type='Git::Internal::ChangeSelectionDialog' visible='1' windowTitle='Select a Git Commit'}
 :Select signal.signalList_QTreeView	{container=':Go to slot.Select signal_QGroupBox' name='signalList' type='QTreeView' visible='1'}
 :Send to Codepaster.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
-:Send to Codepaster.Description:_QLabel	{name='descriptionLabel' text='Description:' type='QLabel' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.Paste_QPushButton	{text='Paste' type='QPushButton' unnamed='1' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.qt_spinbox_lineedit_QLineEdit	{name='qt_spinbox_lineedit' type='QLineEdit' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
-:Send to Codepaster.stackedWidget_QStackedWidget	{name='stackedWidget' type='QStackedWidget' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
-:Send to Codepaster_CodePaster::PasteView	{name='CodePaster__Internal__ViewDialog' type='CodePaster::PasteView' visible='1' windowTitle='Send to Codepaster'}
+:Send to Codepaster_CodePaster::PasteView	{name='CodePaster.ViewDialog' type='QDialog' visible='1' windowTitle='Send to Codepaster'}
 :Session Manager_ProjectExplorer::Internal::SessionDialog	{name='ProjectExplorer__Internal__SessionDialog' type='ProjectExplorer::Internal::SessionDialog' visible='1' windowTitle='Session Manager'}
 :Startup.contextHelpComboBox_QComboBox	{container=':Form.Startup_QGroupBox' name='contextHelpComboBox' type='QComboBox' visible='1'}
 :User Interface.languageBox_QComboBox	{container=':Core__Internal__GeneralSettings.User Interface_QGroupBox' name='languageBox' type='QComboBox' visible='1'}
@@ -222,5 +220,5 @@
 :splitter.Commit File(s)_VcsBase::QActionPushButton	{text~='(Commit .+/.+ File.*)' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :splitter.Description_QGroupBox	{container=':Qt Creator.splitter_QSplitter' name='descriptionBox' title='Description' type='QGroupBox' visible='1'}
 :splitter.Files_QGroupBox	{container=':Qt Creator.splitter_QSplitter' name='groupBox' title='Files' type='QGroupBox' visible='1'}
-:stackedWidget.plainTextEdit_QPlainTextEdit	{container=':Send to Codepaster.stackedWidget_QStackedWidget' name='plainTextEdit' type='QPlainTextEdit' visible='1'}
-:uiDescription_QLineEdit	{buddy=':Send to Codepaster.Description:_QLabel' name='uiDescription' type='QLineEdit' visible='1'}
+:stackedWidget.plainTextEdit_QPlainTextEdit	{name='plainTextEdit' type='QPlainTextEdit' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
+:uiDescription_QLineEdit	{name='uiDescription' type='QLineEdit' visible='1'}
