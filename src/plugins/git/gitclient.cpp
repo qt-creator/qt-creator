@@ -1354,9 +1354,10 @@ VcsBaseEditorWidget *GitClient::annotate(
 
     editor->setWorkingDirectory(workingDir);
     QStringList arguments = {"blame", "--root"};
-    arguments << argWidget->arguments() << "--" << file;
+    arguments << argWidget->arguments();
     if (!revision.isEmpty())
         arguments << revision;
+    arguments << "--" << file;
     editor->setDefaultLineNumber(lineNumber);
     vcsExec(workingDir, arguments, editor);
     return editor;
