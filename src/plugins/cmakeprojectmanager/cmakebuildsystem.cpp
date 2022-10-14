@@ -1093,28 +1093,28 @@ DeploymentData CMakeBuildSystem::deploymentData() const
 {
     DeploymentData result;
 
-    QDir sourceDir = project()->projectDirectory().toString();
-    QDir buildDir = buildConfiguration()->buildDirectory().toString();
+    FilePath sourceDir = project()->projectDirectory();
+    FilePath buildDir = buildConfiguration()->buildDirectory();
 
     QString deploymentPrefix;
-    QString deploymentFilePath = sourceDir.filePath("QtCreatorDeployment.txt");
+    FilePath deploymentFilePath = sourceDir.pathAppended("QtCreatorDeployment.txt");
 
-    bool hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
+    bool hasDeploymentFile = deploymentFilePath.exists();
     if (!hasDeploymentFile) {
-        deploymentFilePath = buildDir.filePath("QtCreatorDeployment.txt");
-        hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
+        deploymentFilePath = buildDir.pathAppended("QtCreatorDeployment.txt");
+        hasDeploymentFile = deploymentFilePath.exists();
     }
     if (!hasDeploymentFile)
         return result;
 
-    deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath,
-                                                         sourceDir.absolutePath());
+    deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath.toString(),
+                                                         sourceDir.toString());
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
             if (!ct.executable.isEmpty()
                     && result.deployableForLocalFile(ct.executable).localFilePath() != ct.executable) {
                 result.addFile(ct.executable,
-                               deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()),
+                               deploymentPrefix + buildDir.relativeChildPath(ct.executable).toString(),
                                DeployableFile::TypeExecutable);
             }
         }
