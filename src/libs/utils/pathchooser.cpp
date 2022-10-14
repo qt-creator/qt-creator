@@ -199,6 +199,9 @@ FilePath PathChooserPrivate::expandedPath(const FilePath &input) const
     if (path.isEmpty())
         return path;
 
+    if (path.isAbsolutePath())
+        return path;
+
     switch (m_acceptingKind) {
     case PathChooser::Command:
     case PathChooser::ExistingCommand: {
@@ -391,7 +394,7 @@ void PathChooser::slotBrowse()
     case PathChooser::ExistingDirectory:
         newPath = FileUtils::getExistingDirectory(this,
                                                   makeDialogTitle(tr("Choose Directory")),
-                                                  predefined);
+                                                  predefined, {}, d->m_allowPathFromDevice);
         break;
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
