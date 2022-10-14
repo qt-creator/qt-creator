@@ -13,23 +13,16 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/settingsdatabase.h>
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QDate>
-#include <QDomDocument>
-#include <QFile>
-#include <QFileInfo>
 #include <QLabel>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMetaEnum>
 #include <QPointer>
-#include <QProcessEnvironment>
 #include <QTimer>
 #include <QVersionNumber>
 
@@ -60,7 +53,7 @@ class UpdateInfoPluginPrivate
 {
 public:
     FilePath m_maintenanceTool;
-    std::unique_ptr<QtcProcess> m_maintenanceToolProcess;
+    std::unique_ptr<TaskTree> m_taskTree;
     QPointer<FutureProgress> m_progress;
     QString m_updateOutput;
     QString m_packagesOutput;
@@ -109,7 +102,7 @@ void UpdateInfoPlugin::stopAutoCheckForUpdates()
 
 void UpdateInfoPlugin::doAutoCheckForUpdates()
 {
-    if (d->m_maintenanceToolProcess)
+    if (d->m_taskTree)
         return; // update task is still running (might have been run manually just before)
 
     if (nextCheckDate().isValid() && nextCheckDate() > QDate::currentDate())
@@ -120,83 +113,79 @@ void UpdateInfoPlugin::doAutoCheckForUpdates()
 
 void UpdateInfoPlugin::startCheckForUpdates()
 {
-    if (d->m_maintenanceToolProcess)
+    if (d->m_taskTree)
         return; // do not trigger while update task is already running
 
-    QFutureInterface<void> futureIf;
-    FutureProgress *futureProgress
-        = ProgressManager::addTimedTask(futureIf,
-                                        tr("Checking for Updates"),
-                                        Id("UpdateInfo.CheckingForUpdates"),
-                                        60);
+    QFutureInterface<void> fi;
+    FutureProgress *futureProgress = ProgressManager::addTimedTask(fi,
+                    tr("Checking for Updates"), Id("UpdateInfo.CheckingForUpdates"), 60);
     futureProgress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
     futureProgress->setSubtitleVisibleInStatusBar(true);
-    connect(futureProgress, &FutureProgress::canceled, this, [this, futureIf]() mutable {
-        futureIf.reportCanceled();
-        futureIf.reportFinished();
+    connect(futureProgress, &FutureProgress::canceled, this, [this, fi]() mutable {
+        fi.reportCanceled();
+        fi.reportFinished();
         stopCheckForUpdates();
     });
 
-    d->m_maintenanceToolProcess.reset(new QtcProcess);
-    d->m_maintenanceToolProcess->setCommand({d->m_maintenanceTool,
-                                             {"ch", "-g", "*=false,ifw.package.*=true"}});
-    d->m_maintenanceToolProcess->setTimeoutS(3 * 60); // 3 minutes
-    // TODO handle error
-    connect(
-        d->m_maintenanceToolProcess.get(),
-        &QtcProcess::done,
-        this,
-        [this, futureIf]() mutable {
-            if (d->m_maintenanceToolProcess->result() == ProcessResult::FinishedWithSuccess) {
-                d->m_updateOutput = d->m_maintenanceToolProcess->cleanedStdOut();
-                if (d->m_settings.checkForQtVersions) {
-                    d->m_maintenanceToolProcess.reset(new QtcProcess);
-                    d->m_maintenanceToolProcess->setCommand({d->m_maintenanceTool,
-                         {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"}});
-                    d->m_maintenanceToolProcess->setTimeoutS(3 * 60); // 3 minutes
-                    connect(
-                        d->m_maintenanceToolProcess.get(),
-                        &QtcProcess::done,
-                        this,
-                        [this, futureIf]() mutable {
-                            if (d->m_maintenanceToolProcess->result()
-                                == ProcessResult::FinishedWithSuccess) {
-                                d->m_packagesOutput = d->m_maintenanceToolProcess->cleanedStdOut();
-                                d->m_maintenanceToolProcess.reset();
-                                futureIf.reportFinished();
-                                checkForUpdatesFinished();
-                            } else {
-                                futureIf.reportCanceled(); // is used to indicate error
-                                futureIf.reportFinished();
-                            }
-                        },
-                        Qt::QueuedConnection);
-                    d->m_maintenanceToolProcess->start();
-                } else {
-                    d->m_maintenanceToolProcess.reset();
-                    futureIf.reportFinished();
-                    checkForUpdatesFinished();
-                }
-            } else {
-                futureIf.reportCanceled(); // is used to indicate error
-                futureIf.reportFinished();
-            }
-        },
-        Qt::QueuedConnection);
-
-    d->m_maintenanceToolProcess->start();
-    futureIf.reportStarted();
-
+    fi.reportStarted();
     emit checkForUpdatesRunningChanged(true);
+
+    using namespace Tasking;
+
+    const auto doSetup = [this](QtcProcess &process, const QStringList &args) {
+        process.setCommand({d->m_maintenanceTool, args});
+        process.setTimeoutS(3 * 60); // 3 minutes
+    };
+    const auto doCleanup = [this] {
+        d->m_taskTree.release()->deleteLater();
+        checkForUpdatesStopped();
+    };
+
+    const OnGroupDone onTreeDone([this, fi, doCleanup]() mutable {
+        fi.reportFinished();
+        checkForUpdatesFinished();
+        doCleanup();
+    });
+    const OnGroupError onTreeError([fi, doCleanup]() mutable {
+        fi.reportCanceled(); // is used to indicate error
+        fi.reportFinished();
+        doCleanup();
+    });
+
+    const auto setupUpdate = [doSetup](QtcProcess &process) {
+        doSetup(process, {"ch", "-g", "*=false,ifw.package.*=true"});
+    };
+    const auto updateDone = [this](const QtcProcess &process) {
+        d->m_updateOutput = process.cleanedStdOut();
+    };
+
+    QList<TaskItem> tasks { Process(setupUpdate, updateDone) };
+    if (d->m_settings.checkForQtVersions) {
+        const auto setupPackages = [doSetup](QtcProcess &process) {
+            doSetup(process, {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"});
+        };
+        const auto packagesDone = [this](const QtcProcess &process) {
+            d->m_packagesOutput = process.cleanedStdOut();
+        };
+        tasks << Process(setupPackages, packagesDone);
+    }
+    tasks << onTreeDone << onTreeError;
+
+    d->m_taskTree.reset(new TaskTree(Group{tasks}));
+    d->m_taskTree->start();
 }
 
 void UpdateInfoPlugin::stopCheckForUpdates()
 {
-    if (!d->m_maintenanceToolProcess)
+    if (!d->m_taskTree)
         return;
 
-    d->m_maintenanceToolProcess->disconnect();
-    d->m_maintenanceToolProcess.reset();
+    d->m_taskTree.reset();
+    checkForUpdatesStopped();
+}
+
+void UpdateInfoPlugin::checkForUpdatesStopped()
+{
     d->m_updateOutput.clear();
     d->m_packagesOutput.clear();
     emit checkForUpdatesRunningChanged(false);
@@ -257,8 +246,6 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
     qCDebug(updateLog) << "--- MaintenanceTool output (packages):";
     qCDebug(updateLog) << qPrintable(d->m_packagesOutput);
 
-    stopCheckForUpdates();
-
     const QList<Update> updates = availableUpdates(d->m_updateOutput);
     const QList<QtPackage> qtPackages = availableQtPackages(d->m_packagesOutput);
     if (updateLog().isDebugEnabled()) {
@@ -293,7 +280,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
 
 bool UpdateInfoPlugin::isCheckForUpdatesRunning() const
 {
-    return d->m_maintenanceToolProcess.get() != nullptr;
+    return d->m_taskTree.get() != nullptr;
 }
 
 void UpdateInfoPlugin::extensionsInitialized()

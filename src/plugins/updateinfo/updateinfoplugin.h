@@ -67,6 +67,7 @@ private:
     void startUpdater() const;
     void startPackageManager() const;
     void stopCheckForUpdates();
+    void checkForUpdatesStopped();
 
     void checkForUpdatesFinished();
 
