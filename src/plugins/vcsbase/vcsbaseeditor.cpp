@@ -1454,9 +1454,10 @@ void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
     const FilePath workingDirectory = d->m_workingDirectory.isEmpty()
             ? VcsManager::findTopLevelForDirectory(fileName.parentDir())
             : d->m_workingDirectory;
-    emit annotateRevisionRequested(workingDirectory,
-                                   fileName.relativeChildPath(workingDirectory).toString(),
-                                   change, currentLine);
+    const FilePath relativePath = fileName.isRelativePath()
+            ? fileName
+            : fileName.relativeChildPath(workingDirectory;
+    emit annotateRevisionRequested(workingDirectory, relativePath.toString(), change, currentLine);
 }
 
 QStringList VcsBaseEditorWidget::annotationPreviousVersions(const QString &) const
