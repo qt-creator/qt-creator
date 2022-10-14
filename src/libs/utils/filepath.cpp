@@ -908,6 +908,8 @@ FilePath FilePath::operator+(const QString &s) const
 /// \returns whether FilePath is a child of \a s
 bool FilePath::isChildOf(const FilePath &s) const
 {
+    if (!s.isSameDevice(*this))
+        return false;
     if (s.isEmpty())
         return false;
     if (!path().startsWith(s.path(), caseSensitivity()))
