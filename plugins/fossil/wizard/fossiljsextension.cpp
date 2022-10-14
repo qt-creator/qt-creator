@@ -52,16 +52,16 @@ public:
 };
 
 
-void FossilJsExtension::parseArgOptions(const QStringList &args, QMap<QString, QString> &options)
+QMap<QString, QString> FossilJsExtension::parseArgOptions(const QStringList &args)
 {
-    options.clear();
-
-    foreach (const QString &arg, args) {
-        if (arg.isEmpty()) continue;
-
-        QStringList opt = arg.split('|', Qt::KeepEmptyParts);
+    QMap<QString, QString> options;
+    for (const QString &arg : args) {
+        if (arg.isEmpty())
+            continue;
+        const QStringList opt = arg.split('|', Qt::KeepEmptyParts);
         options.insert(opt[0], opt.size() > 1 ? opt[1] : QString());
     }
+    return options;
 }
 
 FossilJsExtension::FossilJsExtension(FossilSettings *settings) :

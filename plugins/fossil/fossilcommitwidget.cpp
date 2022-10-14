@@ -33,11 +33,9 @@
 #include <utils/completingtextedit.h>
 #include <utils/qtcassert.h>
 
-#include <QSyntaxHighlighter>
-#include <QTextEdit>
-
-#include <QRegularExpression>
 #include <QDir>
+#include <QRegularExpression>
+#include <QSyntaxHighlighter>
 
 namespace Fossil {
 namespace Internal {
@@ -101,7 +99,7 @@ void FossilCommitWidget::setFields(const QString &repoPath, const BranchInfo &br
                                    const QStringList &tags, const QString &userName)
 {
     m_commitPanelUi.localRootLineEdit->setText(QDir::toNativeSeparators(repoPath));
-    m_commitPanelUi.currentBranchLineEdit->setText(branch.name());
+    m_commitPanelUi.currentBranchLineEdit->setText(branch.name);
     const QString tagsText = tags.join(", ");
     m_commitPanelUi.currentTagsLineEdit->setText(tagsText);
     m_commitPanelUi.authorLineEdit->setText(userName);
@@ -111,29 +109,21 @@ void FossilCommitWidget::setFields(const QString &repoPath, const BranchInfo &br
 
 QString FossilCommitWidget::newBranch() const
 {
-    const QString branchName = m_commitPanelUi.branchLineEdit->text().trimmed();
-    return branchName;
+    return m_commitPanelUi.branchLineEdit->text().trimmed();
 }
 
 QStringList FossilCommitWidget::tags() const
 {
     QString tagsText = m_commitPanelUi.tagsLineEdit->text().trimmed();
     if (tagsText.isEmpty())
-        return QStringList();
+        return {};
 
-    tagsText.replace(',', ' ');
-    const QStringList tags = tagsText.split(' ', Qt::SkipEmptyParts);
-    return tags;
+    return tagsText.replace(',', ' ').split(' ', Qt::SkipEmptyParts);
 }
 
 QString FossilCommitWidget::committer() const
 {
-    const QString author = m_commitPanelUi.authorLineEdit->text();
-    if (author.isEmpty())
-        return QString();
-
-    const QString user = author;
-    return user;
+    return m_commitPanelUi.authorLineEdit->text();
 }
 
 bool FossilCommitWidget::isPrivateOptionEnabled() const

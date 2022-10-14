@@ -42,7 +42,7 @@ class FossilJsExtension : public QObject
     Q_OBJECT
 
 public:
-    static void parseArgOptions(const QStringList &args, QMap<QString, QString> &options);
+    static QMap<QString, QString> parseArgOptions(const QStringList &args);
 
     FossilJsExtension(FossilSettings *settings);
     ~FossilJsExtension();

@@ -50,8 +50,6 @@ public:
     static const FossilSettings &settings();
     static FossilClient *client();
 
-    static void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
-
 #ifdef WITH_TESTS
 private slots:
     void testDiffFileResolving_data();

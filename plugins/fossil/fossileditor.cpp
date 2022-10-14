@@ -29,17 +29,10 @@
 #include "fossilplugin.h"
 #include "fossilclient.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
-#include <vcsbase/diffandloghighlighter.h>
 
 #include <QRegularExpression>
-#include <QString>
 #include <QTextCursor>
-#include <QTextBlock>
-#include <QDir>
-#include <QFileInfo>
 
 namespace Fossil {
 namespace Internal {
@@ -78,11 +71,11 @@ QString FossilEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const
     cursor.select(QTextCursor::WordUnderCursor);
     if (cursor.hasSelection()) {
         const QString change = cursor.selectedText();
-        QRegularExpressionMatch exactChangesetIdMatch = d->m_exactChangesetId.match(change);
+        const QRegularExpressionMatch exactChangesetIdMatch = d->m_exactChangesetId.match(change);
         if (exactChangesetIdMatch.hasMatch())
             return change;
     }
-    return QString();
+    return {};
 }
 
 QString FossilEditorWidget::decorateVersion(const QString &revision) const
@@ -92,9 +85,8 @@ QString FossilEditorWidget::decorateVersion(const QString &revision) const
 
     const Utils::FilePath workingDirectory = Utils::FilePath::fromString(source()).parentDir();
     const FossilClient *client = FossilPlugin::client();
-    RevisionInfo revisionInfo =
-            client->synchronousRevisionQuery(workingDirectory, revision, true);
-
+    const RevisionInfo revisionInfo = client->synchronousRevisionQuery(workingDirectory, revision,
+                                                                       true);
     // format: 'revision (committer "comment...")'
     QString output = revision.left(shortChangesetIdSize)
             + " (" + revisionInfo.committer
@@ -110,15 +102,13 @@ QString FossilEditorWidget::decorateVersion(const QString &revision) const
 
 QStringList FossilEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
-    QStringList revisions;
     const Utils::FilePath workingDirectory = Utils::FilePath::fromString(source()).parentDir();
     const FossilClient *client = FossilPlugin::client();
-    RevisionInfo revisionInfo =
-            client->synchronousRevisionQuery(workingDirectory, revision);
+    const RevisionInfo revisionInfo = client->synchronousRevisionQuery(workingDirectory, revision);
     if (revisionInfo.parentId.isEmpty())
-        return QStringList();
+        return {};
 
-    revisions.append(revisionInfo.parentId);
+    QStringList revisions{revisionInfo.parentId};
     revisions.append(revisionInfo.mergeParentIds);
     return revisions;
 }

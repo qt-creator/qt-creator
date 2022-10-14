@@ -58,9 +58,7 @@ void CommitEditor::setFields(const QString &repositoryRoot, const BranchInfo &br
 
     m_fileModel = new VcsBase::SubmitFileModel(this);
     m_fileModel->setRepositoryRoot(repositoryRoot);
-    m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &)
-                                           -> VcsBase::SubmitFileModel::FileStatusHint
-    {
+    m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &) {
         if (status == Constants::FSTATUS_ADDED
             || status == Constants::FSTATUS_ADDED_BY_MERGE
             || status == Constants::FSTATUS_ADDED_BY_INTEGRATE) {
@@ -75,12 +73,13 @@ void CommitEditor::setFields(const QString &repositoryRoot, const BranchInfo &br
             return VcsBase::SubmitFileModel::FileRenamed;
         }
         return VcsBase::SubmitFileModel::FileStatusUnknown;
-    } );
+    });
 
     const QList<VcsBase::VcsBaseClient::StatusItem> toAdd = Utils::filtered(repoStatus,
-                [](const VcsBase::VcsBaseClient::StatusItem &item) { return item.flags != Constants::FSTATUS_UNKNOWN; });
+                [](const VcsBase::VcsBaseClient::StatusItem &item)
+    { return item.flags != Constants::FSTATUS_UNKNOWN; });
     for (const VcsBase::VcsBaseClient::StatusItem &item : toAdd)
-            m_fileModel->addFile(item.file, item.flags);
+        m_fileModel->addFile(item.file, item.flags);
 
     setFileModel(m_fileModel);
 }

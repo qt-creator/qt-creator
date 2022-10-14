@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "branchinfo.h"
-
 #include <QString>
 #include <QStringList>
 
@@ -36,16 +34,11 @@ namespace Internal {
 class RevisionInfo
 {
 public:
-    explicit RevisionInfo(const QString &revisionId = QString(), const QString &parent = QString(),
-                          const QStringList &mergeParents = QStringList(),
-                          const QString &comment = QString(), const QString &user = QString());
-
     const QString id;
     const QString parentId;
     const QStringList mergeParentIds;
     const QString commentMsg;
     const QString committer;
-
 };
 
 } // namespace Internal

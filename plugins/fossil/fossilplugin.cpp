@@ -298,11 +298,6 @@ FossilClient *FossilPlugin::client()
     return &dd->m_client;
 }
 
-void FossilPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &status)
-{
-    dd->showCommitWidget(status);
-}
-
 FossilPluginPrivate::FossilPluginPrivate()
     : VcsBase::VcsBasePluginPrivate(Core::Context(Constants::FOSSIL_CONTEXT))
 {
@@ -420,7 +415,7 @@ void FossilPluginPrivate::annotateCurrentFile()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     const int lineNumber = VcsBase::VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
-    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), lineNumber);
+    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), {}, lineNumber);
 }
 
 void FossilPluginPrivate::diffCurrentFile()
@@ -524,7 +519,7 @@ void FossilPluginPrivate::logRepository()
     if (features.testFlag(FossilClient::TimelineWidthFeature))
         extraOptions << "-W" << QString::number(m_client.settings().timelineWidth.value());
 
-    m_client.log(state.topLevel(), QStringList(), extraOptions);
+    m_client.log(state.topLevel(), {}, extraOptions);
 }
 
 void FossilPluginPrivate::revertAll()
@@ -688,12 +683,8 @@ void FossilPluginPrivate::commit()
     QTC_ASSERT(state.hasTopLevel(), return);
 
     m_submitRepository = state.topLevel();
-
-    connect(&m_client, &VcsBaseClient::parsedStatus,
-            this, &FossilPluginPrivate::showCommitWidget);
-
-    QStringList extraOptions;
-    m_client.emitParsedStatus(m_submitRepository, extraOptions);
+    connect(&m_client, &VcsBaseClient::parsedStatus, this, &FossilPluginPrivate::showCommitWidget);
+    m_client.emitParsedStatus(m_submitRepository, {});
 }
 
 void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status)
@@ -738,7 +729,7 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::S
     const QString currentUser = m_client.synchronousUserDefaultQuery(m_submitRepository);
     QStringList tags = m_client.synchronousTagQuery(m_submitRepository, currentRevision.id);
     // Fossil includes branch name in tag list -- remove.
-    tags.removeAll(currentBranch.name());
+    tags.removeAll(currentBranch.name);
     commitEditor->setFields(m_submitRepository.toString(), currentBranch, tags, currentUser, status);
 
     connect(commitEditor, &VcsBase::VcsBaseSubmitEditor::diffSelectedFiles,
@@ -853,7 +844,8 @@ bool FossilPluginPrivate::submitEditorAboutToClose()
             extraOptions << "--branch" << enquotedBranch;
         }
         // Tags
-        foreach (QString tag, commitWidget->tags()) {
+        const QStringList tags = commitWidget->tags();
+        for (const QString &tag : tags) {
             extraOptions << "--tag" << tag;
         }
 
@@ -886,7 +878,7 @@ void FossilPluginPrivate::updateActions(VcsBase::VcsBasePluginPrivate::ActionSta
     m_revertFile->setParameter(filename);
     m_statusFile->setParameter(filename);
 
-    foreach (QAction *repoAction, m_repositoryActionList)
+    for (QAction *repoAction : qAsConst(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
 }
 
@@ -979,8 +971,7 @@ bool FossilPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return m_client.synchronousMove(from.absolutePath(),
-                                    fromInfo.absoluteFilePath(),
+    return m_client.synchronousMove(from.absolutePath(), fromInfo.absoluteFilePath(),
                                     toInfo.absoluteFilePath());
 }
 
@@ -991,18 +982,20 @@ bool FossilPluginPrivate::vcsCreateRepository(const FilePath &directory)
 
 void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_client.annotate(filePath.absolutePath(), filePath.fileName(), QString(), line);
+    m_client.annotate(filePath.absolutePath(), filePath.fileName(), {}, line);
 }
 
-void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id) { m_client.view(source.toString(), id); }
+void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id)
+{
+    m_client.view(source.toString(), id);
+}
 
 VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
                                                               const FilePath &baseDirectory,
                                                               const QString &localName,
                                                               const QStringList &extraArgs)
 {
-    QMap<QString, QString> options;
-    FossilJsExtension::parseArgOptions(extraArgs, options);
+    const QMap<QString, QString> options = FossilJsExtension::parseArgOptions(extraArgs);
 
     // Two operating modes:
     //  1) CloneCheckout:

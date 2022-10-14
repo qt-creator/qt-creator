@@ -50,8 +50,8 @@ class FossilCommitWidget : public VcsBase::SubmitEditorWidget
 public:
     FossilCommitWidget();
 
-    void setFields(const QString &repoPath,
-                   const BranchInfo &newBranch, const QStringList &tags, const QString &userName);
+    void setFields(const QString &repoPath, const BranchInfo &newBranch, const QStringList &tags,
+                   const QString &userName);
 
     QString newBranch() const;
     QStringList tags() const;
