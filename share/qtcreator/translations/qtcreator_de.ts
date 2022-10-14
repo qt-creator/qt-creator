@@ -9105,15 +9105,15 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Note: The above setting takes effect only if the HTML file does not use a style sheet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Die obige Einstellung ist nur wirksam, wenn die HTML-Seite kein Stylesheet verwendet.</translation>
     </message>
     <message>
         <source>Zoom:</source>
-        <translation type="unfinished">Vergrößerungsfaktor:</translation>
+        <translation>Vergrößerungsfaktor:</translation>
     </message>
     <message>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <source>Default (%1)</source>
@@ -9558,7 +9558,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Registration Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrierung fehlgeschlagen</translation>
     </message>
     <message>
         <source>Unable to register documentation.</source>
@@ -9570,7 +9570,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
-        <translation type="unfinished">Vergrößerung: %1%</translation>
+        <translation>Vergrößerung: %1%</translation>
     </message>
 </context>
 <context>
