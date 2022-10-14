@@ -479,20 +479,6 @@ void DockerDevicePrivate::stopCurrentContainer()
     m_cachedEnviroment.clear();
 }
 
-static QString getLocalIPv4Address()
-{
-    const QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
-    for (auto &a : addresses) {
-        if (a.isInSubnet(QHostAddress("192.168.0.0"), 16))
-            return a.toString();
-        if (a.isInSubnet(QHostAddress("10.0.0.0"), 8))
-            return a.toString();
-        if (a.isInSubnet(QHostAddress("172.16.0.0"), 12))
-            return a.toString();
-    }
-    return QString();
-}
-
 bool DockerDevicePrivate::prepareForBuild(const Target *target)
 {
     QTC_ASSERT(QThread::currentThread() == thread(), return false);
@@ -574,7 +560,7 @@ bool DockerDevicePrivate::createContainer()
         return false;
 
     const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
-                                                      : QString(getLocalIPv4Address() + ":0.0");
+                                                      : QString("host.docker.internal:0");
     CommandLine dockerCreate{m_settings->dockerBinaryPath.filePath(),
                              {"create",
                               "-i",
