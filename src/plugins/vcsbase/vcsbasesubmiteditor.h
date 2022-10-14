@@ -55,10 +55,8 @@ public:
     // prompt setting. The user can uncheck it from the message box.
     enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
     PromptSubmitResult promptSubmit(VcsBasePluginPrivate *plugin,
-                                    bool *promptSettingOld,
-                                    bool forcePrompt = false,
-                                    bool canCommitOnFailure = true,
-                                    Utils::BoolAspect *promptSetting = nullptr);
+                                    bool prompt,
+                                    bool canCommitOnFailure = true);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);

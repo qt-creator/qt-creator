@@ -81,11 +81,6 @@ PerforceSettings::PerforceSettings()
     timeOutS.setLabelText(tr("Timeout:"));
     timeOutS.setSuffix(tr("s"));
 
-    registerAspect(&promptToSubmit);
-    promptToSubmit.setSettingsKey("PromptForSubmit");
-    promptToSubmit.setDefaultValue(true);
-    promptToSubmit.setLabelText(tr("Prompt on submit"));
-
     registerAspect(&autoOpen);
     autoOpen.setSettingsKey("PromptToOpen");
     autoOpen.setDefaultValue(true);
@@ -257,7 +252,6 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
             title(PerforceSettings::tr("Miscellaneous")),
             Column {
                 Row { s.logCount, s.timeOutS, st },
-                s.promptToSubmit,
                 s.autoOpen
             }
         };

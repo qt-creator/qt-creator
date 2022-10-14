@@ -497,14 +497,9 @@ static QString withUnusedMnemonic(QString string, const QList<QPushButton *> &ot
 
 VcsBaseSubmitEditor::PromptSubmitResult
         VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin,
-                                          bool *promptSettingOld,
-                                          bool forcePrompt,
-                                          bool canCommitOnFailure,
-                                          BoolAspect *promptSetting)
+                                          bool prompt,
+                                          bool canCommitOnFailure)
 {
-    BoolAspect dummySetting;
-    if (!promptSetting && !promptSettingOld)
-        promptSetting = &dummySetting;
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
@@ -513,9 +508,6 @@ VcsBaseSubmitEditor::PromptSubmitResult
         return SubmitDiscarded;
 
     QString errorMessage;
-
-    const bool value = promptSettingOld ? *promptSettingOld : promptSetting->value();
-    const bool prompt = forcePrompt || value;
 
     // Pop up a message depending on whether the check succeeded and the
     // user wants to be prompted
@@ -536,10 +528,6 @@ VcsBaseSubmitEditor::PromptSubmitResult
                      errorMessage.isEmpty() ? errorMessage : ": " + errorMessage);
     }
     mb.setText(message);
-    mb.setCheckBoxText(tr("Prompt to %1").arg(commitName.toLower()));
-    mb.setChecked(value);
-    // Provide check box to turn off prompt ONLY if it was not forced
-    mb.setCheckBoxVisible(value && !forcePrompt);
     QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Close | QDialogButtonBox::Cancel;
     if (canCommit || canCommitOnFailure)
         buttons |= QDialogButtonBox::Ok;
@@ -548,19 +536,14 @@ VcsBaseSubmitEditor::PromptSubmitResult
     // On Windows there is no mnemonic for Close. Set it explicitly.
     mb.button(QDialogButtonBox::Close)->setText(tr("&Close"));
     cancelButton->setText(tr("&Keep Editing"));
-    // forcePrompt is true when the editor is closed, and false when triggered by the submit action
-    if (forcePrompt)
+    // prompt is true when the editor is closed, and false when triggered by the submit action
+    if (prompt)
         cancelButton->setDefault(true);
     if (QPushButton *commitButton = mb.button(QDialogButtonBox::Ok)) {
         commitButton->setText(withUnusedMnemonic(commitName,
                               {cancelButton, mb.button(QDialogButtonBox::Close)}));
     }
-    if (mb.exec() == QDialog::Accepted) {
-        if (promptSettingOld)
-            *promptSettingOld = mb.isChecked();
-        else
-            promptSetting->setValue(mb.isChecked());
-    }
+    mb.exec();
     QAbstractButton *chosen = mb.clickedButton();
     if (!chosen || chosen == cancelButton)
         return SubmitCanceled;

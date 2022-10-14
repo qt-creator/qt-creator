@@ -77,7 +77,6 @@ public:
     Utils::IntegerAspect logCount;
     Utils::BoolAspect customEnv;
     Utils::IntegerAspect timeOutS;
-    Utils::BoolAspect promptToSubmit;
     Utils::BoolAspect autoOpen;
 
 private:

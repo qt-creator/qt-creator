@@ -20,7 +20,6 @@ const char keepFileUndoCheckoutKeyC[] = "KeepFileUnDoCheckout";
 const char diffTypeKeyC[] = "DiffType";
 const char diffArgsKeyC[] = "DiffArgs";
 const char autoAssignActivityKeyC[] = "AutoAssignActivityName";
-const char promptToCheckInKeyC[] = "PromptToCheckIn";
 const char disableIndexerKeyC[] = "DisableIndexer";
 const char totalFilesKeyC[] = "TotalFiles";
 const char indexOnlyVOBsC[] = "IndexOnlyVOBs";
@@ -59,7 +58,6 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
     diffArgs = settings->value(QLatin1String(diffArgsKeyC), QLatin1String(defaultDiffArgs)).toString();
     autoAssignActivityName = settings->value(QLatin1String(autoAssignActivityKeyC), true).toBool();
     historyCount = settings->value(QLatin1String(historyCountKeyC), int(defaultHistoryCount)).toInt();
-    promptToCheckIn = settings->value(QLatin1String(promptToCheckInKeyC), false).toBool();
     disableIndexer = settings->value(QLatin1String(disableIndexerKeyC), false).toBool();
     indexOnlyVOBs = settings->value(QLatin1String(indexOnlyVOBsC), QString()).toString();
     extDiffAvailable = !Utils::Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
@@ -91,7 +89,6 @@ void ClearCaseSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(diffTypeKeyC), sDiffType);
     settings->setValue(QLatin1String(autoAssignActivityKeyC), autoAssignActivityName);
     settings->setValue(QLatin1String(historyCountKeyC), historyCount);
-    settings->setValue(QLatin1String(promptToCheckInKeyC), promptToCheckIn);
     settings->setValue(QLatin1String(disableIndexerKeyC), disableIndexer);
     settings->setValue(QLatin1String(indexOnlyVOBsC), indexOnlyVOBs);
     settings->beginGroup(QLatin1String(totalFilesKeyC));
@@ -113,7 +110,6 @@ bool ClearCaseSettings::equals(const ClearCaseSettings &s) const
         && diffType               == s.diffType
         && diffArgs               == s.diffArgs
         && autoAssignActivityName == s.autoAssignActivityName
-        && promptToCheckIn        == s.promptToCheckIn
         && disableIndexer         == s.disableIndexer
         && indexOnlyVOBs          == s.indexOnlyVOBs
         && totalFiles             == s.totalFiles;

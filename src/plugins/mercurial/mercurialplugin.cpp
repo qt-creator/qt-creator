@@ -663,7 +663,7 @@ bool MercurialPluginPrivate::submitEditorAboutToClose()
     QTC_ASSERT(editorFile, return true);
 
     const VcsBaseSubmitEditor::PromptSubmitResult response =
-            commitEditor->promptSubmit(this, nullptr, !m_submitActionTriggered);
+            commitEditor->promptSubmit(this, !m_submitActionTriggered);
     m_submitActionTriggered = false;
 
     switch (response) {

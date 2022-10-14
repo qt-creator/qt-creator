@@ -40,11 +40,6 @@ VcsBaseSettings::VcsBaseSettings()
     registerAspect(&path);
     path.setSettingsKey("Path");
 
-    registerAspect(&promptOnSubmit);
-    promptOnSubmit.setSettingsKey("PromptOnSubmit");
-    promptOnSubmit.setDefaultValue(true);
-    promptOnSubmit.setLabelText(tr("Prompt on submit"));
-
     registerAspect(&timeout);
     timeout.setSettingsKey("Timeout");
     timeout.setRange(0, 3600 * 24 * 365);

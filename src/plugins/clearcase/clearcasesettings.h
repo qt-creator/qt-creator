@@ -45,7 +45,6 @@ public:
     bool autoCheckOut = true;
     bool noComment = false;
     bool keepFileUndoCheckout = true;
-    bool promptToCheckIn = false;
     bool disableIndexer = false;
     bool extDiffAvailable = false;
     int historyCount;

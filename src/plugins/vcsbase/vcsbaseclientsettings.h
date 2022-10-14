@@ -21,7 +21,6 @@ public:
     Utils::StringAspect userName;
     Utils::StringAspect userEmail;
     Utils::IntegerAspect logCount;
-    Utils::BoolAspect promptOnSubmit;
     Utils::IntegerAspect timeout; // Seconds
     Utils::StringAspect path;
 

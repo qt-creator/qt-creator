@@ -1544,19 +1544,13 @@ bool PerforcePluginPrivate::submitEditorAboutToClose()
     QTC_ASSERT(editorDocument, return true);
     // Prompt the user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    bool wantsPrompt = m_settings.promptToSubmit.value();
     const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            perforceEditor->promptSubmit(this, &wantsPrompt, !m_submitActionTriggered);
+            perforceEditor->promptSubmit(this, !m_submitActionTriggered);
     m_submitActionTriggered = false;
 
     if (answer == VcsBaseSubmitEditor::SubmitCanceled)
         return false;
 
-    // Set without triggering the checking mechanism
-    if (wantsPrompt != m_settings.promptToSubmit.value()) {
-        m_settings.promptToSubmit.setValue(wantsPrompt);
-        m_settings.writeSettings(ICore::settings());
-    }
     if (!DocumentManager::saveDocument(editorDocument))
         return false;
     if (answer == VcsBaseSubmitEditor::SubmitDiscarded) {

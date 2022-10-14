@@ -802,7 +802,7 @@ bool BazaarPluginPrivate::submitEditorAboutToClose()
     QTC_ASSERT(editorDocument, return true);
 
     const VcsBaseSubmitEditor::PromptSubmitResult response =
-            commitEditor->promptSubmit(this, nullptr, !m_submitActionTriggered);
+            commitEditor->promptSubmit(this, !m_submitActionTriggered);
     m_submitActionTriggered = false;
 
     switch (response) {

@@ -563,8 +563,8 @@ bool SubversionPluginPrivate::submitEditorAboutToClose()
 
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    const VcsBaseSubmitEditor::PromptSubmitResult answer = editor->promptSubmit(
-                this, nullptr, !m_submitActionTriggered, true, &m_settings.promptOnSubmit);
+    const VcsBaseSubmitEditor::PromptSubmitResult answer =
+            editor->promptSubmit(this, !m_submitActionTriggered);
     m_submitActionTriggered = false;
     switch (answer) {
     case VcsBaseSubmitEditor::SubmitCanceled:

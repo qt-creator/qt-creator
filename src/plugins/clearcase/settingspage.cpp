@@ -173,7 +173,6 @@ SettingsPageWidget::SettingsPageWidget()
         graphicalDiffRadioButton->setChecked(true);
     autoAssignActivityCheckBox->setChecked(s.autoAssignActivityName);
     historyCountSpinBox->setValue(s.historyCount);
-    promptCheckBox->setChecked(s.promptToCheckIn);
     disableIndexerCheckBox->setChecked(s.disableIndexer);
     diffArgsEdit->setText(s.diffArgs);
     indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
@@ -193,7 +192,6 @@ void SettingsPageWidget::apply()
         rc.diffType = ExternalDiff;
     rc.autoAssignActivityName = autoAssignActivityCheckBox->isChecked();
     rc.historyCount = historyCountSpinBox->value();
-    rc.promptToCheckIn = promptCheckBox->isChecked();
     rc.disableIndexer = disableIndexerCheckBox->isChecked();
     rc.diffArgs = diffArgsEdit->text();
     rc.indexOnlyVOBs = indexOnlyVOBsEdit->text();

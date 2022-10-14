@@ -754,9 +754,8 @@ bool ClearCasePluginPrivate::submitEditorAboutToClose()
 
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    bool prompt = m_settings.promptToCheckIn;
     const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            editor->promptSubmit(this, &prompt, !m_submitActionTriggered);
+            editor->promptSubmit(this, !m_submitActionTriggered);
     m_submitActionTriggered = false;
     switch (answer) {
     case VcsBaseSubmitEditor::SubmitCanceled:
@@ -766,11 +765,6 @@ bool ClearCasePluginPrivate::submitEditorAboutToClose()
         return true; // Cancel all
     default:
         break;
-    }
-    // If user changed
-    if (prompt != m_settings.promptToCheckIn) {
-        m_settings.promptToCheckIn = prompt;
-        m_settings.toSettings(ICore::settings());
     }
 
     const QStringList fileList = editor->checkedFiles();

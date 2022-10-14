@@ -96,7 +96,6 @@ CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
                         s.timeout,
                         s.diffOptions,
                     },
-                    s.promptOnSubmit,
                     s.describeByCommitId,
                 }
             },

@@ -72,9 +72,6 @@ SubversionSettings::SubversionSettings()
     timeout.setLabelText(tr("Timeout:"));
     timeout.setSuffix(tr("s"));
 
-    registerAspect(&promptOnSubmit);
-    promptOnSubmit.setLabelText(tr("Prompt on submit"));
-
     QObject::connect(&useAuthentication, &BaseAspect::changed, [this] {
         userName.setEnabled(useAuthentication.value());
         password.setEnabled(useAuthentication.value());
@@ -115,7 +112,6 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
                 title(SubversionSettings::tr("Miscellaneous")),
                 Column {
                     Row { s.logCount, s.timeout, st },
-                    s.promptOnSubmit,
                     s.spaceIgnorantAnnotation,
                 }
             },
