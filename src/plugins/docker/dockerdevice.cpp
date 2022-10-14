@@ -542,8 +542,18 @@ QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
 
 bool isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
 {
-    return !mi.path.isEmpty() && !mi.containerPath.isEmpty() && mi.path.isAbsolutePath()
-           && mi.containerPath.isAbsolutePath();
+    if (mi.path.needsDevice())
+        return false;
+
+    if (mi.path.isEmpty() || mi.containerPath.isEmpty())
+        return false;
+    if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath())
+        return false;
+
+    if (!mi.path.exists())
+        return false;
+
+    return true;
 }
 
 QStringList DockerDevicePrivate::createMountArgs() const
@@ -817,6 +827,9 @@ bool DockerDevice::handlesFile(const FilePath &filePath) const
 
 bool DockerDevice::ensureReachable(const FilePath &other) const
 {
+    if (other.isSameDevice(rootPath()))
+        return true;
+
     if (other.needsDevice())
         return false;
 
@@ -1087,8 +1100,12 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
     if (alreadyAdded)
         return false;
 
+    const TemporaryMountInfo newMount{path, containerPath};
+
+    QTC_ASSERT(isValidMountInfo(newMount), return false);
+
     qCDebug(dockerDeviceLog) << "Adding temporary mount:" << path;
-    m_temporaryMounts.append({path, containerPath});
+    m_temporaryMounts.append(newMount);
     stopCurrentContainer(); // Force re-start with new mounts.
     return true;
 }
