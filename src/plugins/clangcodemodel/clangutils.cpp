@@ -155,7 +155,7 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
     QTC_ASSERT(!projectInfoList.isEmpty(),
                return GenerateCompilationDbResult(QString(), "Could not retrieve project info."));
     QTC_CHECK(baseDir.ensureWritableDir());
-    QFile compileCommandsFile(baseDir.toString() + "/compile_commands.json");
+    QFile compileCommandsFile(baseDir.pathAppended("compile_commands.json").toFSPathString());
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
     if (!fileOpened) {
         return GenerateCompilationDbResult(QString(),
