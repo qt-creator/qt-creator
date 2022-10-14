@@ -13,6 +13,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlJSTools" }
+    Depends { name: "QtSupport" }
     Depends { name: "LanguageClient" }
 
     files: [
