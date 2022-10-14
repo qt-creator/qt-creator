@@ -28,6 +28,7 @@ namespace Internal {
 
 class HighlighterSettingsPageWidget : public QWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::HighlighterSettingsPage)
 public:
     QLabel *definitionsInfolabel;
     QPushButton *downloadDefinitions;

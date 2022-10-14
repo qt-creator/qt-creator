@@ -39,7 +39,8 @@ public:
     CppcheckOptionsPage options;
     DiagnosticsModel manualRunModel;
     CppcheckTool manualRunTool;
-    Utils::Perspective perspective{Constants::PERSPECTIVE_ID, CppcheckPlugin::tr("Cppcheck")};
+    Utils::Perspective perspective{Constants::PERSPECTIVE_ID,
+                                   ::Cppcheck::Internal::CppcheckPlugin::tr("Cppcheck")};
     QAction *manualRunAction;
 
     void startManualRun();

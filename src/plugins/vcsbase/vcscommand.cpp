@@ -94,13 +94,13 @@ QString VcsCommandPrivate::displayName() const
     if (!m_displayName.isEmpty())
         return m_displayName;
     if (m_jobs.isEmpty())
-        return tr("Unknown");
+        return VcsCommand::tr("UNKNOWN");
     const Job &job = m_jobs.at(0);
     QString result = job.command.executable().baseName();
     if (!result.isEmpty())
         result[0] = result.at(0).toTitleCase();
     else
-        result = tr("UNKNOWN");
+        result = VcsCommand::tr("UNKNOWN");
     if (!job.command.arguments().isEmpty())
         result += ' ' + job.command.splitArguments().at(0);
     return result;

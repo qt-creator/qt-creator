@@ -161,7 +161,8 @@ private:
     QAction *m_clear = nullptr;
     QAction *m_expandCollapse = nullptr;
 
-    Utils::Perspective m_perspective{ClangTidyClazyPerspectiveId, tr("Clang-Tidy and Clazy")};
+    Utils::Perspective m_perspective{ClangTidyClazyPerspectiveId,
+                                     ::ClangTools::Internal::ClangTool::tr("Clang-Tidy and Clazy")};
 
 private:
     const QString m_name;

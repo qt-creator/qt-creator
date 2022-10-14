@@ -104,8 +104,8 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
 {
     QFile tf(name.toString());
     if (!tf.open(QIODevice::ReadOnly)) {
-        *errorString = ProjectExplorerPlugin::tr("Cannot open task file %1: %2").arg(
-                name.toUserOutput(), tf.errorString());
+        *errorString = TaskFile::tr("Cannot open task file %1: %2")
+                           .arg(name.toUserOutput(), tf.errorString());
         return false;
     }
 
