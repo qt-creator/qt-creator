@@ -534,9 +534,16 @@ FilePath FileUtils::getSaveFilePath(QWidget *parent,
 FilePath FileUtils::getExistingDirectory(QWidget *parent,
                                          const QString &caption,
                                          const FilePath &dir,
-                                         QFileDialog::Options options)
+                                         QFileDialog::Options options,
+                                         bool fromDeviceIfShiftIsPressed)
 {
     bool forceNonNativeDialog = dir.needsDevice();
+
+#ifdef QT_GUI_LIB
+    if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
+        forceNonNativeDialog = true;
+    }
+#endif
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
     return firstOrEmpty(getFilePaths(dialogParent(parent),

@@ -110,7 +110,8 @@ public:
     static FilePath getExistingDirectory(QWidget *parent,
                                          const QString &caption,
                                          const FilePath &dir = {},
-                                         QFileDialog::Options options = QFileDialog::ShowDirsOnly);
+                                         QFileDialog::Options options = QFileDialog::ShowDirsOnly,
+                                         bool fromDeviceIfShiftIsPressed = false);
 
     static FilePaths getOpenFilePaths(QWidget *parent,
                                       const QString &caption,
