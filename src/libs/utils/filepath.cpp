@@ -146,8 +146,7 @@ FilePath FilePath::fromFileInfo(const QFileInfo &info)
 /// \returns a QFileInfo
 QFileInfo FilePath::toFileInfo() const
 {
-    QTC_ASSERT(!needsDevice(), return QFileInfo());
-    return QFileInfo(cleanPath().path());
+    return QFileInfo(toFSPathString());
 }
 
 FilePath FilePath::fromUrl(const QUrl &url)
