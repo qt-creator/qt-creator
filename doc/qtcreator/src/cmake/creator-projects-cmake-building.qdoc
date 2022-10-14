@@ -126,10 +126,10 @@
     does not delete the initial configuration.
 
     To be asked before \QC resets the changes, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol CMake >
+    \uicontrol Preferences > \uicontrol CMake > \uicontrol General >
     \uicontrol {Ask before re-configuring with initial parameters}.
 
-    \image qtcreator-build-run-options-cmake.png "CMake Build & Run options"
+    \image qtcreator-preferences-cmake-general.png "General tab in CMake Preferences"
 
     \section1 Viewing CMake Output
 
@@ -205,8 +205,8 @@
     \QC can automatically set up the \l {Setting Up Conan}
     {Conan package manager} for use with CMake.
 
-    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run} >
-    \uicontrol CMake > \uicontrol {Package manager auto setup} to set the
+    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake
+    \uicontrol General > \uicontrol {Package manager auto setup} to set the
     value of the \c CMAKE_PROJECT_INCLUDE_BEFORE variable to the path to a
     CMake script that installs dependencies from a \c conanfile.txt,
     \c conanfile.py, or \c vcpkg.json file in the project source directory.
