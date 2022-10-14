@@ -407,6 +407,11 @@ bool FilePath::isDir() const
     return fileAccess()->isDirectory(*this);
 }
 
+bool FilePath::isSymLink() const
+{
+    return fileAccess()->isSymLink(*this);
+}
+
 bool FilePath::createDir() const
 {
     return fileAccess()->createDirectory(*this);

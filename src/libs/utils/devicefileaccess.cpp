@@ -82,6 +82,13 @@ bool DeviceFileAccess::isDirectory(const FilePath &filePath) const
     return false;
 }
 
+bool DeviceFileAccess::isSymLink(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return false;
+}
+
 bool DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     if (isWritableDirectory(filePath))
@@ -315,6 +322,12 @@ bool DesktopDeviceFileAccess::isDirectory(const FilePath &filePath) const
 {
     const QFileInfo fi(filePath.path());
     return fi.isDir();
+}
+
+bool DesktopDeviceFileAccess::isSymLink(const FilePath &filePath) const
+{
+    const QFileInfo fi(filePath.path());
+    return fi.isSymLink();
 }
 
 bool DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
@@ -654,6 +667,12 @@ bool UnixDeviceFileAccess::isDirectory(const FilePath &filePath) const
 {
     const QString path = filePath.path();
     return runInShellSuccess("test", {"-d", path});
+}
+
+bool UnixDeviceFileAccess::isSymLink(const FilePath &filePath) const
+{
+    const QString path = filePath.path();
+    return runInShellSuccess("test", {"-h", path});
 }
 
 bool UnixDeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
