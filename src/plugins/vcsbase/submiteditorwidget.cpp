@@ -645,7 +645,7 @@ bool SubmitEditorWidget::canSubmit(QString *whyNot) const
     return res;
 }
 
-bool SubmitEditorWidget::edited() const
+bool SubmitEditorWidget::isEdited() const
 {
     return !d->m_description.trimmed().isEmpty() || checkedFilesCount() > 0;
 }

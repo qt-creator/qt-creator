@@ -509,7 +509,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
 
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
 
-    if (!submitWidget->isEnabled() || !submitWidget->edited())
+    if (!submitWidget->isEnabled() || !submitWidget->isEdited())
         return SubmitDiscarded;
 
     QString errorMessage;
