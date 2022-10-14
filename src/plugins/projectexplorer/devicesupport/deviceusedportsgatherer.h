@@ -26,7 +26,6 @@ public:
 
     void start(const IDeviceConstPtr &device);
     void stop();
-    Utils::Port getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
     QList<Utils::Port> usedPorts() const;
 
 signals:

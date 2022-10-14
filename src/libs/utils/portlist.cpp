@@ -168,6 +168,16 @@ Port PortList::getNext()
     return next;
 }
 
+Port PortList::getNextFreePort(const QList<Port> &usedPorts)
+{
+    while (hasMore()) {
+        const Port port = getNext();
+        if (!usedPorts.contains(port))
+            return port;
+    }
+    return {};
+}
+
 QString PortList::toString() const
 {
     QString stringRep;

@@ -19,7 +19,7 @@ namespace Internal {
 
 class DeviceUsedPortsGathererPrivate
 {
- public:
+public:
     std::unique_ptr<QtcProcess> process;
     QList<Port> usedPorts;
     QByteArray remoteStdout;
@@ -75,16 +75,6 @@ void DeviceUsedPortsGatherer::stop()
         d->process->disconnect();
         d->process.release()->deleteLater();
     }
-}
-
-Port DeviceUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
-{
-    while (freePorts->hasMore()) {
-        const Port port = freePorts->getNext();
-        if (!d->usedPorts.contains(port))
-            return port;
-    }
-    return Port();
 }
 
 QList<Port> DeviceUsedPortsGatherer::usedPorts() const
@@ -165,7 +155,7 @@ QUrl PortsGatherer::findEndPoint()
     QUrl result;
     result.setScheme(urlTcpScheme());
     result.setHost(device()->sshParameters().host());
-    result.setPort(m_portsGatherer.getNextFreePort(&m_portList).number());
+    result.setPort(m_portList.getNextFreePort(m_portsGatherer.usedPorts()).number());
     return result;
 }
 

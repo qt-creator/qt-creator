@@ -28,6 +28,7 @@ public:
     bool contains(Port port) const;
     int count() const;
     Port getNext();
+    Port getNextFreePort(const QList<Port> &usedPorts);
     QString toString() const;
 
     static PortList fromString(const QString &portsSpec);
