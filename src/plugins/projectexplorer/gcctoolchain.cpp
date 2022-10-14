@@ -1196,8 +1196,8 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
                         && HostOsInfo::isWindowsHost()
                         && !existingCommand.needsDevice()
                         && !compilerPath.needsDevice()) {
-                    existingTcMatches = existingCommand.toFileInfo().size()
-                                        == compilerPath.toFileInfo().size();
+                    existingTcMatches = existingCommand.fileSize()
+                                        == compilerPath.fileSize();
                 }
             }
             if (existingTcMatches) {
