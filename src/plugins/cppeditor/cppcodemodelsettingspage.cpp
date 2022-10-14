@@ -31,6 +31,7 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QVersionNumber>
+#include <QTextBlock>
 
 #include <limits>
 
@@ -54,6 +55,8 @@ private:
     QCheckBox *m_useBuiltinPreprocessorCheckBox;
     QCheckBox *m_skipIndexingBigFilesCheckBox;
     QSpinBox *m_bigFilesLimitSpinBox;
+    QCheckBox *m_ignoreFilesCheckBox;
+    QPlainTextEdit *m_ignorePatternTextEdit;
 };
 
 CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
@@ -69,6 +72,19 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
     m_bigFilesLimitSpinBox->setSuffix(tr("MB"));
     m_bigFilesLimitSpinBox->setRange(1, 500);
     m_bigFilesLimitSpinBox->setValue(m_settings->indexerFileSizeLimitInMb());
+
+    m_ignoreFilesCheckBox = new QCheckBox(tr("Ignore files"));
+    m_ignoreFilesCheckBox->setToolTip(tr(
+        "<html><head/><body><p>Ignore files that match these wildcard patterns, one wildcard per line.</p></body></html>"));
+
+    m_ignoreFilesCheckBox->setChecked(m_settings->ignoreFiles());
+    m_ignorePatternTextEdit = new QPlainTextEdit(m_settings->ignorePattern());
+    m_ignorePatternTextEdit->setToolTip(m_ignoreFilesCheckBox->toolTip());
+    m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
+
+    connect(m_ignoreFilesCheckBox, &QCheckBox::stateChanged, [this] {
+       m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
+    });
 
     m_ignorePchCheckBox = new QCheckBox(tr("Ignore precompiled headers"));
     m_ignorePchCheckBox->setToolTip(tr(
@@ -98,6 +114,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
                 m_ignorePchCheckBox,
                 m_useBuiltinPreprocessorCheckBox,
                 Row { m_skipIndexingBigFilesCheckBox, m_bigFilesLimitSpinBox, st },
+                Row { Column { m_ignoreFilesCheckBox, st }, m_ignorePatternTextEdit },
             }
         },
         st
@@ -130,6 +147,16 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
     const bool newUseBuiltinPreprocessor = m_useBuiltinPreprocessorCheckBox->isChecked();
     if (m_settings->useBuiltinPreprocessor() != newUseBuiltinPreprocessor) {
         m_settings->setUseBuiltinPreprocessor(newUseBuiltinPreprocessor);
+        settingsChanged = true;
+    }
+    const bool ignoreFiles = m_ignoreFilesCheckBox->isChecked();
+    if (m_settings->ignoreFiles() != ignoreFiles) {
+        m_settings->setIgnoreFiles(ignoreFiles);
+        settingsChanged = true;
+    }
+    const QString ignorePattern = m_ignorePatternTextEdit->toPlainText();
+    if (m_settings->ignorePattern() != ignorePattern) {
+        m_settings->setIgnorePattern(ignorePattern);
         settingsChanged = true;
     }
     const int newFileSizeLimit = m_bigFilesLimitSpinBox->value();

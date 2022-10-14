@@ -45,6 +45,12 @@ static QString interpretAmbiguousHeadersAsCHeadersKey()
 static QString skipIndexingBigFilesKey()
 { return QLatin1String(Constants::CPPEDITOR_SKIP_INDEXING_BIG_FILES); }
 
+static QString ignoreFilesKey()
+{ return QLatin1String(Constants::CPPEDITOR_IGNORE_FILES); }
+
+static QString ignorePatternKey()
+{ return QLatin1String(Constants::CPPEDITOR_IGNORE_PATTERN); }
+
 static QString useBuiltinPreprocessorKey()
 { return QLatin1String(Constants::CPPEDITOR_USE_BUILTIN_PREPROCESSOR); }
 
@@ -91,6 +97,12 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     const QVariant skipIndexingBigFiles = s->value(skipIndexingBigFilesKey(), true);
     setSkipIndexingBigFiles(skipIndexingBigFiles.toBool());
 
+    const QVariant ignoreFiles = s->value(ignoreFilesKey(), false);
+    setIgnoreFiles(ignoreFiles.toBool());
+
+    const QVariant ignorePattern = s->value(ignorePatternKey(), "");
+    setIgnorePattern(ignorePattern.toString());
+
     setUseBuiltinPreprocessor(s->value(useBuiltinPreprocessorKey(), true).toBool());
 
     const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
@@ -110,6 +122,8 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 
     s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
     s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
+    s->setValue(ignoreFilesKey(), ignoreFiles());
+    s->setValue(ignorePatternKey(), QVariant(ignorePattern()));
     s->setValue(useBuiltinPreprocessorKey(), useBuiltinPreprocessor());
     s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
 
@@ -157,6 +171,27 @@ void CppCodeModelSettings::setIndexerFileSizeLimitInMb(int sizeInMB)
 {
     m_indexerFileSizeLimitInMB = sizeInMB;
 }
+
+bool CppCodeModelSettings::ignoreFiles() const
+{
+   return m_ignoreFiles;
+}
+
+void CppCodeModelSettings::setIgnoreFiles(bool ignoreFiles)
+{
+    m_ignoreFiles = ignoreFiles;
+}
+
+QString CppCodeModelSettings::ignorePattern() const
+{
+   return m_ignorePattern;
+}
+
+void CppCodeModelSettings::setIgnorePattern(const QString& ignorePattern)
+{
+    m_ignorePattern = ignorePattern;
+}
+
 
 bool CppCodeModelSettings::enableLowerClazyLevels() const
 {

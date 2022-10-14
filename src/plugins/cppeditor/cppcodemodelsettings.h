@@ -57,6 +57,11 @@ public:
     void setCategorizeFindReferences(bool categorize) { m_categorizeFindReferences = categorize; }
     bool categorizeFindReferences() const { return m_categorizeFindReferences; }
 
+    bool ignoreFiles() const;
+    void setIgnoreFiles(bool ignoreFiles);
+    QString ignorePattern() const;
+    void setIgnorePattern(const QString& ignorePattern);
+
 signals:
     void clangDiagnosticConfigsInvalidated(const QVector<Utils::Id> &configId);
     void changed();
@@ -69,6 +74,8 @@ private:
     int m_indexerFileSizeLimitInMB = 5;
     bool m_enableLowerClazyLevels = true; // For UI behavior only
     bool m_categorizeFindReferences = false; // Ephemeral!
+    bool m_ignoreFiles = false;
+    QString m_ignorePattern;
 };
 
 class CPPEDITOR_EXPORT ClangdSettings : public QObject

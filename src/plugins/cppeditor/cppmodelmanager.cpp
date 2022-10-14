@@ -69,6 +69,8 @@
 #include <QMutexLocker>
 #include <QReadLocker>
 #include <QReadWriteLock>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QTextBlock>
 #include <QThreadPool>
 #include <QTimer>
@@ -1050,20 +1052,45 @@ CppLocatorData *CppModelManager::locatorData() const
     return &d->m_locatorData;
 }
 
-static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSizeLimitInMb)
+static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSizeLimitInMb,
+                                          bool ignoreFiles,
+                                          const QString& ignorePattern)
 {
-    if (fileSizeLimitInMb <= 0)
+    if (fileSizeLimitInMb <= 0 && !ignoreFiles)
         return files;
 
     QSet<QString> result;
     QFileInfo fileInfo;
+    QList<QRegularExpression> regexes;
+    const QStringList wildcards = ignorePattern.split('\n');
+
+    for (const QString &wildcard : wildcards)
+        regexes.append(QRegularExpression::fromWildcard(wildcard, Qt::CaseInsensitive,
+                                                        QRegularExpression::UnanchoredWildcardConversion));
 
     for (const QString &filePath : files) {
         fileInfo.setFile(filePath);
-        if (fileSizeExceedsLimit(fileInfo, fileSizeLimitInMb))
+        if (fileSizeLimitInMb > 0 && fileSizeExceedsLimit(fileInfo, fileSizeLimitInMb))
             continue;
+        bool skip = false;
+        if (ignoreFiles) {
+            for (const QRegularExpression &rx: std::as_const(regexes)) {
+                QRegularExpressionMatch match = rx.match(fileInfo.absoluteFilePath());
+                if (match.hasMatch()) {
+                    const QString msg = QCoreApplication::translate(
+                                "CppIndexer",
+                                "C++ Indexer: Skipping file \"%1\" because its path matches the ignore pattern.")
+                                    .arg(filePath);
+                    QMetaObject::invokeMethod(Core::MessageManager::instance(),
+                                              [msg]() { Core::MessageManager::writeSilently(msg); });
+                    skip = true;
+                    break;
+                }
+            }
+        }
 
-        result << filePath;
+        if (!skip)
+            result << filePath;
     }
 
     return result;
@@ -1075,7 +1102,9 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFile
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
-    const QSet<QString> filteredFiles = tooBigFilesRemoved(sourceFiles, indexerFileSizeLimitInMb());
+    const QSet<QString> filteredFiles = filteredFilesRemoved(sourceFiles, indexerFileSizeLimitInMb(),
+                                                             codeModelSettings()->ignoreFiles(),
+                                                             codeModelSettings()->ignorePattern());
 
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }

@@ -89,6 +89,8 @@ const char CPPEDITOR_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]
 const char CPPEDITOR_USE_BUILTIN_PREPROCESSOR[] = "UseBuiltinPreprocessor";
 const char CPPEDITOR_SKIP_INDEXING_BIG_FILES[] = "SkipIndexingBigFiles";
 const char CPPEDITOR_INDEXER_FILE_SIZE_LIMIT[] = "IndexerFileSizeLimit";
+const char CPPEDITOR_IGNORE_FILES[] = "IgnoreFiles";
+const char CPPEDITOR_IGNORE_PATTERN[] = "IgnorePattern";
 
 const char CPP_CLANG_DIAG_CONFIG_QUESTIONABLE[] = "Builtin.Questionable";
 const char CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM[] = "Builtin.BuildSystem";
