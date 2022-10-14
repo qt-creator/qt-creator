@@ -520,18 +520,21 @@ QString escapeMountPathWin(const FilePath &fp)
     return result;
 }
 
+QString escapeMountPath(const FilePath &fp)
+{
+    if (HostOsInfo::isWindowsHost())
+        return escapeMountPathWin(fp);
+
+    return escapeMountPathUnix(fp);
+}
+
 QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
 {
     QString escapedPath;
     QString escapedContainerPath;
 
-    if (HostOsInfo::isWindowsHost()) {
-        escapedPath = escapeMountPathWin(mi.path);
-        escapedContainerPath = escapeMountPathWin(mi.containerPath);
-    } else {
-        escapedPath = escapeMountPathUnix(mi.path);
-        escapedContainerPath = escapeMountPathUnix(mi.containerPath);
-    }
+    escapedPath = escapeMountPath(mi.path);
+    escapedContainerPath = escapeMountPath(mi.containerPath);
 
     const QString mountArg = QString(R"(type=bind,"source=%1","destination=%2")")
                                  .arg(escapedPath)
