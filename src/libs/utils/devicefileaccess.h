@@ -135,14 +135,9 @@ public:
     ~UnixDeviceFileAccess() override;
 
 protected:
-    virtual RunResult runInShell(
-            const QString &executable,
-            const QStringList &args,
-            const QByteArray &inputData = {}) const = 0;
-    bool runInShellSuccess(
-            const QString &executable,
-            const QStringList &args,
-            const QByteArray &stdInData = {}) const;
+    virtual RunResult runInShell(const CommandLine &cmdLine,
+                                 const QByteArray &inputData = {}) const = 0;
+    bool runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
 
     bool isExecutableFile(const FilePath &filePath) const override;
     bool isReadableFile(const FilePath &filePath) const override;

@@ -359,8 +359,7 @@ public:
         : m_dev(dev)
     {}
 
-    RunResult runInShell(const QString &executable,
-                         const QStringList &arguments,
+    RunResult runInShell(const CommandLine &cmdLine,
                          const QByteArray &stdInData) const override;
 
     LinuxDevicePrivate *m_dev;
@@ -386,11 +385,10 @@ public:
     LinuxDeviceFileAccess m_fileAccess{this};
 };
 
-RunResult LinuxDeviceFileAccess::runInShell(const QString &executable,
-                                            const QStringList &arguments,
+RunResult LinuxDeviceFileAccess::runInShell(const CommandLine &cmdLine,
                                             const QByteArray &stdInData) const
 {
-    return m_dev->runInShell({FilePath::fromString(executable), arguments}, stdInData);
+    return m_dev->runInShell(cmdLine, stdInData);
 }
 
 // SshProcessImpl

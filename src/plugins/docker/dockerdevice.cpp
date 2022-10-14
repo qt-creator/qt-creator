@@ -121,14 +121,8 @@ public:
         : m_dev(dev)
     {}
 
-    RunResult runInShell(const QString &executable,
-                         const QStringList &arguments,
+    RunResult runInShell(const CommandLine &cmdLine,
                          const QByteArray &stdInData) const override;
-
-    std::optional<QByteArray> fileContents(
-            const FilePath &filePath,
-            qint64 limit,
-            qint64 offset) const override;
 
     DockerDevicePrivate *m_dev = nullptr;
 };
@@ -352,22 +346,11 @@ Tasks DockerDevicePrivate::validateMounts() const
     return result;
 }
 
-RunResult DockerDeviceFileAccess::runInShell(
-        const QString &executable,
-        const QStringList &arguments,
-        const QByteArray &stdInData) const
+RunResult DockerDeviceFileAccess::runInShell(const CommandLine &cmdLine,
+                                             const QByteArray &stdInData) const
 {
     QTC_ASSERT(m_dev, return {});
-    return m_dev->runInShell({FilePath::fromString(executable), arguments}, stdInData);
-}
-
-std::optional<QByteArray> DockerDeviceFileAccess::fileContents(
-        const FilePath &filePath,
-        qint64 limit,
-        qint64 offset) const
-{
-    m_dev->updateContainerAccess();
-    return UnixDeviceFileAccess::fileContents(filePath, limit, offset);
+    return m_dev->runInShell(cmdLine, stdInData);
 }
 
 DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &data)
