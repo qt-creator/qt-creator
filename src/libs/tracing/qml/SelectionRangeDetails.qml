@@ -25,8 +25,8 @@ Item {
     // keep inside view
     Connections {
         target: selectionRangeDetails.parent
-        function onWidthChanged() { fitInView(); }
-        function onHeightChanged() { fitInView(); }
+        function onWidthChanged() { selectionRangeDetails.fitInView(); }
+        function onHeightChanged() { selectionRangeDetails.fitInView(); }
     }
 
     function fitInView() {
@@ -79,14 +79,17 @@ Item {
                 id: details
                 property var contents: [
                     qsTranslate("Tracing", "Start") + ":",
-                    TimeFormatter.format(startTime, referenceDuration),
+                    TimeFormatter.format(selectionRangeDetails.startTime,
+                                         selectionRangeDetails.referenceDuration),
                     (qsTranslate("Tracing", "End") + ":"),
-                    TimeFormatter.format(endTime, referenceDuration),
+                    TimeFormatter.format(selectionRangeDetails.endTime,
+                                         selectionRangeDetails.referenceDuration),
                     (qsTranslate("Tracing", "Duration") + ":"),
-                    TimeFormatter.format(duration, referenceDuration)
+                    TimeFormatter.format(selectionRangeDetails.duration,
+                                         selectionRangeDetails.referenceDuration)
                 ]
 
-                model: showDuration ? 6 : 2
+                model: selectionRangeDetails.showDuration ? 6 : 2
                 Detail {
                     isLabel: index % 2 === 0
                     text: details.contents[index]

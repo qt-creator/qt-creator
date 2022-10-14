@@ -45,8 +45,8 @@ RangeMover {
     onRangeLeftChanged: updateZoomer()
 
     Connections {
-        target: zoomer
-        function onWindowChanged() { updateRange(); }
+        target: selectionRange.zoomer
+        function onWindowChanged() { selectionRange.updateRange(); }
     }
 
     function setPos(pos) {

@@ -42,7 +42,7 @@ Button {
         onPressed: resizing = true
         onReleased: resizing = false
 
-        height: dragHeight
+        height: button.dragHeight
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right

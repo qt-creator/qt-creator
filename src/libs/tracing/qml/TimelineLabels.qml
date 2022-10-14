@@ -38,7 +38,7 @@ Flickable {
 
             // As we cannot retrieve items by visible index we keep an array of row counts here,
             // for the time marks to draw the row backgrounds in the right colors.
-            property var rowCounts: new Array(modelProxy.models.length)
+            property var rowCounts: new Array(categories.modelProxy.models.length)
 
             function updateRowCount(visualIndex, rowCount) {
                 if (rowCounts[visualIndex] !== rowCount) {
@@ -48,7 +48,7 @@ Flickable {
                 }
             }
 
-            model: modelProxy.models
+            model: categories.modelProxy.models
             delegate: Loader {
                 id: loader
                 asynchronous: y < categories.contentY + categories.height &&
@@ -73,7 +73,7 @@ Flickable {
                     CategoryLabel {
                         id: label
                         model: modelData
-                        notesModel: modelProxy.notes
+                        notesModel: categories.modelProxy.notes
                         visualIndex: loader.visualIndex
                         dragging: categories.dragging
                         reverseSelect: categories.reverseSelect
@@ -114,7 +114,7 @@ Flickable {
                     TimeMarks {
                         id: timeMarks
                         model: modelData
-                        mockup: modelProxy.height === 0
+                        mockup: categories.modelProxy.height === 0
                         anchors.right: parent.right
                         anchors.left: label.right
                         anchors.top: parent.top

@@ -96,11 +96,11 @@ Flickable {
 
         DelegateModel {
             id: timelineModel
-            model: modelProxy.models
+            model: flick.modelProxy.models
             delegate: TimelineRenderer {
                 id: renderer
                 model: modelData
-                notes: modelProxy.notes
+                notes: flick.modelProxy.notes
                 zoomer: flick.zoomer
                 selectionLocked: flick.selectionLocked
                 x: 0
@@ -124,29 +124,29 @@ Flickable {
                 }
 
                 function recenter() {
-                    if (modelData.endTime(selectedItem) < zoomer.rangeStart ||
-                            modelData.startTime(selectedItem) > zoomer.rangeEnd) {
+                    if (modelData.endTime(renderer.selectedItem) < zoomer.rangeStart ||
+                            modelData.startTime(renderer.selectedItem) > zoomer.rangeEnd) {
 
-                        var newStart = Math.max((modelData.startTime(selectedItem) +
-                                                 modelData.endTime(selectedItem) -
+                        var newStart = Math.max((modelData.startTime(renderer.selectedItem) +
+                                                 modelData.endTime(renderer.selectedItem) -
                                                  zoomer.rangeDuration) / 2, zoomer.traceStart);
                         zoomer.setRange(newStart,
                                         Math.min(newStart + zoomer.rangeDuration, zoomer.traceEnd));
                     }
 
-                    var row = modelData.row(selectedItem);
+                    var row = renderer.model.row(renderer.selectedItem);
                     var rowStart = modelData.rowOffset(row) + y;
                     var rowEnd = rowStart + modelData.rowHeight(row);
                     if (rowStart < flick.contentY || rowEnd - flick.height > flick.contentY)
                         flick.contentY = (rowStart + rowEnd - flick.height) / 2;
                 }
 
-                onSelectedItemChanged: flick.propagateSelection(index, selectedItem);
+                onSelectedItemChanged: flick.propagateSelection(index, renderer.selectedItem);
 
                 Connections {
-                    target: model
+                    target: renderer.model
                     function onDetailsChanged() {
-                        if (selectedItem != -1) {
+                        if (renderer.selectedItem != -1) {
                             flick.propagateSelection(-1, -1);
                             flick.propagateSelection(index, selectedItem);
                         }
