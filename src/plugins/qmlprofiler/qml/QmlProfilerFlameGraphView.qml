@@ -28,7 +28,6 @@ FlameGraphView {
         QmlProfilerFlameGraphModel.CallCountRole,     qsTranslate("QmlProfiler", "Calls"),
         QmlProfilerFlameGraphModel.DetailsRole,       qsTranslate("QmlProfiler", "Details"),
         QmlProfilerFlameGraphModel.TimePerCallRole,   qsTranslate("QmlProfiler", "Mean Time"),
-        QmlProfilerFlameGraphModel.TimeInPercentRole, qsTranslate("QmlProfiler", "In Percent"),
         QmlProfilerFlameGraphModel.LocationRole,      qsTranslate("QmlProfiler", "Location"),
         QmlProfilerFlameGraphModel.AllocationsRole,   qsTranslate("QmlProfiler", "Allocations"),
         QmlProfilerFlameGraphModel.MemoryRole,        qsTranslate("QmlProfiler", "Memory")
