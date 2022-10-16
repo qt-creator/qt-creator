@@ -134,9 +134,6 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
     if (!chunkExists(fileIndex, chunkIndex))
         return;
 
-    if (!PatchTool::confirmPatching(m_diffEditorWidget, patchAction))
-        return;
-
     const FileData fileData = m_contextFileData.at(fileIndex);
     const QString fileName = patchAction == PatchAction::Apply
             ? fileData.fileInfo[LeftSide].fileName
@@ -150,7 +147,17 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
             : m_document->baseDirectory();
     const FilePath absFilePath = workingDirectory.resolvePath(fileName).absoluteFilePath();
 
+    auto textDocument = qobject_cast<TextEditor::TextDocument *>(
+        DocumentModel::documentForFilePath(absFilePath));
+    const bool isModified = patchBehaviour == DiffFileInfo::PatchFile &&
+            textDocument && textDocument->isModified();
+
+    if (!PatchTool::confirmPatching(m_diffEditorWidget, patchAction, isModified))
+        return;
+
     if (patchBehaviour == DiffFileInfo::PatchFile) {
+        if (textDocument && !EditorManager::saveDocument(textDocument))
+            return;
         const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
 
         const QString patch = m_document->makePatch(fileIndex, chunkIndex, {}, patchAction);
@@ -163,8 +170,6 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
                                 workingDirectory, strip, patchAction))
             m_document->reload();
     } else { // PatchEditor
-        auto textDocument = qobject_cast<TextEditor::TextDocument *>(
-            DocumentModel::documentForFilePath(absFilePath));
         if (!textDocument)
             return;
 

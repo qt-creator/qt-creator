@@ -1578,7 +1578,14 @@ bool VcsBaseEditorWidget::hasDiff() const
 
 void VcsBaseEditorWidget::slotApplyDiffChunk(const DiffChunk &chunk, PatchAction patchAction)
 {
-    if (!PatchTool::confirmPatching(this, patchAction))
+    auto textDocument = qobject_cast<TextEditor::TextDocument *>(
+        DocumentModel::documentForFilePath(chunk.fileName));
+    const bool isModified = textDocument && textDocument->isModified();
+
+    if (!PatchTool::confirmPatching(this, patchAction, isModified))
+        return;
+
+    if (textDocument && !EditorManager::saveDocument(textDocument))
         return;
 
     if (applyDiffChunk(chunk, patchAction) && patchAction == PatchAction::Revert)

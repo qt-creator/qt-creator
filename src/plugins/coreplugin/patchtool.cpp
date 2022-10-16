@@ -38,13 +38,15 @@ void PatchTool::setPatchCommand(const FilePath &newCommand)
     s->endGroup();
 }
 
-bool PatchTool::confirmPatching(QWidget *parent, PatchAction patchAction)
+bool PatchTool::confirmPatching(QWidget *parent, PatchAction patchAction, bool isModified)
 {
     const QString title = patchAction == PatchAction::Apply ? Tr::tr("Apply Chunk")
                                                             : Tr::tr("Revert Chunk");
-    const QString question = patchAction == PatchAction::Apply
+    QString question = patchAction == PatchAction::Apply
             ? Tr::tr("Would you like to apply the chunk?")
             : Tr::tr("Would you like to revert the chunk?");
+    if (isModified)
+        question += "\n" + Tr::tr("Note: The file will be saved before this operation.");
     return QMessageBox::question(parent, title, question, QMessageBox::Yes | QMessageBox::No)
             == QMessageBox::Yes;
 }
