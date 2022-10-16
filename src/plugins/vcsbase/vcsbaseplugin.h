@@ -136,7 +136,7 @@ public:
     // Display name of the commit action
     virtual QString commitDisplayName() const;
 
-    virtual void commitFromEditor() = 0;
+    void commitFromEditor();
 
 protected:
     // Prompt to save all files before commit:
@@ -165,6 +165,7 @@ protected:
     virtual void updateActions(ActionState as) = 0;
     // Implement to start the submit process, use submitEditor() to get the submit editor instance.
     virtual bool submitEditorAboutToClose() = 0;
+    virtual void discardCommit();
 
     // A helper to enable the VCS menu action according to state:
     // NoVcsEnabled    -> visible, enabled if repository creation is supported
@@ -183,6 +184,7 @@ private:
     Core::Context m_context;
     VcsBasePluginState m_state;
     int m_actionState = -1;
+    bool m_submitActionTriggered = false;
 };
 
 } // namespace VcsBase

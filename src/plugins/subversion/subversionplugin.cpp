@@ -223,6 +223,7 @@ public:
 protected:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
+    void discardCommit() override { cleanCommitMessageFile(); }
 
 private:
     void addCurrentFile();
@@ -239,7 +240,6 @@ private:
     void projectStatus();
     void slotDescribe();
     void updateProject();
-    void commitFromEditor() override;
     void diffCommitFiles(const QStringList &);
     void logProject();
     void logRepository();
@@ -289,7 +289,6 @@ private:
     QAction *m_describeAction = nullptr;
 
     QAction *m_menuAction = nullptr;
-    bool m_submitActionTriggered = false;
 
     SubversionSettingsPage m_settingsPage{&m_settings};
 
@@ -561,20 +560,6 @@ bool SubversionPluginPrivate::submitEditorAboutToClose()
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
 
-    // Prompt user. Force a prompt unless submit was actually invoked (that
-    // is, the editor was closed or shutdown).
-    const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            editor->promptSubmit(this, !m_submitActionTriggered);
-    m_submitActionTriggered = false;
-    switch (answer) {
-    case VcsBaseSubmitEditor::SubmitCanceled:
-        return false; // Keep editing and change file
-    case VcsBaseSubmitEditor::SubmitDiscarded:
-        cleanCommitMessageFile();
-        return true; // Cancel all
-    default:
-        break;
-    }
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
     if (!fileList.empty()) {
@@ -965,13 +950,6 @@ void SubversionPluginPrivate::slotDescribe()
 
     const int revision = inputDialog.intValue();
     vcsDescribe(state.topLevel(), QString::number(revision));
-}
-
-void SubversionPluginPrivate::commitFromEditor()
-{
-    m_submitActionTriggered = true;
-    QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocuments({submitEditor()->document()});
 }
 
 CommandResult SubversionPluginPrivate::runSvn(const FilePath &workingDir,

@@ -223,6 +223,7 @@ public:
 
     void updateActions(ActionState) override;
     bool submitEditorAboutToClose() override;
+    void discardCommit() override { cleanCommitMessageFile(); }
 
     QString commitDisplayName() const final;
     void p4Diff(const PerforceDiffParameters &p);
@@ -247,7 +248,6 @@ public:
     void logProject();
     void logRepository();
 
-    void commitFromEditor() override;
     void printPendingChanges();
     void slotSubmitDiff(const QStringList &files);
     void setTopLevel(const Utils::FilePath &);
@@ -332,7 +332,6 @@ public:
     ParameterAction *m_logProjectAction = nullptr;
     QAction *m_logRepositoryAction = nullptr;
     QAction *m_updateAllAction = nullptr;
-    bool m_submitActionTriggered = false;
     QString m_commitMessageFileName;
     mutable QString m_tempFilePattern;
     QAction *m_menuAction = nullptr;
@@ -1514,13 +1513,6 @@ void PerforcePluginPrivate::vcsDescribe(const FilePath &source, const QString &n
         showOutputInEditor(tr("p4 describe %1").arg(n), result.stdOut, diffEditorParameters.id, source.toString(), codec);
 }
 
-void PerforcePluginPrivate::commitFromEditor()
-{
-    m_submitActionTriggered = true;
-    QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocuments({submitEditor()->document()});
-}
-
 void PerforcePluginPrivate::cleanCommitMessageFile()
 {
     if (!m_commitMessageFileName.isEmpty()) {
@@ -1542,21 +1534,10 @@ bool PerforcePluginPrivate::submitEditorAboutToClose()
     QTC_ASSERT(perforceEditor, return true);
     IDocument *editorDocument = perforceEditor->document();
     QTC_ASSERT(editorDocument, return true);
-    // Prompt the user. Force a prompt unless submit was actually invoked (that
-    // is, the editor was closed or shutdown).
-    const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            perforceEditor->promptSubmit(this, !m_submitActionTriggered);
-    m_submitActionTriggered = false;
-
-    if (answer == VcsBaseSubmitEditor::SubmitCanceled)
-        return false;
 
     if (!DocumentManager::saveDocument(editorDocument))
         return false;
-    if (answer == VcsBaseSubmitEditor::SubmitDiscarded) {
-        cleanCommitMessageFile();
-        return true;
-    }
+
     // Pipe file into p4 submit -i
     FileReader reader;
     if (!reader.fetch(Utils::FilePath::fromString(m_commitMessageFileName), QIODevice::Text)) {

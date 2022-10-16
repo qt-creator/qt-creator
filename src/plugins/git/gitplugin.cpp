@@ -251,10 +251,10 @@ public:
 
     void updateActions(VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
+    void discardCommit() override { cleanCommitMessageFile(); }
 
     void diffCurrentFile();
     void diffCurrentProject();
-    void commitFromEditor() override;
     void logFile();
     void blameFile();
     void logProject();
@@ -363,7 +363,6 @@ public:
     QPointer<RemoteDialog> m_remoteDialog;
     FilePath m_submitRepository;
     QString m_commitMessageFileName;
-    bool m_submitActionTriggered = false;
 
     GitSettingsPage settingPage{&m_settings};
 
@@ -1381,14 +1380,6 @@ IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const Commi
     return editor;
 }
 
-void GitPluginPrivate::commitFromEditor()
-{
-    // Close the submit editor
-    m_submitActionTriggered = true;
-    QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocuments({submitEditor()->document()});
-}
-
 bool GitPluginPrivate::submitEditorAboutToClose()
 {
     if (!isCommitEditorOpen())
@@ -1404,23 +1395,7 @@ bool GitPluginPrivate::submitEditorAboutToClose()
     // Paranoia!
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true;
-    // Prompt user. Force a prompt unless submit was actually invoked (that
-    // is, the editor was closed or shutdown).
-    const VcsBaseSubmitEditor::PromptSubmitResult answer
-            = editor->promptSubmit(this, !m_submitActionTriggered, false);
-    m_submitActionTriggered = false;
-    switch (answer) {
-    case VcsBaseSubmitEditor::SubmitCanceled:
-        return false; // Keep editing and change file
-    case VcsBaseSubmitEditor::SubmitDiscarded:
-        cleanCommitMessageFile();
-        return true; // Cancel all
-    default:
-        break;
-    }
 
-
-    // Go ahead!
     auto model = qobject_cast<SubmitFileModel *>(editor->fileModel());
     CommitType commitType = editor->commitType();
     QString amendSHA1 = editor->amendSHA1();

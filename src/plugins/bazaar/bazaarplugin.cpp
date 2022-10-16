@@ -206,7 +206,6 @@ public:
     void update();
     void commit();
     void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
-    void commitFromEditor() override;
     void uncommit();
     void diffFromEditorSelected(const QStringList &files);
 
@@ -242,7 +241,6 @@ public:
     QAction *m_menuAction = nullptr;
 
     FilePath m_submitRepository;
-    bool m_submitActionTriggered = false;
 
     VcsEditorFactory logEditorFactory {
         &logEditorParameters,
@@ -776,14 +774,6 @@ void BazaarPlugin::testLogResolving()
 }
 #endif
 
-void BazaarPluginPrivate::commitFromEditor()
-{
-    // Close the submit editor
-    m_submitActionTriggered = true;
-    QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocuments({submitEditor()->document()});
-}
-
 void BazaarPluginPrivate::uncommit()
 {
     const VcsBasePluginState state = currentState();
@@ -800,19 +790,6 @@ bool BazaarPluginPrivate::submitEditorAboutToClose()
     QTC_ASSERT(commitEditor, return true);
     IDocument *editorDocument = commitEditor->document();
     QTC_ASSERT(editorDocument, return true);
-
-    const VcsBaseSubmitEditor::PromptSubmitResult response =
-            commitEditor->promptSubmit(this, !m_submitActionTriggered);
-    m_submitActionTriggered = false;
-
-    switch (response) {
-    case VcsBaseSubmitEditor::SubmitCanceled:
-        return false;
-    case VcsBaseSubmitEditor::SubmitDiscarded:
-        return true;
-    default:
-        break;
-    }
 
     QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {

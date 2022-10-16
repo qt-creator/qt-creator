@@ -528,8 +528,24 @@ void VcsBasePluginPrivate::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *sub
                      << (m_submitEditor ? m_submitEditor->document()->id().name() : QByteArray())
                      << "closing submit editor" << submitEditor
                      << (submitEditor ? submitEditor->document()->id().name() : QByteArray());
-    if (submitEditor == m_submitEditor)
-        *result = submitEditorAboutToClose();
+    if (submitEditor == m_submitEditor) {
+        const VcsBaseSubmitEditor::PromptSubmitResult response =
+                submitEditor->promptSubmit(this, !m_submitActionTriggered);
+        m_submitActionTriggered = false;
+
+        switch (response) {
+        case VcsBaseSubmitEditor::SubmitCanceled:
+            *result = false;
+            break;
+        case VcsBaseSubmitEditor::SubmitDiscarded:
+            discardCommit();
+            *result = true;
+            break;
+        default:
+            *result = submitEditorAboutToClose();
+            break;
+        }
+    }
 }
 
 void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalState, Core::IVersionControl *vc)
@@ -595,6 +611,14 @@ bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction)
 QString VcsBasePluginPrivate::commitDisplayName() const
 {
     return tr("Commit", "name of \"commit\" action of the VCS.");
+}
+
+void VcsBasePluginPrivate::commitFromEditor()
+{
+    // Close the submit editor
+    m_submitActionTriggered = true;
+    QTC_ASSERT(m_submitEditor, return);
+    EditorManager::closeDocuments({m_submitEditor->document()});
 }
 
 bool VcsBasePluginPrivate::promptBeforeCommit()
@@ -675,6 +699,10 @@ bool VcsBasePluginPrivate::raiseSubmitEditor() const
         return false;
     EditorManager::activateEditor(m_submitEditor, EditorManager::IgnoreNavigationHistory);
     return true;
+}
+
+void VcsBasePluginPrivate::discardCommit()
+{
 }
 
 // Find top level for version controls like git/Mercurial that have

@@ -219,6 +219,7 @@ public:
 protected:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
+    void discardCommit() override { cleanCheckInMessageFile(); }
     QString ccGet(const FilePath &workingDir, const QString &file, const QString &prefix = {});
     QList<QStringPair> ccGetActivities() const;
 
@@ -239,7 +240,6 @@ private:
     void historyCurrentFile();
     void annotateCurrentFile();
     void viewStatus();
-    void commitFromEditor() override;
     void diffCheckInFiles(const QStringList &);
     void updateIndex();
     void updateView();
@@ -311,7 +311,6 @@ private:
     QAction *m_statusAction = nullptr;
 
     QAction *m_menuAction = nullptr;
-    bool m_submitActionTriggered = false;
     QMutex m_activityMutex;
     QList<QStringPair> m_activities;
     QSharedPointer<StatusMap> m_statusMap;
@@ -751,21 +750,6 @@ bool ClearCasePluginPrivate::submitEditorAboutToClose()
     const FilePath changeFile = m_checkInMessageFilePath;
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
-
-    // Prompt user. Force a prompt unless submit was actually invoked (that
-    // is, the editor was closed or shutdown).
-    const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            editor->promptSubmit(this, !m_submitActionTriggered);
-    m_submitActionTriggered = false;
-    switch (answer) {
-    case VcsBaseSubmitEditor::SubmitCanceled:
-        return false; // Keep editing and change file
-    case VcsBaseSubmitEditor::SubmitDiscarded:
-        cleanCheckInMessageFile();
-        return true; // Cancel all
-    default:
-        break;
-    }
 
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
@@ -1602,13 +1586,6 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
         IEditor *newEditor = showOutputInEditor(title, description, diffEditorParameters.id, source.toString(), codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
     }
-}
-
-void ClearCasePluginPrivate::commitFromEditor()
-{
-    m_submitActionTriggered = true;
-    QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocuments({submitEditor()->document()});
 }
 
 CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDir,

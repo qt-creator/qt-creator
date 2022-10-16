@@ -161,7 +161,6 @@ private:
     void outgoing();
     void commit();
     void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
-    void commitFromEditor() override;
     void diffFromEditorSelected(const QStringList &files);
 
     void createMenu(const Core::Context &context);
@@ -192,8 +191,6 @@ private:
     QAction *m_menuAction = nullptr;
 
     FilePath m_submitRepository;
-
-    bool m_submitActionTriggered = false;
 
 public:
     VcsSubmitEditorFactory submitEditorFactory {
@@ -647,33 +644,12 @@ void MercurialPluginPrivate::diffFromEditorSelected(const QStringList &files)
     m_client.diff(m_submitRepository, files);
 }
 
-void MercurialPluginPrivate::commitFromEditor()
-{
-    // Close the submit editor
-    m_submitActionTriggered = true;
-    QTC_ASSERT(submitEditor(), return);
-    Core::EditorManager::closeDocuments({submitEditor()->document()});
-}
-
 bool MercurialPluginPrivate::submitEditorAboutToClose()
 {
     auto commitEditor = qobject_cast<CommitEditor *>(submitEditor());
     QTC_ASSERT(commitEditor, return true);
     Core::IDocument *editorFile = commitEditor->document();
     QTC_ASSERT(editorFile, return true);
-
-    const VcsBaseSubmitEditor::PromptSubmitResult response =
-            commitEditor->promptSubmit(this, !m_submitActionTriggered);
-    m_submitActionTriggered = false;
-
-    switch (response) {
-    case VcsBaseSubmitEditor::SubmitCanceled:
-        return false;
-    case VcsBaseSubmitEditor::SubmitDiscarded:
-        return true;
-    default:
-        break;
-    }
 
     const QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {

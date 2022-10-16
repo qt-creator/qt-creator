@@ -239,6 +239,7 @@ public:
 protected:
     void updateActions(ActionState) final;
     bool submitEditorAboutToClose() final;
+    void discardCommit() override { cleanCommitMessageFile(); }
 
 private:
     void addCurrentFile();
@@ -254,7 +255,6 @@ private:
     void projectStatus();
     void updateDirectory();
     void updateProject();
-    void commitFromEditor() final;
     void diffCommitFiles(const QStringList &);
     void logProject();
     void logRepository();
@@ -327,7 +327,6 @@ private:
     QAction *m_statusRepositoryAction = nullptr;
 
     QAction *m_menuAction = nullptr;
-    bool m_submitActionTriggered = false;
 
     CvsSettingsPage m_settingsPage{&m_settings};
 
@@ -724,20 +723,6 @@ bool CvsPluginPrivate::submitEditorAboutToClose()
     if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
         return true; // Oops?!
 
-    // Prompt user. Force a prompt unless submit was actually invoked (that
-    // is, the editor was closed or shutdown).
-    const VcsBaseSubmitEditor::PromptSubmitResult answer =
-            editor->promptSubmit(this, !m_submitActionTriggered);
-    m_submitActionTriggered = false;
-    switch (answer) {
-    case VcsBaseSubmitEditor::SubmitCanceled:
-        return false; // Keep editing and change file
-    case VcsBaseSubmitEditor::SubmitDiscarded:
-        cleanCommitMessageFile();
-        return true; // Cancel all
-    default:
-        break;
-    }
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
     if (!fileList.empty()) {
@@ -1340,13 +1325,6 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
         setDiffBaseDirectory(newEditor, repositoryPath);
     }
     return true;
-}
-
-void CvsPluginPrivate::commitFromEditor()
-{
-    m_submitActionTriggered = true;
-    QTC_ASSERT(submitEditor(), return);
-    EditorManager::closeDocuments({submitEditor()->document()});
 }
 
 // Run CVS. At this point, file arguments must be relative to
