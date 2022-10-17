@@ -54,9 +54,7 @@ public:
     // 'promptSetting' points to a bool variable containing the plugin's
     // prompt setting. The user can uncheck it from the message box.
     enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
-    PromptSubmitResult promptSubmit(VcsBasePluginPrivate *plugin,
-                                    bool prompt,
-                                    bool canCommitOnFailure = true);
+    PromptSubmitResult promptSubmit(VcsBasePluginPrivate *plugin);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);

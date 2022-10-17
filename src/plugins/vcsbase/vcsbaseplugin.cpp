@@ -529,8 +529,7 @@ void VcsBasePluginPrivate::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *sub
                      << "closing submit editor" << submitEditor
                      << (submitEditor ? submitEditor->document()->id().name() : QByteArray());
     if (submitEditor == m_submitEditor) {
-        const VcsBaseSubmitEditor::PromptSubmitResult response =
-                submitEditor->promptSubmit(this, !m_submitActionTriggered);
+        const VcsBaseSubmitEditor::PromptSubmitResult response = submitEditor->promptSubmit(this);
         m_submitActionTriggered = false;
 
         switch (response) {

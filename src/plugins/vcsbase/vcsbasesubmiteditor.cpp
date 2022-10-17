@@ -495,10 +495,7 @@ static QString withUnusedMnemonic(QString string, const QList<QPushButton *> &ot
     return string;
 }
 
-VcsBaseSubmitEditor::PromptSubmitResult
-        VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin,
-                                          bool prompt,
-                                          bool canCommitOnFailure)
+VcsBaseSubmitEditor::PromptSubmitResult VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
 {
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
@@ -512,6 +509,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
     // Pop up a message depending on whether the check succeeded and the
     // user wants to be prompted
     bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
+    const bool prompt = !plugin->submitActionTriggered();
     if (canCommit && !prompt)
         return SubmitConfirmed;
     CheckableMessageBox mb(Core::ICore::dialogParent());
@@ -529,7 +527,7 @@ VcsBaseSubmitEditor::PromptSubmitResult
     }
     mb.setText(message);
     QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Close | QDialogButtonBox::Cancel;
-    if (canCommit || canCommitOnFailure)
+    if (canCommit || plugin->canCommitOnFailure())
         buttons |= QDialogButtonBox::Ok;
     mb.setStandardButtons(buttons);
     QPushButton *cancelButton = mb.button(QDialogButtonBox::Cancel);
