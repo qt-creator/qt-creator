@@ -56,6 +56,7 @@ public:
         downloadDefinitions->setToolTip(tr("Download missing and update existing syntax definition files."));
 
         updateStatus = new QLabel;
+        updateStatus->setObjectName("updateStatus");
 
         definitionFilesPath = new PathChooser;
         definitionFilesPath->setExpectedKind(PathChooser::ExistingDirectory);
