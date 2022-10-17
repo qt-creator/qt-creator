@@ -36,6 +36,7 @@ source("../../shared/clang.py")
 source("../../shared/welcome.py")
 source("../../shared/workarounds.py") # include this at last
 
+settingsPathsWithExplicitlyEnabledClangd = set()
 
 def __closeInfoBarEntry__(leftButtonText):
     toolButton = ("text='%s' type='QToolButton' unnamed='1' visible='1' "
@@ -47,6 +48,7 @@ def __closeInfoBarEntry__(leftButtonText):
 # additionalParameters must be a list or tuple of strings or None
 def startQC(additionalParameters=None, withPreparedSettingsPath=True, closeLinkToQt=True, cancelTour=True):
     global SettingsPath
+    global settingsPathsWithExplicitlyEnabledClangd
     appWithOptions = ['"Qt Creator"' if platform.system() == 'Darwin' else "qtcreator"]
     if withPreparedSettingsPath:
         appWithOptions.extend(SettingsPath)
@@ -56,8 +58,22 @@ def startQC(additionalParameters=None, withPreparedSettingsPath=True, closeLinkT
         appWithOptions.extend(('-platform', 'windows:dialogs=none'))
     test.log("Starting now: %s" % ' '.join(appWithOptions))
     appContext = startApplication(' '.join(appWithOptions))
-    if closeLinkToQt or cancelTour:
+    if (closeLinkToQt or cancelTour or
+        str(SettingsPath) not in settingsPathsWithExplicitlyEnabledClangd):
         progressBarWait(3000)  # wait for the "Updating documentation" progress bar
+    if str(SettingsPath) not in settingsPathsWithExplicitlyEnabledClangd:
+        # This block will incorrectly be skipped when a test calls startQC multiple times in a row
+        # passing different settings paths in "additionalParameters". Currently we don't have such
+        # a test. Even if we did, it would only make a difference if the test relied on clangd
+        # being active and ran on a machine with insufficient memory.
+        try:
+            mouseClick(waitForObject("{text='Enable Anyway' type='QToolButton' "
+                                     "unnamed='1' visible='1' "
+                                     "window=':Qt Creator_Core::Internal::MainWindow'}", 500))
+            settingsPathsWithExplicitlyEnabledClangd.add(str(SettingsPath))
+        except:
+            pass
+    if closeLinkToQt or cancelTour:
         if closeLinkToQt:
             __closeInfoBarEntry__("Link with Qt")
         if cancelTour:
