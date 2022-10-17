@@ -219,7 +219,6 @@ public:
     virtual bool handlesFile(const Utils::FilePath &filePath) const;
 
     virtual Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const;
-    virtual QString mapToDevicePath(const Utils::FilePath &globalPath) const;
 
     virtual Utils::FilePath searchExecutableInPath(const QString &fileName) const;
     virtual Utils::FilePath searchExecutable(const QString &fileName,

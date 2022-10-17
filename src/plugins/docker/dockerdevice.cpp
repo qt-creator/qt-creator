@@ -123,6 +123,7 @@ public:
 
     RunResult runInShell(const CommandLine &cmdLine,
                          const QByteArray &stdInData) const override;
+    QString mapToDevicePath(const FilePath &filePath) const override;
 
     DockerDevicePrivate *m_dev = nullptr;
 };
@@ -351,6 +352,19 @@ RunResult DockerDeviceFileAccess::runInShell(const CommandLine &cmdLine,
 {
     QTC_ASSERT(m_dev, return {});
     return m_dev->runInShell(cmdLine, stdInData);
+}
+
+QString DockerDeviceFileAccess::mapToDevicePath(const FilePath &filePath) const
+{
+    // make sure to convert windows style paths to unix style paths with the file system case:
+    // C:/dev/src -> /c/dev/src
+    const FilePath normalized = FilePath::fromString(filePath.path()).normalizedPathName();
+    QString path = normalized.path();
+    if (HostOsInfo::isWindowsHost() && normalized.startsWithDriveLetter()) {
+        const QChar lowerDriveLetter = path.at(0);
+        path = '/' + lowerDriveLetter + path.mid(2); // strip C:
+    }
+    return path;
 }
 
 DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &data)
@@ -772,19 +786,6 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 // The following would work, but gives no hint on repo, tag and imageid
 //    result.setScheme("device");
 //    result.setHost(id().toString());
-}
-
-QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
-{
-    // make sure to convert windows style paths to unix style paths with the file system case:
-    // C:/dev/src -> /c/dev/src
-    const FilePath normalized = FilePath::fromString(globalPath.path()).normalizedPathName();
-    QString path = normalized.path();
-    if (HostOsInfo::isWindowsHost() && normalized.startsWithDriveLetter()) {
-        const QChar lowerDriveLetter = path.at(0).toLower();
-        path = '/' + lowerDriveLetter + path.mid(2); // strip C:
-    }
-    return path;
 }
 
 Utils::FilePath DockerDevice::rootPath() const

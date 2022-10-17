@@ -211,11 +211,6 @@ FilePath IDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
     return FilePath::fromParts(u"device", id().toString(), pathOnDevice.path());
 }
 
-QString IDevice::mapToDevicePath(const FilePath &globalPath) const
-{
-    return globalPath.path();
-}
-
 FilePath IDevice::filePath(const QString &pathOnDevice) const
 {
     return mapToGlobalPath(FilePath::fromString(pathOnDevice));

@@ -79,7 +79,6 @@ public:
     bool usableAsBuildDevice() const override;
 
     Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
-    QString mapToDevicePath(const Utils::FilePath &globalPath) const override;
 
     Utils::FilePath rootPath() const override;
 
