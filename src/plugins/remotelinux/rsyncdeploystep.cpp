@@ -110,6 +110,7 @@ private:
 
 void RsyncDeployService::setDeployableFiles(const QList<DeployableFile> &files)
 {
+    m_files.clear();
     for (const DeployableFile &f : files)
         m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
 }
