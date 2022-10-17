@@ -524,8 +524,8 @@ void MainWindow::registerDefaultContainers()
                                        QIcon(),
                                        "Main TouchBar" /*never visible*/);
     ac->appendGroup(Constants::G_TOUCHBAR_HELP);
-    ac->appendGroup(Constants::G_TOUCHBAR_EDITOR);
     ac->appendGroup(Constants::G_TOUCHBAR_NAVIGATION);
+    ac->appendGroup(Constants::G_TOUCHBAR_EDITOR);
     ac->appendGroup(Constants::G_TOUCHBAR_OTHER);
     ac->touchBar()->setApplicationTouchBar();
 }

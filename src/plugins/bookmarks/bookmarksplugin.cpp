@@ -88,19 +88,15 @@ BookmarksPluginPrivate::BookmarksPluginPrivate()
     // Toggle
     Command *cmd = ActionManager::registerAction(&m_toggleAction, BOOKMARKS_TOGGLE_ACTION,
                                                  editorManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+M")
-                                                            : Tr::tr("Ctrl+M")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+M") : Tr::tr("Ctrl+M")));
     cmd->setTouchBarIcon(Utils::Icons::MACOS_TOUCHBAR_BOOKMARK.icon());
     mbm->addAction(cmd);
-
-    cmd = ActionManager::registerAction(&m_editAction,
-                                        BOOKMARKS_EDIT_ACTION,
-                                        editorManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+M")
-                                                            : Tr::tr("Ctrl+Shift+M")));
-    mbm->addAction(cmd);
-
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_EDITOR);
+
+    cmd = ActionManager::registerAction(&m_editAction, BOOKMARKS_EDIT_ACTION, editorManagerContext);
+    cmd->setDefaultKeySequence(
+        QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+M") : Tr::tr("Ctrl+Shift+M")));
+    mbm->addAction(cmd);
 
     mbm->addSeparator();
 
