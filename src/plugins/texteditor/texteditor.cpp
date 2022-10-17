@@ -2673,9 +2673,10 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             if (cursor.hasSelection()) {
                 cursor.removeSelectedText();
                 setMultiTextCursor(cursor);
-                return;
+            } else {
+                d->handleBackspaceKey();
             }
-            d->handleBackspaceKey();
+            ensureCursorVisible();
             return;
         }
         break;
