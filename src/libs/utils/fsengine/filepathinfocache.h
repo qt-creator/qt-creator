@@ -40,7 +40,13 @@ public:
         if (!data) {
             data = new CachedData;
             *data = retrievalFunction(filePath);
-            m_cache.insert(filePath, data);
+            if (Q_UNLIKELY(!m_cache.insert(filePath, data))) {
+                // This path will never happen, but to silence coverity we
+                // have to check it since insert in theory could delete
+                // the object if a cost bigger than the cache size is
+                // specified.
+                return {};
+            }
         }
 
         // Return a copy of the data, so it cannot be deleted by the cache
