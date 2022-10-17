@@ -251,9 +251,7 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
         return;
 
     while (m_packagesLayout->rowCount() > 0) {
-        QFormLayout::TakeRowResult row = m_packagesLayout->takeRow(0);
-        row.labelItem->widget()->hide();
-        row.fieldItem->widget()->hide();
+        m_packagesLayout->removeRow(0);
     }
 
     for (const auto &package : std::as_const(m_options.sdkRepository.packages)) {
