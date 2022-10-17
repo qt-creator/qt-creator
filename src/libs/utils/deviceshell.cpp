@@ -17,14 +17,17 @@ namespace Utils {
 /*!
  * The multiplex script waits for input via stdin.
  *
- * To start a command, a message is send with the format "<cmd-id> "<base64-encoded-stdin-data>" <commandline>\n"
+ * To start a command, a message is send with
+ * the format "<cmd-id> "<base64-encoded-stdin-data>" <commandline>\n"
  * To stop the script, simply send "exit\n" via stdin
  *
- * Once a message is received, two new streams are created that the new process redirects its output to ( $stdoutraw and $stderrraw ).
+ * Once a message is received, two new streams are created that the new process redirects
+ * its output to ( $stdoutraw and $stderrraw ).
  *
  * These streams are piped through base64 into the two streams stdoutenc and stderrenc.
  *
- * Two subshells read from these base64 encoded streams, and prepend the command-id, as well as either "O:" or "E:" depending on whether its the stdout or stderr stream.
+ * Two subshells read from these base64 encoded streams, and prepend the command-id,
+ * as well as either "O:" or "E:" depending on whether its the stdout or stderr stream.
  *
  * Once the process exits its exit code is send to stdout with the command-id and the type "R".
  *
