@@ -45412,7 +45412,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>FilePropertiesDialog</name>
+    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>Group:</source>
         <translation>グループ:</translation>

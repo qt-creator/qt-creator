@@ -2224,7 +2224,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>FilePropertiesDialog</name>
+    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>File Properties</source>
         <translation>Svojstva datoteke</translation>

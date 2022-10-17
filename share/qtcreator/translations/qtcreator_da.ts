@@ -41850,7 +41850,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>FilePropertiesDialog</name>
+    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>File Properties</source>
         <translation>Filegenskaber</translation>

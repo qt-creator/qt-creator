@@ -19612,7 +19612,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>FilePropertiesDialog</name>
+    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>File Properties</source>
         <translation>Свойства файла</translation>
