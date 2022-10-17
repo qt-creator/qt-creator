@@ -461,6 +461,9 @@ void MaterialBrowserView::updateBundleMaterialsImportedState()
 {
     using namespace Utils;
 
+    if (!m_widget->materialBrowserBundleModel()->bundleImporter())
+        return;
+
     QStringList importedBundleMats;
 
     FilePath materialBundlePath = m_widget->materialBrowserBundleModel()->bundleImporter()->resolveBundleImportPath();
