@@ -634,6 +634,8 @@ public:
 
     void setProcessInterface(ProcessInterface *process)
     {
+        if (m_process)
+            m_process->disconnect();
         m_process.reset(process);
         m_process->setParent(this);
         connect(m_process.get(), &ProcessInterface::started,
@@ -805,6 +807,14 @@ GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(QtcProcessPrivate *parent
     // In order to move the process interface into another thread together with handle
     parent->m_process.get()->setParent(m_processHandler.get());
     m_processHandler->setParent(this);
+    // So the hierarchy looks like:
+    // QtcProcessPrivate
+    //  |
+    //  +- GeneralProcessBlockingImpl
+    //      |
+    //      +- ProcessInterfaceHandler
+    //          |
+    //          +- ProcessInterface
 }
 
 bool GeneralProcessBlockingImpl::waitForSignal(ProcessSignalType newSignal, int msecs)
@@ -995,6 +1005,8 @@ QtcProcess::~QtcProcess()
 {
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting QtcProcess instance directly from "
                "one of its signal handlers will lead to crash!"));
+    if (d->m_process)
+        d->m_process->disconnect();
     delete d;
 }
 
