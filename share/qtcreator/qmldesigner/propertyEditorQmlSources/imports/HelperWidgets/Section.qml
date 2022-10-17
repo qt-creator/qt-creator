@@ -51,6 +51,7 @@ Item {
     property int level: 0
     property int levelShift: 10
     property bool hideHeader: false
+    property bool collapsible: true
     property bool expandOnClick: true // if false, toggleExpand signal will be emitted instead
     property bool addTopPadding: true
     property bool addBottomPadding: true
@@ -70,7 +71,10 @@ Item {
 
     Connections {
         target: Controller
-        function onCollapseAll() { section.expanded = false }
+        function onCollapseAll() {
+            if (collapsible)
+                section.expanded = false
+        }
         function onExpandAll() { section.expanded = true }
     }
 
@@ -142,6 +146,9 @@ Item {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: function(mouse) {
                 if (mouse.button === Qt.LeftButton) {
+                    if (!section.collapsible && section.expanded)
+                        return
+
                     transition.enabled = true
                     if (section.expandOnClick)
                         section.expanded = !section.expanded

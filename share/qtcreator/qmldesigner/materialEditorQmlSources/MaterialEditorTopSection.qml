@@ -197,6 +197,7 @@ Column {
         // Section with hidden header is used so properties are aligned with the other sections' properties
         hideHeader: true
         width: parent.width
+        collapsible: false
 
         SectionLayout {
             PropertyLabel { text: qsTr("Name") }
