@@ -227,7 +227,7 @@ bool McuPackage::writeToSettings() const
 QWidget *McuPackage::widget()
 {
     auto *widget = new QWidget;
-    m_fileChooser = new PathChooser;
+    m_fileChooser = new PathChooser(widget);
     m_fileChooser->lineEdit()->setButtonIcon(FancyLineEdit::Right, Icons::RESET.icon());
     m_fileChooser->lineEdit()->setButtonVisible(FancyLineEdit::Right, true);
     connect(m_fileChooser->lineEdit(), &FancyLineEdit::rightButtonClicked, this, [&] {
@@ -236,10 +236,10 @@ QWidget *McuPackage::widget()
 
     auto layout = new QGridLayout(widget);
     layout->setContentsMargins(0, 0, 0, 0);
-    m_infoLabel = new InfoLabel();
+    m_infoLabel = new InfoLabel(widget);
 
     if (!m_downloadUrl.isEmpty()) {
-        auto downLoadButton = new QToolButton;
+        auto downLoadButton = new QToolButton(widget);
         downLoadButton->setIcon(Icons::ONLINE.icon());
         downLoadButton->setToolTip(tr("Download from \"%1\"").arg(m_downloadUrl));
         QObject::connect(downLoadButton, &QToolButton::pressed, this, [this] {
