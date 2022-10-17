@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Matches all bookmarks. Filter by file name, by the text on the line of the bookmark, or by the bookmark&apos;s note text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Lesezeichen nach dem Dateinamen, dem Text in der Zeile des Lesezeichens oder seinem Anmerkungstext.</translation>
     </message>
     <message>
         <source>Bookmark</source>
@@ -77,11 +77,11 @@
     </message>
     <message>
         <source>Meta+Shift+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Shift+M</translation>
     </message>
     <message>
         <source>Ctrl+Shift+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+M</translation>
     </message>
     <message>
         <source>Ctrl+.</source>
