@@ -18,7 +18,8 @@ class ConfigModel : public Utils::TreeModel<>
 public:
     enum Roles {
         ItemIsAdvancedRole = Qt::UserRole,
-        ItemIsInitialRole
+        ItemIsInitialRole,
+        ItemIsUserNew,
     };
 
     struct DataItem {

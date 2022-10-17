@@ -236,6 +236,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     m_configTextFilterModel->setSourceModel(m_configFilterModel);
     m_configTextFilterModel->setSortRole(Qt::DisplayRole);
     m_configTextFilterModel->setFilterKeyColumn(-1);
+    m_configTextFilterModel->setNewItemRole(ConfigModel::ItemIsUserNew);
 
     connect(m_configTextFilterModel, &QAbstractItemModel::layoutChanged, this, [this]() {
         QModelIndex selectedIdx = m_configView->currentIndex();
