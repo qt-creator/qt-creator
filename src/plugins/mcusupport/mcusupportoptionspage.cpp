@@ -86,7 +86,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
     }
 
     {
-        m_qtForMCUsSdkGroupBox = new QGroupBox(m_options.qtForMCUsSdkPackage->label());
+        m_qtForMCUsSdkGroupBox = new QGroupBox(tr("Qt for MCUs SDK"));
         m_qtForMCUsSdkGroupBox->setFlat(true);
         auto *layout = new QVBoxLayout(m_qtForMCUsSdkGroupBox);
         layout->addWidget(m_options.qtForMCUsSdkPackage->widget());
@@ -94,7 +94,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
     }
 
     {
-        m_mcuTargetsGroupBox = new QGroupBox(tr("Supported targets"));
+        m_mcuTargetsGroupBox = new QGroupBox(
+            tr("Targets supported by the %1").arg(m_qtForMCUsSdkGroupBox->title()));
         m_mcuTargetsGroupBox->setFlat(true);
         mainLayout->addWidget(m_mcuTargetsGroupBox);
         m_mcuTargetsComboBox = new QComboBox;
