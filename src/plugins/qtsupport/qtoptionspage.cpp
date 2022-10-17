@@ -236,6 +236,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     resize(446, 450);
 
     m_qtdirList = new QTreeView(this);
+    m_qtdirList->setObjectName("qtDirList");
     m_qtdirList->setUniformRowHeights(true);
 
     m_versionInfoWidget = new DetailsWidget(this);
