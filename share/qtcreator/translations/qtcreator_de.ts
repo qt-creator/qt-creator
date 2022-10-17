@@ -1450,7 +1450,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Text codec for tools:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichenkodierung für Werkzeuge:</translation>
     </message>
     <message>
         <source>The language change will take effect after restart.</source>
@@ -1635,19 +1635,19 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">Version:</translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <source>Change Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungshistorie</translation>
     </message>
     <message>
         <source>Contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakt</translation>
     </message>
     <message>
         <source>&lt;p&gt;Qt Creator developers can be reached at the Qt Creator mailing list:&lt;/p&gt;%1&lt;p&gt;or the #qt-creator channel on Libera.Chat IRC:&lt;/p&gt;%2&lt;p&gt;Our bug tracker is located at %3.&lt;/p&gt;&lt;p&gt;Please use %4 for bigger chunks of text.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Sie können die Qt Creator-Entwickler auf dem E-Mail-Verteiler&lt;/p&gt;%1&lt;p&gt;oder dem IRC Kanal #qt-creator auf Libera.Chat&lt;/p&gt;%2&lt;p&gt;erreichen. Unseren Bugtracker finden Sie unter %3.&lt;/p&gt;&lt;p&gt;Bitte benutzen Sie %4 für längere Texte.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Minimize</source>
@@ -1671,11 +1671,11 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Change Log...</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungshistorie...</translation>
     </message>
     <message>
         <source>Contact...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakt...</translation>
     </message>
     <message>
         <source>Cycle Mode Selector Styles</source>
@@ -1703,37 +1703,37 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Exit %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 beenden?</translation>
     </message>
     <message>
         <source>&amp;New Project...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Neues Projekt...</translation>
     </message>
     <message>
         <source>New Project</source>
         <comment>Title of dialog</comment>
-        <translation type="unfinished">Neues Projekt</translation>
+        <translation>Neues Projekt</translation>
     </message>
     <message>
         <source>New File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Datei...</translation>
     </message>
     <message>
         <source>New File</source>
         <comment>Title of dialog</comment>
-        <translation type="unfinished">Neue Datei</translation>
+        <translation>Neue Datei</translation>
     </message>
     <message>
         <source>Debug %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 debuggen</translation>
     </message>
     <message>
         <source>Show Logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokolle anzeigen...</translation>
     </message>
     <message>
         <source>Pr&amp;eferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ei&amp;nstellungen...</translation>
     </message>
     <message>
         <source>Alt+0</source>
@@ -1851,11 +1851,11 @@ Trotzdem fortfahren?</translation>
     <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Minimize</source>
-        <translation type="unfinished">Minimieren</translation>
+        <translation>Minimieren</translation>
     </message>
     <message>
         <source>Maximize</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximieren</translation>
     </message>
     <message>
         <source>Output</source>
@@ -1875,7 +1875,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Out&amp;put</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe&amp;bereiche</translation>
     </message>
     <message>
         <source>Shift+F6</source>
@@ -2073,7 +2073,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are registered trademarks of The Qt Company Ltd.</source>
-        <translation type="unfinished"></translation>
+        <translation>The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are registered trademarks of The Qt Company Ltd.</translation>
     </message>
 </context>
 <context>
@@ -13374,11 +13374,11 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>on</source>
-        <translation type="unfinished">an</translation>
+        <translation>an</translation>
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished">aus</translation>
+        <translation>aus</translation>
     </message>
     <message>
         <source>Environment</source>
@@ -13415,55 +13415,55 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>%1 &gt; %2 Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 &gt; %2 Einstellungen...</translation>
     </message>
     <message>
         <source>Open From Device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Von Gerät öffnen...</translation>
     </message>
     <message>
         <source>Apply Chunk</source>
-        <translation type="unfinished">Änderung anwenden</translation>
+        <translation>Änderung anwenden</translation>
     </message>
     <message>
         <source>Revert Chunk</source>
-        <translation type="unfinished">Änderung rückgängig machen</translation>
+        <translation>Änderung rückgängig machen</translation>
     </message>
     <message>
         <source>Would you like to apply the chunk?</source>
-        <translation type="unfinished">Möchten Sie diese Änderung anwenden?</translation>
+        <translation>Möchten Sie diese Änderung anwenden?</translation>
     </message>
     <message>
         <source>Would you like to revert the chunk?</source>
-        <translation type="unfinished">Möchten Sie diese Änderung rückgängig machen?</translation>
+        <translation>Möchten Sie diese Änderung rückgängig machen?</translation>
     </message>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
-        <translation type="unfinished">Es ist keine ausführbare Datei für das patch-Kommando in den allgemeinen Umgebungseinstellungen konfiguriert.</translation>
+        <translation>Es ist keine ausführbare Datei für das patch-Kommando in den allgemeinen Umgebungseinstellungen konfiguriert.</translation>
     </message>
     <message>
         <source>The patch-command configured in the general &quot;Environment&quot; settings does not exist.</source>
-        <translation type="unfinished">Das in den allgemeinen Umgebungseinstellungen konfigurierte patch-Kommando existiert nicht.</translation>
+        <translation>Das in den allgemeinen Umgebungseinstellungen konfigurierte patch-Kommando existiert nicht.</translation>
     </message>
     <message>
         <source>Running in %1: %2 %3</source>
-        <translation type="unfinished">Führe in %1 aus: %2 %3</translation>
+        <translation>Führe in %1 aus: %2 %3</translation>
     </message>
     <message>
         <source>Unable to launch &quot;%1&quot;: %2</source>
-        <translation type="unfinished">&quot;%1&quot; konnte nicht ausgeführt werden: %2</translation>
+        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation type="unfinished">Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
-        <translation type="unfinished">&quot;%1&quot; ist abgestürzt.</translation>
+        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed (exit code %2).</source>
-        <translation type="unfinished">&quot;%1&quot; schlug fehl (Rückgabewert %2).</translation>
+        <translation>&quot;%1&quot; schlug fehl (Rückgabewert %2).</translation>
     </message>
 </context>
 <context>
@@ -16713,7 +16713,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Remove the following files from the version control system (%2)? %1Note: This might remove the local file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie die folgenden Dateien aus der Versionskontrolle (%2) entfernen? %1Hinweis: Unter Umständen werden die lokalen Dateien gelöscht.</translation>
     </message>
     <message>
         <source>Add to Version Control</source>
@@ -17510,11 +17510,14 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
 &lt;p&gt;What to do with the executable&apos;s standard output.
 &lt;ul&gt;&lt;li&gt;Ignore: Do nothing with it.&lt;/li&gt;&lt;li&gt;Show in General Messages.&lt;/li&gt;&lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Behandlung der Standardausgabe des Werkzeugs.
+&lt;ul&gt;&lt;li&gt;Unterdrücken: Ausgabe nicht behandeln.&lt;/li&gt;&lt;li&gt;In &apos;Allgemeine Ausgaben&apos; anzeigen.&lt;/li&gt;&lt;li&gt;Ausgewählten Text ersetzen: Der im aktuellen Dokument ausgewählte Text wird durch die Ausgabe ersetzt.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+</translation>
     </message>
     <message>
         <source>Show in General Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>In &apos;Allgemeine Ausgaben&apos; anzeigen</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head&gt;&lt;body&gt;
@@ -17523,7 +17526,12 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
 &lt;li&gt;Show in General Messages.&lt;/li&gt;
 &lt;li&gt;Replace selection: Replace the current selection in the current document with it.&lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Behandlung der Fehlerausgabe des Werkzeugs.&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Unterdrücken: Ausgabe nicht behandeln.&lt;/li&gt;
+&lt;li&gt;In &apos;Allgemeine Ausgaben&apos; anzeigen.&lt;/li&gt;
+&lt;li&gt;Ausgewählten Text ersetzen: Der im aktuellen Dokument ausgewählte Text wird durch die Ausgabe ersetzt.&lt;/li&gt;
+&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add Tool</source>
@@ -21242,11 +21250,11 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
     <message>
         <source>Runs the current QML file with QML utility.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt die aktuelle QML-Datei mit dem QML-Werkzeug aus.</translation>
     </message>
     <message>
         <source>QML utility</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Werkzeug</translation>
     </message>
     <message>
         <source>Synchronizes translator&apos;s ts files with the program code</source>
@@ -21352,11 +21360,11 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
     <message>
         <source>The command for file browser is not set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando für den Datei-Browser ist nicht konfiguriert.</translation>
     </message>
     <message>
         <source>Error while starting file browser.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Starten des Datei-Browsers.</translation>
     </message>
     <message>
         <source>Find in This Directory...</source>
@@ -21364,7 +21372,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
     <message>
         <source>Show in File System View</source>
-        <translation type="unfinished"></translation>
+        <translation>In Dateisystem-Seitenleiste anzeigen</translation>
     </message>
     <message>
         <source>Show in Explorer</source>
@@ -21398,7 +21406,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
     <message>
         <source>Failed to remove file &quot;%1&quot;.</source>
-        <translation type="unfinished">Die Datei &quot;%1&quot; konnte nicht gelöscht werden.</translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht gelöscht werden.</translation>
     </message>
 </context>
 <context>
@@ -21588,19 +21596,19 @@ Außer: %3
     </message>
     <message>
         <source>Reset all MIME type definitions to their defaults.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt alle MIME-Typen auf die Voreinstellung zurück.</translation>
     </message>
     <message>
         <source>Reset the assigned handler for all MIME type definitions to the default.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt die zugewiesenen Editoren aller MIME-Typen auf die Voreinstellung zurück.</translation>
     </message>
     <message>
         <source>A semicolon-separated list of wildcarded file names.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine durch Semikola getrennte Liste von Dateinamen mit Platzhaltern.</translation>
     </message>
     <message>
         <source>Magic Header</source>
-        <translation type="unfinished"></translation>
+        <translation>Magic Header</translation>
     </message>
     <message>
         <source>Type</source>
@@ -21632,7 +21640,7 @@ Außer: %3
     </message>
     <message>
         <source>Reset Handlers</source>
-        <translation>Handler zurücksetzen</translation>
+        <translation>Editoren zurücksetzen</translation>
     </message>
 </context>
 <context>
@@ -30843,11 +30851,11 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
     <message>
         <source>Search f&amp;or:</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche &amp;nach:</translation>
     </message>
     <message>
         <source>&amp;Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Groß-/Kleinschreibung</translation>
     </message>
     <message>
         <source>Whole words o&amp;nly</source>
@@ -31186,11 +31194,11 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle auswählen</translation>
     </message>
     <message>
         <source>Ctrl+Alt+Return</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+Return</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -31319,7 +31327,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
     <message>
         <source>Searching...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche...</translation>
     </message>
     <message>
         <source>No matches found.</source>
@@ -31349,7 +31357,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
     <message>
         <source>Filter Results</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultate filtern</translation>
     </message>
     <message>
         <source>%1 %2</source>
@@ -31372,7 +31380,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
     <message>
         <source>Runs an arbitrary command with arguments. The command is searched for in the PATH environment variable if needed. Note that the command is run directly, not in a shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt beliebige Kommandos mit Argumenten aus. Das Kommando wird nach Bedarf in der PATH Umgebungsvariable gesucht. Beachten Sie, dass das Kommando direkt und nicht in einer Shell ausgeführt wird.</translation>
     </message>
     <message>
         <source>Previous command is still running (&quot;%1&quot;).
@@ -31401,7 +31409,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Opens a file given by a relative path to the current document, or absolute path. &quot;~&quot; refers to your home directory. You have the option to create a file if it does not exist yet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnet eine Datei mit einem Pfad relativ zum aktuellen Dokument oder einem absoluten Pfad. &quot;~&quot; bezieht sich auf Ihr Benutzerverzeichnis. Sie haben die Option eine Datei zu erstellen, wenn diese noch nicht existiert.</translation>
     </message>
     <message>
         <source>Create and Open &quot;%1&quot;</source>
@@ -31485,7 +31493,7 @@ Möchten Sie es beenden?</translation>
     <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Open as Centered Popup</source>
-        <translation type="unfinished"></translation>
+        <translation>Als zentriertes Pop-up öffnen</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -32436,39 +32444,39 @@ Sie werden wahrscheinlich auf weitere Probleme mit dieser Instanz von %3 stoßen
     </message>
     <message>
         <source>%1 collects crash reports for the sole purpose of fixing bugs. To disable this feature go to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Zweck der Fehlerbehebung sammelt %1 Absturzberichte. Öffnen Sie %2, um diese Funktion zu deaktivieren.</translation>
     </message>
     <message>
         <source>%1 can collect crash reports for the sole purpose of fixing bugs. To enable this feature go to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Zweck der Fehlerbehebung kann %1 Absturzberichte sammeln. Öfnen Sie %2, um diese Funktion zu aktivieren.</translation>
     </message>
     <message>
         <source> &gt; Preferences &gt; Environment &gt; System</source>
-        <translation type="unfinished"></translation>
+        <translation> &gt; Einstellungen &gt; Umgebung &gt; System</translation>
     </message>
     <message>
         <source>Edit &gt; Preferences &gt; Environment &gt; System</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeiten &gt; Einstellungen &gt; Umgebung &gt; System</translation>
     </message>
     <message>
         <source>Configure...</source>
-        <translation type="unfinished">Einstellungen...</translation>
+        <translation>Einstellungen...</translation>
     </message>
     <message>
         <source>%1 uses Google Crashpad for collecting crashes and sending them to our backend for processing. Crashpad may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nutzt Google Crashpad, um Absturzberichte zu sammeln und diese zur Verarbeitung an unsere Server zu senden. Crashpad kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies beinhaltet persönliche Daten, URLs und welche Inhalte auch immer der Nutzer %1 anvertraut hat. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung genutzt.</translation>
     </message>
     <message>
         <source>More information:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr Informationen:</translation>
     </message>
     <message>
         <source>Crashpad Overview</source>
-        <translation type="unfinished"></translation>
+        <translation>Übersicht über Crashpad</translation>
     </message>
     <message>
         <source>%1 security policy</source>
-        <translation type="unfinished"></translation>
+        <translation>Sicherheitsrichtlinien von %1</translation>
     </message>
 </context>
 <context>
@@ -32552,19 +32560,19 @@ Es konnte kein Versionskontrollsystem gefunden werden.</translation>
     </message>
     <message>
         <source>Files Without Write Permissions</source>
-        <translation type="unfinished">Dateien ohne Schreibberechtigung</translation>
+        <translation>Dateien ohne Schreibberechtigung</translation>
     </message>
     <message>
         <source>The following files have no write permissions. Do you want to change the permissions?</source>
-        <translation type="unfinished">Die folgenden Dateien sind schreibgeschützt. Möchten Sie die Berechtigungen ändern?</translation>
+        <translation>Die folgenden Dateien sind schreibgeschützt. Möchten Sie die Berechtigungen ändern?</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiname</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished">Pfad</translation>
+        <translation>Pfad</translation>
     </message>
     <message>
         <source>Change &amp;Permission</source>
@@ -32572,7 +32580,7 @@ Es konnte kein Versionskontrollsystem gefunden werden.</translation>
     </message>
     <message>
         <source>Select all, if possible: </source>
-        <translation type="unfinished">Möglichst alle auswählen: </translation>
+        <translation>Möglichst alle auswählen: </translation>
     </message>
     <message>
         <source>The following files are not checked out yet.
@@ -35211,23 +35219,23 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Enable crash reporting</source>
-        <translation type="unfinished"></translation>
+        <translation>Absturzberichte aktivieren</translation>
     </message>
     <message>
         <source>Ask for confirmation before exiting</source>
-        <translation type="unfinished"></translation>
+        <translation>Vor dem Beenden nachfragen</translation>
     </message>
     <message>
         <source>Clear Local Crash Reports</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokale Absturzberichte löschen</translation>
     </message>
     <message>
         <source>Auto-save files after refactoring</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien nach Refaktorisierung speichern</translation>
     </message>
     <message>
         <source>Allow crashes to be automatically reported. Collected reports are used for the sole purpose of fixing bugs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubt Absturzberichte zu sammeln und zu senden. Gesammelte Absturzberichte werden nur zum Zweck der Fehlerbehebung genutzt.</translation>
     </message>
     <message>
         <source>Reload All Unchanged Editors</source>
@@ -35239,7 +35247,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Reset to default.</source>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen.</translation>
+        <translation>Auf Vorgabe zurücksetzen.</translation>
     </message>
     <message>
         <source>Patch command:</source>
@@ -35300,11 +35308,11 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Change...</source>
-        <translation type="unfinished">Ändern...</translation>
+        <translation>Ändern...</translation>
     </message>
     <message>
         <source>Environment:</source>
-        <translation type="unfinished">Umgebung:</translation>
+        <translation>Umgebung:</translation>
     </message>
     <message>
         <source>Command used for reverting diff chunks.</source>
@@ -35317,15 +35325,15 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     <message>
         <source>Automatically saves all open files affected by a refactoring operation,
 provided they were unmodified before the refactoring.</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichert automatisch alle geöffneten Dateien, die von der Refaktorisierung betroffen sind, sofern sie vorher unverändert waren.</translation>
     </message>
     <message>
         <source>Crash Reporting</source>
-        <translation type="unfinished"></translation>
+        <translation>Absturzberichte</translation>
     </message>
     <message>
         <source>The change will take effect after restart.</source>
-        <translation type="unfinished">Die Änderung wird nach einem Neustart wirksam.</translation>
+        <translation>Die Änderung wird nach einem Neustart wirksam.</translation>
     </message>
     <message>
         <source>Case Sensitive (Default)</source>
@@ -35345,11 +35353,11 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>The file system case sensitivity change will take effect after restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderung der Groß-/Kleinschreibungseinstellung wird nach einem Neustart wirksam.</translation>
     </message>
     <message>
         <source>No changes to apply.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Änderungen.</translation>
     </message>
     <message>
         <source>Variables</source>
@@ -35609,7 +35617,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Runs an external tool that you have set up in the preferences (Environment &gt; External Tools).</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt ein in den Einstellungen konfiguriertes externes Werkzeug aus (Umgebung &gt; Externe Werkzeuge).</translation>
     </message>
 </context>
 <context>
@@ -39418,43 +39426,43 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     <name>Core::Internal::SpotlightLocatorFilter</name>
     <message>
         <source>Locator: Error occurred when running &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Finden: Bei der Ausführung von &quot;%1&quot; trat ein Fehler auf.</translation>
     </message>
     <message>
         <source>Locator query string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchtext.</translation>
     </message>
     <message>
         <source>Locator query string with quotes escaped with backslash.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchtext, bei dem Anführungszeichen durch Backslash-Sequenz ersetzt sind.</translation>
     </message>
     <message>
         <source>Locator query string with quotes escaped with backslash and spaces replaced with &quot;*&quot; wildcards.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchtext, bei dem Anführungszeichen durch Backslash-Sequenz und Leerzeichen durch &quot;*&quot;-Platzhalter ersetzt sind.</translation>
     </message>
     <message>
         <source>Locator query string as regular expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchtext als regulärer Ausdruck.</translation>
     </message>
     <message>
         <source>File Name Index</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateinamensindex</translation>
     </message>
     <message>
         <source>Matches files from a global file system index (Spotlight, Locate, Everything). Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert Dateien aus einem globalen Dateisystemindex (Spotlight, Locate, Everything). Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Case sensitive:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Groß-/Kleinschreibung:</translation>
     </message>
 </context>
 <context>
@@ -40675,7 +40683,7 @@ Zeile: %4, Spalte: %5
     </message>
     <message>
         <source>Based on Qt %1 (%2, %3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Qt %1 (%2, %3) beruhend</translation>
     </message>
 </context>
 <context>
@@ -42031,7 +42039,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Evaluates arbitrary JavaScript expressions and copies the result.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wertet beliebige JavaScript-Ausdrücke aus und kopiert das Ergebnis.</translation>
     </message>
     <message>
         <source>Reset Engine</source>
@@ -44805,7 +44813,8 @@ Set a valid executable first.</source>
     <message>
         <source>Add &quot;%1&quot; placeholder for the query string.
 Double-click to edit item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügen Sie den Platzhalter &quot;%1&quot; für den Suchtext hinzu.
+Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -46021,7 +46030,7 @@ Double-click to edit item.</source>
     </message>
     <message>
         <source>Matches all files from a custom set of directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Dateien aus vom Benutzer gewählten Pfaden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Select Directory</source>
@@ -46070,11 +46079,11 @@ Double-click to edit item.</source>
     </message>
     <message>
         <source>Show Non-matching Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige nicht übereinstimmende Zeilen</translation>
     </message>
     <message>
         <source>Filter output...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe filtern...</translation>
     </message>
 </context>
 <context>
@@ -48169,19 +48178,19 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     <name>Core::Internal::PluginInstallWizard</name>
     <message>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle</translation>
     </message>
     <message>
         <source>Choose source location. This can be a plugin library file or a zip file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Quelle. Dies kann eine Plugin-Bibliothek oder eine ZIP-Datei sein.</translation>
     </message>
     <message>
         <source>File does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei existiert nicht.</translation>
     </message>
     <message>
         <source>Check Archive</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiv überprüfen</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -48189,55 +48198,55 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Checking archive...</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüfe Archiv...</translation>
     </message>
     <message>
         <source>The file is not an archive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei ist kein Archiv.</translation>
     </message>
     <message>
         <source>Canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Abgebrochen.</translation>
     </message>
     <message>
         <source>There was an error while unarchiving.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Entpacken des Archivs trat ein Fehler auf.</translation>
     </message>
     <message>
         <source>Archive is OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiv ist OK.</translation>
     </message>
     <message>
         <source>Plugin requires an incompatible version of %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin benötigt eine inkompatible Version von %1 (%2).</translation>
     </message>
     <message>
         <source>Did not find %1 plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte das Plugin %1 nicht finden.</translation>
     </message>
     <message>
         <source>Install Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Installationsort</translation>
     </message>
     <message>
         <source>Choose install location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie einen Ort für die Installation.</translation>
     </message>
     <message>
         <source>User plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzer-Plugins</translation>
     </message>
     <message>
         <source>The plugin will be available to all compatible %1 installations, but only for the current user.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin wird für alle kompatiblen Installationen von %1 verfügbar sein, aber nur für den aktuellen Nutzer.</translation>
     </message>
     <message>
         <source>%1 installation</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Installation</translation>
     </message>
     <message>
         <source>The plugin will be available only to this %1 installation, but for all users that can access it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin wird nur für diese Installation von %1 verfügbar sein, aber für alle Nutzer, die diese Ausführen können.</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -48245,15 +48254,15 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>&quot;%1&quot; will be installed into &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; wird in &quot;%2&quot; installiert.</translation>
     </message>
     <message>
         <source>Overwrite File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei überschreiben</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; exists. Overwrite?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; existiert bereits. Soll die Datei überschrieben werden?</translation>
     </message>
     <message>
         <source>Overwrite</source>
@@ -48265,15 +48274,15 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Failed to write file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin installieren</translation>
     </message>
     <message>
         <source>Failed to Copy Plugin Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kopieren der Plugin-Dateien ist fehlgeschlagen</translation>
     </message>
 </context>
 <context>
@@ -52720,249 +52729,249 @@ in &quot;%2&quot;.
     <name>Core::Internal::ActionsFilter</name>
     <message>
         <source>Global Actions &amp; Actions from the Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Aktionen &amp; Aktionen aus dem Menü</translation>
     </message>
     <message>
         <source>Triggers an action. If it is from the menu it matches any part of a menu hierarchy, separated by &quot;&gt;&quot;. For example &quot;sess def&quot; matches &quot;File &gt; Sessions &gt; Default&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Löst eine Aktion aus. Aktionen aus dem Menü werden inklusive Hierarchie, mit &quot;&gt;&quot; getrennt, gefiltert. Zum Beispiel ist &quot;Datei &gt; Sitzungen &gt; Vorgabe&quot; ein Treffer für &quot;sitz vorg&quot;.</translation>
     </message>
 </context>
 <context>
     <name>Core::ExternalTool</name>
     <message>
         <source>System Environment</source>
-        <translation type="unfinished">Systemumgebung</translation>
+        <translation>Systemumgebung</translation>
     </message>
     <message>
         <source>Error while parsing external tool %1: %2</source>
-        <translation type="unfinished">Fehler beim Auswerten der Ausgabe des externen Programms %1: %2</translation>
+        <translation>Fehler beim Auswerten der Ausgabe des externen Programms %1: %2</translation>
     </message>
 </context>
 <context>
     <name>Core::FilePropertiesDialog</name>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">Pfad:</translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <source>MIME type:</source>
-        <translation type="unfinished">MIME-Typ:</translation>
+        <translation>MIME-Typ:</translation>
     </message>
     <message>
         <source>Default editor:</source>
-        <translation type="unfinished">Zugeordneter Editor:</translation>
+        <translation>Voreingestellter Editor:</translation>
     </message>
     <message>
         <source>Line endings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilenenden:</translation>
     </message>
     <message>
         <source>Indentation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrückung:</translation>
     </message>
     <message>
         <source>Owner:</source>
-        <translation type="unfinished">Besitzer:</translation>
+        <translation>Besitzer:</translation>
     </message>
     <message>
         <source>Group:</source>
-        <translation type="unfinished">Gruppe:</translation>
+        <translation>Gruppe:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Größe:</translation>
+        <translation>Größe:</translation>
     </message>
     <message>
         <source>Last read:</source>
-        <translation type="unfinished">Zuletzt gelesen:</translation>
+        <translation>Zuletzt gelesen:</translation>
     </message>
     <message>
         <source>Last modified:</source>
-        <translation type="unfinished">Zuletzt geändert:</translation>
+        <translation>Zuletzt geändert:</translation>
     </message>
     <message>
         <source>Readable:</source>
-        <translation type="unfinished">Lesbar:</translation>
+        <translation>Lesbar:</translation>
     </message>
     <message>
         <source>Writable:</source>
-        <translation type="unfinished">Schreibbar:</translation>
+        <translation>Schreibbar:</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbar:</translation>
     </message>
     <message>
         <source>Symbolic link:</source>
-        <translation type="unfinished">Symbolischer Link:</translation>
+        <translation>Symbolischer Link:</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>Windows (CRLF)</source>
-        <translation type="unfinished">Windows (CRLF)</translation>
+        <translation>Windows (CRLF)</translation>
     </message>
     <message>
         <source>Unix (LF)</source>
-        <translation type="unfinished">Unix (LF)</translation>
+        <translation>Unix (LF)</translation>
     </message>
     <message>
         <source>Mac (CR)</source>
-        <translation type="unfinished"></translation>
+        <translation>Mac (CR)</translation>
     </message>
     <message>
         <source>Mixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemischt</translation>
     </message>
     <message>
         <source>%1 Spaces</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Leerzeichen</translation>
     </message>
     <message>
         <source>Tabs</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabulatoren</translation>
     </message>
     <message>
         <source>Undefined</source>
-        <translation type="unfinished"></translation>
+        <translation>Undefiniert</translation>
     </message>
 </context>
 <context>
     <name>Core::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
-        <translation type="unfinished">Die ausführbare Datei von &quot;%1&quot; (expandiert: &quot;%2&quot;) konnte nicht gefunden werden</translation>
+        <translation>Die ausführbare Datei von &quot;%1&quot; (expandiert: &quot;%2&quot;) konnte nicht gefunden werden</translation>
     </message>
     <message>
         <source>Starting external tool &quot;%1&quot;</source>
-        <translation type="unfinished">Starte externes Werkzeug &quot;%1&quot;</translation>
+        <translation>Starte externes Werkzeug &quot;%1&quot;</translation>
     </message>
     <message>
         <source>&quot;%1&quot; finished</source>
-        <translation type="unfinished">&quot;%1&quot; beendet</translation>
+        <translation>&quot;%1&quot; beendet</translation>
     </message>
     <message>
         <source>&quot;%1&quot; finished with error</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; mit Fehler beendet</translation>
     </message>
 </context>
 <context>
     <name>Core::FileUtils</name>
     <message>
         <source>Failed to rename the include guard in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Include-Guard in der Datei &quot;%1&quot; nicht umbenennen.</translation>
     </message>
 </context>
 <context>
     <name>Core::FolderNavigationWidget</name>
     <message>
         <source>Show Hidden Files</source>
-        <translation type="unfinished">Versteckte Dateien zeigen</translation>
+        <translation>Versteckte Dateien anzeigen</translation>
     </message>
     <message>
         <source>Show Bread Crumbs</source>
-        <translation type="unfinished">Breadcrumb-Navigation anzeigen</translation>
+        <translation>Breadcrumb-Navigation anzeigen</translation>
     </message>
     <message>
         <source>Show Folders on Top</source>
-        <translation type="unfinished">Verzeichnisse zuerst anzeigen</translation>
+        <translation>Verzeichnisse zuerst anzeigen</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
-        <translation type="unfinished">Mit Editor synchronisieren</translation>
+        <translation>Mit Editor synchronisieren</translation>
     </message>
     <message>
         <source>Synchronize Root Directory with Editor</source>
-        <translation type="unfinished">Wurzelverzeichnis aus Editor übernehmen</translation>
+        <translation>Wurzelverzeichnis aus Editor übernehmen</translation>
     </message>
     <message>
         <source>New File</source>
         <comment>Title of dialog</comment>
-        <translation type="unfinished">Neue Datei</translation>
+        <translation>Neue Datei</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation type="unfinished">Neues Verzeichnis</translation>
+        <translation>Neues Verzeichnis</translation>
     </message>
     <message>
         <source>Open &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; öffnen</translation>
+        <translation>&quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>Remove Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis löschen</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Computer</source>
-        <translation type="unfinished">Computer</translation>
+        <translation>Computer</translation>
     </message>
     <message>
         <source>Home</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerverzeichnis</translation>
     </message>
     <message>
         <source>Projects</source>
-        <translation type="unfinished">Projekte</translation>
+        <translation>Projekte</translation>
     </message>
 </context>
 <context>
     <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
-        <translation type="unfinished">Dateisystem</translation>
+        <translation>Dateisystem</translation>
     </message>
     <message>
         <source>Meta+Y,Meta+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Y,Meta+F</translation>
     </message>
     <message>
         <source>Alt+Y,Alt+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Y,Alt+F</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Einstellungen</translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <source>Add New...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Rename...</source>
-        <translation type="unfinished">Umbenennen...</translation>
+        <translation>Umbenennen...</translation>
     </message>
     <message>
         <source>Remove...</source>
-        <translation type="unfinished">Entfernen...</translation>
+        <translation>Entfernen...</translation>
     </message>
 </context>
 <context>
     <name>Core::Internal::LoggingCategoryModel</name>
     <message>
         <source>Category</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorie</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">Farbe</translation>
+        <translation>Farbe</translation>
     </message>
 </context>
 <context>
