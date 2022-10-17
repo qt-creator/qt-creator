@@ -44,7 +44,7 @@ SquishSettings::SquishSettings()
     squishPath.setPlaceHolderText(Tr::tr("Path to Squish installation"));
     squishPath.setValidationFunction([this](FancyLineEdit *edit, QString *error) {
         QTC_ASSERT(edit, return false);
-        if (!squishPath.pathChooser()->defaultValidationFunction()(edit, error));
+        if (!squishPath.pathChooser()->defaultValidationFunction()(edit, error))
             return false;
         const FilePath squishServer = FilePath::fromString(edit->text())
                 .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
