@@ -116,7 +116,7 @@ bool ExternalDependencies::isQt6Import() const
     if (target) {
         QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
         if (currentQtVersion && currentQtVersion->isValid()) {
-            return currentQtVersion->qtVersion().majorVersion() != 6;
+            return currentQtVersion->qtVersion().majorVersion() == 6;
         }
     }
 
