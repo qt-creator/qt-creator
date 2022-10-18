@@ -104,28 +104,29 @@ static QString targetPlatform(const ProjectExplorer::Abi &abi, const ProjectExpl
 
 static QStringList toolchainList(const ProjectExplorer::ToolChain *tc)
 {
-    QStringList list;
-    if (tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
-            || (tc->typeId() == Android::Constants::ANDROID_TOOLCHAIN_TYPEID
+    const Utils::Id type = tc->typeId();
+    if (type == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
+            || (type == Android::Constants::ANDROID_TOOLCHAIN_TYPEID
                 && tc->compilerCommand().toString().contains("clang"))) {
-        list << QLatin1String("clang") << QLatin1String("llvm") << QLatin1String("gcc");
-    } else if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
-               || tc->typeId() == Android::Constants::ANDROID_TOOLCHAIN_TYPEID) {
-        list << QLatin1String("gcc"); // TODO: Detect llvm-gcc
-    } else if (tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
-        list << QLatin1String("mingw") << QLatin1String("gcc");
-    } else if (tc->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-        list << QLatin1String("clang-cl") << QLatin1String("msvc");
-    } else if (tc->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        list << QLatin1String("msvc");
-    } else if (tc->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID) {
-        list << QLatin1String("iar");
-    } else if (tc->typeId() == BareMetal::Constants::KEIL_TOOLCHAIN_TYPEID) {
-        list << QLatin1String("keil");
-    } else if (tc->typeId() == BareMetal::Constants::SDCC_TOOLCHAIN_TYPEID) {
-        list << QLatin1String("sdcc");
+        return {"clang", "llvm", "gcc"};
     }
-    return list;
+    if (type == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
+               || type == Android::Constants::ANDROID_TOOLCHAIN_TYPEID) {
+        return {"gcc"}; // TODO: Detect llvm-gcc
+    }
+    if (type == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
+        return {"mingw", "gcc"};
+    if (type == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)
+        return {"clang-cl", "msvc"};
+    if (type == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+        return {"msvc"};
+    if (type == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID)
+        return {"iar"};
+    if (type == BareMetal::Constants::KEIL_TOOLCHAIN_TYPEID)
+        return {"keil"};
+    if (type == BareMetal::Constants::SDCC_TOOLCHAIN_TYPEID)
+        return {"sdcc"};
+    return {};
 }
 
 static QString architecture(const ProjectExplorer::Abi &targetAbi)
