@@ -454,7 +454,7 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd, bool 
     args << m_container;
 
     CommandLine dcmd{m_settings->dockerBinaryPath.filePath(), args};
-    dcmd.addCommandLineAsArgs(cmd);
+    dcmd.addCommandLineAsArgs(cmd, CommandLine::Raw);
     return dcmd;
 }
 
