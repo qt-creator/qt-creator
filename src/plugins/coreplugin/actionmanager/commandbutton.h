@@ -7,6 +7,7 @@
 
 #include <utils/id.h>
 
+#include <QAction>
 #include <QPointer>
 #include <QString>
 #include <QToolButton>
