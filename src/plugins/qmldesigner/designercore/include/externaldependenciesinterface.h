@@ -37,6 +37,7 @@ public:
     virtual bool isQt6Import() const = 0;
     virtual bool hasStartupTarget() const = 0;
     virtual PuppetStartData puppetStartData(const class Model &model) const = 0;
+    virtual bool instantQmlTextUpdate() const = 0;
 };
 
 } // namespace QmlDesigner

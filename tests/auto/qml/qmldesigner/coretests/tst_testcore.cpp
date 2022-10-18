@@ -158,6 +158,7 @@ public:
     bool isQt6Import() const override { return true; }
     bool hasStartupTarget() const override { return true; }
     PuppetStartData puppetStartData(const class Model &) const override { return {}; }
+    bool instantQmlTextUpdate() const override { return true; }
 
 public:
     QSettings qsettings;

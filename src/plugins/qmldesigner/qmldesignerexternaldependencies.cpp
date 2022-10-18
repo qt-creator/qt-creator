@@ -231,4 +231,9 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
     return data;
 }
 
+bool ExternalDependencies::instantQmlTextUpdate() const
+{
+    return false;
+}
+
 } // namespace QmlDesigner

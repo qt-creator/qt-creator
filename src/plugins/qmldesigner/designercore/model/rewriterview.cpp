@@ -1084,7 +1084,7 @@ void RewriterView::qmlTextChanged()
         }
 
         case Amend: {
-            if (m_instantQmlTextUpdate) {
+            if (m_instantQmlTextUpdate || externalDependencies().instantQmlTextUpdate()) {
                 amendQmlText();
             } else {
                 if (externalDependencies().viewManagerUsesRewriterView(this)) {

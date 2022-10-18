@@ -34,6 +34,7 @@ public:
     bool isQt6Import() const override;
     bool hasStartupTarget() const override;
     PuppetStartData puppetStartData(const class Model &model) const override;
+    bool instantQmlTextUpdate() const override;
 
 private:
     const DesignerSettings &m_designerSettings;
