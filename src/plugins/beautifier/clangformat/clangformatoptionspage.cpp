@@ -79,7 +79,6 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     m_command->setCommandVersionArguments({"--version"});
     m_command->setPromptDialogTitle(
                 BeautifierPlugin::msgCommandPromptDialogTitle("Clang Format"));
-    m_command->setFilePath(m_settings->command());
 
     if (m_settings->usePredefinedStyle())
         m_usePredefinedStyle->setChecked(true);
@@ -107,13 +106,16 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     }.attachTo(this);
 
     connect(m_command, &Utils::PathChooser::validChanged, options, &QWidget::setEnabled);
-    connect(m_predefinedStyle, &QComboBox::currentTextChanged, [this](const QString &item) {
+    connect(m_predefinedStyle, &QComboBox::currentTextChanged, this, [this](const QString &item) {
         m_fallbackStyle->setEnabled(item == "File");
     });
-    connect(m_usePredefinedStyle, &QRadioButton::toggled, [this](bool checked) {
+    connect(m_usePredefinedStyle, &QRadioButton::toggled, this, [this](bool checked) {
         m_fallbackStyle->setEnabled(checked && m_predefinedStyle->currentText() == "File");
         m_predefinedStyle->setEnabled(checked);
     });
+
+    // might trigger PathChooser::validChanged, so so after the connect above
+    m_command->setFilePath(m_settings->command());
 }
 
 void ClangFormatOptionsPageWidget::apply()

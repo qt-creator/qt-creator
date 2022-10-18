@@ -80,6 +80,7 @@ enum class Variable {
     AndroidPackageSourceDir,
     AndroidExtraLibs,
     AndroidApplicationArgs,
+    IosDeploymentTarget,
     AppmanPackageDir,
     AppmanManifest,
     IsoIcons,

@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include <QCoreApplication>
 #include <QToolButton>
 
 QT_BEGIN_NAMESPACE
@@ -44,6 +45,7 @@ public:
 
 class QTCREATOR_UTILS_EXPORT DetailsButton : public ExpandButton
 {
+    Q_DECLARE_TR_FUNCTIONS(Utils::DetailsButton);
 public:
     DetailsButton(QWidget *parent = nullptr);
     QSize sizeHint() const override;

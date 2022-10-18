@@ -77,7 +77,7 @@
 
     \section1 Using States to Simulate Page Changes
 
-    You will now add \l{Adding States}{states} to the UI to show and hide UI
+    You will now add \l{Working with States}{states} to the UI to show and hide UI
     components in the \uicontrol {2D} view, depending on the current page:
 
     \list 1
@@ -115,29 +115,6 @@
 
     \image loginui3-login-state-preview.jpg "Preview of the login state"
 
-    \section2 Learn More - States
-
-    The \l{Adding States}{state} of a particular visual component is the set of
-    information which describes how and where the individual parts of the visual
-    component are displayed within it, and all the data associated with that
-    state. Most visual components in a UI will have a limited number of states,
-    each with well-defined properties.
-
-    For example, a list item may be either selected or not, and if
-    selected, it may either be the currently active single selection or it
-    may be part of a selection group. Each of those states may have certain
-    associated visual appearance (neutral, highlighted, expanded, and so on).
-
-    Youn can apply states to trigger behavior or animations. UI components
-    typically have a default state that contains all of a component's initial
-    property values and is therefore useful for managing property values before
-    state changes.
-
-    You can specify additional states by adding new states. Each state within a
-    component has a unique name. To change the current state of an component,
-    the state property is set to the name of the state. State changes can be
-    bound to conditions by using the \c when property.
-
     Next, you will create connections to specify that clicking the
     \uicontrol {Create Account} button on the login page triggers a
     transition to the account creation page.
@@ -162,9 +139,13 @@
             \e createAccount should apply.
         \li Double-click the value \uicontrol Action column and select
             \uicontrol {Change state to createAccount} in the drop-down menu.
-            \image loginui3-connections.png "Connections tab"
+        \note Or, you can right-click the \e createAccount button in \l Navigator.
+              Then select \uicontrol {Connections} > \uicontrol {Add signal handler} >
+              \uicontrol {clicked} > \uicontrol {Change State to createAccount}.
+        \image loginui3-connections.png "Connections tab"
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
+
     \endlist
 
     In the live preview, you can now click the \uicontrol {Create Account}
@@ -172,8 +153,30 @@
 
     \image loginui3.gif "Moving between login page and account creation page"
 
+    \section1 Learn More
+    \section2 States
+    The \l{Working with States}{state} of a particular visual component is the set of
+    information which describes how and where the individual parts of the visual
+    component are displayed within it, and all the data associated with that
+    state. Most visual components in a UI will have a limited number of states,
+    each with well-defined properties.
 
-    \section2 Learn More - Signal and Event Handlers
+    For example, a list item may be either selected or not, and if
+    selected, it may either be the currently active single selection or it
+    may be part of a selection group. Each of those states may have certain
+    associated visual appearance (neutral, highlighted, expanded, and so on).
+
+    Youn can apply states to trigger behavior or animations. UI components
+    typically have a default state that contains all of a component's initial
+    property values and is therefore useful for managing property values before
+    state changes.
+
+    You can specify additional states by adding new states. Each state within a
+    component has a unique name. To change the current state of an component,
+    the state property is set to the name of the state. State changes can be
+    bound to conditions by using the \c when property.
+
+    \section2 Signal and Event Handlers
 
     UI components need to communicate with each other. For example, a button
     needs to know that the user has clicked on it. In response, the button may

@@ -40,8 +40,7 @@ public:
                const QStringList &versions = {},
                const QString &downloadUrl = {},
                const McuPackageVersionDetector *versionDetector = nullptr,
-               const bool addToPath = false,
-               const Utils::FilePath &relativePathModifier = Utils::FilePath());
+               const bool addToPath = false);
 
     ~McuPackage() override = default;
 
@@ -87,7 +86,6 @@ private:
     QScopedPointer<const McuPackageVersionDetector> m_versionDetector;
 
     Utils::FilePath m_path;
-    Utils::FilePath m_relativePathModifier; // relative path to m_path to be returned by path()
     QString m_detectedVersion;
     QStringList m_versions;
     const QString m_cmakeVariableName;

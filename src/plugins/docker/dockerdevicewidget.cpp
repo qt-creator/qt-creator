@@ -81,7 +81,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     m_runAsOutsideUser->setToolTip(Tr::tr("Uses user ID and group ID of the user running Qt Creator "
                                           "in the docker container."));
     m_runAsOutsideUser->setChecked(m_data.useLocalUidGid);
-    m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
+    m_runAsOutsideUser->setEnabled(HostOsInfo::isAnyUnixHost());
 
     connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
         m_data.useLocalUidGid = on;

@@ -11744,7 +11744,7 @@ Ok: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidgetFactory</name>
+    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>Fájlrendszer</translation>

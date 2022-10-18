@@ -10586,7 +10586,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidgetFactory</name>
+    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>Souborový systém</translation>
@@ -25437,7 +25437,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidget</name>
+    <name>Core::FolderNavigationWidget</name>
     <message>
         <source>Open</source>
         <translation>Otevřít</translation>

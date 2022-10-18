@@ -20,6 +20,7 @@ public:
 
 class TaskFile : public Core::IDocument
 {
+    Q_DECLARE_TR_FUNCTIONS(TaskList::Internal::TaskListPlugin)
 public:
     TaskFile(QObject *parent);
 

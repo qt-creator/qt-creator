@@ -187,8 +187,12 @@ void QbsSession::initialize()
     connect(d->packetReader, &PacketReader::packetReceived, this, &QbsSession::handlePacket);
     d->state = State::Initializing;
     const FilePath qbsExe = QbsSettings::qbsExecutableFilePath();
-    if (qbsExe.isEmpty() || !qbsExe.exists()) {
-        QTimer::singleShot(0, this, [this] { setError(Error::QbsFailedToStart); });
+    if (qbsExe.isEmpty()) {
+        QTimer::singleShot(0, this, [this] { setError(Error::NoQbsPath); });
+        return;
+    }
+    if (!qbsExe.isExecutableFile()) {
+        QTimer::singleShot(0, this, [this] { setError(Error::InvalidQbsExecutable); });
         return;
     }
     d->qbsProcess->setCommand({qbsExe, {"session"}});
@@ -223,6 +227,12 @@ std::optional<QbsSession::Error> QbsSession::lastError() const
 QString QbsSession::errorString(QbsSession::Error error)
 {
     switch (error) {
+    case Error::NoQbsPath:
+        return Tr::tr("No qbs executable was found, please set the path in the settings.");
+    case Error::InvalidQbsExecutable:
+        return Tr::tr("The qbs executable was not found at the specified path, or it is not "
+                      "executable (\"%1\").")
+            .arg(QbsSettings::qbsExecutableFilePath().toUserOutput());
     case Error::QbsQuit:
         return Tr::tr("The qbs process quit unexpectedly.");
     case Error::QbsFailedToStart:
@@ -231,7 +241,8 @@ QString QbsSession::errorString(QbsSession::Error error)
         return Tr::tr("The qbs process sent unexpected data.");
     case Error::VersionMismatch:
         return Tr::tr("The qbs API level is not compatible with "
-                  "what %1 expects.").arg(Core::Constants::IDE_DISPLAY_NAME);
+                      "what %1 expects.")
+            .arg(Core::Constants::IDE_DISPLAY_NAME);
     }
     return QString(); // For dumb compilers.
 }

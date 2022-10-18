@@ -524,8 +524,8 @@ void MainWindow::registerDefaultContainers()
                                        QIcon(),
                                        "Main TouchBar" /*never visible*/);
     ac->appendGroup(Constants::G_TOUCHBAR_HELP);
-    ac->appendGroup(Constants::G_TOUCHBAR_EDITOR);
     ac->appendGroup(Constants::G_TOUCHBAR_NAVIGATION);
+    ac->appendGroup(Constants::G_TOUCHBAR_EDITOR);
     ac->appendGroup(Constants::G_TOUCHBAR_OTHER);
     ac->touchBar()->setApplicationTouchBar();
 }
@@ -1078,37 +1078,7 @@ void MainWindow::openFileWith()
 
 void MainWindow::openFileFromDevice()
 {
-    QSettings *settings = PluginManager::settings();
-    settings->beginGroup(QLatin1String(settingsGroup));
-    QVariant dialogSettings = settings->value(QLatin1String(openFromDeviceDialogKey));
-
-    QFileDialog dialog;
-    dialog.setOption(QFileDialog::DontUseNativeDialog);
-    if (!dialogSettings.isNull()) {
-        dialog.restoreState(dialogSettings.toByteArray());
-    }
-    QList<QUrl> sideBarUrls = Utils::transform(Utils::filtered(FSEngine::registeredDeviceRoots(),
-                                                               [](const auto &filePath) {
-                                                                   return filePath.exists();
-                                                               }),
-                                               [](const auto &filePath) {
-                                                   return QUrl::fromLocalFile(filePath.toFSPathString());
-                                               });
-    dialog.setSidebarUrls(sideBarUrls);
-    dialog.setFileMode(QFileDialog::AnyFile);
-
-    dialog.setIconProvider(FileIconProvider::iconProvider());
-
-    if (dialog.exec()) {
-        FilePaths filePaths = Utils::transform(dialog.selectedFiles(), [](const auto &path) {
-            return FilePath::fromString(path);
-        });
-
-        openFiles(filePaths, ICore::SwitchMode);
-    }
-
-    settings->setValue(QLatin1String(openFromDeviceDialogKey), dialog.saveState());
-    settings->endGroup();
+    openFiles(EditorManager::getOpenFilePaths(QFileDialog::DontUseNativeDialog), ICore::SwitchMode);
 }
 
 IContext *MainWindow::contextObject(QWidget *widget) const

@@ -60,9 +60,9 @@ Item {
     Rectangle {
         id: titleBar
         width: parent.width
-        height: titleBarHeight
+        height: rangeDetails.titleBarHeight
         color: Theme.color(Theme.Timeline_PanelHeaderColor)
-        border.width: borderWidth
+        border.width: rangeDetails.borderWidth
         border.color: Theme.color(Theme.PanelTextColorMid)
 
         TimelineText {
@@ -72,8 +72,8 @@ Item {
             verticalAlignment: Text.AlignVCenter
             anchors.left: parent.left
             anchors.right: closeIcon.left
-            anchors.leftMargin: outerMargin
-            anchors.rightMargin: innerMargin
+            anchors.leftMargin: rangeDetails.outerMargin
+            anchors.rightMargin: rangeDetails.innerMargin
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             color: Theme.color(Theme.PanelTextColorLight)
@@ -93,11 +93,11 @@ Item {
 
         ImageToolButton {
             id: lockIcon
-            imageSource: "image://icons/lock_" + (locked ? "closed" : "open")
+            imageSource: "image://icons/lock_" + (rangeDetails.locked ? "closed" : "open")
             anchors.top: closeIcon.top
             anchors.right: closeIcon.left
             implicitHeight: typeTitle.height
-            onClicked: locked = !locked
+            onClicked: rangeDetails.locked = !rangeDetails.locked
             ToolTip.text: qsTranslate("Tracing", "View event information on mouseover.")
         }
 
@@ -121,7 +121,7 @@ Item {
         anchors.right: parent.right
         anchors.bottom: dragHandle.bottom
 
-        border.width: borderWidth
+        border.width: rangeDetails.borderWidth
         border.color: Theme.color(Theme.PanelTextColorMid)
     }
 
@@ -130,17 +130,17 @@ Item {
 
         anchors.left: parent.left
         anchors.top: titleBar.bottom
-        anchors.topMargin: innerMargin
-        anchors.leftMargin: outerMargin
-        anchors.rightMargin: outerMargin
+        anchors.topMargin: rangeDetails.innerMargin
+        anchors.leftMargin: rangeDetails.outerMargin
+        anchors.rightMargin: rangeDetails.outerMargin
 
-        spacing: innerMargin
+        spacing: rangeDetails.innerMargin
         columns: 2
 
-        property int minimumWidth: minimumInnerWidth
+        property int minimumWidth: rangeDetails.minimumInnerWidth
         onPositioningComplete: {
             // max(width of longest label * 2, minimumInnerWidth)
-            var result = minimumInnerWidth;
+            var result = rangeDetails.minimumInnerWidth;
             for (var i = 0; i < children.length; ++i) {
                 if (children[i].isLabel)
                     result = Math.max(children[i].implicitWidth * 2 + innerMargin, result);
@@ -149,12 +149,14 @@ Item {
             minimumWidth = result + 2 * outerMargin;
         }
 
-        property int labelWidth: Math.ceil((minimumWidth - innerMargin) / 2) - outerMargin
-        property int valueWidth: dragHandle.x - labelWidth - innerMargin - outerMargin
+        property int labelWidth: Math.ceil((minimumWidth - rangeDetails.innerMargin) / 2)
+                                           - rangeDetails.outerMargin
+        property int valueWidth: dragHandle.x - labelWidth - rangeDetails.innerMargin
+                                 - rangeDetails.outerMargin
 
         onMinimumWidthChanged: {
-            if (dragHandle.x < minimumWidth - outerMargin)
-                dragHandle.x = minimumWidth - outerMargin;
+            if (dragHandle.x < minimumWidth - rangeDetails.outerMargin)
+                dragHandle.x = minimumWidth - rangeDetails.outerMargin;
         }
 
         Repeater {
@@ -174,9 +176,9 @@ Item {
 
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.leftMargin: outerMargin
-        anchors.rightMargin: outerMargin
-        anchors.topMargin: visible ? innerMargin : 0
+        anchors.leftMargin: rangeDetails.outerMargin
+        anchors.rightMargin: rangeDetails.outerMargin
+        anchors.topMargin: visible ? rangeDetails.innerMargin : 0
         anchors.top: col.bottom
         height: visible ? implicitHeight : 0
 
@@ -201,7 +203,7 @@ Item {
         Timer {
             id: saveTimer
             onTriggered: {
-                if (!rangeDetails.readOnly)
+                if (!noteEdit.readOnly)
                     rangeDetails.updateNote(noteEdit.text);
             }
             interval: 1000
@@ -211,15 +213,15 @@ Item {
 
     Item {
         id: dragHandle
-        width: outerMargin
-        height: outerMargin
-        x: initialWidth
+        width: rangeDetails.outerMargin
+        height: rangeDetails.outerMargin
+        x: rangeDetails.initialWidth
         anchors.top: noteEdit.bottom
         clip: true
         MouseArea {
             anchors.fill: parent
             drag.target: parent
-            drag.minimumX: col.minimumWidth - outerMargin
+            drag.minimumX: col.minimumWidth - rangeDetails.outerMargin
             drag.axis: Drag.XAxis
             cursorShape: Qt.SizeHorCursor
         }

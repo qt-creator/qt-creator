@@ -24100,7 +24100,7 @@ Excluding: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidget</name>
+    <name>Core::FolderNavigationWidget</name>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
         <translation>ファイル &quot;%1&quot; が &quot;%2&quot; に名前変更されましたが、以下のプロジェクトは自動的に変更できませんでした:&quot;%3&quot;</translation>
@@ -24175,7 +24175,7 @@ Excluding: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidgetFactory</name>
+    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>ファイルシステム</translation>
@@ -45412,7 +45412,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>FilePropertiesDialog</name>
+    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>Group:</source>
         <translation>グループ:</translation>

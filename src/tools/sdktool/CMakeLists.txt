@@ -69,6 +69,7 @@ extend_qtc_library(sdktoolLib
   PUBLIC_DEFINES UTILS_STATIC_LIBRARY
   SOURCES
     commandline.cpp commandline.h
+    devicefileaccess.cpp devicefileaccess.h
     environment.cpp environment.h
     filepath.cpp filepath.h
     fileutils.cpp fileutils.h

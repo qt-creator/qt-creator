@@ -39,13 +39,24 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
 
     addInitialStep(Constants::MakeInstallStepId, needsMakeInstall);
     addInitialStep(Constants::KillAppStepId);
+
+    // Todo: Check: Instead of having two different steps here, have one
+    // and shift the logic into the implementation there?
     addInitialStep(Constants::RsyncDeployStepId, [](Target *target) {
-        auto device = DeviceKitAspect::device(target->kit());
-        return device && device->extraData(Constants::SupportsRSync).toBool();
+        auto runDevice = DeviceKitAspect::device(target->kit());
+        auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+        if (runDevice == buildDevice)
+            return false;
+        // FIXME: That's not the full truth, we need support from the build
+        // device, too.
+        return runDevice && runDevice->extraData(Constants::SupportsRSync).toBool();
     });
     addInitialStep(Constants::DirectUploadStepId, [](Target *target) {
-        auto device = DeviceKitAspect::device(target->kit());
-        return device && !device->extraData(Constants::SupportsRSync).toBool();
+        auto runDevice = DeviceKitAspect::device(target->kit());
+        auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+        if (runDevice == buildDevice)
+            return true;
+        return runDevice && !runDevice->extraData(Constants::SupportsRSync).toBool();
     });
 }
 

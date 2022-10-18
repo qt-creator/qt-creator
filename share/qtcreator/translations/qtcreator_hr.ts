@@ -2224,7 +2224,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>FilePropertiesDialog</name>
+    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>File Properties</source>
         <translation>Svojstva datoteke</translation>
@@ -28995,7 +28995,7 @@ Isključivo: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidget</name>
+    <name>Core::FolderNavigationWidget</name>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
         <translation type="unfinished"></translation>
@@ -29657,7 +29657,7 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidgetFactory</name>
+    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation type="unfinished"></translation>

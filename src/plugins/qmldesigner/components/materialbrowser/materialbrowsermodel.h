@@ -75,6 +75,7 @@ public:
     struct PropertyCopyData
     {
         PropertyName name;
+        TypeName dynamicTypeName;
         QVariant value;
         bool isBinding = false;
         bool isValid = false;

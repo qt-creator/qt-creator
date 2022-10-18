@@ -1118,8 +1118,7 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                 return true;
             };
             const FilePath globalDir = device->mapToGlobalPath(deviceDir);
-            device->iterateDirectory(globalDir, callBack,
-                                     {nameFilters, QDir::Files | QDir::Executable});
+            globalDir.iterateDirectory(callBack, {nameFilters, QDir::Files | QDir::Executable});
         }
     } else {
         // The normal, local host case.
@@ -1197,8 +1196,8 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
                         && HostOsInfo::isWindowsHost()
                         && !existingCommand.needsDevice()
                         && !compilerPath.needsDevice()) {
-                    existingTcMatches = existingCommand.toFileInfo().size()
-                                        == compilerPath.toFileInfo().size();
+                    existingTcMatches = existingCommand.fileSize()
+                                        == compilerPath.fileSize();
                 }
             }
             if (existingTcMatches) {

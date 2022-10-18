@@ -7437,7 +7437,7 @@ Wykluczenia: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidgetFactory</name>
+    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>System plików</translation>
@@ -11577,7 +11577,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidget</name>
+    <name>Core::FolderNavigationWidget</name>
     <message>
         <source>Open</source>
         <translation>Otwórz</translation>

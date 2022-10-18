@@ -40,7 +40,8 @@ Item {
         id: timeDisplayArea
 
         property int firstBlock: timeDisplay.offsetX / timeDisplay.pixelsPerBlock
-        property int offset: repeater.model > 0 ? repeater.model - (firstBlock % repeater.model) : 0;
+        property int offset: repeater.model > 0 ? repeater.model - (firstBlock % repeater.model)
+                                                : 0;
 
         Repeater {
             id: repeater

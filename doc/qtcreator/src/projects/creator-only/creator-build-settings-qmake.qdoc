@@ -50,13 +50,13 @@
     > \uicontrol Preferences > \uicontrol {Build & Run} >
     \uicontrol Qmake.
 
-    \image qtcreator-build-settings-qmake.png "qmake build and run options"
+    \image qtcreator-preferences-build-run-qmake.png "Qmake tab in Build & Run Preferences"
 
     To set the default build properties, select \uicontrol Edit
     > \uicontrol Preferences > \uicontrol {Build & Run} >
     \uicontrol {Default Build Properties}.
 
-    \image qtcreator-build-settings-default.png "default build options"
+    \image qtcreator-build-settings-default.png "Default Build Properties tab in Build & Run Preferences"
 
     \section1 Compiling QML
 

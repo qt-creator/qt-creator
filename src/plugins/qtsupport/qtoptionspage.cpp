@@ -236,6 +236,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     resize(446, 450);
 
     m_qtdirList = new QTreeView(this);
+    m_qtdirList->setObjectName("qtDirList");
     m_qtdirList->setUniformRowHeights(true);
 
     m_versionInfoWidget = new DetailsWidget(this);
@@ -911,9 +912,9 @@ void QtOptionsPageWidget::apply()
             &QtOptionsPageWidget::updateQtVersions);
 }
 
-// TODO whenever we move the output of sdktool to a different location in the installer,
-// this needs to be adapted accordingly
 const QStringList kSubdirsToCheck = {"",
+                                     "Tools/sdktool", // macOS
+                                     "Tools/sdktool/share/qtcreator", // Windows/Linux
                                      "Qt Creator.app/Contents/Resources",
                                      "Contents/Resources",
                                      "Tools/QtCreator/share/qtcreator",

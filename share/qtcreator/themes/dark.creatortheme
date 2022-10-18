@@ -16,8 +16,8 @@ alternateBackground=ff515151
 error=ffd84044
 warning=ffe0b716
 splitterColor=ff313131
-textColorLink=ff007af4
-textColorLinkVisited=ffa57aff
+textColorLink=ff8ab4f8
+textColorLinkVisited=ffc58af9
 backgroundColorDisabled=ff444444
 qmlDesignerButtonColor=ff3c3e40
 

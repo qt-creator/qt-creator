@@ -40,7 +40,13 @@ public:
         if (!data) {
             data = new CachedData;
             *data = retrievalFunction(filePath);
-            m_cache.insert(filePath, data);
+            if (Q_UNLIKELY(!m_cache.insert(filePath, data))) {
+                // This path will never happen, but to silence coverity we
+                // have to check it since insert in theory could delete
+                // the object if a cost bigger than the cache size is
+                // specified.
+                return {};
+            }
         }
 
         // Return a copy of the data, so it cannot be deleted by the cache
@@ -58,6 +64,12 @@ public:
         QMutexLocker lk(&m_mutex);
         for (const auto &[path, data] : fileDataList)
             m_cache.insert(path, new CachedData(data));
+    }
+
+    void invalidate(const FilePath &path)
+    {
+        QMutexLocker lk(&m_mutex);
+        m_cache.remove(path);
     }
 
 private:

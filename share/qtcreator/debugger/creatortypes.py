@@ -199,22 +199,23 @@ def qdump__CPlusPlus__Internal__Value(d, value):
 
 def qdump__Utils__FilePath(d, value):
     data, path_len, scheme_len, host_len = d.split("{@QString}IHH", value)
-    if False:
-        scheme_enc = d.encodeString(scheme)
-        host_enc = d.encodeString(host)
-        elided, path_enc = d.encodeStringHelper(path, d.displayStringLimit)
-        val = ""
+    elided, enc = d.encodeStringHelper(data, d.displayStringLimit)
+    # enc is concatenated  path + scheme + host
+    if scheme_len:
+        scheme_pos = path_len * 4
+        host_pos = scheme_pos + scheme_len * 4
+        path_enc = enc[0 : path_len * 4]
+        scheme_enc = enc[scheme_pos : scheme_pos + scheme_len * 4]
+        host_enc = enc[host_pos : host_pos + host_len * 4]
         slash = "2F00"
         dot = "2E00"
         colon = "3A00"
-        if len(scheme_enc):
-            val = scheme_enc + colon + slash + slash + host_enc
-            if not path_enc.startswith(slash):
-                val += slash + dot + slash
+        val = scheme_enc + colon + slash + slash + host_enc
+        if not path_enc.startswith(slash):
+            val += slash + dot + slash
         val += path_enc
     else:
-        elided, data_enc = d.encodeStringHelper(data, d.displayStringLimit)
-        val = data_enc
+        val = enc
     d.putValue(val, "utf16", elided=elided)
     d.putPlainChildren(value)
 

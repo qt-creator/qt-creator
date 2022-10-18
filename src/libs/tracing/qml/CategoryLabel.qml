@@ -38,13 +38,14 @@ Item {
         id: dragArea
         anchors.fill: txt
         drag.target: dragger
-        cursorShape: dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
-        drag.minimumY: dragging ? 0 : -dragOffset // Account for parent change below
-        drag.maximumY: visibleHeight - (dragging ? 0 : dragOffset)
+        cursorShape: labelContainer.dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+        // Account for parent change below
+        drag.minimumY: labelContainer.dragging ? 0 : -labelContainer.dragOffset
+        drag.maximumY: labelContainer.visibleHeight - (labelContainer.dragging ? 0 : labelContainer.dragOffset)
         drag.axis: Drag.YAxis
         hoverEnabled: true
         ToolTip {
-            text: model.tooltip || labelContainer.text
+            text: labelContainer.model.tooltip || labelContainer.text
             visible: enabled && parent.containsMouse
             delay: 1000
         }
@@ -76,30 +77,30 @@ Item {
 
         text: labelContainer.text
         color: Theme.color(Theme.PanelTextColorLight)
-        height: model ? model.defaultRowHeight : 0
+        height: labelContainer.model ? labelContainer.model.defaultRowHeight : 0
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
     }
 
     Column {
         id: labelsArea
-        property QtObject parentModel: model
+        property QtObject parentModel: labelContainer.model
         anchors.top: txt.bottom
-        visible: expanded
+        visible: labelContainer.expanded
         Repeater {
-            model: expanded ? labels.length : 0
+            model: labelContainer.expanded ? labelContainer.labels.length : 0
             Loader {
                 id: loader
 
                 // Initially y == 0 for all the items. Don't enable them until they have been moved
                 // into place.
                 property int offset: (index === 0 || y > 0) ? (y + txt.height) : contentHeight
-                active: contentBottom > offset
+                active: labelContainer.contentBottom > offset
                 width: labelContainer.width
                 height: labelsArea.parentModel ? labelsArea.parentModel.rowHeight(index + 1) : 0
 
                 sourceComponent: RowLabel {
-                    label: labels[index];
+                    label: labelContainer.labels[index];
                     onSelectBySelectionId: {
                         if (labelContainer.model.hasMixedTypesInExpandedState)
                             return;
@@ -127,11 +128,12 @@ Item {
         property var texts: []
         property int currentNote: -1
         Connections {
-            target: notesModel
+            target: labelContainer.notesModel
             function onChanged(typeId, modelId, timelineIndex) {
                 // This will only be called if notesModel != null.
-                if (modelId === -1 || modelId === model.modelId) {
-                    var notes = notesModel.byTimelineModel(model.modelId);
+                if (modelId === -1 || modelId === labelContainer.model.modelId) {
+                    var notes =
+                            labelContainer.notesModel.byTimelineModel(labelContainer.model.modelId);
                     var newTexts = [];
                     var newEventIds = [];
                     for (var i in notes) {
@@ -161,11 +163,11 @@ Item {
         anchors.verticalCenter: txt.verticalCenter
         anchors.right: parent.right
         implicitHeight: txt.height - 1
-        enabled: expanded || (model && !model.empty)
-        imageSource: expanded ? "image://icons/close_split" : "image://icons/split"
-        ToolTip.text: expanded ? qsTranslate("Tracing", "Collapse category")
-                               : qsTranslate("Tracing", "Expand category")
-        onClicked: model.expanded = !expanded
+        enabled: labelContainer.expanded || (labelContainer.model && !labelContainer.model.empty)
+        imageSource: labelContainer.expanded ? "image://icons/close_split" : "image://icons/split"
+        ToolTip.text: labelContainer.expanded ? qsTranslate("Tracing", "Collapse category")
+                                              : qsTranslate("Tracing", "Expand category")
+        onClicked: labelContainer.model.expanded = !labelContainer.expanded
     }
 
     Rectangle {
@@ -199,7 +201,7 @@ Item {
                 when: dragger.Drag.active
                 ParentChange {
                     target: dragger
-                    parent: draggerParent
+                    parent: labelContainer.draggerParent
                 }
                 PropertyChanges {
                     target: dragger

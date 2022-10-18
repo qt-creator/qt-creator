@@ -17,8 +17,6 @@ public:
                         const Utils::FilePath &fileName, int lineNumber);
     void addTypeId(int typeId);
 
-    void clicked() override;
-    bool isClickable() const override { return true; }
     bool addToolTipContent(QLayout *target) const override;
 
 private:

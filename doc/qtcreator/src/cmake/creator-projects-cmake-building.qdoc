@@ -47,6 +47,19 @@
     Select \uicontrol {Kit Configuration} to edit the CMake settings for the
     build and run kit selected for the project.
 
+    \section CMake Presets
+
+    You can use CMake presets files to specify common configure, build, and test
+    options and share them with others. \c CMakePresets.json contains options for
+    project-wide builds, whereas \c CMakeUserPresets.json contains options for
+    your local builds.
+
+    Create the presets files in the format described in
+    \l{https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html}
+    {cmake-presets(7)} and store the in project's root directory.
+
+    To use the preset files, specify the \c {--preset} option for your project.
+
     \section1 Multi-Config Support
 
     \QC supports
@@ -126,10 +139,10 @@
     does not delete the initial configuration.
 
     To be asked before \QC resets the changes, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol CMake >
+    \uicontrol Preferences > \uicontrol CMake > \uicontrol General >
     \uicontrol {Ask before re-configuring with initial parameters}.
 
-    \image qtcreator-build-run-options-cmake.png "CMake Build & Run options"
+    \image qtcreator-preferences-cmake-general.png "General tab in CMake Preferences"
 
     \section1 Viewing CMake Output
 
@@ -205,8 +218,8 @@
     \QC can automatically set up the \l {Setting Up Conan}
     {Conan package manager} for use with CMake.
 
-    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run} >
-    \uicontrol CMake > \uicontrol {Package manager auto setup} to set the
+    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake
+    \uicontrol General > \uicontrol {Package manager auto setup} to set the
     value of the \c CMAKE_PROJECT_INCLUDE_BEFORE variable to the path to a
     CMake script that installs dependencies from a \c conanfile.txt,
     \c conanfile.py, or \c vcpkg.json file in the project source directory.

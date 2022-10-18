@@ -114,8 +114,10 @@ def ignoredFilesFromSettings():
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
                   "text='Behavior'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Behavior")
-    ensureChecked("{type='QCheckBox' name='skipTrailingWhitespace'}")
-    ignoredLineEdit = waitForObject("{type='QLineEdit' name='ignoreFileTypes'}")
+    cleanWhiteSpaceCB = "{type='QCheckBox' text='Skip clean whitespace for file types:'}"
+    ensureChecked(cleanWhiteSpaceCB)
+    ignoredLE = "{type='QLineEdit' leftWidget=%s}" % cleanWhiteSpaceCB
+    ignoredLineEdit = waitForObject(ignoredLE)
     ignoredFiles = str(ignoredLineEdit.text).split(',')
     test.log("Ignored files: %s" % str(ignoredFiles))
     clickButton(":Options.Cancel_QPushButton")

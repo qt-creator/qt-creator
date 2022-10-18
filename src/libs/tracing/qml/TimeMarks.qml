@@ -78,11 +78,11 @@ Item {
                 property double maxVal: scope.model ? scope.model.rowMaxValue(index) : 0
                 property double valDiff: maxVal - minVal
                 property bool scaleVisible: scope.model && scope.model.expanded &&
-                                            height > scaleMinHeight && valDiff > 0
+                                            height > timeMarks.scaleMinHeight && valDiff > 0
 
                 property double stepVal: {
                     var ret = 1;
-                    var ugly = Math.ceil(valDiff / Math.floor(height / scaleStepping));
+                    var ugly = Math.ceil(valDiff / Math.floor(height / timeMarks.scaleStepping));
                     while (isFinite(ugly) && ugly > 1) {
                         ugly /= 2;
                         ret *= 2;
@@ -122,7 +122,8 @@ Item {
                                     anchors.bottomMargin: 2
                                     anchors.leftMargin: 2
                                     anchors.left: parent.left
-                                    text: prettyPrintScale(scaleItem.minVal + index * scaleItem.stepVal)
+                                    text: prettyPrintScale(scaleItem.minVal
+                                                           + index * scaleItem.stepVal)
                                 }
 
                                 Rectangle {

@@ -3249,11 +3249,11 @@ void EditorManager::addCloseEditorListener(const std::function<bool (IEditor *)>
 
     \sa DocumentManager::getOpenFileNames()
 */
-FilePaths EditorManager::getOpenFilePaths()
+FilePaths EditorManager::getOpenFilePaths(QFileDialog::Options options)
 {
     QString selectedFilter;
     const QString &fileFilters = DocumentManager::fileDialogFilter(&selectedFilter);
-    return DocumentManager::getOpenFileNames(fileFilters, {}, &selectedFilter);
+    return DocumentManager::getOpenFileNames(fileFilters, {}, &selectedFilter, options);
 }
 
 static QString makeTitleUnique(QString *titlePattern)

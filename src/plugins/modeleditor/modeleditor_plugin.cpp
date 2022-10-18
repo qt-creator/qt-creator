@@ -83,7 +83,6 @@ void ModelEditorPlugin::extensionsInitialized()
 ExtensionSystem::IPlugin::ShutdownFlag ModelEditorPlugin::aboutToShutdown()
 {
     d->settingsController.save(Core::ICore::settings());
-    QApplication::clipboard()->clear();
     return SynchronousShutdown;
 }
 

@@ -16,6 +16,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <cppeditor/cpptoolsreuse.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -217,10 +218,17 @@ void CMakeManager::buildFile(Node *node)
     CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(fileNode->parentProjectNode());
     if (!targetNode)
         return;
+    Utils::FilePath filePath = fileNode->filePath();
+    if (filePath.fileName().contains(".h")) {
+        bool wasHeader = false;
+        const QString sourceFile = CppEditor::correspondingHeaderOrSource(filePath.toString(), &wasHeader);
+        if (wasHeader && !sourceFile.isEmpty())
+            filePath = Utils::FilePath::fromString(sourceFile);
+    }
     Target *target = project->activeTarget();
     QTC_ASSERT(target, return);
     const QString generator = CMakeGeneratorKitAspect::generator(target->kit());
-    const QString relativeSource = fileNode->filePath().relativeChildPath(targetNode->filePath()).toString();
+    const QString relativeSource = filePath.relativeChildPath(targetNode->filePath()).toString();
     const QString objExtension = Utils::HostOsInfo::isWindowsHost() ? QString(".obj") : QString(".o");
     Utils::FilePath targetBase;
     BuildConfiguration *bc = target->activeBuildConfiguration();

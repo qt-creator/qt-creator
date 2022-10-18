@@ -5707,8 +5707,8 @@ void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
         }
     }
 
-    QTextCursor oldCursor = multiTextCursor().mainCursor();
-    const int oldPosition = oldCursor.position();
+    QTextCursor eventCursor = cursorForPosition(QPoint(e->pos().x(), e->pos().y()));
+    const int eventDocumentPosition = eventCursor.position();
 
     QPlainTextEdit::mouseDoubleClickEvent(e);
 
@@ -5716,19 +5716,19 @@ void TextEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
     // event is triggered on a position that is inbetween two whitespaces this event selects the
     // previous word or nothing if the whitespaces are at the block start. Replace this behavior
     // with selecting the whitespaces starting from the previous word end to the next word.
-    const QChar character = characterAt(oldPosition);
-    const QChar prevCharacter = characterAt(oldPosition - 1);
+    const QChar character = characterAt(eventDocumentPosition);
+    const QChar prevCharacter = characterAt(eventDocumentPosition - 1);
 
     if (character.isSpace() && prevCharacter.isSpace()) {
         if (prevCharacter != QChar::ParagraphSeparator) {
-            oldCursor.movePosition(QTextCursor::PreviousWord);
-            oldCursor.movePosition(QTextCursor::EndOfWord);
+            eventCursor.movePosition(QTextCursor::PreviousWord);
+            eventCursor.movePosition(QTextCursor::EndOfWord);
         } else if (character == QChar::ParagraphSeparator) {
             return; // no special handling for empty lines
         }
-        oldCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+        eventCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
         MultiTextCursor cursor = multiTextCursor();
-        cursor.replaceMainCursor(oldCursor);
+        cursor.replaceMainCursor(eventCursor);
         setMultiTextCursor(cursor);
     }
 }

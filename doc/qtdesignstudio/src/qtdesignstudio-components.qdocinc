@@ -28,7 +28,7 @@
     \endtable
 
     You can edit the properties of the controls in all the preset
-    \l{Adding States}{states} to apply your own style to them.
+    \l{Working with States}{states} to apply your own style to them.
 
     \note For buttons and check boxes, you can disable the misbehaving hover
     effects by selecting \l Properties > \uicontrol Control, and then disabling

@@ -11,4 +11,3 @@ Text {
     renderType: Text.NativeRendering
     color: Theme.color(Theme.Timeline_TextColor)
 }
-

@@ -220,22 +220,35 @@ static void setupInstallSettings(QString &installSettingspath)
             QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR), QLatin1String(Core::Constants::IDE_CASED_ID)));
         installSettingspath.clear();
     }
-    // Check if the default install settings contain a setting for the actual install settings.
-    // This can be an absolute path, or a path relative to applicationDirPath().
-    // The result is interpreted like -settingspath, but for SystemScope
     static const char kInstallSettingsKey[] = "Settings/InstallSettings";
     QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
         installSettingspath.isEmpty() ? resourcePath() : installSettingspath);
 
-    QSettings installSettings(QSettings::IniFormat, QSettings::UserScope,
-                              QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
-                              QLatin1String(Core::Constants::IDE_CASED_ID));
-    if (installSettings.contains(kInstallSettingsKey)) {
-        QString installSettingsPath = installSettings.value(kInstallSettingsKey).toString();
-        if (QDir::isRelativePath(installSettingsPath))
-            installSettingsPath = applicationDirPath() + '/' + installSettingsPath;
-        QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, installSettingsPath);
-    }
+    // Check if the default install settings contain a setting for the actual install settings.
+    // This can be an absolute path, or a path relative to applicationDirPath().
+    // The result is interpreted like -settingspath, but for SystemScope.
+    //
+    // Through the sdktool split that is upcoming, the new install settings might redirect
+    // yet a second time. So try this a few times.
+    // (Only the first time with QSettings::UserScope, to allow setting the install settings path
+    // in the user settings.)
+    QSettings::Scope scope = QSettings::UserScope;
+    int count = 0;
+    bool containsInstallSettingsKey = false;
+    do {
+        QSettings installSettings(QSettings::IniFormat, scope,
+                                  QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+                                  QLatin1String(Core::Constants::IDE_CASED_ID));
+        containsInstallSettingsKey = installSettings.contains(kInstallSettingsKey);
+        if (containsInstallSettingsKey) {
+            QString newInstallSettingsPath = installSettings.value(kInstallSettingsKey).toString();
+            if (QDir::isRelativePath(newInstallSettingsPath))
+                newInstallSettingsPath = applicationDirPath() + '/' + newInstallSettingsPath;
+            QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, newInstallSettingsPath);
+        }
+        scope = QSettings::SystemScope; // UserScope only the first time we check
+        ++count;
+    } while (containsInstallSettingsKey && count < 3);
 }
 
 static Utils::QtcSettings *createUserSettings()

@@ -32,17 +32,9 @@ protected:
 
     void setInternalInitializer(const std::function<CheckResult()> &init);
     void setRunPreparer(const std::function<void()> &prep);
-
-    template <class T>
-    T *createDeployService()
-    {
-        T *service = new T;
-        setDeployService(service);
-        return service;
-    }
+    void setDeployService(AbstractRemoteLinuxDeployService *service);
 
 private:
-    void setDeployService(AbstractRemoteLinuxDeployService *service);
     void handleProgressMessage(const QString &message);
     void handleErrorMessage(const QString &message);
     void handleWarningMessage(const QString &message);

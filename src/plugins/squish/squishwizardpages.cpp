@@ -126,8 +126,8 @@ void SquishToolkitsPage::fetchServerSettings()
     auto squishTools = SquishTools::instance();
     QTC_ASSERT(squishTools, return);
 
-    connect(squishTools, &SquishTools::queryFinished, this,
-            [this] (const QString &out, const QString &error) {
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    squishTools->queryServerSettings([this](const QString &out, const QString &error) {
         SquishServerSettings s;
         s.setFromXmlOutput(out);
         QApplication::restoreOverrideCursor();
@@ -149,8 +149,6 @@ void SquishToolkitsPage::fetchServerSettings()
             m_errorLabel->setVisible(true);
         }
     });
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    squishTools->queryServerSettings();
 }
 
 /********************************* ScriptLanguagePage ********************************************/

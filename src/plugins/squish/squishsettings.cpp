@@ -42,6 +42,17 @@ SquishSettings::SquishSettings()
     squishPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     squishPath.setExpectedKind(PathChooser::ExistingDirectory);
     squishPath.setPlaceHolderText(Tr::tr("Path to Squish installation"));
+    squishPath.setValidationFunction([this](FancyLineEdit *edit, QString *error) {
+        QTC_ASSERT(edit, return false);
+        if (!squishPath.pathChooser()->defaultValidationFunction()(edit, error))
+            return false;
+        const FilePath squishServer = FilePath::fromString(edit->text())
+                .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
+        const bool valid = squishServer.isExecutableFile();
+        if (!valid && error)
+            *error = Tr::tr("Path does not contain server executable at its default location.");
+        return valid;
+    });
 
     registerAspect(&licensePath);
     licensePath.setSettingsKey("LicensePath");
@@ -84,6 +95,8 @@ SquishSettings::SquishSettings()
         serverHost.setEnabled(!checked);
         serverPort.setEnabled(!checked);
     });
+    connect(&squishPath, &Utils::StringAspect::valueChanged,
+            this, &SquishSettings::squishPathChanged);
 }
 
 Utils::FilePath SquishSettings::scriptsPath(Language language) const
@@ -406,15 +419,13 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
 
     // query settings
     SquishTools *squishTools = SquishTools::instance();
-    connect(squishTools, &SquishTools::queryFinished, this,
-            [this, progress] (const QString &out, const QString &) {
+    squishTools->queryServerSettings([this, progress] (const QString &out, const QString &) {
         m_serverSettings.setFromXmlOutput(out);
         m_originalSettings.setFromXmlOutput(out);
         repopulateApplicationView();
         progress->hide();
         setEnabled(true);
     });
-    squishTools->queryServerSettings();
 }
 
 void SquishServerSettingsWidget::repopulateApplicationView()

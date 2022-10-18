@@ -167,8 +167,8 @@
                 not use any default classes.
         \row
             \li Code Snippet
-            \li Creates a qmake project from a code snippet. When fixing bug
-                reports that contain a code snippet, you can place the code
+            \li Creates a qmake project from a code snippet. When working on
+                bug reports that contain a code snippet, you can place the code
                 snippet into a project to compile and check it.
         \row
             \li {1,4} Non-Qt Project

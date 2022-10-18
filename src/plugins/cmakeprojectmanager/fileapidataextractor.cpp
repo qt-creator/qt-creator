@@ -264,18 +264,18 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                             continue;
 
                         const FilePath buildDir = haveLibrariesRelativeToBuildDirectory ? buildDirectory : currentBuildDir;
-                        FilePath tmp = buildDir.resolvePath(FilePath::fromUserInput(part));
+                        FilePath tmp = buildDir.resolvePath(FilePath::fromUserInput(part).onDevice(buildDir));
 
                         if (f.role == "libraries")
                             tmp = tmp.parentDir();
 
                         if (!tmp.isEmpty() && tmp.isDir()) {
                             // f.role is libraryPath or frameworkPath
-                            // On Linux, exclude sub-paths from "/lib(64)", "/usr/lib(64)" and
+                            // On *nix, exclude sub-paths from "/lib(64)", "/usr/lib(64)" and
                             // "/usr/local/lib" since these are usually in the standard search
                             // paths. There probably are more, but the naming schemes are arbitrary
                             // so we'd need to ask the linker ("ld --verbose | grep SEARCH_DIR").
-                            if (!HostOsInfo::isLinuxHost()
+                            if (buildDir.osType() == OsTypeWindows
                                 || !isChildOf(tmp,
                                               {"/lib",
                                                "/lib64",
@@ -285,9 +285,8 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                                 librarySeachPaths.append(tmp);
                                 // Libraries often have their import libs in ../lib and the
                                 // actual dll files in ../bin on windows. Qt is one example of that.
-                                if (tmp.fileName() == "lib" && HostOsInfo::isWindowsHost()) {
+                                if (tmp.fileName() == "lib" && buildDir.osType() == OsTypeWindows) {
                                     const FilePath path = tmp.parentDir().pathAppended("bin");
-
                                     if (path.isDir())
                                         librarySeachPaths.append(path);
                                 }

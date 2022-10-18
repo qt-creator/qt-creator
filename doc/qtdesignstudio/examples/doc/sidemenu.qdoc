@@ -31,7 +31,7 @@
 
     The button can have the following states: checked, hover, pressed, and
     normal. We construct the button using different images for the button
-    background, frame, and front. We then add \l{Adding States}{states} in
+    background, frame, and front. We then add \l{Working with States}{states} in
     the \l States view for each of the button states. In each state, we turn
     the visibility of the appropriate images on or off in the button properties,
     to change the appearance of the button.

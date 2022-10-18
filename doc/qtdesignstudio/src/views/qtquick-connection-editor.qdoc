@@ -6,7 +6,7 @@
     \previouspage qtquick-adding-dynamics.html
     \nextpage quick-signals.html
 
-    \title Adding Connections
+    \title Working with Connections
 
     \list
         \li \l{Connecting Components to Signals}

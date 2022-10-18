@@ -7,9 +7,10 @@
 #include <utils/icon.h>
 
 #include <QGraphicsOpacityEffect>
-#include <QPropertyAnimation>
+#include <QGuiApplication>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPropertyAnimation>
 #include <QStyleOption>
 
 #include <qdrawutil.h>
@@ -69,6 +70,8 @@ DetailsButton::DetailsButton(QWidget *parent)
 {
     setText(tr("Details"));
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    if (HostOsInfo::isMacHost())
+        setFont(QGuiApplication::font());
 }
 
 QSize DetailsButton::sizeHint() const

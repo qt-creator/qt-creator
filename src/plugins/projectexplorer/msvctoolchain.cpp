@@ -2094,6 +2094,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     if (Utils::HostOsInfo::isWindowsHost())
         saver.write("chcp 65001\r\n");
     saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
+    saver.write("set CLINK_NOAUTORUN=1\r\n");
     saver.write(call + "\r\n");
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     saver.write("set\r\n");
@@ -2116,7 +2117,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
-    CommandLine cmd(cmdPath, {"/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
+    CommandLine cmd(cmdPath, {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().toUserOutput()});
     qCDebug(Log) << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.toStringList().size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));

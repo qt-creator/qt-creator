@@ -115,12 +115,15 @@ public:
     CommandLine();
     explicit CommandLine(const FilePath &executable);
     CommandLine(const FilePath &exe, const QStringList &args);
+    CommandLine(const FilePath &exe, const QStringList &args, OsType osType);
     CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
 
     static CommandLine fromUserInput(const QString &cmdline, MacroExpander *expander = nullptr);
 
     void addArg(const QString &arg);
+    void addArg(const QString &arg, OsType osType);
     void addArgs(const QStringList &inArgs);
+    void addArgs(const QStringList &inArgs, OsType osType);
     void addArgs(const QString &inArgs, RawType);
 
     void prependArgs(const QStringList &inArgs);

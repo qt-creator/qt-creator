@@ -29,11 +29,13 @@ public:
     void runTestSuite(const QString &suiteName);
     void recordTestCase(const QString &suiteName, const QString &testCaseName);
     void addSharedFolder();
+    void setSharedFolders(const Utils::FilePaths &folders);
     bool removeSharedFolder(const Utils::FilePath &folder);
     void removeAllSharedFolders();
     void openObjectsMap(const QString &suiteName);
 
 signals:
+    void clearedSharedFolders();
     void testTreeItemCreated(SquishTestTreeItem *item);
     void suiteTreeItemRemoved(const QString &suiteName);
     void suiteTreeItemModified(SquishTestTreeItem *item, const QString &displayName);
@@ -42,6 +44,7 @@ signals:
 private:
     void closeAllInternal();
     void onSessionLoaded();
+    void updateSquishServerGlobalScripts();
     QStringList suitePathsAsStringList() const;
 
     void modifySuiteItem(const QString &suiteName,

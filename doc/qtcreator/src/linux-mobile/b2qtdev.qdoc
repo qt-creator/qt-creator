@@ -99,14 +99,15 @@
             \list 1
                 \li Select \uicontrol Edit > \uicontrol Preferences >
                     \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
-                    \uicontrol Boot2Qt > \uicontrol {Finish}.
+                    \uicontrol Boot2Qt.
                     \image qtcreator-devices-boot2qt.png "Boot2Qt Network Device Setup wizard"
                 \li In the \uicontrol {Device name} field, enter a name for
                     the connection.
                 \li In the \uicontrol {Device address} field, enter the host
                     name or IP address of the device. This value will be
                     available in the \c %{Device:HostAddress} variable.
-                \li Click \uicontrol {Next} to create the connection.
+                \li Click  > \uicontrol {Finish} to test the connection and
+                    add the device.
 
                     You can edit the connection parameters in the
                     \uicontrol Devices tab. The wizard does not show

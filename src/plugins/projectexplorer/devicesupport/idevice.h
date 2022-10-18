@@ -27,6 +27,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class CommandLine;
+class DeviceFileAccess;
 class Environment;
 class Icon;
 class PortList;
@@ -214,64 +215,21 @@ public:
     bool isMacDevice() const { return osType() == Utils::OsTypeMac; }
     bool isAnyUnixDevice() const;
 
-    virtual Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const;
-    virtual QString mapToDevicePath(const Utils::FilePath &globalPath) const;
-
+    Utils::DeviceFileAccess *fileAccess() const;
     virtual bool handlesFile(const Utils::FilePath &filePath) const;
-    virtual bool isExecutableFile(const Utils::FilePath &filePath) const;
-    virtual bool isReadableFile(const Utils::FilePath &filePath) const;
-    virtual bool isWritableFile(const Utils::FilePath &filePath) const;
-    virtual bool isReadableDirectory(const Utils::FilePath &filePath) const;
-    virtual bool isWritableDirectory(const Utils::FilePath &filePath) const;
-    virtual bool isFile(const Utils::FilePath &filePath) const;
-    virtual bool isDirectory(const Utils::FilePath &filePath) const;
-    virtual bool ensureWritableDirectory(const Utils::FilePath &filePath) const;
-    virtual bool ensureExistingFile(const Utils::FilePath &filePath) const;
-    virtual bool createDirectory(const Utils::FilePath &filePath) const;
-    virtual bool exists(const Utils::FilePath &filePath) const;
-    virtual bool removeFile(const Utils::FilePath &filePath) const;
-    virtual bool removeRecursively(const Utils::FilePath &filePath) const;
-    virtual bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
-    virtual bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const;
+
+    virtual Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const;
+
     virtual Utils::FilePath searchExecutableInPath(const QString &fileName) const;
     virtual Utils::FilePath searchExecutable(const QString &fileName,
                                              const Utils::FilePaths &dirs) const;
-    virtual Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const;
-    virtual void iterateDirectory(const Utils::FilePath &filePath,
-                                  const Utils::FilePath::IterateDirCallback &callBack,
-                                  const Utils::FileFilter &filter) const;
 
-    virtual void iterateDirectory(const Utils::FilePath &filePath,
-                                  const Utils::FilePath::IterateDirWithInfoCallback &callBack,
-                                  const Utils::FileFilter &filter) const;
-
-    virtual std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
-                                                   qint64 limit,
-                                                   qint64 offset) const;
-    virtual bool writeFileContents(const Utils::FilePath &filePath,
-                                   const QByteArray &data,
-                                   qint64 offset) const;
-    virtual Utils::FilePathInfo filePathInfo(const Utils::FilePath &filePath) const;
-    virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
-    virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
-    virtual bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const;
     virtual Utils::ProcessInterface *createProcessInterface() const;
     virtual FileTransferInterface *createFileTransferInterface(
             const FileTransferSetupData &setup) const;
     virtual Utils::Environment systemEnvironment() const;
-    virtual qint64 fileSize(const Utils::FilePath &filePath) const;
-    virtual qint64 bytesAvailable(const Utils::FilePath &filePath) const;
 
     virtual void aboutToBeRemoved() const {}
-
-    virtual void asyncFileContents(const Continuation<std::optional<QByteArray>> &cont,
-                                   const Utils::FilePath &filePath,
-                                   qint64 limit,
-                                   qint64 offset) const;
-    virtual void asyncWriteFileContents(const Continuation<bool> &cont,
-                                        const Utils::FilePath &filePath,
-                                        const QByteArray &data,
-                                        qint64 offset) const;
 
     virtual bool ensureReachable(const Utils::FilePath &other) const;
 
@@ -287,6 +245,7 @@ protected:
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);
+    void setFileAccess(Utils::DeviceFileAccess *fileAccess);
 
 private:
     IDevice(const IDevice &) = delete;

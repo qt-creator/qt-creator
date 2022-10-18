@@ -835,9 +835,13 @@ void PythonSettings::initFromSettings(QSettings *settings)
         m_interpreters << interpreter;
     }
 
-    m_interpreters = Utils::filtered(m_interpreters, [](const Interpreter &interpreter){
-        return !interpreter.autoDetected || interpreter.command.isExecutableFile();
-    });
+    const auto keepInterpreter = [](const Interpreter &interpreter) {
+        return !interpreter.autoDetected // always keep user added interpreters
+                || interpreter.command.needsDevice() // remote devices might not be reachable at startup
+                || interpreter.command.isExecutableFile();
+    };
+
+    m_interpreters = Utils::filtered(m_interpreters, keepInterpreter);
 
     m_defaultInterpreterId = settings->value(defaultKey).toString();
 

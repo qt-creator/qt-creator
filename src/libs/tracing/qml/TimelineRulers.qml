@@ -20,7 +20,7 @@ Item {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        height: scaleHeight
+        height: rulersParent.scaleHeight
 
         onClicked: (mouse) => {
             rulersModel.append({
@@ -36,7 +36,8 @@ Item {
             if (index >= 0) {
                 rulersModel.setProperty(
                         index, "timestamp",
-                        (x + contentX) * viewTimePerPixel + windowStart);
+                        (x + rulersParent.contentX) * rulersParent.viewTimePerPixel
+                            + rulersParent.windowStart);
             }
         }
     }
@@ -46,14 +47,15 @@ Item {
 
         Item {
             id: ruler
-            x: (timestamp - windowStart) / viewTimePerPixel - 1 - contentX
+            x: (timestamp - rulersParent.windowStart) / rulersParent.viewTimePerPixel
+                    - 1 - rulersParent.contentX
             y: 0
             width: 2
             height: rulersParent.height
             Rectangle {
                 id: arrow
-                height: scaleHeight
-                width: scaleHeight
+                height: rulersParent.scaleHeight
+                width: rulersParent.scaleHeight
                 rotation: 45
                 anchors.verticalCenter: parent.top
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -86,7 +88,7 @@ Item {
             Rectangle {
                 anchors.top: arrow.bottom
                 anchors.horizontalCenter: ruler.horizontalCenter
-                width: scaleHeight / 4
+                width: rulersParent.scaleHeight / 4
                 height: width
                 color: Theme.color(Theme.Timeline_PanelBackgroundColor)
 

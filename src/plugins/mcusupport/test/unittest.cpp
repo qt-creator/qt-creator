@@ -3,6 +3,7 @@
 
 #include "unittest.h"
 
+#include "armgcc_ek_ra6m3g_baremetal_json.h"
 #include "armgcc_mimxrt1050_evk_freertos_json.h"
 #include "armgcc_mimxrt1064_evk_freertos_json.h"
 #include "armgcc_mimxrt1170_evk_freertos_json.h"
@@ -11,6 +12,7 @@
 #include "errors_json.h"
 #include "gcc_desktop_json.h"
 #include "ghs_rh850_d1m1a_baremetal_json.h"
+#include "ghs_tviic2d6m_baremetal_json.h"
 #include "iar_mimxrt1064_evk_freertos_json.h"
 #include "iar_stm32f469i_discovery_baremetal_json.h"
 #include "msvc_desktop_json.h"
@@ -122,6 +124,43 @@ const char stm32f7[]{"STM32F7"};
 const char vendor[]{"target_vendor"};
 const QString settingsPrefix = QLatin1String(Constants::SETTINGS_GROUP) + '/'
                                + QLatin1String(Constants::SETTINGS_KEY_PACKAGE_PREFIX);
+
+const char defaultToolPath[]{"/opt/biz/foo"};
+const char xpressoIdePath[]{"/usr/local/mcuxpressoide"};
+const char xpressoIdeLabel[]{"MCUXpresso IDE"};
+const char xpressoIdeSetting[]{"MCUXpressoIDE"};
+const char xpressoIdeCmakeVar[]{"MCUXPRESSO_IDE_PATH"};
+const char xpressoIdeEnvVar[]{"MCUXpressoIDE_PATH"};
+const char xpressoIdeDetectionPath[]{"ide/binaries/crt_emu_cm_redlink"};
+
+const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
+const char stmCubeProgrammerLabel[]{"STM32CubeProgrammer"};
+const QString stmCubeProgrammerPath{QString{defaultToolPath} + "/bin"};
+const QString stmCubeProgrammerDetectionPath{"/bin/STM32_Programmer.sh"};
+
+const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
+const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
+const QString renesasProgrammerEnvVar{renesasProgrammerCmakeVar};
+const char renesasProgrammerLabel[]{"Renesas Flash Programmer"};
+const char renesasProgrammerDetectionPath[]{"rfp-cli"};
+
+const char renesasE2StudioCmakeVar[]{"EK_RA6M3G_E2_PROJECT_PATH"};
+const char renesasE2StudioDefaultPath[]{"%{Env:HOME}/e2_studio/workspace"};
+const QString renesasE2StudioPath{(FileUtils::homePath() / "/e2_studio/workspace").toUserOutput()};
+const char renesasE2StudioLabel[]{"Path to project for Renesas e2 Studio"};
+const char renesasE2StudioSetting[]{"RenesasE2StudioPath"};
+
+const char cypressProgrammerSetting[]{"CypressAutoFlashUtil"};
+const char cypressProgrammerCmakeVar[]{"INFINEON_AUTO_FLASH_UTILITY_DIR"};
+const char cypressProgrammerEnvVar[]{"CYPRESS_AUTO_FLASH_UTILITY_DIR"};
+const char cypressProgrammerLabel[]{"Cypress Auto Flash Utility"};
+const char cypressProgrammerDetectionPath[]{"/bin/openocd"};
+
+const char jlinkPath[]{"/opt/SEGGER/JLink"};
+const char jlinkSetting[]{"JLinkPath"};
+const char jlinkCmakeVar[]{"JLINK_PATH"};
+const char jlinkEnvVar[]{"JLINK_PATH"};
+const char jlinkLabel[]{"Path to SEGGER J-Link"};
 
 const QString unsupportedToolchainFilePath = QString{qtForMcuSdkPath}
                                              + "/lib/cmake/Qul/toolchain/unsupported.cmake";
@@ -282,6 +321,7 @@ void verifyPackage(const McuPackagePtr &package,
                    const QString &cmakeVar,
                    const QString &envVar,
                    const QString &label,
+                   const QString &detectionPath,
                    const QStringList &versions)
 {
     QVERIFY(package);
@@ -290,6 +330,7 @@ void verifyPackage(const McuPackagePtr &package,
     QCOMPARE(package->cmakeVariableName(), cmakeVar);
     QCOMPARE(package->environmentVariableName(), envVar);
     QCOMPARE(package->label(), label);
+    QCOMPARE(package->detectionPath().toString(), detectionPath);
     QCOMPARE(package->settingsKey(), setting);
     QCOMPARE(package->versions(), versions);
 }
@@ -928,11 +969,12 @@ void McuSupportTest::test_createTargetWithToolchainPackages()
 
     verifyPackage(qtForMCUsSDK,
                   qtForMcuSdkPath,
-                  {}, // qtForMcuSdkPath
+                  {},
                   Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
                   QUL_CMAKE_VAR,
                   QUL_ENV_VAR,
                   QUL_LABEL,
+                  {},
                   {});
 
     verifyTargetToolchains(targets,
@@ -1372,76 +1414,164 @@ void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
 
 void McuSupportTest::test_legacy_createThirdPartyPackage_data()
 {
-    const QString defaultToolPath{"/opt/biz/foo"};
-
-    const char xpressoIdeSetting[]{"MCUXpressoIDE"};
-    const char xpressoIdeCmakeVar[]{"MCUXPRESSO_IDE_PATH"};
-    const char xpressoIdeEnvVar[]{"MCUXpressoIDE_PATH"};
-
-    const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
-    const QString stmCubeProgrammerPath{defaultToolPath + "/bin"};
-
-    const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
-    const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
-    const QString renesasProgrammerEnvVar{renesasProgrammerCmakeVar};
-
-    const char cypressProgrammerSetting[]{"CypressAutoFlashUtil"};
-    const char cypressProgrammerCmakeVar[]{"INFINEON_AUTO_FLASH_UTILITY_DIR"};
-    const char cypressProgrammerEnvVar[]{"CYPRESS_AUTO_FLASH_UTILITY_DIR"};
-
     QTest::addColumn<PackageCreator>("creator");
+    QTest::addColumn<QString>("json");
     QTest::addColumn<QString>("path");
     QTest::addColumn<QString>("defaultPath");
     QTest::addColumn<QString>("setting");
     QTest::addColumn<QString>("cmakeVar");
     QTest::addColumn<QString>("envVar");
+    QTest::addColumn<QString>("label");
+    QTest::addColumn<QString>("detectionPath");
 
-    QTest::newRow("mcuXpresso") << PackageCreator{[this]() {
-        return Legacy::createMcuXpressoIdePackage(settingsMockPtr);
-    }} << defaultToolPath << defaultToolPath
-                                << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar;
-    QTest::newRow("stmCubeProgrammer") << PackageCreator{[this]() {
-        return Legacy::createStm32CubeProgrammerPackage(settingsMockPtr);
-    }} << stmCubeProgrammerPath << defaultToolPath
-                                       << stmCubeProgrammerSetting << empty << empty;
+    QTest::newRow("armgcc_mimxrt1050_evk_freertos_json mcuXpresso")
+        << PackageCreator{[this]() { return Legacy::createMcuXpressoIdePackage(settingsMockPtr); }}
+        << armgcc_mimxrt1050_evk_freertos_json << xpressoIdePath << xpressoIdePath
+        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
+        << xpressoIdeDetectionPath;
 
-    QTest::newRow("renesasProgrammer") << PackageCreator{[this]() {
-        return Legacy::createRenesasProgrammerPackage(settingsMockPtr);
-    }} << defaultToolPath << defaultToolPath
-                                       << renesasProgrammerSetting << renesasProgrammerCmakeVar
-                                       << renesasProgrammerEnvVar;
+    QTest::newRow("armgcc_mimxrt1064_evk_freertos_json mcuXpresso")
+        << PackageCreator{[this]() { return Legacy::createMcuXpressoIdePackage(settingsMockPtr); }}
+        << armgcc_mimxrt1064_evk_freertos_json << xpressoIdePath << xpressoIdePath
+        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
+        << xpressoIdeDetectionPath;
 
-    QTest::newRow("cypressProgrammer") << PackageCreator{[this]() {
-        return Legacy::createCypressProgrammerPackage(settingsMockPtr);
-    }} << defaultToolPath << defaultToolPath
-                                       << cypressProgrammerSetting << cypressProgrammerCmakeVar
-                                       << cypressProgrammerEnvVar;
+    QTest::newRow("armgcc_mimxrt1170_evk_freertos_json mcuXpresso")
+        << PackageCreator{[this]() { return Legacy::createMcuXpressoIdePackage(settingsMockPtr); }}
+        << armgcc_mimxrt1170_evk_freertos_json << xpressoIdePath << xpressoIdePath
+        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
+        << xpressoIdeDetectionPath;
+
+    QTest::newRow("armgcc_stm32h750b_discovery_baremetal_json stmCubeProgrammer")
+        << PackageCreator{[this]() {
+               return Legacy::createStm32CubeProgrammerPackage(settingsMockPtr);
+           }}
+        << armgcc_stm32h750b_discovery_baremetal_json << stmCubeProgrammerPath
+        << stmCubeProgrammerPath << stmCubeProgrammerSetting << empty << empty
+        << stmCubeProgrammerLabel << stmCubeProgrammerDetectionPath;
+    QTest::newRow("armgcc_stm32f769i_discovery_freertos_json stmCubeProgrammer")
+        << PackageCreator{[this]() {
+               return Legacy::createStm32CubeProgrammerPackage(settingsMockPtr);
+           }}
+        << armgcc_stm32f769i_discovery_freertos_json << stmCubeProgrammerPath
+        << stmCubeProgrammerPath << stmCubeProgrammerSetting << empty << empty
+        << stmCubeProgrammerLabel << stmCubeProgrammerDetectionPath;
+    QTest::newRow("ghs_rh850_d1m1a_baremetal_json renesasProgrammer")
+        << PackageCreator{[this]() {
+               return Legacy::createRenesasProgrammerPackage(settingsMockPtr);
+           }}
+        << ghs_rh850_d1m1a_baremetal_json << defaultToolPath << defaultToolPath
+        << renesasProgrammerSetting << renesasProgrammerCmakeVar << renesasProgrammerEnvVar
+        << renesasProgrammerLabel << renesasProgrammerDetectionPath;
 }
 
 void McuSupportTest::test_legacy_createThirdPartyPackage()
 {
     QFETCH(PackageCreator, creator);
+    QFETCH(QString, json);
     QFETCH(QString, path);
     QFETCH(QString, defaultPath);
     QFETCH(QString, setting);
     QFETCH(QString, cmakeVar);
     QFETCH(QString, envVar);
-
-    if (!envVar.isEmpty())
-        QVERIFY(qputenv(envVar.toLocal8Bit(), defaultPath.toLocal8Bit()));
+    QFETCH(QString, label);
+    QFETCH(QString, detectionPath);
 
     EXPECT_CALL(*settingsMockPtr, getPath(QString{setting}, _, _))
         .Times(2)
         .WillRepeatedly(Return(FilePath::fromUserInput(defaultPath)));
 
-    McuPackagePtr thirdPartyPacakge{creator()};
-    QVERIFY(thirdPartyPacakge);
-    QCOMPARE(thirdPartyPacakge->settingsKey(), setting);
-    QCOMPARE(thirdPartyPacakge->environmentVariableName(), envVar);
-    QCOMPARE(thirdPartyPacakge->path().toString(), path);
+    McuPackagePtr thirdPartyPackage{creator()};
+    verifyPackage(thirdPartyPackage,
+                  path,
+                  defaultPath,
+                  setting,
+                  cmakeVar,
+                  envVar,
+                  label,
+                  detectionPath,
+                  {});
+}
 
-    if (!envVar.isEmpty())
-        QVERIFY(qunsetenv(envVar.toLocal8Bit()));
+void McuSupportTest::test_createThirdPartyPackage_data()
+{
+    test_legacy_createThirdPartyPackage_data();
+}
+
+void McuSupportTest::test_createThirdPartyPackage()
+{
+    QFETCH(QString, json);
+    QFETCH(QString, path);
+    QFETCH(QString, defaultPath);
+    QFETCH(QString, setting);
+    QFETCH(QString, cmakeVar);
+    QFETCH(QString, envVar);
+    QFETCH(QString, label);
+
+    McuTargetDescription targetDescription{parseDescriptionJson(json.toLocal8Bit())};
+
+    EXPECT_CALL(*settingsMockPtr, getPath(QString{setting}, QSettings::SystemScope, _))
+        .Times(testing::AtMost(1))
+        .WillOnce(Return(FilePath::fromUserInput(defaultPath)));
+
+    EXPECT_CALL(*settingsMockPtr, getPath(QString{setting}, QSettings::UserScope, _))
+        .Times(testing::AtMost(1))
+        .WillOnce(Return(FilePath::fromUserInput(path)));
+
+    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+
+    auto thirdPartyPackage = findOrDefault(packages, [&setting](const McuPackagePtr &pkg) {
+        return (pkg->settingsKey() == setting);
+    });
+
+    verifyPackage(thirdPartyPackage, path, defaultPath, setting, cmakeVar, envVar, label, {}, {});
+}
+
+void McuSupportTest::test_legacy_createCypressProgrammer3rdPartyPackage()
+{
+    EXPECT_CALL(*settingsMockPtr, getPath(QString{cypressProgrammerSetting}, _, _))
+        .Times(2)
+        .WillRepeatedly(Return(FilePath::fromUserInput(defaultToolPath)));
+
+    McuPackagePtr thirdPartyPackage{Legacy::createCypressProgrammerPackage(settingsMockPtr)};
+    verifyPackage(thirdPartyPackage,
+                  defaultToolPath,
+                  defaultToolPath,
+                  cypressProgrammerSetting,
+                  cypressProgrammerCmakeVar,
+                  cypressProgrammerEnvVar,
+                  cypressProgrammerLabel,
+                  cypressProgrammerDetectionPath,
+                  {});
+}
+
+void McuSupportTest::test_createJLink3rdPartyPackage()
+{
+    McuTargetDescription targetDescription{parseDescriptionJson(armgcc_ek_ra6m3g_baremetal_json)};
+
+    EXPECT_CALL(*settingsMockPtr, getPath(QString{jlinkSetting}, QSettings::SystemScope, _))
+        .Times(testing::AtMost(1))
+        .WillOnce(Return(FilePath::fromUserInput(jlinkPath)));
+
+    EXPECT_CALL(*settingsMockPtr, getPath(QString{jlinkSetting}, QSettings::UserScope, _))
+        .Times(testing::AtMost(1))
+        .WillOnce(Return(FilePath::fromUserInput(jlinkPath)));
+
+    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+
+    auto thirdPartyPackage = findOrDefault(packages, [](const McuPackagePtr &pkg) {
+        return (pkg->settingsKey() == jlinkSetting);
+    });
+
+    verifyPackage(thirdPartyPackage,
+                  jlinkPath,
+                  jlinkPath,
+                  jlinkSetting,
+                  jlinkCmakeVar,
+                  jlinkEnvVar,
+                  jlinkLabel,
+                  {},
+                  {});
 }
 
 void McuSupportTest::test_defaultValueForEachOperationSystem()

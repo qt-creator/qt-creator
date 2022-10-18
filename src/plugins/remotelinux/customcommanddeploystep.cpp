@@ -92,7 +92,8 @@ public:
     CustomCommandDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto service = createDeployService<CustomCommandDeployService>();
+        auto service = new CustomCommandDeployService;
+        setDeployService(service);
 
         auto commandLine = addAspect<StringAspect>();
         commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");

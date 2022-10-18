@@ -83,7 +83,6 @@ private:
 
     CustomParserSettings customParserSettings() const;
 
-    Utils::FilePath m_compilerCommand;
     Utils::FilePath m_makeCommand;
 
     Macros m_predefinedMacros;

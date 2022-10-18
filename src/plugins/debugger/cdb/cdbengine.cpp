@@ -611,9 +611,6 @@ void CdbEngine::shutdownInferior()
         if (commandsPending()) {
             showMessage("Cannot shut down inferior due to pending commands.", LogWarning);
             STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
-        } else if (!canInterruptInferior()) {
-            showMessage("Cannot interrupt the inferior.", LogWarning);
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownFinished")
         } else {
             interruptInferior(); // Calls us again
             return;
@@ -758,17 +755,24 @@ void CdbEngine::doContinueInferior()
     runCommand({"g", NoFlags});
 }
 
-bool CdbEngine::canInterruptInferior() const
-{
-    return m_effectiveStartMode != AttachToRemoteServer && inferiorPid();
-}
-
 void CdbEngine::interruptInferior()
 {
     if (debug)
         qDebug() << "CdbEngine::interruptInferior()" << stateName(state());
 
     doInterruptInferior();
+}
+
+void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
+{
+    if (errorMessage.isEmpty()) {
+        showMessage("Interrupted " + QString::number(inferiorPid()));
+    } else {
+        showMessage(errorMessage, LogError);
+        notifyInferiorStopFailed();
+    }
+    m_signalOperation->disconnect(this);
+    m_signalOperation.clear();
 }
 
 void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
@@ -787,6 +791,18 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
     if (!requestInterrupt)
         return; // we already requested a stop no need to interrupt twice
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
+
+    QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed(); return);
+    if (m_effectiveStartMode != AttachToRemoteServer && device()) {
+        m_signalOperation = device()->signalOperation();
+        if (m_signalOperation) {
+            connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
+                    this, &CdbEngine::handleDoInterruptInferior);
+            m_signalOperation->setDebuggerCommand(runParameters().debugger.command.executable());
+            m_signalOperation->interruptProcess(inferiorPid());
+            return;
+        }
+    }
     m_process.interrupt();
 }
 

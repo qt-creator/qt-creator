@@ -278,7 +278,8 @@ public:
         : GitBaseDiffEditorController(document, leftCommit, rightCommit)
     {
         setReloader([this, extraArgs] {
-            runCommand({addConfigurationArguments(baseArguments() << extraArgs)});
+            runCommand({addConfigurationArguments(baseArguments() << extraArgs)},
+                       VcsBaseEditor::getCodec(workingDirectory(), {}));
         });
     }
 };
@@ -413,7 +414,7 @@ public:
                 argLists << addConfigurationArguments(baseArguments() << "--" << unstagedFiles);
 
             if (!argLists.isEmpty())
-                runCommand(argLists);
+                runCommand(argLists, VcsBaseEditor::getCodec(workingDirectory(), stagedFiles + unstagedFiles));
         });
     }
 };
@@ -1353,9 +1354,10 @@ VcsBaseEditorWidget *GitClient::annotate(
 
     editor->setWorkingDirectory(workingDir);
     QStringList arguments = {"blame", "--root"};
-    arguments << argWidget->arguments() << "--" << file;
+    arguments << argWidget->arguments();
     if (!revision.isEmpty())
         arguments << revision;
+    arguments << "--" << file;
     editor->setDefaultLineNumber(lineNumber);
     vcsExec(workingDir, arguments, editor);
     return editor;

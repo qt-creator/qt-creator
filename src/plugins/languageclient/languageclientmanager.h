@@ -100,7 +100,6 @@ private:
 
     QList<Client *> reachableClients();
 
-    bool m_shuttingDown = false;
     QList<Client *> m_clients;
     QList<BaseSettings *>  m_currentSettings; // owned
     QMap<QString, QList<Client *>> m_clientsForSetting;

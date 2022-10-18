@@ -50,6 +50,7 @@ class MaterialBrowserBundleModel : public QAbstractListModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasMaterialRoot READ hasMaterialRoot WRITE setHasMaterialRoot NOTIFY hasMaterialRootChanged)
+    Q_PROPERTY(bool importerRunning MEMBER m_importerRunning NOTIFY importerRunningChanged)
 
 public:
     MaterialBrowserBundleModel(QObject *parent = nullptr);
@@ -59,6 +60,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
+    void updateImportedState(const QStringList &importedMats);
 
     bool hasQuick3DImport() const;
     void setHasQuick3DImport(bool b);
@@ -66,10 +68,13 @@ public:
     bool hasMaterialRoot() const;
     void setHasMaterialRoot(bool b);
 
+    Internal::BundleImporter *bundleImporter() const;
+
     void resetModel();
 
     Q_INVOKABLE void applyToSelected(QmlDesigner::BundleMaterial *mat, bool add = false);
-    Q_INVOKABLE void addMaterial(QmlDesigner::BundleMaterial *mat);
+    Q_INVOKABLE void addToProject(QmlDesigner::BundleMaterial *mat);
+    Q_INVOKABLE void removeFromProject(QmlDesigner::BundleMaterial *mat);
 
 signals:
     void isEmptyChanged();
@@ -77,7 +82,10 @@ signals:
     void hasMaterialRootChanged();
     void materialVisibleChanged();
     void applyToSelectedTriggered(QmlDesigner::BundleMaterial *mat, bool add = false);
-    void addBundleMaterialToProjectRequested(const QmlDesigner::NodeMetaInfo &metaInfo);
+    void bundleMaterialImported(const QmlDesigner::NodeMetaInfo &metaInfo);
+    void bundleMaterialAboutToUnimport(const QmlDesigner::TypeName &type);
+    void bundleMaterialUnimported(const QmlDesigner::NodeMetaInfo &metaInfo);
+    void importerRunningChanged();
 
 private:
     void loadMaterialBundle();
@@ -93,6 +101,7 @@ private:
     bool m_hasMaterialRoot = false;
     bool m_matBundleExists = false;
     bool m_probeMatBundleDir = false;
+    bool m_importerRunning = false;
 };
 
 } // namespace QmlDesigner

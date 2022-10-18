@@ -137,6 +137,27 @@ ProjectPart::ConstPtr ProjectInfoGenerator::createProjectPart(
         tcInfo = m_projectUpdateInfo.cxxToolChainInfo;
     }
 
+    QString explicitTarget;
+    if (!tcInfo.targetTripleIsAuthoritative) {
+        for (int i = 0; i < flags.commandLineFlags.size(); ++i) {
+            const QString &flag = flags.commandLineFlags.at(i);
+            if (flag == "-target") {
+                if (i + 1 < flags.commandLineFlags.size())
+                    explicitTarget = flags.commandLineFlags.at(i + 1);
+                break;
+            } else if (flag.startsWith("--target=")) {
+                explicitTarget = flag.mid(9);
+                break;
+            }
+        }
+    }
+    if (!explicitTarget.isEmpty()) {
+        tcInfo.targetTriple = explicitTarget;
+        tcInfo.targetTripleIsAuthoritative = true;
+        if (const Abi abi = Abi::fromString(tcInfo.targetTriple); abi.isValid())
+            tcInfo.abi = abi;
+    }
+
     return ProjectPart::create(projectFilePath, rawProjectPart, partName, projectFiles,
                                language, languageExtensions, flags, tcInfo);
 }
