@@ -75,8 +75,8 @@
         "VCToolsVersion": "14.29.30133",
         "WindowsSDKVersion" : "10.0.22000.0",
         "VCArch": "x64",
-        "VCToolsInstallDir": "$penv{ProgramFiles(x86)}/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/$env{VCToolsVersion}",
-        "WindowsSdkDir" : "$penv{ProgramFiles(x86)}/Windows Kits/10",
+        "VCToolsInstallDir": "$env{ProgramFiles(x86)}/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/$env{VCToolsVersion}",
+        "WindowsSdkDir" : "$env{ProgramFiles(x86)}/Windows Kits/10",
         "WindowsSdkIncVerDir": "$env{WindowsSdkDir}/Include/$env{WindowsSDKVersion}",
         "WindowsSdkLibVerDir": "$env{WindowsSdkDir}/Lib/$env{WindowsSDKVersion}",
 
@@ -90,7 +90,7 @@
       "displayName": "Linux GCC",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-${presetName}",
-      "toolchainFile" : "$penv{HOME}/Qt/6.3.2/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile" : "$env{HOME}/Qt/6.3.2/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
       "condition" : {
         "type": "equals",
         "lhs": "${hostSystemName}",

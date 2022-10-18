@@ -99,13 +99,33 @@ static QString expandMacroEnv(const QString &macroPrefix,
     return result;
 }
 
+static QHash<QString, QString> getEnvCombined(
+    const std::optional<QHash<QString, QString>> &optPresetEnv, const Utils::Environment &env)
+{
+    QHash<QString, QString> result;
+
+    for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
+        if (it.value().second)
+            result.insert(it.key().name, it.value().first);
+    }
+
+    if (!optPresetEnv)
+        return result;
+
+    QHash<QString, QString> presetEnv = optPresetEnv.value();
+    for (auto it = presetEnv.constKeyValueBegin(); it != presetEnv.constKeyValueEnd(); ++it) {
+        result[it->first] = it->second;
+    }
+
+    return result;
+}
+
 template<class PresetType>
 void expand(const PresetType &preset,
             Utils::Environment &env,
             const Utils::FilePath &sourceDirectory)
 {
-    const QHash<QString, QString> presetEnv = preset.environment ? preset.environment.value()
-                                                                 : QHash<QString, QString>();
+    const QHash<QString, QString> presetEnv = getEnvCombined(preset.environment, env);
     for (auto it = presetEnv.constKeyValueBegin(); it != presetEnv.constKeyValueEnd(); ++it) {
         const QString key = it->first;
         QString value = it->second;
@@ -143,14 +163,15 @@ void expand(const PresetType &preset,
 {
     const QHash<QString, QString> presetEnv = preset.environment ? preset.environment.value()
                                                                  : QHash<QString, QString>();
-
     for (auto it = presetEnv.constKeyValueBegin(); it != presetEnv.constKeyValueEnd(); ++it) {
         const QString key = it->first;
         QString value = it->second;
 
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
-            return presetEnv.value(macroName);
+            if (presetEnv.contains(macroName))
+                return presetEnv.value(macroName);
+            return QString("${%1}").arg(macroName);
         });
 
         auto operation = Utils::EnvironmentItem::Operation::SetEnabled;
@@ -178,9 +199,7 @@ void expand(const PresetType &preset,
 {
     expandAllButEnv(preset, sourceDirectory, value);
 
-    const QHash<QString, QString> presetEnv = preset.environment ? preset.environment.value()
-                                                                 : QHash<QString, QString>();
-
+    const QHash<QString, QString> presetEnv = getEnvCombined(preset.environment, env);
     value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
         return presetEnv.value(macroName);
     });
