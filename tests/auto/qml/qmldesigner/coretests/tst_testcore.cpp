@@ -155,8 +155,8 @@ public:
     bool viewManagerUsesRewriterView(class RewriterView *) const override { return true; }
     void viewManagerDiableWidgets() override {}
     QString itemLibraryImportUserComponentsTitle() const override { return {}; }
-    bool isQt6Import() const override { return false; }
-    bool hasStartupTarget() const override { return false; }
+    bool isQt6Import() const override { return true; }
+    bool hasStartupTarget() const override { return true; }
     PuppetStartData puppetStartData(const class Model &) const override { return {}; }
 
 public:
