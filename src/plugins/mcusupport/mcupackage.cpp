@@ -93,7 +93,7 @@ const McuPackageVersionDetector *McuPackage::getVersionDetector() const
 
 FilePath McuPackage::basePath() const
 {
-    return m_fileChooser != nullptr ? m_fileChooser->filePath() : m_path;
+    return m_path;
 }
 
 FilePath McuPackage::path() const
