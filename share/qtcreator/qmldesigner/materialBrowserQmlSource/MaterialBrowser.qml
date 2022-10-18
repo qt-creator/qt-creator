@@ -76,8 +76,8 @@ Item {
             var userMatsSecBottom = mapFromItem(userMaterialsSection, 0, userMaterialsSection.y).y
                                     + userMaterialsSection.height;
 
-            if (!materialBrowserModel.hasMaterialRoot && (!materialBrowserBundleModel.matBundleExists
-                                                          || mouse.y < userMatsSecBottom)) {
+            if (!materialBrowserModel.hasMaterialRoot && materialBrowserModel.hasQuick3DImport
+                && (!materialBrowserBundleModel.matBundleExists || mouse.y < userMatsSecBottom)) {
                 root.currentMaterial = null
                 ctxMenu.popup()
             }
@@ -288,6 +288,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 buttonSize: searchBox.height
                 onClicked: materialBrowserModel.addNewMaterial()
+                enabled: materialBrowserModel.hasQuick3DImport
             }
         }
 
