@@ -259,8 +259,11 @@ bool DeviceShell::installShellScript()
         return false;
     }
 
-    const static QByteArray shellScriptBase64
-        = FilePath(":/utils/scripts/deviceshell.sh").fileContents().value().toBase64();
+    const static QByteArray shellScriptBase64 = FilePath(":/utils/scripts/deviceshell.sh")
+                                                    .fileContents()
+                                                    .value()
+                                                    .replace("\r\n", "\n")
+                                                    .toBase64();
     const QByteArray scriptCmd = "(scriptData=$(echo " + shellScriptBase64
                                  + " | base64 -d 2>/dev/null ) && /bin/sh -c \"$scriptData\") || "
                                    "echo ERROR_INSTALL_SCRIPT >&2\n";
