@@ -39,24 +39,37 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
                                                    const FilePath &overrideBaseDir,
                                                    const FolderNode::FolderNodeFactory &factory)
 {
-    QList<FilePath> paths;
-    const Utils::FilePath basePath = overrideBaseDir.isEmpty() ? folder->filePath()
-                                                               : overrideBaseDir;
-    Utils::FilePath path = basePath.isEmpty() ? directory : basePath.relativeChildPath(directory);
+    Utils::FilePath path = overrideBaseDir.isEmpty() ? folder->filePath() : overrideBaseDir;
 
-    while (!path.isEmpty()) {
-        paths.append(path);
-        path = path.parentDir();
+    Utils::FilePath directoryWithoutPrefix;
+    bool isRelative = false;
+
+    if (path.isEmpty() || path.isRootPath()) {
+        directoryWithoutPrefix = directory;
+        isRelative = false;
+    } else {
+        if (directory.isChildOf(path) || directory == path) {
+            isRelative = true;
+            directoryWithoutPrefix = directory.relativeChildPath(path);
+        } else {
+            isRelative = false;
+            path.clear();
+            directoryWithoutPrefix = directory;
+        }
     }
-    std::reverse(std::begin(paths), std::end(paths));
+    QStringList parts = directoryWithoutPrefix.path().split('/', Qt::SkipEmptyParts);
+    if (directory.osType() != OsTypeWindows && !isRelative && !parts.isEmpty())
+        parts[0].prepend('/');
 
-    FolderNode *parent = folder;
-    for (const auto &currentPath : paths) {
-        FolderNode *next = parent->folderNode(currentPath);
+    ProjectExplorer::FolderNode *parent = folder;
+    for (const QString &part : std::as_const(parts)) {
+        path = path.pathAppended(part);
+        // Find folder in subFolders
+        FolderNode *next = parent->folderNode(path);
         if (!next) {
             // No FolderNode yet, so create it
-            auto tmp = factory(currentPath);
-            tmp->setDisplayName(currentPath.fileName());
+            auto tmp = factory(path);
+            tmp->setDisplayName(part);
             next = tmp.get();
             parent->addNode(std::move(tmp));
         }
