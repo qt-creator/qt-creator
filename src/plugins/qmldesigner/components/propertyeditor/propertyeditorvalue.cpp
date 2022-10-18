@@ -515,7 +515,7 @@ void PropertyEditorValue::commitDrop(const QString &path)
         Utils::FilePath imagePath = Utils::FilePath::fromString(path);
         Utils::FilePath currFilePath = QmlDesigner::DocumentManager::currentFilePath();
         QmlDesigner::VariantProperty srcProp = texture.variantProperty("source");
-        srcProp.setValue(imagePath.relativePath(currFilePath).toUrl());
+        srcProp.setValue(imagePath.relativePathFrom(currFilePath).toUrl());
 
         // assign the texture to the property
         setExpressionWithEmit(texture.id());

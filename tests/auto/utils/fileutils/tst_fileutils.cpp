@@ -294,7 +294,7 @@ void tst_fileutils::calcRelativePath()
 
 void tst_fileutils::relativePath_specials()
 {
-    QString path = FilePath("").relativePath("").toString();
+    QString path = FilePath("").relativePathFrom("").toString();
     QCOMPARE(path, "");
 }
 
@@ -320,7 +320,7 @@ void tst_fileutils::relativePath()
     QFETCH(QString, anchor);
     QFETCH(QString, result);
     FilePath actualPath = FilePath::fromString(rootPath + "/" + relative)
-                              .relativePath(FilePath::fromString(rootPath + "/" + anchor));
+                              .relativePathFrom(FilePath::fromString(rootPath + "/" + anchor));
     QCOMPARE(actualPath.toString(), result);
 }
 

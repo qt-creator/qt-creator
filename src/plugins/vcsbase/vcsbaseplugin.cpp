@@ -372,7 +372,7 @@ FilePath VcsBasePluginState::currentFileDirectory() const
 QString VcsBasePluginState::relativeCurrentFile() const
 {
     QTC_ASSERT(hasFile(), return {});
-    return data->m_state.currentFile.relativePath(data->m_state.currentFileTopLevel).toString();
+    return data->m_state.currentFile.relativePathFrom(data->m_state.currentFileTopLevel).toString();
 }
 
 QString VcsBasePluginState::currentPatchFile() const
@@ -405,7 +405,7 @@ QString VcsBasePluginState::relativeCurrentProject() const
     QTC_ASSERT(hasProject(), return QString());
     if (data->m_state.currentProjectTopLevel == data->m_state.currentProjectPath)
         return {};
-    return data->m_state.currentProjectPath.relativePath(data->m_state.currentProjectTopLevel).toString();
+    return data->m_state.currentProjectPath.relativePathFrom(data->m_state.currentProjectTopLevel).toString();
 }
 
 bool VcsBasePluginState::hasTopLevel() const
