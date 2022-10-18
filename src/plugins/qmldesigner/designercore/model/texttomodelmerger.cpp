@@ -531,7 +531,7 @@ public:
                 qDebug() << metaInfo.isValid() << metaInfo.typeName();
                 qDebug() << metaInfo.directSuperClass().typeName();
 
-                if (!typeName.startsWith("...") && m_model == m_model->metaInfoProxyModel()
+                if (!metaInfo.isFileComponent() && m_model == m_model->metaInfoProxyModel()
                     && metaInfo.isValid())
                     throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
             }
