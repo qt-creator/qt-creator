@@ -159,9 +159,11 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
     resize(QSize(1421, 918));
 }
 
-void EasingCurveDialog::initialize(const QString &curveString)
+void EasingCurveDialog::initialize(const PropertyName &propName, const QString &curveString)
 {
     EasingCurve curve;
+    m_easingCurveProperty = propName;
+
     if (curveString.isEmpty()) {
         QEasingCurve qcurve;
         qcurve.addCubicBezierSegment(QPointF(0.2, 0.2), QPointF(0.8, 0.8), QPointF(1.0, 1.0));
@@ -180,11 +182,19 @@ void EasingCurveDialog::runDialog(const QList<ModelNode> &frames, QWidget *paren
     EasingCurveDialog dialog(frames, parent);
 
     ModelNode current = frames.last();
+    PropertyName propName;
 
-    if (current.hasBindingProperty("easing.bezierCurve"))
-        dialog.initialize(current.bindingProperty("easing.bezierCurve").expression());
-    else
-        dialog.initialize("");
+    NodeMetaInfo metaInfo = current.metaInfo();
+    if (metaInfo.hasProperty("easing"))
+        propName = "easing.bezierCurve";
+    else if (metaInfo.hasProperty("easingCurve"))
+        propName = "easingCurve.bezierCurve";
+
+    QString expression;
+    if (!propName.isEmpty() && current.hasBindingProperty(propName))
+        expression = current.bindingProperty(propName).expression();
+
+    dialog.initialize(propName, expression);
 
     dialog.exec();
 }
@@ -207,7 +217,7 @@ bool EasingCurveDialog::apply()
     return view->executeInTransaction("EasingCurveDialog::apply", [this](){
         auto expression = m_splineEditor->easingCurve().toString();
         for (const auto &frame : qAsConst(m_frames))
-            frame.bindingProperty("easing.bezierCurve").setExpression(expression);
+            frame.bindingProperty(m_easingCurveProperty).setExpression(expression);
     });
 }
 

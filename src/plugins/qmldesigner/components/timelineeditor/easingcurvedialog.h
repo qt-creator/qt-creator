@@ -49,7 +49,7 @@ class EasingCurveDialog : public QDialog
 public:
     EasingCurveDialog(const QList<ModelNode> &frames, QWidget *parent = nullptr);
 
-    void initialize(const QString &curveString);
+    void initialize(const PropertyName &propName, const QString &curveString);
 
     static void runDialog(const QList<ModelNode> &frames, QWidget *parent = nullptr);
 
@@ -80,6 +80,8 @@ private:
     QLabel *m_label = nullptr;
 
     QList<ModelNode> m_frames;
+
+    PropertyName m_easingCurveProperty;
 };
 
 } // namespace QmlDesigner
