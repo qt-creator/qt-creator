@@ -100,7 +100,14 @@ public:
     ~QbsSession() override;
 
     enum class State { Initializing, Active, Inactive };
-    enum class Error { QbsFailedToStart, QbsQuit, ProtocolError, VersionMismatch };
+    enum class Error {
+        NoQbsPath,
+        InvalidQbsExecutable,
+        QbsFailedToStart,
+        QbsQuit,
+        ProtocolError,
+        VersionMismatch
+    };
 
     std::optional<Error> lastError() const;
     static QString errorString(Error error);
