@@ -1456,7 +1456,7 @@ void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
             : d->m_workingDirectory;
     const FilePath relativePath = fileName.isRelativePath()
             ? fileName
-            : fileName.relativeChildPath(workingDirectory;
+            : fileName.relativeChildPath(workingDirectory);
     emit annotateRevisionRequested(workingDirectory, relativePath.toString(), change, currentLine);
 }
 
