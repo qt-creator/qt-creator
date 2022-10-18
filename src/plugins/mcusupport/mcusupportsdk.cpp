@@ -37,6 +37,7 @@
 #include "mcutargetfactory.h"
 #include "mcutargetfactorylegacy.h"
 
+#include <app/app_version.h>
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/toolchain.h>
@@ -79,14 +80,22 @@ static FilePath findInProgramFiles(const QString &folder)
 
 McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &settingsHandler)
 {
-    return McuPackagePtr{
-        new McuPackage(settingsHandler,
-                       McuPackage::tr("Qt for MCUs SDK"),
-                       FileUtils::homePath(),                           // defaultPath
-                       FilePath("bin/qmltocpp").withExecutableSuffix(), // detectionPath
-                       Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK, // settingsKey
-                       QStringLiteral("Qul_ROOT"),                      // cmakeVarName
-                       QStringLiteral("Qul_DIR"))};                     // envVarName
+    auto package = new McuPackage(settingsHandler,
+                                  McuPackage::tr("Qt for MCUs SDK"),
+                                  FileUtils::homePath(),                           // defaultPath
+                                  FilePath("bin/qmltocpp").withExecutableSuffix(), // detectionPath
+                                  Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK, // settingsKey
+                                  QStringLiteral("Qul_ROOT"),                      // cmakeVarName
+                                  QStringLiteral("Qul_DIR"),                       // envVarName
+                                  {},                                              // download rul
+                                  new McuPackagePathVersionDetector(R"(\d.\d)") // version detector
+    );
+
+    if (IDE_VERSION_MAJOR < 9)
+        package->setVersions({"2.0", "2.1", "2.2"});
+    package->setIsQtMCUsPackage(true);
+
+    return McuPackagePtr{package};
 }
 
 static McuPackageVersionDetector *generatePackageVersionDetector(const QString &envVar)

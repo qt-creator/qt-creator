@@ -160,6 +160,8 @@ McuPackage::Status McuPackage::status() const
 
 bool McuPackage::isValidStatus() const
 {
+    if (m_isQtMCUsPackage)
+        return m_status == Status::ValidPackage;
     return m_status == Status::ValidPackage || m_status == Status::ValidPackageMismatchedVersion;
 }
 
@@ -170,7 +172,10 @@ void McuPackage::updateStatusUi()
         m_infoLabel->setType(InfoLabel::Ok);
         break;
     case Status::ValidPackageMismatchedVersion:
-        m_infoLabel->setType(InfoLabel::Warning);
+        if (m_isQtMCUsPackage)
+            m_infoLabel->setType(InfoLabel::NotOk);
+        else
+            m_infoLabel->setType(InfoLabel::Warning);
         break;
     default:
         m_infoLabel->setType(InfoLabel::NotOk);
@@ -204,6 +209,11 @@ QString McuPackage::statusText() const
                              .arg(displayPackagePath, displayDetectedPath);
         break;
     case Status::ValidPackageMismatchedVersion: {
+        if (m_isQtMCUsPackage) {
+            response = "Kits will not generate correctly. Use QtCreator 9 and above for QtMCUs "
+                       "2.3 and later";
+            break;
+        }
         const QString versionWarning
             = m_versions.size() == 1
                   ? tr("but only version %1 is supported").arg(m_versions.first())
@@ -272,6 +282,11 @@ QWidget *McuPackage::widget()
     updateStatus();
     return widget;
 }
+
+void McuPackage::setIsQtMCUsPackage(bool isQtMCUsPackage)
+{
+    m_isQtMCUsPackage = isQtMCUsPackage;
+};
 
 McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                          const QString &label,

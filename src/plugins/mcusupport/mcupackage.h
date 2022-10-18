@@ -90,6 +90,8 @@ public:
 
     QWidget *widget() override;
 
+    void setIsQtMCUsPackage(bool isQtMCUsPackage);
+
 private:
     void updatePath();
     void updateStatusUi();
@@ -113,6 +115,7 @@ private:
     const QString m_environmentVariableName;
     const QString m_downloadUrl;
     const bool m_addToSystemPath;
+    bool m_isQtMCUsPackage = false;
 
     Status m_status = Status::InvalidPath;
 };
