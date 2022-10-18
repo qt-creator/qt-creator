@@ -10,10 +10,8 @@
 
 namespace CMakeProjectManager::Internal::CMakePresets::Macros {
 
-QString getHostSystemName()
+static QString getHostSystemName(Utils::OsType osType)
 {
-    Utils::OsType osType = Utils::HostOsInfo::hostOs();
-
     switch (osType) {
     case Utils::OsTypeWindows:
         return "Windows";
@@ -29,9 +27,9 @@ QString getHostSystemName()
     return "Other";
 }
 
-void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
-                     const Utils::FilePath &sourceDirectory,
-                     QString &value)
+static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
+                            const Utils::FilePath &sourceDirectory,
+                            QString &value)
 {
     value.replace("${dollar}", "$");
 
@@ -43,12 +41,12 @@ void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
     if (preset.generator)
         value.replace("${generator}", preset.generator.value());
 
-    value.replace("${hostSystemName}", getHostSystemName());
+    value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
 }
 
-void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
-                     const Utils::FilePath &sourceDirectory,
-                     QString &value)
+static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
+                            const Utils::FilePath &sourceDirectory,
+                            QString &value)
 {
     value.replace("${dollar}", "$");
 
@@ -59,9 +57,9 @@ void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
     value.replace("${presetName}", preset.name);
 }
 
-QString expandMacroEnv(const QString &macroPrefix,
-                       const QString &value,
-                       const std::function<QString(const QString &)> &op)
+static QString expandMacroEnv(const QString &macroPrefix,
+                              const QString &value,
+                              const std::function<QString(const QString &)> &op)
 {
     const QString startToken = QString("$%1{").arg(macroPrefix);
     const QString endToken = QString("}");
