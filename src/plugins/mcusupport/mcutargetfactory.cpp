@@ -50,7 +50,7 @@ static void removeEmptyPackages(Packages &packages)
     }
 }
 
-static void expandVariables(Packages &packages)
+void McuTargetFactory::expandVariables(Packages &packages)
 {
     Utils::MacroExpander macroExpander;
     for (const auto &package : packages) {
