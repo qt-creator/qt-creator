@@ -8,6 +8,7 @@
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
 #include "mcutarget.h"
+#include "mcutargetfactory.h"
 #include "settingshandler.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
@@ -286,6 +287,7 @@ void McuSupportOptionsWidget::apply()
     bool pathsChanged = false;
 
     m_settingsHandler->setAutomaticKitCreation(m_options.automaticKitCreationEnabled());
+    McuTargetFactory::expandVariables(m_options.sdkRepository.packages);
     pathsChanged |= m_options.qtForMCUsSdkPackage->writeToSettings();
     for (const auto &package : std::as_const(m_options.sdkRepository.packages))
         pathsChanged |= package->writeToSettings();
