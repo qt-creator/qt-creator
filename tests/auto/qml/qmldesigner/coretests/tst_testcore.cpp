@@ -1757,13 +1757,6 @@ void tst_TestCore::testModelCreateSubNode()
     expectedCalls << TestView::MethodCall("nodeIdChanged", QStringList() << "blah" << "blah" << "");
     QCOMPARE(view->methodCalls(), expectedCalls);
 
-    try {
-        childNode.setIdWithoutRefactoring("invalid id");
-        QFAIL("Setting an invalid id does not throw an exception");
-    } catch (Exception &exception) {
-        QCOMPARE(exception.type(), QString("InvalidIdException"));
-    }
-
     QCOMPARE(childNode.id(), QString("blah"));
     QCOMPARE(view->methodCalls(), expectedCalls);
 
