@@ -131,13 +131,14 @@ ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
 
 void CustomToolChain::addToEnvironment(Environment &env) const
 {
-    if (!m_compilerCommand.isEmpty()) {
-        const FilePath path = m_compilerCommand.parentDir();
-        env.prependOrSetPath(path);
-        const FilePath makePath = m_makeCommand.parentDir();
-        if (makePath != path)
-            env.prependOrSetPath(makePath);
-    }
+    const FilePath compiler = compilerCommand();
+    if (compiler.isEmpty())
+        return;
+    const FilePath path = compiler.parentDir();
+    env.prependOrSetPath(path);
+    const FilePath makePath = m_makeCommand.parentDir();
+    if (makePath != path)
+        env.prependOrSetPath(makePath);
 }
 
 QStringList CustomToolChain::suggestedMkspecList() const
@@ -252,8 +253,7 @@ bool CustomToolChain::operator ==(const ToolChain &other) const
         return false;
 
     auto customTc = static_cast<const CustomToolChain *>(&other);
-    return m_compilerCommand == customTc->m_compilerCommand
-            && m_makeCommand == customTc->m_makeCommand
+    return m_makeCommand == customTc->m_makeCommand
             && targetAbi() == customTc->targetAbi()
             && m_predefinedMacros == customTc->m_predefinedMacros
             && m_builtInHeaderPaths == customTc->m_builtInHeaderPaths;
