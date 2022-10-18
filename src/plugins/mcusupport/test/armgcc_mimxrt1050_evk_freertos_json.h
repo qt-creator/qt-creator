@@ -22,10 +22,11 @@ constexpr auto armgcc_mimxrt1050_evk_freertos_json = R"(
                 "setting": "MCUXpressoIDE",
                 "defaultValue": {
                     "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*",
-                    "unix": "/usr/local/mcuxpressoide/"
+                    "linux": "/usr/local/mcuxpressoide/"
                 },
-                "versionDetection": {
-                    "filePattern": "ide/binaries/crt_emu_cm_redlink"
+                "detectionPath": {
+                    "windows": "ide/binaries/crt_emu_cm_redlink.exe",
+                    "linux": "ide/binaries/crt_emu_cm_redlink"
                 },
                 "optional": false,
                 "addToSystemPath": true
@@ -49,6 +50,10 @@ constexpr auto armgcc_mimxrt1050_evk_freertos_json = R"(
                 "filePattern": "bin/arm-none-eabi-g++",
                 "executableArgs": "--version",
                 "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+            },
+            "detectionPath": {
+                "windows": "bin/arm-none-eabi-g++.exe",
+                "linux": "bin/arm-none-eabi-g++"
             }
         },
         "file": {
@@ -80,7 +85,7 @@ constexpr auto armgcc_mimxrt1050_evk_freertos_json = R"(
     "freeRTOS": {
         "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
-        "validation": "tasks.c",
+        "detectionPath": "tasks.c",
         "envVar": "IMXRT1050_FREERTOS_DIR",
         "label": "FreeRTOS SDK for MIMXRT1050-EVK",
         "optional": false,

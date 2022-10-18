@@ -100,7 +100,7 @@ private slots:
     void test_legacy_createCypressProgrammer3rdPartyPackage();
     void test_createJLink3rdPartyPackage();
 
-    void test_defaultValueForEachOperationSystem();
+    void test_differentValueForEachOperationSystem();
     void test_addToSystemPathFlag();
 
 private:

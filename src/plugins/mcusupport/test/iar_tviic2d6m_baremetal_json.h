@@ -40,7 +40,9 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
                 "filePattern": "bin/iccarm",
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
-            }
+            },
+            "detectionPath":  "bin/iccarm.exe",
+            "optional": false
         },
         "file": {
             "id": "IAR_CMAKE_TOOLCHAIN_FILE",

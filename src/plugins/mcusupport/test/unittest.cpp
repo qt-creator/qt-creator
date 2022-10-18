@@ -132,18 +132,21 @@ const char xpressoIdeLabel[]{"MCUXpresso IDE"};
 const char xpressoIdeSetting[]{"MCUXpressoIDE"};
 const char xpressoIdeCmakeVar[]{"MCUXPRESSO_IDE_PATH"};
 const char xpressoIdeEnvVar[]{"MCUXpressoIDE_PATH"};
-const char xpressoIdeDetectionPath[]{"ide/binaries/crt_emu_cm_redlink"};
+const QString xpressoIdeDetectionPath{
+    HostOsInfo::withExecutableSuffix("ide/binaries/crt_emu_cm_redlink")};
 
 const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
 const char stmCubeProgrammerLabel[]{"STM32CubeProgrammer"};
 const QString stmCubeProgrammerPath{QString{defaultToolPath} + "/bin"};
-const QString stmCubeProgrammerDetectionPath{"/bin/STM32_Programmer.sh"};
+const QString stmCubeProgrammerDetectionPath{HostOsInfo::isWindowsHost()
+                                                 ? QString("bin/STM32_Programmer_CLI.exe")
+                                                 : QString("bin/STM32_Programmer.sh")};
 
 const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
 const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
 const QString renesasProgrammerEnvVar{renesasProgrammerCmakeVar};
 const char renesasProgrammerLabel[]{"Renesas Flash Programmer"};
-const char renesasProgrammerDetectionPath[]{"rfp-cli"};
+const QString renesasProgrammerDetectionPath{HostOsInfo::withExecutableSuffix("rfp-cli")};
 
 const char renesasE2StudioCmakeVar[]{"EK_RA6M3G_E2_PROJECT_PATH"};
 const char renesasE2StudioDefaultPath[]{"%{Env:HOME}/e2_studio/workspace"};
@@ -155,7 +158,7 @@ const char cypressProgrammerSetting[]{"CypressAutoFlashUtil"};
 const char cypressProgrammerCmakeVar[]{"INFINEON_AUTO_FLASH_UTILITY_DIR"};
 const char cypressProgrammerEnvVar[]{"CYPRESS_AUTO_FLASH_UTILITY_DIR"};
 const char cypressProgrammerLabel[]{"Cypress Auto Flash Utility"};
-const char cypressProgrammerDetectionPath[]{"/bin/openocd"};
+const QString cypressProgrammerDetectionPath{HostOsInfo::withExecutableSuffix("/bin/openocd")};
 
 const char jlinkPath[]{"/opt/SEGGER/JLink"};
 const char jlinkSetting[]{"JLinkPath"};
@@ -1527,6 +1530,7 @@ void McuSupportTest::test_createThirdPartyPackage()
     QFETCH(QString, cmakeVar);
     QFETCH(QString, envVar);
     QFETCH(QString, label);
+    QFETCH(QString, detectionPath);
 
     McuTargetDescription targetDescription{parseDescriptionJson(json.toLocal8Bit())};
 
@@ -1544,7 +1548,15 @@ void McuSupportTest::test_createThirdPartyPackage()
         return (pkg->settingsKey() == setting);
     });
 
-    verifyPackage(thirdPartyPackage, path, defaultPath, setting, cmakeVar, envVar, label, {}, {});
+    verifyPackage(thirdPartyPackage,
+                  path,
+                  defaultPath,
+                  setting,
+                  cmakeVar,
+                  envVar,
+                  label,
+                  detectionPath,
+                  {});
 }
 
 void McuSupportTest::test_legacy_createCypressProgrammer3rdPartyPackage()
@@ -1594,15 +1606,20 @@ void McuSupportTest::test_createJLink3rdPartyPackage()
                   {});
 }
 
-void McuSupportTest::test_defaultValueForEachOperationSystem()
+void McuSupportTest::test_differentValueForEachOperationSystem()
 {
     const auto packageDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
     auto default_path_entry = packageDescription.platform.entries[0].defaultPath.toString();
+    auto validation_path_entry = packageDescription.platform.entries[0].detectionPath.toString();
 
-    if (HostOsInfo::isWindowsHost())
+    //TODO: Revisit whether this test is required and not currently covered by the third party packages
+    if (HostOsInfo::isWindowsHost()) {
         QCOMPARE(QString("%{Env:ROOT}/nxp/MCUXpressoIDE*"), default_path_entry);
-    else
+        QCOMPARE(QString("ide/binaries/crt_emu_cm_redlink.exe"), validation_path_entry);
+    } else {
         QCOMPARE(QString("/usr/local/mcuxpressoide"), default_path_entry);
+        QCOMPARE(QString("ide/binaries/crt_emu_cm_redlink"), validation_path_entry);
+    }
 };
 void McuSupportTest::test_addToSystemPathFlag()
 {

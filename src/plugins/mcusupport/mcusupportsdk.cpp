@@ -368,8 +368,8 @@ McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &setti
         FilePath defaultPath = {};
 
     const FilePath detectionPath = FilePath::fromUserInput(
-        QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
-                                                         : "/bin/STM32_Programmer.sh"));
+        QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "bin/STM32_Programmer_CLI.exe"
+                                                         : "bin/STM32_Programmer.sh"));
 
     return McuPackagePtr{
         new McuPackage(settingsHandler,
@@ -617,6 +617,16 @@ VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
     };
 }
 
+QString getOsSpecificValue(const QJsonValue &entry)
+{
+    if (entry.isObject()) {
+        //The json entry has os-specific values
+        return entry[HostOsInfo::isWindowsHost() ? QString("windows") : QString("linux")].toString();
+    }
+    //The entry does not have os-specific values
+    return entry.toString();
+}
+
 static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
 {
     const QVariantList versionsVariantList = cmakeEntry["versions"].toArray().toVariantList();
@@ -626,14 +636,8 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
                                                         });
 
     //Parse the default value depending on the operating system
-    QString defaultPathString;
-    if (cmakeEntry["defaultValue"].isObject())
-        defaultPathString
-            = cmakeEntry["defaultValue"]
-                  .toObject()[HostOsInfo::isWindowsHost() ? QString("windows") : QString("unix")]
-                  .toString("");
-    else
-        defaultPathString = cmakeEntry["defaultValue"].toString();
+    QString defaultPathString = getOsSpecificValue(cmakeEntry["defaultValue"]);
+    QString detectionPathString = getOsSpecificValue(cmakeEntry["detectionPath"]);
 
     return {cmakeEntry["label"].toString(),
             cmakeEntry["envVar"].toString(),
@@ -641,7 +645,7 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             cmakeEntry["description"].toString(),
             cmakeEntry["setting"].toString(),
             FilePath::fromUserInput(defaultPathString),
-            FilePath::fromUserInput(cmakeEntry["validation"].toString()),
+            FilePath::fromUserInput(detectionPathString),
             versions,
             parseVersionDetection(cmakeEntry),
             cmakeEntry["addToSystemPath"].toBool()};

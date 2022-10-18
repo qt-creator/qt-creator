@@ -22,7 +22,7 @@ constexpr auto iar_ek_ra6m3g_freertos_json = R"(
                 "type": "path",
                 "defaultValue": {
                     "windows": "%{Env:PROGRAMSANDFILES}/SEGGER/JLink",
-                    "unix": "/opt/SEGGER/JLink"
+                    "linux": "/opt/SEGGER/JLink"
                 },
                 "optional": true,
                 "addToSystemPath": true
@@ -45,7 +45,12 @@ constexpr auto iar_ek_ra6m3g_freertos_json = R"(
                 "filePattern": "bin/iccarm",
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
-            }
+            },
+            "detectionPath": {
+                "windows": "bin/iccarm.exe",
+                "linux": "bin/iccarm"
+            },
+            "optional": false
         },
         "file": {
             "id": "IAR_CMAKE_TOOLCHAIN_FILE",
@@ -73,7 +78,7 @@ constexpr auto iar_ek_ra6m3g_freertos_json = R"(
         "label": "FreeRTOS SDK for EK-RA6M3G",
         "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "%{Qul_ROOT}/platform/boards/renesas/ek-ra6m3g-common/3rdparty/freertos",
-        "validation": "tasks.c",
+        "detectionPath": "tasks.c",
         "type": "path",
         "optional": false
     }

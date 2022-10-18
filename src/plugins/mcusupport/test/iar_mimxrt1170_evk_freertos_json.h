@@ -22,10 +22,11 @@ constexpr auto iar_mimxrt1170_evk_freertos_json = R"(
                 "setting": "MCUXpressoIDE",
                 "defaultValue": {
                     "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*",
-                    "unix": "/usr/local/mcuxpressoide/"
+                    "linux": "/usr/local/mcuxpressoide/"
                 },
-                "versionDetection": {
-                    "filePattern": "ide/binaries/crt_emu_cm_redlink"
+                "detectionPath": {
+                    "windows": "ide/binaries/crt_emu_cm_redlink.exe",
+                    "linux": "ide/binaries/crt_emu_cm_redlink"
                 },
                 "optional": false,
                 "addToSystemPath": true
@@ -48,7 +49,12 @@ constexpr auto iar_mimxrt1170_evk_freertos_json = R"(
                 "filePattern": "bin/iccarm",
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
-            }
+            },
+            "detectionPath": {
+                "windows": "bin/iccarm.exe",
+                "linux": "bin/iccarm"
+            },
+            "optional": false
         },
         "file": {
             "id": "IAR_CMAKE_TOOLCHAIN_FILE",
@@ -80,7 +86,7 @@ constexpr auto iar_mimxrt1170_evk_freertos_json = R"(
         "envVar": "EVK_MIMXRT1170_FREERTOS_PATH",
         "label": "FreeRTOS SDK for MIMXRT1170-EVK",
         "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
-        "validation": "tasks.c",
+        "detectionPath": "tasks.c",
         "type": "path",
         "optional": false
     }

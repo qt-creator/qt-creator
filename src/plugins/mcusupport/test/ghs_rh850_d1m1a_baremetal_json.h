@@ -23,7 +23,11 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
                 "cmakeVar": "RENESAS_FLASH_PROGRAMMER_PATH",
                 "defaultValue": {
                     "windows": "%{Env:PROGRAMSANDFILES}/Renesas Electronics/Programming Tools/Renesas Flash Programmer V3.09",
-                    "unix": "%{Env:HOME}"
+                    "linux": "%{Env:HOME}"
+                },
+                "detectionPath": {
+                    "windows": "rfp-cli.exe",
+                    "linux": "rfp-cli"
                 },
                 "envVar": "RENESAS_FLASH_PROGRAMMER_PATH",
                 "optional": true,
