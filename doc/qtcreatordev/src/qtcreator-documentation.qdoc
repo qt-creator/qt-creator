@@ -299,22 +299,26 @@
     users, but always place example values also in the text.
 
     \list
-        \li Use the screen resolution of 1366x768 (available on the most
+        \li Use the screen resolution of 1920x1080 (available on the most
             commonly used screens, as of this writing).
-
-        \li Use the aspect ratio of 16:9.
-
-        \li Open the application in the maximum size on full screen.
+            \note Use display scaling 100%.
 
         \li Use your favorite tool to take the screen shot.
 
         \li Include only the part of the screen that you need (you can crop the
-            image also in the screen capture tool).
+            image also in the screen capture tool). In \QDS, close all
+            unnecessary views to avoid clutter.
+
+        \li Do not scale or resize the images in the tool because it causes
+            reduced visual quality and bigger file size. Also, the CSS we use
+            online scales down images if needed (their width is larger than 800
+            pixels).
 
         \li To highlight parts of the screen shot, use the images of numbers
-            that are stored in \c{doc/images/numbers} in the \QC repository.
+            that are stored in \c{qtcreator/doc/qtcreator/images/numbers} in
+            the \QC repository.
 
-        \li Before you submit the images to the repository, optimize them to
+        \li Before you submit PNG images to the repository, optimize them to
             save space.
     \endlist
 
@@ -322,9 +326,9 @@
 
     You can use number icons in screenshots to highlight parts of the screenshot
     (instead of using red arrows or borders, or something similar). You can then
-    refer to the numbers in text. For and example, see the
-    \l{https://doc.qt.io/qt/topics-app-development.html}{Development Tools}
-    topic in the Qt reference documentation.
+    refer to the numbers in text. For an example, see the
+    \l{https://doc.qt.io/qtcreator/creator-quick-tour.html}{User Interface}
+    topic in the \QC Manual.
 
     This improves the consistency of the look and feel of Qt documentation,
     and eliminates the need to describe parts of the UI in the text because
@@ -332,8 +336,8 @@
     brackets.
 
     You can find a set of images that show the numbers from 1 to 10 in the
-    \c doc/images/numbers directory (or in the \c qtdoc module sources in
-    \c doc/images/numbers).
+    \c qtcreator/doc/qtcreator/images/numbers directory (or in the \c qtdoc
+    module sources in \c doc/images/numbers).
 
     To use the numbers, copy-paste the number images on the screenshot to the
     places that you want to refer to from text.
@@ -358,6 +362,13 @@
     recolors icons in \c qtcreator/doc/qtcreator/images/icons. Use the
     \c -docspath option to specify the path to another icon source directory.
 
+    For example, if you saved the new icons in \c {C:\iconconversions}, switch to
+    the \c {qtcreator\src\tools\icons} folder and enter:
+
+    \badcode
+    recolordocsicons.py -docspath C:\iconconversions
+    \endcode
+
     To run the script, you will need to install the following tools and add them
     to the PATH:
 
@@ -367,20 +378,26 @@
         \li optipng
     \endlist
 
+    \section2 Saving Images
+
+    Save images in PNG or WebP format in the \QC project folder in the
+    \c doc/qtcreator/images or \c doc/qtdesignstudio/images folder. Binary
+    images can easily add megabytes to the Git
+    history. To keep the history as small as possible, the Git post-commit hooks
+    remind you to try to keep image file size below 50 kilobytes. To achieve this
+    goal, crop images so that only relevant information is visible in them.
+
+    If your screenshot contains lots of colorful content or a photo, for example,
+    consider saving it in WebP format for a smaller image file size.
+
     \section2 Optimizing Images
 
-    Save images in the PNG format in the \QC project folder in the
-    \c {doc/images} folder. Binary images can easily add megabytes to the Git
-    history. To keep the history as small as possible, the Git post-commit hooks
-    remind you to try to keep image size below 50 kilobytes. To achieve this
-    goal, crop images so that only relevant information is visible in them.
-    Before committing images, optimize them by using an image optimization tool.
-
-    Optimization should not visibly reduce image quality. If it does, do not do
-    it.
+    Before committing PNG images, optimize them by using an image optimization
+    tool. Optimization should not visibly reduce image quality. If it does, try
+    saving the image as WebP instead.
 
     You can use a web service, such as \l{https://tinypng.com}, or an image
-    optimization tool to shrink the images. For example, you can use the Radical
+    optimization tool to shrink PNG images. For example, you can use the Radical
     Image Optimization Tool (RIOT) or OptiPNG on Windows, ImageOptim on
     \macos, or some other tool available on Linux.
 
@@ -424,6 +441,16 @@
     \badcode
     optipng -o 7 -strip all doc/images/<screenshot_name>
     \endcode
+
+    \section2 Creating GIF Videos
+
+    Sometimes it is easier to explain how something works by recording
+    a short GIF video. You can use any tool you like, for example
+    \l {https://www.screentogif.com/}{ScreenToGif}. GIF videos are typically
+    bigger than screenshots, so try to make them as short and to the point as
+    you can.
+
+    Use the \c {\image} command to add GIF files to the documentation.
 
     \section2 Linking to Youtube Videos
 
@@ -477,11 +504,7 @@
 
     \section2 Setting Up Documentation Builds
 
-    For more information about setting up the build environment with a
-    self-built Qt if you do not want to build the whole Qt, see
-    \l{https://wiki.qt.io/Building_Qt_Documentation}{Building Qt Documentation}
-    on the Qt wiki.
-
+    You can use an installed Qt version to build the documentation.
     The content and formatting of documentation are separated in QDoc.
     The documentation configuration, style sheets, and templates have
     changed over time, so they differ between Qt and \QC versions.
@@ -532,7 +555,7 @@
             For example (all on one line):
             \badcode
             C:\dev\qtc-doc-build>cmake -DWITH_DOCS=ON
-                "-DCMAKE_PREFIX_PATH=C:\Qt\5.15.1\msvc2019_64"
+                "-DCMAKE_PREFIX_PATH=C:\Qt\6.4.0\msvc2019_64"
                 C:\dev\qtc-super\qtcreator
             \endcode
         \li To also build Extending \QC Manual, add the following option:
@@ -544,7 +567,7 @@
             \badcode
             C:\dev\qtc-doc-build>cmake -DWITH_DOCS=ON -DBUILD_DEVELOPER_DOCS=ON
                 "-DCMAKE_MODULE_PATH=C:\dev\tqtc-plugin-qtquickdesigner\studiodata\branding"
-                "-DCMAKE_PREFIX_PATH=C:\Qt\5.15.1\msvc2019_64"
+                "-DCMAKE_PREFIX_PATH=C:\Qt\6.4.0\msvc2019_64"
                 C:\dev\qtc-super\qtcreator
             \endcode
         \li To build the docs using the online style, use the following option
@@ -556,7 +579,7 @@
             C:\dev\qtc-doc-build>cmake -DWITH_ONLINE_DOCS=ON
                 -DBUILD_DEVELOPER_DOCS=ON
                 "-DCMAKE_MODULE_PATH=C:\dev\tqtc-plugin-qtquickdesigner\studiodata\branding"
-                "-DCMAKE_PREFIX_PATH=C:\Qt\5.15.1\msvc2019_64"
+                "-DCMAKE_PREFIX_PATH=C:\Qt\6.4.0\msvc2019_64"
                 C:\dev\qtc-super\qtcreator
             \endcode
             \note If you already ran CMake \c {-DWITH_DOCS=ON} in a folder and

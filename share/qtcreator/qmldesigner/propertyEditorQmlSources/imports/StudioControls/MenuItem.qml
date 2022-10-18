@@ -48,6 +48,17 @@ T.MenuItem {
         }
     }
 
+    arrow: T.Label {
+        id: arrow
+        x: parent.width - (StudioTheme.Values.height + arrow.width) / 2
+        y: (parent.height - arrow.height) / 2
+        visible: control.subMenu
+        text: StudioTheme.Constants.startNode
+        color: StudioTheme.Values.themeTextColor
+        font.pixelSize: 8
+        font.family: StudioTheme.Constants.iconFont.family
+    }
+
     background: Rectangle {
         implicitWidth: textLabel.implicitWidth + control.labelSpacing + shortcutLabel.implicitWidth
                        + control.leftPadding + control.rightPadding

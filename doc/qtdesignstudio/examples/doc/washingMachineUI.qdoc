@@ -166,7 +166,7 @@
     in the top-left corner of the root component.
 
     Then, we open the \uicontrol States view to create the \e start,
-    \e settings, \e presets, and \e running \l{Adding States}{states} for
+    \e settings, \e presets, and \e running \l{Working with States}{states} for
     displaying a particular screen by selecting \uicontrol {Create New State}.
 
     \image washingmachineui-states.png "States view"

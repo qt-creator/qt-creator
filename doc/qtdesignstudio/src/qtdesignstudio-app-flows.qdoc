@@ -49,7 +49,7 @@
             \uicontrol {Flow Decision} components from
             \uicontrol Components > \uicontrol {Flow View}, as described in
             \l{Simulating Conditions}.
-        \li Use \l{Adding States}{states} in flows to modify the appearance
+        \li Use \l{Working with States}{states} in flows to modify the appearance
             of components on screens in response to user interaction, as
             described in \l{Applying States in Flows}.
         \li Use \uicontrol {Flow Wildcard} components from
@@ -620,7 +620,7 @@
 
     \title Applying States in Flows
 
-    You can use \l{Adding States}{states} in flows to modify the appearance
+    You can use \l{Working with States}{states} in flows to modify the appearance
     of \l{glossary-component}{components} in flow items in response to user
     interaction, for example. For this purpose, you use the
     \uicontrol {Flow Item} components available in

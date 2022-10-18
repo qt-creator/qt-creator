@@ -273,8 +273,10 @@ void ItemLibraryWidget::delayedUpdateModel()
 void ItemLibraryWidget::setModel(Model *model)
 {
     m_model = model;
-    if (!model)
+    if (!model) {
+        m_itemToDrag = {};
         return;
+    }
 
     setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
 

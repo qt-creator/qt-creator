@@ -75,14 +75,14 @@
         \li \l{Connections}
         \li Enables you to add functionality to the UI by creating
             connections between components, signals, and component properties.
-        \li \l{Adding Connections}
+        \li \l{Working with Connections}
     \row
         \li \l States
         \li Displays the different states that can be applied to a component.
             Typically, states describe UI configurations, such as the
             visibility and behavior of components and the available user
             actions.
-        \li \l{Adding States}
+        \li \l{Working with States}
     \row
         \li \l{Transitions}
         \li Enables you to make movement between states smooth by animating

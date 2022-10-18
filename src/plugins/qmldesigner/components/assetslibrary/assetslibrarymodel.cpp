@@ -35,6 +35,25 @@ static Q_LOGGING_CATEGORY(assetsLibraryBenchmark, "qtc.assetsLibrary.setRoot", Q
 
 namespace QmlDesigner {
 
+AssetsLibraryModel::AssetsLibraryModel(Utils::FileSystemWatcher *fileSystemWatcher, QObject *parent)
+    : QAbstractListModel(parent)
+    , m_fileSystemWatcher(fileSystemWatcher)
+{
+    // add role names
+    int role = 0;
+    const QMetaObject meta = AssetsLibraryDir::staticMetaObject;
+    for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)
+        m_roleNames.insert(role++, meta.property(i).name());
+}
+
+void AssetsLibraryModel::setSearchText(const QString &searchText)
+{
+    if (m_searchText != searchText) {
+        m_searchText = searchText;
+        refresh();
+    }
+}
+
 void AssetsLibraryModel::saveExpandedState(bool expanded, const QString &assetPath)
 {
     m_expandedStateHash.insert(assetPath, expanded);
@@ -186,66 +205,18 @@ QObject *AssetsLibraryModel::rootDir() const
     return m_assetsDir;
 }
 
-const QStringList &AssetsLibraryModel::supportedImageSuffixes()
+bool AssetsLibraryModel::isEmpty() const
 {
-    static QStringList retList;
-    if (retList.isEmpty()) {
-        const QList<QByteArray> suffixes = QImageReader::supportedImageFormats();
-        for (const QByteArray &suffix : suffixes)
-            retList.append("*." + QString::fromUtf8(suffix));
+    return m_isEmpty;
+};
+
+void AssetsLibraryModel::setIsEmpty(bool empty)
+{
+    if (m_isEmpty != empty) {
+        m_isEmpty = empty;
+        emit isEmptyChanged();
     }
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedFragmentShaderSuffixes()
-{
-    static const QStringList retList {"*.frag", "*.glsl", "*.glslf", "*.fsh"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedShaderSuffixes()
-{
-    static const QStringList retList {"*.frag", "*.vert",
-                                      "*.glsl", "*.glslv", "*.glslf",
-                                      "*.vsh", "*.fsh"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedFontSuffixes()
-{
-    static const QStringList retList {"*.ttf", "*.otf"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedAudioSuffixes()
-{
-    static const QStringList retList {"*.wav", "*.mp3"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedVideoSuffixes()
-{
-    static const QStringList retList {"*.mp4"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedTexture3DSuffixes()
-{
-    // These are file types only supported by 3D textures
-    static QStringList retList {"*.hdr", "*.ktx"};
-    return retList;
-}
-
-AssetsLibraryModel::AssetsLibraryModel(Utils::FileSystemWatcher *fileSystemWatcher, QObject *parent)
-    : QAbstractListModel(parent)
-    , m_fileSystemWatcher(fileSystemWatcher)
-{
-    // add role names
-    int role = 0;
-    const QMetaObject meta = AssetsLibraryDir::staticMetaObject;
-    for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)
-        m_roleNames.insert(role++, meta.property(i).name());
-}
+};
 
 QVariant AssetsLibraryModel::data(const QModelIndex &index, int role) const
 {
@@ -353,12 +324,54 @@ void AssetsLibraryModel::setRootPath(const QString &path)
     qCInfo(assetsLibraryBenchmark) << "model reset:" << time.elapsed();
 }
 
-void AssetsLibraryModel::setSearchText(const QString &searchText)
+const QStringList &AssetsLibraryModel::supportedImageSuffixes()
 {
-    if (m_searchText != searchText) {
-        m_searchText = searchText;
-        refresh();
+    static QStringList retList;
+    if (retList.isEmpty()) {
+        const QList<QByteArray> suffixes = QImageReader::supportedImageFormats();
+        for (const QByteArray &suffix : suffixes)
+            retList.append("*." + QString::fromUtf8(suffix));
     }
+    return retList;
+}
+
+const QStringList &AssetsLibraryModel::supportedFragmentShaderSuffixes()
+{
+    static const QStringList retList {"*.frag", "*.glsl", "*.glslf", "*.fsh"};
+    return retList;
+}
+
+const QStringList &AssetsLibraryModel::supportedShaderSuffixes()
+{
+    static const QStringList retList {"*.frag", "*.vert",
+                                      "*.glsl", "*.glslv", "*.glslf",
+                                      "*.vsh", "*.fsh"};
+    return retList;
+}
+
+const QStringList &AssetsLibraryModel::supportedFontSuffixes()
+{
+    static const QStringList retList {"*.ttf", "*.otf"};
+    return retList;
+}
+
+const QStringList &AssetsLibraryModel::supportedAudioSuffixes()
+{
+    static const QStringList retList {"*.wav", "*.mp3"};
+    return retList;
+}
+
+const QStringList &AssetsLibraryModel::supportedVideoSuffixes()
+{
+    static const QStringList retList {"*.mp4"};
+    return retList;
+}
+
+const QStringList &AssetsLibraryModel::supportedTexture3DSuffixes()
+{
+    // These are file types only supported by 3D textures
+    static QStringList retList {"*.hdr", "*.ktx"};
+    return retList;
 }
 
 const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
@@ -378,19 +391,6 @@ const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
     }
     return allSuffixes;
 }
-
-bool AssetsLibraryModel::isEmpty() const
-{
-    return m_isEmpty;
-};
-
-void AssetsLibraryModel::setIsEmpty(bool empty)
-{
-    if (m_isEmpty != empty) {
-        m_isEmpty = empty;
-        emit isEmptyChanged();
-    }
-};
 
 const QSet<QString> &AssetsLibraryModel::previewableSuffixes() const
 {

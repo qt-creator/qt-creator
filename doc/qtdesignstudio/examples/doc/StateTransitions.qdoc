@@ -4,7 +4,7 @@
 /*!
     \page state-transition-animations.html
     \ingroup gstutorials
-    \sa States, {Transitions}, {Adding States}
+    \sa States, {Transitions}, {Working with States}
 
     \title Animated State Transitions
     \brief Illustrates how to create animated state transitions.
@@ -12,7 +12,7 @@
     \image animated-state-transitions.jpg
 
     The \e{Animated State Transitions} tutorial illustrates how you can animate
-    the transition between \l{Adding States}{states}.
+    the transition between \l{Working with States}{states}.
 
     The starting point of this tutorial is the Car Demo project, you can
     download it from

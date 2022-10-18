@@ -324,6 +324,10 @@
                     "target": "%{ProjectDirectory}/content/fonts/fonts.txt"
                 },
                 {
+                    "source": "../common/asset_imports.txt",
+                    "target": "%{ProjectDirectory}/asset_imports/asset_imports.txt"
+                },
+                {
                     "source": "../common/CMakeLists.imports.txt.tpl",
                     "target": "%{ProjectDirectory}/imports/CMakeLists.txt"
                 },
