@@ -240,7 +240,7 @@
 
     \section1 Binding Animation to States
 
-    You will now bring back the \l{Adding States}{states} in the
+    You will now bring back the \l{Working with States}{states} in the
     \uicontrol States view and bind them to the animation settings
     in \uicontrol Timeline:
 

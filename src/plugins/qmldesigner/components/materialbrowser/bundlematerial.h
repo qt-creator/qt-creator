@@ -40,6 +40,7 @@ class BundleMaterial : public QObject
     Q_PROPERTY(QString bundleMaterialName MEMBER m_name CONSTANT)
     Q_PROPERTY(QUrl bundleMaterialIcon MEMBER m_icon CONSTANT)
     Q_PROPERTY(bool bundleMaterialVisible MEMBER m_visible NOTIFY materialVisibleChanged)
+    Q_PROPERTY(bool bundleMaterialImported READ imported WRITE setImported NOTIFY materialImportedChanged)
 
 public:
     BundleMaterial(QObject *parent,
@@ -57,8 +58,12 @@ public:
     QStringList files() const;
     bool visible() const;
 
+    bool setImported(bool imported);
+    bool imported() const;
+
 signals:
     void materialVisibleChanged();
+    void materialImportedChanged();
 
 private:
     QString m_name;
@@ -68,6 +73,7 @@ private:
     QStringList m_files;
 
     bool m_visible = true;
+    bool m_imported = false;
 };
 
 } // namespace QmlDesigner

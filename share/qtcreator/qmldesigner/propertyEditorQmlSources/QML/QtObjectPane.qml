@@ -23,40 +23,7 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.15
+import "../QtQuick" as Original
 
-#include <QObject>
-
-namespace QmlDesigner {
-
-class BundleMaterial;
-
-class BundleMaterialCategory : public QObject
-{
-    Q_OBJECT
-
-    Q_PROPERTY(QString categoryName MEMBER m_name CONSTANT)
-    Q_PROPERTY(bool categoryVisible MEMBER m_visible NOTIFY categoryVisibleChanged)
-
-public:
-    BundleMaterialCategory(QObject *parent, const QString &name);
-
-    void addBundleMaterial(BundleMaterial *bundleMat);
-    bool updateImportedState(const QStringList &importedMats);
-    bool filter(const QString &searchText);
-
-    QString name() const;
-    bool visible() const;
-    QList<BundleMaterial *> categoryMaterials() const;
-
-signals:
-    void categoryVisibleChanged();
-
-private:
-    QString m_name;
-    bool m_visible = true;
-
-    QList<BundleMaterial *> m_categoryMaterials;
-};
-
-} // namespace QmlDesigner
+Original.QtObjectPane {}

@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "materialbrowserview.h"
+
 #include "bindingproperty.h"
 #include "bundlematerial.h"
+#include "bundleimporter.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowserwidget.h"
 #include "materialbrowserbundlemodel.h"
@@ -18,6 +20,7 @@
 #include <nodemetainfo.h>
 #include <nodelistproperty.h>
 #include <qmldesignerconstants.h>
+#include <utils/algorithm.h>
 
 #include <QQuickItem>
 #include <QRegularExpression>
@@ -81,13 +84,19 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                     // remove current properties
                     PropertyNameList propNames;
                     if (mat.isInBaseState()) {
-                        propNames = material.propertyNames();
+                        const QList<AbstractProperty> baseProps = material.properties();
+                        for (const auto &baseProp : baseProps) {
+                            if (!baseProp.isDynamic())
+                                propNames.append(baseProp.name());
+                        }
                     } else {
                         QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
                         if (changes.isValid()) {
                             const QList<AbstractProperty> changedProps = changes.targetProperties();
-                            for (const auto &changedProp : changedProps)
-                                propNames.append(changedProp.name());
+                            for (const auto &changedProp : changedProps) {
+                                if (!changedProp.isDynamic())
+                                    propNames.append(changedProp.name());
+                            }
                         }
                     }
                     for (const PropertyName &propName : std::as_const(propNames)) {
@@ -98,14 +107,29 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
                 // apply pasted properties
                 for (const QmlDesigner::MaterialBrowserModel::PropertyCopyData &propData : propDatas) {
-                    if (propData.name == "objectName")
-                        continue;
-
                     if (propData.isValid) {
-                        if (propData.isBinding)
+                        const bool isDynamic = !propData.dynamicTypeName.isEmpty();
+                        const bool isBaseState = currentState().isBaseState();
+                        const bool hasProperty = mat.hasProperty(propData.name);
+                        if (propData.isBinding) {
+                            if (isDynamic && (!hasProperty || isBaseState)) {
+                                mat.modelNode().bindingProperty(propData.name)
+                                        .setDynamicTypeNameAndExpression(
+                                            propData.dynamicTypeName, propData.value.toString());
+                                continue;
+                            }
                             mat.setBindingProperty(propData.name, propData.value.toString());
-                        else
+                        } else {
+                            const bool isRecording = mat.timelineIsActive()
+                                    && mat.currentTimeline().isRecording();
+                            if (isDynamic && (!hasProperty || (isBaseState && !isRecording))) {
+                                mat.modelNode().variantProperty(propData.name)
+                                        .setDynamicTypeNameAndValue(
+                                            propData.dynamicTypeName, propData.value);
+                                continue;
+                            }
                             mat.setVariantProperty(propData.name, propData.value);
+                        }
                     } else {
                         mat.removeProperty(propData.name);
                     }
@@ -122,23 +146,38 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         connect(matBrowserBundleModel, &MaterialBrowserBundleModel::applyToSelectedTriggered, this,
                 [&] (BundleMaterial *bundleMat, bool add) {
-            if (!m_selectedModel.isValid())
+            if (m_selectedModels.isEmpty())
                 return;
 
-            m_bundleMaterialDropTarget = m_selectedModel;
+            m_bundleMaterialTargets = m_selectedModels;
             m_bundleMaterialAddToSelected = add;
 
             ModelNode defaultMat = getBundleMaterialDefaultInstance(bundleMat->type());
             if (defaultMat.isValid())
                 applyBundleMaterialToDropTarget(defaultMat);
             else
-                m_widget->materialBrowserBundleModel()->addMaterial(bundleMat);
+                m_widget->materialBrowserBundleModel()->addToProject(bundleMat);
         });
 
-        connect(matBrowserBundleModel, &MaterialBrowserBundleModel::addBundleMaterialToProjectRequested, this,
+        connect(matBrowserBundleModel, &MaterialBrowserBundleModel::bundleMaterialImported, this,
                 [&] (const QmlDesigner::NodeMetaInfo &metaInfo) {
             applyBundleMaterialToDropTarget({}, metaInfo);
+            updateBundleMaterialsImportedState();
         });
+
+        connect(matBrowserBundleModel, &MaterialBrowserBundleModel::bundleMaterialAboutToUnimport, this,
+                [&] (const QmlDesigner::TypeName &type) {
+            // delete instances of the bundle material that is about to be unimported
+            executeInTransaction("MaterialBrowserView::widgetInfo", [&] {
+                Utils::reverseForeach(m_widget->materialBrowserModel()->materials(), [&](const ModelNode &mat) {
+                    if (mat.isValid() && mat.type() == type)
+                        QmlObjectNode(mat).destroy();
+                });
+            });
+        });
+
+        connect(matBrowserBundleModel, &MaterialBrowserBundleModel::bundleMaterialUnimported, this,
+                &MaterialBrowserView::updateBundleMaterialsImportedState);
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -178,40 +217,42 @@ void MaterialBrowserView::applyBundleMaterialToDropTarget(const ModelNode &bundl
             newMatNode = bundleMat;
         }
 
-        if (m_bundleMaterialDropTarget.isValid()
-                && m_bundleMaterialDropTarget.metaInfo().isQtQuick3DModel()) {
-            QmlObjectNode qmlObjNode(m_bundleMaterialDropTarget);
-            if (m_bundleMaterialAddToSelected) {
-                // TODO: unify this logic as it exist elsewhere also
-                auto expToList = [](const QString &exp) {
-                    QString copy = exp;
-                    copy = copy.remove("[").remove("]");
+        // TODO: unify this logic as it exist elsewhere also
+        auto expToList = [](const QString &exp) {
+            QString copy = exp;
+            copy = copy.remove("[").remove("]");
 
-                    QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
-                    for (QString &str : tmp)
-                        str = str.trimmed();
+            QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
+            for (QString &str : tmp)
+                str = str.trimmed();
 
-                    return tmp;
-                };
+            return tmp;
+        };
 
-                auto listToExp = [](QStringList &stringList) {
-                    if (stringList.size() > 1)
-                        return QString("[" + stringList.join(",") + "]");
+        auto listToExp = [](QStringList &stringList) {
+            if (stringList.size() > 1)
+                return QString("[" + stringList.join(",") + "]");
 
-                    if (stringList.size() == 1)
-                        return stringList.first();
+            if (stringList.size() == 1)
+                return stringList.first();
 
-                    return QString();
-                };
-                QStringList matList = expToList(qmlObjNode.expression("materials"));
-                matList.append(newMatNode.id());
-                QString updatedExp = listToExp(matList);
-                qmlObjNode.setBindingProperty("materials", updatedExp);
-            } else {
-                qmlObjNode.setBindingProperty("materials", newMatNode.id());
+            return QString();
+        };
+
+        for (const ModelNode &target : std::as_const(m_bundleMaterialTargets)) {
+            if (target.isValid() && target.metaInfo().isQtQuick3DModel()) {
+                QmlObjectNode qmlObjNode(target);
+                if (m_bundleMaterialAddToSelected) {
+                    QStringList matList = expToList(qmlObjNode.expression("materials"));
+                    matList.append(newMatNode.id());
+                    QString updatedExp = listToExp(matList);
+                    qmlObjNode.setBindingProperty("materials", updatedExp);
+                } else {
+                    qmlObjNode.setBindingProperty("materials", newMatNode.id());
+                }
             }
 
-            m_bundleMaterialDropTarget = {};
+            m_bundleMaterialTargets = {};
             m_bundleMaterialAddToSelected = false;
         }
     });
@@ -226,6 +267,7 @@ void MaterialBrowserView::modelAttached(Model *model)
         rootModelNode().metaInfo().isQtQuick3DMaterial());
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
+    updateBundleMaterialsImportedState();
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
     // before refreshing the model
@@ -274,24 +316,20 @@ void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                                [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
 {
-    m_selectedModel = {};
+    m_selectedModels = Utils::filtered(selectedNodeList, [](const ModelNode &node) {
+        return node.metaInfo().isQtQuick3DModel();
+    });
 
-    for (const ModelNode &node : selectedNodeList) {
-        if (node.metaInfo().isQtQuick3DModel()) {
-            m_selectedModel = node;
-            break;
-        }
-    }
+    m_widget->materialBrowserModel()->setHasModelSelection(!m_selectedModels.isEmpty());
 
-    m_widget->materialBrowserModel()->setHasModelSelection(m_selectedModel.isValid());
-
+    // the logic below selects the material of the first selected model if auto selection is on
     if (!m_autoSelectModelMaterial)
         return;
 
-    if (selectedNodeList.size() > 1 || !m_selectedModel.isValid())
+    if (selectedNodeList.size() > 1 || m_selectedModels.isEmpty())
         return;
 
-    QmlObjectNode qmlObjNode(m_selectedModel);
+    QmlObjectNode qmlObjNode(m_selectedModels.at(0));
     QString matExp = qmlObjNode.expression("materials");
     if (matExp.isEmpty())
         return;
@@ -385,6 +423,25 @@ void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
     m_propertyGroupsLoaded = m_widget->materialBrowserModel()->loadPropertyGroups(matPropsPath);
 }
 
+void MaterialBrowserView::updateBundleMaterialsImportedState()
+{
+    using namespace Utils;
+
+    if (!m_widget->materialBrowserBundleModel()->bundleImporter())
+        return;
+
+    QStringList importedBundleMats;
+
+    FilePath materialBundlePath = m_widget->materialBrowserBundleModel()->bundleImporter()->resolveBundleImportPath();
+
+    if (materialBundlePath.exists()) {
+        importedBundleMats = transform(materialBundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                       [](const FilePath &f) { return f.fileName().chopped(4); });
+    }
+
+    m_widget->materialBrowserBundleModel()->updateImportedState(importedBundleMats);
+}
+
 ModelNode MaterialBrowserView::getBundleMaterialDefaultInstance(const TypeName &type)
 {
     const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
@@ -442,13 +499,13 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
     } else if (identifier == "delete_selected_material") {
         m_widget->materialBrowserModel()->deleteSelectedMaterial();
     } else if (identifier == "drop_bundle_material") {
-        m_bundleMaterialDropTarget = nodeList.first();
+        m_bundleMaterialTargets = nodeList;
 
         ModelNode defaultMat = getBundleMaterialDefaultInstance(m_draggedBundleMaterial->type());
         if (defaultMat.isValid())
             applyBundleMaterialToDropTarget(defaultMat);
         else
-            m_widget->materialBrowserBundleModel()->addMaterial(m_draggedBundleMaterial);
+            m_widget->materialBrowserBundleModel()->addToProject(m_draggedBundleMaterial);
 
         m_draggedBundleMaterial = nullptr;
     }

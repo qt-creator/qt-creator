@@ -37,6 +37,16 @@ void BundleMaterialCategory::addBundleMaterial(BundleMaterial *bundleMat)
     m_categoryMaterials.append(bundleMat);
 }
 
+bool BundleMaterialCategory::updateImportedState(const QStringList &importedMats)
+{
+    bool changed = false;
+
+    for (BundleMaterial *mat : std::as_const(m_categoryMaterials))
+        changed |= mat->setImported(importedMats.contains(mat->qml().chopped(4)));
+
+    return changed;
+}
+
 bool BundleMaterialCategory::filter(const QString &searchText)
 {
     bool visible = false;

@@ -12,7 +12,7 @@
     \uicontrol {Transitions} to animate the changes between
     states.
 
-    First, you need to \l{Adding States}{add states} in the \l States view
+    First, you need to \l{Working with States}{add states} in the \l States view
     and \l{Specifying Component Properties}{edit some properties} that can be
     animated, such as colors or numbers, in the \l Properties view. For example,
     you can animate the changes in the position of a component.
