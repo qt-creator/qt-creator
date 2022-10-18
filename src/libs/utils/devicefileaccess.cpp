@@ -629,72 +629,72 @@ bool UnixDeviceFileAccess::runInShellSuccess(const CommandLine &cmdLine,
 bool UnixDeviceFileAccess::isExecutableFile(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-x", path}});
+    return runInShellSuccess({"test", {"-x", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::isReadableFile(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-r", path, "-a", "-f", path}});
+    return runInShellSuccess({"test", {"-r", path, "-a", "-f", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::isWritableFile(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-w", path, "-a", "-f", path}});
+    return runInShellSuccess({"test", {"-w", path, "-a", "-f", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::isReadableDirectory(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-r", path, "-a", "-d", path}});
+    return runInShellSuccess({"test", {"-r", path, "-a", "-d", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::isWritableDirectory(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-w", path, "-a", "-d", path}});
+    return runInShellSuccess({"test", {"-w", path, "-a", "-d", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::isFile(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-f", path}});
+    return runInShellSuccess({"test", {"-f", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::isDirectory(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-d", path}});
+    return runInShellSuccess({"test", {"-d", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::isSymLink(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-h", path}});
+    return runInShellSuccess({"test", {"-h", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"touch", {path}});
+    return runInShellSuccess({"touch", {path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::createDirectory(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"mkdir", {"-p", path}});
+    return runInShellSuccess({"mkdir", {"-p", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::exists(const FilePath &filePath) const
 {
     const QString path = filePath.path();
-    return runInShellSuccess({"test", {"-e", path}});
+    return runInShellSuccess({"test", {"-e", path}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::removeFile(const FilePath &filePath) const
 {
-    return runInShellSuccess({"rm", {filePath.path()}});
+    return runInShellSuccess({"rm", {filePath.path()}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
@@ -710,7 +710,7 @@ bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *
         levelsNeeded = 2;
     QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
 
-    RunResult result = runInShell({"rm", {"-rf", "--", path}});
+    RunResult result = runInShell({"rm", {"-rf", "--", path}, OsType::OsTypeLinux});
     if (error)
         *error = QString::fromUtf8(result.stdErr);
     return result.exitCode == 0;
@@ -718,17 +718,17 @@ bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *
 
 bool UnixDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
-    return runInShellSuccess({"cp", {filePath.path(), target.path()}});
+    return runInShellSuccess({"cp", {filePath.path(), target.path()}, OsType::OsTypeLinux});
 }
 
 bool UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
-    return runInShellSuccess({"mv", {filePath.path(), target.path()}});
+    return runInShellSuccess({"mv", {filePath.path(), target.path()}, OsType::OsTypeLinux});
 }
 
 FilePath UnixDeviceFileAccess::symLinkTarget(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"readlink", {"-n", "-e", filePath.path()}});
+    const RunResult result = runInShell({"readlink", {"-n", "-e", filePath.path()}, OsType::OsTypeLinux});
     const QString out = QString::fromUtf8(result.stdOut);
     return out.isEmpty() ? FilePath() : filePath.withNewPath(out);
 }
@@ -746,7 +746,7 @@ std::optional<QByteArray> UnixDeviceFileAccess::fileContents(
         args += QString("seek=%1").arg(offset / gcd);
     }
 
-    const RunResult r = runInShell({"dd", args});
+    const RunResult r = runInShell({"dd", args, OsType::OsTypeLinux});
 
     if (r.exitCode != 0)
         return {};
@@ -764,7 +764,7 @@ bool UnixDeviceFileAccess::writeFileContents(
         args.append("bs=1");
         args.append(QString("seek=%1").arg(offset));
     }
-    return runInShellSuccess({"dd", args}, data);
+    return runInShellSuccess({"dd", args, OsType::OsTypeLinux}, data);
 }
 
 OsType UnixDeviceFileAccess::osType(const FilePath &filePath) const
@@ -775,7 +775,7 @@ OsType UnixDeviceFileAccess::osType(const FilePath &filePath) const
 
 QDateTime UnixDeviceFileAccess::lastModified(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"stat", {"-L", "-c", "%Y", filePath.path()}});
+    const RunResult result = runInShell({"stat", {"-L", "-c", "%Y", filePath.path()}, OsType::OsTypeLinux});
     qint64 secs = result.stdOut.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
@@ -783,7 +783,7 @@ QDateTime UnixDeviceFileAccess::lastModified(const FilePath &filePath) const
 
 QFile::Permissions UnixDeviceFileAccess::permissions(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"stat", {"-L", "-c", "%a", filePath.path()}});
+    const RunResult result = runInShell({"stat", {"-L", "-c", "%a", filePath.path()}, OsType::OsTypeLinux});
     const uint bits = result.stdOut.toUInt(nullptr, 8);
     QFileDevice::Permissions perm = {};
 #define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
@@ -803,24 +803,24 @@ QFile::Permissions UnixDeviceFileAccess::permissions(const FilePath &filePath) c
 bool UnixDeviceFileAccess::setPermissions(const FilePath &filePath, QFile::Permissions perms) const
 {
     const int flags = int(perms);
-    return runInShellSuccess({"chmod", {QString::number(flags, 16), filePath.path()}});
+    return runInShellSuccess({"chmod", {QString::number(flags, 16), filePath.path()}, OsType::OsTypeLinux});
 }
 
 qint64 UnixDeviceFileAccess::fileSize(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"stat", {"-L", "-c", "%s", filePath.path()}});
+    const RunResult result = runInShell({"stat", {"-L", "-c", "%s", filePath.path()}, OsType::OsTypeLinux});
     return result.stdOut.toLongLong();
 }
 
 qint64 UnixDeviceFileAccess::bytesAvailable(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"df", {"-k", filePath.path()}});
+    const RunResult result = runInShell({"df", {"-k", filePath.path()}, OsType::OsTypeLinux});
     return FileUtils::bytesAvailableFromDFOutput(result.stdOut);
 }
 
 QByteArray UnixDeviceFileAccess::fileId(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"stat", {"-L", "-c", "%D:%i", filePath.path()}});
+    const RunResult result = runInShell({"stat", {"-L", "-c", "%D:%i", filePath.path()}, OsType::OsTypeLinux});
     if (result.exitCode != 0)
         return {};
 
@@ -829,7 +829,7 @@ QByteArray UnixDeviceFileAccess::fileId(const FilePath &filePath) const
 
 FilePathInfo UnixDeviceFileAccess::filePathInfo(const FilePath &filePath) const
 {
-    const RunResult stat = runInShell({"stat", {"-L", "-c", "%f %Y %s", filePath.path()}});
+    const RunResult stat = runInShell({"stat", {"-L", "-c", "%f %Y %s", filePath.path()}, OsType::OsTypeLinux});
     return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut));
 }
 
@@ -841,7 +841,7 @@ bool UnixDeviceFileAccess::iterateWithFind(
 {
     QTC_CHECK(filePath.isAbsolutePath());
 
-    CommandLine cmdLine{"find", filter.asFindArguments(filePath.path())};
+    CommandLine cmdLine{"find", filter.asFindArguments(filePath.path()), OsType::OsTypeLinux};
 
     // TODO: Using stat -L will always return the link target, not the link itself.
     // We may wan't to add the information that it is a link at some point.
@@ -900,7 +900,7 @@ void UnixDeviceFileAccess::findUsingLs(
         const FileFilter &filter,
         QStringList *found) const
 {
-    const RunResult result = runInShell({"ls", {"-1", "-p", "--", current}});
+    const RunResult result = runInShell({"ls", {"-1", "-p", "--", current}, OsType::OsTypeLinux});
     const QStringList entries  = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
     for (QString entry : entries) {
         const QChar last = entry.back();
