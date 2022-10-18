@@ -158,8 +158,19 @@ void ImageViewer::ctor()
     updateIconByTheme(d->actionOutline, QLatin1String("emblem-photos"));
 
     auto setAsDefault = new QAction(Tr::tr("Set as Default"), d->toolbar);
-    setAsDefault->setToolTip(Tr::tr("Use the current settings for background, outline, and fitting "
-                                    "to screen as the default for new image viewers."));
+    const auto updateSetAsDefaultToolTip = [this, setAsDefault] {
+        const ImageView::Settings settings = d->imageView->settings();
+        const QString on = Tr::tr("on");
+        const QString off = Tr::tr("off");
+        setAsDefault->setToolTip(
+            "<p>"
+            + Tr::tr("Use the current settings for background, outline, and fitting "
+                     "to screen as the default for new image viewers. Current default:")
+            + "</p><p><ul><li>" + Tr::tr("Background: %1").arg(settings.showBackground ? on : off)
+            + "</li><li>" + Tr::tr("Outline: %1").arg(settings.showOutline ? on : off) + "</li><li>"
+            + Tr::tr("Fit to Screen: %1").arg(settings.fitToScreen ? on : off) + "</li></ul>");
+    };
+    updateSetAsDefaultToolTip();
 
     d->labelImageSize = new QLabel;
     d->labelInfo = new QLabel;
@@ -226,8 +237,9 @@ void ImageViewer::ctor()
             this, &ImageViewer::updatePauseAction);
     connect(d->imageView, &ImageView::scaleFactorChanged,
             this, &ImageViewer::scaleFactorUpdate);
-    connect(setAsDefault, &QAction::triggered, d->imageView, [this] {
+    connect(setAsDefault, &QAction::triggered, d->imageView, [this, updateSetAsDefaultToolTip] {
         d->imageView->writeSettings(ICore::settings());
+        updateSetAsDefaultToolTip();
     });
 }
 
