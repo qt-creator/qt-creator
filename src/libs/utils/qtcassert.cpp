@@ -37,8 +37,10 @@ void dumpBacktrace(int maxdepth)
     free(lines);
 #elif defined(_MSC_VER)
     DWORD machineType;
-#if defined(Q_OS_WIN64) && !defined(_ARM64_)
+#if defined(_M_X64)
     machineType = IMAGE_FILE_MACHINE_AMD64;
+#elif defined(_M_ARM64)
+    machineType = IMAGE_FILE_MACHINE_ARM64;
 #else
     return;
 #endif
@@ -50,13 +52,17 @@ void dumpBacktrace(int maxdepth)
     RtlCaptureContext(&ctx);
     STACKFRAME64 frame;
     memset(&frame, 0, sizeof(STACKFRAME64));
-#if defined(Q_OS_WIN64) && !defined(_ARM64_)
-    frame.AddrPC.Offset = ctx.Rip;
     frame.AddrPC.Mode = AddrModeFlat;
-    frame.AddrStack.Offset = ctx.Rsp;
     frame.AddrStack.Mode = AddrModeFlat;
-    frame.AddrFrame.Offset = ctx.Rbp;
     frame.AddrFrame.Mode = AddrModeFlat;
+#if defined(_M_X64)
+    frame.AddrPC.Offset = ctx.Rip;
+    frame.AddrStack.Offset = ctx.Rsp;
+    frame.AddrFrame.Offset = ctx.Rbp;
+#elif define(_M_ARM64)
+    frame.AddrPC.Offset = ctx.Pc;
+    frame.AddrStack.Offset = ctx.Sp;
+    frame.AddrFrame.Offset = ctx.Fp;
 #endif
     int depth = 0;
 
