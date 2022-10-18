@@ -142,7 +142,7 @@ void CmakeGeneratorDialog::refreshNotificationText()
             continue;
 
         if (node->toFilePath().exists() && node->isChecked()) {
-            QString relativePath = node->toFilePath().relativePath(m_rootDir).toString();
+            QString relativePath = node->toFilePath().relativePathFrom(m_rootDir).toString();
             cursor.insertImage(iformat);
             cursor.insertText(QString(FILE_OVERWRITE_NOTIFICATION).arg(relativePath));
         }

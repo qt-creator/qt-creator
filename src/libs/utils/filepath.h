@@ -153,7 +153,7 @@ public:
     [[nodiscard]] FilePath resolveSymlinks() const;
     [[nodiscard]] FilePath withExecutableSuffix() const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
-    [[nodiscard]] FilePath relativePath(const FilePath &anchor) const;
+    [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
     [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs) const;
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;

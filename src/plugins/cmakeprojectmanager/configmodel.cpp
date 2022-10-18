@@ -546,6 +546,9 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
     if (role == ConfigModel::ItemIsInitialRole) {
         return dataItem->isInitial ? "1" : "0";
     }
+    if (role == ConfigModel::ItemIsUserNew) {
+        return dataItem->isUserNew ? "1" : "0";
+    }
 
     auto fontRole = [this]() -> QFont {
         QFont font;

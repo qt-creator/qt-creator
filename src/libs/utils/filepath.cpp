@@ -966,7 +966,7 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
     return res;
 }
 
-/// \returns the relativePath of FilePath to given \a anchor.
+/// \returns the relativePath of FilePath from a given \a anchor.
 /// Both, FilePath and anchor may be files or directories.
 /// Example usage:
 ///
@@ -978,7 +978,7 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
 ///
 /// The debug output will be "../b/ar/file.txt".
 ///
-FilePath FilePath::relativePath(const FilePath &anchor) const
+FilePath FilePath::relativePathFrom(const FilePath &anchor) const
 {
     QTC_ASSERT(isSameDevice(anchor), return *this);
 

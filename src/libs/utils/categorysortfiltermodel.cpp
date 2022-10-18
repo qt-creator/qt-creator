@@ -12,6 +12,12 @@ CategorySortFilterModel::CategorySortFilterModel(QObject *parent)
 {
 }
 
+void CategorySortFilterModel::setNewItemRole(int role)
+{
+    m_newItemRole = role;
+    invalidate();
+}
+
 bool CategorySortFilterModel::filterAcceptsRow(int source_row,
                                                const QModelIndex &source_parent) const
 {
@@ -21,6 +27,12 @@ bool CategorySortFilterModel::filterAcceptsRow(int source_row,
         const QModelIndex &categoryIndex = sourceModel()->index(source_row, 0, source_parent);
         if (regexp.match(sourceModel()->data(categoryIndex, filterRole()).toString()).hasMatch())
             return true;
+
+        if (m_newItemRole != -1 && categoryIndex.isValid()) {
+            if (categoryIndex.data(m_newItemRole).toBool())
+                return true;
+        }
+
         const int rowCount = sourceModel()->rowCount(categoryIndex);
         for (int row = 0; row < rowCount; ++row) {
             if (filterAcceptsRow(row, categoryIndex))
@@ -28,6 +40,14 @@ bool CategorySortFilterModel::filterAcceptsRow(int source_row,
         }
         return false;
     }
+
+    if (m_newItemRole != -1) {
+        const QModelIndex &idx = sourceModel()->index(source_row, 0, source_parent);
+        if (idx.data(m_newItemRole).toBool())
+            return true;
+    }
+
+
     return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 }
 

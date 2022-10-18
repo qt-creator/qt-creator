@@ -77,7 +77,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
             [](const Utils::FilePath &filePath) { return int(filePath.path().count('/')); };
     int minDepth = std::numeric_limits<int>::max();
     for (auto it = result.begin(); it != result.end(); ++it) {
-        const Utils::FilePath relPath = it->filePath().relativePath(projectDir);
+        const Utils::FilePath relPath = it->filePath().relativePathFrom(projectDir);
         it->setBinary(binaryPattern.match(relPath.toString()).hasMatch());
         bool found = ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(relPath));
         if (found) {
@@ -119,7 +119,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::scan(const Utils::FilePath &dir
     const Utils::FilePaths entries = dir.dirEntries({{}, QDir::AllEntries | QDir::NoDotAndDotDot},
                                                     QDir::DirsLast | QDir::Name);
     for (const Utils::FilePath &fi : entries) {
-        const Utils::FilePath relativePath = fi.relativePath(base);
+        const Utils::FilePath relativePath = fi.relativePathFrom(base);
         if (fi.isDir() && matchesSubdirectoryPattern(relativePath)) {
             result += scan(fi, base);
         } else {

@@ -445,7 +445,7 @@ static QStringList filteredFlags(const QStringList &allFlags, bool considerSysro
 ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() const
 {
     // Using a clean environment breaks ccache/distcc/etc.
-    Environment env = Environment::systemEnvironment();
+    Environment env = compilerCommand().deviceEnvironment();
     addToEnvironment(env);
     const QStringList platformCodeGenFlags = m_platformCodeGenFlags;
     OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
@@ -852,7 +852,7 @@ void GccToolChain::setOptionsReinterpreter(const OptionsReinterpreter &optionsRe
 
 GccToolChain::DetectedAbisResult GccToolChain::detectSupportedAbis() const
 {
-    Environment env = Environment::systemEnvironment();
+    Environment env = compilerCommand().deviceEnvironment();
     addToEnvironment(env);
     ProjectExplorer::Macros macros = createMacroInspectionRunner()({}).macros;
     return guessGccAbi(findLocalCompiler(compilerCommand(), env),
@@ -863,7 +863,7 @@ GccToolChain::DetectedAbisResult GccToolChain::detectSupportedAbis() const
 
 QString GccToolChain::detectVersion() const
 {
-    Environment env = Environment::systemEnvironment();
+    Environment env = compilerCommand().deviceEnvironment();
     addToEnvironment(env);
     return gccVersion(findLocalCompiler(compilerCommand(), env), env,
                       filteredFlags(platformCodeGenFlags(), true));
@@ -871,7 +871,7 @@ QString GccToolChain::detectVersion() const
 
 Utils::FilePath GccToolChain::detectInstallDir() const
 {
-    Environment env = Environment::systemEnvironment();
+    Environment env = compilerCommand().deviceEnvironment();
     addToEnvironment(env);
     return gccInstallDir(findLocalCompiler(compilerCommand(), env), env,
                          filteredFlags(platformCodeGenFlags(), true));

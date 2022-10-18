@@ -113,7 +113,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         auto addAppDir = [&baseDir, &projectInfo](const FilePath &mdir) {
             auto dir = mdir.cleanPath();
             if (!baseDir.path().isEmpty()) {
-                auto rDir = dir.relativePath(baseDir);
+                auto rDir = dir.relativePathFrom(baseDir);
                 // do not add directories outside the build directory
                 // this might happen for example when we think an executable path belongs to
                 // a bundle, and we need to remove extra directories, but that was not the case

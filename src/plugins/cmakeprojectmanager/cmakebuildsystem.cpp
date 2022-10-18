@@ -67,7 +67,7 @@ static void copySourcePathsToClipboard(const FilePaths &srcPaths, const ProjectN
     QClipboard *clip = QGuiApplication::clipboard();
 
     QString data = Utils::transform(srcPaths, [projDir = node->filePath()](const FilePath &path) {
-                       return path.relativePath(projDir).cleanPath().toString();
+                       return path.relativePathFrom(projDir).cleanPath().toString();
                    }).join(" ");
     clip->setText(data);
 }
@@ -301,7 +301,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
         baseDirectory = baseDirectory.parentDir();
     }
 
-    const FilePath relativePath = baseDirectory.relativePath(project);
+    const FilePath relativePath = baseDirectory.relativePathFrom(project);
     FilePath generatedFilePath = buildConfiguration()->buildDirectory().resolvePath(relativePath);
 
     if (sourceFile.suffix() == "ui") {

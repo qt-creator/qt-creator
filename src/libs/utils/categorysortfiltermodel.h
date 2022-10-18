@@ -14,8 +14,14 @@ class QTCREATOR_UTILS_EXPORT CategorySortFilterModel : public QSortFilterProxyMo
 public:
     CategorySortFilterModel(QObject *parent = nullptr);
 
+    // "New" items will always be accepted, regardless of the filter.
+    void setNewItemRole(int role);
+
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+
+private:
+    int m_newItemRole = -1;
 };
 
 } // Utils
