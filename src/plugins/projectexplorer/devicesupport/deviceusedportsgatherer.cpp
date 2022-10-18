@@ -22,8 +22,6 @@ class DeviceUsedPortsGathererPrivate
 public:
     std::unique_ptr<QtcProcess> process;
     QList<Port> usedPorts;
-    QByteArray remoteStdout;
-    QByteArray remoteStderr;
     IDevice::ConstPtr device;
     PortsGatheringMethod portsGatheringMethod;
 };
@@ -58,19 +56,11 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 
     connect(d->process.get(), &QtcProcess::done,
             this, &DeviceUsedPortsGatherer::handleProcessDone);
-    connect(d->process.get(), &QtcProcess::readyReadStandardOutput,
-            this, [this] { d->remoteStdout += d->process->readAllStandardOutput(); });
-    connect(d->process.get(), &QtcProcess::readyReadStandardError,
-            this, [this] { d->remoteStderr += d->process->readAllStandardError(); });
-
-
     d->process->start();
 }
 
 void DeviceUsedPortsGatherer::stop()
 {
-    d->remoteStdout.clear();
-    d->remoteStderr.clear();
     if (d->process) {
         d->process->disconnect();
         d->process.release()->deleteLater();
@@ -85,7 +75,8 @@ QList<Port> DeviceUsedPortsGatherer::usedPorts() const
 void DeviceUsedPortsGatherer::setupUsedPorts()
 {
     d->usedPorts.clear();
-    const QList<Port> usedPorts = d->portsGatheringMethod.parsePorts(d->remoteStdout);
+    const QList<Port> usedPorts = d->portsGatheringMethod.parsePorts(
+                                  d->process->readAllStandardOutput());
     for (const Port port : usedPorts) {
         if (d->device->freePorts().contains(port))
             d->usedPorts << port;
@@ -95,32 +86,14 @@ void DeviceUsedPortsGatherer::setupUsedPorts()
 
 void DeviceUsedPortsGatherer::handleProcessDone()
 {
-    if (d->process->error() != QProcess::UnknownError) {
-        emit error(tr("Connection error: %1").arg(d->process->errorString()));
-        stop();
-        return;
-    }
-
-    QString errMsg;
-    switch (d->process->exitStatus()) {
-    case QProcess::CrashExit:
-        errMsg = tr("Remote process crashed: %1").arg(d->process->errorString());
-        break;
-    case QProcess::NormalExit:
-        if (d->process->exitCode() == 0)
-            setupUsedPorts();
-        else
-            errMsg = tr("Remote process failed; exit code was %1.").arg(d->process->exitCode());
-        break;
-    default:
-        Q_ASSERT_X(false, Q_FUNC_INFO, "Invalid exit status");
-    }
-
-    if (!errMsg.isEmpty()) {
-        if (!d->remoteStderr.isEmpty()) {
+    if (d->process->result() == ProcessResult::FinishedWithSuccess) {
+        setupUsedPorts();
+    } else {
+        QString errMsg = d->process->errorString();
+        const QByteArray stdErr = d->process->readAllStandardError();
+        if (!stdErr.isEmpty()) {
             errMsg += QLatin1Char('\n');
-            errMsg += tr("Remote error output was: %1")
-                .arg(QString::fromUtf8(d->remoteStderr));
+            errMsg += tr("Remote error output was: %1").arg(QString::fromUtf8(stdErr));
         }
         emit error(errMsg);
     }
