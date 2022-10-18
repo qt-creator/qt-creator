@@ -1573,6 +1573,12 @@ void Client::setProgressTitleForToken(const LanguageServerProtocol::ProgressToke
     d->m_progressManager.setTitleForToken(token, message);
 }
 
+void Client::setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
+                                     const std::function<void()> &handler)
+{
+    d->m_progressManager.setClickHandlerForToken(token, handler);
+}
+
 void Client::handleMessage(const LanguageServerProtocol::JsonRpcMessage &message)
 {
     LanguageClientManager::logJsonRpcMessage(LspLogMessage::ServerMessage, name(), message);

@@ -27,6 +27,8 @@ public:
     void handleProgress(const LanguageServerProtocol::ProgressParams &params);
     void setTitleForToken(const LanguageServerProtocol::ProgressToken &token,
                           const QString &message);
+    void setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
+                                 const std::function<void()> &handler);
     void reset();
 
     static bool isProgressEndMessage(const LanguageServerProtocol::ProgressParams &params);
@@ -48,6 +50,7 @@ private:
     QMap<LanguageServerProtocol::ProgressToken, LanguageClientProgress> m_progress;
     QMap<LanguageServerProtocol::ProgressToken, QString> m_titles;
     QMap<LanguageServerProtocol::ProgressToken, QElapsedTimer> m_timer;
+    QMap<LanguageServerProtocol::ProgressToken, std::function<void()>> m_clickHandlers;
 };
 
 } // namespace LanguageClient

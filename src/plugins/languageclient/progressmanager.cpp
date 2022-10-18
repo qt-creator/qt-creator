@@ -41,6 +41,12 @@ void ProgressManager::setTitleForToken(const LanguageServerProtocol::ProgressTok
     m_titles.insert(token, message);
 }
 
+void ProgressManager::setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
+                                              const std::function<void()> &handler)
+{
+    m_clickHandlers.insert(token, handler);
+}
+
 void ProgressManager::reset()
 {
     const QList<ProgressToken> &tokens = m_progress.keys();
@@ -72,6 +78,10 @@ void ProgressManager::beginProgress(const ProgressToken &token, const WorkDonePr
     const QString title = m_titles.value(token, begin.title());
     Core::FutureProgress *progress = Core::ProgressManager::addTask(
             interface->future(), title, languageClientProgressId(token));
+    progress->setCancelEnabled(false);
+    const std::function<void()> clickHandler = m_clickHandlers.value(token);
+    if (clickHandler)
+        QObject::connect(progress, &Core::FutureProgress::clicked, clickHandler);
     m_progress[token] = {progress, interface};
     if (LOGPROGRESS().isDebugEnabled())
         m_timer[token].start();

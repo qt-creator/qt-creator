@@ -18,18 +18,20 @@
 #include "tasktimers.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/Icons.h>
 #include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpprefactoringchanges.h>
+#include <cppeditor/cppsemanticinfo.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppvirtualfunctionassistprovider.h>
 #include <cppeditor/cppvirtualfunctionproposalitem.h>
 #include <cppeditor/semantichighlighter.h>
-#include <cppeditor/cppsemanticinfo.h>
 #include <languageclient/diagnosticmanager.h>
 #include <languageclient/languageclienthoverhandler.h>
 #include <languageclient/languageclientinterface.h>
@@ -389,6 +391,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setProgressTitleForToken(indexingToken(),
                              project ? tr("Indexing %1 with clangd").arg(project->displayName())
                                      : tr("Indexing session with clangd"));
+    setClickHandlerForToken(indexingToken(), [] {
+        ICore::showOptionsDialog(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
+    });
     setCurrentProject(project);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
     setSymbolStringifier(displayNameFromDocumentSymbol);
@@ -430,7 +435,10 @@ ClangdClient::~ClangdClient()
     delete d;
 }
 
-bool ClangdClient::isFullyIndexed() const { return d->isFullyIndexed; }
+bool ClangdClient::isFullyIndexed() const
+{
+    return d->isFullyIndexed;
+}
 
 void ClangdClient::openExtraFile(const Utils::FilePath &filePath, const QString &content)
 {
