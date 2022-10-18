@@ -20,6 +20,8 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -130,13 +132,23 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
             interpreterAspect, &InterpreterAspect::updateInterpreters);
 
-    QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
+    const QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
         project()->projectDirectory());
     interpreterAspect->updateInterpreters(PythonSettings::interpreters());
     Interpreter defaultInterpreter = interpreters.isEmpty() ? PythonSettings::defaultInterpreter()
                                                             : interpreters.first();
     if (!defaultInterpreter.command.isExecutableFile())
         defaultInterpreter = PythonSettings::interpreters().value(0);
+    if (defaultInterpreter.command.isExecutableFile()) {
+        const IDeviceConstPtr device = DeviceKitAspect::device(target->kit());
+        if (device && !device->handlesFile(defaultInterpreter.command)) {
+            defaultInterpreter = Utils::findOr(PythonSettings::interpreters(),
+                                               defaultInterpreter,
+                                               [device](const Interpreter &interpreter) {
+                                                   return device->handlesFile(interpreter.command);
+                                               });
+        }
+    }
     interpreterAspect->setDefaultInterpreter(defaultInterpreter);
 
     auto bufferedAspect = addAspect<BoolAspect>();
