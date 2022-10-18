@@ -451,42 +451,13 @@
     </widget>
    </item>
    <item row="14" column="0">
-    <widget class="QLabel" name="labelAllowAllConstructorInitializersOnNextLine">
-     <property name="text">
-      <string notr="true">AllowAllConstructorInitializersOnNextLine</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="1">
-    <widget class="QComboBox" name="AllowAllConstructorInitializersOnNextLine">
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <item>
-      <property name="text">
-       <string notr="true">Default</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">true</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">false</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="15" column="0">
     <widget class="QLabel" name="labelAllowAllParametersOfDeclarationOnNextLine">
      <property name="text">
       <string notr="true">AllowAllParametersOfDeclarationOnNextLine</string>
      </property>
     </widget>
    </item>
-   <item row="15" column="1">
+   <item row="14" column="1">
     <widget class="QComboBox" name="AllowAllParametersOfDeclarationOnNextLine">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -508,14 +479,14 @@
      </item>
     </widget>
    </item>
-   <item row="16" column="0">
+   <item row="15" column="0">
     <widget class="QLabel" name="labelAllowShortEnumsOnASingleLine">
      <property name="text">
       <string notr="true">AllowShortEnumsOnASingleLine</string>
      </property>
     </widget>
    </item>
-   <item row="16" column="1">
+   <item row="15" column="1">
     <widget class="QComboBox" name="AllowShortEnumsOnASingleLine">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -537,14 +508,14 @@
      </item>
     </widget>
    </item>
-   <item row="17" column="0">
+   <item row="16" column="0">
     <widget class="QLabel" name="labelAllowShortBlocksOnASingleLine">
      <property name="text">
       <string notr="true">AllowShortBlocksOnASingleLine</string>
      </property>
     </widget>
    </item>
-   <item row="17" column="1">
+   <item row="16" column="1">
     <widget class="QComboBox" name="AllowShortBlocksOnASingleLine">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -566,14 +537,14 @@
      </item>
     </widget>
    </item>
-   <item row="18" column="0">
+   <item row="17" column="0">
     <widget class="QLabel" name="labelAllowShortCaseLabelsOnASingleLine">
      <property name="text">
       <string notr="true">AllowShortCaseLabelsOnASingleLine</string>
      </property>
     </widget>
    </item>
-   <item row="18" column="1">
+   <item row="17" column="1">
     <widget class="QComboBox" name="AllowShortCaseLabelsOnASingleLine">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -595,14 +566,14 @@
      </item>
     </widget>
    </item>
-   <item row="19" column="0">
+   <item row="18" column="0">
     <widget class="QLabel" name="labelAllowShortFunctionsOnASingleLine">
      <property name="text">
       <string notr="true">AllowShortFunctionsOnASingleLine</string>
      </property>
     </widget>
    </item>
-   <item row="19" column="1">
+   <item row="18" column="1">
     <widget class="QComboBox" name="AllowShortFunctionsOnASingleLine">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -634,14 +605,14 @@
      </item>
     </widget>
    </item>
-   <item row="20" column="0">
+   <item row="19" column="0">
     <widget class="QLabel" name="labelAllowShortIfStatementsOnASingleLine">
      <property name="text">
       <string notr="true">AllowShortIfStatementsOnASingleLine</string>
      </property>
     </widget>
    </item>
-   <item row="20" column="1">
+   <item row="19" column="1">
     <widget class="QComboBox" name="AllowShortIfStatementsOnASingleLine">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -668,14 +639,14 @@
      </item>
     </widget>
    </item>
-   <item row="21" column="0">
+   <item row="20" column="0">
     <widget class="QLabel" name="labelAllowShortLambdasOnASingleLine">
      <property name="text">
       <string notr="true">AllowShortLambdasOnASingleLine</string>
      </property>
     </widget>
    </item>
-   <item row="21" column="1">
+   <item row="20" column="1">
     <widget class="QComboBox" name="AllowShortLambdasOnASingleLine">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -702,14 +673,14 @@
      </item>
     </widget>
    </item>
-   <item row="22" column="0">
+   <item row="21" column="0">
     <widget class="QLabel" name="labelAllowShortLoopsOnASingleLine">
      <property name="text">
       <string notr="true">AllowShortLoopsOnASingleLine</string>
      </property>
     </widget>
    </item>
-   <item row="22" column="1">
+   <item row="21" column="1">
     <widget class="QComboBox" name="AllowShortLoopsOnASingleLine">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -731,43 +702,14 @@
      </item>
     </widget>
    </item>
-   <item row="23" column="0">
-    <widget class="QLabel" name="labelAlwaysBreakAfterDefinitionReturnType">
-     <property name="text">
-      <string notr="true">AlwaysBreakAfterDefinitionReturnType</string>
-     </property>
-    </widget>
-   </item>
-   <item row="23" column="1">
-    <widget class="QComboBox" name="AlwaysBreakAfterDefinitionReturnType">
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <item>
-      <property name="text">
-       <string notr="true">None</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">All</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">TopLevel</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="24" column="0">
+   <item row="22" column="0">
     <widget class="QLabel" name="labelAlwaysBreakAfterReturnType">
      <property name="text">
       <string notr="true">AlwaysBreakAfterReturnType</string>
      </property>
     </widget>
    </item>
-   <item row="24" column="1">
+   <item row="22" column="1">
     <widget class="QComboBox" name="AlwaysBreakAfterReturnType">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -799,14 +741,14 @@
      </item>
     </widget>
    </item>
-   <item row="25" column="0">
+   <item row="23" column="0">
     <widget class="QLabel" name="labelAlwaysBreakBeforeMultilineStrings">
      <property name="text">
       <string notr="true">AlwaysBreakBeforeMultilineStrings</string>
      </property>
     </widget>
    </item>
-   <item row="25" column="1">
+   <item row="23" column="1">
     <widget class="QComboBox" name="AlwaysBreakBeforeMultilineStrings">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -828,14 +770,14 @@
      </item>
     </widget>
    </item>
-   <item row="26" column="0">
+   <item row="24" column="0">
     <widget class="QLabel" name="labelAlwaysBreakTemplateDeclarations">
      <property name="text">
       <string notr="true">AlwaysBreakTemplateDeclarations</string>
      </property>
     </widget>
    </item>
-   <item row="26" column="1">
+   <item row="24" column="1">
     <widget class="QComboBox" name="AlwaysBreakTemplateDeclarations">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -857,14 +799,14 @@
      </item>
     </widget>
    </item>
-   <item row="27" column="0">
+   <item row="25" column="0">
     <widget class="QLabel" name="labelAttributeMacros">
      <property name="text">
       <string notr="true">AttributeMacros</string>
      </property>
     </widget>
    </item>
-   <item row="27" column="1">
+   <item row="25" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="AttributeMacros">
@@ -894,14 +836,14 @@
      </item>
     </layout>
    </item>
-   <item row="28" column="0">
+   <item row="26" column="0">
     <widget class="QLabel" name="labelBinPackArguments">
      <property name="text">
       <string notr="true">BinPackArguments</string>
      </property>
     </widget>
    </item>
-   <item row="28" column="1">
+   <item row="26" column="1">
     <widget class="QComboBox" name="BinPackArguments">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -923,14 +865,14 @@
      </item>
     </widget>
    </item>
-   <item row="29" column="0">
+   <item row="27" column="0">
     <widget class="QLabel" name="labelInsertTrailingCommas">
      <property name="text">
       <string notr="true">InsertTrailingCommas</string>
      </property>
     </widget>
    </item>
-   <item row="29" column="1">
+   <item row="27" column="1">
     <widget class="QComboBox" name="InsertTrailingCommas">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -947,14 +889,14 @@
      </item>
     </widget>
    </item>
-   <item row="30" column="0">
+   <item row="28" column="0">
     <widget class="QLabel" name="labelBinPackParameters">
      <property name="text">
       <string notr="true">BinPackParameters</string>
      </property>
     </widget>
    </item>
-   <item row="30" column="1">
+   <item row="28" column="1">
     <widget class="QComboBox" name="BinPackParameters">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -976,14 +918,14 @@
      </item>
     </widget>
    </item>
-   <item row="31" column="0">
+   <item row="29" column="0">
     <widget class="QLabel" name="labelBreakBeforeBinaryOperators">
      <property name="text">
       <string notr="true">BreakBeforeBinaryOperators</string>
      </property>
     </widget>
    </item>
-   <item row="31" column="1">
+   <item row="29" column="1">
     <widget class="QComboBox" name="BreakBeforeBinaryOperators">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1005,14 +947,14 @@
      </item>
     </widget>
    </item>
-   <item row="32" column="0">
+   <item row="30" column="0">
     <widget class="QLabel" name="labelBreakBeforeBraces">
      <property name="text">
       <string notr="true">BreakBeforeBraces</string>
      </property>
     </widget>
    </item>
-   <item row="32" column="1">
+   <item row="30" column="1">
     <widget class="QComboBox" name="BreakBeforeBraces">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1064,21 +1006,21 @@
      </item>
     </widget>
    </item>
-   <item row="33" column="0">
+   <item row="31" column="0">
     <widget class="QLabel" name="labelBraceWrapping">
      <property name="text">
       <string notr="true">BraceWrapping</string>
      </property>
     </widget>
    </item>
-   <item row="34" column="0">
+   <item row="32" column="0">
     <widget class="QLabel" name="labelAfterCaseLabel">
      <property name="text">
       <string notr="true">  AfterCaseLabel</string>
      </property>
     </widget>
    </item>
-   <item row="34" column="1">
+   <item row="32" column="1">
     <widget class="QComboBox" name="AfterCaseLabel">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1100,14 +1042,14 @@
      </item>
     </widget>
    </item>
-   <item row="35" column="0">
+   <item row="33" column="0">
     <widget class="QLabel" name="labelAfterClass">
      <property name="text">
       <string notr="true">  AfterClass</string>
      </property>
     </widget>
    </item>
-   <item row="35" column="1">
+   <item row="33" column="1">
     <widget class="QComboBox" name="AfterClass">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1129,14 +1071,14 @@
      </item>
     </widget>
    </item>
-   <item row="36" column="0">
+   <item row="34" column="0">
     <widget class="QLabel" name="labelAfterControlStatement">
      <property name="text">
       <string notr="true">  AfterControlStatement</string>
      </property>
     </widget>
    </item>
-   <item row="36" column="1">
+   <item row="34" column="1">
     <widget class="QComboBox" name="AfterControlStatement">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1158,14 +1100,14 @@
      </item>
     </widget>
    </item>
-   <item row="37" column="0">
+   <item row="35" column="0">
     <widget class="QLabel" name="labelAfterEnum">
      <property name="text">
       <string notr="true">  AfterEnum</string>
      </property>
     </widget>
    </item>
-   <item row="37" column="1">
+   <item row="35" column="1">
     <widget class="QComboBox" name="AfterEnum">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1187,14 +1129,14 @@
      </item>
     </widget>
    </item>
-   <item row="38" column="0">
+   <item row="36" column="0">
     <widget class="QLabel" name="labelAfterFunction">
      <property name="text">
       <string notr="true">  AfterFunction</string>
      </property>
     </widget>
    </item>
-   <item row="38" column="1">
+   <item row="36" column="1">
     <widget class="QComboBox" name="AfterFunction">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1216,14 +1158,14 @@
      </item>
     </widget>
    </item>
-   <item row="39" column="0">
+   <item row="37" column="0">
     <widget class="QLabel" name="labelAfterNamespace">
      <property name="text">
       <string notr="true">  AfterNamespace</string>
      </property>
     </widget>
    </item>
-   <item row="39" column="1">
+   <item row="37" column="1">
     <widget class="QComboBox" name="AfterNamespace">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1245,14 +1187,14 @@
      </item>
     </widget>
    </item>
-   <item row="40" column="0">
+   <item row="38" column="0">
     <widget class="QLabel" name="labelAfterObjCDeclaration">
      <property name="text">
       <string notr="true">  AfterObjCDeclaration</string>
      </property>
     </widget>
    </item>
-   <item row="40" column="1">
+   <item row="38" column="1">
     <widget class="QComboBox" name="AfterObjCDeclaration">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1274,14 +1216,14 @@
      </item>
     </widget>
    </item>
-   <item row="41" column="0">
+   <item row="39" column="0">
     <widget class="QLabel" name="labelAfterStruct">
      <property name="text">
       <string notr="true">  AfterStruct</string>
      </property>
     </widget>
    </item>
-   <item row="41" column="1">
+   <item row="39" column="1">
     <widget class="QComboBox" name="AfterStruct">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1303,14 +1245,14 @@
      </item>
     </widget>
    </item>
-   <item row="42" column="0">
+   <item row="40" column="0">
     <widget class="QLabel" name="labelAfterUnion">
      <property name="text">
       <string notr="true">  AfterUnion</string>
      </property>
     </widget>
    </item>
-   <item row="42" column="1">
+   <item row="40" column="1">
     <widget class="QComboBox" name="AfterUnion">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1332,14 +1274,14 @@
      </item>
     </widget>
    </item>
-   <item row="43" column="0">
+   <item row="41" column="0">
     <widget class="QLabel" name="labelAfterExternBlock">
      <property name="text">
       <string notr="true">  AfterExternBlock</string>
      </property>
     </widget>
    </item>
-   <item row="43" column="1">
+   <item row="41" column="1">
     <widget class="QComboBox" name="AfterExternBlock">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1361,14 +1303,14 @@
      </item>
     </widget>
    </item>
-   <item row="44" column="0">
+   <item row="42" column="0">
     <widget class="QLabel" name="labelBeforeCatch">
      <property name="text">
       <string notr="true">  BeforeCatch</string>
      </property>
     </widget>
    </item>
-   <item row="44" column="1">
+   <item row="42" column="1">
     <widget class="QComboBox" name="BeforeCatch">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1390,14 +1332,14 @@
      </item>
     </widget>
    </item>
-   <item row="45" column="0">
+   <item row="43" column="0">
     <widget class="QLabel" name="labelBeforeElse">
      <property name="text">
       <string notr="true">  BeforeElse</string>
      </property>
     </widget>
    </item>
-   <item row="45" column="1">
+   <item row="43" column="1">
     <widget class="QComboBox" name="BeforeElse">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1419,14 +1361,14 @@
      </item>
     </widget>
    </item>
-   <item row="46" column="0">
+   <item row="44" column="0">
     <widget class="QLabel" name="labelBeforeLambdaBody">
      <property name="text">
       <string notr="true">  BeforeLambdaBody</string>
      </property>
     </widget>
    </item>
-   <item row="46" column="1">
+   <item row="44" column="1">
     <widget class="QComboBox" name="BeforeLambdaBody">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1448,14 +1390,14 @@
      </item>
     </widget>
    </item>
-   <item row="47" column="0">
+   <item row="45" column="0">
     <widget class="QLabel" name="labelBeforeWhile">
      <property name="text">
       <string notr="true">  BeforeWhile</string>
      </property>
     </widget>
    </item>
-   <item row="47" column="1">
+   <item row="45" column="1">
     <widget class="QComboBox" name="BeforeWhile">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1477,14 +1419,14 @@
      </item>
     </widget>
    </item>
-   <item row="48" column="0">
+   <item row="46" column="0">
     <widget class="QLabel" name="labelIndentBraces">
      <property name="text">
       <string notr="true">  IndentBraces</string>
      </property>
     </widget>
    </item>
-   <item row="48" column="1">
+   <item row="46" column="1">
     <widget class="QComboBox" name="IndentBraces">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1506,14 +1448,14 @@
      </item>
     </widget>
    </item>
-   <item row="49" column="0">
+   <item row="47" column="0">
     <widget class="QLabel" name="labelSplitEmptyFunction">
      <property name="text">
       <string notr="true">  SplitEmptyFunction</string>
      </property>
     </widget>
    </item>
-   <item row="49" column="1">
+   <item row="47" column="1">
     <widget class="QComboBox" name="SplitEmptyFunction">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1535,14 +1477,14 @@
      </item>
     </widget>
    </item>
-   <item row="50" column="0">
+   <item row="48" column="0">
     <widget class="QLabel" name="labelSplitEmptyRecord">
      <property name="text">
       <string notr="true">  SplitEmptyRecord</string>
      </property>
     </widget>
    </item>
-   <item row="50" column="1">
+   <item row="48" column="1">
     <widget class="QComboBox" name="SplitEmptyRecord">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1564,14 +1506,14 @@
      </item>
     </widget>
    </item>
-   <item row="51" column="0">
+   <item row="49" column="0">
     <widget class="QLabel" name="labelSplitEmptyNamespace">
      <property name="text">
       <string notr="true">  SplitEmptyNamespace</string>
      </property>
     </widget>
    </item>
-   <item row="51" column="1">
+   <item row="49" column="1">
     <widget class="QComboBox" name="SplitEmptyNamespace">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1593,14 +1535,14 @@
      </item>
     </widget>
    </item>
-   <item row="52" column="0">
+   <item row="50" column="0">
     <widget class="QLabel" name="labelBreakBeforeConceptDeclarations">
      <property name="text">
       <string notr="true">BreakBeforeConceptDeclarations</string>
      </property>
     </widget>
    </item>
-   <item row="52" column="1">
+   <item row="50" column="1">
     <widget class="QComboBox" name="BreakBeforeConceptDeclarations">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1622,14 +1564,14 @@
      </item>
     </widget>
    </item>
-   <item row="53" column="0">
+   <item row="51" column="0">
     <widget class="QLabel" name="labelBreakBeforeTernaryOperators">
      <property name="text">
       <string notr="true">BreakBeforeTernaryOperators</string>
      </property>
     </widget>
    </item>
-   <item row="53" column="1">
+   <item row="51" column="1">
     <widget class="QComboBox" name="BreakBeforeTernaryOperators">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1651,14 +1593,14 @@
      </item>
     </widget>
    </item>
-   <item row="54" column="0">
+   <item row="52" column="0">
     <widget class="QLabel" name="labelBreakConstructorInitializers">
      <property name="text">
       <string notr="true">BreakConstructorInitializers</string>
      </property>
     </widget>
    </item>
-   <item row="54" column="1">
+   <item row="52" column="1">
     <widget class="QComboBox" name="BreakConstructorInitializers">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1680,14 +1622,14 @@
      </item>
     </widget>
    </item>
-   <item row="55" column="0">
+   <item row="53" column="0">
     <widget class="QLabel" name="labelBreakAfterJavaFieldAnnotations">
      <property name="text">
       <string notr="true">BreakAfterJavaFieldAnnotations</string>
      </property>
     </widget>
    </item>
-   <item row="55" column="1">
+   <item row="53" column="1">
     <widget class="QComboBox" name="BreakAfterJavaFieldAnnotations">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1709,14 +1651,14 @@
      </item>
     </widget>
    </item>
-   <item row="56" column="0">
+   <item row="54" column="0">
     <widget class="QLabel" name="labelBreakStringLiterals">
      <property name="text">
       <string notr="true">BreakStringLiterals</string>
      </property>
     </widget>
    </item>
-   <item row="56" column="1">
+   <item row="54" column="1">
     <widget class="QComboBox" name="BreakStringLiterals">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1738,14 +1680,14 @@
      </item>
     </widget>
    </item>
-   <item row="57" column="0">
+   <item row="55" column="0">
     <widget class="QLabel" name="labelColumnLimit">
      <property name="text">
       <string notr="true">ColumnLimit</string>
      </property>
     </widget>
    </item>
-   <item row="57" column="1">
+   <item row="55" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="ColumnLimit">
@@ -1766,14 +1708,14 @@
      </item>
     </layout>
    </item>
-   <item row="58" column="0">
+   <item row="56" column="0">
     <widget class="QLabel" name="labelCommentPragmas">
      <property name="text">
       <string notr="true">CommentPragmas</string>
      </property>
     </widget>
    </item>
-   <item row="58" column="1">
+   <item row="56" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="CommentPragmas">
@@ -1794,14 +1736,14 @@
      </item>
     </layout>
    </item>
-   <item row="59" column="0">
+   <item row="57" column="0">
     <widget class="QLabel" name="labelQualifierAlignment">
      <property name="text">
       <string notr="true">QualifierAlignment</string>
      </property>
     </widget>
    </item>
-   <item row="59" column="1">
+   <item row="57" column="1">
     <widget class="QComboBox" name="QualifierAlignment">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1828,14 +1770,14 @@
      </item>
     </widget>
    </item>
-   <item row="60" column="0">
+   <item row="58" column="0">
     <widget class="QLabel" name="labelQualifierOrder">
      <property name="text">
       <string notr="true">QualifierOrder</string>
      </property>
     </widget>
    </item>
-   <item row="60" column="1">
+   <item row="58" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="QualifierOrder">
@@ -1865,14 +1807,14 @@
      </item>
     </layout>
    </item>
-   <item row="61" column="0">
+   <item row="59" column="0">
     <widget class="QLabel" name="labelBreakInheritanceList">
      <property name="text">
       <string notr="true">BreakInheritanceList</string>
      </property>
     </widget>
    </item>
-   <item row="61" column="1">
+   <item row="59" column="1">
     <widget class="QComboBox" name="BreakInheritanceList">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1899,14 +1841,14 @@
      </item>
     </widget>
    </item>
-   <item row="62" column="0">
+   <item row="60" column="0">
     <widget class="QLabel" name="labelCompactNamespaces">
      <property name="text">
       <string notr="true">CompactNamespaces</string>
      </property>
     </widget>
    </item>
-   <item row="62" column="1">
+   <item row="60" column="1">
     <widget class="QComboBox" name="CompactNamespaces">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -1928,43 +1870,14 @@
      </item>
     </widget>
    </item>
-   <item row="63" column="0">
-    <widget class="QLabel" name="labelConstructorInitializerAllOnOneLineOrOnePerLine">
-     <property name="text">
-      <string notr="true">ConstructorInitializerAllOnOneLineOrOnePerLine</string>
-     </property>
-    </widget>
-   </item>
-   <item row="63" column="1">
-    <widget class="QComboBox" name="ConstructorInitializerAllOnOneLineOrOnePerLine">
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-     <item>
-      <property name="text">
-       <string notr="true">Default</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">true</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string notr="true">false</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="64" column="0">
+   <item row="61" column="0">
     <widget class="QLabel" name="labelConstructorInitializerIndentWidth">
      <property name="text">
       <string notr="true">ConstructorInitializerIndentWidth</string>
      </property>
     </widget>
    </item>
-   <item row="64" column="1">
+   <item row="61" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="ConstructorInitializerIndentWidth">
@@ -1985,14 +1898,14 @@
      </item>
     </layout>
    </item>
-   <item row="65" column="0">
+   <item row="62" column="0">
     <widget class="QLabel" name="labelContinuationIndentWidth">
      <property name="text">
       <string notr="true">ContinuationIndentWidth</string>
      </property>
     </widget>
    </item>
-   <item row="65" column="1">
+   <item row="62" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="ContinuationIndentWidth">
@@ -2013,14 +1926,14 @@
      </item>
     </layout>
    </item>
-   <item row="66" column="0">
+   <item row="63" column="0">
     <widget class="QLabel" name="labelCpp11BracedListStyle">
      <property name="text">
       <string notr="true">Cpp11BracedListStyle</string>
      </property>
     </widget>
    </item>
-   <item row="66" column="1">
+   <item row="63" column="1">
     <widget class="QComboBox" name="Cpp11BracedListStyle">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2042,14 +1955,14 @@
      </item>
     </widget>
    </item>
-   <item row="67" column="0">
+   <item row="64" column="0">
     <widget class="QLabel" name="labelDeriveLineEnding">
      <property name="text">
       <string notr="true">DeriveLineEnding</string>
      </property>
     </widget>
    </item>
-   <item row="67" column="1">
+   <item row="64" column="1">
     <widget class="QComboBox" name="DeriveLineEnding">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2071,14 +1984,14 @@
      </item>
     </widget>
    </item>
-   <item row="68" column="0">
+   <item row="65" column="0">
     <widget class="QLabel" name="labelDerivePointerAlignment">
      <property name="text">
       <string notr="true">DerivePointerAlignment</string>
      </property>
     </widget>
    </item>
-   <item row="68" column="1">
+   <item row="65" column="1">
     <widget class="QComboBox" name="DerivePointerAlignment">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2100,14 +2013,14 @@
      </item>
     </widget>
    </item>
-   <item row="69" column="0">
+   <item row="66" column="0">
     <widget class="QLabel" name="labelDisableFormat">
      <property name="text">
       <string notr="true">DisableFormat</string>
      </property>
     </widget>
    </item>
-   <item row="69" column="1">
+   <item row="66" column="1">
     <widget class="QComboBox" name="DisableFormat">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2129,14 +2042,14 @@
      </item>
     </widget>
    </item>
-   <item row="70" column="0">
+   <item row="67" column="0">
     <widget class="QLabel" name="labelEmptyLineAfterAccessModifier">
      <property name="text">
       <string notr="true">EmptyLineAfterAccessModifier</string>
      </property>
     </widget>
    </item>
-   <item row="70" column="1">
+   <item row="67" column="1">
     <widget class="QComboBox" name="EmptyLineAfterAccessModifier">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2158,14 +2071,14 @@
      </item>
     </widget>
    </item>
-   <item row="71" column="0">
+   <item row="68" column="0">
     <widget class="QLabel" name="labelEmptyLineBeforeAccessModifier">
      <property name="text">
       <string notr="true">EmptyLineBeforeAccessModifier</string>
      </property>
     </widget>
    </item>
-   <item row="71" column="1">
+   <item row="68" column="1">
     <widget class="QComboBox" name="EmptyLineBeforeAccessModifier">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2192,14 +2105,14 @@
      </item>
     </widget>
    </item>
-   <item row="72" column="0">
+   <item row="69" column="0">
     <widget class="QLabel" name="labelExperimentalAutoDetectBinPacking">
      <property name="text">
       <string notr="true">ExperimentalAutoDetectBinPacking</string>
      </property>
     </widget>
    </item>
-   <item row="72" column="1">
+   <item row="69" column="1">
     <widget class="QComboBox" name="ExperimentalAutoDetectBinPacking">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2221,14 +2134,14 @@
      </item>
     </widget>
    </item>
-   <item row="73" column="0">
+   <item row="70" column="0">
     <widget class="QLabel" name="labelPackConstructorInitializers">
      <property name="text">
       <string notr="true">PackConstructorInitializers</string>
      </property>
     </widget>
    </item>
-   <item row="73" column="1">
+   <item row="70" column="1">
     <widget class="QComboBox" name="PackConstructorInitializers">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2255,14 +2168,14 @@
      </item>
     </widget>
    </item>
-   <item row="74" column="0">
+   <item row="71" column="0">
     <widget class="QLabel" name="labelFixNamespaceComments">
      <property name="text">
       <string notr="true">FixNamespaceComments</string>
      </property>
     </widget>
    </item>
-   <item row="74" column="1">
+   <item row="71" column="1">
     <widget class="QComboBox" name="FixNamespaceComments">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2284,14 +2197,14 @@
      </item>
     </widget>
    </item>
-   <item row="75" column="0">
+   <item row="72" column="0">
     <widget class="QLabel" name="labelForEachMacros">
      <property name="text">
       <string notr="true">ForEachMacros</string>
      </property>
     </widget>
    </item>
-   <item row="75" column="1">
+   <item row="72" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="ForEachMacros">
@@ -2321,14 +2234,14 @@
      </item>
     </layout>
    </item>
-   <item row="76" column="0">
+   <item row="73" column="0">
     <widget class="QLabel" name="labelIfMacros">
      <property name="text">
       <string notr="true">IfMacros</string>
      </property>
     </widget>
    </item>
-   <item row="76" column="1">
+   <item row="73" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="IfMacros">
@@ -2358,14 +2271,14 @@
      </item>
     </layout>
    </item>
-   <item row="77" column="0">
+   <item row="74" column="0">
     <widget class="QLabel" name="labelTypenameMacros">
      <property name="text">
       <string notr="true">TypenameMacros</string>
      </property>
     </widget>
    </item>
-   <item row="77" column="1">
+   <item row="74" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="TypenameMacros">
@@ -2395,14 +2308,14 @@
      </item>
     </layout>
    </item>
-   <item row="78" column="0">
+   <item row="75" column="0">
     <widget class="QLabel" name="labelStatementMacros">
      <property name="text">
       <string notr="true">StatementMacros</string>
      </property>
     </widget>
    </item>
-   <item row="78" column="1">
+   <item row="75" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="StatementMacros">
@@ -2432,14 +2345,14 @@
      </item>
     </layout>
    </item>
-   <item row="79" column="0">
+   <item row="76" column="0">
     <widget class="QLabel" name="labelNamespaceMacros">
      <property name="text">
       <string notr="true">NamespaceMacros</string>
      </property>
     </widget>
    </item>
-   <item row="79" column="1">
+   <item row="76" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="NamespaceMacros">
@@ -2469,14 +2382,14 @@
      </item>
     </layout>
    </item>
-   <item row="80" column="0">
+   <item row="77" column="0">
     <widget class="QLabel" name="labelWhitespaceSensitiveMacros">
      <property name="text">
       <string notr="true">WhitespaceSensitiveMacros</string>
      </property>
     </widget>
    </item>
-   <item row="80" column="1">
+   <item row="77" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="WhitespaceSensitiveMacros">
@@ -2506,14 +2419,14 @@
      </item>
     </layout>
    </item>
-   <item row="82" column="0">
+   <item row="79" column="0">
     <widget class="QLabel" name="labelIndentAccessModifiers">
      <property name="text">
       <string notr="true">IndentAccessModifiers</string>
      </property>
     </widget>
    </item>
-   <item row="82" column="1">
+   <item row="79" column="1">
     <widget class="QComboBox" name="IndentAccessModifiers">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2535,14 +2448,14 @@
      </item>
     </widget>
    </item>
-   <item row="83" column="0">
+   <item row="80" column="0">
     <widget class="QLabel" name="labelIndentCaseLabels">
      <property name="text">
       <string notr="true">IndentCaseLabels</string>
      </property>
     </widget>
    </item>
-   <item row="83" column="1">
+   <item row="80" column="1">
     <widget class="QComboBox" name="IndentCaseLabels">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2564,14 +2477,14 @@
      </item>
     </widget>
    </item>
-   <item row="84" column="0">
+   <item row="81" column="0">
     <widget class="QLabel" name="labelIndentCaseBlocks">
      <property name="text">
       <string notr="true">IndentCaseBlocks</string>
      </property>
     </widget>
    </item>
-   <item row="84" column="1">
+   <item row="81" column="1">
     <widget class="QComboBox" name="IndentCaseBlocks">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2593,14 +2506,14 @@
      </item>
     </widget>
    </item>
-   <item row="85" column="0">
+   <item row="82" column="0">
     <widget class="QLabel" name="labelIndentGotoLabels">
      <property name="text">
       <string notr="true">IndentGotoLabels</string>
      </property>
     </widget>
    </item>
-   <item row="85" column="1">
+   <item row="82" column="1">
     <widget class="QComboBox" name="IndentGotoLabels">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2622,14 +2535,14 @@
      </item>
     </widget>
    </item>
-   <item row="86" column="0">
+   <item row="83" column="0">
     <widget class="QLabel" name="labelIndentPPDirectives">
      <property name="text">
       <string notr="true">IndentPPDirectives</string>
      </property>
     </widget>
    </item>
-   <item row="86" column="1">
+   <item row="83" column="1">
     <widget class="QComboBox" name="IndentPPDirectives">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2651,14 +2564,14 @@
      </item>
     </widget>
    </item>
-   <item row="87" column="0">
+   <item row="84" column="0">
     <widget class="QLabel" name="labelIndentExternBlock">
      <property name="text">
       <string notr="true">IndentExternBlock</string>
      </property>
     </widget>
    </item>
-   <item row="87" column="1">
+   <item row="84" column="1">
     <widget class="QComboBox" name="IndentExternBlock">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2680,14 +2593,14 @@
      </item>
     </widget>
    </item>
-   <item row="88" column="0">
+   <item row="85" column="0">
     <widget class="QLabel" name="labelIndentRequires">
      <property name="text">
       <string notr="true">IndentRequires</string>
      </property>
     </widget>
    </item>
-   <item row="88" column="1">
+   <item row="85" column="1">
     <widget class="QComboBox" name="IndentRequires">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2709,14 +2622,14 @@
      </item>
     </widget>
    </item>
-   <item row="89" column="0">
+   <item row="86" column="0">
     <widget class="QLabel" name="labelIndentWidth">
      <property name="text">
       <string notr="true">IndentWidth</string>
      </property>
     </widget>
    </item>
-   <item row="89" column="1">
+   <item row="86" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="IndentWidth">
@@ -2737,14 +2650,14 @@
      </item>
     </layout>
    </item>
-   <item row="90" column="0">
+   <item row="87" column="0">
     <widget class="QLabel" name="labelIndentWrappedFunctionNames">
      <property name="text">
       <string notr="true">IndentWrappedFunctionNames</string>
      </property>
     </widget>
    </item>
-   <item row="90" column="1">
+   <item row="87" column="1">
     <widget class="QComboBox" name="IndentWrappedFunctionNames">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2766,14 +2679,14 @@
      </item>
     </widget>
    </item>
-   <item row="91" column="0">
+   <item row="88" column="0">
     <widget class="QLabel" name="labelJavaImportGroups">
      <property name="text">
       <string notr="true">JavaImportGroups</string>
      </property>
     </widget>
    </item>
-   <item row="91" column="1">
+   <item row="88" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="JavaImportGroups">
@@ -2803,14 +2716,14 @@
      </item>
     </layout>
    </item>
-   <item row="92" column="0">
+   <item row="89" column="0">
     <widget class="QLabel" name="labelJavaScriptQuotes">
      <property name="text">
       <string notr="true">JavaScriptQuotes</string>
      </property>
     </widget>
    </item>
-   <item row="92" column="1">
+   <item row="89" column="1">
     <widget class="QComboBox" name="JavaScriptQuotes">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2832,14 +2745,14 @@
      </item>
     </widget>
    </item>
-   <item row="93" column="0">
+   <item row="90" column="0">
     <widget class="QLabel" name="labelJavaScriptWrapImports">
      <property name="text">
       <string notr="true">JavaScriptWrapImports</string>
      </property>
     </widget>
    </item>
-   <item row="93" column="1">
+   <item row="90" column="1">
     <widget class="QComboBox" name="JavaScriptWrapImports">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2861,14 +2774,14 @@
      </item>
     </widget>
    </item>
-   <item row="94" column="0">
+   <item row="91" column="0">
     <widget class="QLabel" name="labelKeepEmptyLinesAtTheStartOfBlocks">
      <property name="text">
       <string notr="true">KeepEmptyLinesAtTheStartOfBlocks</string>
      </property>
     </widget>
    </item>
-   <item row="94" column="1">
+   <item row="91" column="1">
     <widget class="QComboBox" name="KeepEmptyLinesAtTheStartOfBlocks">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2890,14 +2803,14 @@
      </item>
     </widget>
    </item>
-   <item row="95" column="0">
+   <item row="92" column="0">
     <widget class="QLabel" name="labelLanguage">
      <property name="text">
       <string notr="true">Language</string>
      </property>
     </widget>
    </item>
-   <item row="95" column="1">
+   <item row="92" column="1">
     <widget class="QComboBox" name="Language">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2954,14 +2867,14 @@
      </item>
     </widget>
    </item>
-   <item row="96" column="0">
+   <item row="93" column="0">
     <widget class="QLabel" name="labelLambdaBodyIndentation">
      <property name="text">
       <string notr="true">LambdaBodyIndentation</string>
      </property>
     </widget>
    </item>
-   <item row="96" column="1">
+   <item row="93" column="1">
     <widget class="QComboBox" name="LambdaBodyIndentation">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -2978,14 +2891,14 @@
      </item>
     </widget>
    </item>
-   <item row="97" column="0">
+   <item row="94" column="0">
     <widget class="QLabel" name="labelMacroBlockBegin">
      <property name="text">
       <string notr="true">MacroBlockBegin</string>
      </property>
     </widget>
    </item>
-   <item row="97" column="1">
+   <item row="94" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="MacroBlockBegin">
@@ -3006,14 +2919,14 @@
      </item>
     </layout>
    </item>
-   <item row="98" column="0">
+   <item row="95" column="0">
     <widget class="QLabel" name="labelMacroBlockEnd">
      <property name="text">
       <string notr="true">MacroBlockEnd</string>
      </property>
     </widget>
    </item>
-   <item row="98" column="1">
+   <item row="95" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="MacroBlockEnd">
@@ -3034,14 +2947,14 @@
      </item>
     </layout>
    </item>
-   <item row="99" column="0">
+   <item row="96" column="0">
     <widget class="QLabel" name="labelMaxEmptyLinesToKeep">
      <property name="text">
       <string notr="true">MaxEmptyLinesToKeep</string>
      </property>
     </widget>
    </item>
-   <item row="99" column="1">
+   <item row="96" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="MaxEmptyLinesToKeep">
@@ -3062,14 +2975,14 @@
      </item>
     </layout>
    </item>
-   <item row="100" column="0">
+   <item row="97" column="0">
     <widget class="QLabel" name="labelNamespaceIndentation">
      <property name="text">
       <string notr="true">NamespaceIndentation</string>
      </property>
     </widget>
    </item>
-   <item row="100" column="1">
+   <item row="97" column="1">
     <widget class="QComboBox" name="NamespaceIndentation">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3091,14 +3004,14 @@
      </item>
     </widget>
    </item>
-   <item row="101" column="0">
+   <item row="98" column="0">
     <widget class="QLabel" name="labelObjCBinPackProtocolList">
      <property name="text">
       <string notr="true">ObjCBinPackProtocolList</string>
      </property>
     </widget>
    </item>
-   <item row="101" column="1">
+   <item row="98" column="1">
     <widget class="QComboBox" name="ObjCBinPackProtocolList">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3120,14 +3033,14 @@
      </item>
     </widget>
    </item>
-   <item row="102" column="0">
+   <item row="99" column="0">
     <widget class="QLabel" name="labelObjCBlockIndentWidth">
      <property name="text">
       <string notr="true">ObjCBlockIndentWidth</string>
      </property>
     </widget>
    </item>
-   <item row="102" column="1">
+   <item row="99" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="ObjCBlockIndentWidth">
@@ -3148,14 +3061,14 @@
      </item>
     </layout>
    </item>
-   <item row="103" column="0">
+   <item row="100" column="0">
     <widget class="QLabel" name="labelObjCSpaceAfterProperty">
      <property name="text">
       <string notr="true">ObjCSpaceAfterProperty</string>
      </property>
     </widget>
    </item>
-   <item row="103" column="1">
+   <item row="100" column="1">
     <widget class="QComboBox" name="ObjCSpaceAfterProperty">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3177,14 +3090,14 @@
      </item>
     </widget>
    </item>
-   <item row="104" column="0">
+   <item row="101" column="0">
     <widget class="QLabel" name="labelObjCBreakBeforeNestedBlockParam">
      <property name="text">
       <string notr="true">ObjCBreakBeforeNestedBlockParam</string>
      </property>
     </widget>
    </item>
-   <item row="104" column="1">
+   <item row="101" column="1">
     <widget class="QComboBox" name="ObjCBreakBeforeNestedBlockParam">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3206,14 +3119,14 @@
      </item>
     </widget>
    </item>
-   <item row="105" column="0">
+   <item row="102" column="0">
     <widget class="QLabel" name="labelObjCSpaceBeforeProtocolList">
      <property name="text">
       <string notr="true">ObjCSpaceBeforeProtocolList</string>
      </property>
     </widget>
    </item>
-   <item row="105" column="1">
+   <item row="102" column="1">
     <widget class="QComboBox" name="ObjCSpaceBeforeProtocolList">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3235,14 +3148,14 @@
      </item>
     </widget>
    </item>
-   <item row="106" column="0">
+   <item row="103" column="0">
     <widget class="QLabel" name="labelPenaltyBreakAssignment">
      <property name="text">
       <string notr="true">PenaltyBreakAssignment</string>
      </property>
     </widget>
    </item>
-   <item row="106" column="1">
+   <item row="103" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyBreakAssignment">
@@ -3263,14 +3176,14 @@
      </item>
     </layout>
    </item>
-   <item row="107" column="0">
+   <item row="104" column="0">
     <widget class="QLabel" name="labelPenaltyBreakBeforeFirstCallParameter">
      <property name="text">
       <string notr="true">PenaltyBreakBeforeFirstCallParameter</string>
      </property>
     </widget>
    </item>
-   <item row="107" column="1">
+   <item row="104" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyBreakBeforeFirstCallParameter">
@@ -3291,14 +3204,14 @@
      </item>
     </layout>
    </item>
-   <item row="108" column="0">
+   <item row="105" column="0">
     <widget class="QLabel" name="labelPenaltyBreakComment">
      <property name="text">
       <string notr="true">PenaltyBreakComment</string>
      </property>
     </widget>
    </item>
-   <item row="108" column="1">
+   <item row="105" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyBreakComment">
@@ -3319,14 +3232,14 @@
      </item>
     </layout>
    </item>
-   <item row="109" column="0">
+   <item row="106" column="0">
     <widget class="QLabel" name="labelPenaltyBreakFirstLessLess">
      <property name="text">
       <string notr="true">PenaltyBreakFirstLessLess</string>
      </property>
     </widget>
    </item>
-   <item row="109" column="1">
+   <item row="106" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyBreakFirstLessLess">
@@ -3347,14 +3260,14 @@
      </item>
     </layout>
    </item>
-   <item row="110" column="0">
+   <item row="107" column="0">
     <widget class="QLabel" name="labelPenaltyBreakOpenParenthesis">
      <property name="text">
       <string notr="true">PenaltyBreakOpenParenthesis</string>
      </property>
     </widget>
    </item>
-   <item row="110" column="1">
+   <item row="107" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyBreakOpenParenthesis">
@@ -3375,14 +3288,14 @@
      </item>
     </layout>
    </item>
-   <item row="111" column="0">
+   <item row="108" column="0">
     <widget class="QLabel" name="labelPenaltyBreakString">
      <property name="text">
       <string notr="true">PenaltyBreakString</string>
      </property>
     </widget>
    </item>
-   <item row="111" column="1">
+   <item row="108" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyBreakString">
@@ -3403,14 +3316,14 @@
      </item>
     </layout>
    </item>
-   <item row="112" column="0">
+   <item row="109" column="0">
     <widget class="QLabel" name="labelPenaltyBreakTemplateDeclaration">
      <property name="text">
       <string notr="true">PenaltyBreakTemplateDeclaration</string>
      </property>
     </widget>
    </item>
-   <item row="112" column="1">
+   <item row="109" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyBreakTemplateDeclaration">
@@ -3431,14 +3344,14 @@
      </item>
     </layout>
    </item>
-   <item row="113" column="0">
+   <item row="110" column="0">
     <widget class="QLabel" name="labelPenaltyExcessCharacter">
      <property name="text">
       <string notr="true">PenaltyExcessCharacter</string>
      </property>
     </widget>
    </item>
-   <item row="113" column="1">
+   <item row="110" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyExcessCharacter">
@@ -3459,14 +3372,14 @@
      </item>
     </layout>
    </item>
-   <item row="114" column="0">
+   <item row="111" column="0">
     <widget class="QLabel" name="labelPenaltyReturnTypeOnItsOwnLine">
      <property name="text">
       <string notr="true">PenaltyReturnTypeOnItsOwnLine</string>
      </property>
     </widget>
    </item>
-   <item row="114" column="1">
+   <item row="111" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyReturnTypeOnItsOwnLine">
@@ -3487,14 +3400,14 @@
      </item>
     </layout>
    </item>
-   <item row="115" column="0">
+   <item row="112" column="0">
     <widget class="QLabel" name="labelPenaltyIndentedWhitespace">
      <property name="text">
       <string notr="true">PenaltyIndentedWhitespace</string>
      </property>
     </widget>
    </item>
-   <item row="115" column="1">
+   <item row="112" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PenaltyIndentedWhitespace">
@@ -3515,14 +3428,14 @@
      </item>
     </layout>
    </item>
-   <item row="116" column="0">
+   <item row="113" column="0">
     <widget class="QLabel" name="labelPointerAlignment">
      <property name="text">
       <string notr="true">PointerAlignment</string>
      </property>
     </widget>
    </item>
-   <item row="116" column="1">
+   <item row="113" column="1">
     <widget class="QComboBox" name="PointerAlignment">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3544,14 +3457,14 @@
      </item>
     </widget>
    </item>
-   <item row="117" column="0">
+   <item row="114" column="0">
     <widget class="QLabel" name="labelPPIndentWidth">
      <property name="text">
       <string notr="true">PPIndentWidth</string>
      </property>
     </widget>
    </item>
-   <item row="117" column="1">
+   <item row="114" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="PPIndentWidth">
@@ -3572,14 +3485,14 @@
      </item>
     </layout>
    </item>
-   <item row="119" column="0">
+   <item row="116" column="0">
     <widget class="QLabel" name="labelReferenceAlignment">
      <property name="text">
       <string notr="true">ReferenceAlignment</string>
      </property>
     </widget>
    </item>
-   <item row="119" column="1">
+   <item row="116" column="1">
     <widget class="QComboBox" name="ReferenceAlignment">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3606,14 +3519,14 @@
      </item>
     </widget>
    </item>
-   <item row="120" column="0">
+   <item row="117" column="0">
     <widget class="QLabel" name="labelReflowComments">
      <property name="text">
       <string notr="true">ReflowComments</string>
      </property>
     </widget>
    </item>
-   <item row="120" column="1">
+   <item row="117" column="1">
     <widget class="QComboBox" name="ReflowComments">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3635,14 +3548,14 @@
      </item>
     </widget>
    </item>
-   <item row="121" column="0">
+   <item row="118" column="0">
     <widget class="QLabel" name="labelRemoveBracesLLVM">
      <property name="text">
       <string notr="true">RemoveBracesLLVM</string>
      </property>
     </widget>
    </item>
-   <item row="121" column="1">
+   <item row="118" column="1">
     <widget class="QComboBox" name="RemoveBracesLLVM">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3664,14 +3577,14 @@
      </item>
     </widget>
    </item>
-   <item row="122" column="0">
+   <item row="119" column="0">
     <widget class="QLabel" name="labelSeparateDefinitionBlocks">
      <property name="text">
       <string notr="true">SeparateDefinitionBlocks</string>
      </property>
     </widget>
    </item>
-   <item row="122" column="1">
+   <item row="119" column="1">
     <widget class="QComboBox" name="SeparateDefinitionBlocks">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3693,14 +3606,14 @@
      </item>
     </widget>
    </item>
-   <item row="123" column="0">
+   <item row="120" column="0">
     <widget class="QLabel" name="labelShortNamespaceLines">
      <property name="text">
       <string notr="true">ShortNamespaceLines</string>
      </property>
     </widget>
    </item>
-   <item row="123" column="1">
+   <item row="120" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="ShortNamespaceLines">
@@ -3721,14 +3634,14 @@
      </item>
     </layout>
    </item>
-   <item row="124" column="0">
+   <item row="121" column="0">
     <widget class="QLabel" name="labelSortIncludes">
      <property name="text">
       <string notr="true">SortIncludes</string>
      </property>
     </widget>
    </item>
-   <item row="124" column="1">
+   <item row="121" column="1">
     <widget class="QComboBox" name="SortIncludes">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3750,14 +3663,14 @@
      </item>
     </widget>
    </item>
-   <item row="125" column="0">
+   <item row="122" column="0">
     <widget class="QLabel" name="labelSortJavaStaticImport">
      <property name="text">
       <string notr="true">SortJavaStaticImport</string>
      </property>
     </widget>
    </item>
-   <item row="125" column="1">
+   <item row="122" column="1">
     <widget class="QComboBox" name="SortJavaStaticImport">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3774,14 +3687,14 @@
      </item>
     </widget>
    </item>
-   <item row="126" column="0">
+   <item row="123" column="0">
     <widget class="QLabel" name="labelSortUsingDeclarations">
      <property name="text">
       <string notr="true">SortUsingDeclarations</string>
      </property>
     </widget>
    </item>
-   <item row="126" column="1">
+   <item row="123" column="1">
     <widget class="QComboBox" name="SortUsingDeclarations">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3803,14 +3716,14 @@
      </item>
     </widget>
    </item>
-   <item row="127" column="0">
+   <item row="124" column="0">
     <widget class="QLabel" name="labelSpaceAfterCStyleCast">
      <property name="text">
       <string notr="true">SpaceAfterCStyleCast</string>
      </property>
     </widget>
    </item>
-   <item row="127" column="1">
+   <item row="124" column="1">
     <widget class="QComboBox" name="SpaceAfterCStyleCast">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3832,14 +3745,14 @@
      </item>
     </widget>
    </item>
-   <item row="128" column="0">
+   <item row="125" column="0">
     <widget class="QLabel" name="labelSpaceAfterLogicalNot">
      <property name="text">
       <string notr="true">SpaceAfterLogicalNot</string>
      </property>
     </widget>
    </item>
-   <item row="128" column="1">
+   <item row="125" column="1">
     <widget class="QComboBox" name="SpaceAfterLogicalNot">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3861,14 +3774,14 @@
      </item>
     </widget>
    </item>
-   <item row="129" column="0">
+   <item row="126" column="0">
     <widget class="QLabel" name="labelSpaceAfterTemplateKeyword">
      <property name="text">
       <string notr="true">SpaceAfterTemplateKeyword</string>
      </property>
     </widget>
    </item>
-   <item row="129" column="1">
+   <item row="126" column="1">
     <widget class="QComboBox" name="SpaceAfterTemplateKeyword">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3890,14 +3803,14 @@
      </item>
     </widget>
    </item>
-   <item row="130" column="0">
+   <item row="127" column="0">
     <widget class="QLabel" name="labelSpaceAroundPointerQualifiers">
      <property name="text">
       <string notr="true">SpaceAroundPointerQualifiers</string>
      </property>
     </widget>
    </item>
-   <item row="130" column="1">
+   <item row="127" column="1">
     <widget class="QComboBox" name="SpaceAroundPointerQualifiers">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3924,14 +3837,14 @@
      </item>
     </widget>
    </item>
-   <item row="131" column="0">
+   <item row="128" column="0">
     <widget class="QLabel" name="labelSpaceBeforeAssignmentOperators">
      <property name="text">
       <string notr="true">SpaceBeforeAssignmentOperators</string>
      </property>
     </widget>
    </item>
-   <item row="131" column="1">
+   <item row="128" column="1">
     <widget class="QComboBox" name="SpaceBeforeAssignmentOperators">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3953,14 +3866,14 @@
      </item>
     </widget>
    </item>
-   <item row="132" column="0">
+   <item row="129" column="0">
     <widget class="QLabel" name="labelSpaceBeforeCaseColon">
      <property name="text">
       <string notr="true">SpaceBeforeCaseColon</string>
      </property>
     </widget>
    </item>
-   <item row="132" column="1">
+   <item row="129" column="1">
     <widget class="QComboBox" name="SpaceBeforeCaseColon">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -3982,14 +3895,14 @@
      </item>
     </widget>
    </item>
-   <item row="133" column="0">
+   <item row="130" column="0">
     <widget class="QLabel" name="labelSpaceBeforeCpp11BracedList">
      <property name="text">
       <string notr="true">SpaceBeforeCpp11BracedList</string>
      </property>
     </widget>
    </item>
-   <item row="133" column="1">
+   <item row="130" column="1">
     <widget class="QComboBox" name="SpaceBeforeCpp11BracedList">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4011,14 +3924,14 @@
      </item>
     </widget>
    </item>
-   <item row="134" column="0">
+   <item row="131" column="0">
     <widget class="QLabel" name="labelSpaceBeforeCtorInitializerColon">
      <property name="text">
       <string notr="true">SpaceBeforeCtorInitializerColon</string>
      </property>
     </widget>
    </item>
-   <item row="134" column="1">
+   <item row="131" column="1">
     <widget class="QComboBox" name="SpaceBeforeCtorInitializerColon">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4040,14 +3953,14 @@
      </item>
     </widget>
    </item>
-   <item row="135" column="0">
+   <item row="132" column="0">
     <widget class="QLabel" name="labelSpaceBeforeInheritanceColon">
      <property name="text">
       <string notr="true">SpaceBeforeInheritanceColon</string>
      </property>
     </widget>
    </item>
-   <item row="135" column="1">
+   <item row="132" column="1">
     <widget class="QComboBox" name="SpaceBeforeInheritanceColon">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4069,14 +3982,14 @@
      </item>
     </widget>
    </item>
-   <item row="136" column="0">
+   <item row="133" column="0">
     <widget class="QLabel" name="labelSpaceBeforeParens">
      <property name="text">
       <string notr="true">SpaceBeforeParens</string>
      </property>
     </widget>
    </item>
-   <item row="136" column="1">
+   <item row="133" column="1">
     <widget class="QComboBox" name="SpaceBeforeParens">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4113,21 +4026,21 @@
      </item>
     </widget>
    </item>
-   <item row="137" column="0">
+   <item row="134" column="0">
     <widget class="QLabel" name="labelSpaceBeforeParensOptions">
      <property name="text">
       <string notr="true">SpaceBeforeParensOptions</string>
      </property>
     </widget>
    </item>
-   <item row="138" column="0">
+   <item row="135" column="0">
     <widget class="QLabel" name="labelAfterControlStatements">
      <property name="text">
       <string notr="true">  AfterControlStatements</string>
      </property>
     </widget>
    </item>
-   <item row="138" column="1">
+   <item row="135" column="1">
     <widget class="QComboBox" name="AfterControlStatements">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4149,14 +4062,14 @@
      </item>
     </widget>
    </item>
-   <item row="139" column="0">
+   <item row="136" column="0">
     <widget class="QLabel" name="labelAfterForeachMacros">
      <property name="text">
       <string notr="true">  AfterForeachMacros</string>
      </property>
     </widget>
    </item>
-   <item row="139" column="1">
+   <item row="136" column="1">
     <widget class="QComboBox" name="AfterForeachMacros">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4178,14 +4091,14 @@
      </item>
     </widget>
    </item>
-   <item row="140" column="0">
+   <item row="137" column="0">
     <widget class="QLabel" name="labelAfterFunctionDeclarationName">
      <property name="text">
       <string notr="true">  AfterFunctionDeclarationName</string>
      </property>
     </widget>
    </item>
-   <item row="140" column="1">
+   <item row="137" column="1">
     <widget class="QComboBox" name="AfterFunctionDeclarationName">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4207,14 +4120,14 @@
      </item>
     </widget>
    </item>
-   <item row="141" column="0">
+   <item row="138" column="0">
     <widget class="QLabel" name="labelAfterFunctionDefinitionName">
      <property name="text">
       <string notr="true">  AfterFunctionDefinitionName</string>
      </property>
     </widget>
    </item>
-   <item row="141" column="1">
+   <item row="138" column="1">
     <widget class="QComboBox" name="AfterFunctionDefinitionName">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4236,14 +4149,14 @@
      </item>
     </widget>
    </item>
-   <item row="142" column="0">
+   <item row="139" column="0">
     <widget class="QLabel" name="labelAfterIfMacros">
      <property name="text">
       <string notr="true">  AfterIfMacros</string>
      </property>
     </widget>
    </item>
-   <item row="142" column="1">
+   <item row="139" column="1">
     <widget class="QComboBox" name="AfterIfMacros">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4265,14 +4178,14 @@
      </item>
     </widget>
    </item>
-   <item row="143" column="0">
+   <item row="140" column="0">
     <widget class="QLabel" name="labelAfterOverloadedOperator">
      <property name="text">
       <string notr="true">  AfterOverloadedOperator</string>
      </property>
     </widget>
    </item>
-   <item row="143" column="1">
+   <item row="140" column="1">
     <widget class="QComboBox" name="AfterOverloadedOperator">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4294,14 +4207,14 @@
      </item>
     </widget>
    </item>
-   <item row="144" column="0">
+   <item row="141" column="0">
     <widget class="QLabel" name="labelBeforeNonEmptyParentheses">
      <property name="text">
       <string notr="true">  BeforeNonEmptyParentheses</string>
      </property>
     </widget>
    </item>
-   <item row="144" column="1">
+   <item row="141" column="1">
     <widget class="QComboBox" name="BeforeNonEmptyParentheses">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4323,14 +4236,14 @@
      </item>
     </widget>
    </item>
-   <item row="145" column="0">
+   <item row="142" column="0">
     <widget class="QLabel" name="labelSpaceBeforeRangeBasedForLoopColon">
      <property name="text">
       <string notr="true">SpaceBeforeRangeBasedForLoopColon</string>
      </property>
     </widget>
    </item>
-   <item row="145" column="1">
+   <item row="142" column="1">
     <widget class="QComboBox" name="SpaceBeforeRangeBasedForLoopColon">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4352,14 +4265,14 @@
      </item>
     </widget>
    </item>
-   <item row="146" column="0">
+   <item row="143" column="0">
     <widget class="QLabel" name="labelSpaceInEmptyBlock">
      <property name="text">
       <string notr="true">SpaceInEmptyBlock</string>
      </property>
     </widget>
    </item>
-   <item row="146" column="1">
+   <item row="143" column="1">
     <widget class="QComboBox" name="SpaceInEmptyBlock">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4381,14 +4294,14 @@
      </item>
     </widget>
    </item>
-   <item row="147" column="0">
+   <item row="144" column="0">
     <widget class="QLabel" name="labelSpaceInEmptyParentheses">
      <property name="text">
       <string notr="true">SpaceInEmptyParentheses</string>
      </property>
     </widget>
    </item>
-   <item row="147" column="1">
+   <item row="144" column="1">
     <widget class="QComboBox" name="SpaceInEmptyParentheses">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4410,14 +4323,14 @@
      </item>
     </widget>
    </item>
-   <item row="148" column="0">
+   <item row="145" column="0">
     <widget class="QLabel" name="labelSpacesBeforeTrailingComments">
      <property name="text">
       <string notr="true">SpacesBeforeTrailingComments</string>
      </property>
     </widget>
    </item>
-   <item row="148" column="1">
+   <item row="145" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="SpacesBeforeTrailingComments">
@@ -4438,14 +4351,14 @@
      </item>
     </layout>
    </item>
-   <item row="149" column="0">
+   <item row="146" column="0">
     <widget class="QLabel" name="labelSpacesInAngles">
      <property name="text">
       <string notr="true">SpacesInAngles</string>
      </property>
     </widget>
    </item>
-   <item row="149" column="1">
+   <item row="146" column="1">
     <widget class="QComboBox" name="SpacesInAngles">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4467,14 +4380,14 @@
      </item>
     </widget>
    </item>
-   <item row="150" column="0">
+   <item row="147" column="0">
     <widget class="QLabel" name="labelSpacesInConditionalStatement">
      <property name="text">
       <string notr="true">SpacesInConditionalStatement</string>
      </property>
     </widget>
    </item>
-   <item row="150" column="1">
+   <item row="147" column="1">
     <widget class="QComboBox" name="SpacesInConditionalStatement">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4496,14 +4409,14 @@
      </item>
     </widget>
    </item>
-   <item row="151" column="0">
+   <item row="148" column="0">
     <widget class="QLabel" name="labelSpacesInContainerLiterals">
      <property name="text">
       <string notr="true">SpacesInContainerLiterals</string>
      </property>
     </widget>
    </item>
-   <item row="151" column="1">
+   <item row="148" column="1">
     <widget class="QComboBox" name="SpacesInContainerLiterals">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4525,14 +4438,14 @@
      </item>
     </widget>
    </item>
-   <item row="152" column="0">
+   <item row="149" column="0">
     <widget class="QLabel" name="labelSpacesInCStyleCastParentheses">
      <property name="text">
       <string notr="true">SpacesInCStyleCastParentheses</string>
      </property>
     </widget>
    </item>
-   <item row="152" column="1">
+   <item row="149" column="1">
     <widget class="QComboBox" name="SpacesInCStyleCastParentheses">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4554,21 +4467,21 @@
      </item>
     </widget>
    </item>
-   <item row="153" column="0">
+   <item row="150" column="0">
     <widget class="QLabel" name="labelSpacesInLineCommentPrefix">
      <property name="text">
       <string notr="true">SpacesInLineCommentPrefix</string>
      </property>
     </widget>
    </item>
-   <item row="154" column="0">
+   <item row="151" column="0">
     <widget class="QLabel" name="labelMinimum">
      <property name="text">
       <string notr="true">  Minimum</string>
      </property>
     </widget>
    </item>
-   <item row="154" column="1">
+   <item row="151" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="Minimum">
@@ -4589,14 +4502,14 @@
      </item>
     </layout>
    </item>
-   <item row="155" column="0">
+   <item row="152" column="0">
     <widget class="QLabel" name="labelMaximum">
      <property name="text">
       <string notr="true">  Maximum</string>
      </property>
     </widget>
    </item>
-   <item row="155" column="1">
+   <item row="152" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="Maximum">
@@ -4617,14 +4530,14 @@
      </item>
     </layout>
    </item>
-   <item row="156" column="0">
+   <item row="153" column="0">
     <widget class="QLabel" name="labelSpacesInParentheses">
      <property name="text">
       <string notr="true">SpacesInParentheses</string>
      </property>
     </widget>
    </item>
-   <item row="156" column="1">
+   <item row="153" column="1">
     <widget class="QComboBox" name="SpacesInParentheses">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4646,14 +4559,14 @@
      </item>
     </widget>
    </item>
-   <item row="157" column="0">
+   <item row="154" column="0">
     <widget class="QLabel" name="labelSpacesInSquareBrackets">
      <property name="text">
       <string notr="true">SpacesInSquareBrackets</string>
      </property>
     </widget>
    </item>
-   <item row="157" column="1">
+   <item row="154" column="1">
     <widget class="QComboBox" name="SpacesInSquareBrackets">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4675,14 +4588,14 @@
      </item>
     </widget>
    </item>
-   <item row="158" column="0">
+   <item row="155" column="0">
     <widget class="QLabel" name="labelSpaceBeforeSquareBrackets">
      <property name="text">
       <string notr="true">SpaceBeforeSquareBrackets</string>
      </property>
     </widget>
    </item>
-   <item row="158" column="1">
+   <item row="155" column="1">
     <widget class="QComboBox" name="SpaceBeforeSquareBrackets">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4704,14 +4617,14 @@
      </item>
     </widget>
    </item>
-   <item row="159" column="0">
+   <item row="156" column="0">
     <widget class="QLabel" name="labelBitFieldColonSpacing">
      <property name="text">
       <string notr="true">BitFieldColonSpacing</string>
      </property>
     </widget>
    </item>
-   <item row="159" column="1">
+   <item row="156" column="1">
     <widget class="QComboBox" name="BitFieldColonSpacing">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4738,14 +4651,14 @@
      </item>
     </widget>
    </item>
-   <item row="160" column="0">
+   <item row="157" column="0">
     <widget class="QLabel" name="labelStandard">
      <property name="text">
       <string notr="true">Standard</string>
      </property>
     </widget>
    </item>
-   <item row="160" column="1">
+   <item row="157" column="1">
     <widget class="QComboBox" name="Standard">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4787,14 +4700,14 @@
      </item>
     </widget>
    </item>
-   <item row="161" column="0">
+   <item row="158" column="0">
     <widget class="QLabel" name="labelStatementAttributeLikeMacros">
      <property name="text">
       <string notr="true">StatementAttributeLikeMacros</string>
      </property>
     </widget>
    </item>
-   <item row="161" column="1">
+   <item row="158" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPlainTextEdit" name="StatementAttributeLikeMacros">
@@ -4824,14 +4737,14 @@
      </item>
     </layout>
    </item>
-   <item row="162" column="0">
+   <item row="159" column="0">
     <widget class="QLabel" name="labelTabWidth">
      <property name="text">
       <string notr="true">TabWidth</string>
      </property>
     </widget>
    </item>
-   <item row="162" column="1">
+   <item row="159" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLineEdit" name="TabWidth">
@@ -4852,14 +4765,14 @@
      </item>
     </layout>
    </item>
-   <item row="163" column="0">
+   <item row="160" column="0">
     <widget class="QLabel" name="labelUseCRLF">
      <property name="text">
       <string notr="true">UseCRLF</string>
      </property>
     </widget>
    </item>
-   <item row="163" column="1">
+   <item row="160" column="1">
     <widget class="QComboBox" name="UseCRLF">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
@@ -4881,14 +4794,14 @@
      </item>
     </widget>
    </item>
-   <item row="164" column="0">
+   <item row="161" column="0">
     <widget class="QLabel" name="labelUseTab">
      <property name="text">
       <string notr="true">UseTab</string>
      </property>
     </widget>
    </item>
-   <item row="164" column="1">
+   <item row="161" column="1">
     <widget class="QComboBox" name="UseTab">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>

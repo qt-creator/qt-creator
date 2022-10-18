@@ -141,6 +141,10 @@ def create_checks(variables, enums, structs, offset = ""):
         checks += combobox_ui("BasedOnStyle", ["LLVM", "Google", "Chromium", "Mozilla", "WebKit", "Microsoft", "GNU"], create_checks_index)
 
     for variable in variables:
+        if "doxygen" in variable.keys():
+            if ("**deprecated**" in variable['doxygen']):
+                continue;
+
         create_checks_index += 1
         type = variable["type"]
         name = variable["name"]
