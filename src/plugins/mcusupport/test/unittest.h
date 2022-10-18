@@ -51,6 +51,7 @@ private slots:
     void test_createDesktopGccToolchain();
     void test_legacy_createDesktopMsvcToolchain();
     void test_createDesktopMsvcToolchain();
+    void test_createDesktopMingwToolchain();
     void test_verifyManuallyCreatedArmGccToolchain();
     void test_legacy_createArmGccToolchain();
     void test_createArmGccToolchain_data();

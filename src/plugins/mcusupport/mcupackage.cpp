@@ -294,7 +294,8 @@ McuToolChainPackage::ToolChainType McuToolChainPackage::toolchainType() const
 
 bool McuToolChainPackage::isDesktopToolchain() const
 {
-    return m_type == ToolChainType::MSVC || m_type == ToolChainType::GCC;
+    return m_type == ToolChainType::MSVC || m_type == ToolChainType::GCC
+           || m_type == ToolChainType::MinGW;
 }
 
 ToolChain *McuToolChainPackage::msvcToolChain(Id language)
@@ -317,6 +318,28 @@ ToolChain *McuToolChainPackage::gccToolChain(Id language)
         return abi.os() != Abi::WindowsOS && abi.architecture() == Abi::X86Architecture
                && abi.wordWidth() == 64 && t->language() == language;
     });
+    return toolChain;
+}
+
+static ToolChain *mingwToolChain(const FilePath &path, Id language)
+{
+    ToolChain *toolChain = ToolChainManager::toolChain([&path, language](const ToolChain *t) {
+        // find a MinGW toolchain having the same path from registered toolchains
+        const Abi abi = t->targetAbi();
+        return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+               && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
+               && t->language() == language && t->compilerCommand() == path;
+    });
+    if (!toolChain) {
+        // if there's no MinGW toolchain having the same path,
+        // a proper MinGW would be selected from the registered toolchains.
+        toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
+            const Abi abi = t->targetAbi();
+            return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+                   && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
+                   && t->language() == language;
+        });
+    }
     return toolChain;
 }
 
@@ -384,6 +407,12 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
         return msvcToolChain(language);
     case ToolChainType::GCC:
         return gccToolChain(language);
+    case ToolChainType::MinGW: {
+        const QLatin1String compilerName(
+            language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
+        const FilePath compilerPath = (path() / "bin" / compilerName).withExecutableSuffix();
+        return mingwToolChain(compilerPath, language);
+    }
     case ToolChainType::IAR: {
         const FilePath compiler = (path() / "/bin/iccarm").withExecutableSuffix();
         return iarToolChain(compiler, language);
@@ -414,6 +443,8 @@ QString McuToolChainPackage::toolChainName() const
         return QLatin1String("msvc");
     case ToolChainType::GCC:
         return QLatin1String("gcc");
+    case ToolChainType::MinGW:
+        return QLatin1String("mingw");
     case ToolChainType::ArmGcc:
         return QLatin1String("armgcc");
     case ToolChainType::IAR:

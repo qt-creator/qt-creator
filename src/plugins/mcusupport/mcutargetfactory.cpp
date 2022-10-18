@@ -24,7 +24,8 @@ bool isToolchainDescriptionValid(const McuTargetDescription::Toolchain &t)
 bool isDesktopToolchain(McuToolChainPackage::ToolChainType type)
 {
     return type == McuToolChainPackage::ToolChainType::MSVC
-           || type == McuToolChainPackage::ToolChainType::GCC;
+           || type == McuToolChainPackage::ToolChainType::GCC
+           || type == McuToolChainPackage::ToolChainType::MinGW;
 }
 
 McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
@@ -152,6 +153,7 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
         {"keil", McuToolChainPackage::ToolChainType::KEIL},
         {"msvc", McuToolChainPackage::ToolChainType::MSVC},
         {"gcc", McuToolChainPackage::ToolChainType::GCC},
+        {"mingw", McuToolChainPackage::ToolChainType::MinGW},
         {"armgcc", McuToolChainPackage::ToolChainType::ArmGcc},
         {"greenhills", McuToolChainPackage::ToolChainType::GHS},
         {"arm-greenhills", McuToolChainPackage::ToolChainType::GHSArm},

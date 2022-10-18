@@ -16,6 +16,7 @@
 #include "iar_mimxrt1064_evk_freertos_json.h"
 #include "iar_stm32f469i_discovery_baremetal_json.h"
 #include "msvc_desktop_json.h"
+#include "mingw_desktop_json.h"
 
 #include "mcuhelpers.h"
 #include "mcukitmanager.h"
@@ -258,6 +259,17 @@ void verifyMsvcToolchain(const McuToolChainPackagePtr &msvcPackage, const QStrin
     QCOMPARE(msvcPackage->isDesktopToolchain(), true);
     QCOMPARE(msvcPackage->toolChainName(), "msvc");
     QVERIFY(allOf(versions, [&](const QString &v) { return msvcPackage->versions().contains(v); }));
+}
+
+void verifyMingwToolchain(const McuToolChainPackagePtr &mingwPackage, const QStringList &versions)
+{
+    QVERIFY(mingwPackage != nullptr);
+    QCOMPARE(mingwPackage->cmakeVariableName(), "");
+    QCOMPARE(mingwPackage->environmentVariableName(), "");
+    QCOMPARE(mingwPackage->toolchainType(), McuToolChainPackage::ToolChainType::MinGW);
+    QCOMPARE(mingwPackage->isDesktopToolchain(), true);
+    QCOMPARE(mingwPackage->toolChainName(), "mingw");
+    QVERIFY(allOf(versions, [&](const QString &v) { return mingwPackage->versions().contains(v); }));
 }
 
 void verifyTargetToolchains(const Targets &targets,
@@ -549,6 +561,13 @@ void McuSupportTest::test_createDesktopMsvcToolchain()
     const auto description = parseDescriptionJson(msvc_desktop_json);
     McuToolChainPackagePtr msvcPackage{targetFactory.createToolchain(description.toolchain)};
     verifyMsvcToolchain(msvcPackage, {});
+}
+
+void McuSupportTest::test_createDesktopMingwToolchain()
+{
+    const auto description = parseDescriptionJson(mingw_desktop_json);
+    McuToolChainPackagePtr mingwPackage{targetFactory.createToolchain(description.toolchain)};
+    verifyMingwToolchain(mingwPackage, {"11.2.0"});
 }
 
 void McuSupportTest::test_verifyManuallyCreatedArmGccToolchain()

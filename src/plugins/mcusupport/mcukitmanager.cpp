@@ -80,6 +80,7 @@ public:
         case McuToolChainPackage::ToolChainType::KEIL:
         case McuToolChainPackage::ToolChainType::MSVC:
         case McuToolChainPackage::ToolChainType::GCC:
+        case McuToolChainPackage::ToolChainType::MinGW:
         case McuToolChainPackage::ToolChainType::ArmGcc:
             ToolChainKitAspect::setToolChain(k,
                                              tcPackage->toolChain(
@@ -142,6 +143,7 @@ public:
         case McuToolChainPackage::ToolChainType::KEIL:
         case McuToolChainPackage::ToolChainType::MSVC:
         case McuToolChainPackage::ToolChainType::GCC:
+        case McuToolChainPackage::ToolChainType::MinGW:
         case McuToolChainPackage::ToolChainType::ArmGcc: {
             const QVariant debuggerId = tcPackage->debuggerId();
             if (debuggerId.isValid()) {
