@@ -108,7 +108,6 @@ static const char askBeforeExitKey[] = "AskBeforeExit";
 static const char windowGeometryKey[] = "WindowGeometry";
 static const char windowStateKey[] = "WindowState";
 static const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
-static const char openFromDeviceDialogKey[] = "OpenFromDeviceDialog";
 
 static const bool askBeforeExitDefault = false;
 
