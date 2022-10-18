@@ -77,7 +77,6 @@ UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
 
 void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
-    m_controller.setBusyShowing(true);
     m_controller.setDocument(document);
     clear();
     setDiff(document ? document->diffFiles() : QList<FileData>());

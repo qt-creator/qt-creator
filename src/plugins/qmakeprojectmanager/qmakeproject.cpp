@@ -350,10 +350,15 @@ void QmakeBuildSystem::updateCppCodeModel()
         };
 
         const QStringList extraCxxArgs = getExtraFlagsFromCompilerVar(Variable::QmakeCxx);
+        cxxArgs << extraCxxArgs;
         const QStringList extraCArgs = getExtraFlagsFromCompilerVar(Variable::QmakeCc);
+        cArgs << extraCArgs;
+        addTargetFlagForIos(cArgs, cxxArgs, this, [pro] {
+            return pro->variableValue(Variable::IosDeploymentTarget).join(QString());
+        });
 
-        rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxArgs << extraCxxArgs, includeFileBaseDir});
-        rpp.setFlagsForC({kitInfo.cToolChain, cArgs << extraCArgs, includeFileBaseDir});
+        rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxArgs, includeFileBaseDir});
+        rpp.setFlagsForC({kitInfo.cToolChain, cArgs, includeFileBaseDir});
         rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
         rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         rpp.setSelectedForBuilding(pro->includedInExactParse());

@@ -192,7 +192,8 @@ public:
     TarPackageDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto service = createDeployService<TarPackageDeployService>();
+        auto service = new TarPackageDeployService;
+        setDeployService(service);
 
         setWidgetExpandedByDefault(false);
 

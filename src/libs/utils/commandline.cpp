@@ -1412,6 +1412,12 @@ CommandLine::CommandLine(const FilePath &exe, const QStringList &args)
     addArgs(args);
 }
 
+CommandLine::CommandLine(const FilePath &exe, const QStringList &args, OsType osType)
+    : m_executable(exe)
+{
+    addArgs(args, osType);
+}
+
 CommandLine::CommandLine(const FilePath &exe, const QString &args, RawType)
     : m_executable(exe)
 {
@@ -1438,10 +1444,21 @@ void CommandLine::addArg(const QString &arg)
     ProcessArgs::addArg(&m_arguments, arg, m_executable.osType());
 }
 
+void CommandLine::addArg(const QString &arg, OsType osType)
+{
+    ProcessArgs::addArg(&m_arguments, arg, osType);
+}
+
 void CommandLine::addArgs(const QStringList &inArgs)
 {
     for (const QString &arg : inArgs)
         addArg(arg);
+}
+
+void CommandLine::addArgs(const QStringList &inArgs, OsType osType)
+{
+    for (const QString &arg : inArgs)
+        addArg(arg, osType);
 }
 
 // Adds cmd's executable and arguments one by one to this commandline.

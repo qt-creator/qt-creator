@@ -4,7 +4,7 @@
 #include "squishplugin.h"
 
 #include "objectsmapeditor.h"
-#include "squish/squishwizardpages.h"
+#include "squishfilehandler.h"
 #include "squishnavigationwidget.h"
 #include "squishoutputpane.h"
 #include "squishresultmodel.h"
@@ -12,6 +12,7 @@
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
 #include "squishtr.h"
+#include "squishwizardpages.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -21,6 +22,7 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
+#include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
@@ -39,6 +41,7 @@ public:
     ~SquishPluginPrivate();
 
     void initializeMenuEntries();
+    bool initializeGlobalScripts();
 
     SquishSettings m_squishSettings;
     SquishSettingsPage m_settingsPage{&m_squishSettings};
@@ -102,11 +105,42 @@ void SquishPluginPrivate::initializeMenuEntries()
     toolsMenu->addMenu(menu);
 }
 
+bool SquishPluginPrivate::initializeGlobalScripts()
+{
+    QTC_ASSERT(dd->m_squishTools, return false);
+    SquishFileHandler::instance()->setSharedFolders({});
+
+    const Utils::FilePath squishserver = dd->m_squishSettings.squishPath.filePath().pathAppended(
+                Utils::HostOsInfo::withExecutableSuffix("bin/squishserver"));
+    if (!squishserver.isExecutableFile())
+        return false;
+
+    dd->m_squishTools->queryGlobalScripts([](const QString &output, const QString &error) {
+        if (output.isEmpty() || !error.isEmpty())
+            return; // ignore (for now?)
+
+        // FIXME? comma, special characters in paths
+        const Utils::FilePaths globalDirs = Utils::transform(
+                    output.trimmed().split(',', Qt::SkipEmptyParts), &Utils::FilePath::fromString);
+        SquishFileHandler::instance()->setSharedFolders(globalDirs);
+    });
+    return true;
+}
+
 bool SquishPlugin::initialize(const QStringList &, QString *)
 {
     dd = new SquishPluginPrivate;
     ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
     return true;
+}
+
+bool SquishPlugin::delayedInitialize()
+{
+
+    connect(&dd->m_squishSettings, &SquishSettings::squishPathChanged,
+            dd, &SquishPluginPrivate::initializeGlobalScripts);
+
+    return dd->initializeGlobalScripts();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag SquishPlugin::aboutToShutdown()

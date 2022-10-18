@@ -42,6 +42,7 @@ public:
     BundleMaterialCategory(QObject *parent, const QString &name);
 
     void addBundleMaterial(BundleMaterial *bundleMat);
+    bool updateImportedState(const QStringList &importedMats);
     bool filter(const QString &searchText);
 
     QString name() const;

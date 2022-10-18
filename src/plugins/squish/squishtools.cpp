@@ -20,6 +20,7 @@
 #include <debugger/debuggericons.h>
 #include <texteditor/textmark.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
@@ -260,10 +261,32 @@ void SquishTools::runTestCases(const FilePath &suitePath,
     startSquishServer(RunTestRequested);
 }
 
-void SquishTools::queryServerSettings()
+void SquishTools::queryGlobalScripts(QueryCallback callback)
+{
+    m_queryCallback = callback;
+    queryServer(GetGlobalScriptDirs);
+}
+
+void SquishTools::queryServerSettings(QueryCallback callback)
+{
+    m_queryCallback = callback;
+    queryServer(ServerInfo);
+}
+
+void SquishTools::requestSetSharedFolders(const Utils::FilePaths &sharedFolders)
+{
+    // when sharedFolders is empty we need to pass an (explicit) empty string
+    // otherwise a list of paths, for convenience we quote each path
+    m_queryParameter = '"' + Utils::transform(sharedFolders, &FilePath::toUserOutput).join("\",\"") + '"';
+    queryServer(SetGlobalScriptDirs);
+}
+
+
+void SquishTools::queryServer(RunnerQuery query)
 {
     if (m_shutdownInitiated)
         return;
+
     if (m_state != Idle) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               Tr::tr("Error"),
@@ -274,6 +297,7 @@ void SquishTools::queryServerSettings()
     }
     m_perspective.setPerspectiveMode(SquishPerspective::Querying);
     m_fullRunnerOutput.clear();
+    m_query = query;
     startSquishServer(RunnerQueryRequested);
 }
 
@@ -610,7 +634,9 @@ void SquishTools::startSquishRunner()
     m_autId = 0;
     if (m_request == RecordTestRequested)
         m_closeRunnerOnEndRecord = true;
-    setupAndStartSquishRunnerProcess(args);
+
+    Utils::CommandLine cmdLine = {toolsSettings.runnerPath, args};
+    setupAndStartSquishRunnerProcess(cmdLine);
 }
 
 void SquishTools::setupAndStartRecorder()
@@ -661,7 +687,26 @@ void SquishTools::executeRunnerQuery()
     if (!isValidToStartRunner() || !setupRunnerPath())
         return;
 
-    setupAndStartSquishRunnerProcess({ "--port", QString::number(m_serverPort), "--info", "all"});
+    QStringList arguments = { "--port", QString::number(m_serverPort) };
+    Utils::CommandLine cmdLine = {toolsSettings.runnerPath, arguments};
+    switch (m_query) {
+    case ServerInfo:
+        cmdLine.addArg("--info");
+        cmdLine.addArg("all");
+        break;
+    case GetGlobalScriptDirs:
+        cmdLine.addArg("--config");
+        cmdLine.addArg("getGlobalScriptDirs");
+        break;
+    case SetGlobalScriptDirs:
+        cmdLine.addArg("--config");
+        cmdLine.addArg("setGlobalScriptDirs");
+        cmdLine.addArgs(m_queryParameter, Utils::CommandLine::Raw);
+        break;
+    default:
+        QTC_ASSERT(false, return);
+    }
+    setupAndStartSquishRunnerProcess(cmdLine);
 }
 
 Environment SquishTools::squishEnvironment()
@@ -686,9 +731,12 @@ void SquishTools::onRunnerFinished()
     if (m_request == RunnerQueryRequested) {
         const QString error = m_licenseIssues ? Tr::tr("Could not get Squish license from server.")
                                               : QString();
-        emit queryFinished(m_fullRunnerOutput, error);
+        if (m_queryCallback)
+            m_queryCallback(m_fullRunnerOutput, error);
         setState(RunnerStopped);
         m_fullRunnerOutput.clear();
+        m_queryCallback = {};
+        m_queryParameter.clear();
         return;
     }
 
@@ -1391,9 +1439,9 @@ bool SquishTools::setupRunnerPath()
     return true;
 }
 
-void SquishTools::setupAndStartSquishRunnerProcess(const QStringList &args)
+void SquishTools::setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine)
 {
-    m_runnerProcess.setCommand({toolsSettings.runnerPath, args});
+    m_runnerProcess.setCommand(cmdLine);
     m_runnerProcess.setEnvironment(squishEnvironment());
     setState(RunnerStarting);
 

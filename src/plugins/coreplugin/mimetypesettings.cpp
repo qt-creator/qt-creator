@@ -297,9 +297,11 @@ MimeTypeSettingsPrivate::~MimeTypeSettingsPrivate() = default;
 void MimeTypeSettingsPrivate::configureUi(QWidget *w)
 {
     auto filterLineEdit = new FancyLineEdit;
+    filterLineEdit->setObjectName("filterLineEdit");
     filterLineEdit->setFiltering(true);
 
     m_mimeTypesTreeView = new QTreeView;
+    m_mimeTypesTreeView->setObjectName("mimeTypesTreeView");
     m_mimeTypesTreeView->setEditTriggers(QAbstractItemView::DoubleClicked
                  |QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked);
     m_mimeTypesTreeView->setRootIsDecorated(false);
@@ -317,6 +319,7 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
     patternsLabel->setText(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Patterns:", nullptr));
 
     m_patternsLineEdit = new QLineEdit;
+    m_patternsLineEdit->setObjectName("patternsLineEdit");
     m_patternsLineEdit->setToolTip(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "A semicolon-separated list of wildcarded file names.", nullptr));
 
     m_magicHeadersTreeWidget = new QTreeWidget;

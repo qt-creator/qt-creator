@@ -34,34 +34,6 @@ public:
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
     Utils::Environment systemEnvironment() const override;
-    bool isExecutableFile(const Utils::FilePath &filePath) const override;
-    bool isReadableFile(const Utils::FilePath &filePath) const override;
-    bool isWritableFile(const Utils::FilePath &filePath) const override;
-    bool isReadableDirectory(const Utils::FilePath &filePath) const override;
-    bool isWritableDirectory(const Utils::FilePath &filePath) const override;
-    bool isFile(const Utils::FilePath &filePath) const override;
-    bool isDirectory(const Utils::FilePath &filePath) const override;
-    bool ensureExistingFile(const Utils::FilePath &filePath) const override;
-    bool createDirectory(const Utils::FilePath &filePath) const override;
-    bool exists(const Utils::FilePath &filePath) const override;
-    bool removeFile(const Utils::FilePath &filePath) const override;
-    bool removeRecursively(const Utils::FilePath &filePath) const override;
-    bool copyFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
-    bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
-    QDateTime lastModified(const Utils::FilePath &filePath) const override;
-    Utils::FilePath symLinkTarget(const Utils::FilePath &filePath) const override;
-    void iterateDirectory(const Utils::FilePath &filePath,
-                          const std::function<bool(const Utils::FilePath &)> &callBack,
-                          const Utils::FileFilter &filter) const override;
-    std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
-                                           qint64 limit,
-                                           qint64 offset) const override;
-    bool writeFileContents(const Utils::FilePath &filePath,
-                           const QByteArray &data,
-                           qint64 offset) const override;
-    qint64 fileSize(const Utils::FilePath &filePath) const override;
-    QFile::Permissions permissions(const Utils::FilePath &filePath) const override;
-    bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const override;
     Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
 
 protected:

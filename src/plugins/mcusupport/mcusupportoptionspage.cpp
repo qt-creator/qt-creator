@@ -86,7 +86,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
     }
 
     {
-        m_qtForMCUsSdkGroupBox = new QGroupBox(m_options.qtForMCUsSdkPackage->label());
+        m_qtForMCUsSdkGroupBox = new QGroupBox(tr("Qt for MCUs SDK"));
         m_qtForMCUsSdkGroupBox->setFlat(true);
         auto *layout = new QVBoxLayout(m_qtForMCUsSdkGroupBox);
         layout->addWidget(m_options.qtForMCUsSdkPackage->widget());
@@ -251,15 +251,13 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
         return;
 
     while (m_packagesLayout->rowCount() > 0) {
-        QFormLayout::TakeRowResult row = m_packagesLayout->takeRow(0);
-        row.labelItem->widget()->hide();
-        row.fieldItem->widget()->hide();
+        m_packagesLayout->removeRow(0);
     }
 
-    for (const auto &package : std::as_const(m_options.sdkRepository.packages)) {
-        QWidget *packageWidget = package->widget();
-        if (!mcuTarget->packages().contains(package) || package->label().isEmpty())
+    for (const auto &package : mcuTarget->packages()) {
+        if (package->label().isEmpty())
             continue;
+        QWidget *packageWidget = package->widget();
         m_packagesLayout->addRow(package->label(), packageWidget);
         packageWidget->show();
     }

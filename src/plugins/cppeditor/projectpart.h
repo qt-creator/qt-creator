@@ -28,11 +28,6 @@ namespace CppEditor {
 class CPPEDITOR_EXPORT ProjectPart
 {
 public:
-    enum ToolChainWordWidth {
-        WordWidth32Bit,
-        WordWidth64Bit,
-    };
-
     using ConstPtr = QSharedPointer<const ProjectPart>;
 
 public:
@@ -94,7 +89,7 @@ public:
     const bool isMsvc2015Toolchain = false;
     const QString toolChainTargetTriple;
     const bool targetTripleIsAuthoritative;
-    const ToolChainWordWidth toolChainWordWidth = WordWidth32Bit;
+    const ProjectExplorer::Abi toolChainAbi = ProjectExplorer::Abi::hostAbi();
     const Utils::FilePath toolChainInstallDir;
     const Utils::FilePath compilerFilePath;
     const Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;

@@ -2239,7 +2239,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     BuildManager::extensionsInitialized();
     TaskHub::addCategory(Constants::TASK_CATEGORY_SANITIZER,
                          tr("Sanitizer", "Category for sanitizer issues listed under 'Issues'"));
-    TaskHub::addCategory(Constants::TASK_CATEGORY_TASKLIST_ID, tr("My Tasks"));
+    TaskHub::addCategory(Constants::TASK_CATEGORY_TASKLIST_ID, TaskFile::tr("My Tasks"));
 
     SshSettings::loadSettings(Core::ICore::settings());
     const auto searchPathRetriever = [] {

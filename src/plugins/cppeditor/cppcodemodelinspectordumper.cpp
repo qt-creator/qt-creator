@@ -373,15 +373,15 @@ QString Utils::toString(CPlusPlus::Kind kind)
     return QString();
 }
 
-QString Utils::toString(ProjectPart::ToolChainWordWidth width)
+QString Utils::toString(const ProjectExplorer::Abi &abi)
 {
-    switch (width) {
-    case ProjectPart::ToolChainWordWidth::WordWidth32Bit:
+    switch (abi.wordWidth()) {
+    case 32:
         return QString("32");
-    case ProjectPart::ToolChainWordWidth::WordWidth64Bit:
+    case 64:
         return QString("64");
     }
-    return QString();
+    return QString("??");
 }
 
 QString Utils::partsForFile(const QString &fileName)
@@ -508,7 +508,7 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
             m_out << i3 << "Project File           : " << projectFilePath << "\n";
             m_out << i3 << "ToolChain Type         : " << part->toolchainType.toString() << "\n";
             m_out << i3 << "ToolChain Target Triple: " << part->toolChainTargetTriple << "\n";
-            m_out << i3 << "ToolChain Word Width   : " << part->toolChainWordWidth << "\n";
+            m_out << i3 << "ToolChain Word Width   : " << part->toolChainAbi.wordWidth() << "\n";
             m_out << i3 << "ToolChain Install Dir  : " << part->toolChainInstallDir << "\n";
             m_out << i3 << "Compiler Flags         : " << part->compilerFlags.join(", ") << "\n";
             m_out << i3 << "Selected For Building  : " << part->selectedForBuilding << "\n";

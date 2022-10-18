@@ -118,13 +118,13 @@
                     \endlist
                 \li \l{Dynamic Behaviors}
                     \list
-                        \li \l{Adding Connections}
+                        \li \l{Working with Connections}
                             \list
                                 \li\l{Connecting Components to Signals}
                                 \li\l{Adding Bindings Between Properties}
                                 \li\l{Specifying Custom Properties}
                             \endlist
-                        \li \l{Adding States}
+                        \li \l{Working with States}
                     \endlist
                 \li \l{Validating with Target Hardware}
                     \list

@@ -53,18 +53,33 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     if (HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>(macroExpander());
 
-    setUpdater([this, target, exeAspect, symbolsAspect] {
+    auto libAspect = addAspect<UseLibraryPathsAspect>();
+    libAspect->setValue(false);
+    connect(libAspect, &UseLibraryPathsAspect::changed,
+            envAspect, &EnvironmentAspect::environmentChanged);
+
+    setUpdater([this, target, exeAspect, symbolsAspect, libAspect] {
         BuildTargetInfo bti = buildTargetInfo();
         const FilePath localExecutable = bti.targetFilePath;
         DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
 
         exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
         symbolsAspect->setFilePath(localExecutable);
+
+        const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(target->kit());
+        const IDeviceConstPtr runDevice = DeviceKitAspect::device(target->kit());
+        libAspect->setEnabled(buildDevice == runDevice);
     });
 
     setRunnableModifier([this](Runnable &r) {
         if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
             r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
+    });
+
+    envAspect->addModifier([this, libAspect](Environment &env) {
+        BuildTargetInfo bti = buildTargetInfo();
+        if (bti.runEnvModifier)
+            bti.runEnvModifier(env, libAspect->value());
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);

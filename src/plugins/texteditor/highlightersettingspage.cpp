@@ -28,6 +28,7 @@ namespace Internal {
 
 class HighlighterSettingsPageWidget : public QWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::HighlighterSettingsPage)
 public:
     QLabel *definitionsInfolabel;
     QPushButton *downloadDefinitions;
@@ -55,6 +56,7 @@ public:
         downloadDefinitions->setToolTip(tr("Download missing and update existing syntax definition files."));
 
         updateStatus = new QLabel;
+        updateStatus->setObjectName("updateStatus");
 
         definitionFilesPath = new PathChooser;
         definitionFilesPath->setExpectedKind(PathChooser::ExistingDirectory);

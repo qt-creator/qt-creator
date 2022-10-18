@@ -124,7 +124,7 @@
     the \l {3D} view nor access their properties in
     \uicontrol Properties.
 
-    If you attempt to \l{Adding States}{remove a state} that changes the
+    If you attempt to \l{Working with States}{remove a state} that changes the
     properties of a locked component, you are prompted to confirm the removal.
 
     If you have \l{Editing Animation Curves}{added easing curves} to keyframe
@@ -212,7 +212,7 @@
     \image qmldesigner-export-item.png
 
     You can then use the property alias in other components to
-    \l{Adding Connections}{create connections} to this component.
+    \l{Working with Connections}{create connections} to this component.
 
     \section1 Moving Within Components
 

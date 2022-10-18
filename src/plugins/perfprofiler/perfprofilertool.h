@@ -79,7 +79,7 @@ private:
     void finalize();
 
     Utils::Perspective m_perspective{Constants::PerfProfilerPerspectiveId,
-                                     Tr::tr("Performance Analyzer")};
+                                     ::PerfProfiler::Tr::tr("Performance Analyzer")};
 
     QAction *m_startAction = nullptr;
     QAction *m_stopAction = nullptr;

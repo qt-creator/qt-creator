@@ -5,7 +5,6 @@
 #include "savefile.h"
 
 #include "algorithm.h"
-#include "commandline.h"
 #include "qtcassert.h"
 #include "hostosinfo.h"
 
@@ -15,7 +14,6 @@
 #include <QDataStream>
 #include <QDateTime>
 #include <QDebug>
-#include <QOperatingSystemVersion>
 #include <QRegularExpression>
 #include <QTemporaryFile>
 #include <QTextStream>
@@ -25,7 +23,6 @@
 
 #ifdef QT_GUI_LIB
 #include <QMessageBox>
-#include <QRegularExpression>
 #include <QGuiApplication>
 #endif
 
@@ -37,7 +34,7 @@
 #include <shlobj.h>
 #endif
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
 #include "fileutils_mac.h"
 #endif
 
@@ -337,47 +334,6 @@ FilePaths FileUtils::CopyAskingForOverwrite::files() const
 }
 #endif // QT_GUI_LIB
 
-// Copied from qfilesystemengine_win.cpp
-#ifdef Q_OS_WIN
-
-// File ID for Windows up to version 7.
-static inline QByteArray fileIdWin7(HANDLE handle)
-{
-    BY_HANDLE_FILE_INFORMATION info;
-    if (GetFileInformationByHandle(handle, &info)) {
-        char buffer[sizeof "01234567:0123456701234567\0"];
-        qsnprintf(buffer, sizeof(buffer), "%lx:%08lx%08lx",
-                  info.dwVolumeSerialNumber,
-                  info.nFileIndexHigh,
-                  info.nFileIndexLow);
-        return QByteArray(buffer);
-    }
-    return QByteArray();
-}
-
-// File ID for Windows starting from version 8.
-static QByteArray fileIdWin8(HANDLE handle)
-{
-    QByteArray result;
-    FILE_ID_INFO infoEx;
-    if (GetFileInformationByHandleEx(handle,
-                                     static_cast<FILE_INFO_BY_HANDLE_CLASS>(18), // FileIdInfo in Windows 8
-                                     &infoEx, sizeof(FILE_ID_INFO))) {
-        result = QByteArray::number(infoEx.VolumeSerialNumber, 16);
-        result += ':';
-        // Note: MinGW-64's definition of FILE_ID_128 differs from the MSVC one.
-        result += QByteArray(reinterpret_cast<const char *>(&infoEx.FileId), int(sizeof(infoEx.FileId))).toHex();
-    }
-    return result;
-}
-
-static QByteArray fileIdWin(HANDLE fHandle)
-{
-    return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8 ?
-                fileIdWin8(HANDLE(fHandle)) : fileIdWin7(HANDLE(fHandle));
-}
-#endif
-
 FilePath FileUtils::commonPath(const FilePaths &paths)
 {
     if (paths.isEmpty())
@@ -424,33 +380,6 @@ FilePath FileUtils::commonPath(const FilePaths &paths)
     return result;
 }
 
-QByteArray FileUtils::fileId(const FilePath &fileName)
-{
-    QByteArray result;
-
-#ifdef Q_OS_WIN
-    const HANDLE handle =
-            CreateFile((wchar_t*)fileName.toUserOutput().utf16(), 0,
-                       FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                       FILE_FLAG_BACKUP_SEMANTICS, NULL);
-    if (handle != INVALID_HANDLE_VALUE) {
-        result = fileIdWin(handle);
-        CloseHandle(handle);
-    }
-#else // Copied from qfilesystemengine_unix.cpp
-    if (Q_UNLIKELY(fileName.isEmpty()))
-        return result;
-
-    QT_STATBUF statResult;
-    if (QT_STAT(fileName.toString().toLocal8Bit().constData(), &statResult))
-        return result;
-    result = QByteArray::number(quint64(statResult.st_dev), 16);
-    result += ':';
-    result += QByteArray::number(quint64(statResult.st_ino));
-#endif
-    return result;
-}
-
 #ifdef Q_OS_WIN
 template <>
 void withNtfsPermissions(const std::function<void()> &task)
@@ -476,6 +405,82 @@ static QWidget *dialogParent(QWidget *parent)
     return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
+
+FilePath qUrlToFilePath(const QUrl &url)
+{
+    if (url.isLocalFile())
+        return FilePath::fromString(url.toLocalFile());
+    return FilePath::fromUrl(url);
+}
+
+QUrl filePathToQUrl(const FilePath &filePath)
+{
+   return QUrl::fromLocalFile(filePath.toFSPathString());
+}
+
+void prepareNonNativeDialog(QFileDialog &dialog)
+{
+    // Checking QFileDialog::itemDelegate() seems to be the only way to determine
+    // whether the dialog is native or not.
+    if (dialog.itemDelegate()) {
+        FilePaths sideBarPaths;
+
+        // Check existing urls, remove paths that need a device and no longer exist.
+        for (const QUrl &url : dialog.sidebarUrls()) {
+            FilePath path = qUrlToFilePath(url);
+            if (!path.needsDevice() || path.exists())
+                sideBarPaths.append(path);
+        }
+
+        // Add all device roots that are not already in the sidebar and exist.
+        for (const FilePath &path : FSEngine::registeredDeviceRoots()) {
+            if (!sideBarPaths.contains(path) && path.exists())
+                sideBarPaths.append(path);
+        }
+
+        dialog.setSidebarUrls(Utils::transform(sideBarPaths, filePathToQUrl));
+        dialog.setIconProvider(Utils::FileIconProvider::iconProvider());
+    }
+}
+
+FilePaths getFilePaths(QWidget *parent,
+                       const QString &caption,
+                       const FilePath &dir,
+                       const QString &filter,
+                       QString *selectedFilter,
+                       QFileDialog::Options options,
+                       const QStringList &supportedSchemes,
+                       const bool forceNonNativeDialog,
+                       QFileDialog::FileMode fileMode,
+                       QFileDialog::AcceptMode acceptMode)
+{
+    QFileDialog dialog(parent, caption, dir.toFSPathString(), filter);
+    dialog.setFileMode(fileMode);
+
+    if (forceNonNativeDialog)
+        options.setFlag(QFileDialog::DontUseNativeDialog);
+
+    dialog.setOptions(options);
+    prepareNonNativeDialog(dialog);
+
+    dialog.setSupportedSchemes(supportedSchemes);
+    dialog.setAcceptMode(acceptMode);
+
+    if (selectedFilter && !selectedFilter->isEmpty())
+        dialog.selectNameFilter(*selectedFilter);
+    if (dialog.exec() == QDialog::Accepted) {
+        if (selectedFilter)
+            *selectedFilter = dialog.selectedNameFilter();
+        return Utils::transform(dialog.selectedUrls(), &qUrlToFilePath);
+    }
+    return {};
+}
+
+FilePath firstOrEmpty(const FilePaths &filePaths)
+{
+    return filePaths.isEmpty() ? FilePath() : filePaths.first();
+}
+
 FilePath FileUtils::getOpenFilePath(QWidget *parent,
                                     const QString &caption,
                                     const FilePath &dir,
@@ -484,19 +489,24 @@ FilePath FileUtils::getOpenFilePath(QWidget *parent,
                                     QFileDialog::Options options,
                                     bool fromDeviceIfShiftIsPressed)
 {
+    bool forceNonNativeDialog = dir.needsDevice();
 #ifdef QT_GUI_LIB
     if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
-        return getOpenFilePathFromDevice(parent, caption, dir, filter, selectedFilter, options);
+        forceNonNativeDialog = true;
     }
 #endif
 
-    const QString result = QFileDialog::getOpenFileName(dialogParent(parent),
-                                                        caption,
-                                                        dir.toString(),
-                                                        filter,
-                                                        selectedFilter,
-                                                        options);
-    return FilePath::fromString(result);
+    const QStringList schemes = QStringList(QStringLiteral("file"));
+    return firstOrEmpty(getFilePaths(dialogParent(parent),
+                                     caption,
+                                     dir,
+                                     filter,
+                                     selectedFilter,
+                                     options,
+                                     schemes,
+                                     forceNonNativeDialog,
+                                     QFileDialog::ExistingFile,
+                                     QFileDialog::AcceptOpen));
 }
 
 FilePath FileUtils::getSaveFilePath(QWidget *parent,
@@ -506,25 +516,46 @@ FilePath FileUtils::getSaveFilePath(QWidget *parent,
                                     QString *selectedFilter,
                                     QFileDialog::Options options)
 {
-    const QString result = QFileDialog::getSaveFileName(dialogParent(parent),
-                                                        caption,
-                                                        dir.toString(),
-                                                        filter,
-                                                        selectedFilter,
-                                                        options);
-    return FilePath::fromString(result);
+    bool forceNonNativeDialog = dir.needsDevice();
+
+    const QStringList schemes = QStringList(QStringLiteral("file"));
+    return firstOrEmpty(getFilePaths(dialogParent(parent),
+                                     caption,
+                                     dir,
+                                     filter,
+                                     selectedFilter,
+                                     options,
+                                     schemes,
+                                     forceNonNativeDialog,
+                                     QFileDialog::AnyFile,
+                                     QFileDialog::AcceptSave));
 }
 
 FilePath FileUtils::getExistingDirectory(QWidget *parent,
                                          const QString &caption,
                                          const FilePath &dir,
-                                         QFileDialog::Options options)
+                                         QFileDialog::Options options,
+                                         bool fromDeviceIfShiftIsPressed)
 {
-    const QString result = QFileDialog::getExistingDirectory(dialogParent(parent),
-                                                             caption,
-                                                             dir.toString(),
-                                                             options);
-    return FilePath::fromString(result);
+    bool forceNonNativeDialog = dir.needsDevice();
+
+#ifdef QT_GUI_LIB
+    if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
+        forceNonNativeDialog = true;
+    }
+#endif
+
+    const QStringList schemes = QStringList(QStringLiteral("file"));
+    return firstOrEmpty(getFilePaths(dialogParent(parent),
+                                     caption,
+                                     dir,
+                                     {},
+                                     nullptr,
+                                     options,
+                                     schemes,
+                                     forceNonNativeDialog,
+                                     QFileDialog::Directory,
+                                     QFileDialog::AcceptOpen));
 }
 
 FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
@@ -534,91 +565,22 @@ FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
                                       QString *selectedFilter,
                                       QFileDialog::Options options)
 {
-    const QStringList result = QFileDialog::getOpenFileNames(dialogParent(parent),
-                                                             caption,
-                                                             dir.toString(),
-                                                             filter,
-                                                             selectedFilter,
-                                                             options);
-    return FileUtils::toFilePathList(result);
-}
+    bool forceNonNativeDialog = dir.needsDevice();
 
-FilePath FileUtils::getOpenFilePathFromDevice(QWidget *parent,
-                                              const QString &caption,
-                                              const FilePath &dir,
-                                              const QString &filter,
-                                              QString *selectedFilter,
-                                              QFileDialog::Options options)
-{
-    QFileDialog dialog(parent);
-    dialog.setOptions(options | QFileDialog::DontUseNativeDialog);
-    dialog.setWindowTitle(caption);
-    dialog.setDirectory(dir.toString());
-    dialog.setNameFilter(filter);
-
-    QList<QUrl> sideBarUrls = Utils::transform(Utils::filtered(FSEngine::registeredDeviceRoots(),
-                                                               [](const auto &filePath) {
-                                                                   return filePath.exists();
-                                                               }),
-                                               [](const auto &filePath) {
-                                                   return QUrl::fromLocalFile(
-                                                       filePath.toFSPathString());
-                                               });
-    dialog.setSidebarUrls(sideBarUrls);
-    dialog.setFileMode(QFileDialog::AnyFile);
-
-    dialog.setIconProvider(Utils::FileIconProvider::iconProvider());
-
-    if (dialog.exec()) {
-        FilePaths filePaths = Utils::transform(dialog.selectedFiles(), [](const auto &path) {
-            return FilePath::fromString(path);
-        });
-
-        if (selectedFilter) {
-            *selectedFilter = dialog.selectedNameFilter();
-        }
-
-        return filePaths.first();
-    }
-
-    return {};
+    const QStringList schemes = QStringList(QStringLiteral("file"));
+    return getFilePaths(dialogParent(parent),
+                        caption,
+                        dir,
+                        filter,
+                        selectedFilter,
+                        options,
+                        schemes,
+                        forceNonNativeDialog,
+                        QFileDialog::ExistingFiles,
+                        QFileDialog::AcceptOpen);
 }
 
 #endif // QT_WIDGETS_LIB
-
-// Used on 'ls' output on unix-like systems.
-void FileUtils::iterateLsOutput(const FilePath &base,
-                                const QStringList &entries,
-                                const FileFilter &filter,
-                                const std::function<bool (const FilePath &)> &callBack)
-{
-    const QList<QRegularExpression> nameRegexps =
-            transform(filter.nameFilters, [](const QString &filter) {
-        QRegularExpression re;
-        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
-        QTC_CHECK(re.isValid());
-        return re;
-    });
-
-    const auto nameMatches = [&nameRegexps](const QString &fileName) {
-        for (const QRegularExpression &re : nameRegexps) {
-            const QRegularExpressionMatch match = re.match(fileName);
-            if (match.hasMatch())
-                return true;
-        }
-        return nameRegexps.isEmpty();
-    };
-
-    // FIXME: Handle filters. For now bark on unsupported options.
-    QTC_CHECK(filter.fileFilters == QDir::NoFilter);
-
-    for (const QString &entry : entries) {
-        if (!nameMatches(entry))
-            continue;
-        if (!callBack(base.pathAppended(entry)))
-            break;
-    }
-}
 
 FilePathInfo::FileFlags fileInfoFlagsfromStatRawModeHex(const QString &hexString)
 {
@@ -673,148 +635,6 @@ FilePathInfo FileUtils::filePathInfoFromTriple(const QString &infos)
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(parts[1].toLongLong(), Qt::UTC);
     qint64 size = parts[2].toLongLong();
     return {size, flags, dt};
-}
-
-bool iterateWithFind(const FilePath &filePath,
-                     const FileFilter &filter,
-                     const std::function<RunResult(const CommandLine &)> &runInShell,
-                     const std::function<bool(const QString &)> callBack,
-                     const QString &extraArguments)
-{
-    QTC_CHECK(filePath.isAbsolutePath());
-    const QStringList arguments = filter.asFindArguments(filePath.path());
-
-    CommandLine cmdLine{"find", arguments};
-    if (!extraArguments.isEmpty())
-        cmdLine.addArgs(extraArguments, CommandLine::Raw);
-
-    const RunResult result = runInShell(cmdLine);
-    const QString out = QString::fromUtf8(result.stdOut);
-    if (result.exitCode != 0) {
-        // Find returns non-zero exit code for any error it encounters, even if it finds some files.
-
-        if (!out.startsWith('"' + filePath.path())) {
-            if (!filePath.exists()) // File does not exist, so no files to find.
-                return true;
-
-            // If the output does not start with the path we are searching in, find has failed.
-            // Possibly due to unknown options.
-            return false;
-        }
-    }
-
-    QStringList entries = out.split("\n", Qt::SkipEmptyParts);
-    // Remove the first line, it is always the directory we are searching in.
-    // as long as we do not specify "mindepth > 0"
-    entries.pop_front();
-    for (const QString &entry : entries) {
-        if (!callBack(entry))
-            break;
-    }
-
-    return true;
-}
-
-// returns whether 'find' could be used.
-static bool iterateWithFind(const FilePath &filePath,
-                            const FileFilter &filter,
-                            const std::function<RunResult(const CommandLine &)> &runInShell,
-                            const FilePath::IterateDirCallback &callBack)
-{
-    const auto toFilePath = [&filePath, &callBack](const QString &entry){
-        return callBack(filePath.withNewPath(entry));
-    };
-
-    return iterateWithFind(filePath, filter, runInShell, toFilePath, {});
-}
-
-// returns whether 'find' could be used.
-static bool iterateWithFind(const FilePath &filePath,
-                            const FileFilter &filter,
-                            const std::function<RunResult(const CommandLine &)> &runInShell,
-                            const FilePath::IterateDirWithInfoCallback &callBack)
-{
-    // TODO: Using stat -L will always return the link target, not the link itself.
-    // We may wan't to add the information that it is a link at some point.
-    const QString infoArgs(R"(-exec echo -n \"{}\"" " \; -exec stat -L -c "%f %Y %s" "{}" \;)");
-
-    const auto toFilePathAndInfo = [&filePath, &callBack](const QString &entry) {
-        const QString fileName = entry.mid(1, entry.lastIndexOf('\"') - 1);
-        const QString infos = entry.mid(fileName.length() + 3);
-
-        const FilePathInfo fi = FileUtils::filePathInfoFromTriple(infos);
-        if (!fi.fileFlags)
-            return true;
-
-        const FilePath fp = filePath.withNewPath(fileName);
-        return callBack(fp, fi);
-    };
-
-    return iterateWithFind(filePath, filter, runInShell, toFilePathAndInfo, infoArgs);
-}
-
-static void findUsingLs(const QString &current,
-                        const FileFilter &filter,
-                        const std::function<RunResult(const CommandLine &)> &runInShell,
-                        QStringList *found)
-{
-    const RunResult result = runInShell({"ls", {"-1", "-p", "--", current}});
-    const QStringList entries  = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
-    for (QString entry : entries) {
-        const QChar last = entry.back();
-        if (last == '/') {
-            entry.chop(1);
-            if (filter.iteratorFlags.testFlag(QDirIterator::Subdirectories))
-                findUsingLs(current + '/' + entry, filter, runInShell, found);
-        }
-        found->append(entry);
-    }
-}
-
-void FileUtils::iterateUnixDirectory(const FilePath &filePath,
-                                     const FileFilter &filter,
-                                     bool *useFind,
-                                     const std::function<RunResult (const CommandLine &)> &runInShell,
-                                     const FilePath::IterateDirCallback &callBack)
-{
-    QTC_ASSERT(callBack, return);
-
-    // We try to use 'find' first, because that can filter better directly.
-    // Unfortunately, it's not installed on all devices by default.
-    if (useFind && *useFind) {
-        if (iterateWithFind(filePath, filter, runInShell, callBack))
-            return;
-        *useFind = false; // remember the failure for the next time and use the 'ls' fallback below.
-    }
-
-    // if we do not have find - use ls as fallback
-    QStringList entries;
-    findUsingLs(filePath.path(), filter, runInShell, &entries);
-    FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
-}
-
-void FileUtils::iterateUnixDirectory(const FilePath &filePath,
-                                     const FileFilter &filter,
-                                     bool *useFind,
-                                     const std::function<RunResult(const CommandLine &)> &runInShell,
-                                     const FilePath::IterateDirWithInfoCallback &callBack)
-{
-    QTC_ASSERT(callBack, return);
-
-    // We try to use 'find' first, because that can filter better directly.
-    // Unfortunately, it's not installed on all devices by default.
-    if (useFind && *useFind) {
-        if (iterateWithFind(filePath, filter, runInShell, callBack))
-            return;
-        *useFind = false; // remember the failure for the next time and use the 'ls' fallback below.
-    }
-
-    // if we do not have find - use ls as fallback
-    QStringList entries;
-    findUsingLs(filePath.path(), filter, runInShell, &entries);
-    FileUtils::iterateLsOutput(filePath, entries, filter, [&callBack](const FilePath & filePath){
-        return callBack(filePath, filePath.filePathInfo());
-    });
 }
 
 /*!

@@ -94,6 +94,10 @@ private slots:
 
     void test_legacy_createThirdPartyPackage_data();
     void test_legacy_createThirdPartyPackage();
+    void test_createThirdPartyPackage_data();
+    void test_createThirdPartyPackage();
+    void test_legacy_createCypressProgrammer3rdPartyPackage();
+    void test_createJLink3rdPartyPackage();
 
     void test_defaultValueForEachOperationSystem();
     void test_addToSystemPathFlag();

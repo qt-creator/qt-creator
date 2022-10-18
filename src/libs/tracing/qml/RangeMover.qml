@@ -30,7 +30,9 @@ Item {
             return Qt.rgba(color.r, color.g, color.b, Math.max(Math.min(color.a, 0.7), 0.3));
         }
 
-        color: width > 1 ? alphaColor(dragArea.pressed ? dragColor : rangeColor) : singleLineColor
+        color: width > 1 ? alphaColor(dragArea.pressed ? rangeMover.dragColor
+                                                       : rangeMover.rangeColor)
+                         : rangeMover.singleLineColor
     }
 
     Item {
@@ -49,7 +51,7 @@ Item {
             height: parent.height
             anchors.right: parent.left
             width: 7
-            color: handleColor
+            color: rangeMover.handleColor
             visible: false
             Image {
                 source: "image://icons/range_handle"
@@ -72,7 +74,7 @@ Item {
             anchors.fill: leftBorderHandle
 
             drag.target: leftRange
-            drag.axis: "XAxis"
+            drag.axis: Drag.XAxis
             drag.minimumX: 0
             drag.maximumX: rangeMover.width
             drag.onActiveChanged: drag.maximumX = rightRange.x
@@ -102,7 +104,7 @@ Item {
             height: parent.height
             anchors.left: parent.right
             width: 7
-            color: handleColor
+            color: rangeMover.handleColor
             visible: false
             Image {
                 source: "image://icons/range_handle"
@@ -125,7 +127,7 @@ Item {
             anchors.fill: rightBorderHandle
 
             drag.target: rightRange
-            drag.axis: "XAxis"
+            drag.axis: Drag.XAxis
             drag.minimumX: 0
             drag.maximumX: rangeMover.width
             drag.onActiveChanged: drag.minimumX = leftRange.x
@@ -150,7 +152,7 @@ Item {
 
         anchors.fill: selectedRange
         drag.target: leftRange
-        drag.axis: "XAxis"
+        drag.axis: Drag.XAxis
         drag.minimumX: 0
         drag.maximumX: rangeMover.width - origWidth
         drag.onActiveChanged: origWidth = selectedRange.width

@@ -361,15 +361,12 @@ McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &setti
 {
     FilePath defaultPath;
     const QString cubePath = "STMicroelectronics/STM32Cube/STM32CubeProgrammer";
-    if (HostOsInfo::isWindowsHost()) {
-        const FilePath programPath = findInProgramFiles(cubePath);
-        if (!programPath.isEmpty())
-            defaultPath = programPath;
-    } else {
-        const FilePath programPath = FileUtils::homePath() / cubePath;
-        if (programPath.exists())
-            defaultPath = programPath;
-    }
+    if (HostOsInfo::isWindowsHost())
+        defaultPath = findInProgramFiles(cubePath) / "bin";
+    else
+        defaultPath = FileUtils::homePath() / cubePath / "bin";
+    if (!defaultPath.exists())
+        FilePath defaultPath = {};
 
     const FilePath detectionPath = FilePath::fromUserInput(
         QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
@@ -386,8 +383,7 @@ McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &setti
                        {},                                                           // versions
                        "https://www.st.com/en/development-tools/stm32cubeprog.html", // download url
                        nullptr, // version detector
-                       true,    // add to path
-                       "/bin"   // relative path modifier
+                       true     // add to path
                        )};
 }
 
@@ -542,7 +538,7 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
                {"arm-greenhills",
                 McuPackagePtr{new McuPackage{settingsHandler,
                                              {},
-                                             toolchainFilePrefix / "arm-ghs.cmake",
+                                             toolchainFilePrefix / "ghs-arm.cmake",
                                              {},
                                              {},
                                              Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE,

@@ -12,6 +12,7 @@
 #include "utils/link.h"
 #include "utils/textfileformat.h"
 
+#include <QFileDialog>
 #include <QList>
 #include <QWidget>
 
@@ -90,7 +91,7 @@ public:
     static bool openExternalEditor(const Utils::FilePath &filePath, Utils::Id editorId);
     static void addCloseEditorListener(const std::function<bool(IEditor *)> &listener);
 
-    static Utils::FilePaths getOpenFilePaths();
+    static Utils::FilePaths getOpenFilePaths(QFileDialog::Options options = {});
 
     static IDocument *currentDocument();
     static IEditor *currentEditor();

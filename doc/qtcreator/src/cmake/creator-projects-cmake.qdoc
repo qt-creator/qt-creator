@@ -74,10 +74,10 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
-            \uicontrol CMake.
+        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
+            \uicontrol Tools.
 
-            \image qtcreator-cmakeexecutable.png
+            \image qtcreator-preferences-cmake-tools.png "Tools tab in CMake Preferences"
 
         \li The \uicontrol Name field displays a name for the CMake
             installation.
@@ -107,7 +107,8 @@
     To remove the selected CMake executable from the list, select
     \uicontrol Remove.
 
-    Select the \uicontrol Kits tab to add the CMake tool to a build and run kit.
+    To add the CMake tool to a build and run kit, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Kits.
     The kit also specifies the CMake generator that is used for producing
     project files for \QC and the initial configuration parameters:
 

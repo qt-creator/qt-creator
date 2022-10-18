@@ -623,6 +623,18 @@ QList<SignalHandlerProperty> ModelNode::signalProperties() const
     return propertyList;
 }
 
+QList<AbstractProperty> ModelNode::dynamicProperties() const
+{
+    QList<AbstractProperty> propertyList;
+
+    const QList<AbstractProperty> abstractProperties = properties();
+    for (const AbstractProperty &abstractProperty : abstractProperties) {
+        if (abstractProperty.isDynamic())
+            propertyList.append(abstractProperty);
+    }
+    return propertyList;
+}
+
 /*!
 \brief removes a property from this node
 \param name name of the property

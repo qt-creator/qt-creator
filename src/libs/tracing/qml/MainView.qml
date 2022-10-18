@@ -129,7 +129,7 @@ Rectangle {
         color: Theme.color(Theme.PanelStatusBarBackgroundColor)
         modelProxy: timelineModelAggregator
         zoomer: zoomControl
-        reverseSelect: shiftPressed
+        reverseSelect: root.shiftPressed
 
         onMoveCategories: (sourceIndex, targetIndex) => {
             content.moveCategories(sourceIndex, targetIndex)
@@ -228,7 +228,7 @@ Rectangle {
 
     MouseArea {
         id: selectionRangeControl
-        enabled: selectionRangeMode &&
+        enabled: root.selectionRangeMode &&
                  selectionRange.creationState !== selectionRange.creationFinished
         anchors.right: content.right
         anchors.left: buttonsBar.right
@@ -269,7 +269,7 @@ Rectangle {
         interactive: false
         x: content.x
         y: content.y
-        height: (selectionRangeMode &&
+        height: (root.selectionRangeMode &&
                  selectionRange.creationState !== selectionRange.creationInactive) ?
                     content.height : 0
         width: content.width
@@ -328,7 +328,7 @@ Rectangle {
         endTime: zoomControl.selectionEnd
         referenceDuration: zoomControl.rangeDuration
         showDuration: selectionRange.rangeWidth > 1
-        hasContents: selectionRangeMode &&
+        hasContents: root.selectionRangeMode &&
                      selectionRange.creationState !== selectionRange.creationInactive
 
         onRecenter: {
@@ -356,7 +356,7 @@ Rectangle {
         locked: content.selectionLocked
 
         onRecenterOnItem: {
-            content.select(selectedModel, selectedItem)
+            content.select(root.selectedModel, root.selectedItem)
         }
 
         onLockedChanged: {
@@ -368,10 +368,11 @@ Rectangle {
         }
 
         onUpdateNote: (text) => {
-            if (timelineModelAggregator.notes && selectedModel != -1 && selectedItem != -1) {
+            if (timelineModelAggregator.notes && root.selectedModel != -1
+                && root.selectedItem != -1) {
                 timelineModelAggregator.notes.setText(
-                            timelineModelAggregator.models[selectedModel].modelId,
-                            selectedItem, text);
+                            timelineModelAggregator.models[root.selectedModel].modelId,
+                            root.selectedItem, text);
             }
         }
 

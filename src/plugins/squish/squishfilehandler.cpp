@@ -27,6 +27,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTimer>
 #include <QVBoxLayout>
 
 namespace Squish {
@@ -74,17 +75,15 @@ public:
         setWindowTitle(Tr::tr("Recording Settings"));
 
         auto squishTools = SquishTools::instance();
-        connect(squishTools, &SquishTools::queryFinished, this,
-                [this] (const QString &out, const QString &) {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+
+        squishTools->queryServerSettings([this] (const QString &out, const QString &) {
             SquishServerSettings s;
             s.setFromXmlOutput(out);
             QApplication::restoreOverrideCursor();
             for (const QString &app : s.mappedAuts.keys())
                 aut.addItem(app);
         });
-
-        QApplication::setOverrideCursor(Qt::WaitCursor);
-        squishTools->queryServerSettings();
     }
 
 
@@ -439,6 +438,8 @@ void SquishFileHandler::addSharedFolder()
         return;
 
     m_sharedFolders.append(chosen);
+    updateSquishServerGlobalScripts();
+
     SquishTestTreeItem *item = new SquishTestTreeItem(chosen.toUserOutput(),
                                                       SquishTestTreeItem::SquishSharedFolder);
     item->setFilePath(chosen);
@@ -446,10 +447,32 @@ void SquishFileHandler::addSharedFolder()
     emit testTreeItemCreated(item);
 }
 
+void SquishFileHandler::setSharedFolders(const Utils::FilePaths &folders)
+{
+    emit clearedSharedFolders();
+    m_sharedFolders.clear();
+
+    for (const Utils::FilePath &folder : folders) {
+        if (m_sharedFolders.contains(folder))
+            continue;
+
+        m_sharedFolders.append(folder);
+        SquishTestTreeItem *item = new SquishTestTreeItem(folder.toUserOutput(),
+                                                          SquishTestTreeItem::SquishSharedFolder);
+        item->setFilePath(folder);
+        addAllEntriesRecursively(item);
+        emit testTreeItemCreated(item);
+    }
+}
+
 bool SquishFileHandler::removeSharedFolder(const Utils::FilePath &folder)
 {
-    if (m_sharedFolders.contains(folder))
-        return m_sharedFolders.removeOne(folder);
+    if (m_sharedFolders.contains(folder)) {
+        if (m_sharedFolders.removeOne(folder)) {
+            updateSquishServerGlobalScripts();
+            return true;
+        }
+    }
 
     return false;
 }
@@ -457,6 +480,7 @@ bool SquishFileHandler::removeSharedFolder(const Utils::FilePath &folder)
 void SquishFileHandler::removeAllSharedFolders()
 {
     m_sharedFolders.clear();
+    updateSquishServerGlobalScripts();
 }
 
 void SquishFileHandler::openObjectsMap(const QString &suiteName)
@@ -491,6 +515,20 @@ void SquishFileHandler::onSessionLoaded()
         if (fp.exists())
             openTestSuite(fp);
     }
+}
+
+void SquishFileHandler::updateSquishServerGlobalScripts()
+{
+    auto squishTools = SquishTools::instance();
+    if (squishTools->state() != SquishTools::Idle) {
+        // postpone - we can't queue this currently
+        QTimer::singleShot(1500, [this]() {
+            updateSquishServerGlobalScripts();
+        });
+        return;
+    }
+
+    squishTools->requestSetSharedFolders(m_sharedFolders);
 }
 
 QStringList SquishFileHandler::suitePathsAsStringList() const

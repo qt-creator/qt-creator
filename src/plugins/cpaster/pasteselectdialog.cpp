@@ -25,15 +25,19 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols, QWidget 
     QDialog(parent),
     m_protocols(protocols)
 {
+    setObjectName("CodePaster.PasteSelectDialog");
     resize(550, 350);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     m_protocolBox = new QComboBox(this);
+    m_protocolBox->setObjectName("protocolBox");
 
     m_pasteEdit = new QLineEdit(this);
+    m_pasteEdit->setObjectName("pasteEdit");
     m_pasteEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     m_listWidget = new QListWidget(this);
+    m_listWidget->setObjectName("listWidget");
     m_listWidget->setAlternatingRowColors(true);
 
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);

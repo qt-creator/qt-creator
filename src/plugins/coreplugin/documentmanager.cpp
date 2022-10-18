@@ -1032,11 +1032,12 @@ void DocumentManager::showFilePropertiesDialog(const FilePath &filePath)
 
 FilePaths DocumentManager::getOpenFileNames(const QString &filters,
                                             const FilePath &pathIn,
-                                            QString *selectedFilter)
+                                            QString *selectedFilter,
+                                            QFileDialog::Options options)
 {
     const FilePath path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
     const FilePaths files = FileUtils::getOpenFilePaths(nullptr, tr("Open File"), path, filters,
-                                                        selectedFilter);
+                                                        selectedFilter, options);
     if (!files.isEmpty())
         setFileDialogLastVisitedDirectory(files.front().absolutePath());
     return files;

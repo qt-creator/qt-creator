@@ -175,13 +175,7 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
         for (const QString &i2 : exe2List) {
             const FilePath f1 = FilePath::fromString(i1);
             const FilePath f2 = FilePath::fromString(i2);
-            if (f1 == f2)
-                return true;
-            if (f1.needsDevice() != f2.needsDevice() || f1.scheme() != f2.scheme())
-                return false;
-            if (f1.resolveSymlinks() == f2.resolveSymlinks())
-                return true;
-            if (FileUtils::fileId(f1) == FileUtils::fileId(f2))
+            if (f1.isSameFile(f2))
                 return true;
         }
     }

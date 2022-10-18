@@ -32,6 +32,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
+#include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -113,6 +114,21 @@ private:
     FilePath m_devicePath;
 };
 
+class DockerDeviceFileAccess : public UnixDeviceFileAccess
+{
+public:
+    DockerDeviceFileAccess(DockerDevicePrivate *dev)
+        : m_dev(dev)
+    {}
+
+    RunResult runInShell(const CommandLine &cmdLine,
+                         const QByteArray &stdInData) const override;
+    QString mapToDevicePath(const FilePath &filePath) const override;
+    OsType osType(const FilePath &filePath) const override;
+
+    DockerDevicePrivate *m_dev = nullptr;
+};
+
 class DockerDevicePrivate : public QObject
 {
 public:
@@ -125,11 +141,6 @@ public:
     ~DockerDevicePrivate() { stopCurrentContainer(); }
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
-    bool runInShellSuccess(const CommandLine &cmd, const QByteArray &stdInData = {}) {
-        return runInShell(cmd, stdInData).exitCode == 0;
-    }
-
-    std::optional<QByteArray> fileContents(const FilePath &filePath, qint64 limit, qint64 offset);
 
     void updateContainerAccess();
     void changeMounts(QStringList newMounts);
@@ -177,8 +188,8 @@ public:
     QString m_container;
 
     Environment m_cachedEnviroment;
-    bool m_useFind = true; // prefer find over ls and hacks, but be able to use ls as fallback
     bool m_isShutdown = false;
+    DockerDeviceFileAccess m_fileAccess{this};
 };
 
 class DockerProcessImpl : public Utils::ProcessInterface
@@ -337,9 +348,36 @@ Tasks DockerDevicePrivate::validateMounts() const
     return result;
 }
 
+RunResult DockerDeviceFileAccess::runInShell(const CommandLine &cmdLine,
+                                             const QByteArray &stdInData) const
+{
+    QTC_ASSERT(m_dev, return {});
+    return m_dev->runInShell(cmdLine, stdInData);
+}
+
+QString DockerDeviceFileAccess::mapToDevicePath(const FilePath &filePath) const
+{
+    // make sure to convert windows style paths to unix style paths with the file system case:
+    // C:/dev/src -> /c/dev/src
+    const FilePath normalized = FilePath::fromString(filePath.path()).normalizedPathName();
+    QString path = normalized.path();
+    if (HostOsInfo::isWindowsHost() && normalized.startsWithDriveLetter()) {
+        const QChar lowerDriveLetter = path.at(0);
+        path = '/' + lowerDriveLetter + path.mid(2); // strip C:
+    }
+    return path;
+}
+
+OsType DockerDeviceFileAccess::osType(const FilePath &filePath) const
+{
+    QTC_ASSERT(m_dev, return UnixDeviceFileAccess::osType(filePath));
+    return m_dev->q->osType();
+}
+
 DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &data)
     : d(new DockerDevicePrivate(this, settings, data))
 {
+    setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeOtherUnix);
     setDefaultDisplayName(Tr::tr("Docker Image"));
@@ -423,7 +461,7 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd, bool 
     args << m_container;
 
     CommandLine dcmd{m_settings->dockerBinaryPath.filePath(), args};
-    dcmd.addCommandLineAsArgs(cmd);
+    dcmd.addCommandLineAsArgs(cmd, CommandLine::Raw);
     return dcmd;
 }
 
@@ -448,20 +486,6 @@ void DockerDevicePrivate::stopCurrentContainer()
     m_cachedEnviroment.clear();
 }
 
-static QString getLocalIPv4Address()
-{
-    const QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
-    for (auto &a : addresses) {
-        if (a.isInSubnet(QHostAddress("192.168.0.0"), 16))
-            return a.toString();
-        if (a.isInSubnet(QHostAddress("10.0.0.0"), 8))
-            return a.toString();
-        if (a.isInSubnet(QHostAddress("172.16.0.0"), 12))
-            return a.toString();
-    }
-    return QString();
-}
-
 bool DockerDevicePrivate::prepareForBuild(const Target *target)
 {
     QTC_ASSERT(QThread::currentThread() == thread(), return false);
@@ -483,18 +507,21 @@ QString escapeMountPathWin(const FilePath &fp)
     return result;
 }
 
+QString escapeMountPath(const FilePath &fp)
+{
+    if (HostOsInfo::isWindowsHost())
+        return escapeMountPathWin(fp);
+
+    return escapeMountPathUnix(fp);
+}
+
 QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
 {
     QString escapedPath;
     QString escapedContainerPath;
 
-    if (HostOsInfo::isWindowsHost()) {
-        escapedPath = escapeMountPathWin(mi.path);
-        escapedContainerPath = escapeMountPathWin(mi.containerPath);
-    } else {
-        escapedPath = escapeMountPathUnix(mi.path);
-        escapedContainerPath = escapeMountPathUnix(mi.containerPath);
-    }
+    escapedPath = escapeMountPath(mi.path);
+    escapedContainerPath = escapeMountPath(mi.containerPath);
 
     const QString mountArg = QString(R"(type=bind,"source=%1","destination=%2")")
                                  .arg(escapedPath)
@@ -505,8 +532,18 @@ QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
 
 bool isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
 {
-    return !mi.path.isEmpty() && !mi.containerPath.isEmpty() && mi.path.isAbsolutePath()
-           && mi.containerPath.isAbsolutePath();
+    if (mi.path.needsDevice())
+        return false;
+
+    if (mi.path.isEmpty() || mi.containerPath.isEmpty())
+        return false;
+    if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath())
+        return false;
+
+    if (!mi.path.exists())
+        return false;
+
+    return true;
 }
 
 QStringList DockerDevicePrivate::createMountArgs() const
@@ -530,7 +567,7 @@ bool DockerDevicePrivate::createContainer()
         return false;
 
     const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
-                                                      : QString(getLocalIPv4Address() + ":0.0");
+                                                      : QString("host.docker.internal:0");
     CommandLine dockerCreate{m_settings->dockerBinaryPath.filePath(),
                              {"create",
                               "-i",
@@ -744,19 +781,6 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 //    result.setHost(id().toString());
 }
 
-QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
-{
-    // make sure to convert windows style paths to unix style paths with the file system case:
-    // C:/dev/src -> /c/dev/src
-    const FilePath normalized = FilePath::fromString(globalPath.path()).normalizedPathName();
-    QString path = normalized.path();
-    if (HostOsInfo::isWindowsHost() && normalized.startsWithDriveLetter()) {
-        const QChar lowerDriveLetter = path.at(0).toLower();
-        path = '/' + lowerDriveLetter + path.mid(2); // strip C:
-    }
-    return path;
-}
-
 Utils::FilePath DockerDevice::rootPath() const
 {
     return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, d->repoAndTag(), u"/");
@@ -778,219 +802,17 @@ bool DockerDevice::handlesFile(const FilePath &filePath) const
     return false;
 }
 
-bool DockerDevice::isExecutableFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-x", path}});
-}
-
-bool DockerDevice::isReadableFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-r", path, "-a", "-f", path}});
-}
-
-bool DockerDevice::isWritableFile(const Utils::FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-w", path, "-a", "-f", path}});
-}
-
-bool DockerDevice::isReadableDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-r", path, "-a", "-d", path}});
-}
-
-bool DockerDevice::isWritableDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-w", path, "-a", "-d", path}});
-}
-
-bool DockerDevice::isFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-f", path}});
-}
-
-bool DockerDevice::isDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-d", path}});
-}
-
-bool DockerDevice::createDirectory(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"mkdir", {"-p", path}});
-}
-
-bool DockerDevice::exists(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"test", {"-e", path}});
-}
-
-bool DockerDevice::ensureExistingFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    const QString path = filePath.path();
-    return d->runInShellSuccess({"touch", {path}});
-}
-
-bool DockerDevice::removeFile(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    return d->runInShellSuccess({"rm", {filePath.path()}});
-}
-
-bool DockerDevice::removeRecursively(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    QTC_ASSERT(filePath.path().startsWith('/'), return false);
-
-    const QString path = filePath.cleanPath().path();
-    // We are expecting this only to be called in a context of build directories or similar.
-    // Chicken out in some cases that _might_ be user code errors.
-    QTC_ASSERT(path.startsWith('/'), return false);
-    const int levelsNeeded = path.startsWith("/home/") ? 4 : 3;
-    QTC_ASSERT(path.count('/') >= levelsNeeded, return false);
-
-    return d->runInShellSuccess({"rm", {"-rf", "--", path}});
-}
-
-bool DockerDevice::copyFile(const FilePath &filePath, const FilePath &target) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    QTC_ASSERT(handlesFile(target), return false);
-    return d->runInShellSuccess({"cp", {filePath.path(), target.path()}});
-}
-
-bool DockerDevice::renameFile(const FilePath &filePath, const FilePath &target) const
-{
-    QTC_ASSERT(handlesFile(filePath), return false);
-    QTC_ASSERT(handlesFile(target), return false);
-    return d->runInShellSuccess({"mv", {filePath.path(), target.path()}});
-}
-
-QDateTime DockerDevice::lastModified(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%Y", filePath.path()}});
-    qint64 secs = result.stdOut.toLongLong();
-    const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
-    return dt;
-}
-
-FilePath DockerDevice::symLinkTarget(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    const RunResult result = d->runInShell({"readlink", {"-n", "-e", filePath.path()}});
-    const QString out = QString::fromUtf8(result.stdOut);
-    return out.isEmpty() ? FilePath() : filePath.withNewPath(out);
-}
-
-qint64 DockerDevice::fileSize(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return -1);
-    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%s", filePath.path()}});
-    return result.stdOut.toLongLong();
-}
-
-QFileDevice::Permissions DockerDevice::permissions(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-
-    const RunResult result = d->runInShell({"stat", {"-L", "-c", "%a", filePath.path()}});
-    const uint bits = result.stdOut.toUInt(nullptr, 8);
-    QFileDevice::Permissions perm = {};
-#define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
-    BIT(0, ExeOther);
-    BIT(1, WriteOther);
-    BIT(2, ReadOther);
-    BIT(3, ExeGroup);
-    BIT(4, WriteGroup);
-    BIT(5, ReadGroup);
-    BIT(6, ExeUser);
-    BIT(7, WriteUser);
-    BIT(8, ReadUser);
-#undef BIT
-    return perm;
-}
-
-bool DockerDevice::setPermissions(const FilePath &filePath,
-                                  QFileDevice::Permissions permissions) const
-{
-    Q_UNUSED(permissions)
-    QTC_ASSERT(handlesFile(filePath), return {});
-    QTC_CHECK(false); // FIXME: Implement.
-    return false;
-}
-
 bool DockerDevice::ensureReachable(const FilePath &other) const
 {
+    if (other.isSameDevice(rootPath()))
+        return true;
+
     if (other.needsDevice())
         return false;
 
     if (other.isDir())
         return d->ensureReachable(other);
     return d->ensureReachable(other.parentDir());
-}
-
-void DockerDevice::iterateDirectory(const FilePath &filePath,
-                                    const FilePath::IterateDirCallback &callBack,
-                                    const FileFilter &filter) const
-{
-    QTC_ASSERT(handlesFile(filePath), return);
-    auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };
-    FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
-}
-
-void DockerDevice::iterateDirectory(const FilePath &filePath,
-                                    const FilePath::IterateDirWithInfoCallback &callBack,
-                                    const FileFilter &filter) const
-{
-    QTC_ASSERT(handlesFile(filePath), return);
-    auto runInShell = [this](const CommandLine &cmd) { return d->runInShell(cmd); };
-    FileUtils::iterateUnixDirectory(filePath, filter, &d->m_useFind, runInShell, callBack);
-}
-
-std::optional<QByteArray> DockerDevice::fileContents(const FilePath &filePath,
-                                                     qint64 limit,
-                                                     qint64 offset) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    return d->fileContents(filePath, limit, offset);
-}
-
-bool DockerDevice::writeFileContents(const FilePath &filePath,
-                                     const QByteArray &data,
-                                     qint64 offset) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    CommandLine cmd({"dd", {"of=" + filePath.path()}});
-    if (offset != 0) {
-        cmd.addArg("bs=1");
-        cmd.addArg(QString("seek=%1").arg(offset));
-    }
-    return d->runInShellSuccess(cmd, data);
-}
-
-FilePathInfo DockerDevice::filePathInfo(const FilePath &filePath) const
-{
-    QTC_ASSERT(handlesFile(filePath), return {});
-    const RunResult stat = d->runInShell({"stat", {"-L", "-c", "%f %Y %s", filePath.path()}});
-    return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut));
 }
 
 Environment DockerDevice::systemEnvironment() const
@@ -1002,28 +824,6 @@ void DockerDevice::aboutToBeRemoved() const
 {
     KitDetector detector(sharedFromThis());
     detector.undoAutoDetect(id().toString());
-}
-
-std::optional<QByteArray> DockerDevicePrivate::fileContents(const FilePath &filePath,
-                                                            qint64 limit,
-                                                            qint64 offset)
-{
-    updateContainerAccess();
-
-    QStringList args = {"if=" + filePath.path(), "status=none"};
-    if (limit > 0 || offset > 0) {
-        const qint64 gcd = std::gcd(limit, offset);
-        args += {QString("bs=%1").arg(gcd),
-                 QString("count=%1").arg(limit / gcd),
-                 QString("seek=%1").arg(offset / gcd)};
-    }
-
-    const RunResult r = m_shell->runInShell({"dd", args});
-
-    if (r.exitCode != 0)
-        return {};
-
-    return r.stdOut;
 }
 
 void DockerDevicePrivate::fetchSystemEnviroment()
@@ -1277,8 +1077,12 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
     if (alreadyAdded)
         return false;
 
+    const TemporaryMountInfo newMount{path, containerPath};
+
+    QTC_ASSERT(isValidMountInfo(newMount), return false);
+
     qCDebug(dockerDeviceLog) << "Adding temporary mount:" << path;
-    m_temporaryMounts.append({path, containerPath});
+    m_temporaryMounts.append(newMount);
     stopCurrentContainer(); // Force re-start with new mounts.
     return true;
 }

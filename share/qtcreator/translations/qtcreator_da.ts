@@ -23538,7 +23538,7 @@ Ekskludering: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidget</name>
+    <name>Core::FolderNavigationWidget</name>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
         <translation>Filen &quot;%1&quot; blev omdøbt til &quot;%2&quot;, men følgende projekter kunne ikke ændres automatisk: %3</translation>
@@ -23597,7 +23597,7 @@ Ekskludering: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FolderNavigationWidgetFactory</name>
+    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>Filsystem</translation>
@@ -41850,7 +41850,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>FilePropertiesDialog</name>
+    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>File Properties</source>
         <translation>Filegenskaber</translation>

@@ -20,7 +20,8 @@ GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id i
                                                  bool offerIncrementalDeployment)
     : AbstractRemoteLinuxDeployStep(bsl, id)
 {
-    auto service = createDeployService<GenericDirectUploadService>();
+    auto service = new GenericDirectUploadService;
+    setDeployService(service);
 
     BoolAspect *incremental = nullptr;
     if (offerIncrementalDeployment) {

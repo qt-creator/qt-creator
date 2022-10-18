@@ -38,15 +38,13 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QStringList &versions,
                        const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector,
-                       const bool addToSystemPath,
-                       const FilePath &relativePathModifier)
+                       const bool addToSystemPath)
     : settingsHandler(settingsHandler)
     , m_label(label)
     , m_defaultPath(settingsHandler->getPath(settingsKey, QSettings::SystemScope, defaultPath))
     , m_detectionPath(detectionPath)
     , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
-    , m_relativePathModifier(relativePathModifier)
     , m_versions(versions)
     , m_cmakeVariableName(cmakeVarName)
     , m_environmentVariableName(envVarName)
@@ -101,7 +99,7 @@ FilePath McuPackage::basePath() const
 
 FilePath McuPackage::path() const
 {
-    return (basePath() / m_relativePathModifier.path()).cleanPath();
+    return basePath().cleanPath();
 }
 
 FilePath McuPackage::defaultPath() const
@@ -230,7 +228,7 @@ bool McuPackage::writeToSettings() const
 QWidget *McuPackage::widget()
 {
     auto *widget = new QWidget;
-    m_fileChooser = new PathChooser;
+    m_fileChooser = new PathChooser(widget);
     m_fileChooser->lineEdit()->setButtonIcon(FancyLineEdit::Right, Icons::RESET.icon());
     m_fileChooser->lineEdit()->setButtonVisible(FancyLineEdit::Right, true);
     connect(m_fileChooser->lineEdit(), &FancyLineEdit::rightButtonClicked, this, [&] {
@@ -239,10 +237,10 @@ QWidget *McuPackage::widget()
 
     auto layout = new QGridLayout(widget);
     layout->setContentsMargins(0, 0, 0, 0);
-    m_infoLabel = new InfoLabel();
+    m_infoLabel = new InfoLabel(widget);
 
     if (!m_downloadUrl.isEmpty()) {
-        auto downLoadButton = new QToolButton;
+        auto downLoadButton = new QToolButton(widget);
         downLoadButton->setIcon(Icons::ONLINE.icon());
         downLoadButton->setToolTip(tr("Download from \"%1\"").arg(m_downloadUrl));
         QObject::connect(downLoadButton, &QToolButton::pressed, this, [this] {

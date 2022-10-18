@@ -125,6 +125,10 @@
                 if you need many build configurations for a single set of
                 source files.
 
+                Shadow builds are also widely known as \e {out-of-source builds}
+                to separate them from \e {in-source builds} or
+                \e {in-tree builds}.
+
     \endtable
 
 */

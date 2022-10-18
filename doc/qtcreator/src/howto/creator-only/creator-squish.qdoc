@@ -242,7 +242,8 @@
 
     To edit the object map of a test suite, select the
     \inlineimage icons/objectsmap.png
-    button next to the test suite in \uicontrol {Test Suites}.
+    (\uicontrol {Object Map}) button next to the test
+    suite in \uicontrol {Test Suites}.
 
     \image qtcreator-squish-symbolic-names.png "Symbolic Names view"
 

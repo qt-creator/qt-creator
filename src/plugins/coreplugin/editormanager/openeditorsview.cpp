@@ -205,6 +205,9 @@ void ProxyModel::setSourceModel(QAbstractItemModel *sm)
 QVariant ProxyModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DecorationRole && index.column() == 0) {
+        const QVariant sourceDecoration = QAbstractProxyModel::data(index, role);
+        if (sourceDecoration.isValid())
+            return sourceDecoration;
         const QString fileName = QAbstractProxyModel::data(index, Qt::DisplayRole).toString();
         return Utils::FileIconProvider::icon(Utils::FilePath::fromString(fileName));
     }

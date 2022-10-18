@@ -25,6 +25,7 @@
 
 #include <remotelinux/genericdirectuploadstep.h>
 #include <remotelinux/makeinstallstep.h>
+#include <remotelinux/rsyncdeploystep.h>
 #include <remotelinux/remotelinux_constants.h>
 
 #include <utils/hostosinfo.h>
@@ -156,6 +157,8 @@ public:
 
     QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep>
         m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
+    QdbDeployStepFactory<RemoteLinux::RsyncDeployStep>
+        m_rsyncDeployStepFactory{RemoteLinux::Constants::RsyncDeployStepId};
     QdbDeployStepFactory<RemoteLinux::MakeInstallStep>
         m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 

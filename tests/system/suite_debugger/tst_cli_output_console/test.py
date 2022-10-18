@@ -44,8 +44,7 @@ def main():
         test.log("Running application")
         setRunInTerminal(kit, False)
         clickButton(waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
-        outputButton = waitForObject(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
-        waitFor("outputButton.checked", 20000) # Not ensureChecked(), avoid race condition
+        ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
         outputWindow = waitForObject(":Qt Creator_Core::OutputWindow")
         waitFor("'exited with code' in str(outputWindow.plainText) or \
                 'The program has unexpectedly finished' in str(outputWindow.plainText)", 20000)

@@ -187,32 +187,22 @@ bool MakeInstallStep::init()
 void MakeInstallStep::finish(bool success)
 {
     if (success) {
-        const bool hack = makeCommand().needsDevice();
         const FilePath rootDir = installRoot().onDevice(makeCommand());
 
         m_deploymentData = DeploymentData();
         m_deploymentData.setLocalInstallRoot(rootDir);
 
-        const int startPos = rootDir.toString().length();
+        const int startPos = rootDir.path().length();
 
         const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
             [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });
 
-        auto handleFile = [this, &appFileNames, startPos, hack](const FilePath &filePath) {
+        auto handleFile = [this, &appFileNames, startPos](const FilePath &filePath) {
             const DeployableFile::Type type = appFileNames.contains(filePath.fileName())
                 ? DeployableFile::TypeExecutable
                 : DeployableFile::TypeNormal;
-            QString targetDir = filePath.parentDir().toString().mid(startPos);
-            // FIXME: This is conceptually the wrong place, but currently "downstream" like
-            // the rsync step doesn't handle full remote paths here.
-            targetDir = FilePath::fromString(targetDir).path();
-
-            // FIXME: Hack, Part#2: If the build was indeed not local, drop the remoteness.
-            // As we rely on shared build directory, this "maps" to the host.
-            if (hack)
-                m_deploymentData.addFile(FilePath::fromString(filePath.path()), targetDir, type);
-            else
-                m_deploymentData.addFile(filePath, targetDir, type);
+            const QString targetDir = filePath.parentDir().path().mid(startPos);
+            m_deploymentData.addFile(filePath, targetDir, type);
             return true;
         };
         rootDir.iterateDirectory(handleFile,

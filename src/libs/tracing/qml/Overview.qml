@@ -46,8 +46,8 @@ Rectangle {
     }
 
     Connections {
-        target: zoomer
-        function onRangeChanged() { updateRangeMover(); }
+        target: overview.zoomer
+        function onRangeChanged() { overview.updateRangeMover(); }
     }
 
     TimeDisplay {
@@ -59,9 +59,9 @@ Rectangle {
         height: 10
         fontSize: 6
         labelsHeight: 10
-        windowStart: zoomer.traceStart
-        alignedWindowStart: zoomer.traceStart
-        rangeDuration: zoomer.traceDuration
+        windowStart: overview.zoomer.traceStart
+        alignedWindowStart: overview.zoomer.traceStart
+        rangeDuration: overview.zoomer.traceDuration
         contentX: 0
         offsetX: 0
     }
@@ -75,35 +75,35 @@ Rectangle {
         id: renderArea
 
         Repeater {
-            model: modelProxy.models
+            model: overview.modelProxy.models
             TimelineOverviewRenderer {
                 model: modelData
                 zoomer: overview.zoomer
-                notes: modelProxy.notes
+                notes: overview.modelProxy.notes
                 width: renderArea.width
-                height: renderArea.height / modelProxy.models.length
+                height: renderArea.height / overview.modelProxy.models.length
             }
         }
     }
 
     Repeater {
         id: noteSigns
-        property var modelsById: modelProxy.models.reduce(function(prev, model) {
+        property var modelsById: overview.modelProxy.models.reduce(function(prev, model) {
             prev[model.modelId] = model;
             return prev;
         }, {});
 
         property int vertSpace: renderArea.height / 7
         property color noteColor: Theme.color(Theme.Timeline_HighlightColor)
-        readonly property double spacing: parent.width / zoomer.traceDuration
+        readonly property double spacing: parent.width / overview.zoomer.traceDuration
 
-        model: modelProxy.notes ? modelProxy.notes.count : 0
+        model: overview.modelProxy.notes ? overview.modelProxy.notes.count : 0
         Item {
-            property int timelineIndex: modelProxy.notes.timelineIndex(index)
-            property int timelineModel: modelProxy.notes.timelineModel(index)
+            property int timelineIndex: overview.modelProxy.notes.timelineIndex(index)
+            property int timelineModel: overview.modelProxy.notes.timelineModel(index)
             property double startTime: noteSigns.modelsById[timelineModel].startTime(timelineIndex)
             property double endTime: noteSigns.modelsById[timelineModel].endTime(timelineIndex)
-            x: ((startTime + endTime) / 2 - zoomer.traceStart) * noteSigns.spacing
+            x: ((startTime + endTime) / 2 - overview.zoomer.traceStart) * noteSigns.spacing
             y: timebar.height + noteSigns.vertSpace
             height: noteSigns.vertSpace * 5
             width: 2
@@ -156,7 +156,7 @@ Rectangle {
 
     RangeMover {
         id: rangeMover
-        visible: modelProxy.height > 0
+        visible: overview.modelProxy.height > 0
         onRangeLeftChanged: overview.updateZoomer()
         onRangeRightChanged: overview.updateZoomer()
     }

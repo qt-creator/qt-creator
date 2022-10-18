@@ -98,12 +98,17 @@ void FileTransferPrivate::start()
         return startFailed(tr("No files to transfer."));
 
     const FileTransferDirection direction = transferDirection(m_setup.m_files);
-    if (direction == FileTransferDirection::Invalid)
-        return startFailed(tr("Mixing different types of transfer in one go."));
 
-    const IDeviceConstPtr device = matchedDevice(direction, m_setup.m_files);
-    if (!device)
-        return startFailed(tr("Trying to transfer into / from not matching device."));
+    IDeviceConstPtr device;
+    if (direction != FileTransferDirection::Invalid)
+        device = matchedDevice(direction, m_setup.m_files);
+
+    if (!device) {
+        // Fall back to generic copy.
+        const FilePath &filePath = m_setup.m_files.first().m_target;
+        device = DeviceManager::deviceForPath(filePath);
+        m_setup.m_method = FileTransferMethod::GenericCopy;
+    }
 
     run(m_setup, device);
 }
@@ -190,6 +195,7 @@ QString FileTransfer::transferMethodName(FileTransferMethod method)
     switch (method) {
     case FileTransferMethod::Sftp:  return FileTransfer::tr("sftp");
     case FileTransferMethod::Rsync: return FileTransfer::tr("rsync");
+    case FileTransferMethod::GenericCopy: return FileTransfer::tr("generic file copy");
     }
     QTC_CHECK(false);
     return {};

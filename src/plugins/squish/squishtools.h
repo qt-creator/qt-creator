@@ -61,12 +61,16 @@ public:
         Finished
     };
 
+    using QueryCallback = std::function<void(const QString &, const QString &)>;
+
     State state() const { return m_state; }
     void runTestCases(const Utils::FilePath &suitePath,
                       const QStringList &testCases = QStringList());
     void recordTestCase(const Utils::FilePath &suitePath, const QString &testCaseName,
                         const SuiteConf &suiteConf);
-    void queryServerSettings();
+    void queryGlobalScripts(QueryCallback callback);
+    void queryServerSettings(QueryCallback callback);
+    void requestSetSharedFolders(const Utils::FilePaths &sharedFolders);
     void writeServerSettingsChanges(const QList<QStringList> &changes);
     void requestExpansion(const QString &name);
 
@@ -77,7 +81,6 @@ signals:
     void squishTestRunStarted();
     void squishTestRunFinished();
     void resultOutputCreated(const QByteArray &output);
-    void queryFinished(const QString &output, const QString &error);
     void configChangesFailed(QProcess::ProcessError error);
     void configChangesWritten();
     void localsUpdated(const QString &output);
@@ -97,6 +100,8 @@ private:
         KillOldBeforeQueryRunner
     };
 
+    enum RunnerQuery { ServerInfo, GetGlobalScriptDirs, SetGlobalScriptDirs };
+
     void setState(State state);
     void handleSetStateStartAppRunner();
     void handleSetStateQueryRunner();
@@ -106,6 +111,7 @@ private:
     void startSquishRunner();
     void setupAndStartRecorder();
     void stopRecorder();
+    void queryServer(RunnerQuery query);
     void executeRunnerQuery();
     static Utils::Environment squishEnvironment();
     void onServerFinished();
@@ -132,7 +138,7 @@ private:
     QStringList serverArgumentsFromSettings() const;
     QStringList runnerArgumentsFromSettings();
     bool setupRunnerPath();
-    void setupAndStartSquishRunnerProcess(const QStringList &arg);
+    void setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine);
 
     SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
@@ -150,6 +156,7 @@ private:
     Utils::FilePaths m_reportFiles;
     Utils::FilePath m_currentResultsDirectory;
     QString m_fullRunnerOutput; // used when querying the server
+    QString m_queryParameter;
     Utils::FilePath m_currentTestCasePath;
     Utils::FilePath m_currentRecorderSnippetFile;
     QFile *m_currentResultsXML = nullptr;
@@ -161,6 +168,8 @@ private:
     QTimer *m_requestVarsTimer = nullptr;
     qint64 m_readResultsCount;
     int m_autId = 0;
+    QueryCallback m_queryCallback;
+    RunnerQuery m_query = ServerInfo;
     bool m_shutdownInitiated = false;
     bool m_closeRunnerOnEndRecord = false;
     bool m_licenseIssues = false;

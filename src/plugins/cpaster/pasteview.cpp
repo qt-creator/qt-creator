@@ -41,10 +41,12 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     m_commentPlaceHolder(Tr::tr("<Comment>")),
     m_mimeType(mt)
 {
+    setObjectName("CodePaster.ViewDialog");
     resize(670, 678);
     setWindowTitle(Tr::tr("Send to Codepaster"));
 
     m_protocolBox = new QComboBox;
+    m_protocolBox->setObjectName("protocolBox");
     for (const Protocol *p : protocols)
         m_protocolBox->addItem(p->name());
 
@@ -56,6 +58,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     m_uiUsername->setPlaceholderText(Tr::tr("<Username>"));
 
     m_uiDescription = new QLineEdit(this);
+    m_uiDescription->setObjectName("uiDescription");
     m_uiDescription->setPlaceholderText(Tr::tr("<Description>"));
 
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -83,6 +86,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     groupBox->setFlat(true);
 
     m_plainTextEdit = new QPlainTextEdit;
+    m_plainTextEdit->setObjectName("plainTextEdit");
 
     m_stackedWidget = new QStackedWidget(this);
     m_stackedWidget->addWidget(groupBox);

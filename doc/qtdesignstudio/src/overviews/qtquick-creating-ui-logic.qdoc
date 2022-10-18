@@ -32,7 +32,7 @@
     exported as a public property of the relevant component. For example,
     a speedometer should have a property for speed to which the UI is bound.
 
-    You can declare various \l{Adding States}{UI states} that describe how
+    You can declare various \l{Working with States}{UI states} that describe how
     property values change from a base state. States can be a useful way of
     organizing your UI logic. You can associate transitions with components
     to define how their properties will animate when they change due to a
@@ -100,7 +100,7 @@
         \li \l{Adding Property Aliases}
     \row
         \li Referencing a state from within a specific component
-        \li \l{Adding States}
+        \li \l{Working with States}
     \row
         \li Switching to a state when a particular property changes
         \li \l{Applying States}

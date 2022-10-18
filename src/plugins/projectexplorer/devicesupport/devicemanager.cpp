@@ -9,7 +9,9 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/algorithm.h>
+#include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
@@ -405,30 +407,6 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
 
     DeviceFileHooks &deviceHooks = DeviceFileHooks::instance();
 
-    deviceHooks.isExecutableFile = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->isExecutableFile(filePath);
-    };
-
-    deviceHooks.isReadableFile = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->isReadableFile(filePath);
-    };
-
-    deviceHooks.isReadableDir = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->isReadableDirectory(filePath);
-    };
-
-    deviceHooks.isWritableDir = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->isWritableDirectory(filePath);
-    };
-
     deviceHooks.isSameDevice = [](const FilePath &left, const FilePath &right) {
         auto leftDevice = DeviceManager::deviceForPath(left);
         auto rightDevice = DeviceManager::deviceForPath(right);
@@ -436,176 +414,18 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return leftDevice == rightDevice;
     };
 
-    deviceHooks.isWritableFile = [](const FilePath &filePath) {
+    deviceHooks.fileAccess = [](const FilePath &filePath) -> DeviceFileAccess * {
+        if (!filePath.needsDevice())
+            return DesktopDeviceFileAccess::instance();
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->isWritableFile(filePath);
-    };
-
-    deviceHooks.isFile = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->isFile(filePath);
-    };
-
-    deviceHooks.isDir = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->isDirectory(filePath);
-    };
-
-    deviceHooks.ensureWritableDir = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->ensureWritableDirectory(filePath);
-    };
-
-    deviceHooks.ensureExistingFile = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->ensureExistingFile(filePath);
-    };
-
-    deviceHooks.createDir = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->createDirectory(filePath);
-    };
-
-    deviceHooks.exists = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->exists(filePath);
-    };
-
-    deviceHooks.removeFile = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->removeFile(filePath);
-    };
-
-    deviceHooks.removeRecursively = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->removeRecursively(filePath);
-    };
-
-    deviceHooks.copyFile = [](const FilePath &filePath, const FilePath &target) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->copyFile(filePath, target);
-    };
-
-    deviceHooks.renameFile = [](const FilePath &filePath, const FilePath &target) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->renameFile(filePath, target);
-    };
-
-    deviceHooks.searchInPath = [](const FilePath &filePath, const FilePaths &dirs) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return FilePath{});
-        return device->searchExecutable(filePath.path(), dirs);
-    };
-
-    deviceHooks.symLinkTarget = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return FilePath{});
-        return device->symLinkTarget(filePath);
-    };
-
-    deviceHooks.mapToDevicePath = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return QString{});
-        return device->mapToDevicePath(filePath);
-    };
-
-    deviceHooks.iterateDirectory = [](const FilePath &filePath,
-                                      const FilePath::IterateDirCallback &callBack,
-                                      const FileFilter &filter) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return );
-        device->iterateDirectory(filePath, callBack, filter);
-    };
-
-    deviceHooks.iterateDirectoryWithInfo = [](const FilePath &filePath,
-                                              const FilePath::IterateDirWithInfoCallback &callBack,
-                                              const FileFilter &filter) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return );
-        device->iterateDirectory(filePath, callBack, filter);
-    };
-
-    deviceHooks.fileContents =
-        [](const FilePath &filePath, qint64 maxSize, qint64 offset) -> std::optional<QByteArray> {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return {});
-        return device->fileContents(filePath, maxSize, offset);
-    };
-
-    deviceHooks.asyncFileContents = [](const Continuation<std::optional<QByteArray>> &cont,
-                                       const FilePath &filePath,
-                                       qint64 maxSize,
-                                       qint64 offset) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return);
-        device->asyncFileContents(cont, filePath, maxSize, offset);
-    };
-
-    deviceHooks.writeFileContents = [](const FilePath &filePath,
-                                       const QByteArray &data,
-                                       qint64 offset) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->writeFileContents(filePath, data, offset);
-    };
-
-    deviceHooks.filePathInfo = [](const FilePath &filePath) -> FilePathInfo {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return {});
-        return device->filePathInfo(filePath);
-    };
-
-    deviceHooks.lastModified = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return QDateTime());
-        return device->lastModified(filePath);
-    };
-
-    deviceHooks.permissions = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return QFile::Permissions());
-        return device->permissions(filePath);
-    };
-
-    deviceHooks.setPermissions = [](const FilePath &filePath, QFile::Permissions permissions) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return false);
-        return device->setPermissions(filePath, permissions);
-    };
-
-    deviceHooks.osType = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return OsTypeOther);
-        return device->osType();
+        QTC_ASSERT(device, return nullptr);
+        return device->fileAccess();
     };
 
     deviceHooks.environment = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return Environment{});
         return device->systemEnvironment();
-    };
-
-    deviceHooks.fileSize = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return qint64(-1));
-        return device->fileSize(filePath);
-    };
-
-    deviceHooks.bytesAvailable = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return qint64(-1));
-        return device->bytesAvailable(filePath);
     };
 
     deviceHooks.deviceDisplayName = [](const FilePath &filePath) {

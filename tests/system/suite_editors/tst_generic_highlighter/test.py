@@ -35,8 +35,8 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
                   "text='MIME Types'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "MIME Types")
-    replaceEditorContent(waitForObject("{name='filterLineEdit' type='QLineEdit' visible='1'}"),
-                         filter)
+    replaceEditorContent(waitForObject("{name='filterLineEdit' type='Utils::FancyLineEdit' "
+                                       "visible='1'}"), filter)
     mimeTypeTable = waitForObject("{name='mimeTypesTreeView' type='QTreeView' visible='1'}")
     model = mimeTypeTable.model()
     if filter == '':
@@ -99,7 +99,7 @@ def addHighlighterDefinition(*languages):
                   "text='Generic Highlighter'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Generic Highlighter")
 
-    clickButton("{text='Download Definitions' type='QPushButton' name='downloadDefinitions' visible='1'}")
+    clickButton("{text='Download Definitions' type='QPushButton' unnamed='1' visible='1'}")
     updateStatus = "{name='updateStatus' type='QLabel' visible='1'}"
     waitFor("object.exists(updateStatus)", 5000)
     if waitFor('str(findObject(updateStatus).text) == "Download finished"', 5000):

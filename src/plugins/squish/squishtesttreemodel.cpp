@@ -186,6 +186,9 @@ SquishTestTreeModel::SquishTestTreeModel(QObject *parent)
             &SquishFileHandler::suiteTreeItemRemoved,
             this,
             &SquishTestTreeModel::onSuiteTreeItemRemoved);
+    connect(m_squishFileHandler,
+            &SquishFileHandler::clearedSharedFolders,
+            this, [this]() { m_squishSharedFolders->removeChildren(); });
 
     m_instance = this;
 }

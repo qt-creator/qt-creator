@@ -81,30 +81,9 @@ public:
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static FilePath commonPath(const FilePaths &paths);
-    static QByteArray fileId(const FilePath &fileName);
     static FilePath homePath();
 
     static FilePaths toFilePathList(const QStringList &paths);
-
-    static void iterateLsOutput(
-            const FilePath &base,
-            const QStringList &entries,
-            const FileFilter &filter,
-            const std::function<bool(const FilePath &)> &callBack);
-
-    static void iterateUnixDirectory(
-            const FilePath &base,
-            const FileFilter &filter,
-            bool *useFind,
-            const std::function<RunResult(const CommandLine &)> &runInShell,
-            const FilePath::IterateDirCallback &callBack);
-
-    static void iterateUnixDirectory(
-            const FilePath &base,
-            const FileFilter &filter,
-            bool *useFind,
-            const std::function<RunResult(const CommandLine &)> &runInShell,
-            const FilePath::IterateDirWithInfoCallback &callBack);
 
     static qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
 
@@ -131,7 +110,8 @@ public:
     static FilePath getExistingDirectory(QWidget *parent,
                                          const QString &caption,
                                          const FilePath &dir = {},
-                                         QFileDialog::Options options = QFileDialog::ShowDirsOnly);
+                                         QFileDialog::Options options = QFileDialog::ShowDirsOnly,
+                                         bool fromDeviceIfShiftIsPressed = false);
 
     static FilePaths getOpenFilePaths(QWidget *parent,
                                       const QString &caption,
@@ -139,13 +119,6 @@ public:
                                       const QString &filter = {},
                                       QString *selectedFilter = nullptr,
                                       QFileDialog::Options options = {});
-
-    static FilePath getOpenFilePathFromDevice(QWidget *parent,
-                                              const QString &caption,
-                                              const FilePath &dir = {},
-                                              const QString &filter = {},
-                                              QString *selectedFilter = nullptr,
-                                              QFileDialog::Options options = {});
 #endif
 
 };

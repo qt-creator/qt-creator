@@ -37,7 +37,7 @@ def main():
                 test.log("Selecting '%s' as build config" % config)
                 verifyBuildConfig(kit, config, True, True, True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
-                selectFromLocator("t rebuild", "Rebuild (Rebuild All Projects)")
+                selectFromLocator("t rebuild", "Rebuild All Projects")
                 waitForCompile(300000)
                 if not checkCompile():
                     test.fatal("Compile had errors... Skipping current build config")
