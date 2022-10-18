@@ -259,7 +259,7 @@ QWidget *McuPackage::widget()
 
     m_fileChooser->setFilePath(m_path);
 
-    QObject::connect(this, &McuPackage::statusChanged, this, [this] { updateStatusUi(); });
+    QObject::connect(this, &McuPackage::statusChanged, widget, [this] { updateStatusUi(); });
 
     QObject::connect(m_fileChooser, &PathChooser::textChanged, this, [this] {
         updatePath();
