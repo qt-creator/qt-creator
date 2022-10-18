@@ -113,15 +113,12 @@ FilePath McuPackage::detectionPath() const
 
 void McuPackage::setPath(const FilePath &newPath)
 {
+    if (m_path == newPath)
+        return;
+
     m_path = newPath;
     updateStatus();
-}
-
-void McuPackage::updatePath()
-{
-    m_path = m_fileChooser->rawFilePath();
-    m_fileChooser->lineEdit()->button(FancyLineEdit::Right)->setEnabled(m_path != m_defaultPath);
-    updateStatus();
+    emit changed();
 }
 
 void McuPackage::updateStatus()
@@ -274,8 +271,12 @@ QWidget *McuPackage::widget()
     QObject::connect(this, &McuPackage::statusChanged, widget, [this] { updateStatusUi(); });
 
     QObject::connect(m_fileChooser, &PathChooser::textChanged, this, [this] {
-        updatePath();
-        emit changed();
+        setPath(m_fileChooser->rawFilePath());
+    });
+
+    connect(this, &McuPackage::changed, m_fileChooser, [this] {
+        m_fileChooser->lineEdit()->button(FancyLineEdit::Right)->setEnabled(m_path != m_defaultPath);
+        m_fileChooser->setFilePath(m_path);
     });
 
     updateStatus();
