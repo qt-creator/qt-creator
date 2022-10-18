@@ -152,7 +152,8 @@ bool AbstractProcessStep::init()
     if (d->m_process)
         return false;
 
-    setupProcessParameters(processParameters());
+    if (!setupProcessParameters(processParameters()))
+        return false;
 
     return true;
 }
@@ -233,7 +234,7 @@ ProcessParameters *AbstractProcessStep::processParameters()
     return &d->m_param;
 }
 
-void AbstractProcessStep::setupProcessParameters(ProcessParameters *params) const
+bool AbstractProcessStep::setupProcessParameters(ProcessParameters *params) const
 {
     params->setMacroExpander(macroExpander());
 
@@ -242,13 +243,21 @@ void AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
         d->m_environmentModifier(env);
     params->setEnvironment(env);
 
-    if (d->m_workingDirectoryProvider)
-        params->setWorkingDirectory(d->m_workingDirectoryProvider());
-    else
-        params->setWorkingDirectory(buildDirectory());
-
     if (d->m_commandLineProvider)
         params->setCommandLine(d->m_commandLineProvider());
+
+    FilePath workingDirectory;
+    if (d->m_workingDirectoryProvider)
+        workingDirectory = d->m_workingDirectoryProvider();
+    else
+        workingDirectory = buildDirectory();
+
+    const FilePath executable = params->effectiveCommand();
+
+    QTC_ASSERT(executable.ensureReachable(workingDirectory), return false);
+    params->setWorkingDirectory(workingDirectory.onDevice(executable));
+
+    return true;
 }
 
 void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus status)
