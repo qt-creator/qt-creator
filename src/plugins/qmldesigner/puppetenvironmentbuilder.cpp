@@ -58,7 +58,9 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     addControls();
     addPixelRatio();
     addVirtualKeyboard();
+    addQuick3D();
     addForceQApplication();
+    addMultiLanguageDatatbase();
     addImportPaths();
     addCustomFileSelectors();
 
