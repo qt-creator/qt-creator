@@ -132,14 +132,22 @@ void McuPackage::updateStatus()
     m_detectedVersion = validPath && validPackage && m_versionDetector
                             ? m_versionDetector->parseVersion(basePath())
                             : QString();
-    const bool validVersion = m_detectedVersion.isEmpty() || m_versions.isEmpty()
-                              || m_versions.contains(m_detectedVersion);
 
-    m_status = validPath          ? (validPackage ? (validVersion ? Status::ValidPackage
-                                                                  : Status::ValidPackageMismatchedVersion)
-                                                  : Status::ValidPathInvalidPackage)
-               : m_path.isEmpty() ? Status::EmptyPath
-                                  : Status::InvalidPath;
+    const bool validVersion = m_versions.isEmpty() || m_versions.contains(m_detectedVersion);
+
+    if (m_path.isEmpty()) {
+        m_status = Status::EmptyPath;
+    } else if (!validPath) {
+        m_status = Status::InvalidPath;
+    } else if (!validPackage) {
+        m_status = Status::ValidPathInvalidPackage;
+    } else if (m_versionDetector && m_detectedVersion.isEmpty()) {
+        m_status = Status::ValidPackageVersionNotDetected;
+    } else if (!validVersion) {
+        m_status = Status::ValidPackageMismatchedVersion;
+    } else {
+        m_status = Status::ValidPackage;
+    }
 
     emit statusChanged();
 }
@@ -161,6 +169,7 @@ void McuPackage::updateStatusUi()
         m_infoLabel->setType(InfoLabel::Ok);
         break;
     case Status::ValidPackageMismatchedVersion:
+    case Status::ValidPackageVersionNotDetected:
         m_infoLabel->setType(InfoLabel::Warning);
         break;
     default:
@@ -214,6 +223,9 @@ QString McuPackage::statusText() const
         response = m_detectionPath.isEmpty()
                        ? tr("Path is empty.")
                        : tr("Path is empty, %1 not found.").arg(displayRequiredPath);
+        break;
+    case Status::ValidPackageVersionNotDetected:
+        response = tr("Path %1 exists, but version could not be detected.").arg(displayPackagePath);
         break;
     }
     return response;
