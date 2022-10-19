@@ -75,7 +75,7 @@ using testing::Return;
 namespace {
 const char empty[]{""};
 const char armGcc[]{"armgcc"};
-const char armGccVersionDetectionRegex[]{R"(\bv(\d+\.\d+\.\d+)\b)"};
+const char armGccVersionDetectionRegex[]{R"(\b(\d+\.\d+\.\d+)\b)"};
 const char armGccDir[]{"/opt/armgcc"};
 const char armGccDirectorySetting[]{"GNUArmEmbeddedToolchain"};
 const char armGccEnvVar[]{"ARMGCC_DIR"};
@@ -1648,7 +1648,7 @@ void McuSupportTest::test_nonemptyVersionDetector()
     // pkgDesc.validationPath left empty
     // pkgDesc.versions left empty
     pkgDesc.versionDetection.filePattern = "bin/arm-none-eabi-g++";
-    pkgDesc.versionDetection.regex = "\\bv?(\\d+\\.\\d+\\.\\d+)\\b";
+    pkgDesc.versionDetection.regex = "\\b(\\d+\\.\\d+\\.\\d+)\\b";
     pkgDesc.versionDetection.executableArgs = "--version";
     // pkgDesc.versionDetection.xmlElement left empty
     // pkgDesc.versionDetection.xmlAttribute left empty

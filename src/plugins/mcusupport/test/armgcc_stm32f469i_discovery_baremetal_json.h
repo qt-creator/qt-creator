@@ -48,7 +48,7 @@ constexpr auto armgcc_stm32f469i_discovery_baremetal_json = R"(
             "versionDetection": {
                 "filePattern": "bin/arm-none-eabi-g++",
                 "executableArgs": "--version",
-                "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+                "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
             },
             "detectionPath": {
                 "windows": "bin/arm-none-eabi-g++.exe",
