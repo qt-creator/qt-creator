@@ -9,7 +9,6 @@
 #include "qtcassert.h"
 #include "qtcprocess.h"
 #include "terminalcommand.h"
-#include "winutils.h"
 
 #include <QCoreApplication>
 #include <QLocalServer>
@@ -22,17 +21,19 @@
 
 #ifdef Q_OS_WIN
 
-#  include <windows.h>
-#  include <stdlib.h>
-#  include <cstring>
+#include "winutils.h"
+
+#include <cstring>
+#include <stdlib.h>
+#include <windows.h>
 
 #else
 
-#  include <sys/stat.h>
-#  include <sys/types.h>
-#  include <errno.h>
-#  include <string.h>
-#  include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
 
 #endif
 
@@ -423,7 +424,9 @@ void TerminalImpl::sendControlSignal(ControlSignal controlSignal)
     switch (controlSignal) {
     case ControlSignal::Terminate:
     case ControlSignal::Kill:
-        stopProcess();
+        killProcess();
+        if (HostOsInfo::isWindowsHost())
+            killStub();
         break;
     case ControlSignal::Interrupt:
         sendCommand('i');
@@ -468,13 +471,13 @@ void TerminalImpl::killStub()
     TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
     WaitForSingleObject(d->m_pid->hProcess, INFINITE);
     cleanupStub();
+    emitFinished(-1, QProcess::CrashExit);
 #else
     sendCommand('s');
     stubServerShutdown();
+    d->m_process.stop();
     d->m_process.waitForFinished();
 #endif
-
-    emitFinished(-1, QProcess::CrashExit);
 }
 
 void TerminalImpl::stopProcess()
@@ -519,13 +522,13 @@ QString TerminalImpl::stubServerListen()
         if (errno != EEXIST)
             return msgCannotCreateTempDir(stubFifoDir, QString::fromLocal8Bit(strerror(errno)));
     }
-    const QString stubServer  = stubFifoDir + QLatin1String("/stub-socket");
+    const QString stubServer = stubFifoDir + QLatin1String("/stub-socket");
     if (!d->m_stubServer.listen(stubServer)) {
         ::rmdir(d->m_stubServerDir.constData());
         return QtcProcess::tr("Cannot create socket \"%1\": %2")
             .arg(stubServer, d->m_stubServer.errorString());
     }
-    return QString();
+    return {};
 #endif
 }
 
