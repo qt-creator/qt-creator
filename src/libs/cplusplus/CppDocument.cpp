@@ -784,15 +784,31 @@ QSet<QString> Snapshot::allIncludesForDocument(const QString &fileName) const
     return result;
 }
 
-QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(const QString &fileName) const
+QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(
+        const QString &fileNameOrPath) const
 {
+    const bool matchFullPath = Utils::FilePath::fromString(fileNameOrPath).isAbsolutePath();
+    const auto isMatch = [&](const Document::Include &include) {
+        if (matchFullPath)
+            return include.resolvedFileName() == fileNameOrPath;
+        return Utils::FilePath::fromString(include.resolvedFileName()).fileName() == fileNameOrPath;
+    };
     QList<IncludeLocation> result;
     for (const_iterator cit = begin(), citEnd = end(); cit != citEnd; ++cit) {
         const Document::Ptr doc = cit.value();
         const QList<Document::Include> includeFiles = doc->resolvedIncludes();
+        bool foundMatch = false;
         for (const Document::Include &includeFile : includeFiles) {
-            if (includeFile.resolvedFileName() == fileName)
+            if (isMatch(includeFile)) {
+                foundMatch = true;
                 result.push_back({doc, includeFile.line()});
+            }
+        }
+        if (!matchFullPath && !foundMatch) {
+            for (const auto &includeFile : cit.value()->unresolvedIncludes()) {
+                if (includeFile.unresolvedFileName() == fileNameOrPath)
+                    result.push_back({doc, includeFile.line()});
+            }
         }
     }
     return result;

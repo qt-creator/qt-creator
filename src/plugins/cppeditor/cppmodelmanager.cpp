@@ -47,6 +47,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -1562,18 +1563,46 @@ void CppModelManager::renameIncludes(const Utils::FilePath &oldFilePath,
 
     const TextEditor::RefactoringChanges changes;
 
+    QString oldFileName = oldFilePath.fileName();
+    QString newFileName = newFilePath.fileName();
+    const bool isUiFile = oldFilePath.suffix() == "ui" && newFilePath.suffix() == "ui";
+    if (isUiFile) {
+        oldFileName = "ui_" + oldFilePath.baseName() + ".h";
+        newFileName = "ui_" + newFilePath.baseName() + ".h";
+    }
+    static const auto getProductNode = [](const FilePath &filePath) -> const Node * {
+        const Node * const fileNode = ProjectTree::nodeForFile(filePath);
+        if (!fileNode)
+            return nullptr;
+        const ProjectNode *productNode = fileNode->parentProjectNode();
+        while (productNode && !productNode->isProduct())
+            productNode = productNode->parentProjectNode();
+        if (!productNode)
+            productNode = fileNode->getProject()->rootProjectNode();
+        return productNode;
+    };
+    const Node * const productNodeForUiFile = isUiFile ? getProductNode(oldFilePath) : nullptr;
+    if (isUiFile && !productNodeForUiFile)
+        return;
+
     const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
-        oldFilePath.toString());
+        isUiFile ? oldFileName : oldFilePath.toString());
     for (const Snapshot::IncludeLocation &loc : locations) {
-        TextEditor::RefactoringFilePtr file = changes.file(
-            Utils::FilePath::fromString(loc.first->fileName()));
+        const auto filePath = FilePath::fromString(loc.first->fileName());
+
+        // Larger projects can easily have more than one ui file with the same name.
+        // Replace only if ui file and including source file belong to the same product.
+        if (isUiFile && getProductNode(filePath) != productNodeForUiFile)
+            continue;
+
+        TextEditor::RefactoringFilePtr file = changes.file(filePath);
         const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
-        const int replaceStart = block.text().indexOf(oldFilePath.fileName());
+        const int replaceStart = block.text().indexOf(oldFileName);
         if (replaceStart > -1) {
             Utils::ChangeSet changeSet;
             changeSet.replace(block.position() + replaceStart,
-                              block.position() + replaceStart + oldFilePath.fileName().length(),
-                              newFilePath.fileName());
+                              block.position() + replaceStart + oldFileName.length(),
+                              newFileName);
             file->setChangeSet(changeSet);
             file->apply();
         }

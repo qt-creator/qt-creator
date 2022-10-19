@@ -409,7 +409,8 @@ public:
                                      const QString &fileName) const;
 
     QSet<QString> allIncludesForDocument(const QString &fileName) const;
-    QList<IncludeLocation> includeLocationsOfDocument(const QString &fileName) const;
+
+    QList<IncludeLocation> includeLocationsOfDocument(const QString &fileNameOrPath) const;
 
     Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
     Utils::FilePaths filesDependingOn(const QString &fileName) const
