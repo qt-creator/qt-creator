@@ -400,7 +400,9 @@ QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
     if (!isLayerEnabled(pItem))
         pItem->refFromEffectItem(false);
 
-    ServerNodeInstance instance = instanceForObject(item);
+    ServerNodeInstance instance;
+    if (hasInstanceForObject(item))
+        instance = instanceForObject(item);
 
     const bool rootIs3DObject = rootIsRenderable3DObject();
 
