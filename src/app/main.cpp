@@ -117,7 +117,7 @@ static void displayHelpText(const QString &t)
     if (Utils::HostOsInfo::isWindowsHost() && qApp)
         QMessageBox::information(nullptr, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), toHtml(t));
     else
-        qWarning("%s", qPrintable(t));
+        printf("%s", qPrintable(t));
 }
 
 static void displayError(const QString &t)
