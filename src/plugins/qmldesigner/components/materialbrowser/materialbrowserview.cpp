@@ -315,6 +315,7 @@ void MaterialBrowserView::refreshModel(bool updateImages)
         }
     }
 
+    m_widget->clearSearchFilter();
     m_widget->materialBrowserModel()->setMaterials(materials, m_hasQuick3DImport);
 
     if (updateImages) {
