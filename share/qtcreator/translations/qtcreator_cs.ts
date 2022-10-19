@@ -17906,7 +17906,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Shellové příkazy nejsou jako terminálové příkazy přípustné.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &apos;%1&apos;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &apos;%1&apos;, change the setting in the Environment preferences.</source>
         <translation>Emulátor terminálu &apos;%1&apos; se nepodařilo spustit. Změňte hodnotu v nastavení prostředí.</translation>
     </message>
     <message>

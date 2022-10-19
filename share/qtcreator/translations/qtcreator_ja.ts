@@ -10742,7 +10742,7 @@ with a password, which you can enter below.</source>
         <translation>ターミナルコマンドがシェルコマンドではない可能性があります。</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>ターミナルエミュレータ &quot;%1&quot; が起動できません。環境オプションの設定を変更してください。</translation>
     </message>
     <message>

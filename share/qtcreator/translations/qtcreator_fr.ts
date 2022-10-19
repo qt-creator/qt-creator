@@ -2387,7 +2387,7 @@ Voulez vous les écraser ?</translation>
         <translation>La commande terminal peut ne pas être une commande shell. </translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &apos;%1&apos;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &apos;%1&apos;, change the setting in the Environment preferences.</source>
         <translation>Impossible de démarrer l&apos;émulateur de terminal &quot;%1&quot;, modifiez les paramètres dans les options d&apos;environnement.</translation>
     </message>
     <message>

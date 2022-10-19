@@ -169,7 +169,7 @@ void AndroidDevice::addActionsIfNotFound()
     static const QString startAvdAction = Tr::tr("Start AVD");
     static const QString eraseAvdAction = Tr::tr("Erase AVD");
     static const QString avdArgumentsAction = Tr::tr("AVD Arguments");
-    static const QString setupWifi = Tr::tr("Setup Wi-Fi");
+    static const QString setupWifi = Tr::tr("Set up Wi-Fi");
 
     bool hasStartAction = false;
     bool hasEraseAction = false;
@@ -543,7 +543,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         const SdkToolResult connectRes = AndroidManager::runAdbCommand(args);
         if (!connectRes.success()) {
             AndroidDeviceWidget::criticalDialog(
-                        Tr::tr("Connecting to to the device IP \"%1\" failed.").arg(ip),
+                        Tr::tr("Connecting to the device IP \"%1\" failed.").arg(ip),
                         parent);
             return;
         }

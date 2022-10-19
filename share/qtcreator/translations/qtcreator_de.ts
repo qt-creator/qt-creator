@@ -8099,7 +8099,7 @@ Rename %2 to %3 anyway?</source>
         <translation>Shell-Kommandos sind als Terminal-Kommando nicht zulässig.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Der Terminal-Emulator &quot;%1&quot; konnte nicht gestartet werden, ändern Sie den Wert in den Einstellungen zur Umgebung.</translation>
     </message>
     <message>

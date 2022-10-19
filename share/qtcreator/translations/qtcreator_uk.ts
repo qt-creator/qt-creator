@@ -22905,7 +22905,7 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Термінальна команда, можливо, не є командою оболонки.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Неможливо запустити емулятор терміналу &quot;%1&quot;, змініть налаштування в опціях середовища.</translation>
     </message>
     <message>

@@ -2245,9 +2245,9 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
 
         const QString message
             = Tr::tr("The installed %1 is missing debug information files.\n"
-                 "Locals and Expression might not be able to display all Qt Types in a "
+                 "Locals and Expression might not be able to display all Qt types in a "
                  "human readable format.\n\n"
-                 "Please install the \"Qt Debug Information Files\" Package from the "
+                 "Install the \"Qt Debug Information Files\" Package from the "
                  "Maintenance Tool for this Qt installation to get all relevant "
                  "symbols for the debugger.")
                   .arg(qtName);

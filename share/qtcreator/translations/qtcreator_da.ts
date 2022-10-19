@@ -38429,7 +38429,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <translation>Terminal-kommando må ikke være en skalkommando.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Kan ikke starte terminalemulatoren &quot;%1&quot;, skifte indstillingen i Miljø-valgmulighederne.</translation>
     </message>
     <message>

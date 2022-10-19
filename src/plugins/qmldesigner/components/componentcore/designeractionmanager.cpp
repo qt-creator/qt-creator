@@ -672,7 +672,7 @@ public:
 
                     ActionTemplate *removeSignalHandlerAction = new ActionTemplate(
                         (propertyName + "RemoveSignalHandlerId").toLatin1(),
-                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove this handler")),
+                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove This Handler")),
                         [signalHandler](const SelectionContext &) {
                             signalHandler.parentModelNode().view()->executeInTransaction(
                                 "ConnectionsModelNodeActionGroup::"
@@ -691,7 +691,7 @@ public:
 
         //singular add connection:
         QMenu *addConnection = new QMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                   "Add signal handler")),
+                                                                   "Add Signal Handler")),
                                          menu());
 
         for (const auto &signalStr : signalsList) {

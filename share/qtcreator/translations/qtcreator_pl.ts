@@ -1785,7 +1785,7 @@ Przyczyna: %3</translation>
         <translation>Komenda terminala nie musi być komendą powłoki.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Nie można uruchomić emulatora terminala &quot;%1&quot;, zmień ustawienie w opcjach środowiska.</translation>
     </message>
     <message>

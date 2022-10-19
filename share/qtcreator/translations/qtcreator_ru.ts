@@ -48680,7 +48680,7 @@ in &quot;%2&quot;.
         <translation>Терминальная команда, возможно, не является командой оболочки.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Не удалось запустить эмулятор терминала «%1», смените настройки в параметрах среды.</translation>
     </message>
     <message>

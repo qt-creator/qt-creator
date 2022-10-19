@@ -369,7 +369,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
     QAction * const followSymbolToTypeInNextSplit =
-            new QAction(tr("Follow Symbol To Type in Next Split"), this);
+            new QAction(tr("Follow Symbol to Type in Next Split"), this);
     cmd = ActionManager::registerAction(followSymbolToTypeInNextSplit,
         Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT, context, true);
     cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
