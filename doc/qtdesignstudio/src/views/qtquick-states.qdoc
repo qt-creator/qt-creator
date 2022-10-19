@@ -41,9 +41,9 @@
 
     \image qmldesigner-transitions.png "States view"
 
-    Click the new state to switch to it in the \l {2D} view, and then modify the
-    values of the properties of components or component instances in
-    \l Properties.
+    Click the new state to switch to it in the \l {2D} and \l{3D} views, and
+    then modify the values of the properties of components or component
+    instances in \l Properties.
 
     For example, to change the appearance of a button, you can define states in
     the button component to hide the button image and show another image in its
@@ -82,21 +82,17 @@
 
     \section1 Setting the Default State
 
-    To determine the startup state of the application,
-    select \inlineimage icons/action-icon.png
-    to open the \uicontrol Actions menu, and then select
-    \uicontrol {Set as Default}.
+    The default state determines the startup state of the application.
 
-    To reset the state later, select \uicontrol Actions >
-    \uicontrol {Reset Default}.
+    To set a state to the default state, select \uicontrol Default.
 
     \section1 Applying States
 
-    To determine when a state should be applied, select \uicontrol Actions >
-    \uicontrol {Set when Condition}. In \uicontrol {Binding Editor}, specify
-    a \l [QtQuick]{State::when}{when} property for the state. Set the value of
-    the property to a boolean expression that evaluates to \c true when you want
-    the state to be applied.
+    To determine when a state is applied, select \inlineimage icons/edit.png
+    in the \uicontrol {When Condition} field. In \uicontrol {Binding Editor},
+    specify a \l [QtQuick]{State::when}{when} property for the state. Set the
+    value of the property to a boolean expression that evaluates to \c true when
+    you want the state to be applied.
 
     This enables you to evaluate the truthfulness of several components'
     properties and move the UI to the state in which these conditions apply.
@@ -192,10 +188,40 @@
         \li Create additional states for each view and set the visibility
             or opacity of the components in the view.
         \li To determine which state is applied when the application starts,
-            select \uicontrol Actions > \uicontrol {Set as Default}.
+            select \uicontrol Default.
     \endlist
 
     \if defined(qtcreator)
     \include qtquick-states-scxml.qdocinc scxml state machines
     \endif
+
+    \section1 State Groups
+
+    With state groups, you can change the state of certain components
+    independently of other components and their states in the same view.
+
+    Each state group has its own property changes and transitions.
+
+    By default, there is one root state group.
+
+    \section1 Extending States
+
+    When a state extends another state, it inherits all the changes of that
+    state. The state being extended is treated as the base state in regards to
+    the changes specified by the extending state.
+
+    Using extended states can make the user interface and your QML code
+    cleaner.
+
+    Below is an example where the only change between \e State1 and \e State2
+    is the brightness of \e directionalLight.
+
+    Here, extended states are not used:
+
+    \image no-extended-state.webp
+
+    Here, \e State2 is extended from \e State1:
+
+    \image extended-state.webp
+
 */
