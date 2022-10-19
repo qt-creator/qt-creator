@@ -85,6 +85,7 @@ const char HELP_OPTION2[] = "-help";
 const char HELP_OPTION3[] = "/h";
 const char HELP_OPTION4[] = "--help";
 const char VERSION_OPTION[] = "-version";
+const char VERSION_OPTION2[] = "--version";
 const char CLIENT_OPTION[] = "-client";
 const char SETTINGS_OPTION[] = "-settingspath";
 const char INSTALL_SETTINGS_OPTION[] = "-installsettingspath";
@@ -639,6 +640,7 @@ int main(int argc, char **argv)
         appOptions.insert(QLatin1String(HELP_OPTION3), false);
         appOptions.insert(QLatin1String(HELP_OPTION4), false);
         appOptions.insert(QLatin1String(VERSION_OPTION), false);
+        appOptions.insert(QLatin1String(VERSION_OPTION2), false);
         appOptions.insert(QLatin1String(CLIENT_OPTION), false);
         appOptions.insert(QLatin1String(PID_OPTION), true);
         appOptions.insert(QLatin1String(BLOCK_OPTION), false);
@@ -682,7 +684,8 @@ int main(int argc, char **argv)
         displayError(msgCoreLoadFailure(coreplugin->errorString()));
         return 1;
     }
-    if (foundAppOptions.contains(QLatin1String(VERSION_OPTION))) {
+    if (foundAppOptions.contains(QLatin1String(VERSION_OPTION))
+            || foundAppOptions.contains(QLatin1String(VERSION_OPTION2))) {
         printVersion(coreplugin);
         return 0;
     }
