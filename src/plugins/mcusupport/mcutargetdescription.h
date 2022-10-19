@@ -18,7 +18,6 @@ struct VersionDetection
     QString executableArgs;
     QString xmlElement;
     QString xmlAttribute;
-    bool isFile;
 }; // struct VersionDetection
 
 struct PackageDescription

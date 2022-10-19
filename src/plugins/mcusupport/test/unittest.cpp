@@ -1357,15 +1357,13 @@ void McuSupportTest::test_passDirectoryVersionDetectorToRenesasBoardSdkPackage()
 {
     const McuTargetDescription description = parseDescriptionJson(ghs_rh850_d1m1a_baremetal_json);
 
-    QCOMPARE(description.boardSdk.versionDetection.filePattern, "rgl_*_obj_*");
     QCOMPARE(description.boardSdk.versionDetection.regex, R"(\d+\.\d+\.\w+)");
-    QCOMPARE(description.boardSdk.versionDetection.isFile, false);
 
     McuPackagePtr boardSdk{targetFactory.createPackage(description.boardSdk)};
 
     const auto *versionDetector{boardSdk->getVersionDetector()};
     QVERIFY(versionDetector != nullptr);
-    QCOMPARE(typeid(*versionDetector).name(), typeid(McuPackageDirectoryVersionDetector).name());
+    QCOMPARE(typeid(*versionDetector).name(), typeid(McuPackagePathVersionDetector).name());
 }
 
 void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()

@@ -82,7 +82,7 @@ static McuPackageVersionDetector *generatePackageVersionDetector(const QString &
                                                 R"(\b(\d+\.\d+\.\d+)\b)");
 
     if (envVar.startsWith("RGL"))
-        return new McuPackageDirectoryVersionDetector("rgl_*_obj_*", R"(\d+\.\d+\.\w+)", false);
+        return new McuPackagePathVersionDetector(R"(\d+\.\d+\.\w+)");
 
     return nullptr;
 }
@@ -613,7 +613,6 @@ VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
         versioning["executableArgs"].toString(),
         versioning["xmlElement"].toString(),
         versioning["xmlAttribute"].toString(),
-        versioning["isFile"].toBool(true),
     };
 }
 

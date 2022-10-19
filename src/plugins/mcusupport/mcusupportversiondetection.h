@@ -49,18 +49,16 @@ private:
 };
 
 // Get version from the filename of a given file/dir in the package directory
-class McuPackageDirectoryVersionDetector : public McuPackageVersionDetector
+class McuPackageDirectoryEntriesVersionDetector : public McuPackageVersionDetector
 {
 public:
-    McuPackageDirectoryVersionDetector(const QString &filePattern,
-                                       const QString &versionRegExp,
-                                       const bool isFile);
+    McuPackageDirectoryEntriesVersionDetector(const QString &filePattern,
+                                              const QString &versionRegExp);
     QString parseVersion(const Utils::FilePath &packagePath) const final;
 
 private:
     const QString m_filePattern;
     const QString m_versionRegExp;
-    const bool m_isFile;
 };
 
 // Get version from the path of the package itself

@@ -37,9 +37,10 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
                                                        QStringList{versionDetection.executableArgs},
                                                        versionDetection.regex};
     else if (!versionDetection.filePattern.isEmpty() && !versionDetection.regex.isEmpty())
-        return new McuPackageDirectoryVersionDetector(versionDetection.filePattern,
-                                                      versionDetection.regex,
-                                                      versionDetection.isFile);
+        return new McuPackageDirectoryEntriesVersionDetector(versionDetection.filePattern,
+                                                             versionDetection.regex);
+    else if (!versionDetection.regex.isEmpty())
+        return new McuPackagePathVersionDetector(versionDetection.regex);
     else {
         // In this case the JSON entry is either invalid or missing.
         // After refactoring, this should raise a JSON error to the user.
