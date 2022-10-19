@@ -65,7 +65,7 @@ static QString formatSize(qint64 size)
 
 class SystemSettingsWidget : public IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Internal::SystemSettingsWidget)
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::SystemSettings)
 
 public:
     SystemSettingsWidget()

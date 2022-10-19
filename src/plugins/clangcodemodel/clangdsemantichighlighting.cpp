@@ -260,7 +260,7 @@ void doSemanticHighlighting(
     };
 
     const std::function<HighlightingResult(const ExpandedSemanticToken &)> toResult
-            = [&ast, &isOutputParameter, &tokenRange]
+            = [&ast, &isOutputParameter, &tokenRange, ver = clangdVersion.majorVersion()]
             (const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
@@ -275,7 +275,9 @@ void doSemanticHighlighting(
         } else if (token.type == "function" || token.type == "method") {
             styles.mainStyle = token.modifiers.contains(QLatin1String("virtual"))
                     ? C_VIRTUAL_METHOD : C_FUNCTION;
-            if (ast.isValid()) {
+            if (token.modifiers.contains("definition")) {
+                styles.mixinStyles.push_back(C_FUNCTION_DEFINITION);
+            } else if (ver < 16 && ast.isValid()) {
                 const ClangdAstPath path = getAstPath(ast, tokenRange(token));
                 if (path.length() > 1) {
                     const ClangdAstNode declNode = path.at(path.length() - 2);

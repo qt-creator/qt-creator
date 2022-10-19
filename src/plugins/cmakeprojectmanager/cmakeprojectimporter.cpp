@@ -135,7 +135,7 @@ FilePaths CMakeProjectImporter::importCandidates()
         // If the binaryFilePath exists, do not try to import the existing build, so that
         // we don't have duplicates, one from the preset and one from the previous configuration.
         if (configPreset.binaryDir) {
-            Environment env = Environment::systemEnvironment();
+            Environment env = projectDirectory().deviceEnvironment();
             CMakePresets::Macros::expand(configPreset, env, projectDirectory());
 
             QString binaryDir = configPreset.binaryDir.value();
@@ -165,14 +165,14 @@ static CMakeConfig configurationFromPresetProbe(
     cmake.setTimeoutS(30);
     cmake.setDisableUnixTerminal();
 
-    Environment env = Environment::systemEnvironment();
+    const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
+
+    Environment env = cmakeExecutable.deviceEnvironment();
     CMakePresets::Macros::expand(configurePreset, env, importPath);
 
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
-
-    const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
 
     QStringList args;
     args.emplace_back("-S");
@@ -428,7 +428,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                        return preset.name == presetName;
                                    });
 
-        Environment env = Environment::systemEnvironment();
+        Environment env = projectDirectory().deviceEnvironment();
         CMakePresets::Macros::expand(configurePreset, env, projectDirectory());
 
         if (configurePreset.displayName)

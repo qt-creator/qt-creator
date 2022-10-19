@@ -879,6 +879,8 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
             TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
             widget->removeHoverHandler(&d->m_hoverHandler);
             widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
+            widget->setRefactorMarkers(
+                TextEditor::RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
             updateEditorToolBar(editor);
         }
     }
@@ -1571,6 +1573,12 @@ void Client::setProgressTitleForToken(const LanguageServerProtocol::ProgressToke
                                       const QString &message)
 {
     d->m_progressManager.setTitleForToken(token, message);
+}
+
+void Client::setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
+                                     const std::function<void()> &handler)
+{
+    d->m_progressManager.setClickHandlerForToken(token, handler);
 }
 
 void Client::handleMessage(const LanguageServerProtocol::JsonRpcMessage &message)

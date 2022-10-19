@@ -121,7 +121,12 @@ FutureProgress::FutureProgress(QWidget *parent) :
             this, &FutureProgress::setProgressValue);
     connect(&d->m_watcher, &QFutureWatcherBase::progressTextChanged,
             this, &FutureProgress::setProgressText);
-    connect(d->m_progress, &Internal::ProgressBar::clicked, this, &FutureProgress::cancel);
+    connect(d->m_progress, &Internal::ProgressBar::clicked, this, [this] {
+        if (isCancelEnabled())
+            cancel();
+        else
+            emit clicked();
+    });
     setMinimumWidth(100);
     setMaximumWidth(300);
 }
@@ -371,6 +376,16 @@ bool FutureProgress::isFading() const
 QSize FutureProgress::sizeHint() const
 {
     return QSize(QWidget::sizeHint().width(), minimumHeight());
+}
+
+bool FutureProgress::isCancelEnabled() const
+{
+    return d->m_progress->isCancelEnabled();
+}
+
+void FutureProgress::setCancelEnabled(bool enabled)
+{
+    d->m_progress->setCancelEnabled(enabled);
 }
 
 void FutureProgressPrivate::fadeAway()

@@ -35871,10 +35871,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
 <context>
     <name>Core::Internal::SystemSettings</name>
     <message>
-        <source>System</source>
-        <translation>システム</translation>
-    </message>
-    <message>
         <source>Terminal:</source>
         <translation>ターミナル:</translation>
     </message>
@@ -35940,30 +35936,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
         <source>Reset to default.</source>
         <comment>Terminal</comment>
         <translation>既定に戻します。</translation>
-    </message>
-    <message>
-        <source>Command used for reverting diff chunks.</source>
-        <translation>差分チャンクを元に戻す際に使用するコマンドです。</translation>
-    </message>
-    <message>
-        <source>Case Sensitive (Default)</source>
-        <translation>区別する (既定)</translation>
-    </message>
-    <message>
-        <source>Case Sensitive</source>
-        <translation>区別する</translation>
-    </message>
-    <message>
-        <source>Case Insensitive (Default)</source>
-        <translation>区別しない (既定)</translation>
-    </message>
-    <message>
-        <source>Case Insensitive</source>
-        <translation>区別しない</translation>
-    </message>
-    <message>
-        <source>Variables</source>
-        <translation>変数</translation>
     </message>
     <message>
         <source>Warn before opening text files greater than</source>
@@ -48174,7 +48146,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::SystemSettingsWidget</name>
+    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>Command line arguments used for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; に使用するコマンドライン引数。</translation>

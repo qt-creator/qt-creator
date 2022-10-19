@@ -280,7 +280,7 @@ bool evaluatePresetCondition(const PresetType &preset, const Utils::FilePath &so
     if (!preset.condition)
         return true;
 
-    Utils::Environment env = Utils::Environment::systemEnvironment();
+    Utils::Environment env = sourceDirectory.deviceEnvironment();
     expand(preset, env, sourceDirectory);
 
     PresetsDetails::Condition condition = preset.condition.value();

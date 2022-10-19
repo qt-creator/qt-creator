@@ -6,6 +6,7 @@
 #include "../iwizardfactory.h"
 #include "newdialog.h"
 
+#include <QCoreApplication>
 #include <QDialog>
 #include <QIcon>
 #include <QList>
@@ -30,7 +31,7 @@ namespace Internal {
 
 class NewDialogWidget : public QDialog, public NewDialog
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::NewDialog)
 
 public:
     explicit NewDialogWidget(QWidget *parent);

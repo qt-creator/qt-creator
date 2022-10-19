@@ -879,6 +879,9 @@ bool UnixDeviceFileAccess::iterateWithFind(
             return true;
 
         const FilePath fp = filePath.withNewPath(fileName);
+        // Do not return the entry for the directory we are searching in.
+        if (fp.path() == filePath.path())
+            return true;
         return std::get<1>(callBack)(fp, fi);
     };
 

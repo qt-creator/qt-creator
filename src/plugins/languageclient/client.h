@@ -197,6 +197,8 @@ protected:
     void setError(const QString &message);
     void setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
                                   const QString &message);
+    void setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
+                                 const std::function<void()> &handler);
     void handleMessage(const LanguageServerProtocol::JsonRpcMessage &message);
     virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     virtual DiagnosticManager *createDiagnosticManager();
