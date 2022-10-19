@@ -104,7 +104,7 @@ DebuggerSettings::DebuggerSettings()
         "in system logs."));
 
     fontSizeFollowsEditor.setSettingsKey(debugModeGroup, "FontSizeFollowsEditor");
-    fontSizeFollowsEditor.setToolTip(Tr::tr("Changes the font size in the debugger views when"
+    fontSizeFollowsEditor.setToolTip(Tr::tr("Changes the font size in the debugger views when "
                                         "the font size in the main editor changes."));
     fontSizeFollowsEditor.setLabelText(Tr::tr("Debugger font size follows main editor"));
 

@@ -27671,7 +27671,7 @@ You might find further explanations in the Application Output view.</source>
         <translation>Задержка обработки: %1.%2 сек</translation>
     </message>
     <message>
-        <source>Invalid data format. The trace file&apos;s identification string is &quot;%1&quot;.An acceptable trace file should have &quot;%2&quot;. You cannot read trace files generated with older versions of Qt Creator.</source>
+        <source>Invalid data format. The trace file&apos;s identification string is &quot;%1&quot;. An acceptable trace file should have &quot;%2&quot;. You cannot read trace files generated with older versions of Qt Creator.</source>
         <translation>Неверный формат данных. У файла трассировки задана строка идентификации «%1». А допустимой является «%2». Нельзя читать файлы трассировки, созданные старыми версиями Qt Creator.</translation>
     </message>
     <message>

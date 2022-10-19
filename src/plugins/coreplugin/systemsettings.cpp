@@ -223,7 +223,7 @@ public:
         m_autoSaveRefactoringCheckBox->setChecked(EditorManager::autoSaveAfterRefactoring());
         m_autoSaveRefactoringCheckBox->setToolTip(
             tr("Automatically saves all open files "
-               "affected by a refactoring operation,\n provided they were unmodified before the "
+               "affected by a refactoring operation,\nprovided they were unmodified before the "
                "refactoring."));
         m_autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
         m_autoSuspendCheckBox->setChecked(EditorManagerPrivate::autoSuspendEnabled());

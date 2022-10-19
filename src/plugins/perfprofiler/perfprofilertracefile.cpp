@@ -247,7 +247,7 @@ void PerfProfilerTraceFile::readFromDevice()
         } else if (strncmp(magic.data(), Constants::PerfZqfileMagic, magicSize) == 0) {
             m_compressed = true;
         } else {
-            fail(Tr::tr("Invalid data format. The trace file's identification string is \"%1\"."
+            fail(Tr::tr("Invalid data format. The trace file's identification string is \"%1\". "
                         "An acceptable trace file should have \"%2\". You cannot read trace files "
                         "generated with older versions of %3.")
                  .arg(QString::fromLatin1(magic))

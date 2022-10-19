@@ -14492,7 +14492,7 @@ Note: This might remove the local file.</source>
         <translation type="vanished">以下のファイルをバージョン管理システム (%2) から削除しますか? %1注: これにより、ローカル・ファイルが削除される場合があります。</translation>
     </message>
     <message>
-        <source>Remove the following files from the version control system (%2)?%1Note: This might remove the local file.</source>
+        <source>Remove the following files from the version control system (%2)? %1Note: This might remove the local file.</source>
         <translation>以下のファイルをバージョン管理システム (%2) から削除しますか? %1注: これにより、ローカルファイルが削除される場合があります。</translation>
     </message>
     <message>

@@ -217,7 +217,7 @@ void QmlProjectPlugin::openInQDSWithProject(const Utils::FilePath &filePath)
         Core::AsynchronousMessageBox::warning(
             tr("Qt Design Studio"),
             tr("No project file (*.qmlproject) found for Qt Design "
-               "Studio.\n Qt Design Studio requires a .qmlproject "
+               "Studio.\nQt Design Studio requires a .qmlproject "
                "based project to open the .ui.qml file."));
     }
 }
@@ -272,7 +272,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     if (QmlProject::isQtDesignStudio()) {
         Core::ActionContainer *menu = Core::ActionManager::actionContainer(
             ProjectExplorer::Constants::M_FILECONTEXT);
-        QAction *mainfileAction = new QAction(tr("Set as main .qml file"), this);
+        QAction *mainfileAction = new QAction(tr("Set as Main .qml File"), this);
         mainfileAction->setEnabled(false);
 
         connect(mainfileAction, &QAction::triggered, this, []() {
@@ -315,7 +315,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                                                    != fileNode->filePath());
                 });
 
-        QAction *mainUifileAction = new QAction(tr("Set as main .ui.qml file"), this);
+        QAction *mainUifileAction = new QAction(tr("Set as Main .ui.qml File"), this);
         mainUifileAction->setEnabled(false);
 
         connect(mainUifileAction, &QAction::triggered, this, []() {
