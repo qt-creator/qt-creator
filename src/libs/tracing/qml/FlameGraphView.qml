@@ -267,11 +267,6 @@ ScrollView {
                     return null;
             }
 
-            onClearSelection: {
-                flamegraph.selectedTypeId = -1;
-                selectedNode = null;
-            }
-
             dialogTitle: {
                 if (currentNode)
                     return currentNode.title();

@@ -363,10 +363,6 @@ Rectangle {
             content.selectionLocked = locked;
         }
 
-        onClearSelection: {
-            content.propagateSelection(-1, -1);
-        }
-
         onUpdateNote: (text) => {
             if (timelineModelAggregator.notes && root.selectedModel != -1
                 && root.selectedItem != -1) {

@@ -34,10 +34,9 @@ Item {
     property alias noteReadonly: noteEdit.readOnly
 
     signal recenterOnItem
-    signal clearSelection
     signal updateNote(string text)
 
-    visible: dialogTitle.length > 0 || model.length > 0
+    visible: dialogTitle.length > 0
 
     width: dragHandle.x + dragHandle.width
     height: contentArea.height + titleBar.height
@@ -106,9 +105,9 @@ Item {
             anchors.right: parent.right
             anchors.top: parent.top
             implicitHeight: typeTitle.height
-            imageSource: "image://icons/close_window"
-            onClicked: rangeDetails.clearSelection()
-            ToolTip.text: qsTranslate("Tracing", "Close")
+            imageSource: "image://icons/arrow" + (col.visible ? "up" : "down")
+            onClicked: col.visible = !col.visible
+            ToolTip.text: col.visible ? qsTranslate("Tracing", "Collapse") : qsTranslate("Tracing", "Expand")
         }
     }
 
@@ -133,6 +132,8 @@ Item {
         anchors.topMargin: rangeDetails.innerMargin
         anchors.leftMargin: rangeDetails.outerMargin
         anchors.rightMargin: rangeDetails.outerMargin
+
+        height: visible ? implicitHeight : 0
 
         spacing: rangeDetails.innerMargin
         columns: 2

@@ -68,6 +68,10 @@ public:
             icon = Icons::CLOSE_SPLIT_TOP.icon();
         else if (iconName == "close_window")
             icon = Icons::CLOSE_TOOLBAR.icon();
+        else if (iconName == "arrowdown")
+            icon = Icons::ARROW_DOWN.icon();
+        else if (iconName == "arrowup")
+            icon = Icons::ARROW_UP.icon();
 
         const QSize iconSize(16, 16);
         const QPixmap result = icon.pixmap(iconSize, iconMode);
