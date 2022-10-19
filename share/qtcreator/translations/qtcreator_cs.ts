@@ -35698,16 +35698,16 @@ Chcete přesto soubor s nastavením nahrát?</translation>
         <translation>Základní stav</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Neplatný název stavu</translation>
+        <source>Invalid state name.</source>
+        <translation>Neplatný název stavu.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Prázdný řetězec znaků je vyhrazen jako název základního stavu.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Název je již používán jiným stavem</translation>
+        <source>Name already used in another state.</source>
+        <translation>Název je již používán jiným stavem.</translation>
     </message>
 </context>
 <context>

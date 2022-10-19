@@ -28364,16 +28364,16 @@ Locked items cannot be modified or selected.</source>
         <translation>初期状態</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>無効な状態名</translation>
+        <source>Invalid state name.</source>
+        <translation>無効な状態名。</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>空文字は初期状態用に予約された名前です。</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>名前が他の状態名と重複しています</translation>
+        <source>Name already used in another state.</source>
+        <translation>名前が他の状態名と重複しています。</translation>
     </message>
 </context>
 <context>
@@ -28867,8 +28867,8 @@ Qt Creator know about a likely URI.</source>
 &quot;// @uri My.Module.Uri&quot; を記述することによって Qt Creator に URI を通知できます。</translation>
     </message>
     <message>
-        <source>The type will only be available in the QML editors when the type name is a string literal</source>
-        <translation>この型は型名が文字列リテラルであるため、QML エディタでのみ利用可能できます</translation>
+        <source>The type will only be available in the QML editors when the type name is a string literal.</source>
+        <translation>この型は型名が文字列リテラルであるため、QML エディタでのみ利用可能できます。</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available

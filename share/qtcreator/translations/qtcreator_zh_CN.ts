@@ -33406,16 +33406,16 @@ Do you want to retry?</source>
         <translation>基线状态</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>无效状态名称</translation>
+        <source>Invalid state name.</source>
+        <translation>无效状态名称。</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>空字符串是为基线状态保留的名称。</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>名称已经被另一个状态使用</translation>
+        <source>Name already used in another state.</source>
+        <translation>名称已经被另一个状态使用。</translation>
     </message>
 </context>
 <context>

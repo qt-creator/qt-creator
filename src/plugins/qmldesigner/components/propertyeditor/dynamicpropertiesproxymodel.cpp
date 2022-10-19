@@ -152,8 +152,8 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
         const ModelNode modelNode = selectedNodes.constFirst();
         if (modelNode.isValid()) {
             if (modelNode.hasProperty(name.toUtf8())) {
-                Core::AsynchronousMessageBox::warning(tr("Property already exists"),
-                                                      tr("Property '%1' already exists")
+                Core::AsynchronousMessageBox::warning(tr("Property Already Exists"),
+                                                      tr("Property \"%1\" already exists.")
                                                           .arg(name));
                 return;
             }

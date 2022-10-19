@@ -38820,16 +38820,16 @@ This is independent of the visibility property in QML.</source>
         <translation>исходное состояние</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Неверное название состояния</translation>
+        <source>Invalid state name.</source>
+        <translation>Неверное название состояния.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Пустая строка зарезервирована как название исходного состояния.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Название уже используется другим состоянием</translation>
+        <source>Name already used in another state.</source>
+        <translation>Название уже используется другим состоянием.</translation>
     </message>
 </context>
 <context>
@@ -40620,8 +40620,8 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <translation></translation>
     </message>
     <message>
-        <source>The type will only be available in the QML editors when the type name is a string literal</source>
-        <translation>Имя типа должно быть строковым литералом, чтобы он был доступен в редакторах QML</translation>
+        <source>The type will only be available in the QML editors when the type name is a string literal.</source>
+        <translation>Имя типа должно быть строковым литералом, чтобы он был доступен в редакторах QML.</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available

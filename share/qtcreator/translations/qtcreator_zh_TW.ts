@@ -20463,16 +20463,16 @@ Do you want to retry?</source>
         <translation>基本狀態</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>無效狀態名稱</translation>
+        <source>Invalid state name.</source>
+        <translation>無效狀態名稱。</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>空字串是為基本狀態保留的名稱。</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>此名稱已經被其他狀態使用</translation>
+        <source>Name already used in another state.</source>
+        <translation>此名稱已經被其他狀態使用。</translation>
     </message>
 </context>
 <context>

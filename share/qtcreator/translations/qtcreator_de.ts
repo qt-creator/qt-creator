@@ -12868,16 +12868,16 @@ Soll es noch einmal versucht werden?</translation>
         <translation>Grundzustand</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Ungültiger Name des Zustands</translation>
+        <source>Invalid state name.</source>
+        <translation>Ungültiger Name des Zustands.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Eine leere Zeichenkette ist als Name des Basiszustands reserviert.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Der Name wird bereits von einem anderen Zustand verwendet</translation>
+        <source>Name already used in another state.</source>
+        <translation>Der Name wird bereits von einem anderen Zustand verwendet.</translation>
     </message>
 </context>
 <context>
@@ -19756,8 +19756,8 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
 <context>
     <name>QmlJSTools</name>
     <message>
-        <source>The type will only be available in the QML editors when the type name is a string literal</source>
-        <translation>Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist</translation>
+        <source>The type will only be available in the QML editors when the type name is a string literal.</source>
+        <translation>Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist.</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available

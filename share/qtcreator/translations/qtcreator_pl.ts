@@ -15860,16 +15860,16 @@ Ponowić próbę?</translation>
         <translation>Stan bazowy</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Niepoprawna nazwa stanu</translation>
+        <source>Invalid state name.</source>
+        <translation>Niepoprawna nazwa stanu.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Pusta nazwa jest zarezerwowana dla stanu bazowego.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Nazwa jest już użyta w innym stanie</translation>
+        <source>Name already used in another state.</source>
+        <translation>Nazwa jest już użyta w innym stanie.</translation>
     </message>
 </context>
 <context>

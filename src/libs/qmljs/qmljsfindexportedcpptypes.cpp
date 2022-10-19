@@ -251,7 +251,7 @@ protected:
                         _doc->fileName(),
                         line, column,
                         QmlJS::FindExportedCppTypes::tr(
-                            "The type will only be available in the QML editors when the type name is a string literal"));
+                            "The type will only be available in the QML editors when the type name is a string literal."));
             return false;
         }
 

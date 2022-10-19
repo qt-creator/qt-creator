@@ -30154,16 +30154,16 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <translation>grundlæggende tilstand</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Ugyldig tilstandsnavn</translation>
+        <source>Invalid state name.</source>
+        <translation>Ugyldig tilstandsnavn.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Den tomme streng som et navn er reserveret til den grundlæggende tilstand.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Navn allerede brugt i anden tilstand</translation>
+        <source>Name already used in another state.</source>
+        <translation>Navn allerede brugt i anden tilstand.</translation>
     </message>
 </context>
 <context>
@@ -31402,8 +31402,8 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <translation>Qt Quick</translation>
     </message>
     <message>
-        <source>The type will only be available in the QML editors when the type name is a string literal</source>
-        <translation>Typen er kun tilgængelig i QML-redigeringerne når typenavnet er en streng-literal</translation>
+        <source>The type will only be available in the QML editors when the type name is a string literal.</source>
+        <translation>Typen er kun tilgængelig i QML-redigeringerne når typenavnet er en streng-literal.</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available

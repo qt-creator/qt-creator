@@ -35326,16 +35326,16 @@ Do you want to retry?</source>
         <translation>état de base</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Nom d&apos;état invalide</translation>
+        <source>Invalid state name.</source>
+        <translation>Nom d&apos;état invalide.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>La chaîne vide comme nom est réservée à l&apos;état de base.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Le nom est déjà utilisé dans un autre état</translation>
+        <source>Name already used in another state.</source>
+        <translation>Le nom est déjà utilisé dans un autre état.</translation>
     </message>
 </context>
 <context>

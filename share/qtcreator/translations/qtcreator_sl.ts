@@ -25066,16 +25066,16 @@ Ali še vedno želite naložiti nastavitveno datoteko?</translation>
         <translation>osnovno stanje</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Neveljavno ime stanja</translation>
+        <source>Invalid state name.</source>
+        <translation>Neveljavno ime stanja.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Prazen niz za ime je rezervirano za osnovno stanje.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Ime je že uporabljeno v drugem stanju</translation>
+        <source>Name already used in another state.</source>
+        <translation>Ime je že uporabljeno v drugem stanju.</translation>
     </message>
 </context>
 <context>

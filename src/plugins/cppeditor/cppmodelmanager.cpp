@@ -342,19 +342,19 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
                                             .arg(reason));
     };
     static const auto showFallbackWarning = [](const QString &reason) {
-        Core::MessageManager::writeSilently(Tr::tr("%1, falling back to built-in preprocessor")
+        Core::MessageManager::writeSilently(Tr::tr("%1, falling back to built-in preprocessor.")
                                             .arg(reason));
     };
     static const auto saveAndOpen = [](const FilePath &filePath, const QByteArray &contents,
                                        bool inNextSplit) {
         SaveFile f(filePath.toString());
         if (!f.open()) {
-            showError(Tr::tr("Failed to open output file \"%1\"").arg(filePath.toUserOutput()));
+            showError(Tr::tr("Failed to open output file \"%1\".").arg(filePath.toUserOutput()));
             return;
         }
         f.write(contents);
         if (!f.commit()) {
-            showError(Tr::tr("Failed to write output file \"%1\"").arg(filePath.toUserOutput()));
+            showError(Tr::tr("Failed to write output file \"%1\".").arg(filePath.toUserOutput()));
             return;
         }
         f.close();
@@ -386,7 +386,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     const Project * const project = ProjectTree::currentProject();
     if (!project || !project->activeTarget()
             || !project->activeTarget()->activeBuildConfiguration()) {
-        showFallbackWarning(Tr::tr("Could not determine which compiler to invoke"));
+        showFallbackWarning(Tr::tr("Could not determine which compiler to invoke."));
         useBuiltinPreprocessor();
         return;
     }
@@ -398,7 +398,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     } else if (classifier.isCxx() || classifier.isHeader()) {
         tc = ToolChainKitAspect::cxxToolChain(project->activeTarget()->kit());
     } else {
-        showFallbackWarning(Tr::tr("Could not determine which compiler to invoke"));
+        showFallbackWarning(Tr::tr("Could not determine which compiler to invoke."));
         useBuiltinPreprocessor();
         return;
     }
@@ -408,7 +408,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
             && (tc->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                 || tc->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID);
     if (!isGcc && !isMsvc) {
-        showFallbackWarning(Tr::tr("Could not determine compiler command line"));
+        showFallbackWarning(Tr::tr("Could not determine compiler command line."));
         useBuiltinPreprocessor();
         return;
     }
@@ -418,7 +418,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         return pp->belongsToProject(ProjectTree::currentProject());
     });
     if (!projectPart) {
-        showFallbackWarning(Tr::tr("Could not determine compiler command line"));
+        showFallbackWarning(Tr::tr("Could not determine compiler command line."));
         useBuiltinPreprocessor();
         return;
     }
