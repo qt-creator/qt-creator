@@ -155,7 +155,7 @@ bool OptionsParser::checkForScenarioOption()
             if (!m_pmPrivate->m_requestedScenario.isEmpty()) {
                 if (m_errorString) {
                     *m_errorString = QCoreApplication::translate("PluginManager",
-                        "Cannot request scenario \"%1\" as the scenario \"%1\" was already requested.")
+                        "Cannot request scenario \"%1\" as it was already requested.")
                         .arg(m_currentArg, m_pmPrivate->m_requestedScenario);
                 }
                 m_hasError = true;
