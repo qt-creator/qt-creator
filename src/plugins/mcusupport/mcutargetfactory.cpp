@@ -36,10 +36,15 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
                                                            versionDetection.filePattern),
                                                        QStringList{versionDetection.executableArgs},
                                                        versionDetection.regex};
-    else
+    else if (!versionDetection.filePattern.isEmpty() && !versionDetection.regex.isEmpty())
         return new McuPackageDirectoryVersionDetector(versionDetection.filePattern,
                                                       versionDetection.regex,
                                                       versionDetection.isFile);
+    else {
+        // In this case the JSON entry is either invalid or missing.
+        // After refactoring, this should raise a JSON error to the user.
+        return nullptr;
+    }
 }
 
 static void removeEmptyPackages(Packages &packages)

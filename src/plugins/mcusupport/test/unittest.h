@@ -103,6 +103,10 @@ private slots:
     void test_differentValueForEachOperationSystem();
     void test_addToSystemPathFlag();
 
+    void test_nonemptyVersionDetector();
+    void test_emptyVersionDetector();
+    void test_emptyVersionDetectorFromJson();
+
 private:
     QVersionNumber currentQulVersion{2, 0};
     PackageMock *freeRtosPackage{new PackageMock};

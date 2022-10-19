@@ -1638,4 +1638,68 @@ void McuSupportTest::test_addToSystemPathFlag()
     QCOMPARE(freeRtosPackage.shouldAddToSystemPath, false);
 }
 
+void McuSupportTest::test_nonemptyVersionDetector()
+{
+    PackageDescription pkgDesc;
+    pkgDesc.label = "GNU Arm Embedded Toolchain";
+    pkgDesc.envVar = "ARMGCC_DIR";
+    // pkgDesc.cmakeVar left empty
+    // pkgDesc.description left empty
+    pkgDesc.setting = "GNUArmEmbeddedToolchain";
+    // pkgDesc.defaultPath left empty
+    // pkgDesc.validationPath left empty
+    // pkgDesc.versions left empty
+    pkgDesc.versionDetection.filePattern = "bin/arm-none-eabi-g++";
+    pkgDesc.versionDetection.regex = "\\bv?(\\d+\\.\\d+\\.\\d+)\\b";
+    pkgDesc.versionDetection.executableArgs = "--version";
+    // pkgDesc.versionDetection.xmlElement left empty
+    // pkgDesc.versionDetection.xmlAttribute left empty
+    pkgDesc.shouldAddToSystemPath = false;
+
+    const auto package = targetFactory.createPackage(pkgDesc);
+    QVERIFY(package->getVersionDetector() != nullptr);
+    QCOMPARE(typeid(*package->getVersionDetector()).name(),
+             typeid(McuPackageExecutableVersionDetector).name());
+}
+
+void McuSupportTest::test_emptyVersionDetector()
+{
+    PackageDescription pkgDesc;
+    pkgDesc.label = "GNU Arm Embedded Toolchain";
+    pkgDesc.envVar = "ARMGCC_DIR";
+    // pkgDesc.cmakeVar left empty
+    // pkgDesc.description left empty
+    pkgDesc.setting = "GNUArmEmbeddedToolchain";
+    // pkgDesc.defaultPath left empty
+    // pkgDesc.validationPath left empty
+    // pkgDesc.versions left empty
+    // Version detection left completely empty
+        // pkgDesc.versionDetection.filePattern
+        // pkgDesc.versionDetection.regex
+        // pkgDesc.versionDetection.executableArgs
+        // pkgDesc.versionDetection.xmlElement
+        // pkgDesc.versionDetection.xmlAttribute
+    pkgDesc.shouldAddToSystemPath = false;
+
+    const auto package = targetFactory.createPackage(pkgDesc);
+    QVERIFY(package->getVersionDetector() == nullptr);
+}
+
+void McuSupportTest::test_emptyVersionDetectorFromJson()
+{
+    const auto targetDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
+    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+
+    auto freeRtos = findOrDefault(packages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName() == freeRtosCMakeVar);
+    });
+
+    QVERIFY2(!freeRtos->cmakeVariableName().isEmpty(), "The freeRTOS package was not found, but there should be one.");
+
+    // For the FreeRTOS package there used to be no version check defined. Use this package to check if this was
+    // considered correctly
+    QVERIFY(freeRtos->getVersionDetector() == nullptr);
+}
+
+
 } // namespace McuSupport::Internal::Test
