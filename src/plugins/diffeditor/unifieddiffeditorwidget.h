@@ -10,10 +10,7 @@
 
 namespace Core { class IContext; }
 
-namespace TextEditor {
-class DisplaySettings;
-class FontSettings;
-}
+namespace TextEditor { class FontSettings; }
 
 namespace DiffEditor {
 
@@ -80,7 +77,6 @@ public:
     void restoreState();
 
     void clear(const QString &message = {});
-    void setDisplaySettings(const TextEditor::DisplaySettings &ds) override;
 
 signals:
     void currentDiffFileIndexChanged(int index);
