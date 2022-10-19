@@ -677,7 +677,7 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
         return g.matches("Ninja");
     });
     if (it != known.constEnd()) {
-        const bool hasNinja = [k]() {
+        const bool hasNinja = [k, tool]() {
             Internal::CMakeSpecificSettings *settings
                 = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
 
@@ -685,7 +685,7 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
                 auto findNinja = [](const Environment &env) -> bool {
                     return !env.searchInPath("ninja").isEmpty();
                 };
-                if (!findNinja(Environment::systemEnvironment()))
+                if (!findNinja(tool->filePath().deviceEnvironment()))
                     return findNinja(k->buildEnvironment());
             }
             return true;

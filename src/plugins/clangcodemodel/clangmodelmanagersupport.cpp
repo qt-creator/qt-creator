@@ -427,9 +427,15 @@ static bool isProjectDataUpToDate(
         return false;
     if (sessionModeEnabled() && project)
         return false;
-    const ProjectInfoList newProjectInfo = project
-            ? ProjectInfoList{CppModelManager::instance()->projectInfo(project)}
-            : CppModelManager::instance()->projectInfos();
+    ProjectInfoList newProjectInfo;
+    if (project) {
+        if (const ProjectInfo::ConstPtr pi = CppModelManager::instance()->projectInfo(project))
+            newProjectInfo.append(pi);
+        else
+            return false;
+    } else {
+        newProjectInfo = CppModelManager::instance()->projectInfos();
+    }
     if (newProjectInfo.size() != projectInfo.size())
         return false;
     for (int i = 0; i < projectInfo.size(); ++i) {
@@ -450,8 +456,10 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
     if (sessionModeEnabled()) {
         project = nullptr;
         projectInfo = CppModelManager::instance()->projectInfos();
+    } else if (const ProjectInfo::ConstPtr pi = CppModelManager::instance()->projectInfo(project)) {
+        projectInfo.append(pi);
     } else {
-        projectInfo.append(CppModelManager::instance()->projectInfo(project));
+        return;
     }
 
     const Utils::FilePath jsonDbDir = getJsonDbDir(project);

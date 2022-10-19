@@ -59,6 +59,9 @@ public:
 
     QSize sizeHint() const override;
 
+    bool isCancelEnabled() const;
+    void setCancelEnabled(bool enabled);
+
 signals:
     void clicked();
     void finished();

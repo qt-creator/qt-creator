@@ -45411,7 +45411,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Core::Internal::SystemSettingsWidget</name>
+    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>Command line arguments used for &quot;%1&quot;.</source>
         <translation>Kommandozeilenargumente für &quot;%1&quot;.</translation>
@@ -45443,10 +45443,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Variables</source>
         <translation>Variablen</translation>
-    </message>
-    <message>
-        <source>System</source>
-        <translation>System</translation>
     </message>
 </context>
 <context>

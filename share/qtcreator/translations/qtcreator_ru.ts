@@ -11187,7 +11187,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::SystemSettingsWidget</name>
+    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>Command line arguments used for &quot;%1&quot;.</source>
         <translation>Параметры командной строки для «%1».</translation>
@@ -11219,10 +11219,6 @@ Do you want to kill it?</source>
     <message>
         <source>Variables</source>
         <translation>Переменные</translation>
-    </message>
-    <message>
-        <source>System</source>
-        <translation>Система</translation>
     </message>
 </context>
 <context>

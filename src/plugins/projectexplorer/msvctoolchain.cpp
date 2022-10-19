@@ -2085,16 +2085,23 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     // Create a batch file to create and save the env settings
     Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
 
-    QByteArray call = "call ";
-    call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
-    if (!batchArgs.isEmpty()) {
-        call += ' ';
-        call += batchArgs.toLocal8Bit();
-    }
+    auto makeCall = [](const QString &batchFile, const QString &batchArgs) -> QByteArray {
+        QByteArray call = "call ";
+        call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
+        if (!batchArgs.isEmpty()) {
+            call += ' ';
+            call += batchArgs.toLocal8Bit();
+        }
+        return call;
+    };
+    QByteArray callCleanEnv = makeCall(batchFile, "/clean_env");
+    QByteArray call = makeCall(batchFile, batchArgs);
+
     if (Utils::HostOsInfo::isWindowsHost())
         saver.write("chcp 65001\r\n");
     saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
     saver.write("set CLINK_NOAUTORUN=1\r\n");
+    saver.write(callCleanEnv + "\r\n");
     saver.write(call + "\r\n");
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     saver.write("set\r\n");

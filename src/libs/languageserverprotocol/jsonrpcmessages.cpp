@@ -46,7 +46,7 @@ JsonRpcMessage::JsonRpcMessage()
 
 constexpr int utf8mib = 106;
 
-static QString docTypeName(const QJsonDocument &doc)
+static QString docType(const QJsonDocument &doc)
 {
     if (doc.isArray())
         return QString("array");
@@ -73,16 +73,12 @@ JsonRpcMessage::JsonRpcMessage(const BaseMessage &message)
         content = message.content;
     QJsonParseError error = {0, QJsonParseError::NoError};
     const QJsonDocument doc = QJsonDocument::fromJson(content, &error);
-    if (doc.isObject()) {
+    if (doc.isObject())
         m_jsonObject = doc.object();
-    } else if (doc.isNull()) {
-        m_parseError = tr("LanguageServerProtocol::JsonRpcMessage",
-                          "Could not parse JSON message \"%1\".")
-                           .arg(error.errorString());
-    } else {
-        m_parseError = tr("Expected a JSON object, but got a JSON \"%1\" value.")
-                           .arg(docTypeName(doc));
-    }
+    else if (doc.isNull())
+        m_parseError = tr("Could not parse JSON message \"%1\".").arg(error.errorString());
+    else
+        m_parseError = tr("Expected a JSON object, but got a JSON \"%1\" value.").arg(docType(doc));
 }
 
 JsonRpcMessage::JsonRpcMessage(const QJsonObject &jsonObject)
