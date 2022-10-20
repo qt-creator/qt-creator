@@ -74,7 +74,7 @@ signals:
     void subtitleInStatusBarChanged();
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *) override;
 
 private:

@@ -3,10 +3,9 @@
 
 #pragma once
 
-#include "progressmanager.h"
-
 #include <QWidget>
 
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
@@ -34,15 +33,29 @@ public:
 protected:
     bool event(QEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void mousePressEvent(QMouseEvent *ev) override;
+    void mouseMoveEvent(QMouseEvent *ev) override;
+    void mouseReleaseEvent(QMouseEvent *ev) override;
 
 signals:
     void hoveredChanged(bool hovered);
 
 private:
     void reposition();
+    QPoint topRightReferenceInParent() const;
 
     QVBoxLayout *m_layout;
     QWidget *m_referenceWidget = nullptr;
+
+    // dragging
+    std::optional<QPointF> m_clickPosition;
+    QPointF m_clickPositionInWidget;
+    bool m_isDragging = false;
+
+    // relative to referenceWidget's topRight in parentWidget()
+    // can be changed by the user by dragging
+    QPoint m_anchorBottomRight;
+
     bool m_hovered = false;
 };
 

@@ -296,11 +296,11 @@ QFuture<void> FutureProgress::future() const
 /*!
     \internal
 */
-void FutureProgress::mousePressEvent(QMouseEvent *event)
+void FutureProgress::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
         emit clicked();
-    QWidget::mousePressEvent(event);
+    QWidget::mouseReleaseEvent(event);
 }
 
 void FutureProgress::paintEvent(QPaintEvent *)
