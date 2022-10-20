@@ -107,7 +107,6 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     m_terminalModeComboBox->addItem(tr("Deduced from Project"));
     m_terminalModeComboBox->setSizePolicy(cbSizePolicy);
     m_jomCheckbox = new QCheckBox(tr("Use jom instead of nmake"));
-    m_jomCheckbox->setVisible(HostOsInfo::isWindowsHost());
     auto jomLabel = new QLabel("<i>jom</i> is a drop-in replacement for <i>nmake</i> which "
                                "distributes the compilation process to multiple CPU cores. "
                                "The latest binary is available at "
@@ -115,7 +114,6 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
                                "http://download.qt.io/official_releases/jom/</a>. "
                                "Disable it if you experience problems with your builds.");
     jomLabel->setWordWrap(true);
-    jomLabel->setVisible(HostOsInfo::isWindowsHost());
 
     using namespace Utils::Layouting;
     Column {
@@ -154,6 +152,9 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
         },
         st,
     }.attachTo(this);
+
+    m_jomCheckbox->setVisible(HostOsInfo::isWindowsHost());
+    jomLabel->setVisible(HostOsInfo::isWindowsHost());
 
     m_directoryButtonGroup = new QButtonGroup;
     m_directoryButtonGroup->setExclusive(true);
