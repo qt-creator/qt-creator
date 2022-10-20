@@ -293,7 +293,11 @@ void TestCodeParser::scanForTests(const Utils::FilePaths &fileList,
             qCDebug(LOG) << "File list empty (FullParse) - trying again in a sec";
             emitUpdateTestTree();
             return;
+        } else if (list.size() == 1 && list.first() == project->projectFilePath()) {
+            qCDebug(LOG) << "File list contains only the project file.";
+            return;
         }
+
         qCDebug(LOG) << "setting state to FullParse (scanForTests)";
         m_parserState = FullParse;
     } else {
