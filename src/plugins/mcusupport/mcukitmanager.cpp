@@ -196,12 +196,22 @@ public:
         EnvironmentItems changes;
         QStringList pathAdditions; // clazy:exclude=inefficient-qlist-soft
 
-        // The Desktop version depends on the Qt shared libs in Qul_DIR/bin.
-        // If CMake's fileApi is avaialble, we can rely on the "Add library search path to PATH"
-        // feature of the run configuration. Otherwise, we just prepend the path, here.
-        if (mcuTarget->toolChainPackage()->isDesktopToolchain()
-            && !CMakeProjectManager::CMakeToolManager::defaultCMakeTool()->hasFileApi())
-            pathAdditions.append((qtForMCUsSdkPackage->path() / "bin").toUserOutput());
+        // The Desktop version depends on the Qt shared libs.
+        // As CMake's fileApi is available, we can rely on the "Add library search path to PATH"
+        // feature of the run configuration.
+        //
+        // Since MinGW support is added from Qul 2.3.0,
+        // the Qt shared libs for Windows desktop platform have been moved
+        // from Qul_DIR/bin to Qul_DIR/lib/(msvc|gnu)
+        // and the QPA plugin has been moved to the same location.
+        // So Windows host requires to add the path in this case.
+        if (mcuTarget->toolChainPackage()->isDesktopToolchain() && HostOsInfo::isWindowsHost()
+            && !McuSupportOptions::isLegacyVersion(mcuTarget->qulVersion())) {
+            const FilePath libPath = (qtForMCUsSdkPackage->path() / "lib"
+                                      / mcuTarget->desktopCompilerId());
+            pathAdditions.append(libPath.toUserOutput());
+            changes.append({"QT_QPA_PLATFORM_PLUGIN_PATH", libPath.toUserOutput()});
+        }
 
         auto processPackage = [&pathAdditions](const McuPackagePtr &package) {
             if (package->isAddToSystemPath())
@@ -261,6 +271,12 @@ public:
                              true);
             }
 
+            if (!McuSupportOptions::isLegacyVersion(mcuTarget->qulVersion())
+                && HostOsInfo::isWindowsHost()) {
+                // From 2.3.0, QUL_COMPILER_NAME needs to be set on Windows
+                // to select proper cmake files depending on the toolchain for Windows.
+                configMap.insert("QUL_COMPILER_NAME", mcuTarget->desktopCompilerId().toLatin1());
+            }
         } else {
             const FilePath cMakeToolchainFile = mcuTarget->toolChainFilePackage()->path();
 
