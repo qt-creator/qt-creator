@@ -612,7 +612,12 @@ void Lexer::scan_helper(Token *tok)
                 tok->f.kind = T_LESS_LESS;
         } else if (_yychar == '=') {
             yyinp();
-            tok->f.kind = T_LESS_EQUAL;
+            if (_languageFeatures.cxx20Enabled && _yychar == '>') {
+                yyinp();
+                tok->f.kind = T_LESS_EQUAL_GREATER;
+            } else {
+                tok->f.kind = T_LESS_EQUAL;
+            }
         } else if (_yychar == ':') {
             if (*(_currentChar+1) != ':' || *(_currentChar+2) == ':' || *(_currentChar+2) == '>') {
                 yyinp();

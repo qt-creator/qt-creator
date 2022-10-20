@@ -180,7 +180,7 @@ public:
         !    =    <    >    +=   -=   *=   /=   %=
         ^=   &=   |=   <<   >>   >>=  <<=  ==   !=
         <=   >=   &&   ||   ++   --   ,    ->*  ->
-        ()   []
+        ()   []   <=>
      */
     enum Kind {
         InvalidOp,
@@ -225,7 +225,8 @@ public:
         ArrowStarOp,
         ArrowOp,
         FunctionCallOp,
-        ArrayAccessOp
+        ArrayAccessOp,
+        SpaceShipOp
     };
 
 public:

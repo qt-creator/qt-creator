@@ -442,6 +442,7 @@ void tst_SimpleLexer::ppOpOrPunc()
     const QByteArray source = QTest::currentDataTag();
     LanguageFeatures languageFeatures;
     languageFeatures.cxxEnabled = true;
+    languageFeatures.cxx20Enabled = true;
     run(source, toTokens({unsigned(expectedTokenKind)}), false, CompareKind, true, languageFeatures);
 }
 
@@ -492,6 +493,7 @@ void tst_SimpleLexer::ppOpOrPunc_data()
     QTest::newRow("==") << T_EQUAL_EQUAL;
     QTest::newRow("!=") << T_EXCLAIM_EQUAL;
     QTest::newRow("<=") << T_LESS_EQUAL;
+    QTest::newRow("<=>") << T_LESS_EQUAL_GREATER;
     QTest::newRow(">=") << T_GREATER_EQUAL;
     QTest::newRow("&&") << T_AMPER_AMPER;
     QTest::newRow("||") << T_PIPE_PIPE;

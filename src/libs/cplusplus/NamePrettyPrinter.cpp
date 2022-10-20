@@ -222,6 +222,9 @@ void NamePrettyPrinter::visit(const OperatorNameId *name)
     case OperatorNameId::ArrayAccessOp:
         _name += QLatin1String("[]");
         break;
+    case OperatorNameId::SpaceShipOp:
+        _name += QLatin1String("<=>");
+        break;
     } // switch
 }
 

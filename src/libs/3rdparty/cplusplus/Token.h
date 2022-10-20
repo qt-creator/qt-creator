@@ -99,6 +99,7 @@ enum Kind {
     T_LESS_EQUAL,
     T_LESS_LESS,
     T_LESS_LESS_EQUAL,
+    T_LESS_EQUAL_GREATER,
     T_MINUS,
     T_MINUS_EQUAL,
     T_MINUS_MINUS,
@@ -446,6 +447,7 @@ struct LanguageFeatures
             unsigned int cxxEnabled : 1;
             unsigned int cxx11Enabled : 1;
             unsigned int cxx14Enabled : 1;
+            unsigned int cxx20Enabled : 1;
             unsigned int objCEnabled : 1;
             unsigned int c99Enabled : 1;
         };
