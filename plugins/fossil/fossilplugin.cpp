@@ -196,7 +196,6 @@ public:
     void configureRepository();
     void commit();
     void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
-    void commitFromEditor() override;
     void diffFromEditorSelected(const QStringList &files);
     void createRepository();
 
@@ -258,7 +257,6 @@ public:
     QAction *m_menuAction = nullptr;
 
     Utils::FilePath m_submitRepository;
-    bool m_submitActionTriggered = false;
 
     // To be connected to the VcsTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
@@ -786,14 +784,6 @@ void FossilPluginPrivate::createRepository()
     }
 }
 
-void FossilPluginPrivate::commitFromEditor()
-{
-    // Close the submit editor
-    m_submitActionTriggered = true;
-    QTC_ASSERT(submitEditor(), return);
-    Core::EditorManager::closeDocuments({submitEditor()->document()});
-}
-
 bool FossilPluginPrivate::submitEditorAboutToClose()
 {
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor());
@@ -801,10 +791,8 @@ bool FossilPluginPrivate::submitEditorAboutToClose()
     Core::IDocument *editorDocument = commitEditor->document();
     QTC_ASSERT(editorDocument, return true);
 
-    bool promptOnSubmit = false;
     const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult response
-        = commitEditor->promptSubmit(this, &promptOnSubmit, !m_submitActionTriggered);
-    m_submitActionTriggered = false;
+        = commitEditor->promptSubmit(this);
 
     switch (response) {
     case VcsBase::VcsBaseSubmitEditor::SubmitCanceled:
