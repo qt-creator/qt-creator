@@ -1142,11 +1142,13 @@ void ClangTool::updateForCurrentState()
     m_diagnosticView->setCursor(isRunning ? Qt::BusyCursor : Qt::ArrowCursor);
 
     // Info bar: errors
-    const bool hasErrorText = !m_infoBarWidget->errorText().isEmpty();
-    const bool hasErrors = m_filesFailed > 0;
-    if (hasErrors && !hasErrorText) {
-        const QString text = makeLink(tr("Failed to analyze %n file(s).", nullptr, m_filesFailed));
-        m_infoBarWidget->setError(InfoBarWidget::Warning, text, [this] { showOutputPane(); });
+    if (m_filesFailed > 0) {
+        const QString currentErrorText = m_infoBarWidget->errorText();
+        const QString newErrorText = makeLink(tr("Failed to analyze %n file(s).", nullptr,
+                                                 m_filesFailed));
+        if (newErrorText != currentErrorText)
+            m_infoBarWidget->setError(InfoBarWidget::Warning, newErrorText,
+                                      [this] { showOutputPane(); });
     }
 
     // Info bar: info
