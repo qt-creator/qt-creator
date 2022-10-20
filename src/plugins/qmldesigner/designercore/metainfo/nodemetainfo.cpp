@@ -785,6 +785,8 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                     if (importInfo.type() == ImportType::Library) {
                         m_majorVersion = importInfo.version().majorVersion();
                         m_minorVersion = importInfo.version().minorVersion();
+                    } else {
+                        m_isFileComponent = true;
                     }
 
                     m_qualfiedTypeName = getUnqualifiedName(m_qualfiedTypeName);
@@ -793,6 +795,8 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                                         || importInfo.type() == ImportType::Directory);
                     if (prepandName)
                         m_qualfiedTypeName.prepend(importInfo.name().toUtf8() + '.');
+
+                    m_qualfiedTypeName.replace("/", ".");
                 }
 
                 m_objectValue = getObjectValue();
