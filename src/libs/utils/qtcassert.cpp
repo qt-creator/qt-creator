@@ -59,7 +59,7 @@ void dumpBacktrace(int maxdepth)
     frame.AddrPC.Offset = ctx.Rip;
     frame.AddrStack.Offset = ctx.Rsp;
     frame.AddrFrame.Offset = ctx.Rbp;
-#elif define(_M_ARM64)
+#elif defined(_M_ARM64)
     frame.AddrPC.Offset = ctx.Pc;
     frame.AddrStack.Offset = ctx.Sp;
     frame.AddrFrame.Offset = ctx.Fp;
