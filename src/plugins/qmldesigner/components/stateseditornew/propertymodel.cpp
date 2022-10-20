@@ -117,6 +117,7 @@ void PropertyModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
     setupModel();
     emit modelNodeBackendChanged();
+    emit expandedChanged();
 }
 
 void PropertyModel::setExplicit(bool value)
@@ -147,6 +148,20 @@ void PropertyModel::removeProperty(const QString &name)
         return;
 
     m_modelNode.removeProperty(name.toUtf8());
+}
+
+namespace {
+constexpr AuxiliaryDataKeyDefaultValue expandedProperty{AuxiliaryDataType::Temporary,
+                                                        "propertyModelExpanded",
+                                                        false};
+}
+void PropertyModel::setExpanded(bool value)
+{
+    m_modelNode.setAuxiliaryData(expandedProperty, value);
+}
+bool PropertyModel::expanded() const
+{
+    return m_modelNode.auxiliaryDataWithDefault(expandedProperty).toBool();
 }
 
 void PropertyModel::registerDeclarativeType()
