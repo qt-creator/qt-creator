@@ -48,6 +48,7 @@ using namespace ProjectExplorer::Internal;
 namespace ProjectExplorer {
 
 const char DEFAULT_SESSION[] = "default";
+const char LAST_ACTIVE_TIMES_KEY[] = "LastActiveTimes";
 
 /*!
      \class ProjectExplorer::SessionManager
@@ -88,6 +89,7 @@ public:
 
     mutable QStringList m_sessions;
     mutable QHash<QString, QDateTime> m_sessionDateTimes;
+    QHash<QString, QDateTime> m_lastActiveTimes;
 
     Project *m_startupProject = nullptr;
     QList<Project *> m_projects;
@@ -118,6 +120,13 @@ SessionManager::SessionManager(QObject *parent) : QObject(parent)
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &SessionManager::saveActiveMode);
+
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this, [] {
+        QVariantMap times;
+        for (auto it = d->m_lastActiveTimes.cbegin(); it != d->m_lastActiveTimes.cend(); ++it)
+            times.insert(it.key(), it.value());
+        ICore::settings()->setValue(LAST_ACTIVE_TIMES_KEY, times);
+    });
 
     connect(EditorManager::instance(), &EditorManager::editorCreated,
             this, &SessionManager::configureEditor);
@@ -776,9 +785,14 @@ QStringList SessionManager::sessions()
         // We are not initialized yet, so do that now
         const FilePaths sessionFiles =
                 ICore::userResourcePath().dirEntries({{"*qws"}}, QDir::Time | QDir::Reversed);
+        const QVariantMap lastActiveTimes = ICore::settings()->value(LAST_ACTIVE_TIMES_KEY).toMap();
         for (const FilePath &file : sessionFiles) {
             const QString &name = file.completeBaseName();
             d->m_sessionDateTimes.insert(name, file.lastModified());
+            const auto lastActiveTime = lastActiveTimes.find(name);
+            d->m_lastActiveTimes.insert(name, lastActiveTime != lastActiveTimes.end()
+                    ? lastActiveTime->toDateTime()
+                    : file.lastModified());
             if (name != QLatin1String(DEFAULT_SESSION))
                 d->m_sessions << name;
         }
@@ -790,6 +804,11 @@ QStringList SessionManager::sessions()
 QDateTime SessionManager::sessionDateTime(const QString &session)
 {
     return d->m_sessionDateTimes.value(session);
+}
+
+QDateTime SessionManager::lastActiveTime(const QString &session)
+{
+    return d->m_lastActiveTimes.value(session);
 }
 
 FilePath SessionManager::sessionNameToFileName(const QString &session)
@@ -807,6 +826,7 @@ bool SessionManager::createSession(const QString &session)
         return false;
     Q_ASSERT(d->m_sessions.size() > 0);
     d->m_sessions.insert(1, session);
+    d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
     return true;
 }
 
@@ -844,6 +864,7 @@ bool SessionManager::deleteSession(const QString &session)
     if (!d->m_sessions.contains(session))
         return false;
     d->m_sessions.removeOne(session);
+    d->m_lastActiveTimes.remove(session);
     emit instance()->sessionRemoved(session);
     QFile fi(sessionNameToFileName(session).toString());
     if (fi.exists())
@@ -1115,6 +1136,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     }
 
     d->m_casadeSetActive = reader.restoreValue(QLatin1String("CascadeSetActive"), false).toBool();
+    d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
 
     emit m_instance->sessionLoaded(session);
 

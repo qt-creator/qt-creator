@@ -145,7 +145,9 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <functional>
+#include <iterator>
 #include <memory>
 #include <vector>
 
@@ -4174,7 +4176,10 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     connect(ag, &QActionGroup::triggered, this, &ProjectExplorerPluginPrivate::setSession);
     const QString activeSession = SessionManager::activeSession();
 
-    const QStringList sessions = SessionManager::sessions();
+    QStringList sessions = SessionManager::sessions();
+    std::sort(std::next(sessions.begin()), sessions.end(), [](const QString &s1, const QString &s2) {
+        return SessionManager::lastActiveTime(s1) > SessionManager::lastActiveTime(s2);
+    });
     for (int i = 0; i < sessions.size(); ++i) {
         const QString &session = sessions[i];
 

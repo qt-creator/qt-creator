@@ -41,6 +41,7 @@ public:
     static QString startupSession();
     static QStringList sessions();
     static QDateTime sessionDateTime(const QString &session);
+    static QDateTime lastActiveTime(const QString &session);
 
     static bool createSession(const QString &session);
 
