@@ -1241,6 +1241,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                                               env,
                                               project->projectDirectory(),
                                               buildDirectory);
+    CMakePresets::Macros::updateInstallDir(configurePreset, env, project->projectDirectory());
 
     // Merge the presets cache variables
     CMakeConfig cache;

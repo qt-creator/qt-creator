@@ -253,6 +253,44 @@ void updateToolchainFile(
     configurePreset.cacheVariables = cache;
 }
 
+void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
+                      const Utils::Environment &env,
+                      const Utils::FilePath &sourceDirectory)
+{
+    if (!configurePreset.installDir)
+        return;
+
+    QString installDirString = configurePreset.installDir.value();
+    CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, installDirString);
+
+    // Resolve the relative path first to source and afterwards to build directory
+    Utils::FilePath installDir = Utils::FilePath::fromString(installDirString);
+    if (installDir.isRelativePath()) {
+        Utils::FilePath probePath = sourceDirectory.resolvePath(installDir);
+        if (probePath != sourceDirectory) {
+            installDir = probePath;
+        }
+    }
+    installDirString = installDir.cleanPath().toString();
+
+    // installDir takes precedence to CMAKE_INSTALL_PREFIX
+    CMakeConfig cache = configurePreset.cacheVariables ? configurePreset.cacheVariables.value()
+                                                       : CMakeConfig();
+
+    auto it = std::find_if(cache.begin(), cache.end(), [](const CMakeConfigItem &item) {
+        return item.key == "CMAKE_INSTALL_PREFIX";
+    });
+    if (it != cache.end())
+        it->value = installDirString.toUtf8();
+    else
+        cache << CMakeConfigItem("CMAKE_INSTALL_PREFIX",
+                                 CMakeConfigItem::PATH,
+                                 installDirString.toUtf8());
+
+    configurePreset.cacheVariables = cache;
+}
+
+
 template<class PresetType>
 void expandConditionValues(const PresetType &preset,
                            const Utils::Environment &env,

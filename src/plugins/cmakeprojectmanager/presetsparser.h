@@ -100,6 +100,7 @@ public:
     std::optional<ValueStrategyPair> toolset;
     std::optional<QString> toolchainFile;
     std::optional<QString> binaryDir;
+    std::optional<QString> installDir;
     std::optional<QString> cmakeExecutable;
     std::optional<CMakeConfig> cacheVariables;
     std::optional<QHash<QString, QString>> environment;

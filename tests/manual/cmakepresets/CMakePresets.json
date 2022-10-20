@@ -10,6 +10,7 @@
       "name": "mingw",
       "displayName": "MinGW 11.2.0",
       "generator": "Ninja",
+      "installDir": "../inst-${presetName}",
       "cacheVariables": {
         "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/mingw_64"
       },
