@@ -104,6 +104,9 @@ private slots:
     void isSameFile_data();
     void isSameFile();
 
+    void hostSpecialChars_data();
+    void hostSpecialChars();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1157,6 +1160,54 @@ void tst_fileutils::isSameFile()
     QFETCH(bool, shouldBeEqual);
 
     QCOMPARE(left.isSameFile(right), shouldBeEqual);
+}
+
+void tst_fileutils::hostSpecialChars_data()
+{
+    QTest::addColumn<QString>("scheme");
+    QTest::addColumn<QString>("host");
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<FilePath>("expected");
+
+    QTest::addRow("slash-in-host") << "device" << "host/name" << "/" << FilePath::fromString("device://host%2fname/");
+    QTest::addRow("percent-in-host") << "device" << "host%name" << "/" << FilePath::fromString("device://host%25name/");
+    QTest::addRow("percent-and-slash-in-host") << "device" << "host/%name" << "/" << FilePath::fromString("device://host%2f%25name/");
+    QTest::addRow("qtc-dev-slash-in-host-linux") << "device" << "host/name" << "/" << FilePath::fromString("/__qtc_devices__/device/host%2fname/");
+    QTest::addRow("qtc-dev-slash-in-host-windows") << "device" << "host/name" << "/" << FilePath::fromString("c:/__qtc_devices__/device/host%2fname/");
+
+}
+
+void tst_fileutils::hostSpecialChars()
+{
+    QFETCH(QString, scheme);
+    QFETCH(QString, host);
+    QFETCH(QString, path);
+    QFETCH(FilePath, expected);
+
+    FilePath fp;
+    fp.setParts(scheme, host, path);
+
+    // Check that setParts and fromString give the same result
+    QCOMPARE(fp, expected);
+    QCOMPARE(fp.host(), expected.host());
+    QCOMPARE(fp.host(), host);
+    QCOMPARE(expected.host(), host);
+
+    QString toStringExpected = expected.toString();
+    QString toStringActual = fp.toString();
+
+    // Check that toString gives the same result
+    QCOMPARE(toStringActual, toStringExpected);
+
+    // Check that fromString => toString => fromString gives the same result
+    FilePath toFromExpected = FilePath::fromString(expected.toString());
+    QCOMPARE(toFromExpected, expected);
+    QCOMPARE(toFromExpected, fp);
+
+    // Check that setParts => toString => fromString gives the same result
+    FilePath toFromActual = FilePath::fromString(fp.toString());
+    QCOMPARE(toFromActual, fp);
+    QCOMPARE(toFromExpected, expected);
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)
