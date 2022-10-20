@@ -163,7 +163,7 @@ public:
     ImageCacheCollector collector{connectionManager,
                                   QSize{300, 300},
                                   QSize{1000, 1000},
-                                  ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
+                                  ImageCacheCollectorNullImageHandling::CaptureNullImage};
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;
     ProjectStorageData projectStorageData;
@@ -193,6 +193,11 @@ QmlDesignerProjectManager::QmlDesignerProjectManager()
     QObject::connect(sessionManager,
                      &::ProjectExplorer::SessionManager::projectRemoved,
                      [&](auto *project) { projectRemoved(project); });
+
+    QObject::connect(&m_previewTimer,
+                     &QTimer::timeout,
+                     this,
+                     &QmlDesignerProjectManager::generatePreview);
 }
 
 QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;
@@ -222,13 +227,7 @@ void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
     if (!m_projectData || !m_projectData->activeTarget)
         return;
 
-    ::QmlProjectManager::QmlBuildSystem *qmlBuildSystem = getQmlBuildSystem(
-        m_projectData->activeTarget);
-
-    if (qmlBuildSystem) {
-        m_previewImageCacheData->collector.setTarget(m_projectData->activeTarget);
-        m_previewImageCacheData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
-    }
+    m_previewTimer.start(10000);
 }
 
 void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) {}
@@ -381,6 +380,20 @@ void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project 
 }
 
 void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
+
+void QmlDesignerProjectManager::generatePreview()
+{
+    if (!m_projectData || !m_projectData->activeTarget)
+        return;
+
+    ::QmlProjectManager::QmlBuildSystem *qmlBuildSystem = getQmlBuildSystem(
+        m_projectData->activeTarget);
+
+    if (qmlBuildSystem) {
+        m_previewImageCacheData->collector.setTarget(m_projectData->activeTarget);
+        m_previewImageCacheData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
+    }
+}
 
 QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCacheData()
 {
