@@ -2798,7 +2798,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             return true;
         }
         rewind(colon_token);
-    } else if (isFunctionDeclarator && declaringClass && node->core_declarator && LA() == T_EQUAL && LA(3) == T_SEMICOLON) { // = 0, = delete, = default
+    } else if (isFunctionDeclarator && node->core_declarator && LA() == T_EQUAL && LA(3) == T_SEMICOLON) { // = 0, = delete, = default
         if (!_languageFeatures.cxx11Enabled || LA(2) == T_NUMERIC_LITERAL) {
             parseInitializer(node->initializer, &node->equal_token);
         } else {
