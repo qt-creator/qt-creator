@@ -537,6 +537,8 @@ protected:
     virtual void finalizeInitializationAfterDuplication(TextEditorWidget *) {}
     static QTextCursor flippedCursor(const QTextCursor &cursor);
 
+    void setVisualIndentOffset(int offset);
+
 public:
     QString selectedText() const;
 

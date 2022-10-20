@@ -36,6 +36,8 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
     , m_controller(this)
 {
+    setVisualIndentOffset(1);
+
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, &UnifiedDiffEditorWidget::setFontSettings);
     setFontSettings(TextEditorSettings::fontSettings());
