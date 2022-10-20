@@ -4,18 +4,18 @@
 #include "environment.h"
 
 #include "algorithm.h"
-#include "fileutils.h"
 #include "qtcassert.h"
 
 #include <QDir>
 #include <QProcessEnvironment>
+#include <QReadWriteLock>
 #include <QSet>
 
 namespace Utils {
 
+static QReadWriteLock s_envMutex;
 Q_GLOBAL_STATIC_WITH_ARGS(Environment, staticSystemEnvironment,
                           (QProcessEnvironment::systemEnvironment().toStringList()))
-
 Q_GLOBAL_STATIC(QVector<EnvironmentProvider>, environmentProviders)
 
 NameValueItems Environment::diff(const Environment &other, bool checkAppendPrepend) const
@@ -120,6 +120,7 @@ void Environment::prependOrSetLibrarySearchPaths(const FilePaths &values)
 
 Environment Environment::systemEnvironment()
 {
+    QReadLocker lock(&s_envMutex);
     return *staticSystemEnvironment();
 }
 
@@ -296,11 +297,13 @@ FilePaths Environment::pathListValue(const QString &varName) const
 
 void Environment::modifySystemEnvironment(const EnvironmentItems &list)
 {
+    QWriteLocker lock(&s_envMutex);
     staticSystemEnvironment->modify(list);
 }
 
 void Environment::setSystemEnvironment(const Environment &environment)
 {
+    QWriteLocker lock(&s_envMutex);
     *staticSystemEnvironment = environment;
 }
 
