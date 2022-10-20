@@ -80,6 +80,7 @@ public:
     int materialIndex(const ModelNode &material) const;
     ModelNode materialAt(int idx) const;
     bool loadPropertyGroups(const QString &path);
+    void unloadPropertyGroups();
 
     void resetModel();
 

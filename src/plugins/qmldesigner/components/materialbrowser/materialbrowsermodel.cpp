@@ -105,22 +105,19 @@ bool MaterialBrowserModel::loadPropertyGroups(const QString &path)
 {
     bool ok = true;
 
-    if (m_propertyGroupsObj.isEmpty()) {
-        QFile matPropsFile(path);
+    QFile matPropsFile(path);
+    if (!matPropsFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open propertyGroups.json");
+        ok = false;
+    }
 
-        if (!matPropsFile.open(QIODevice::ReadOnly)) {
-            qWarning("Couldn't open propertyGroups.json");
+    if (ok) {
+        QJsonDocument matPropsJsonDoc = QJsonDocument::fromJson(matPropsFile.readAll());
+        if (matPropsJsonDoc.isNull()) {
+            qWarning("Invalid propertyGroups.json file");
             ok = false;
-        }
-
-        if (ok) {
-            QJsonDocument matPropsJsonDoc = QJsonDocument::fromJson(matPropsFile.readAll());
-            if (matPropsJsonDoc.isNull()) {
-                qWarning("Invalid propertyGroups.json file");
-                ok = false;
-            } else {
-                m_propertyGroupsObj = matPropsJsonDoc.object();
-            }
+        } else {
+            m_propertyGroupsObj = matPropsJsonDoc.object();
         }
     }
 
@@ -134,10 +131,23 @@ bool MaterialBrowserModel::loadPropertyGroups(const QString &path)
         QStringList customMatSections = m_propertyGroupsObj.value("CustomMaterial").toObject().keys();
         if (customMatSections.size() > 1) // as of now custom material has only 1 section, so we don't add it
             m_customMaterialSections.append(customMatSections);
+    } else {
+        m_propertyGroupsObj = {};
     }
     emit materialSectionsChanged();
 
     return ok;
+}
+
+void MaterialBrowserModel::unloadPropertyGroups()
+{
+    if (!m_propertyGroupsObj.isEmpty()) {
+        m_propertyGroupsObj = {};
+        m_defaultMaterialSections.clear();
+        m_principledMaterialSections.clear();
+        m_customMaterialSections.clear();
+        emit materialSectionsChanged();
+    }
 }
 
 QHash<int, QByteArray> MaterialBrowserModel::roleNames() const

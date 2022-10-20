@@ -336,6 +336,11 @@ void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 {
     m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
 
+    if (m_propertyGroupsLoaded) {
+        m_propertyGroupsLoaded = false;
+        m_widget->materialBrowserModel()->unloadPropertyGroups();
+    }
+
     AbstractView::modelAboutToBeDetached(model);
 }
 
