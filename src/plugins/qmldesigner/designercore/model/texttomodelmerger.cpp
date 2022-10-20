@@ -990,9 +990,17 @@ static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QSt
 
 void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
 {
-    m_possibleImportKeys = snapshot.importDependencies()->libraryImports(viewContext);
-    QHash<QString, ImportKey> filteredPossibleImportKeys
-        = filterPossibleImportKeys(m_possibleImportKeys, m_rewriterView->model());
+    static QUrl lastProjectUrl;
+    auto &externalDependencies = m_rewriterView->externalDependencies();
+    auto projectUrl = externalDependencies.projectUrl();
+
+    if (m_possibleImportKeys.isEmpty() || projectUrl != lastProjectUrl)
+        m_possibleImportKeys = snapshot.importDependencies()->libraryImports(viewContext);
+
+    lastProjectUrl = projectUrl;
+
+    QHash<QString, ImportKey> filteredPossibleImportKeys = filterPossibleImportKeys(
+        m_possibleImportKeys, m_rewriterView->model());
 
     const QmlJS::Imports *imports = m_scopeChain->context()->imports(m_document.data());
     if (imports)
@@ -1139,6 +1147,9 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         collectLinkErrors(&errors, ctxt);
 
         setupPossibleImports(snapshot, m_vContext);
+
+        qCInfo(rewriterBenchmark) << "possible imports:" << time.elapsed();
+
         setupImports(m_document, differenceHandler);
 
         qCInfo(rewriterBenchmark) << "imports setup:" << time.elapsed();
