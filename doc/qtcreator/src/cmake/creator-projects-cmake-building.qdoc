@@ -47,7 +47,7 @@
     Select \uicontrol {Kit Configuration} to edit the CMake settings for the
     build and run kit selected for the project.
 
-    \section CMake Presets
+    \section1 CMake Presets
 
     You can use CMake presets files to specify common configure, build, and test
     options and share them with others. \c CMakePresets.json contains options for
