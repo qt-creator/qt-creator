@@ -10,6 +10,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportplugin.h"
 #include "mcusupportsdk.h"
+#include "mcusupporttr.h"
 #include "mcutarget.h"
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
@@ -247,10 +248,19 @@ public:
             auto cxxToolchain = toolchainPackage->toolChain(
                 ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
-            configMap.insert("CMAKE_CXX_COMPILER",
-                             cxxToolchain->compilerCommand().toString().toLatin1());
-            configMap.insert("CMAKE_C_COMPILER",
-                             cToolchain->compilerCommand().toString().toLatin1());
+            if (cToolchain && cxxToolchain) {
+                configMap.insert("CMAKE_CXX_COMPILER",
+                                 cxxToolchain->compilerCommand().toString().toLatin1());
+                configMap.insert("CMAKE_C_COMPILER",
+                                 cToolchain->compilerCommand().toString().toLatin1());
+            } else {
+                printMessage(Tr::tr("Warning for target %1: invalid toolchain path (%2). "
+                                    "Update the toolchain in Edit > Preferences > Kits.")
+                                 .arg(generateKitNameFromTarget(mcuTarget),
+                                      toolchainPackage->path().toUserOutput()),
+                             true);
+            }
+
         } else {
             const FilePath cMakeToolchainFile = mcuTarget->toolChainFilePackage()->path();
 
