@@ -165,6 +165,21 @@ Item {
                     width: root.width
                     caption: qsTr("Materials")
                     hideHeader: !materialBrowserBundleModel.matBundleExists
+                    dropEnabled: true
+
+                    onDropEnter: (drag) => {
+                        drag.accepted = rootView.draggedBundleMaterial
+                        userMaterialsSection.highlight = rootView.draggedBundleMaterial
+                    }
+
+                    onDropExit: {
+                        userMaterialsSection.highlight = false
+                    }
+
+                    onDrop: {
+                        userMaterialsSection.highlight = false
+                        materialBrowserBundleModel.addToProject(rootView.draggedBundleMaterial)
+                    }
 
                     Grid {
                         id: grid
