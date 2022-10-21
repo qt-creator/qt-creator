@@ -117,14 +117,24 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_MATERIAL, data);
                 mimeData->removeFormat("text/plain");
 
+                if (!m_draggedBundleMaterial) {
+                    m_draggedBundleMaterial = m_bundleMaterialToDrag;
+                    emit draggedBundleMaterialChanged();
+                }
+
                 emit bundleMaterialDragStarted(m_bundleMaterialToDrag);
                 model->startDrag(mimeData, m_bundleMaterialToDrag->icon().toLocalFile());
-                m_bundleMaterialToDrag = {};
+                m_bundleMaterialToDrag = nullptr;
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = {};
-        m_bundleMaterialToDrag = {};
+        m_bundleMaterialToDrag = nullptr;
+
+        if (m_draggedBundleMaterial) {
+            m_draggedBundleMaterial = nullptr;
+            emit draggedBundleMaterialChanged();
+        }
     }
 
     return QObject::eventFilter(obj, event);
