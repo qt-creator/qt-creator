@@ -351,13 +351,14 @@ void QmlJSEditorWidget::updateUses()
         return;
 
     QList<QTextEdit::ExtraSelection> selections;
-    QList<SourceLocation> locations
-            = m_qmlJsEditorDocument->semanticInfo().idLocations.value(wordUnderCursor());
+
     // code model may present the locations not in a document order
-    Utils::sort(locations, [](const SourceLocation &lhs, const SourceLocation &rhs) {
+    const QList<SourceLocation> locations = Utils::sorted(
+                m_qmlJsEditorDocument->semanticInfo().idLocations.value(wordUnderCursor()),
+                [](const SourceLocation &lhs, const SourceLocation &rhs) {
         return lhs.begin() < rhs.begin();
     });
-    for (const SourceLocation &loc : std::as_const(locations)) {
+    for (const SourceLocation &loc : locations) {
         if (! loc.isValid())
             continue;
 

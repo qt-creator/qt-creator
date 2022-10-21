@@ -53,8 +53,7 @@ QList<ProcessInfo> QnxDeviceProcessList::buildProcessList(const QString &listPro
         }
     }
 
-    Utils::sort(processes);
-    return processes;
+    return Utils::sorted(std::move(processes));
 }
 
 } // Qnx::Internal

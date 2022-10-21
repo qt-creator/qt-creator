@@ -1709,8 +1709,8 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     // When handling the last view in the list we handle the case where all
     // visible editors are closed, and we need to e.g. revive an invisible or
     // a suspended editor
-    QList<EditorView *> views = editorsPerView.keys();
-    Utils::sort(views, [editorsPerView, currentView](EditorView *a, EditorView *b) {
+    const QList<EditorView *> views = Utils::sorted(editorsPerView.keys(),
+                [editorsPerView, currentView](EditorView *a, EditorView *b) {
         if (a == b)
             return false;
         const bool aHasCurrent = editorsPerView.values(a).contains(a->currentEditor());
@@ -1723,7 +1723,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
             return true;
         return false;
     });
-    for (EditorView *view : std::as_const(views)) {
+    for (EditorView *view : views) {
         QList<IEditor *> editors = editorsPerView.values(view);
         // handle current editor in view last
         IEditor *viewCurrentEditor = view->currentEditor();

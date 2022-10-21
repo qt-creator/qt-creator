@@ -29,9 +29,9 @@ QString toString(const TypeHierarchy &hierarchy, int indent = 0)
     QString result = QString(indent, QLatin1Char(' '))
         + Overview().prettyName(symbol->name()) + QLatin1Char('\n');
 
-    QList<TypeHierarchy> sortedHierarchy = hierarchy.hierarchy();
     Overview oo;
-    Utils::sort(sortedHierarchy, [&oo](const TypeHierarchy &h1, const TypeHierarchy &h2) -> bool {
+    const QList<TypeHierarchy> sortedHierarchy = Utils::sorted(hierarchy.hierarchy(),
+            [&oo](const TypeHierarchy &h1, const TypeHierarchy &h2) -> bool {
         return oo.prettyName(h1.symbol()->name()) < oo.prettyName(h2.symbol()->name());
     });
     for (const TypeHierarchy &childHierarchy : std::as_const(sortedHierarchy))

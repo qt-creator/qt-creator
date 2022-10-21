@@ -193,12 +193,12 @@ void SuppressionDialog::accept()
 
     m_settings->suppressions.addSuppressionFile(path);
 
-    QModelIndexList indices = m_view->selectionModel()->selectedRows();
-    Utils::sort(indices, [](const QModelIndex &l, const QModelIndex &r) {
+    const QModelIndexList indices = Utils::sorted(m_view->selectionModel()->selectedRows(),
+                                                  [](const QModelIndex &l, const QModelIndex &r) {
         return l.row() > r.row();
     });
     QAbstractItemModel *model = m_view->model();
-    for (const QModelIndex &index : std::as_const(indices)) {
+    for (const QModelIndex &index : indices) {
         bool removed = model->removeRow(index.row());
         QTC_ASSERT(removed, qt_noop());
         Q_UNUSED(removed)

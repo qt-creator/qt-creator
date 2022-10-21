@@ -145,8 +145,7 @@ void tst_Algorithm::transform()
         Utils::sort(i2);
         QCOMPARE(i2, QList<int>({1, 3, 132}));
         QList<qsizetype> i3 = Utils::transform<QList>(strings, &QString::size);
-        Utils::sort(i3);
-        QCOMPARE(i3, QList<qsizetype>({1, 1, 3}));
+        QCOMPARE(Utils::sorted(i3), QList<qsizetype>({1, 1, 3}));
     }
     {
         const QList<Struct> list({4, 3, 2, 1, 2});
@@ -421,13 +420,11 @@ void tst_Algorithm::sort()
     // member function with pointers
     QList<QString> arr1({"12345", "3333", "22"});
     QList<QString *> s5({&arr1[0], &arr1[1], &arr1[2]});
-    Utils::sort(s5, &QString::size);
-    QCOMPARE(s5, QList<QString *>({&arr1[2], &arr1[1], &arr1[0]}));
+    QCOMPARE(Utils::sorted(s5, &QString::size), QList<QString *>({&arr1[2], &arr1[1], &arr1[0]}));
     // member with pointers
     QList<Struct> arr2({4, 1, 3});
     QList<Struct *> s6({&arr2[0], &arr2[1], &arr2[2]});
-    Utils::sort(s6, &Struct::member);
-    QCOMPARE(s6, QList<Struct *>({&arr2[1], &arr2[2], &arr2[0]}));
+    QCOMPARE(Utils::sorted(s6, &Struct::member), QList<Struct *>({&arr2[1], &arr2[2], &arr2[0]}));
     // std::array:
     std::array<int, 4> array = {{4, 10, 8, 1}};
     Utils::sort(array);

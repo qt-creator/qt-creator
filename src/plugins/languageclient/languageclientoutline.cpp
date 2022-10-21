@@ -30,19 +30,15 @@ namespace LanguageClient {
 
 const QList<SymbolInformation> sortedSymbols(const QList<SymbolInformation> &symbols)
 {
-    auto result = symbols;
-    Utils::sort(result, [](const SymbolInformation &a, const SymbolInformation &b){
+    return Utils::sorted(symbols, [](const SymbolInformation &a, const SymbolInformation &b){
         return a.location().range().start() < b.location().range().start();
     });
-    return result;
 }
 const QList<DocumentSymbol> sortedSymbols(const QList<DocumentSymbol> &symbols)
 {
-    auto result = symbols;
-    Utils::sort(result, [](const DocumentSymbol &a, const DocumentSymbol &b){
+    return Utils::sorted(symbols, [](const DocumentSymbol &a, const DocumentSymbol &b){
         return a.range().start() < b.range().start();
     });
-    return result;
 }
 
 class LanguageClientOutlineItem : public Utils::TypedTreeItem<LanguageClientOutlineItem>

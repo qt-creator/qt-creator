@@ -62,9 +62,8 @@ QTCREATOR_UTILS_EXPORT void writeBeginQtVersionCheck(QTextStream &str)
 
 static void qtSection(const QStringList &qtIncludes, QTextStream &str)
 {
-    QStringList sorted = qtIncludes;
-    sort(sorted);
-    for (const QString &inc : std::as_const(sorted)) {
+    const QStringList sorted = Utils::sorted(qtIncludes);
+    for (const QString &inc : sorted) {
         if (!inc.isEmpty())
             str << QStringLiteral("#include <%1>\n").arg(inc);
     }

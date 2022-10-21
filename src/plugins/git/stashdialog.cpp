@@ -372,8 +372,7 @@ QList<int> StashDialog::selectedRows() const
         if (index.isValid())
             rc.push_back(index.row());
     }
-    Utils::sort(rc);
-    return rc;
+    return Utils::sorted(std::move(rc));
 }
 
 void StashDialog::forceRefresh()

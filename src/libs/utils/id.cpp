@@ -224,9 +224,7 @@ QSet<Id> Id::fromStringList(const QStringList &list)
 
 QStringList Id::toStringList(const QSet<Id> &ids)
 {
-    QList<Id> idList = toList(ids);
-    sort(idList);
-    return transform(idList, &Id::toString);
+    return transform(sorted(toList(ids)), &Id::toString);
 }
 
 /*!

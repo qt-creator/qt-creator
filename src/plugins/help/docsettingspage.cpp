@@ -326,11 +326,9 @@ void DocSettingsPageWidget::removeDocumentation(const QList<QModelIndex> &items)
     if (items.isEmpty())
         return;
 
-    QList<QModelIndex> itemsByDecreasingRow = items;
-    Utils::sort(itemsByDecreasingRow, [](const QModelIndex &i1, const QModelIndex &i2) {
-        return i1.row() > i2.row();
-    });
-    for (const QModelIndex &item : std::as_const(itemsByDecreasingRow)) {
+    const QList<QModelIndex> itemsByDecreasingRow = Utils::sorted(items,
+            [](const QModelIndex &i1, const QModelIndex &i2) { return i1.row() > i2.row(); });
+    for (const QModelIndex &item : itemsByDecreasingRow) {
         const int row = item.row();
         const QString nameSpace = m_model.entryAt(row).nameSpace;
 

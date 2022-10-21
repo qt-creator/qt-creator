@@ -7229,8 +7229,8 @@ void TextEditorWidget::autoIndent()
     MultiTextCursor cursor = multiTextCursor();
     cursor.beginEditBlock();
     // The order is important, since some indenter refer to previous indent positions.
-    QList<QTextCursor> cursors = cursor.cursors();
-    Utils::sort(cursors, [](const QTextCursor &lhs, const QTextCursor &rhs) {
+    const QList<QTextCursor> cursors = Utils::sorted(cursor.cursors(),
+            [](const QTextCursor &lhs, const QTextCursor &rhs) {
         return lhs.selectionStart() < rhs.selectionStart();
     });
     for (const QTextCursor &c : cursors)

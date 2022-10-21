@@ -395,8 +395,7 @@ static QList<int> availableNdkPlatformsImpl(const FilePath &ndkLocation, const A
     if (result.isEmpty())
         result = availableNdkPlatformsV21Plus(ndkLocation, abis, hostOs);
 
-    Utils::sort(result, std::greater<>());
-    return result;
+    return Utils::sorted(std::move(result), std::greater<>());
 }
 
 QList<int> AndroidConfig::availableNdkPlatforms(const QtVersion *qtVersion) const

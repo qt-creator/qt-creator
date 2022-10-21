@@ -340,8 +340,7 @@ private:
             processes.append(process);
         }
 
-        Utils::sort(processes);
-        return processes;
+        return Utils::sorted(std::move(processes));
     }
 };
 
@@ -1150,8 +1149,7 @@ static FilePaths dirsToCreate(const FilesToTransfer &files)
             parentDir = parentDir.parentDir();
         }
     }
-    sort(dirs);
-    return dirs;
+    return sorted(std::move(dirs));
 }
 
 static QByteArray transferCommand(const FileTransferDirection direction, bool link)

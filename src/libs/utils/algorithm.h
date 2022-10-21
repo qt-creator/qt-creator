@@ -1005,6 +1005,48 @@ inline void sort(Container &container, Predicate p)
     std::stable_sort(std::begin(container), std::end(container), p);
 }
 
+template <typename Container>
+inline Container sorted(const Container &container)
+{
+    Container c = container;
+    sort(c);
+    return c;
+}
+
+template <typename Container>
+inline Container sorted(Container &&container)
+{
+    sort(container);
+    return container;
+}
+
+template <typename Container>
+inline Container sorted(const Container &&container)
+{
+    return sorted(container);
+}
+
+template <typename Container, typename Predicate>
+inline Container sorted(const Container &container, Predicate p)
+{
+    Container c = container;
+    sort(c, p);
+    return c;
+}
+
+template <typename Container, typename Predicate>
+inline Container sorted(Container &&container, Predicate p)
+{
+    sort(container, p);
+    return container;
+}
+
+template <typename Container, typename Predicate>
+inline Container sorted(const Container &&container, Predicate p)
+{
+    return sorted(container, p);
+}
+
 // pointer to member
 template <typename Container, typename R, typename S>
 inline void sort(Container &container, R S::*member)
@@ -1017,6 +1059,27 @@ inline void sort(Container &container, R S::*member)
     });
 }
 
+template <typename Container, typename R, typename S>
+inline Container sorted(const Container &container, R S::*member)
+{
+    Container c = container;
+    sort(c, member);
+    return c;
+}
+
+template <typename Container, typename R, typename S>
+inline Container sorted(Container &&container, R S::*member)
+{
+    sort(container, member);
+    return container;
+}
+
+template <typename Container, typename R, typename S>
+inline Container sorted(const Container &&container, R S::*member)
+{
+    return sorted(container, member);
+}
+
 // pointer to member function
 template <typename Container, typename R, typename S>
 inline void sort(Container &container, R (S::*function)() const)
@@ -1027,6 +1090,27 @@ inline void sort(Container &container, R (S::*function)() const)
               [&f](const_ref a, const_ref b) {
         return f(a) < f(b);
     });
+}
+
+template <typename Container, typename R, typename S>
+inline Container sorted(const Container &container, R (S::*function)() const)
+{
+    Container c = container;
+    sort(c, function);
+    return c;
+}
+
+template <typename Container, typename R, typename S>
+inline Container sorted(Container &&container, R (S::*function)() const)
+{
+    sort(container, function);
+    return container;
+}
+
+template <typename Container, typename R, typename S>
+inline Container sorted(const Container &&container, R (S::*function)() const)
+{
+    return sorted(container, function);
 }
 
 //////////////////

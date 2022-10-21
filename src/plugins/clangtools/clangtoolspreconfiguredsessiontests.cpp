@@ -110,10 +110,9 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
 
 static const QList<Project *> validProjects(const QList<Project *> projectsOfSession)
 {
-    QList<Project *> sortedProjects = projectsOfSession;
-    Utils::sort(sortedProjects, [](Project *lhs, Project *rhs){
-        return lhs->displayName() < rhs->displayName();
-    });
+    const QList<Project *> sortedProjects = Utils::sorted(projectsOfSession,
+                [](Project *lhs, Project *rhs) {  return lhs->displayName() < rhs->displayName(); }
+    );
 
     const auto isValidProject = [](Project *project) {
         const QList <Target *> targets = project->targets();
@@ -129,10 +128,9 @@ static const QList<Project *> validProjects(const QList<Project *> projectsOfSes
 
 static QList<Target *> validTargets(Project *project)
 {
-    QList<Target *> sortedTargets = project->targets();
-    Utils::sort(sortedTargets, [](Target *lhs, Target *rhs){
-        return lhs->displayName() < rhs->displayName();
-    });
+    const QList<Target *> sortedTargets = Utils::sorted(project->targets(),
+                [](Target *lhs, Target *rhs) { return lhs->displayName() < rhs->displayName(); }
+    );
 
     const QString projectFileName = project->projectFilePath().fileName();
     const auto isValidTarget = [projectFileName](Target *target) {

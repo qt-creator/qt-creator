@@ -256,9 +256,8 @@ Tasks Kit::validate() const
     d->m_hasError = containsType(result, Task::TaskType::Error);
     d->m_hasWarning = containsType(result, Task::TaskType::Warning);
 
-    Utils::sort(result);
     d->m_hasValidityInfo = true;
-    return result;
+    return Utils::sorted(std::move(result));
 }
 
 void Kit::fix()

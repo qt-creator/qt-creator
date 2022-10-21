@@ -22,8 +22,7 @@ namespace TextEditor {
 
 CodecChooser::CodecChooser(Filter filter)
 {
-    QList<int> mibs = QTextCodec::availableMibs();
-    Utils::sort(mibs);
+    QList<int> mibs = Utils::sorted(QTextCodec::availableMibs());
     QList<int>::iterator firstNonNegative =
         std::find_if(mibs.begin(), mibs.end(), [](int n) { return n >=0; });
     if (firstNonNegative != mibs.end())

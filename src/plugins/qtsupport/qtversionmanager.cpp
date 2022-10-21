@@ -537,9 +537,7 @@ QtVersions QtVersionManager::versions(const QtVersion::Predicate &predicate)
 
 QtVersions QtVersionManager::sortVersions(const QtVersions &input)
 {
-    QtVersions result = input;
-    Utils::sort(result, qtVersionNumberCompare);
-    return result;
+    return Utils::sorted(input, qtVersionNumberCompare);
 }
 
 QtVersion *QtVersionManager::version(int id)
@@ -566,8 +564,7 @@ void QtVersionManager::setNewQtVersions(const QtVersions &newVersions)
 {
     // We want to preserve the same order as in the settings dialog
     // so we sort a copy
-    QtVersions sortedNewVersions = newVersions;
-    Utils::sort(sortedNewVersions, &QtVersion::uniqueId);
+    const QtVersions sortedNewVersions = Utils::sorted(newVersions, &QtVersion::uniqueId);
 
     QtVersions addedVersions;
     QtVersions removedVersions;

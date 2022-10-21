@@ -127,9 +127,7 @@ AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorP
         }
     }
 
-    Utils::sort(avdList);
-
-    return avdList;
+    return Utils::sorted(std::move(avdList));
 }
 
 int platformNameToApiLevel(const QString &platformName)

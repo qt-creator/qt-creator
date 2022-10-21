@@ -389,9 +389,7 @@ CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *err
         }
     }
 
-    Utils::sort(result, &CMakeConfigItem::less);
-
-    return result;
+    return Utils::sorted(std::move(result), &CMakeConfigItem::less);
 }
 
 QString CMakeConfigItem::toString(const Utils::MacroExpander *expander) const

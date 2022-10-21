@@ -85,12 +85,11 @@ QByteArray ObjectsMapTreeItem::propertiesToByteArray() const
         return propertiesContent();
 
     QByteArray result;
-    PropertyList properties = this->properties();
-    sort(properties,
+    const PropertyList properties = sorted(this->properties(),
          [](const Property &lhs, const Property &rhs) { return lhs.m_name < rhs.m_name; });
 
     result.append('{');
-    for (const Property &property : std::as_const(properties))
+    for (const Property &property : properties)
         result.append(property.toString().toUtf8()).append(' ');
     if (result.at(result.size() - 1) == ' ')
         result.chop(1);

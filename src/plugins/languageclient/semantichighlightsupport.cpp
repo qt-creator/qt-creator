@@ -352,13 +352,12 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
         qCDebug(LOGLSPHIGHLIGHT) << "New Data " << tokens->data();
     } else if (auto tokensDelta = std::get_if<SemanticTokensDelta>(&result)) {
         m_tokens[filePath].version = documentVersion;
-        QList<SemanticTokensEdit> edits = tokensDelta->edits();
+        const QList<SemanticTokensEdit> edits = Utils::sorted(tokensDelta->edits(),
+                                                              &SemanticTokensEdit::start);
         if (edits.isEmpty()) {
             highlight(filePath);
             return;
         }
-
-        Utils::sort(edits, &SemanticTokensEdit::start);
 
         SemanticTokens &tokens = m_tokens[filePath].tokens;
         const QList<int> &data = tokens.data();

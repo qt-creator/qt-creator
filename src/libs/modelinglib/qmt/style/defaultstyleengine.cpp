@@ -296,8 +296,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
     }
     int depth = 0;
     if (!depths.isEmpty()) {
-        QList<int> keys = depths.keys();
-        Utils::sort(keys);
+        const QList<int> keys = Utils::sorted(depths.keys());
         foreach (int d, keys) {
             DepthProperties properties = depths.value(d);
             if (properties.m_elementType == elementType

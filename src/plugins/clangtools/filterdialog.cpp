@@ -50,14 +50,13 @@ class FilterChecksModel : public Utils::TreeModel<Utils::TreeItem, CheckItem>
 public:
     FilterChecksModel(const Checks &checks)
     {
-        Checks sortedChecks = checks;
-        Utils::sort(sortedChecks, [](const Check &lhs, const Check &rhs) {
+        const Checks sortedChecks = Utils::sorted(checks, [](const Check &lhs, const Check &rhs) {
             return lhs.displayName < rhs.displayName;
         });
 
         setHeader({tr("Check"), "#"});
         setRootItem(new Utils::StaticTreeItem(QString()));
-        for (const Check &check : std::as_const(sortedChecks))
+        for (const Check &check : sortedChecks)
             m_root->appendChild(new CheckItem(check));
     }
 };

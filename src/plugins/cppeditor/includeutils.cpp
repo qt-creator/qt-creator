@@ -111,13 +111,13 @@ LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *text
     , m_cppDocument(cppDocument)
     , m_includeStyle(includeStyle)
 {
-    QList<Document::Include> includes
-        = cppDocument->resolvedIncludes() + cppDocument->unresolvedIncludes();
-    Utils::sort(includes, &Include::line);
+    const QList<Document::Include> includes = Utils::sorted(
+                cppDocument->resolvedIncludes() + cppDocument->unresolvedIncludes(),
+                &Include::line);
 
     // Ignore *.moc includes if requested
     if (mocIncludeMode == IgnoreMocIncludes) {
-        for (const Document::Include &include : std::as_const(includes)) {
+        for (const Document::Include &include : includes) {
             if (!include.unresolvedFileName().endsWith(QLatin1String(".moc")))
                 m_includes << include;
         }

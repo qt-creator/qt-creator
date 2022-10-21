@@ -60,8 +60,7 @@ void ParseContextModel::reset(const ProjectPartInfo &projectPartInfo)
 {
     // Sort
     m_hints = projectPartInfo.hints;
-    m_projectParts = projectPartInfo.projectParts;
-    Utils::sort(m_projectParts, &ProjectPart::displayName);
+    m_projectParts = Utils::sorted(projectPartInfo.projectParts, &ProjectPart::displayName);
 
     // Determine index for current
     const QString id = projectPartInfo.projectPart->id();

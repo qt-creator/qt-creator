@@ -196,9 +196,9 @@ Qt::ItemFlags MimeTypeSettingsModel::flags(const QModelIndex &index) const
 void MimeTypeSettingsModel::load()
 {
     beginResetModel();
-    m_mimeTypes = Utils::allMimeTypes();
     m_userDefault = Core::Internal::userPreferredEditorTypes();
-    Utils::sort(m_mimeTypes, [](const Utils::MimeType &a, const Utils::MimeType &b) {
+    m_mimeTypes = Utils::sorted(Utils::allMimeTypes(),
+                                [](const Utils::MimeType &a, const Utils::MimeType &b) {
         return a.name().compare(b.name(), Qt::CaseInsensitive) < 0;
     });
     m_handlersByMimeType.clear();

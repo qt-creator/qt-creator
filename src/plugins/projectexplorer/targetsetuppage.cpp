@@ -463,11 +463,9 @@ bool TargetSetupPage::compareKits(const Kit *k1, const Kit *k2)
 
 std::vector<TargetSetupWidget *> TargetSetupPage::sortedWidgetList() const
 {
-    std::vector<TargetSetupWidget *> list = m_widgets;
-    sort(list, [](const TargetSetupWidget *w1, const TargetSetupWidget *w2) {
+    return sorted(m_widgets, [](const TargetSetupWidget *w1, const TargetSetupWidget *w2) {
         return compareKits(w1->kit(), w2->kit());
     });
-    return list;
 }
 
 void TargetSetupPage::openOptions()

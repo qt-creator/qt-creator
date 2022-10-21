@@ -100,8 +100,8 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
 void ProjectTestSettingsWidget::populateFrameworks(const QHash<ITestFramework *, bool> &frameworks,
                                                    const QHash<ITestTool *, bool> &testTools)
 {
-    TestFrameworks sortedFrameworks = frameworks.keys();
-    Utils::sort(sortedFrameworks, &ITestFramework::priority);
+    const TestFrameworks sortedFrameworks = Utils::sorted(frameworks.keys(),
+                                                          &ITestFramework::priority);
 
     auto generateItem = [this](ITestBase *frameworkOrTestTool, bool checked) {
         auto item = new QTreeWidgetItem(m_activeFrameworks, {frameworkOrTestTool->displayName()});
@@ -111,7 +111,7 @@ void ProjectTestSettingsWidget::populateFrameworks(const QHash<ITestFramework *,
         item->setData(0, BaseTypeRole, frameworkOrTestTool->type());
     };
 
-    for (ITestFramework *framework : std::as_const(sortedFrameworks))
+    for (ITestFramework *framework : sortedFrameworks)
         generateItem(framework, frameworks.value(framework));
 
     // FIXME: testTools aren't sorted and we cannot use priority here

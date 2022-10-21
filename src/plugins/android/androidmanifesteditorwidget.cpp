@@ -1553,8 +1553,7 @@ PermissionsModel::PermissionsModel(QObject *parent)
 void PermissionsModel::setPermissions(const QStringList &permissions)
 {
     beginResetModel();
-    m_permissions = permissions;
-    Utils::sort(m_permissions);
+    m_permissions = Utils::sorted(permissions);
     endResetModel();
 }
 

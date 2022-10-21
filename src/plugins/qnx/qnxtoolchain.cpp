@@ -67,10 +67,8 @@ static Abis detectTargetAbis(const FilePath &sdpPath)
             result.append(target.m_abi);
     }
 
-    Utils::sort(result,
+    return Utils::sorted(std::move(result),
               [](const Abi &arg1, const Abi &arg2) { return arg1.toString() < arg2.toString(); });
-
-    return result;
 }
 
 static void setQnxEnvironment(Environment &env, const EnvironmentItems &qnxEnv)

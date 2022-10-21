@@ -243,12 +243,11 @@ bool QMakeStep::init()
     QTC_ASSERT(node, return false);
     QString proFile = node->filePath().toString();
 
-    Tasks tasks = qtVersion->reportIssues(proFile, workingDirectory.toString());
-    Utils::sort(tasks);
-
+    const Tasks tasks = Utils::sorted(
+                qtVersion->reportIssues(proFile, workingDirectory.toString()));
     if (!tasks.isEmpty()) {
         bool canContinue = true;
-        for (const Task &t : std::as_const(tasks)) {
+        for (const Task &t : tasks) {
             emit addTask(t);
             if (t.type == Task::Error)
                 canContinue = false;

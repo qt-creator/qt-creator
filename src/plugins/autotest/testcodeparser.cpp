@@ -135,8 +135,8 @@ void TestCodeParser::updateTestTree(const QSet<ITestParser *> &parsers)
 
     m_postponedUpdateType = UpdateType::NoUpdate;
     qCDebug(LOG) << "calling scanForTests (updateTestTree)";
-    QList<ITestParser *> sortedParsers = Utils::toList(parsers);
-    Utils::sort(sortedParsers, [](const ITestParser *lhs, const ITestParser *rhs) {
+    const QList<ITestParser *> sortedParsers = Utils::sorted(Utils::toList(parsers),
+                [](const ITestParser *lhs, const ITestParser *rhs) {
         return lhs->framework()->priority() < rhs->framework()->priority();
     });
     scanForTests(Utils::FilePaths(), sortedParsers);

@@ -794,10 +794,9 @@ int GdbEngine::commandTimeoutTime() const
 
 void GdbEngine::commandTimeout()
 {
-    QList<int> keys = m_commandForToken.keys();
-    Utils::sort(keys);
+    const QList<int> keys = Utils::sorted(m_commandForToken.keys());
     bool killIt = false;
-    for (int key : std::as_const(keys)) {
+    for (int key : keys) {
         const DebuggerCommand &cmd = m_commandForToken.value(key);
         killIt = true;
         showMessage(QString::number(key) + ": " + cmd.function);

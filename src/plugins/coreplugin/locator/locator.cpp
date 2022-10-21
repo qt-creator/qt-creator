@@ -126,8 +126,8 @@ void Locator::initialize()
 
 void Locator::extensionsInitialized()
 {
-    m_filters = ILocatorFilter::allLocatorFilters();
-    Utils::sort(m_filters, [](const ILocatorFilter *first, const ILocatorFilter *second) -> bool {
+    m_filters = Utils::sorted(ILocatorFilter::allLocatorFilters(),
+                [](const ILocatorFilter *first, const ILocatorFilter *second) -> bool {
         if (first->priority() != second->priority())
             return first->priority() < second->priority();
         return first->id().alphabeticallyBefore(second->id());

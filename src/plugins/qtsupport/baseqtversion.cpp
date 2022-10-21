@@ -874,8 +874,7 @@ QString QtVersion::toHtml(bool verbose) const
         if (verbose) {
             const QHash<ProKey, ProString> vInfo = d->versionInfo();
             if (!vInfo.isEmpty()) {
-                QList<ProKey> keys = vInfo.keys();
-                Utils::sort(keys);
+                const QList<ProKey> keys = Utils::sorted(vInfo.keys());
                 foreach (const ProKey &key, keys) {
                     const QString &value = vInfo.value(key).toQString();
                     QString variableName = key.toQString();
@@ -1685,9 +1684,7 @@ bool QtVersion::supportsMultipleQtAbis() const
 
 Tasks QtVersion::reportIssues(const QString &proFile, const QString &buildDir) const
 {
-    Tasks results = reportIssuesImpl(proFile, buildDir);
-    Utils::sort(results);
-    return results;
+    return Utils::sorted(reportIssuesImpl(proFile, buildDir));
 }
 
 QtConfigWidget *QtVersion::createConfigurationWidget() const
@@ -2274,8 +2271,8 @@ QtVersion *QtVersionFactory::createQtVersionFromQMakePath
     ProFileEvaluator evaluator(&globals, &parser, &vfs, &msgHandler);
     evaluator.loadNamedSpec(mkspec.path(), false);
 
-    QList<QtVersionFactory *> factories = g_qtVersionFactories;
-    Utils::sort(factories, [](const QtVersionFactory *l, const QtVersionFactory *r) {
+    const QList<QtVersionFactory *> factories = Utils::sorted(g_qtVersionFactories,
+            [](const QtVersionFactory *l, const QtVersionFactory *r) {
         return l->m_priority > r->m_priority;
     });
 

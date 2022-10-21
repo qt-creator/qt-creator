@@ -52,13 +52,12 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
 
     QStringList encodings;
 
-    QList<int> mibs = QTextCodec::availableMibs();
-    Utils::sort(mibs);
+    const QList<int> mibs = Utils::sorted(QTextCodec::availableMibs());
     QList<int> sortedMibs;
-    for (const int mib : std::as_const(mibs))
+    for (const int mib : mibs)
         if (mib >= 0)
             sortedMibs += mib;
-    for (const int mib : std::as_const(mibs))
+    for (const int mib : mibs)
         if (mib < 0)
             sortedMibs += mib;
 

@@ -26,10 +26,10 @@ namespace TextEditor {
 // --------------------------
 // Note: variables and functions must be sorted
 Keywords::Keywords(const QStringList &variables, const QStringList &functions, const QMap<QString, QStringList> &functionArgs)
-    : m_variables(variables), m_functions(functions), m_functionArgs(functionArgs)
+    : m_variables(Utils::sorted(variables)),
+      m_functions(Utils::sorted(functions)),
+      m_functionArgs(functionArgs)
 {
-    Utils::sort(m_variables);
-    Utils::sort(m_functions);
 }
 
 bool Keywords::isVariable(const QString &word) const

@@ -459,8 +459,8 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
                 if (!words.isEmpty()) {
                     const QString command = words.takeFirst();
                     if (functionSet.contains(command)) {
-                        QStringList tmp = words + m_introspection->m_functionArgs[command];
-                        Utils::sort(tmp);
+                        const QStringList tmp = Utils::sorted(
+                                    words + m_introspection->m_functionArgs[command]);
                         m_introspection->m_functionArgs[command] = Utils::filteredUnique(tmp);
                     }
                 }

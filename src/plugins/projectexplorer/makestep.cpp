@@ -144,9 +144,8 @@ QString MakeStep::defaultDisplayName()
 
 static const QList<ToolChain *> preferredToolChains(const Kit *kit)
 {
-    QList<ToolChain *> tcs = ToolChainKitAspect::toolChains(kit);
     // prefer CXX, then C, then others
-    Utils::sort(tcs, [](ToolChain *tcA, ToolChain *tcB) {
+    return Utils::sorted(ToolChainKitAspect::toolChains(kit), [](ToolChain *tcA, ToolChain *tcB) {
         if (tcA->language() == tcB->language())
             return false;
         if (tcA->language() == Constants::CXX_LANGUAGE_ID)
@@ -157,7 +156,6 @@ static const QList<ToolChain *> preferredToolChains(const Kit *kit)
             return true;
         return false;
     });
-    return tcs;
 }
 
 FilePath MakeStep::defaultMakeCommand() const

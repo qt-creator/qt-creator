@@ -200,8 +200,7 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setColumnStretch(1, 2);
 
-        QList<Id> languageList = ToolChainManager::allLanguages();
-        sort(languageList, [](Id l1, Id l2) {
+        const QList<Id> languageList = sorted(ToolChainManager::allLanguages(), [](Id l1, Id l2) {
             return ToolChainManager::displayNameOfLanguageId(l1)
                     < ToolChainManager::displayNameOfLanguageId(l2);
         });
@@ -1449,9 +1448,8 @@ private:
             }
         }
 
-        sort(changes, [](const EnvironmentItem &lhs, const EnvironmentItem &rhs)
+        return sorted(std::move(changes), [](const EnvironmentItem &lhs, const EnvironmentItem &rhs)
         { return QString::localeAwareCompare(lhs.name, rhs.name) < 0; });
-        return changes;
     }
 
     void initMSVCOutputSwitch(QVBoxLayout *layout)
