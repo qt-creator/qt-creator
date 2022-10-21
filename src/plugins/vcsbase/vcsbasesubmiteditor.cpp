@@ -42,7 +42,6 @@
 #include <QFileInfo>
 #include <QPointer>
 #include <QProcess>
-#include <QPushButton>
 #include <QSet>
 #include <QStringListModel>
 #include <QStyle>
@@ -479,10 +478,10 @@ void VcsBaseSubmitEditor::setDescriptionMandatory(bool v)
 
 enum { checkDialogMinimumWidth = 500 };
 
-static QString withUnusedMnemonic(QString string, const QList<QPushButton *> &otherButtons)
+static QString withUnusedMnemonic(QString string, const QList<QAbstractButton *> &otherButtons)
 {
     QSet<QChar> mnemonics;
-    for (QPushButton *button : otherButtons) {
+    for (QAbstractButton *button : otherButtons) {
         const QString text = button->text();
         const int ampersandPos = text.indexOf('&');
         if (ampersandPos >= 0 && ampersandPos < text.size() - 1)
@@ -512,7 +511,7 @@ VcsBaseSubmitEditor::PromptSubmitResult VcsBaseSubmitEditor::promptSubmit(VcsBas
     const bool prompt = !plugin->submitActionTriggered();
     if (canCommit && !prompt)
         return SubmitConfirmed;
-    CheckableMessageBox mb(Core::ICore::dialogParent());
+    QMessageBox mb(Core::ICore::dialogParent());
     const QString commitName = plugin->commitDisplayName();
     mb.setWindowTitle(tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName));
     mb.setIcon(QMessageBox::Question);
@@ -526,26 +525,26 @@ VcsBaseSubmitEditor::PromptSubmitResult VcsBaseSubmitEditor::promptSubmit(VcsBas
                      errorMessage.isEmpty() ? errorMessage : ": " + errorMessage);
     }
     mb.setText(message);
-    QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Close | QDialogButtonBox::Cancel;
+    QMessageBox::StandardButtons buttons = QMessageBox::Close | QMessageBox::Cancel;
     if (canCommit || plugin->canCommitOnFailure())
-        buttons |= QDialogButtonBox::Ok;
+        buttons |= QMessageBox::Ok;
     mb.setStandardButtons(buttons);
-    QPushButton *cancelButton = mb.button(QDialogButtonBox::Cancel);
+    QAbstractButton *cancelButton = mb.button(QMessageBox::Cancel);
     // On Windows there is no mnemonic for Close. Set it explicitly.
-    mb.button(QDialogButtonBox::Close)->setText(tr("&Close"));
+    mb.button(QMessageBox::Close)->setText(tr("&Close"));
     cancelButton->setText(tr("&Keep Editing"));
     // prompt is true when the editor is closed, and false when triggered by the submit action
     if (prompt)
-        cancelButton->setDefault(true);
-    if (QPushButton *commitButton = mb.button(QDialogButtonBox::Ok)) {
+        mb.setDefaultButton(QMessageBox::Cancel);
+    if (QAbstractButton *commitButton = mb.button(QMessageBox::Ok)) {
         commitButton->setText(withUnusedMnemonic(commitName,
-                              {cancelButton, mb.button(QDialogButtonBox::Close)}));
+                              {cancelButton, mb.button(QMessageBox::Close)}));
     }
     mb.exec();
     QAbstractButton *chosen = mb.clickedButton();
     if (!chosen || chosen == cancelButton)
         return SubmitCanceled;
-    if (chosen == mb.button(QDialogButtonBox::Close))
+    if (chosen == mb.button(QMessageBox::Close))
         return SubmitDiscarded;
     return SubmitConfirmed;
 }
