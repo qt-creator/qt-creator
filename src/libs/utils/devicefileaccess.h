@@ -47,6 +47,10 @@ protected:
     virtual qint64 bytesAvailable(const FilePath &filePath) const;
     virtual QByteArray fileId(const FilePath &filePath) const;
 
+    virtual bool refersToExecutableFile(
+            const FilePath &filePath,
+            FilePath::MatchScope matchScope) const;
+
     virtual void iterateDirectory(
             const FilePath &filePath,
             const FilePath::IterateDirCallback &callBack,
@@ -113,6 +117,10 @@ protected:
     qint64 fileSize(const FilePath &filePath) const override;
     qint64 bytesAvailable(const FilePath &filePath) const override;
     QByteArray fileId(const FilePath &filePath) const override;
+
+    bool refersToExecutableFile(
+            const FilePath &filePath,
+            FilePath::MatchScope matchScope) const override;
 
     void iterateDirectory(
             const FilePath &filePath,

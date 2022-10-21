@@ -396,6 +396,16 @@ bool FilePath::isExecutableFile() const
     return fileAccess()->isExecutableFile(*this);
 }
 
+/// \returns a bool indicating on whether a process with this FilePath's
+/// .nativePath() is likely to start.
+///
+/// This is equivalent to \c isExecutableFile() in general.
+/// On Windows, it will check appending various suffixes, too.
+bool FilePath::refersToExecutableFile(MatchScope matchScope) const
+{
+    return fileAccess()->refersToExecutableFile(*this,  matchScope);
+}
+
 bool FilePath::isReadableFile() const
 {
     return fileAccess()->isReadableFile(*this);
