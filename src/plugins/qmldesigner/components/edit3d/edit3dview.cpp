@@ -321,7 +321,7 @@ Edit3DAction *Edit3DView::createSelectBackgrounColorAction()
     QString description = QCoreApplication::translate("SelectBackgroundColorAction",
                                                       "Select Background Color");
     QString tooltip = QCoreApplication::translate("SelectBackgroundColorAction",
-                                                  "Select a color for the background of the 3D Editor.");
+                                                  "Select a color for the background of the 3D view.");
 
     auto operation = [this](const SelectionContext &) {
         BackgroundColorSelection::showBackgroundColorSelectionWidget(
@@ -348,7 +348,7 @@ Edit3DAction *Edit3DView::createGridColorSelectionAction()
 {
     QString description = QCoreApplication::translate("SelectGridColorAction", "Select Grid Color");
     QString tooltip = QCoreApplication::translate("SelectGridColorAction",
-                                                  "Select a color for the grid lines of the 3D Editor.");
+                                                  "Select a color for the grid lines of the 3D view.");
 
     auto operation = [this](const SelectionContext &) {
         BackgroundColorSelection::showBackgroundColorSelectionWidget(
@@ -376,7 +376,7 @@ Edit3DAction *Edit3DView::createResetColorAction()
     QString description = QCoreApplication::translate("ResetEdit3DColorsAction", "Reset Colors");
     QString tooltip = QCoreApplication::translate("ResetEdit3DColorsAction",
                                                   "Reset the background color and the color of the "
-                                                  "grid lines of the 3D Editor to the default valus.");
+                                                  "grid lines of the 3D view to the default values.");
 
     auto operation = [&](const SelectionContext &) {
         QList<QColor> bgColors = {QRgb(0x222222), QRgb(0x999999)};
@@ -406,7 +406,7 @@ Edit3DAction *Edit3DView::createSyncBackgroundColorAction()
     QString description = QCoreApplication::translate("SyncEdit3DColorAction",
                                                       "Use Scene Environment Color");
     QString tooltip = QCoreApplication::translate("SyncEdit3DColorAction",
-                                                  "Sets the 3D Editor to use the Scene Environment "
+                                                  "Sets the 3D view to use the Scene Environment "
                                                   "color as background color.");
 
     return new Edit3DAction(QmlDesigner::Constants::EDIT3D_EDIT_SYNC_BACKGROUND_COLOR,

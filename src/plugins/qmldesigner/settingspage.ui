@@ -102,7 +102,7 @@
         <item row="2" column="1">
          <widget class="QCheckBox" name="smoothRendering">
           <property name="toolTip">
-           <string>Enable Smooth Rendering in Form Editor</string>
+           <string>Enable smooth rendering in the 2D view.</string>
           </property>
           <property name="text">
            <string/>
@@ -112,7 +112,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="smoothRenderingLabel">
           <property name="text">
-           <string>Smooth Rendering:</string>
+           <string>Smooth rendering:</string>
           </property>
          </widget>
         </item>
