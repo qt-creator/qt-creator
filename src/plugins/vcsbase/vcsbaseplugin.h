@@ -137,7 +137,6 @@ public:
     virtual QString commitDisplayName() const;
 
     void commitFromEditor();
-    virtual bool canCommitOnFailure() const { return true; }
     bool submitActionTriggered() const { return m_submitActionTriggered; }
 
 protected:

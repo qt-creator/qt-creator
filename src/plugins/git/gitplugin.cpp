@@ -252,7 +252,6 @@ public:
     void updateActions(VcsBasePluginPrivate::ActionState) override;
     bool submitEditorAboutToClose() override;
     void discardCommit() override { cleanCommitMessageFile(); }
-    bool canCommitOnFailure() const override { return false; }
 
     void diffCurrentFile();
     void diffCurrentProject();

@@ -478,22 +478,6 @@ void VcsBaseSubmitEditor::setDescriptionMandatory(bool v)
 
 enum { checkDialogMinimumWidth = 500 };
 
-static QString withUnusedMnemonic(QString string, const QList<QAbstractButton *> &otherButtons)
-{
-    QSet<QChar> mnemonics;
-    for (QAbstractButton *button : otherButtons) {
-        const QString text = button->text();
-        const int ampersandPos = text.indexOf('&');
-        if (ampersandPos >= 0 && ampersandPos < text.size() - 1)
-            mnemonics.insert(text.at(ampersandPos + 1));
-    }
-    for (int i = 0, total = string.length(); i < total; ++i) {
-        if (!mnemonics.contains(string.at(i)))
-            return string.insert(i, '&');
-    }
-    return string;
-}
-
 VcsBaseSubmitEditor::PromptSubmitResult VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
 {
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
@@ -525,28 +509,15 @@ VcsBaseSubmitEditor::PromptSubmitResult VcsBaseSubmitEditor::promptSubmit(VcsBas
                      errorMessage.isEmpty() ? errorMessage : ": " + errorMessage);
     }
     mb.setText(message);
-    QMessageBox::StandardButtons buttons = QMessageBox::Close | QMessageBox::Cancel;
-    if (canCommit || plugin->canCommitOnFailure())
-        buttons |= QMessageBox::Ok;
-    mb.setStandardButtons(buttons);
-    QAbstractButton *cancelButton = mb.button(QMessageBox::Cancel);
+    mb.setStandardButtons(QMessageBox::Close | QMessageBox::Cancel);
     // On Windows there is no mnemonic for Close. Set it explicitly.
     mb.button(QMessageBox::Close)->setText(tr("&Close"));
-    cancelButton->setText(tr("&Keep Editing"));
+    mb.button(QMessageBox::Cancel)->setText(tr("&Keep Editing"));
     // prompt is true when the editor is closed, and false when triggered by the submit action
     if (prompt)
         mb.setDefaultButton(QMessageBox::Cancel);
-    if (QAbstractButton *commitButton = mb.button(QMessageBox::Ok)) {
-        commitButton->setText(withUnusedMnemonic(commitName,
-                              {cancelButton, mb.button(QMessageBox::Close)}));
-    }
     mb.exec();
-    QAbstractButton *chosen = mb.clickedButton();
-    if (!chosen || chosen == cancelButton)
-        return SubmitCanceled;
-    if (chosen == mb.button(QMessageBox::Close))
-        return SubmitDiscarded;
-    return SubmitConfirmed;
+    return mb.result() == QMessageBox::Close ? SubmitDiscarded : SubmitCanceled;
 }
 
 QString VcsBaseSubmitEditor::promptForNickName()
