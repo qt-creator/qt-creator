@@ -4110,7 +4110,7 @@ void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainte
     // Don't use QFontMetricsF::averageCharWidth here, due to it returning
     // a fractional size even when this is not supported by the platform.
     data.rightMargin = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'))
-            * m_visibleWrapColumn
+            * (m_visibleWrapColumn + m_visualIndentOffset)
             + data.offset.x() + 4;
     if (m_marginSettings.m_tintMarginArea && data.rightMargin < data.viewportRect.width()) {
         const QRectF behindMargin(data.rightMargin,
