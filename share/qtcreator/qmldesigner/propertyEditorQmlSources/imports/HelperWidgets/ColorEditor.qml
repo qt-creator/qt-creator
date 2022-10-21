@@ -218,6 +218,9 @@ SecondColumnLayout {
             property Loader loader: Loader {
                 parent: colorEditor
                 active: colorEditor.supportGradient
+                anchors.left: parent.left
+                anchors.leftMargin: 0
+
                 sourceComponent: ColorEditorPopup {
                     id: cePopup
                     x: cePopup.__defaultX
