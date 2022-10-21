@@ -45813,7 +45813,7 @@ Excluding: %3
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Набор текста</translation>
@@ -46345,7 +46345,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Отображение</translation>
@@ -46478,7 +46478,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Шрифт</translation>
@@ -46775,7 +46775,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Табуляция и отступы</translation>

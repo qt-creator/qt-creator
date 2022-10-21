@@ -1330,7 +1330,7 @@
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Czcionka</translation>
@@ -19865,7 +19865,7 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Pisanie</translation>
@@ -20098,7 +20098,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Wyświetlanie</translation>
@@ -20257,7 +20257,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>

@@ -35813,7 +35813,7 @@ Ekskludering: %3
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Skrivning</translation>
@@ -36336,7 +36336,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>Tekstombrydning</translation>
@@ -36469,7 +36469,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Skrifttype</translation>
@@ -36728,7 +36728,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Tabulatorer og indrykning</translation>

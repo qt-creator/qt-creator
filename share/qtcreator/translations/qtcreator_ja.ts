@@ -6107,7 +6107,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>タイピング</translation>
@@ -6470,7 +6470,7 @@ Backspace キーが押された時のインデントの動作を指定します�
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>行の折り返し</translation>
@@ -6585,7 +6585,7 @@ Backspace キーが押された時のインデントの動作を指定します�
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>フォント</translation>
@@ -6795,7 +6795,7 @@ Backspace キーが押された時のインデントの動作を指定します�
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>

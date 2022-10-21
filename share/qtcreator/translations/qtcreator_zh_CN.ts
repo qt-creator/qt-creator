@@ -15138,7 +15138,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Family:</source>
         <translation>字型:</translation>
@@ -42255,7 +42255,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>打字</translation>
@@ -42475,7 +42475,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>文字折行</translation>
@@ -42602,7 +42602,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>

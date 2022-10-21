@@ -9899,7 +9899,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Pisava</translation>

@@ -14817,7 +14817,7 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Písmo</translation>
@@ -44722,7 +44722,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Při psaní</translation>
@@ -44970,7 +44970,7 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Zobrazení</translation>
@@ -45113,7 +45113,7 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
