@@ -162,6 +162,8 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
         cmd.addArg("--background-index-priority="
                    + ClangdSettings::priorityToString(indexingPriority));
     }
+    if (settings.clangdVersion() >= QVersionNumber(16))
+        cmd.addArg("--rename-file-limit=0");
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
     if (clangdLogServer().isDebugEnabled())
@@ -470,13 +472,13 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     if (searchTerm.isEmpty())
         return;
 
-    // TODO: Fix hard file limit in clangd, then uncomment this with version check.
-    //       Will fix QTCREATORBUG-27978 and QTCREATORBUG-28109.
-    //    if (replacement) {
-    //        symbolSupport().renameSymbol(document, adjustedCursor, *replacement,
-    //                                     CppEditor::preferLowerCaseFileNames());
-    //        return;
-    //    }
+    // Will fix QTCREATORBUG-27978 and QTCREATORBUG-28109 once enabled by default.
+    if (replacement && versionNumber() >= QVersionNumber(16)
+            && Utils::qtcEnvironmentVariableIsSet("QTC_CLANGD_RENAMING")) {
+        symbolSupport().renameSymbol(document, adjustedCursor, *replacement,
+                                     CppEditor::preferLowerCaseFileNames());
+        return;
+    }
 
     const bool categorize = CppEditor::codeModelSettings()->categorizeFindReferences();
 
