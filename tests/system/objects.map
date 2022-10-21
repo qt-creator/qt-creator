@@ -176,10 +176,10 @@
 :Restart required_QMessageBox	{text='The language change will take effect after restart.' type='QMessageBox' unnamed='1' visible='1'}
 :Revert to Saved.Proceed_QPushButton	{text='Proceed' type='QPushButton' unnamed='1' visible='1' window=':Revert to Saved_QMessageBox'}
 :Revert to Saved_QMessageBox	{text?='You will lose your current changes if you proceed reverting*' type='QMessageBox' unnamed='1' visible='1'}
-:Save Changes.Always save files before build_QCheckBox	{name='saveBeforeBuildCheckBox' text='Always save files before build' type='QCheckBox' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
+:Save Changes.Always save files before build_QCheckBox	{text='Always save files before build' type='QCheckBox' unnamed='1' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
 :Save Changes.Do not Save_QPushButton	{text='Do Not Save' type='QPushButton' unnamed='1' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
 :Save Changes.Save All_QPushButton	{text='Save All' type='QPushButton' unnamed='1' visible='1' window=':Save Changes_Core::Internal::SaveItemsDialog'}
-:Save Changes_Core::Internal::SaveItemsDialog	{name='Core__Internal__SaveItemsDialog' type='Core::Internal::SaveItemsDialog' visible='1' windowTitle='Save Changes'}
+:Save Changes_Core::Internal::SaveItemsDialog	{type='Core::Internal::SaveItemsDialog' unnamed='1' visible='1' windowTitle='Save Changes'}
 :Select a Git Commit.Show_QPushButton	{name='showButton' text='Show' type='QPushButton' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
 :Select a Git Commit.changeNumberEdit_Utils::CompletingLineEdit	{name='changeNumberEdit' type='Utils::CompletingLineEdit' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
 :Select a Git Commit.detailsText_QPlainTextEdit	{name='detailsText' type='QPlainTextEdit' visible='1' window=':Select a Git Commit_Git::Internal::ChangeSelectionDialog'}
@@ -197,7 +197,7 @@
 :Utils::FakeToolTip	{type='Utils::FakeToolTip' unnamed='1' visible='1'}
 :Widget Box_qdesigner_internal::WidgetBoxTreeWidget	{container=':*Qt Creator.Widget Box_QDockWidget' type='qdesigner_internal::WidgetBoxTreeWidget' unnamed='1' visible='1'}
 :Working Copy_Utils::BaseValidatingLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':New_ProjectExplorer::JsonWizard'}
-:WritePermissions_Core::Internal::ReadOnlyFilesDialog	{name='Core__Internal__ReadOnlyFilesDialog' type='Core::ReadOnlyFilesDialog' visible='1' windowTitle='Files Without Write Permissions'}
+:WritePermissions_Core::Internal::ReadOnlyFilesDialog	{type='Core::ReadOnlyFilesDialog' unnamed='1' visible='1' windowTitle='Files Without Write Permissions'}
 :addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{name='FormFileName' type='Utils::FancyLineEdit' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :frame.templateDescription_QTextBrowser	{container=':New.frame_QFrame' name='templateDescription' type='QTextBrowser' visible='1'}
