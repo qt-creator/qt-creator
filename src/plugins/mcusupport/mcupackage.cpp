@@ -325,6 +325,7 @@ ToolChain *McuToolChainPackage::msvcToolChain(Id language)
         return (abi.osFlavor() == Abi::WindowsMsvc2017Flavor
                 || abi.osFlavor() == Abi::WindowsMsvc2019Flavor)
                && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
+               && t->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                && t->language() == language;
     });
     return toolChain;
