@@ -14620,46 +14620,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
 <context>
     <name>TextEditor::DisplaySettingsPage</name>
     <message>
-        <source>Display</source>
-        <translation type="obsolete">Zobrazení</translation>
-    </message>
-    <message>
-        <source>Display line &amp;numbers</source>
-        <translation type="obsolete">&amp;Zobrazit čísla řádků</translation>
-    </message>
-    <message>
-        <source>Display &amp;folding markers</source>
-        <translation type="obsolete">Zobrazit znaky s&amp;kládání kódu</translation>
-    </message>
-    <message>
-        <source>Show tabs and spaces.</source>
-        <translation type="obsolete">Ukázat zarážky a prázdné znaky (mezery).</translation>
-    </message>
-    <message>
-        <source>&amp;Visualize whitespace</source>
-        <translation type="obsolete">&amp;Zviditelnit prázdné znaky</translation>
-    </message>
-    <message>
-        <source>Highlight current &amp;line</source>
-        <translation type="obsolete">Zvýraznit nynější řá&amp;dek</translation>
-    </message>
-    <message>
-        <source>Text Wrapping</source>
-        <translation type="obsolete">Zalomení textu</translation>
-    </message>
-    <message>
-        <source>Enable text &amp;wrapping</source>
-        <translation type="obsolete">Povolit &amp;zalomení textu</translation>
-    </message>
-    <message>
-        <source>Display right &amp;margin at column:</source>
-        <translation type="obsolete">Zobrazit pravý &amp;okraj sloupce:</translation>
-    </message>
-    <message>
-        <source>Highlight &amp;blocks</source>
-        <translation type="obsolete">Zvýraznit &amp;bloky</translation>
-    </message>
-    <message>
         <source>Animate matching parentheses</source>
         <translation type="obsolete">Rozhýbat odpovídající závorky</translation>
     </message>
@@ -14674,22 +14634,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Mark text changes</source>
         <translation type="obsolete">Vyznačit textové změny</translation>
-    </message>
-    <message>
-        <source>Mark &amp;text changes</source>
-        <translation type="obsolete">Vyznačit &amp;textové změny</translation>
-    </message>
-    <message>
-        <source>&amp;Animate matching parentheses</source>
-        <translation type="obsolete">&amp;Rozhýbat odpovídající závorky</translation>
-    </message>
-    <message>
-        <source>Auto-fold first &amp;comment</source>
-        <translation type="obsolete">Automaticky složit první po&amp;známku</translation>
-    </message>
-    <message>
-        <source>Center &amp;cursor on scroll</source>
-        <translation type="obsolete">Při projíždění držet &amp;ukazovátko vprostřed</translation>
     </message>
 </context>
 <context>
@@ -30796,14 +30740,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
 <context>
     <name>TextEditor::TabSettingsWidget</name>
     <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Tabs And Indentation</source>
-        <translation type="obsolete">Zarážky a odsazení</translation>
-    </message>
-    <message>
         <source>Insert &amp;spaces instead of tabs</source>
         <translation type="obsolete">Vložit místo zarážek prázdné &amp;znaky (mezery)</translation>
     </message>
@@ -30816,14 +30752,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <translation type="obsolete">Založeno na okolních řádcích</translation>
     </message>
     <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Šířka &amp;zarážky:</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">&amp;Velikost odsazení:</translation>
-    </message>
-    <message>
         <source>Enable automatic &amp;indentation</source>
         <translation type="obsolete">Povolit automatické &amp;odsazení</translation>
     </message>
@@ -30834,74 +30762,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>&amp;Backspace follows indentation</source>
         <translation type="obsolete">&amp;Zpětná klávesa sleduje hloubku odsazení</translation>
-    </message>
-    <message>
-        <source>Align continuation lines:</source>
-        <translation type="obsolete">Zarovnání navazujících řádků:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influences the indentation of continuation lines.
-
-&lt;ul&gt;
-&lt;li&gt;Not At All: Do not align at all. Lines will only be indented to the current logical indentation depth.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Spaces: Always use spaces for alignment, regardless of the other indentation settings.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Regular Indent: Use tabs and/or spaces for alignment, as configured above.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Určuje chování odsazení se zřetelem k navazujícím řádkům.
-
-&lt;ul&gt;
-&lt;li&gt;Žádné odsazení: Žádné odsazení dodatečně k logickému odsazení.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;Prázdné znaky: Dodatečné odsazení pomocí prázdných znaků.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;Normální odsazení: Používají se zarážky nebo prázdné znaky odpovídající hořejšímu nastavení.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Not At All</source>
-        <translation type="obsolete">Žádné odsazení</translation>
-    </message>
-    <message>
-        <source>With Spaces</source>
-        <translation type="obsolete">Prázdné znaky</translation>
-    </message>
-    <message>
-        <source>With Regular Indent</source>
-        <translation type="obsolete">Normální odsazení</translation>
     </message>
     <message>
         <source>Tab key performs auto-indent:</source>
@@ -30918,22 +30778,6 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     <message>
         <source>In Leading White Space</source>
         <translation type="obsolete">Pouze v prázdném místu na začátku řádku</translation>
-    </message>
-    <message>
-        <source>Tab policy:</source>
-        <translation type="obsolete">Chování zarážek:</translation>
-    </message>
-    <message>
-        <source>Spaces Only</source>
-        <translation type="obsolete">Pouze mezery</translation>
-    </message>
-    <message>
-        <source>Tabs Only</source>
-        <translation type="obsolete">Pouze zarážky</translation>
-    </message>
-    <message>
-        <source>Mixed</source>
-        <translation type="obsolete">Smíchaně</translation>
     </message>
 </context>
 <context>

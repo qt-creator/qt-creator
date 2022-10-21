@@ -46347,10 +46347,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
 <context>
     <name>TextEditor::DisplaySettingsPage</name>
     <message>
-        <source>Display</source>
-        <translation>Отображение</translation>
-    </message>
-    <message>
         <source>Display line &amp;numbers</source>
         <translation>Показывать &amp;номера строк</translation>
     </message>
@@ -46498,10 +46494,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     <message>
         <source>Color Scheme</source>
         <translation>Цветовая схема</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Copy...</source>

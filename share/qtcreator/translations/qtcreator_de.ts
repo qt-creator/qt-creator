@@ -47228,10 +47228,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
 </context>
 <context>
     <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>Anzeige</translation>
-    </message>
 </context>
 <context>
     <name>Todo</name>
@@ -47473,10 +47469,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <message>
         <source>Are you sure you want to delete this color scheme permanently?</source>
         <translation>Möchten Sie das Farbschema löschen?</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Löschen</translation>
     </message>
     <message>
         <source>Color Scheme Changed</source>
