@@ -692,6 +692,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             QTimer *timer = new QTimer(parent());
             static int counter;
             counter = 0;
+
             timer->callOnTimeout([this, timer, progressTitle, model, result]() {
                 if (!isCancelled()) {
                     notifyProgress(++counter, progressTitle);
@@ -699,6 +700,8 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                         if (result.isCanceled() || result.isFinished())
                             counter = 49; // skip to next step
                     } else if (counter == 50) {
+                        if (model && model->rewriterView())
+                            model->rewriterView()->resetPossibleImports();
                         model->rewriterView()->textModifier()->replace(0, 0, {});
                     } else if (counter < 100) {
                         try {

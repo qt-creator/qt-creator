@@ -2452,6 +2452,11 @@ QList<QmlTypeData> TextToModelMerger::getQMLSingletons() const
     return list;
 }
 
+void TextToModelMerger::clearPossibleImportKeys()
+{
+    m_possibleImportKeys.clear();
+}
+
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
                                   const SourceLocation &location)
 {

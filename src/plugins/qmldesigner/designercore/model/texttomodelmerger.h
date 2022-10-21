@@ -119,6 +119,8 @@ public:
 
     QList<QmlTypeData> getQMLSingletons() const;
 
+    void clearPossibleImportKeys();
+
 private:
     void setupCustomParserNode(const ModelNode &node);
     void setupComponent(const ModelNode &node);

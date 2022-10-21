@@ -162,6 +162,9 @@ public:
 
     void setAllowComponentRoot(bool allow);
     bool allowComponentRoot() const;
+
+    void resetPossibleImports();
+
 signals:
     void modelInterfaceProjectUpdated();
 

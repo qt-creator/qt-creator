@@ -205,6 +205,9 @@ void BundleImporter::handleImportTimer()
         return;
     }
 
+    if (model && model->rewriterView())
+        model->rewriterView()->resetPossibleImports();
+
     if (m_importAddPending) {
         try {
             Import import = Import::createLibraryImport(m_moduleName, "1.0");

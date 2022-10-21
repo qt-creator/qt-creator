@@ -688,6 +688,11 @@ bool RewriterView::allowComponentRoot() const
     return m_allowComponentRoot;
 }
 
+void RewriterView::resetPossibleImports()
+{
+    m_textToModelMerger->clearPossibleImportKeys();
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.data();
