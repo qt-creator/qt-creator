@@ -221,6 +221,12 @@ QString McuPackage::statusText() const
 
 bool McuPackage::writeToSettings() const
 {
+    if (m_settingsKey.isEmpty()) {
+        // Writing with an empty settings key will result in multiple packages writing their value
+        // in the same key "Package_", with the suffix missing, overwriting each other.
+        return false;
+    }
+
     return settingsHandler->write(m_settingsKey, m_path, m_defaultPath);
 }
 
