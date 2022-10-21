@@ -6211,7 +6211,7 @@ Backspace キーが押された時のインデントの動作を指定します�
         <translation>ファイルの文字コード</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>既定の文字コード: </translation>
     </message>
     <message>

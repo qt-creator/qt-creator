@@ -44838,7 +44838,7 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <translation>Kódování souborů</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Výchozí kódování: </translation>
     </message>
     <message>

@@ -43493,7 +43493,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <translation>Encodages de fichier</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Encodage par défaut :</translation>
     </message>
     <message>

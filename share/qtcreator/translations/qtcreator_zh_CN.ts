@@ -42371,7 +42371,7 @@ Specifies how backspace interacts with indentation.
         <translation>文件编码</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>默认编码:</translation>
     </message>
     <message>

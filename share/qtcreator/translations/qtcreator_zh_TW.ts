@@ -26932,7 +26932,7 @@ Specifies how backspace interacts with indentation.
         <translation>檔案編碼</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>預設編碼：</translation>
     </message>
     <message>

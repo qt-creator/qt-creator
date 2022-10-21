@@ -35929,7 +35929,7 @@ Angiver hvordan backspace interagerer med indrykning.
         <translation>Filkodninger</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Standard kodning: </translation>
     </message>
     <message>

@@ -45917,7 +45917,7 @@ Specifies how backspace interacts with indentation.
         <translation>Кодировки файлов</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>По умолчанию: </translation>
     </message>
     <message>

@@ -25237,7 +25237,7 @@ Specifies how backspace interacts with indentation.
         <translation>Кодування файлу</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Типове кодування:</translation>
     </message>
     <message>

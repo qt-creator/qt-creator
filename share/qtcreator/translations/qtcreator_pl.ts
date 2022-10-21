@@ -19969,7 +19969,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <translation>Kodowania plików</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Domyślne kodowanie: </translation>
     </message>
     <message>

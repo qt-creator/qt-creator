@@ -8172,7 +8172,7 @@ Specificira način uvlačenja s povratnom tipkom.
         <translation>Kodiranje datoteke</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Standardno kodiranje: </translation>
     </message>
     <message>

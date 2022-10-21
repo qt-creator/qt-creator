@@ -20732,7 +20732,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
     <message>
         <location/>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Privzeto kodiranje: </translation>
     </message>
     <message>
