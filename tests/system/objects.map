@@ -29,7 +29,8 @@
 :Behavior.Autocomplete common prefix_QCheckBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='partiallyComplete' text='Autocomplete common prefix' type='QCheckBox' visible='1'}
 :Behavior.completionTrigger_QComboBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='completionTrigger' type='QComboBox' visible='1'}
 :Breakpoints_Debugger::Internal::BreakTreeView	{container=':Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame' type='Utils::BaseTreeView' unnamed='1' visible='1'}
-:Build and Run.Save all files before build_QCheckBox	{name='saveAllFilesCheckBox' type='QCheckBox' visible='1'}
+:Build and Run.Save all files before build_QCheckBox	{container=':Build and Run_QGroupBox' text='Save all files before build' type='QCheckBox' unnamed='1' visible='1'}
+:Build and Run_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='Build and Run' type='QGroupBox' visible='1'}
 :BuildAndRun_QTreeView	{container=':qt_tabwidget_stackedwidget_QWidget' type='QTreeView' unnamed='1' visible='1'}
 :CCompiler:_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':CCompiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :CCompiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='C:' type='QLabel' unnamed='1' visible='1'}
