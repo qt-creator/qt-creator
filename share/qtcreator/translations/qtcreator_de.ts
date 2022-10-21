@@ -12190,15 +12190,15 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>Unset</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufheben</translation>
     </message>
     <message>
         <source>Unset foreground.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichenfarbe aufheben.</translation>
     </message>
     <message>
         <source>Unset background.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe aufheben.</translation>
     </message>
     <message>
         <source>Font</source>
@@ -12259,7 +12259,8 @@ Rename %2 to %3 anyway?</source>
     <message>
         <source>A line spacing value other than 100% disables text wrapping.
 A value less than 100% can result in overlapping and misaligned graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie den Zeilenabstand auf einen anderen Wert als 100% setzen, wird die Einstellung für Textumbruch deaktiviert.
+Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellung zur Folge haben.</translation>
     </message>
     <message>
         <source>Copy...</source>
@@ -12275,11 +12276,11 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished">Import</translation>
+        <translation>Importieren</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Export</translation>
+        <translation>Exportieren</translation>
     </message>
     <message>
         <source>Zoom:</source>
@@ -12287,7 +12288,7 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Line spacing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilenabstand:</translation>
     </message>
     <message>
         <source>Color Scheme for Theme &quot;%1&quot;</source>
@@ -12315,15 +12316,15 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Import Color Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema importieren</translation>
     </message>
     <message>
         <source>Color scheme (*.xml);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema (*.xml);;Alle Dateien (*)</translation>
     </message>
     <message>
         <source>Export Color Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbschema exportieren</translation>
     </message>
     <message>
         <source>Color Scheme Changed</source>
@@ -12346,11 +12347,11 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Jumps to the given line in the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Springt im aktuellen Dokument zur angegebenen Zeile.</translation>
     </message>
     <message>
         <source>&lt;line&gt;:&lt;column&gt;</source>
-        <translation type="unfinished">&lt;Zeilennummer&gt;:&lt;Spaltennummer&gt;</translation>
+        <translation>&lt;Zeilennummer&gt;:&lt;Spaltennummer&gt;</translation>
     </message>
     <message>
         <source>Line %1, Column %2</source>
@@ -15539,15 +15540,15 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Display Function Hint</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsdetails anzeigen</translation>
     </message>
     <message>
         <source>Meta+Shift+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+Shift+D</translation>
     </message>
     <message>
         <source>Ctrl+Shift+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+D</translation>
     </message>
     <message>
         <source>Trigger Refactoring Action</source>
@@ -15592,7 +15593,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Word under the current document&apos;s text cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wort an der Einfügemarke des aktuellen Dokuments.</translation>
     </message>
 </context>
 <context>
@@ -16946,7 +16947,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
     <message>
         <source>Not a valid trigger. A valid trigger can only contain letters, numbers, or underscores, where the first character is limited to letter or underscore.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein gültiger Auslöser. Ein gültiger Auslöser kann nur Buchstaben, Zahlen oder Unterstriche enthalten. Das erste Zeichen muss ein Buchstabe oder Unterstrich sein.</translation>
     </message>
     <message>
         <source>Trigger</source>
@@ -21419,23 +21420,23 @@ When disabled, moves targets straight to the current mouse position.</source>
     <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy...</source>
-        <translation type="unfinished">Kopieren...</translation>
+        <translation>Kopieren...</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Export...</source>
-        <translation type="unfinished">Exportieren...</translation>
+        <translation>Exportieren...</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation type="unfinished">Importieren...</translation>
+        <translation>Importieren...</translation>
     </message>
     <message>
         <source>Current settings:</source>
-        <translation type="unfinished">Gegenwärtige Einstellungen:</translation>
+        <translation>Aktuelle Einstellungen:</translation>
     </message>
     <message>
         <source>Copy Code Style</source>
@@ -21576,7 +21577,7 @@ Außer: %3
     <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
-        <translation>Ändern Sie den Inhalt der Vorschau, um zu sehen wie sich die gegenwärtigen Einstellungen auf die benutzerdefinierten Snippets auswirken. Änderungen der Vorschau haben keinen Einfluss auf die Einstellungen.</translation>
+        <translation>Ändern Sie den Inhalt der Vorschau, um zu sehen wie sich die aktuellen Einstellungen auf die benutzerdefinierten Snippets auswirken. Änderungen der Vorschau haben keinen Einfluss auf die Einstellungen.</translation>
     </message>
 </context>
 <context>
@@ -22503,7 +22504,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>Backspace indentation:</source>
-        <translation>Einrückung bei Rücktaste: </translation>
+        <translation>Einrückung bei Rücktaste:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -22549,7 +22550,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Prefer single line comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzeilige Kommentare bevorzugen</translation>
     </message>
     <message>
         <source>Tab key performs auto-indent:</source>
@@ -22645,7 +22646,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Default encoding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichenkodierungs-Vorgabe:</translation>
     </message>
     <message>
         <source>Show help tooltips using the mouse:</source>
@@ -22709,7 +22710,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>List of wildcard-aware file patterns, separated by commas or semicolons.</source>
-        <translation>Eine durch Kommas oder Semikolons getrennte Liste von Dateinamen. (Platzhalter sind möglich)</translation>
+        <translation>Eine durch Kommas oder Semikola getrennte Liste von Dateinamen. (Platzhalter sind möglich).</translation>
     </message>
     <message>
         <source>Displays context-sensitive help or type information on mouseover.</source>
@@ -22800,19 +22801,19 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>&lt;i&gt;Set &lt;a href=&quot;font zoom&quot;&gt;font line spacing&lt;/a&gt; to 100% to enable text wrapping option.&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;Setzen Sie den &lt;a href=&quot;font zoom&quot;&gt;Zeilenabstand&lt;/a&gt; des Zeichensatzes auf 100%, um die Einstellung für Textumbruch zu aktivieren.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Tint whole margin area</source>
-        <translation type="unfinished"></translation>
+        <translation>Rand einfärben</translation>
     </message>
     <message>
         <source>Use context-specific margin</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontextabhängigen Rand verwenden</translation>
     </message>
     <message>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzt einen anderen Rand, falls verfügbar. Zum Beispiel das ColumnLimit vom ClangFormat Plugin.</translation>
     </message>
     <message>
         <source>Animate navigation within file</source>
@@ -22820,11 +22821,11 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Visualize indent</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrückung Visualisieren</translation>
     </message>
     <message>
         <source>Display file line ending</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilenende-Kodierung anzeigen</translation>
     </message>
     <message>
         <source>Next to editor content</source>
@@ -22844,11 +22845,11 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Margin</source>
-        <translation type="unfinished">Rand</translation>
+        <translation>Rand</translation>
     </message>
     <message>
         <source>Wrapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbruch</translation>
     </message>
     <message>
         <source>Between lines</source>
@@ -22922,7 +22923,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Group:</source>
-        <translation type="unfinished">Gruppe:</translation>
+        <translation>Gruppe:</translation>
     </message>
     <message>
         <source>Restore Removed Built-ins</source>
@@ -35132,7 +35133,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Snippet Parse Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Lesen des Snippets</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
@@ -36392,7 +36393,7 @@ Error:
     </message>
     <message>
         <source>Ctrl+Backspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Backspace</translation>
     </message>
     <message>
         <source>Delete Word up to Cursor</source>
@@ -36572,11 +36573,11 @@ Error:
     </message>
     <message>
         <source>Paste Without Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>Ohne Formatierung einfügen</translation>
     </message>
     <message>
         <source>Ctrl+Alt+Shift+V</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+Shift+V</translation>
     </message>
     <message>
         <source>Auto-&amp;indent Selection</source>
@@ -36660,23 +36661,23 @@ Error:
     </message>
     <message>
         <source>Copy With Highlighting</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Syntaxhervorhebung kopieren</translation>
     </message>
     <message>
         <source>Create Cursors at Selected Line Ends</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfügemarken an ausgewählten Zeilenenden hinzufügen</translation>
     </message>
     <message>
         <source>Alt+Shift+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+I</translation>
     </message>
     <message>
         <source>Add Next Occurrence to Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Vorkommen zur Auswahl hinzufügen</translation>
     </message>
     <message>
         <source>Ctrl+D</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+D</translation>
     </message>
     <message>
         <source>&amp;Duplicate Selection</source>
@@ -39162,7 +39163,7 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>Character threshold:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimale Zeichenanzahl:</translation>
     </message>
     <message>
         <source>Inserts the common prefix of available completion items.</source>
@@ -39250,7 +39251,7 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
     </message>
     <message>
         <source>Skip automatically inserted character if re-typed manually after completion or by pressing tab.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch eingefügtes Zeichen überspringen, wenn es nach der Vervollständigung erneut eingegeben oder die Tabulatortaste gedrückt wird.</translation>
     </message>
     <message>
         <source>Enable Doxygen blocks</source>
@@ -41308,30 +41309,33 @@ Wird auf Zeichen angewendet, sofern keine andere Regel zutrifft.</translation>
     </message>
     <message>
         <source>Search Result (Alternative 1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchergebnis (Alternative 1)</translation>
     </message>
     <message>
         <source>Highlighted search results inside the editor.
 Used to mark read accesses to C++ symbols.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hervorgehobene Suchergebnisse im Editor.
+Wird benutzt, um Lesezugriffe eines C++-Symbols zu markieren.</translation>
     </message>
     <message>
         <source>Search Result (Alternative 2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchergebnis (Alternative 2)</translation>
     </message>
     <message>
         <source>Highlighted search results inside the editor.
 Used to mark write accesses to C++ symbols.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hervorgehobene Suchergebnisse im Editor.
+Wird benutzt, um Schreibzugriffe eines C++-Symbols zu markieren.</translation>
     </message>
     <message>
         <source>Search Result Containing function</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktion mit Suchergebnis</translation>
     </message>
     <message>
         <source>Highlighted search results inside the editor.
 Used to mark containing function of the symbol usage.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hervorgehobene Suchergebnisse im Editor.
+Wird benutzt um die Funktion zu markieren, die ein gesuchtes Symbol benutzt.</translation>
     </message>
     <message>
         <source>Search Scope</source>
@@ -41441,11 +41445,11 @@ Used to mark containing function of the symbol usage.</source>
     </message>
     <message>
         <source>Namespace</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensraum</translation>
     </message>
     <message>
         <source>Name of a namespace.</source>
-        <translation type="unfinished"></translation>
+        <translation>Name eines Namensraums.</translation>
     </message>
     <message>
         <source>Local</source>
@@ -41457,11 +41461,11 @@ Used to mark containing function of the symbol usage.</source>
     </message>
     <message>
         <source>Parameter</source>
-        <translation type="unfinished"></translation>
+        <translation>Parameter</translation>
     </message>
     <message>
         <source>Function or method parameters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionen- oder Methodenparameter.</translation>
     </message>
     <message>
         <source>Field</source>
@@ -41497,11 +41501,11 @@ Used to mark containing function of the symbol usage.</source>
     </message>
     <message>
         <source>Declaration</source>
-        <translation type="unfinished"></translation>
+        <translation>Deklaration</translation>
     </message>
     <message>
         <source>Style adjustments to declarations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stilanpassungen für Deklarationen.</translation>
     </message>
     <message>
         <source>Virtual Function</source>
@@ -41635,11 +41639,11 @@ Um den Stil von benutzerdefinierten Operatoren festzulegen, benutzen Sie &quot;�
     </message>
     <message>
         <source>Macro</source>
-        <translation type="unfinished">Makro</translation>
+        <translation>Makro</translation>
     </message>
     <message>
         <source>Macros.</source>
-        <translation type="unfinished"></translation>
+        <translation>Makros.</translation>
     </message>
     <message>
         <source>Label</source>
@@ -41853,71 +41857,71 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Static Member</source>
-        <translation type="unfinished"></translation>
+        <translation>Statische Member</translation>
     </message>
     <message>
         <source>Names of static fields or member functions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Namen statischer Memberdaten oder Memberfunktionen.</translation>
     </message>
     <message>
         <source>Code Coverage Added Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Code Coverage hinzugefügter Code</translation>
     </message>
     <message>
         <source>New code that was not checked for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Code, der nicht auf Tests geprüft wurde.</translation>
     </message>
     <message>
         <source>Partially Covered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Teilweise erfasster Code</translation>
     </message>
     <message>
         <source>Partial branch/condition coverage.</source>
-        <translation type="unfinished"></translation>
+        <translation>Teilweise Erfassung von Verzweigungen/Bedingungen.</translation>
     </message>
     <message>
         <source>Uncovered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht erfasster Code</translation>
     </message>
     <message>
         <source>Not covered at all.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht erfasster Code.</translation>
     </message>
     <message>
         <source>Fully Covered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Komplett erfasster Code</translation>
     </message>
     <message>
         <source>Fully covered code.</source>
-        <translation type="unfinished"></translation>
+        <translation>Komplett erfasster Code.</translation>
     </message>
     <message>
         <source>Manually Validated Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuell validierter Code</translation>
     </message>
     <message>
         <source>User added validation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vom Benutzer hinzugefügte Validierung.</translation>
     </message>
     <message>
         <source>Code Coverage Dead Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Code Coverage unerreichbarer Code</translation>
     </message>
     <message>
         <source>Unreachable code.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerreichbarer Code.</translation>
     </message>
     <message>
         <source>Code Coverage Execution Count Too Low</source>
-        <translation type="unfinished"></translation>
+        <translation>Code Coverage Anzahl der Ausführungen zu klein</translation>
     </message>
     <message>
         <source>Minimum count not reached.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimale Anzahl wurde nicht erreicht.</translation>
     </message>
     <message>
         <source>Implicitly Not Covered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Implizit nicht erfasster Code</translation>
     </message>
     <message>
         <source>PLACEHOLDER</source>
@@ -41925,11 +41929,11 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Implicitly Covered Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Implizit erfasster Code</translation>
     </message>
     <message>
         <source>Implicit Manual Coverage Validation</source>
-        <translation type="unfinished"></translation>
+        <translation>Implizit manuell validierter Code</translation>
     </message>
     <message>
         <source>Overloaded Operators</source>
@@ -44621,7 +44625,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Highlighter updates: starting</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisierungen der Syntaxhervorhebung: startet</translation>
     </message>
 </context>
 <context>
@@ -53101,7 +53105,7 @@ in &quot;%2&quot;.
     <name>TextMark</name>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
 </context>
 <context>
@@ -57750,7 +57754,7 @@ Failed to open file &quot;%1&quot;</source>
     <name>TextEditor::TextMark</name>
     <message>
         <source>Show Diagnostic Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnosekonfiguration anzeigen</translation>
     </message>
 </context>
 <context>
