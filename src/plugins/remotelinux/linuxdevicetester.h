@@ -7,9 +7,6 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-namespace ProjectExplorer { enum class FileTransferMethod; }
-namespace Utils { class ProcessResultData; }
-
 namespace RemoteLinux {
 
 namespace Internal { class GenericLinuxDeviceTesterPrivate; }
@@ -26,25 +23,6 @@ public:
     void stopTest() override;
 
 private:
-    void testEcho();
-    void handleEchoDone();
-
-    void testUname();
-    void handleUnameDone();
-
-    void testPortsGatherer();
-    void handlePortsGathererError(const QString &message);
-    void handlePortsGathererDone();
-
-    void testFileTransfer(ProjectExplorer::FileTransferMethod method);
-    void handleFileTransferDone(const Utils::ProcessResultData &resultData);
-
-    void testCommands();
-    void testNextCommand();
-    void handleCommandDone();
-
-    void setFinished(ProjectExplorer::DeviceTester::TestResult result);
-
     std::unique_ptr<Internal::GenericLinuxDeviceTesterPrivate> d;
 };
 
