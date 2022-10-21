@@ -403,6 +403,7 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
         }
     }
     validProps.remove("objectName");
+    validProps.remove("data");
 
     if (m_allPropsCopied || dynamicPropsCopied || m_propertyGroupsObj.empty()) {
         copiedProps = validProps.values();

@@ -123,7 +123,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                         }
                     }
                     for (const PropertyName &propName : qAsConst(propNames)) {
-                        if (propName != "objectName")
+                        if (propName != "objectName" && propName != "data")
                             mat.removeProperty(propName);
                     }
                 }
