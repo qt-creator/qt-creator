@@ -5676,56 +5676,6 @@ parse_as_unary_expression:
     return parseUnaryExpression(node);
 }
 
-bool Parser::parsePmExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::PointerToMember)
-}
-
-bool Parser::parseMultiplicativeExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Multiplicative)
-}
-
-bool Parser::parseAdditiveExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Additive)
-}
-
-bool Parser::parseShiftExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Shift)
-}
-
-bool Parser::parseRelationalExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Relational)
-}
-
-bool Parser::parseEqualityExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Equality)
-}
-
-bool Parser::parseAndExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::And)
-}
-
-bool Parser::parseExclusiveOrExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::ExclusiveOr)
-}
-
-bool Parser::parseInclusiveOrExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::InclusiveOr)
-}
-
-bool Parser::parseLogicalAndExpression(ExpressionAST *&node)
-{
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::LogicalAnd)
-}
-
 bool Parser::parseLogicalOrExpression(ExpressionAST *&node)
 {
     PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::LogicalOr)
