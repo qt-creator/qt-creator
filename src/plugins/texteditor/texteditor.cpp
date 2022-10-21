@@ -19,7 +19,6 @@
 #include "highlightersettings.h"
 #include "icodestylepreferences.h"
 #include "refactoroverlay.h"
-#include "snippets/snippet.h"
 #include "snippets/snippetoverlay.h"
 #include "storagesettings.h"
 #include "syntaxhighlighter.h"
@@ -29,7 +28,6 @@
 #include "texteditorconstants.h"
 #include "texteditoroverlay.h"
 #include "texteditorsettings.h"
-#include "textindenter.h"
 #include "typingsettings.h"
 
 #include <texteditor/codeassist/assistinterface.h>
@@ -632,6 +630,7 @@ public:
     KSyntaxHighlighting::Definition currentDefinition();
     void rememberCurrentSyntaxDefinition();
     void openLinkUnderCursor(bool openInNextSplit);
+    qreal charWidth() const;
 
 public:
     TextEditorWidget *q;
@@ -3447,6 +3446,11 @@ void TextEditorWidgetPrivate::openLinkUnderCursor(bool openInNextSplit)
     }, true, openInNextSplit);
 }
 
+qreal TextEditorWidgetPrivate::charWidth() const
+{
+    return QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'));
+}
+
 bool TextEditorWidget::codeFoldingVisible() const
 {
     return d->m_codeFoldingVisible;
@@ -4055,10 +4059,8 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     else
         itemOffset = blockData.boundingRect.height();
 
-
     const qreal initialOffset = m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines ? itemOffset / 2 : itemOffset * 2;
-    const qreal minimalContentWidth = q->fontMetrics().horizontalAdvance('X')
-            * m_displaySettings.m_minimalAnnotationContent;
+    const qreal minimalContentWidth = charWidth() * m_displaySettings.m_minimalAnnotationContent;
     qreal offset = initialOffset;
     qreal x = 0;
     if (marks.isEmpty())
@@ -4112,8 +4114,7 @@ void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainte
         return;
     // Don't use QFontMetricsF::averageCharWidth here, due to it returning
     // a fractional size even when this is not supported by the platform.
-    data.rightMargin = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'))
-            * (m_visibleWrapColumn + m_visualIndentOffset)
+    data.rightMargin = charWidth() * (m_visibleWrapColumn + m_visualIndentOffset)
             + data.offset.x() + 4;
     if (m_marginSettings.m_tintMarginArea && data.rightMargin < data.viewportRect.width()) {
         const QRectF behindMargin(data.rightMargin,
@@ -4318,7 +4319,7 @@ void TextEditorWidgetPrivate::paintCurrentLineHighlight(const PaintEventData &da
 void TextEditorWidgetPrivate::paintCursorAsBlock(const PaintEventData &data, QPainter &painter,
                                                  PaintEventBlockData &blockData, int cursorPosition) const
 {
-    const QFontMetricsF fontMetrics(blockData.layout->font());
+    const qreal space = charWidth();
     int relativePos = cursorPosition - blockData.position;
     bool doSelection = true;
     QTextLine line = blockData.layout->lineForTextPosition(relativePos);
@@ -4328,14 +4329,14 @@ void TextEditorWidgetPrivate::paintCursorAsBlock(const PaintEventData &data, QPa
         w = line.cursorToX(relativePos + 1) - x;
         if (data.doc->characterAt(cursorPosition) == QLatin1Char('\t')) {
             doSelection = false;
-            qreal space = fontMetrics.horizontalAdvance(QLatin1Char(' '));
             if (w > space) {
-                x += w-space;
+                x += w - space;
                 w = space;
             }
         }
-    } else
-        w = fontMetrics.horizontalAdvance(QLatin1Char(' ')); // in sync with QTextLine::draw()
+    } else {
+        w = space; // in sync with QTextLine::draw()
+    }
 
     QRectF lineRect = line.rect();
     lineRect.moveTop(lineRect.top() + blockData.boundingRect.top());
@@ -4456,8 +4457,8 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
         return;
 
     const TabSettings &tabSettings = m_document->tabSettings();
-    const qreal horizontalAdvance = QFontMetricsF(q->font()).horizontalAdvance(' ');
-    const qreal fullHorizontalAdvance = horizontalAdvance * tabSettings.m_indentSize;
+    const qreal singleAdvance = charWidth();
+    const qreal indentAdvance = singleAdvance * tabSettings.m_indentSize;
 
     painter.save();
     painter.setPen(data.visualWhitespaceFormat.foreground().color());
@@ -4465,7 +4466,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     const QTextLine textLine = blockData.layout->lineAt(0);
     const QRectF rect = textLine.naturalTextRect();
     qreal x = textLine.cursorToX(0) + data.offset.x() + qMax(0, q->cursorWidth() - 1)
-            + horizontalAdvance * m_visualIndentOffset;
+            + singleAdvance * m_visualIndentOffset;
     int paintColumn = 0;
 
     const QString text = data.block.text().mid(m_visualIndentOffset);
@@ -4479,7 +4480,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
             const QLineF line(top, bottom);
             painter.drawLine(line);
         }
-        x += fullHorizontalAdvance;
+        x += indentAdvance;
         paintColumn += tabSettings.m_indentSize;
     }
     painter.restore();
@@ -5555,7 +5556,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                                                eventCursor.positionInBlock());
         if (eventCursor.positionInBlock() == eventCursor.block().length() - 1) {
             eventColumn += int((e->pos().x() - cursorRect(eventCursor).center().x())
-                               / QFontMetricsF(font()).horizontalAdvance(' '));
+                               / d->charWidth());
         }
 
         int anchorColumn = tabSettings.columnAt(anchorCursor.block().text(),
@@ -8357,9 +8358,8 @@ void TextEditorWidgetPrivate::updateTabStops()
 {
     // Although the tab stop is stored as qreal the API from QPlainTextEdit only allows it
     // to be set as an int. A work around is to access directly the QTextOption.
-    qreal charWidth = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char(' '));
     QTextOption option = q->document()->defaultTextOption();
-    option.setTabStopDistance(charWidth * m_document->tabSettings().m_tabSize);
+    option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);
     q->document()->setDefaultTextOption(option);
 }
 
@@ -8371,8 +8371,7 @@ void TextEditorWidgetPrivate::applyTabSettings()
 
 int TextEditorWidget::columnCount() const
 {
-    QFontMetricsF fm(font());
-    return int(viewport()->rect().width() / fm.horizontalAdvance(QLatin1Char('x')));
+    return int(viewport()->rect().width() / d->charWidth());
 }
 
 int TextEditorWidget::rowCount() const
