@@ -24,6 +24,7 @@ public:
     QList<Port> usedPorts;
     IDevice::ConstPtr device;
     PortsGatheringMethod portsGatheringMethod;
+    QString m_errorString;
 };
 
 } // namespace Internal
@@ -39,15 +40,15 @@ DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
     delete d;
 }
 
-void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
+void DeviceUsedPortsGatherer::start()
 {
     d->usedPorts.clear();
-    d->device = device;
-    QTC_ASSERT(d->device, emit error("No device given"); return);
+    d->m_errorString.clear();
+    QTC_ASSERT(d->device, emitError("No device given"); return);
 
     d->portsGatheringMethod = d->device->portsGatheringMethod();
-    QTC_ASSERT(d->portsGatheringMethod.commandLine, emit error("Not implemented"); return);
-    QTC_ASSERT(d->portsGatheringMethod.parsePorts, emit error("Not implemented"); return);
+    QTC_ASSERT(d->portsGatheringMethod.commandLine, emitError("Not implemented"); return);
+    QTC_ASSERT(d->portsGatheringMethod.parsePorts, emitError("Not implemented"); return);
 
     const QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::AnyIPProtocol;
 
@@ -67,9 +68,19 @@ void DeviceUsedPortsGatherer::stop()
     }
 }
 
+void DeviceUsedPortsGatherer::setDevice(const IDeviceConstPtr &device)
+{
+    d->device = device;
+}
+
 QList<Port> DeviceUsedPortsGatherer::usedPorts() const
 {
     return d->usedPorts;
+}
+
+QString DeviceUsedPortsGatherer::errorString() const
+{
+    return d->m_errorString;
 }
 
 void DeviceUsedPortsGatherer::setupUsedPorts()
@@ -84,6 +95,12 @@ void DeviceUsedPortsGatherer::setupUsedPorts()
     emit portListReady();
 }
 
+void DeviceUsedPortsGatherer::emitError(const QString &errorString)
+{
+    d->m_errorString = errorString;
+    emitError(errorString);
+}
+
 void DeviceUsedPortsGatherer::handleProcessDone()
 {
     if (d->process->result() == ProcessResult::FinishedWithSuccess) {
@@ -95,9 +112,15 @@ void DeviceUsedPortsGatherer::handleProcessDone()
             errMsg += QLatin1Char('\n');
             errMsg += tr("Remote error output was: %1").arg(QString::fromUtf8(stdErr));
         }
-        emit error(errMsg);
+        emitError(errMsg);
     }
     stop();
+}
+
+DeviceUsedPortsGathererAdapter::DeviceUsedPortsGathererAdapter()
+{
+    connect(task(), &DeviceUsedPortsGatherer::portListReady, this, [this] { emit done(true); });
+    connect(task(), &DeviceUsedPortsGatherer::error, this, [this] { emit done(false); });
 }
 
 // PortGatherer
@@ -120,7 +143,8 @@ PortsGatherer::~PortsGatherer() = default;
 void PortsGatherer::start()
 {
     appendMessage(tr("Checking available ports..."), NormalMessageFormat);
-    m_portsGatherer.start(device());
+    m_portsGatherer.setDevice(device());
+    m_portsGatherer.start();
 }
 
 QUrl PortsGatherer::findEndPoint()

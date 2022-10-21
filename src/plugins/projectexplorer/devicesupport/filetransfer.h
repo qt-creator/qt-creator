@@ -7,6 +7,8 @@
 #include "filetransferinterface.h"
 #include "idevicefwd.h"
 
+#include <utils/tasktree.h>
+
 namespace Utils { class ProcessResultData; }
 
 namespace ProjectExplorer {
@@ -27,9 +29,12 @@ public:
 
     FileTransferMethod transferMethod() const;
 
-    void test(const ProjectExplorer::IDeviceConstPtr &onDevice);
+    void setTestDevice(const ProjectExplorer::IDeviceConstPtr &device);
+    void test();
     void start();
     void stop();
+
+    Utils::ProcessResultData resultData() const;
 
     static QString transferMethodName(FileTransferMethod method);
 
@@ -41,4 +46,13 @@ private:
     FileTransferPrivate *d;
 };
 
+class PROJECTEXPLORER_EXPORT FileTransferAdapter : public Utils::Tasking::TaskAdapter<FileTransfer>
+{
+public:
+    FileTransferAdapter();
+    void start() final { task()->test(); }
+};
+
 } // namespace ProjectExplorer
+
+QTC_DECLARE_CUSTOM_TASK(Transfer, ProjectExplorer::FileTransferAdapter);

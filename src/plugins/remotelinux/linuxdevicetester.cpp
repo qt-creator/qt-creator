@@ -14,6 +14,7 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/tasktree.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -203,7 +204,8 @@ void GenericLinuxDeviceTester::testPortsGatherer()
     d->state = TestingPorts;
     emit progressMessage(Tr::tr("Checking if specified ports are available..."));
 
-    d->portsGatherer.start(d->device);
+    d->portsGatherer.setDevice(d->device);
+    d->portsGatherer.start();
 }
 
 void GenericLinuxDeviceTester::handlePortsGathererError(const QString &message)
@@ -242,7 +244,8 @@ void GenericLinuxDeviceTester::testFileTransfer(FileTransferMethod method)
                          .arg(FileTransfer::transferMethodName(method)));
 
     d->fileTransfer.setTransferMethod(method);
-    d->fileTransfer.test(d->device);
+    d->fileTransfer.setTestDevice(d->device);
+    d->fileTransfer.test();
 }
 
 void GenericLinuxDeviceTester::handleFileTransferDone(const ProcessResultData &resultData)

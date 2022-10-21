@@ -67,7 +67,10 @@ class FileTransferPrivate : public QObject
     Q_OBJECT
 
 public:
-    void test(const ProjectExplorer::IDeviceConstPtr &onDevice);
+    IDeviceConstPtr m_testDevice;
+    ProcessResultData m_resultData;
+
+    void test();
     void start();
     void stop();
 
@@ -78,18 +81,19 @@ signals:
     void done(const ProcessResultData &resultData);
 
 private:
+    void emitDone(const ProcessResultData &resultData);
     void startFailed(const QString &errorString);
     void run(const FileTransferSetupData &setup, const IDeviceConstPtr &device);
 
     std::unique_ptr<FileTransferInterface> m_transfer;
 };
 
-void FileTransferPrivate::test(const IDeviceConstPtr &onDevice)
+void FileTransferPrivate::test()
 {
-    if (!onDevice)
+    if (!m_testDevice)
         return startFailed(tr("No device set for test transfer."));
 
-    run({{}, m_setup.m_method, m_setup.m_rsyncFlags}, onDevice);
+    run({{}, m_setup.m_method, m_setup.m_rsyncFlags}, m_testDevice);
 }
 
 void FileTransferPrivate::start()
@@ -132,13 +136,19 @@ void FileTransferPrivate::run(const FileTransferSetupData &setup, const IDeviceC
     connect(m_transfer.get(), &FileTransferInterface::progress,
             this, &FileTransferPrivate::progress);
     connect(m_transfer.get(), &FileTransferInterface::done,
-            this, &FileTransferPrivate::done);
+            this, &FileTransferPrivate::emitDone);
     m_transfer->start();
+}
+
+void FileTransferPrivate::emitDone(const ProcessResultData &resultData)
+{
+    m_resultData = resultData;
+    emit done(resultData);
 }
 
 void FileTransferPrivate::startFailed(const QString &errorString)
 {
-    emit done({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
+    emitDone({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
 }
 
 FileTransfer::FileTransfer()
@@ -170,9 +180,14 @@ void FileTransfer::setRsyncFlags(const QString &flags)
     d->m_setup.m_rsyncFlags = flags;
 }
 
-void FileTransfer::test(const ProjectExplorer::IDeviceConstPtr &onDevice)
+void FileTransfer::setTestDevice(const ProjectExplorer::IDeviceConstPtr &device)
 {
-    d->test(onDevice);
+    d->m_testDevice = device;
+}
+
+void FileTransfer::test()
+{
+    d->test();
 }
 
 FileTransferMethod FileTransfer::transferMethod() const
@@ -190,6 +205,11 @@ void FileTransfer::stop()
     d->stop();
 }
 
+ProcessResultData FileTransfer::resultData() const
+{
+    return d->m_resultData;
+}
+
 QString FileTransfer::transferMethodName(FileTransferMethod method)
 {
     switch (method) {
@@ -199,6 +219,15 @@ QString FileTransfer::transferMethodName(FileTransferMethod method)
     }
     QTC_CHECK(false);
     return {};
+}
+
+FileTransferAdapter::FileTransferAdapter()
+{
+    connect(task(), &FileTransfer::done, this, [this](const ProcessResultData &result) {
+        emit done(result.m_exitStatus == QProcess::NormalExit
+                  && result.m_error == QProcess::UnknownError
+                  && result.m_exitCode == 0);
+    });
 }
 
 } // namespace ProjectExplorer

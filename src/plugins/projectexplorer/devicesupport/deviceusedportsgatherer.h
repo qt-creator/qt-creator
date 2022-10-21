@@ -8,6 +8,7 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/portlist.h>
+#include <utils/tasktree.h>
 
 namespace ProjectExplorer {
 
@@ -24,9 +25,11 @@ public:
     DeviceUsedPortsGatherer(QObject *parent = nullptr);
     ~DeviceUsedPortsGatherer() override;
 
-    void start(const IDeviceConstPtr &device);
+    void start();
     void stop();
+    void setDevice(const IDeviceConstPtr &device);
     QList<Utils::Port> usedPorts() const;
+    QString errorString() const;
 
 signals:
     void error(const QString &errMsg);
@@ -35,8 +38,17 @@ signals:
 private:
     void handleProcessDone();
     void setupUsedPorts();
+    void emitError(const QString &errorString);
 
     Internal::DeviceUsedPortsGathererPrivate * const d;
+};
+
+class PROJECTEXPLORER_EXPORT DeviceUsedPortsGathererAdapter
+        : public Utils::Tasking::TaskAdapter<DeviceUsedPortsGatherer>
+{
+public:
+    DeviceUsedPortsGathererAdapter();
+    void start() final { task()->start(); }
 };
 
 class PROJECTEXPLORER_EXPORT PortsGatherer : public RunWorker
@@ -92,3 +104,5 @@ private:
 };
 
 } // namespace ProjectExplorer
+
+QTC_DECLARE_CUSTOM_TASK(PortGatherer, ProjectExplorer::DeviceUsedPortsGathererAdapter);
