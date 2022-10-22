@@ -222,7 +222,7 @@ public:
     void getTopLevel(const FilePath &workingDirectory = {}, bool isSync = false);
 
     void updateActions(ActionState) override;
-    bool submitEditorAboutToClose() override;
+    bool activateCommit() override;
     void discardCommit() override { cleanCommitMessageFile(); }
 
     QString commitDisplayName() const final;
@@ -1526,7 +1526,7 @@ bool PerforcePluginPrivate::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-bool PerforcePluginPrivate::submitEditorAboutToClose()
+bool PerforcePluginPrivate::activateCommit()
 {
     if (!isCommitEditorOpen())
         return true;

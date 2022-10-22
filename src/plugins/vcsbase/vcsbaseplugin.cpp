@@ -503,7 +503,13 @@ VcsBasePluginPrivate::VcsBasePluginPrivate(const Context &context)
 {
     Internal::VcsPlugin *plugin = Internal::VcsPlugin::instance();
     connect(plugin, &Internal::VcsPlugin::submitEditorAboutToClose,
-            this, &VcsBasePluginPrivate::slotSubmitEditorAboutToClose);
+            this, [this](VcsBaseSubmitEditor *submitEditor, bool *result) {
+        if (submitEditor == m_submitEditor) {
+            *result = submitEditor->promptSubmit(this);
+            if (*result)
+                discardCommit();
+        }
+    });
     // First time: create new listener
     if (!m_listener)
         m_listener = new Internal::StateListener(plugin);
@@ -520,31 +526,6 @@ void VcsBasePluginPrivate::extensionsInitialized()
 {
     // Initialize enable menus.
     m_listener->slotStateChanged();
-}
-
-void VcsBasePluginPrivate::slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result)
-{
-    qCDebug(baseLog) << this << "plugin's submit editor" << m_submitEditor
-                     << (m_submitEditor ? m_submitEditor->document()->id().name() : QByteArray())
-                     << "closing submit editor" << submitEditor
-                     << (submitEditor ? submitEditor->document()->id().name() : QByteArray());
-    if (submitEditor == m_submitEditor) {
-        const VcsBaseSubmitEditor::PromptSubmitResult response = submitEditor->promptSubmit(this);
-        m_submitActionTriggered = false;
-
-        switch (response) {
-        case VcsBaseSubmitEditor::SubmitCanceled:
-            *result = false;
-            break;
-        case VcsBaseSubmitEditor::SubmitDiscarded:
-            discardCommit();
-            *result = true;
-            break;
-        default:
-            *result = submitEditorAboutToClose();
-            break;
-        }
-    }
 }
 
 void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalState, Core::IVersionControl *vc)
@@ -614,10 +595,8 @@ QString VcsBasePluginPrivate::commitDisplayName() const
 
 void VcsBasePluginPrivate::commitFromEditor()
 {
-    // Close the submit editor
-    m_submitActionTriggered = true;
     QTC_ASSERT(m_submitEditor, return);
-    EditorManager::closeDocuments({m_submitEditor->document()});
+    m_submitEditor->accept(this);
 }
 
 bool VcsBasePluginPrivate::promptBeforeCommit()

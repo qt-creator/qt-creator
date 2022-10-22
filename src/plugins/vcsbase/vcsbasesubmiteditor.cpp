@@ -125,6 +125,7 @@ public:
     QPointer<QAction> m_submitAction;
 
     NickNameDialog *m_nickNameDialog = nullptr;
+    bool m_disablePrompt = false;
 };
 
 VcsBaseSubmitEditorPrivate::VcsBaseSubmitEditorPrivate(SubmitEditorWidget *editorWidget,
@@ -478,46 +479,47 @@ void VcsBaseSubmitEditor::setDescriptionMandatory(bool v)
 
 enum { checkDialogMinimumWidth = 500 };
 
-VcsBaseSubmitEditor::PromptSubmitResult VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
+void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
 {
     auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
 
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
 
-    if (!submitWidget->isEnabled() || !submitWidget->isEdited())
-        return SubmitDiscarded;
-
     QString errorMessage;
-
-    // Pop up a message depending on whether the check succeeded and the
-    // user wants to be prompted
-    bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
-    const bool prompt = !plugin->submitActionTriggered();
-    if (canCommit && !prompt)
-        return SubmitConfirmed;
-    QMessageBox mb(Core::ICore::dialogParent());
-    const QString commitName = plugin->commitDisplayName();
-    mb.setWindowTitle(tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName));
-    mb.setIcon(QMessageBox::Question);
-    QString message;
-    if (canCommit) {
-        message = tr("What do you want to do with these changes?");
-    } else {
-        message = tr("Cannot %1%2.\nWhat do you want to do?",
-                     "%2 is an optional error message with ': ' prefix. Don't add space in front.")
-                .arg(commitName.toLower(),
-                     errorMessage.isEmpty() ? errorMessage : ": " + errorMessage);
+    const bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
+    if (!canCommit) {
+        VcsOutputWindow::appendError(
+                    tr("Cannot %1%2.",
+                       "%2 is an optional error message with ': ' prefix. Don't add space in front.")
+                    .arg(plugin->commitDisplayName().toLower(),
+                         errorMessage.isEmpty() ? errorMessage : ": " + errorMessage));
+    } else if (plugin->activateCommit()) {
+        close();
     }
-    mb.setText(message);
-    mb.setStandardButtons(QMessageBox::Close | QMessageBox::Cancel);
-    // On Windows there is no mnemonic for Close. Set it explicitly.
-    mb.button(QMessageBox::Close)->setText(tr("&Close"));
-    mb.button(QMessageBox::Cancel)->setText(tr("&Keep Editing"));
-    // prompt is true when the editor is closed, and false when triggered by the submit action
-    if (prompt)
-        mb.setDefaultButton(QMessageBox::Cancel);
-    mb.exec();
-    return mb.result() == QMessageBox::Close ? SubmitDiscarded : SubmitCanceled;
+}
+
+void VcsBaseSubmitEditor::close()
+{
+    d->m_disablePrompt = true;
+    Core::EditorManager::closeDocuments({document()});
+}
+
+bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
+{
+    if (d->m_disablePrompt)
+        return true;
+
+    Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
+
+    auto submitWidget = static_cast<SubmitEditorWidget *>(this->widget());
+    if (!submitWidget->isEnabled() || !submitWidget->isEdited())
+        return true;
+
+    const QString commitName = plugin->commitDisplayName();
+    return QMessageBox::question(Core::ICore::dialogParent(),
+                                 tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName),
+                                 tr("Closing this editor will abort the %1. Are you sure?")
+                                 .arg(commitName.toLower())) == QMessageBox::Yes;
 }
 
 QString VcsBaseSubmitEditor::promptForNickName()

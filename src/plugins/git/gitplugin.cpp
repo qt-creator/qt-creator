@@ -250,7 +250,7 @@ public:
     void startRebaseFromCommit(const FilePath &workingDirectory, QString commit);
 
     void updateActions(VcsBasePluginPrivate::ActionState) override;
-    bool submitEditorAboutToClose() override;
+    bool activateCommit() override;
     void discardCommit() override { cleanCommitMessageFile(); }
 
     void diffCurrentFile();
@@ -1380,7 +1380,7 @@ IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const Commi
     return editor;
 }
 
-bool GitPluginPrivate::submitEditorAboutToClose()
+bool GitPluginPrivate::activateCommit()
 {
     if (!isCommitEditorOpen())
         return true;

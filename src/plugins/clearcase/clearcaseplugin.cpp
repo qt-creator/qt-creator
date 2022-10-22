@@ -218,7 +218,7 @@ public:
 
 protected:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
-    bool submitEditorAboutToClose() override;
+    bool activateCommit() override;
     void discardCommit() override { cleanCheckInMessageFile(); }
     QString ccGet(const FilePath &workingDir, const QString &file, const QString &prefix = {});
     QList<QStringPair> ccGetActivities() const;
@@ -734,7 +734,7 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
 }
 
 // called before closing the submit editor
-bool ClearCasePluginPrivate::submitEditorAboutToClose()
+bool ClearCasePluginPrivate::activateCommit()
 {
     if (!isCheckInEditorOpen())
         return true;

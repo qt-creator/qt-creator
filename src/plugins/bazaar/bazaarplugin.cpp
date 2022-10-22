@@ -184,7 +184,7 @@ public:
     // String -> repository, StringList -> files
     void changed(const QVariant &);
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
-    bool submitEditorAboutToClose() final;
+    bool activateCommit() final;
 
     // File menu action slots
     void addCurrentFile();
@@ -784,7 +784,7 @@ void BazaarPluginPrivate::uncommit()
         m_client.synchronousUncommit(state.topLevel(), dialog.revision(), dialog.extraOptions());
 }
 
-bool BazaarPluginPrivate::submitEditorAboutToClose()
+bool BazaarPluginPrivate::activateCommit()
 {
     auto commitEditor = qobject_cast<CommitEditor *>(submitEditor());
     QTC_ASSERT(commitEditor, return true);

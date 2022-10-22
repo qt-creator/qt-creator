@@ -238,7 +238,7 @@ public:
 
 protected:
     void updateActions(ActionState) final;
-    bool submitEditorAboutToClose() final;
+    bool activateCommit() final;
     void discardCommit() override { cleanCommitMessageFile(); }
 
 private:
@@ -706,7 +706,7 @@ void CvsPluginPrivate::vcsDescribe(const FilePath &source, const QString &change
         VcsOutputWindow::appendError(errorMessage);
 };
 
-bool CvsPluginPrivate::submitEditorAboutToClose()
+bool CvsPluginPrivate::activateCommit()
 {
     if (!isCommitEditorOpen())
         return true;

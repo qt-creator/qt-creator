@@ -136,7 +136,7 @@ public:
 
 private:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) final;
-    bool submitEditorAboutToClose() final;
+    bool activateCommit() final;
 
     // File menu action slots
     void addCurrentFile();
@@ -644,7 +644,7 @@ void MercurialPluginPrivate::diffFromEditorSelected(const QStringList &files)
     m_client.diff(m_submitRepository, files);
 }
 
-bool MercurialPluginPrivate::submitEditorAboutToClose()
+bool MercurialPluginPrivate::activateCommit()
 {
     auto commitEditor = qobject_cast<CommitEditor *>(submitEditor());
     QTC_ASSERT(commitEditor, return true);

@@ -47,14 +47,8 @@ public:
 
     ~VcsBaseSubmitEditor() override;
 
-    // A utility routine to be called when closing a submit editor.
-    // Runs checks on the message and prompts according to configuration.
-    // Force prompt should be true if it is invoked by closing an editor
-    // as opposed to invoking the "Submit" button.
-    // 'promptSetting' points to a bool variable containing the plugin's
-    // prompt setting. The user can uncheck it from the message box.
-    enum PromptSubmitResult { SubmitConfirmed, SubmitCanceled, SubmitDiscarded };
-    PromptSubmitResult promptSubmit(VcsBasePluginPrivate *plugin);
+    void accept(VcsBasePluginPrivate *plugin);
+    bool promptSubmit(VcsBasePluginPrivate *plugin);
 
     QAbstractItemView::SelectionMode fileListSelectionMode() const;
     void setFileListSelectionMode(QAbstractItemView::SelectionMode sm);
@@ -123,6 +117,7 @@ private:
     bool checkSubmitMessage(QString *errorMessage) const;
     bool runSubmitMessageCheckScript(const QString &script, QString *errorMessage) const;
     QString promptForNickName();
+    void close();
 
     VcsBaseSubmitEditorPrivate *d = nullptr;
 

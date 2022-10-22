@@ -137,7 +137,7 @@ public:
     virtual QString commitDisplayName() const;
 
     void commitFromEditor();
-    bool submitActionTriggered() const { return m_submitActionTriggered; }
+    virtual bool activateCommit() = 0;
 
 protected:
     // Prompt to save all files before commit:
@@ -164,8 +164,6 @@ protected:
 
     // Implement to enable the plugin menu actions according to state.
     virtual void updateActions(ActionState as) = 0;
-    // Implement to start the submit process, use submitEditor() to get the submit editor instance.
-    virtual bool submitEditorAboutToClose() = 0;
     virtual void discardCommit();
 
     // A helper to enable the VCS menu action according to state:
@@ -176,7 +174,6 @@ protected:
     bool enableMenuAction(ActionState as, QAction *in) const;
 
 private:
-    void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const Internal::State &s, Core::IVersionControl *vc);
 
     bool supportsRepositoryCreation() const;
@@ -185,7 +182,6 @@ private:
     Core::Context m_context;
     VcsBasePluginState m_state;
     int m_actionState = -1;
-    bool m_submitActionTriggered = false;
 };
 
 } // namespace VcsBase

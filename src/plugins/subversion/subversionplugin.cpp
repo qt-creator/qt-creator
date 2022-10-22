@@ -222,7 +222,7 @@ public:
 
 protected:
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
-    bool submitEditorAboutToClose() override;
+    bool activateCommit() override;
     void discardCommit() override { cleanCommitMessageFile(); }
 
 private:
@@ -543,7 +543,7 @@ SubversionClient *SubversionPluginPrivate::client()
     return m_client;
 }
 
-bool SubversionPluginPrivate::submitEditorAboutToClose()
+bool SubversionPluginPrivate::activateCommit()
 {
     if (!isCommitEditorOpen())
         return true;
