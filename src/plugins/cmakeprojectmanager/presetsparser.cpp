@@ -441,6 +441,34 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     return true;
 }
 
+static QHash<QString, QString> merge(const QHash<QString, QString> &first,
+                                     const QHash<QString, QString> &second)
+{
+    QHash<QString, QString> result = first;
+    for (auto it = second.constKeyValueBegin(); it != second.constKeyValueEnd(); ++it) {
+        result[it->first] = it->second;
+    }
+
+    return result;
+}
+
+static CMakeConfig merge(const CMakeConfig &first, const CMakeConfig &second)
+{
+    return Utils::setUnionMerge<CMakeConfig>(
+        first,
+        second,
+        [](const auto & /*left*/, const auto &right) { return right; },
+        &CMakeConfigItem::less);
+}
+
+static QStringList merge(const QStringList &first, const QStringList &second)
+{
+    return Utils::setUnionMerge<QStringList>(
+        first,
+        second,
+        [](const auto & /*left*/, const auto &right) { return right; });
+}
+
 void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 {
     if (!condition && other.condition && !other.condition.value().isNull())
@@ -448,6 +476,9 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 
     if (!vendor && other.vendor)
         vendor = other.vendor;
+
+    if (vendor && other.vendor)
+        vendor = merge(other.vendor.value(), vendor.value());
 
     if (!generator && other.generator)
         generator = other.generator;
@@ -472,9 +503,13 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 
     if (!cacheVariables && other.cacheVariables)
         cacheVariables = other.cacheVariables;
+    else if (cacheVariables && other.cacheVariables)
+        cacheVariables = merge(other.cacheVariables.value(), cacheVariables.value());
 
     if (!environment && other.environment)
         environment = other.environment;
+    else if (environment && other.environment)
+        environment = merge(other.environment.value(), environment.value());
 
     if (!warnings && other.warnings)
         warnings = other.warnings;
@@ -494,8 +529,13 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
     if (!vendor && other.vendor)
         vendor = other.vendor;
 
+    if (vendor && other.vendor)
+        vendor = merge(other.vendor.value(), vendor.value());
+
     if (!environment && other.environment)
         environment = other.environment;
+    else if (environment && other.environment)
+        environment = merge(other.environment.value(), environment.value());
 
     if (!configurePreset && other.configurePreset)
         configurePreset = other.configurePreset;
@@ -508,6 +548,8 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
 
     if (!targets && other.targets)
         targets = other.targets;
+    else if (targets && other.targets)
+        targets = merge(other.targets.value(), targets.value());
 
     if (!configuration && other.configuration)
         configuration = other.configuration;
@@ -520,6 +562,8 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
 
     if (!nativeToolOptions && other.nativeToolOptions)
         nativeToolOptions = other.nativeToolOptions;
+    else if (nativeToolOptions && other.nativeToolOptions)
+        nativeToolOptions = merge(other.nativeToolOptions.value(), nativeToolOptions.value());
 }
 
 bool PresetsDetails::Condition::evaluate() const
