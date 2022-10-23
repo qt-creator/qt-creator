@@ -412,6 +412,27 @@ static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfi
     return result;
 }
 
+static QString extractVisualStudioPlatformFromConfig(const CMakeConfig &config)
+{
+    const QString cmakeGenerator = config.stringValueOf(QByteArray("CMAKE_GENERATOR"));
+    QString platform;
+    if (cmakeGenerator.contains("Visual Studio")) {
+        const FilePath linker = config.filePathValueOf("CMAKE_LINKER");
+        const QString toolsDir = linker.parentDir().fileName();
+        if (toolsDir.compare("x64", Qt::CaseInsensitive) == 0) {
+            platform = "x64";
+        } else if (toolsDir.compare("x86", Qt::CaseInsensitive) == 0) {
+            platform = "Win32";
+        } else if (toolsDir.compare("arm64", Qt::CaseInsensitive) == 0) {
+            platform = "ARM64";
+        } else if (toolsDir.compare("arm", Qt::CaseInsensitive) == 0) {
+            platform = "ARM";
+        }
+    }
+
+    return platform;
+}
+
 QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                                      QString *warningMessage) const
 {
@@ -476,6 +497,17 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             QApplication::setOverrideCursor(Qt::WaitCursor);
             config = configurationFromPresetProbe(importPath, configurePreset);
             QApplication::restoreOverrideCursor();
+
+            if (!configurePreset.generator) {
+                QString cmakeGenerator = config.stringValueOf(QByteArray("CMAKE_GENERATOR"));
+                configurePreset.generator = cmakeGenerator;
+                data->generator = cmakeGenerator;
+                data->platform = extractVisualStudioPlatformFromConfig(config);
+                if (!data->platform.isEmpty()) {
+                    configurePreset.architecture = PresetsDetails::ValueStrategyPair();
+                    configurePreset.architecture->value = data->platform;
+                }
+            }
         } else {
             config = cache;
             config << CMakeConfigItem("CMAKE_COMMAND",
@@ -566,6 +598,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         data->generator = config.stringValueOf("CMAKE_GENERATOR");
         data->extraGenerator = config.stringValueOf("CMAKE_EXTRA_GENERATOR");
         data->platform = config.stringValueOf("CMAKE_GENERATOR_PLATFORM");
+        if (data->platform.isEmpty())
+            data->platform = extractVisualStudioPlatformFromConfig(config);
         data->toolset = config.stringValueOf("CMAKE_GENERATOR_TOOLSET");
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
 
