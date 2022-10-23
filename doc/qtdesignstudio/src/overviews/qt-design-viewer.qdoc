@@ -6,34 +6,38 @@
     \previouspage creator-live-preview-android.html
     \nextpage studio-exporting-and-importing.html
 
-    \title Previewing in Browsers
+    \title Sharing Applications Online
 
-    \image qt-design-viewer.png
+    \image qt-design-viewer.webp
 
-    \QDV is a QML viewer that runs in your web browser. This means that you can
-    run applications in most widely-used web browsers, such as Apple Safari,
-    Google Chrome, Microsoft Edge, and Mozilla Firefox, on the desktop and on
-    mobile devices.
+    In \QDS, you can share your applications in most widely-used web browsers,
+    such as Apple Safari, Google Chrome, Microsoft Edge, and Mozilla Firefox,
+    on the desktop and on mobile devices.
+
+    The application shared online runs in Qt Design Viewer, which is a QML
+    viewer that runs in your web browser.
 
     The startup and compilation time depend on your browser and configuration.
     However, the actual performance of the application once started is
     indistinguishable from the same application running on the desktop.
 
-    To create a resource file out of your project, select \uicontrol Build >
-    \uicontrol {Generate Resource File} in \QC. Then upload the package into
-    \QDV.
-
     The loaded applications remain locally in your browser. No data is uploaded
     into the cloud.
 
-    To preview an application in a web browser:
+    \section1 Sharing your Application Online
+
+    To share your \QDS application online:
 
     \list 1
-        \li In the browser, open \l{http://qt-webassembly.io/designviewer/}
-            {\QDV}.
-        \li Drag and drop your application package to \QDV, or click the load
-            icon to browse for your file.
+      \li Open the application in \QDS.
+      \li Select \uicontrol File > \uicontrol {Share Application Online}.
+      \li In the dialog, select \uicontrol Share.
+      \image share-online.webp
     \endlist
 
-    Your application is compiled and run on \QDV.
+    In the dialog, you can now open the application in a web
+    browser, copy the link to share with others, or manage your shared
+    applications.
+
+    \image share-online-manage.webp
 */

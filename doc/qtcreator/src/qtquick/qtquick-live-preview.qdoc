@@ -79,10 +79,15 @@
             You can preview Android applications live using an Android
             emulator.
 
-        \endif
+        \li \l{Sharing Applications Online}
+
+            You can share applications online and view them in a web browser.
+
+        \else
         \li \l{Previewing in Browsers}
 
-            You can open \l{https://qt-webassembly.io/designviewer/}{\QDV}
+            You can open \l{https://designviewer.qt.io/}{\QDV}
             in a browser and load applications to it.
+        \endif
     \endlist
 */
