@@ -652,22 +652,24 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId())
         return false;
 
-    const QList<Id> allLanguages = ToolChainManager::allLanguages();
-    for (const ToolChainDescription &tcd : data->toolChains) {
-        if (!Utils::contains(allLanguages, [&tcd](const Id& language) {return language == tcd.language;}))
-            continue;
-        ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
-        if (!tc || !tc->matchesCompilerCommand(tcd.compilerPath)) {
-            return false;
-        }
-    }
-
+    bool haveCMakePreset = false;
     if (!data->cmakePreset.isEmpty()) {
         auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
         if (data->cmakePreset != presetConfigItem.expandedValue(k))
             return false;
 
         ensureBuildDirectory(*data, k);
+        haveCMakePreset = true;
+    }
+
+    const QList<Id> allLanguages = ToolChainManager::allLanguages();
+    for (const ToolChainDescription &tcd : data->toolChains) {
+        if (!Utils::contains(allLanguages, [&tcd](const Id& language) {return language == tcd.language;}))
+            continue;
+        ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+        if ((!tc || !tc->matchesCompilerCommand(tcd.compilerPath)) && !haveCMakePreset) {
+            return false;
+        }
     }
 
     qCDebug(cmInputLog) << k->displayName()
