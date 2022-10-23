@@ -12,7 +12,7 @@
       "generator": "Ninja",
       "installDir": "../inst-${presetName}",
       "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/mingw_64"
+        "CMAKE_PREFIX_PATH": "$env{SystemDrive}/Qt/6.3.2/mingw_64"
       },
       "condition": {
         "type": "equals",
@@ -20,7 +20,7 @@
         "rhs": "Windows"
       },
       "environment": {
-        "PATH": "c:/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
+        "PATH": "$env{SystemDrive}/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
       },
       "debug" : {
         "find" : true
@@ -34,7 +34,7 @@
       "inherits" : "mingw",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/mingw_64"
+        "CMAKE_PREFIX_PATH": "$env{SystemDrive}/Qt/6.3.2/mingw_64"
       }
     },
     {

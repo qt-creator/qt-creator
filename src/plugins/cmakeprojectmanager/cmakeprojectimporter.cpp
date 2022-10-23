@@ -197,19 +197,27 @@ static CMakeConfig configurationFromPresetProbe(
         const CMakeConfig cache = configurePreset.cacheVariables
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
-        const FilePath cmakeMakeProgram = cache.filePathValueOf(QByteArray("CMAKE_MAKE_PROGRAM"));
-        const FilePath toolchainFile = cache.filePathValueOf(QByteArray("CMAKE_TOOLCHAIN_FILE"));
-        const QString prefixPath = cache.stringValueOf(QByteArray("CMAKE_PREFIX_PATH"));
-        const QString findRootPath = cache.stringValueOf(QByteArray("CMAKE_FIND_ROOT_PATH"));
-        const QString qtHostPath = cache.stringValueOf(QByteArray("QT_HOST_PATH"));
+
+        auto expandCacheValue =
+            [configurePreset, env, importPath, cache](const QString &key) -> QString {
+            QString result = cache.stringValueOf(key.toUtf8());
+            CMakePresets::Macros::expand(configurePreset, env, importPath, result);
+            return result;
+        };
+
+        const QString cmakeMakeProgram = expandCacheValue("CMAKE_MAKE_PROGRAM");
+        const QString toolchainFile = expandCacheValue("CMAKE_TOOLCHAIN_FILE");
+        const QString prefixPath = expandCacheValue("CMAKE_PREFIX_PATH");
+        const QString findRootPath = expandCacheValue("CMAKE_FIND_ROOT_PATH");
+        const QString qtHostPath = expandCacheValue("QT_HOST_PATH");
 
         if (!cmakeMakeProgram.isEmpty()) {
             args.emplace_back(
-                QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram.toString()));
+                QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram));
         }
         if (!toolchainFile.isEmpty()) {
             args.emplace_back(
-                QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile.toString()));
+                QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile));
         }
         if (!prefixPath.isEmpty()) {
             args.emplace_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(prefixPath));
