@@ -40,6 +40,7 @@
 
 static const char settingsGroupC[] = "DiffEditor";
 static const char descriptionVisibleKeyC[] = "DescriptionVisible";
+static const char descriptionHeightKeyC[] = "DescriptionHeight";
 static const char horizontalScrollBarSynchronizationKeyC[] = "HorizontalScrollBarSynchronization";
 static const char contextLineCountKeyC[] = "ContextLineNumbers";
 static const char ignoreWhitespaceKeyC[] = "IgnoreWhitespace";
@@ -134,13 +135,23 @@ DiffEditor::DiffEditor()
     // Widget:
     QSplitter *splitter = new MiniSplitter(Qt::Vertical);
 
+    connect(splitter, &QSplitter::splitterMoved, this, [this, splitter](int pos) {
+        if (!m_showDescription)
+            return;
+        const int lineSpacing = splitter->widget(0)->fontMetrics().lineSpacing();
+        const int descHeight = (pos + lineSpacing - 1) / lineSpacing; // round up
+        if (m_descriptionHeight == descHeight)
+            return;
+        m_descriptionHeight = descHeight;
+        saveSetting(descriptionHeightKeyC, descHeight);
+    });
     m_descriptionWidget = new DescriptionEditorWidget(splitter);
     m_descriptionWidget->setReadOnly(true);
-    connect(m_descriptionWidget, &DescriptionEditorWidget::requestResize, this, [splitter] {
+    connect(m_descriptionWidget, &DescriptionEditorWidget::requestResize, this, [this, splitter] {
         if (splitter->count() == 0)
             return;
         QList<int> sizes = splitter->sizes();
-        const int descHeight = splitter->widget(0)->fontMetrics().lineSpacing() * 8;
+        const int descHeight = splitter->widget(0)->fontMetrics().lineSpacing() * m_descriptionHeight;
         const int diff = descHeight - sizes[0];
         if (diff > 0) {
             sizes[0] += diff;
@@ -522,6 +533,7 @@ IDiffView *DiffEditor::loadSettings()
     // Read current settings:
     s->beginGroup(settingsGroupC);
     m_showDescription = s->value(descriptionVisibleKeyC, true).toBool();
+    m_descriptionHeight = s->value(descriptionHeightKeyC, 8).toInt();
     m_sync = s->value(horizontalScrollBarSynchronizationKeyC, true).toBool();
     m_document->setIgnoreWhitespace(s->value(ignoreWhitespaceKeyC, false).toBool());
     m_document->setContextLineCount(s->value(contextLineCountKeyC, 3).toInt());
