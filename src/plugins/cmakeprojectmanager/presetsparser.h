@@ -5,6 +5,7 @@
 
 #include "cmakeconfigitem.h"
 
+#include <utils/environment.h>
 #include <utils/filepath.h>
 
 #include <QHash>
@@ -103,7 +104,7 @@ public:
     std::optional<QString> installDir;
     std::optional<QString> cmakeExecutable;
     std::optional<CMakeConfig> cacheVariables;
-    std::optional<QHash<QString, QString>> environment;
+    std::optional<Utils::Environment> environment;
     std::optional<Warnings> warnings;
     std::optional<Errors> errors;
     std::optional<Debug> debug;
@@ -120,7 +121,7 @@ public:
     std::optional<QHash<QString, QString>> vendor;
     std::optional<QString> displayName;
     std::optional<QString> description;
-    std::optional<QHash<QString, QString>> environment;
+    std::optional<Utils::Environment> environment;
     std::optional<QString> configurePreset;
     std::optional<bool> inheritConfigureEnvironment = true;
     std::optional<int> jobs;

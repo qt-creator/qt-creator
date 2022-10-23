@@ -99,22 +99,17 @@ static QString expandMacroEnv(const QString &macroPrefix,
     return result;
 }
 
-static QHash<QString, QString> getEnvCombined(
-    const std::optional<QHash<QString, QString>> &optPresetEnv, const Utils::Environment &env)
+static Utils::Environment getEnvCombined(const std::optional<Utils::Environment> &optPresetEnv,
+                                         const Utils::Environment &env)
 {
-    QHash<QString, QString> result;
-
-    for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
-        if (it.value().second)
-            result.insert(it.key().name, it.value().first);
-    }
+    Utils::Environment result = env;
 
     if (!optPresetEnv)
         return result;
 
-    QHash<QString, QString> presetEnv = optPresetEnv.value();
-    for (auto it = presetEnv.constKeyValueBegin(); it != presetEnv.constKeyValueEnd(); ++it) {
-        result[it->first] = it->second;
+    Utils::Environment presetEnv = optPresetEnv.value();
+    for (auto it = presetEnv.constBegin(); it != presetEnv.constEnd(); ++it) {
+        result.set(it.key().name, it.value().first);
     }
 
     return result;
@@ -125,10 +120,10 @@ void expand(const PresetType &preset,
             Utils::Environment &env,
             const Utils::FilePath &sourceDirectory)
 {
-    const QHash<QString, QString> presetEnv = getEnvCombined(preset.environment, env);
-    for (auto it = presetEnv.constKeyValueBegin(); it != presetEnv.constKeyValueEnd(); ++it) {
-        const QString key = it->first;
-        QString value = it->second;
+    const Utils::Environment presetEnv = getEnvCombined(preset.environment, env);
+    for (auto it = presetEnv.constBegin(); it != presetEnv.constEnd(); ++it) {
+        const QString key = it.key().name;
+        QString value = it.value().first;
 
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
@@ -161,15 +156,15 @@ void expand(const PresetType &preset,
             Utils::EnvironmentItems &envItems,
             const Utils::FilePath &sourceDirectory)
 {
-    const QHash<QString, QString> presetEnv = preset.environment ? preset.environment.value()
-                                                                 : QHash<QString, QString>();
-    for (auto it = presetEnv.constKeyValueBegin(); it != presetEnv.constKeyValueEnd(); ++it) {
-        const QString key = it->first;
-        QString value = it->second;
+    const Utils::Environment presetEnv = preset.environment ? preset.environment.value()
+                                                            : Utils::Environment();
+    for (auto it = presetEnv.constBegin(); it != presetEnv.constEnd(); ++it) {
+        const QString key = it.key().name;
+        QString value = it.value().first;
 
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
-            if (presetEnv.contains(macroName))
+            if (presetEnv.hasKey(macroName))
                 return presetEnv.value(macroName);
             return QString("${%1}").arg(macroName);
         });
@@ -199,7 +194,7 @@ void expand(const PresetType &preset,
 {
     expandAllButEnv(preset, sourceDirectory, value);
 
-    const QHash<QString, QString> presetEnv = getEnvCombined(preset.environment, env);
+    const Utils::Environment presetEnv = getEnvCombined(preset.environment, env);
     value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
         return presetEnv.value(macroName);
     });
