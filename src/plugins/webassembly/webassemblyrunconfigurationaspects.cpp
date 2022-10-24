@@ -5,10 +5,10 @@
 #include "webassemblytr.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QComboBox>

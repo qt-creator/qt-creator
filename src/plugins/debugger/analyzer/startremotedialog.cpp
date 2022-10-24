@@ -11,7 +11,8 @@
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runcontrol.h>
+
+#include <utils/commandline.h>
 
 #include <QDialogButtonBox>
 #include <QFormLayout>

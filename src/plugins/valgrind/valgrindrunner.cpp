@@ -6,6 +6,8 @@
 #include "valgrindtr.h"
 #include "xmlprotocol/threadedparser.h"
 
+#include <projectexplorer/runcontrol.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

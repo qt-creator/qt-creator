@@ -10,6 +10,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <QFile>
 #include <QFileInfo>

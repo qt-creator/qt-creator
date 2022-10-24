@@ -11,8 +11,6 @@
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
-#include <debugger/debuggerruncontrol.h>
-
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>

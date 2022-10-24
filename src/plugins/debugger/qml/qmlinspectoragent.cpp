@@ -8,7 +8,6 @@
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerinternalconstants.h>
-#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertr.h>
 #include <debugger/watchhandler.h>
 

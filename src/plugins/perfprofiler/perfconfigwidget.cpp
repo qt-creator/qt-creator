@@ -3,7 +3,6 @@
 
 #include "perfconfigeventsmodel.h"
 #include "perfconfigwidget.h"
-#include "perfprofilerconstants.h"
 #include "perfprofilertr.h"
 
 #include <coreplugin/messagebox.h>
@@ -11,11 +10,11 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QComboBox>

@@ -9,7 +9,6 @@
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerruncontrol.h>
 
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 

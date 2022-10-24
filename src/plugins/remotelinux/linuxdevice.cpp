@@ -22,7 +22,6 @@
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
 #include <utils/devicefileaccess.h>

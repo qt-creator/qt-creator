@@ -4,7 +4,6 @@
 #pragma once
 
 #include <qmlprofiler/qmlprofilermodelmanager.h>
-#include <qmlprofiler/qmlprofilerruncontrol.h>
 
 namespace QmlProfiler {
 namespace Internal {

@@ -4,14 +4,12 @@
 #include "androiddebugsupport.h"
 
 #include "androidconstants.h"
-#include "androidglobal.h"
 #include "androidrunner.h"
 #include "androidmanager.h"
 #include "androidqtversion.h"
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
-#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>

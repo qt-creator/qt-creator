@@ -4,8 +4,6 @@
 #include "mcusupportdevice.h"
 #include "mcusupportconstants.h"
 
-#include <projectexplorer/runcontrol.h>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 

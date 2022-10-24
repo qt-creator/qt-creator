@@ -11,12 +11,17 @@
 #include "perftimelinemodelmanager.h"
 
 #include <debugger/debuggermainwindow.h>
-#include <projectexplorer/runcontrol.h>
 #include <tracing/timelinezoomcontrol.h>
 #include <utils/fileinprojectfinder.h>
 
 #include <QLabel>
 #include <QToolButton>
+
+namespace ProjectExplorer {
+class Kit;
+class Project;
+class RunControl;
+}
 
 namespace PerfProfiler {
 namespace Internal {

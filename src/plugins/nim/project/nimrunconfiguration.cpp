@@ -10,7 +10,8 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/runcontrol.h>
+
+#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFileInfo>

@@ -3,6 +3,8 @@
 
 #include "waitforstopdialog.h"
 
+#include "runcontrol.h"
+
 #include <utils/algorithm.h>
 
 #include <QVBoxLayout>

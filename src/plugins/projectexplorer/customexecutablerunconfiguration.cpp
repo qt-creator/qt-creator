@@ -5,6 +5,7 @@
 
 #include "localenvironmentaspect.h"
 #include "projectexplorerconstants.h"
+#include "runconfigurationaspects.h"
 #include "target.h"
 
 using namespace Utils;

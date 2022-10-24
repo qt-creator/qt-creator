@@ -5,8 +5,6 @@
 #include "webassemblydevice.h"
 #include "webassemblytr.h"
 
-#include <projectexplorer/runcontrol.h>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 

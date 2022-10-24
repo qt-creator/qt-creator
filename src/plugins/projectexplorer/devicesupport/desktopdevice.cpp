@@ -9,12 +9,12 @@
 #include <coreplugin/fileutils.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 

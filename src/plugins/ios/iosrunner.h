@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "iosconfigurations.h"
 #include "iostoolhandler.h"
 #include "iossimulator.h"
 

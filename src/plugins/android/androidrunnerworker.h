@@ -4,13 +4,18 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
+#include <utils/environment.h>
 #include <utils/port.h>
 
 #include <QFuture>
+
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
+
+namespace ProjectExplorer { class RunWorker; }
 
 namespace Android {
 

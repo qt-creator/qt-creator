@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "runconfigurationaspects.h"
 #include "runcontrol.h"
 
 namespace ProjectExplorer {

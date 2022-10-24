@@ -11,7 +11,6 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <remotelinux/linuxprocessinterface.h>
 

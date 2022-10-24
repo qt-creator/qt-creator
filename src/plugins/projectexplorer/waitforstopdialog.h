@@ -7,20 +7,21 @@
 #include <QDialog>
 #include <QElapsedTimer>
 
-#include "runcontrol.h"
-
 QT_BEGIN_NAMESPACE
 class QLabel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+
+class RunControl;
+
 namespace Internal {
 
 class WaitForStopDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit WaitForStopDialog(const QList<ProjectExplorer::RunControl *> &runControls);
+    explicit WaitForStopDialog(const QList<RunControl *> &runControls);
 
     bool canceled();
 private:

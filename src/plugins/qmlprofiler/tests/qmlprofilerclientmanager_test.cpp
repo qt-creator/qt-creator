@@ -3,7 +3,6 @@
 
 #include "qmlprofilerclientmanager_test.h"
 #include "fakedebugserver.h"
-#include <qmlprofiler/qmlprofilerruncontrol.h>
 #include <utils/url.h>
 
 #include <QTcpServer>

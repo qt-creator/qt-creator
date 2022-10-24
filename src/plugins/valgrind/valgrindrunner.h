@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 #include <utils/outputformat.h>
 
 #include <QProcess>
@@ -12,6 +10,9 @@
 QT_BEGIN_NAMESPACE
 class QHostAddress;
 QT_END_NAMESPACE
+
+namespace Utils { class CommandLine; }
+namespace ProjectExplorer { class Runnable; }
 
 namespace Valgrind {
 

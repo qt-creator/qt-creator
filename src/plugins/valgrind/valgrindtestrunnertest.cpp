@@ -5,14 +5,13 @@
 
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/stack.h"
-#include "xmlprotocol/suppression.h"
 #include "xmlprotocol/threadedparser.h"
-#include "xmlprotocol/parser.h"
 #include "valgrindrunner.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
 

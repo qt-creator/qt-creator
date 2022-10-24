@@ -13,7 +13,6 @@
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/fsengine/fileiconprovider.h>

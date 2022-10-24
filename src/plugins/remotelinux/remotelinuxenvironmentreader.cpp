@@ -6,7 +6,6 @@
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
