@@ -64,6 +64,7 @@ constexpr auto iar_ek_ra6m3g_baremetal_json = R"(
     "boardSdk": {
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "envVar": "EK_RA6M3G_FSP_PATH",
+        "setting": "EK_RA6M3G_FSP_PATH",
         "id": "EK_RA6M3G_FSP_PATH",
         "label": "Flexible Software Package for Renesas RA MCU Family",
         "optional": false,

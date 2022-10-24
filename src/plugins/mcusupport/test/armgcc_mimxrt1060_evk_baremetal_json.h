@@ -19,6 +19,7 @@ constexpr auto armgcc_mimxrt1060_evk_baremetal_json = R"(
                 "label": "MCUXpresso IDE",
                 "type": "path",
                 "cmakeVar": "MCUXPRESSO_IDE_PATH",
+                "setting": "MCUXpressoIDE",
                 "defaultValue": {
                     "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*",
                     "linux": "/usr/local/mcuxpressoide/"
@@ -70,7 +71,8 @@ constexpr auto armgcc_mimxrt1060_evk_baremetal_json = R"(
             "2.12.0"
         ],
         "id": "NXP_SDK_DIR",
-        "label": "Board SDK MIMXRT1060-EVK",
+        "label": "Board SDK for MIMXRT1060-EVK",
+        "setting": "EVK_MIMXRT1060_SDK_PATH",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
         "optional": false

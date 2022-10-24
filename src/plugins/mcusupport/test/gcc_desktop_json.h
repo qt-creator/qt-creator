@@ -23,6 +23,7 @@ constexpr auto gcc_desktop_json = R"(
         ],
         "compiler": {
             "label": "GNU Toolchain",
+            "setting": "GnuToolchain",
             "defaultValue": "/usr",
             "versionDetection": {
                 "executableArgs": "--version",

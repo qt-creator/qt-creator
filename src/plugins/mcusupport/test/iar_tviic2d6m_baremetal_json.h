@@ -16,6 +16,7 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
         "cmakeEntries": [
             {
                 "id": "INFINEON_AUTO_FLASH_UTILITY_DIR",
+                "setting": "CypressAutoFlashUtil",
                 "label": "Cypress Auto Flash Utility",
                 "type": "path",
                 "cmakeVar": "INFINEON_AUTO_FLASH_UTILITY_DIR",
@@ -55,6 +56,7 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
     },
     "boardSdk": {
         "envVar": "TVII_GRAPHICS_DRIVER_DIR",
+        "setting": "TVII_GRAPHICS_DRIVER_DIR",
         "versions": [
             "V1e.1.0"
         ],
