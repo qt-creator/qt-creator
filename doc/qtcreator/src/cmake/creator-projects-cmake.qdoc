@@ -45,6 +45,14 @@
     \uicontrol {Clear CMake Configuration}, and then select \uicontrol Build
     > \uicontrol {Run CMake} to reconfigure the project.
 
+    The \uicontrol Projects view shows the names of the subfolders where the
+    source files are located. To hide the subfolder names and arrange the files
+    only according to their source group, select \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol CMake > \uicontrol General, and then
+    deselect the \uicontrol {Show subfolders inside source group folders} check
+    box. The change takes effect after you select \uicontrol Build >
+    \uicontrol {Run CMake}.
+
     \section1 Adding CMake Tools
 
     \QC requires CMake's \l{https://cmake.org/cmake/help/latest/manual/cmake-file-api.7.html}
