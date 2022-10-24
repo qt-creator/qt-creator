@@ -5,11 +5,13 @@
 #include "qmldesignerplugin.h"
 #include "qmldesignerconstants.h"
 
+#include "externaldependenciesinterface.h"
 #include "model.h"
 #include "puppetstarter.h"
 #include "rewritertransaction.h"
 #include "rewriterview.h"
 #include "rewritingexception.h"
+#include "viewmanager.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -564,10 +566,11 @@ void ItemLibraryAssetImporter::startNextImportProcess()
     if (m_puppetQueue.isEmpty())
         return;
 
+    auto view = QmlDesignerPlugin::viewManager().view();
     auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
     Model *model = doc ? doc->currentModel() : nullptr;
 
-    if (model) {
+    if (model && view) {
         bool done = false;
         while (!m_puppetQueue.isEmpty() && !done) {
             const ParseData pd = m_parseData.value(m_puppetQueue.takeLast());
@@ -579,7 +582,7 @@ void ItemLibraryAssetImporter::startNextImportProcess()
 
             m_currentImportId = pd.importId;
             m_puppetProcess = PuppetStarter::createPuppetProcess(
-                {},
+                view->externalDependencies().puppetStartData(*model),
                 "custom",
                 {},
                 [&] {},
@@ -605,17 +608,18 @@ void ItemLibraryAssetImporter::startNextIconProcess()
     if (m_puppetQueue.isEmpty())
         return;
 
+    auto view = QmlDesignerPlugin::viewManager().view();
     auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
     Model *model = doc ? doc->currentModel() : nullptr;
 
-    if (model) {
+    if (model && view) {
         bool done = false;
         while (!m_puppetQueue.isEmpty() && !done) {
             const ParseData pd = m_parseData.value(m_puppetQueue.takeLast());
             QStringList puppetArgs;
             puppetArgs << "--rendericon" << QString::number(24) << pd.iconFile << pd.iconSource;
             m_puppetProcess = PuppetStarter::createPuppetProcess(
-                {},
+                view->externalDependencies().puppetStartData(*model),
                 "custom",
                 {},
                 [&] {},
