@@ -20,7 +20,7 @@ constexpr auto armgcc_stm32f769i_discovery_freertos_json = R"(
                 "type": "path",
                 "setting": "Stm32CubeProgrammer",
                 "defaultValue": {
-                    "windows": "%{Env:PROGRAMSANDFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
+                    "windows": "%{Env:PROGRAMFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
                     "linux": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
                 },
                 "detectionPath": {

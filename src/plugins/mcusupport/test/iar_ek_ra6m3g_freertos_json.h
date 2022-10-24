@@ -21,7 +21,7 @@ constexpr auto iar_ek_ra6m3g_freertos_json = R"(
                 "label": "Path to SEGGER J-Link",
                 "type": "path",
                 "defaultValue": {
-                    "windows": "%{Env:PROGRAMSANDFILES}/SEGGER/JLink",
+                    "windows": "%{Env:PROGRAMFILES}/SEGGER/JLink",
                     "linux": "/opt/SEGGER/JLink"
                 },
                 "optional": true,

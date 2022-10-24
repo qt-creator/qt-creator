@@ -90,7 +90,7 @@ constexpr auto mulitple_toolchain_versions = R"(
         "type": "path",
         "setting": "Stm32CubeProgrammer",
         "defaultValue": {
-          "windows": "%{Env:PROGRAMSANDFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
+          "windows": "%{Env:PROGRAMFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
           "linux": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
         },
         "optional": false
