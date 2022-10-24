@@ -22,9 +22,15 @@
 
     \QC automatically detects the compilers that are registered by your
     system or by the Qt Installer and lists them in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits > \uicontrol Compilers:
+    \uicontrol Preferences > \uicontrol Kits > \uicontrol Compilers.
 
     \image qtcreator-toolchains.png
+
+    \note On \macos, the \c ccache C/C++ compiler cache is detected
+    automatically only if you installed it using Homebrew or MacPorts.
+    When using MacPorts, you also need to create symlinks, as instructed in
+    \l{https://trac.macports.org/wiki/howto/ccache}{How to enable ccache}
+    in the MacPorts wiki.
 
     You can add the following compilers to build applications by using other
     compilers or by using additional versions of the automatically detected
@@ -68,16 +74,16 @@
         \li \l{https://www.iar.com/iar-embedded-workbench/}{IAREW} is a group of
             C and C++ bare-metal compilers from the various IAR Embedded Workbench
             development environments.
-            \note Currently supported architectures are \c 8051, \c AVR, \c ARM,
+            Currently supported architectures are \c 8051, \c AVR, \c ARM,
             \c STM8, and \c MSP430.
 
         \li \l{https://www.keil.com}{KEIL} is a group of C and C++ bare-metal
             compilers from the various KEIL development environments.
-            \note Currently supported architectures are \c 8051 and \c ARM.
+            Currently supported architectures are \c 8051 and \c ARM.
 
         \li \l{http://sdcc.sourceforge.net}{SDCC} is a retargetable, optimizing
             C bare-metal compiler for various architectures.
-            \note Currently supported architectures are \c 8051 and \c STM8.
+            Currently supported architectures are \c 8051 and \c STM8.
 
     \endlist
 
