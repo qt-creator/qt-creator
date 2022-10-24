@@ -3,6 +3,7 @@
 
 #include "mcusupportoptions.h"
 
+#include "mcuhelpers.h"
 #include "mcukitmanager.h"
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
@@ -16,15 +17,48 @@
 #include <coreplugin/icore.h>
 #include <debugger/debuggerkitinformation.h>
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QMessageBox>
 #include <QPushButton>
 
+#include <utility>
+
 using namespace Utils;
 
 namespace McuSupport::Internal {
+
+Macros *McuSdkRepository::globalMacros()
+{
+    static Macros macros;
+    return &macros;
+}
+
+void McuSdkRepository::expandVariables()
+{
+    auto macroExpander = getMacroExpander();
+    for (const auto &package : std::as_const(packages))
+        package->setPath(macroExpander->expand(package->path()));
+}
+
+MacroExpanderPtr McuSdkRepository::getMacroExpander()
+{
+    auto macroExpander = std::make_shared<Utils::MacroExpander>();
+
+    //register the macros
+    for (const auto &package : std::as_const(packages)) {
+        macroExpander->registerVariable(package->cmakeVariableName().toLocal8Bit(),
+                                        package->label(),
+                                        [package] { return package->path().toString(); });
+    }
+
+    for (auto [key, macro] : asKeyValueRange(*globalMacros()))
+        macroExpander->registerVariable(key.toLocal8Bit(), "QtMCUs Macro", macro);
+
+    return macroExpander;
+}
 
 McuSupportOptions::McuSupportOptions(const SettingsHandler::Ptr &settingsHandler, QObject *parent)
     : QObject(parent)
@@ -93,8 +127,15 @@ bool McuSupportOptions::isLegacyVersion(const QVersionNumber &version)
     return version < newVersion;
 }
 
-void McuSupportOptions::setQulDir(const FilePath &)
+void McuSupportOptions::setQulDir(const FilePath &path)
 {
+    //register the Qt installation directory containing Qul dir
+    auto qtPath = (path / "../..").cleanPath();
+    if (qtPath.exists()) {
+        McuSdkRepository::globalMacros()->insert("QtDir", [qtPathString = qtPath.path()] {
+            return qtPathString;
+        });
+    }
     qtForMCUsSdkPackage->updateStatus();
     if (qtForMCUsSdkPackage->isValidStatus())
         sdkRepository = targetsAndPackages(qtForMCUsSdkPackage, settingsHandler);

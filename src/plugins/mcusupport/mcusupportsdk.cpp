@@ -591,7 +591,11 @@ McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &desc
             mcuPackages.insert(package);
         }
     }
-    return McuSdkRepository{mcuTargets, mcuPackages};
+
+    McuSdkRepository repo{mcuTargets, mcuPackages};
+    repo.expandVariables();
+
+    return repo;
 }
 
 FilePath kitsPath(const FilePath &qtMcuSdkPath)

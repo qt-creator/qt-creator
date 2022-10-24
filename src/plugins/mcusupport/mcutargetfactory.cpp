@@ -4,6 +4,7 @@
 #include "mcutargetfactory.h"
 #include "mcuhelpers.h"
 #include "mcupackage.h"
+#include "mcusupport_global.h"
 #include "mcusupportplugin.h"
 #include "mcusupportversiondetection.h"
 #include "mcutarget.h"
@@ -56,18 +57,6 @@ static void removeEmptyPackages(Packages &packages)
     }
 }
 
-void McuTargetFactory::expandVariables(Packages &packages)
-{
-    Utils::MacroExpander macroExpander;
-    for (const auto &package : packages) {
-        macroExpander.registerVariable(package->cmakeVariableName().toLocal8Bit(),
-                                       package->label(),
-                                       [package] { return package->path().toString(); });
-    }
-    for (const auto &package : packages)
-        package->setPath(macroExpander.expand(package->path()));
-}
-
 McuTargetFactory::McuTargetFactory(const SettingsHandler::Ptr &settingsHandler)
     : settingsHandler{settingsHandler}
 {}
@@ -94,7 +83,6 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         targetPackages.unite({toolchainFile});
 
         removeEmptyPackages(targetPackages);
-        expandVariables(targetPackages);
 
         packages.unite(targetPackages);
 

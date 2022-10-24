@@ -196,6 +196,11 @@ const McuTargetDescription::Platform platformDescription{id,
 const Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 } // namespace
 
+//Expand variables in a tested {targets, packages} pair
+auto expandTargetsAndPackages = [](Targets &targets, Packages &packages) {
+    McuSdkRepository{targets, packages}.expandVariables();
+};
+
 void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
 {
     ProjectExplorer::ToolChainFactory toolchainFactory;
@@ -676,7 +681,7 @@ void McuSupportTest::test_legacy_createPackagesWithCorrespondingSettings()
 {
     QFETCH(QString, json);
     const McuTargetDescription description = parseDescriptionJson(json.toLocal8Bit());
-    const auto [targets, packages]{
+    auto [targets, packages]{
         targetsFromDescriptions({description}, settingsMockPtr, sdkPackagePtr, runLegacy)};
     Q_UNUSED(targets);
 
@@ -701,7 +706,8 @@ void McuSupportTest::test_createTargets()
                                           true};
     targetDescription.toolchain.id = armGcc;
 
-    const auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
     QCOMPARE(targets.size(), 1);
     const McuTargetPtr target{targets.at(0)};
 
@@ -1154,7 +1160,8 @@ void McuSupportTest::test_createFreeRtosPackage()
     EXPECT_CALL(*settingsMockPtr, getPath(targetDescription.boardSdk.envVar, _, _))
         .WillRepeatedly(Return(FilePath::fromString(boardSdkDir)));
 
-    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
 
     auto freeRtos = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->cmakeVariableName() == freeRtosCMakeVar);
@@ -1379,7 +1386,8 @@ void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
     toochainFileDescription.defaultPath = FilePath::fromUserInput(toolchainFileDefaultPath);
     targetDescription.toolchain.file = toochainFileDescription;
 
-    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
     auto qtForMCUPkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return pkg->environmentVariableName() == QUL_ENV_VAR;
     });
@@ -1413,7 +1421,8 @@ void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
     toochainFileDescription.defaultPath = FilePath::fromUserInput(toolchainFileDefaultPath);
     targetDescription.toolchain.file = toochainFileDescription;
 
-    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
     auto qtForMCUPkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return pkg->cmakeVariableName() == QUL_CMAKE_VAR;
     });
@@ -1541,6 +1550,7 @@ void McuSupportTest::test_createThirdPartyPackage()
         .WillOnce(Return(FilePath::fromUserInput(path)));
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    expandTargetsAndPackages(targets, packages);
 
     auto thirdPartyPackage = findOrDefault(packages, [&setting](const McuPackagePtr &pkg) {
         return (pkg->settingsKey() == setting);
@@ -1588,6 +1598,7 @@ void McuSupportTest::test_createJLink3rdPartyPackage()
         .WillOnce(Return(FilePath::fromUserInput(jlinkPath)));
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    expandTargetsAndPackages(targets, packages);
 
     auto thirdPartyPackage = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->settingsKey() == jlinkSetting);
@@ -1653,7 +1664,6 @@ void McuSupportTest::test_nonemptyVersionDetector()
     // pkgDesc.versionDetection.xmlElement left empty
     // pkgDesc.versionDetection.xmlAttribute left empty
     pkgDesc.shouldAddToSystemPath = false;
-
     const auto package = targetFactory.createPackage(pkgDesc);
     QVERIFY(package->getVersionDetector() != nullptr);
     QCOMPARE(typeid(*package->getVersionDetector()).name(),
@@ -1686,7 +1696,8 @@ void McuSupportTest::test_emptyVersionDetector()
 void McuSupportTest::test_emptyVersionDetectorFromJson()
 {
     const auto targetDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
-    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
 
     auto freeRtos = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->cmakeVariableName() == freeRtosCMakeVar);

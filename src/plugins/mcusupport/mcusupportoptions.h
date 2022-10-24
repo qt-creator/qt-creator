@@ -8,6 +8,7 @@
 #include "settingshandler.h"
 
 #include <utils/environmentfwd.h>
+#include <utils/macroexpander.h>
 
 #include <QObject>
 #include <QVersionNumber>
@@ -30,11 +31,19 @@ namespace Internal {
 
 class McuAbstractPackage;
 
+using MacroExpanderPtr = std::shared_ptr<Utils::MacroExpander>;
+using Macros = QHash<QString, Utils::MacroExpander::StringFunction>;
+
 class McuSdkRepository final
 {
 public:
     Targets mcuTargets;
     Packages packages;
+
+    void expandVariables();
+    MacroExpanderPtr getMacroExpander();
+
+    static Macros *globalMacros();
 };
 
 class McuSupportOptions final : public QObject
