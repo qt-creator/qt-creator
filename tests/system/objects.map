@@ -201,7 +201,7 @@
 :WritePermissions_Core::Internal::ReadOnlyFilesDialog	{type='Core::ReadOnlyFilesDialog' unnamed='1' visible='1' windowTitle='Files Without Write Permissions'}
 :addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{name='FormFileName' type='Utils::FancyLineEdit' visible='1' window=':New_ProjectExplorer::JsonWizard'}
-:frame.templateDescription_QTextBrowser	{container=':New.frame_QFrame' name='templateDescription' type='QTextBrowser' visible='1'}
+:frame.templateDescription_QTextBrowser	{name='templateDescription' type='QTextBrowser' visible='1' window=':New_Core::Internal::NewDialog'}
 :headerFileLineEdit_Utils::FileNameValidatingLineEdit	{name='HdrFileName' type='Utils::FancyLineEdit' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :popupFrame_Proposal_QListView	{container=':popupFrame_TextEditor::GenericProposalWidget' type='QListView' unnamed='1' visible='1'}
 :popupFrame_TextEditor::GenericProposalWidget	{name='m_popupFrame' type='TextEditor::GenericProposalWidget' visible='1'}
