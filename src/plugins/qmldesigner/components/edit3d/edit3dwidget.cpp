@@ -249,7 +249,7 @@ void Edit3DWidget::onCreateAction()
                                                     QString::number(entry.majorVersion())
                                                     + QLatin1Char('.')
                                                     + QString::number(entry.minorVersion()));
-        if (!m_view->model()->hasImport(import))
+        if (!m_view->model()->hasImport(import, true, true))
             m_view->model()->changeImports({import}, {});
 
         int activeScene = m_view->rootModelNode().auxiliaryData("active3dScene@Internal").toInt();
