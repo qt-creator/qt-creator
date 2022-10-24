@@ -593,7 +593,7 @@ McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &desc
     }
 
     McuSdkRepository repo{mcuTargets, mcuPackages};
-    repo.expandVariables();
+    repo.expandVariablesAndWildcards();
 
     return repo;
 }

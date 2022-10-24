@@ -30,18 +30,37 @@ using namespace Utils;
 
 namespace McuSupport::Internal {
 
+static const Utils::FilePath expandWildcards(const Utils::FilePath& path)
+{
+    if (!path.fileName().contains("*") && !path.fileName().contains("?"))
+        return path;
+
+    const FilePath p = path.parentDir();
+
+    auto entries = p.dirEntries(
+        Utils::FileFilter({path.fileName()}, QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot));
+
+    if (entries.isEmpty())
+        return path;
+
+    // Return the last match (can correspond to the latest version)
+    sort(entries, [](const FilePath &a, const FilePath &b) { return a.fileName() < b.fileName(); });
+
+    return entries.last();
+}
+
 Macros *McuSdkRepository::globalMacros()
 {
     static Macros macros;
     return &macros;
 }
 
-void McuSdkRepository::expandVariables()
+void McuSdkRepository::expandVariablesAndWildcards()
 {
     for (const auto &target : std::as_const(mcuTargets)) {
         auto macroExpander = getMacroExpander(*target);
         for (const auto &package : target->packages()) {
-            package->setPath(macroExpander->expand(package->path()));
+            package->setPath(expandWildcards(macroExpander->expand(package->path())));
         }
     }
 }

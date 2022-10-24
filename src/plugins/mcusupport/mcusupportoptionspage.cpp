@@ -289,7 +289,7 @@ void McuSupportOptionsWidget::apply()
     bool pathsChanged = false;
 
     m_settingsHandler->setAutomaticKitCreation(m_options.automaticKitCreationEnabled());
-    m_options.sdkRepository.expandVariables();
+    m_options.sdkRepository.expandVariablesAndWildcards();
 
     QMessageBox warningPopup(QMessageBox::Icon::Warning,
                              Tr::tr("Warning"),

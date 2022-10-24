@@ -11,7 +11,6 @@
 #include "mcutargetdescription.h"
 
 #include <utils/algorithm.h>
-#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QVersionNumber>

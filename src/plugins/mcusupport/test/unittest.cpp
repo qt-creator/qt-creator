@@ -15,8 +15,9 @@
 #include "ghs_tviic2d6m_baremetal_json.h"
 #include "iar_mimxrt1064_evk_freertos_json.h"
 #include "iar_stm32f469i_discovery_baremetal_json.h"
-#include "msvc_desktop_json.h"
 #include "mingw_desktop_json.h"
+#include "msvc_desktop_json.h"
+#include "wildcards_test_kit_json.h"
 
 #include "mcuhelpers.h"
 #include "mcukitmanager.h"
@@ -27,6 +28,7 @@
 #include "mcusupportsdk.h"
 #include "mcusupportversiondetection.h"
 #include "mcutargetdescription.h"
+#include "mcutargetfactory.h"
 #include "mcutargetfactorylegacy.h"
 
 #include <baremetal/baremetalconstants.h>
@@ -44,13 +46,15 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 
+#include <QCoreApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QtTest>
 
 #include <algorithm>
+#include <tuple>
 #include <type_traits>
 
 namespace McuSupport::Internal::Test {
@@ -172,6 +176,11 @@ const QString jlinkDetectionPath{HostOsInfo::isWindowsHost()
 const QString unsupportedToolchainFilePath = QString{qtForMcuSdkPath}
                                              + "/lib/cmake/Qul/toolchain/unsupported.cmake";
 
+// Build/Testing/QtMCUs
+const auto testing_output_dir = (FilePath::fromString(QCoreApplication::applicationDirPath()).parentDir()
+                           / "Testing/QtMCUs")
+                              .canonicalPath();
+
 const QStringList jsonFiles{QString::fromUtf8(armgcc_mimxrt1050_evk_freertos_json),
                             QString::fromUtf8(iar_mimxrt1064_evk_freertos_json)};
 
@@ -201,7 +210,7 @@ const Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 
 //Expand variables in a tested {targets, packages} pair
 auto expandTargetsAndPackages = [](Targets &targets, Packages &packages) {
-    McuSdkRepository{targets, packages}.expandVariables();
+    McuSdkRepository{targets, packages}.expandVariablesAndWildcards();
 };
 
 void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
@@ -358,6 +367,30 @@ void verifyPackage(const McuPackagePtr &package,
     QCOMPARE(package->versions(), versions);
 }
 
+// create fake files and folders for testing under the "testing_output_dir" folder
+bool createFakePath(const FilePath& path, const bool is_file = false)
+{
+    if (path.exists())
+        return true;
+
+    //create an empty file or folder
+    if (is_file) {
+        if (!path.parentDir().createDir()) {
+            qWarning() << "Could not create the parent dir for testing file " << path;
+            return false;
+        }
+        if (!path.writeFileContents("placeholder text")) {
+            qWarning() << "Could not write to testing file " << path;
+            return false;
+        }
+    } else if (!path.createDir()) {
+        qWarning() << "Could not create testing dir " << path;
+        return false;
+    }
+
+    return true;
+};
+
 McuSupportTest::McuSupportTest()
     : targetFactory{settingsMockPtr}
     , compilerDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_DIR_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false}
@@ -415,6 +448,15 @@ McuSupportTest::McuSupportTest()
     testing::FLAGS_gmock_verbose = "error";
 }
 
+// load the test file
+std::pair<Targets, Packages> McuSupportTest::createTestingKitTargetsAndPackages(QByteArray test_file)
+{
+    McuTargetFactory factory(settingsMockPtr);
+    auto [targets, packages] = factory.createTargets(parseDescriptionJson(test_file), sdkPackagePtr);
+    expandTargetsAndPackages(targets, packages);
+    return {targets, packages};
+}
+
 void McuSupportTest::initTestCase()
 {
     EXPECT_CALL(*freeRtosPackage, environmentVariableName())
@@ -455,6 +497,9 @@ void McuSupportTest::initTestCase()
 
 void McuSupportTest::init()
 {
+    McuSdkRepository::globalMacros()
+        ->insert("MCU_TESTING_FOLDER",
+                 [dir = testing_output_dir.absoluteFilePath().toString()] { return dir; });
     qDebug() << __func__;
 }
 
@@ -1648,6 +1693,36 @@ void McuSupportTest::test_addToSystemPathFlag()
     QCOMPARE(toolchainFilePackage.shouldAddToSystemPath, false);
     QCOMPARE(boardSdkPackage.shouldAddToSystemPath, false);
     QCOMPARE(freeRtosPackage.shouldAddToSystemPath, false);
+}
+
+void McuSupportTest::test_processWildcards_data()
+{
+    QTest::addColumn<QString>("package_label");
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<bool>("isFile");
+
+    QTest::newRow("\"*\" at the end") << "FAKE_WILDCARD_TEST_1"
+                                      << "folder-123" << false;
+    QTest::newRow("\"*\" in the middle") << "FAKE_WILDCARD_TEST_2"
+                                         << "file-123.exe" << true;
+    QTest::newRow("\"*\" at the start") << "FAKE_WILDCARD_TEST_3"
+                                        << "123-file.exe" << true;
+}
+
+void McuSupportTest::test_processWildcards()
+{
+    QFETCH(QString, package_label);
+    QFETCH(QString, path);
+    QFETCH(bool, isFile);
+
+    QVERIFY(createFakePath(testing_output_dir / "wildcards" / path, isFile));
+
+    auto [targets, packages] = createTestingKitTargetsAndPackages(wildcards_test_kit);
+    auto testWildcardsPackage = findOrDefault(packages, [&](const McuPackagePtr &pkg) {
+        return (pkg->label() == package_label);
+    });
+    QVERIFY(testWildcardsPackage != nullptr);
+    QCOMPARE(testWildcardsPackage->path().toString(), FilePath(testing_output_dir / "wildcards" / path).toString());
 }
 
 void McuSupportTest::test_nonemptyVersionDetector()

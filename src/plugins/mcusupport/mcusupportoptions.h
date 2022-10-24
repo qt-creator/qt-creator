@@ -40,7 +40,7 @@ public:
     Targets mcuTargets;
     Packages packages;
 
-    void expandVariables();
+    void expandVariablesAndWildcards();
     MacroExpanderPtr getMacroExpander(const McuTarget &target);
 
     static Macros *globalMacros();
