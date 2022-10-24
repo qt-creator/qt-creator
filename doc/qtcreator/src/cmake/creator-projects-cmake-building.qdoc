@@ -15,6 +15,10 @@
     settings and displays it in \uicontrol {Initial Configuration} in
     the \l{Specifying Build Settings}{Build Settings} of the project.
 
+    The \uicontrol Configuration field displays the effective CMake call that
+    is constructed by using the values of the \uicontrol {Build directory} and
+    \uicontrol {Build type} fields.
+
     \image qtcreator-cmake-build-settings-initial.png "CMake build settings"
 
     \uicontrol {Initial Configuration} lists the variables that are used to
