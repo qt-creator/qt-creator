@@ -12,6 +12,8 @@
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
 #include "viewmanager.h"
+
+#include <auxiliarydataproperties.h>
 #include <designeractionmanager.h>
 #include <import.h>
 #include <nodeinstanceview.h>
@@ -209,29 +211,33 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
 // Action triggered from the "create" sub-menu
 void Edit3DWidget::onCreateAction()
 {
-    //    QAction *action = qobject_cast<QAction *>(sender());
-    //    if (!action || !m_view || !m_view->model())
-    //        return;
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action || !m_view || !m_view->model())
+        return;
 
-    //    m_view->executeInTransaction(__FUNCTION__, [&] {
-    //        ItemLibraryEntry entry = m_nameToEntry.value(action->data().toString());
-    //        Import import = Import::createLibraryImport(entry.requiredImport(),
-    //                                                    QString::number(entry.majorVersion())
-    //                                                    + QLatin1Char('.')
-    //                                                    + QString::number(entry.minorVersion()));
-    //        if (!m_view->model()->hasImport(import))
-    //            m_view->model()->changeImports({import}, {});
+    m_view->executeInTransaction(__FUNCTION__, [&] {
+        ItemLibraryEntry entry = m_nameToEntry.value(action->data().toString());
+        Import import = Import::createLibraryImport(entry.requiredImport(),
+                                                    QString::number(entry.majorVersion())
+                                                    + QLatin1Char('.')
+                                                    + QString::number(entry.minorVersion()));
+        if (!m_view->model()->hasImport(import, true, true))
+            m_view->model()->changeImports({import}, {});
 
-    //        int activeScene = m_view->rootModelNode().auxiliaryData("active3dScene@Internal").toInt();
-    //        auto modelNode = QmlVisualNode::createQml3DNode(m_view, entry,
-    //                                                        activeScene, m_contextMenuPos3d).modelNode();
-    //        QTC_ASSERT(modelNode.isValid(), return);
-    //        m_view->setSelectedModelNode(modelNode);
+        int activeScene = -1;
+        auto data = m_view->rootModelNode().auxiliaryData(active3dSceneProperty);
+        if (data)
+            activeScene = data->toInt();
+        auto modelNode = QmlVisualNode::createQml3DNode(m_view, entry,
+                                                        activeScene, m_contextMenuPos3d).modelNode();
+        QTC_ASSERT(modelNode.isValid(), return);
+        m_view->setSelectedModelNode(modelNode);
 
-    //        // if added node is a Model, assign it a material
-    //        if (modelNode.isSubclassOf("QtQuick3D.Model"))
-    //            m_view->assignMaterialTo3dModel(modelNode);
-    //    });
+        // if added node is a Model, assign it a material
+        if (modelNode.metaInfo().isQtQuick3DModel())
+            m_view->assignMaterialTo3dModel(modelNode);
+    });
+
 }
 
 void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
