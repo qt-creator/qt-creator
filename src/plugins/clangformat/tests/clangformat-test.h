@@ -90,6 +90,7 @@ private slots:
     void testClassIndentStructure();
     void testIndentInitializeVector();
     void testIndentFunctionArgumentOnNewLine();
+    void testIndentCommentOnNewLine();
 
 private:
     void insertLines(const std::vector<QString> &lines);

@@ -250,7 +250,7 @@ QByteArray dummyTextForContext(CharacterContext context, bool closingBraceBlock)
     case CharacterContext::IfOrElseWithoutScope:
         return ";";
     case CharacterContext::NewStatementOrContinuation:
-        return "/**/";
+        return "/*//*/";
     case CharacterContext::Unknown:
     default:
         QTC_ASSERT(false, return "";);
@@ -302,7 +302,7 @@ int forceIndentWithExtraText(QByteArray &buffer,
     }
 
     // A comment at the end of the line appears to prevent clang-format from removing line breaks.
-    if (dummyText == "/**/" || dummyText.isEmpty()) {
+    if (dummyText == "/*//*/" || dummyText.isEmpty()) {
         if (block.previous().isValid()) {
             const int prevEndOffset = Utils::Text::utf8NthLineOffset(block.document(), buffer,
                     block.blockNumber()) + block.previous().text().length();
