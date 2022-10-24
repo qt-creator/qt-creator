@@ -220,7 +220,7 @@ void updateToolchainFile(
     Utils::FilePath toolchainFile = Utils::FilePath::fromString(toolchainFileName);
     if (toolchainFile.isRelativePath()) {
         for (const auto &path : {sourceDirectory, buildDirectory}) {
-            Utils::FilePath probePath = toolchainFile.resolvePath(path);
+            Utils::FilePath probePath = path.resolvePath(toolchainFile);
             if (probePath.exists() && probePath != path) {
                 toolchainFile = probePath;
                 break;
@@ -231,6 +231,8 @@ void updateToolchainFile(
     if (!toolchainFile.exists())
         return;
 
+    const QString toolchainFileString = toolchainFile.cleanPath().toString();
+
     // toolchainFile takes precedence to CMAKE_TOOLCHAIN_FILE
     CMakeConfig cache = configurePreset.cacheVariables ? configurePreset.cacheVariables.value()
                                                        : CMakeConfig();
@@ -239,11 +241,11 @@ void updateToolchainFile(
         return item.key == "CMAKE_TOOLCHAIN_FILE";
     });
     if (it != cache.end())
-        it->value = toolchainFile.toString().toUtf8();
+        it->value = toolchainFileString.toUtf8();
     else
         cache << CMakeConfigItem("CMAKE_TOOLCHAIN_FILE",
                                  CMakeConfigItem::FILEPATH,
-                                 toolchainFile.toString().toUtf8());
+                                 toolchainFileString.toUtf8());
 
     configurePreset.cacheVariables = cache;
 }
