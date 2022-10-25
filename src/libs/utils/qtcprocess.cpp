@@ -1095,16 +1095,16 @@ void QtcProcess::start()
                qWarning("Restarting the QtcProcess directly from one of its signal handlers will "
                         "lead to crash! Consider calling close() prior to direct restart."));
     d->clearForRun();
-    d->m_state = QProcess::Starting;
     ProcessInterface *processImpl = nullptr;
     if (d->m_setup.m_commandLine.executable().needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.processImplHook, d->m_state = QProcess::NotRunning; return);
+        QTC_ASSERT(s_deviceHooks.processImplHook, return);
         processImpl = s_deviceHooks.processImplHook(commandLine().executable());
     } else {
         processImpl = d->createProcessInterface();
     }
-    QTC_ASSERT(processImpl, d->m_state = QProcess::NotRunning; return);
+    QTC_ASSERT(processImpl, return);
     d->setProcessInterface(processImpl);
+    d->m_state = QProcess::Starting;
     d->m_process->m_setup = d->m_setup;
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
     d->m_process->m_setup.m_environment = d->fullEnvironment();
