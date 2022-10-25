@@ -29,8 +29,7 @@
     To preview an application in a web browser:
 
     \list 1
-        \li In the browser, open \l{http://qt-webassembly.io/designviewer/}
-            {\QDV}.
+        \li In the browser, open \l{ https://designviewer.qt.io/}{\QDV}.
         \li Drag and drop your application package to \QDV, or click the load
             icon to browse for your file.
     \endlist
