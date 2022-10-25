@@ -210,7 +210,7 @@ public:
 
     void setAuxiliaryData(const InternalNodePointer &node, const PropertyName &name, const QVariant &data);
     void removeAuxiliaryData(const InternalNodePointer &node, const PropertyName &name);
-    [[noreturn]] void resetModelByRewriter(const QString &description);
+    void resetModelByRewriter(const QString &description);
 
     // Imports:
     const QList<Import> &imports() const { return m_imports; }
