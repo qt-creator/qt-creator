@@ -39,6 +39,7 @@ class PropertyModel : public QAbstractListModel
 
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend
                    NOTIFY modelNodeBackendChanged)
+    Q_PROPERTY(bool expanded READ expanded NOTIFY expandedChanged)
 
     enum { Name = Qt::DisplayRole, Value = Qt::UserRole, Type };
 
@@ -62,6 +63,7 @@ public:
 
 signals:
     void modelNodeBackendChanged();
+    void expandedChanged();
 
 private:
     QVariant modelNodeBackend() const;

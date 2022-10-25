@@ -36,6 +36,7 @@ class PreviewImageProvider;
 class MaterialBrowserWidget : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY(BundleMaterial *draggedBundleMaterial MEMBER m_draggedBundleMaterial NOTIFY draggedBundleMaterialChanged)
 
 public:
     MaterialBrowserWidget(MaterialBrowserView *view);
@@ -59,6 +60,7 @@ public:
 
 signals:
     void bundleMaterialDragStarted(QmlDesigner::BundleMaterial *bundleMat);
+    void draggedBundleMaterialChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -80,6 +82,7 @@ private:
 
     ModelNode m_materialToDrag;
     BundleMaterial *m_bundleMaterialToDrag = nullptr;
+    BundleMaterial *m_draggedBundleMaterial = nullptr;
     QPoint m_dragStartPoint;
 };
 

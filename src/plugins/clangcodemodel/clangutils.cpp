@@ -271,7 +271,7 @@ QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &proje
             && projectPart.precompiledHeaders.contains(file.path)) {
         usePch = UsePrecompiledHeaders::No;
     }
-    optionsBuilder.updateFileLanguage(file.kind);
+    optionsBuilder.updateFileLanguage(fileKind);
     optionsBuilder.addPrecompiledHeaderOptions(usePch);
     const QJsonArray specificOptions = QJsonArray::fromStringList(optionsBuilder.options());
     QJsonArray fullOptions = generalOptions;

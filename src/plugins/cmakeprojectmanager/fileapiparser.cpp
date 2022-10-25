@@ -838,7 +838,7 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
 
     const auto cancelCheck = [&fi, &errorMessage]() -> bool {
         if (fi.isCanceled()) {
-            errorMessage = Tr::tr("CMake parsing was cancelled.");
+            errorMessage = Tr::tr("CMake parsing was canceled.");
             return true;
         }
         return false;

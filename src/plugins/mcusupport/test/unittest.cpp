@@ -16,6 +16,7 @@
 #include "iar_mimxrt1064_evk_freertos_json.h"
 #include "iar_stm32f469i_discovery_baremetal_json.h"
 #include "msvc_desktop_json.h"
+#include "mingw_desktop_json.h"
 
 #include "mcuhelpers.h"
 #include "mcukitmanager.h"
@@ -131,18 +132,21 @@ const char xpressoIdeLabel[]{"MCUXpresso IDE"};
 const char xpressoIdeSetting[]{"MCUXpressoIDE"};
 const char xpressoIdeCmakeVar[]{"MCUXPRESSO_IDE_PATH"};
 const char xpressoIdeEnvVar[]{"MCUXpressoIDE_PATH"};
-const char xpressoIdeDetectionPath[]{"ide/binaries/crt_emu_cm_redlink"};
+const QString xpressoIdeDetectionPath{
+    HostOsInfo::withExecutableSuffix("ide/binaries/crt_emu_cm_redlink")};
 
 const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
 const char stmCubeProgrammerLabel[]{"STM32CubeProgrammer"};
 const QString stmCubeProgrammerPath{QString{defaultToolPath} + "/bin"};
-const QString stmCubeProgrammerDetectionPath{"/bin/STM32_Programmer.sh"};
+const QString stmCubeProgrammerDetectionPath{HostOsInfo::isWindowsHost()
+                                                 ? QString("bin/STM32_Programmer_CLI.exe")
+                                                 : QString("bin/STM32_Programmer.sh")};
 
 const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
 const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
 const QString renesasProgrammerEnvVar{renesasProgrammerCmakeVar};
 const char renesasProgrammerLabel[]{"Renesas Flash Programmer"};
-const char renesasProgrammerDetectionPath[]{"rfp-cli"};
+const QString renesasProgrammerDetectionPath{HostOsInfo::withExecutableSuffix("rfp-cli")};
 
 const char renesasE2StudioCmakeVar[]{"EK_RA6M3G_E2_PROJECT_PATH"};
 const char renesasE2StudioDefaultPath[]{"%{Env:HOME}/e2_studio/workspace"};
@@ -154,7 +158,7 @@ const char cypressProgrammerSetting[]{"CypressAutoFlashUtil"};
 const char cypressProgrammerCmakeVar[]{"INFINEON_AUTO_FLASH_UTILITY_DIR"};
 const char cypressProgrammerEnvVar[]{"CYPRESS_AUTO_FLASH_UTILITY_DIR"};
 const char cypressProgrammerLabel[]{"Cypress Auto Flash Utility"};
-const char cypressProgrammerDetectionPath[]{"/bin/openocd"};
+const QString cypressProgrammerDetectionPath{HostOsInfo::withExecutableSuffix("/bin/openocd")};
 
 const char jlinkPath[]{"/opt/SEGGER/JLink"};
 const char jlinkSetting[]{"JLinkPath"};
@@ -260,6 +264,17 @@ void verifyMsvcToolchain(const McuToolChainPackagePtr &msvcPackage, const QStrin
     QVERIFY(allOf(versions, [&](const QString &v) { return msvcPackage->versions().contains(v); }));
 }
 
+void verifyMingwToolchain(const McuToolChainPackagePtr &mingwPackage, const QStringList &versions)
+{
+    QVERIFY(mingwPackage != nullptr);
+    QCOMPARE(mingwPackage->cmakeVariableName(), "");
+    QCOMPARE(mingwPackage->environmentVariableName(), "");
+    QCOMPARE(mingwPackage->toolchainType(), McuToolChainPackage::ToolChainType::MinGW);
+    QCOMPARE(mingwPackage->isDesktopToolchain(), true);
+    QCOMPARE(mingwPackage->toolChainName(), "mingw");
+    QVERIFY(allOf(versions, [&](const QString &v) { return mingwPackage->versions().contains(v); }));
+}
+
 void verifyTargetToolchains(const Targets &targets,
                             const QString &toolchainFilePath,
                             const QString &toolchainFileDefaultPath,
@@ -340,6 +355,7 @@ McuSupportTest::McuSupportTest()
     , compilerDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_DIR_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false}
      , toochainFileDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_FILE_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false}
     , targetDescription {
+        "autotest-sourceFile",
         "2.0.1",
         "2",
         platformDescription,
@@ -549,6 +565,13 @@ void McuSupportTest::test_createDesktopMsvcToolchain()
     const auto description = parseDescriptionJson(msvc_desktop_json);
     McuToolChainPackagePtr msvcPackage{targetFactory.createToolchain(description.toolchain)};
     verifyMsvcToolchain(msvcPackage, {});
+}
+
+void McuSupportTest::test_createDesktopMingwToolchain()
+{
+    const auto description = parseDescriptionJson(mingw_desktop_json);
+    McuToolChainPackagePtr mingwPackage{targetFactory.createToolchain(description.toolchain)};
+    verifyMingwToolchain(mingwPackage, {"11.2.0"});
 }
 
 void McuSupportTest::test_verifyManuallyCreatedArmGccToolchain()
@@ -1334,15 +1357,13 @@ void McuSupportTest::test_passDirectoryVersionDetectorToRenesasBoardSdkPackage()
 {
     const McuTargetDescription description = parseDescriptionJson(ghs_rh850_d1m1a_baremetal_json);
 
-    QCOMPARE(description.boardSdk.versionDetection.filePattern, "rgl_*_obj_*");
     QCOMPARE(description.boardSdk.versionDetection.regex, R"(\d+\.\d+\.\w+)");
-    QCOMPARE(description.boardSdk.versionDetection.isFile, false);
 
     McuPackagePtr boardSdk{targetFactory.createPackage(description.boardSdk)};
 
     const auto *versionDetector{boardSdk->getVersionDetector()};
     QVERIFY(versionDetector != nullptr);
-    QCOMPARE(typeid(*versionDetector).name(), typeid(McuPackageDirectoryVersionDetector).name());
+    QCOMPARE(typeid(*versionDetector).name(), typeid(McuPackagePathVersionDetector).name());
 }
 
 void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
@@ -1507,6 +1528,7 @@ void McuSupportTest::test_createThirdPartyPackage()
     QFETCH(QString, cmakeVar);
     QFETCH(QString, envVar);
     QFETCH(QString, label);
+    QFETCH(QString, detectionPath);
 
     McuTargetDescription targetDescription{parseDescriptionJson(json.toLocal8Bit())};
 
@@ -1524,7 +1546,15 @@ void McuSupportTest::test_createThirdPartyPackage()
         return (pkg->settingsKey() == setting);
     });
 
-    verifyPackage(thirdPartyPackage, path, defaultPath, setting, cmakeVar, envVar, label, {}, {});
+    verifyPackage(thirdPartyPackage,
+                  path,
+                  defaultPath,
+                  setting,
+                  cmakeVar,
+                  envVar,
+                  label,
+                  detectionPath,
+                  {});
 }
 
 void McuSupportTest::test_legacy_createCypressProgrammer3rdPartyPackage()
@@ -1574,15 +1604,20 @@ void McuSupportTest::test_createJLink3rdPartyPackage()
                   {});
 }
 
-void McuSupportTest::test_defaultValueForEachOperationSystem()
+void McuSupportTest::test_differentValueForEachOperationSystem()
 {
     const auto packageDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
     auto default_path_entry = packageDescription.platform.entries[0].defaultPath.toString();
+    auto validation_path_entry = packageDescription.platform.entries[0].detectionPath.toString();
 
-    if (HostOsInfo::isWindowsHost())
+    //TODO: Revisit whether this test is required and not currently covered by the third party packages
+    if (HostOsInfo::isWindowsHost()) {
         QCOMPARE(QString("%{Env:ROOT}/nxp/MCUXpressoIDE*"), default_path_entry);
-    else
+        QCOMPARE(QString("ide/binaries/crt_emu_cm_redlink.exe"), validation_path_entry);
+    } else {
         QCOMPARE(QString("/usr/local/mcuxpressoide"), default_path_entry);
+        QCOMPARE(QString("ide/binaries/crt_emu_cm_redlink"), validation_path_entry);
+    }
 };
 void McuSupportTest::test_addToSystemPathFlag()
 {
@@ -1600,5 +1635,69 @@ void McuSupportTest::test_addToSystemPathFlag()
     QCOMPARE(boardSdkPackage.shouldAddToSystemPath, false);
     QCOMPARE(freeRtosPackage.shouldAddToSystemPath, false);
 }
+
+void McuSupportTest::test_nonemptyVersionDetector()
+{
+    PackageDescription pkgDesc;
+    pkgDesc.label = "GNU Arm Embedded Toolchain";
+    pkgDesc.envVar = "ARMGCC_DIR";
+    // pkgDesc.cmakeVar left empty
+    // pkgDesc.description left empty
+    pkgDesc.setting = "GNUArmEmbeddedToolchain";
+    // pkgDesc.defaultPath left empty
+    // pkgDesc.validationPath left empty
+    // pkgDesc.versions left empty
+    pkgDesc.versionDetection.filePattern = "bin/arm-none-eabi-g++";
+    pkgDesc.versionDetection.regex = "\\bv?(\\d+\\.\\d+\\.\\d+)\\b";
+    pkgDesc.versionDetection.executableArgs = "--version";
+    // pkgDesc.versionDetection.xmlElement left empty
+    // pkgDesc.versionDetection.xmlAttribute left empty
+    pkgDesc.shouldAddToSystemPath = false;
+
+    const auto package = targetFactory.createPackage(pkgDesc);
+    QVERIFY(package->getVersionDetector() != nullptr);
+    QCOMPARE(typeid(*package->getVersionDetector()).name(),
+             typeid(McuPackageExecutableVersionDetector).name());
+}
+
+void McuSupportTest::test_emptyVersionDetector()
+{
+    PackageDescription pkgDesc;
+    pkgDesc.label = "GNU Arm Embedded Toolchain";
+    pkgDesc.envVar = "ARMGCC_DIR";
+    // pkgDesc.cmakeVar left empty
+    // pkgDesc.description left empty
+    pkgDesc.setting = "GNUArmEmbeddedToolchain";
+    // pkgDesc.defaultPath left empty
+    // pkgDesc.validationPath left empty
+    // pkgDesc.versions left empty
+    // Version detection left completely empty
+        // pkgDesc.versionDetection.filePattern
+        // pkgDesc.versionDetection.regex
+        // pkgDesc.versionDetection.executableArgs
+        // pkgDesc.versionDetection.xmlElement
+        // pkgDesc.versionDetection.xmlAttribute
+    pkgDesc.shouldAddToSystemPath = false;
+
+    const auto package = targetFactory.createPackage(pkgDesc);
+    QVERIFY(package->getVersionDetector() == nullptr);
+}
+
+void McuSupportTest::test_emptyVersionDetectorFromJson()
+{
+    const auto targetDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
+    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+
+    auto freeRtos = findOrDefault(packages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName() == freeRtosCMakeVar);
+    });
+
+    QVERIFY2(!freeRtos->cmakeVariableName().isEmpty(), "The freeRTOS package was not found, but there should be one.");
+
+    // For the FreeRTOS package there used to be no version check defined. Use this package to check if this was
+    // considered correctly
+    QVERIFY(freeRtos->getVersionDetector() == nullptr);
+}
+
 
 } // namespace McuSupport::Internal::Test

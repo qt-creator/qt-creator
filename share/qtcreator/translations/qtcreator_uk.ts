@@ -21506,7 +21506,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Шрифт</translation>
@@ -22905,7 +22905,7 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Термінальна команда, можливо, не є командою оболонки.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Неможливо запустити емулятор терміналу &quot;%1&quot;, змініть налаштування в опціях середовища.</translation>
     </message>
     <message>
@@ -25121,7 +25121,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Набір тексту</translation>
@@ -25237,7 +25237,7 @@ Specifies how backspace interacts with indentation.
         <translation>Кодування файлу</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Типове кодування:</translation>
     </message>
     <message>
@@ -25378,7 +25378,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Відображення</translation>
@@ -25521,7 +25521,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>

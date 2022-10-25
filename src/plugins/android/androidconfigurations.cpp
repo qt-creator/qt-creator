@@ -470,10 +470,12 @@ FilePath AndroidConfig::adbToolPath() const
 
 FilePath AndroidConfig::emulatorToolPath() const
 {
-    QString relativePath = "emulator/emulator";
-    if (sdkToolsVersion() < QVersionNumber(25, 3, 0) && preCmdlineSdkToolsInstalled())
-        relativePath = "tools/emulator";
-    return m_sdkLocation / (relativePath + QTC_HOST_EXE_SUFFIX);
+    const FilePath emulatorFile = m_sdkLocation.pathAppended("emulator/emulator")
+                                      .withExecutableSuffix();
+    if (emulatorFile.exists())
+        return emulatorFile;
+
+    return m_sdkLocation.pathAppended("tools/emulator").withExecutableSuffix();
 }
 
 FilePath AndroidConfig::sdkManagerToolPath() const

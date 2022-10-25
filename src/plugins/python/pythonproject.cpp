@@ -476,7 +476,7 @@ PythonBuildSystem::PythonBuildSystem(Target *target)
     : BuildSystem(target)
 {
     connect(target->project(), &Project::projectFileIsDirty, this, [this] { triggerParsing(); });
-    QTimer::singleShot(0, this, &PythonBuildSystem::triggerParsing);
+    triggerParsing();
 }
 
 bool PythonBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const

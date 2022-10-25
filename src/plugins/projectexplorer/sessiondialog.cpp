@@ -109,17 +109,21 @@ bool SessionNameInputDialog::isSwitchToRequested() const
 
 SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 {
+    setObjectName("ProjectExplorer.SessionDialog");
     resize(550, 400);
     setWindowTitle(tr("Session Manager"));
 
 
     auto sessionView = new SessionView(this);
+    sessionView->setObjectName("sessionView");
     sessionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     sessionView->setActivationMode(Utils::DoubleClickActivation);
 
     auto createNewButton = new QPushButton(tr("&New"));
+    createNewButton->setObjectName("btCreateNew");
 
     m_openButton = new QPushButton(tr("&Open"));
+    m_openButton->setObjectName("btOpen");
     m_renameButton = new QPushButton(tr("&Rename"));
     m_cloneButton = new QPushButton(tr("C&lone"));
     m_deleteButton = new QPushButton(tr("&Delete"));

@@ -7934,7 +7934,7 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Zeichensatz</translation>
@@ -8099,7 +8099,7 @@ Rename %2 to %3 anyway?</source>
         <translation>Shell-Kommandos sind als Terminal-Kommando nicht zulässig.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Der Terminal-Emulator &quot;%1&quot; konnte nicht gestartet werden, ändern Sie den Wert in den Einstellungen zur Umgebung.</translation>
     </message>
     <message>
@@ -12868,16 +12868,16 @@ Soll es noch einmal versucht werden?</translation>
         <translation>Grundzustand</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Ungültiger Name des Zustands</translation>
+        <source>Invalid state name.</source>
+        <translation>Ungültiger Name des Zustands.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Eine leere Zeichenkette ist als Name des Basiszustands reserviert.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Der Name wird bereits von einem anderen Zustand verwendet</translation>
+        <source>Name already used in another state.</source>
+        <translation>Der Name wird bereits von einem anderen Zustand verwendet.</translation>
     </message>
 </context>
 <context>
@@ -17346,7 +17346,7 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Beim Tippen</translation>
@@ -17590,7 +17590,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Anzeige</translation>
@@ -17783,7 +17783,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Tabulatoren und Einrückung</translation>
@@ -19756,8 +19756,8 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
 <context>
     <name>QmlJSTools</name>
     <message>
-        <source>The type will only be available in the QML editors when the type name is a string literal</source>
-        <translation>Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist</translation>
+        <source>The type will only be available in the QML editors when the type name is a string literal.</source>
+        <translation>Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist.</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available

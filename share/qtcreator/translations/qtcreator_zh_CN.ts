@@ -15138,7 +15138,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Family:</source>
         <translation>字型:</translation>
@@ -33406,16 +33406,16 @@ Do you want to retry?</source>
         <translation>基线状态</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>无效状态名称</translation>
+        <source>Invalid state name.</source>
+        <translation>无效状态名称。</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>空字符串是为基线状态保留的名称。</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>名称已经被另一个状态使用</translation>
+        <source>Name already used in another state.</source>
+        <translation>名称已经被另一个状态使用。</translation>
     </message>
 </context>
 <context>
@@ -42255,7 +42255,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>打字</translation>
@@ -42371,7 +42371,7 @@ Specifies how backspace interacts with indentation.
         <translation>文件编码</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>默认编码:</translation>
     </message>
     <message>
@@ -42475,7 +42475,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>文字折行</translation>
@@ -42602,7 +42602,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>

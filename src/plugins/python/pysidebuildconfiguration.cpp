@@ -62,7 +62,9 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
         m_pysideProject->setFilePath(pySideProjectPath);
 
     setCommandLineProvider([this] { return CommandLine(m_pysideProject->filePath(), {"build"}); });
-    setWorkingDirectoryProvider([this] { return target()->project()->projectDirectory(); });
+    setWorkingDirectoryProvider([this] {
+        return target()->project()->projectDirectory().onDevice(m_pysideProject->filePath());
+    });
     setEnvironmentModifier([this](Environment &env) {
         env.prependOrSetPath(m_pysideProject->filePath().parentDir());
     });

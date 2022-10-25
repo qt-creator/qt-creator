@@ -289,10 +289,9 @@ void doSemanticHighlighting(
             }
         } else if (token.type == "class") {
             styles.mainStyle = C_TYPE;
-
-            // clang hardly ever differentiates between constructors and the associated class,
-            // whereas we highlight constructors as functions.
-            if (ast.isValid()) {
+            if (token.modifiers.contains("constructorOrDestructor")) {
+                styles.mainStyle = C_FUNCTION;
+            } else if (ver < 16 && ast.isValid()) {
                 const ClangdAstPath path = getAstPath(ast, tokenRange(token));
                 if (!path.isEmpty()) {
                     if (path.last().kind() == "CXXConstructor") {

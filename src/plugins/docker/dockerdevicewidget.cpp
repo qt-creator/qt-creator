@@ -65,9 +65,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         DockerApi::recheckDockerDaemon();
     });
 
-    m_keepEntryPoint = new QCheckBox(Tr::tr("Don't modify entry point"));
+    m_keepEntryPoint = new QCheckBox(Tr::tr("Do not modify entry point"));
     m_keepEntryPoint->setToolTip(
-        Tr::tr("If checked, the entry point of the image will not be modified. Only use this if "
+        Tr::tr("Prevents modifying the entry point of the image. Enable only if "
                "the image starts into a shell."));
     m_keepEntryPoint->setChecked(m_data.keepEntryPoint);
     m_keepEntryPoint->setEnabled(true);

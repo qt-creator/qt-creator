@@ -27671,7 +27671,7 @@ You might find further explanations in the Application Output view.</source>
         <translation>Задержка обработки: %1.%2 сек</translation>
     </message>
     <message>
-        <source>Invalid data format. The trace file&apos;s identification string is &quot;%1&quot;.An acceptable trace file should have &quot;%2&quot;. You cannot read trace files generated with older versions of Qt Creator.</source>
+        <source>Invalid data format. The trace file&apos;s identification string is &quot;%1&quot;. An acceptable trace file should have &quot;%2&quot;. You cannot read trace files generated with older versions of Qt Creator.</source>
         <translation>Неверный формат данных. У файла трассировки задана строка идентификации «%1». А допустимой является «%2». Нельзя читать файлы трассировки, созданные старыми версиями Qt Creator.</translation>
     </message>
     <message>
@@ -38820,16 +38820,16 @@ This is independent of the visibility property in QML.</source>
         <translation>исходное состояние</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Неверное название состояния</translation>
+        <source>Invalid state name.</source>
+        <translation>Неверное название состояния.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Пустая строка зарезервирована как название исходного состояния.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Название уже используется другим состоянием</translation>
+        <source>Name already used in another state.</source>
+        <translation>Название уже используется другим состоянием.</translation>
     </message>
 </context>
 <context>
@@ -40620,8 +40620,8 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <translation></translation>
     </message>
     <message>
-        <source>The type will only be available in the QML editors when the type name is a string literal</source>
-        <translation>Имя типа должно быть строковым литералом, чтобы он был доступен в редакторах QML</translation>
+        <source>The type will only be available in the QML editors when the type name is a string literal.</source>
+        <translation>Имя типа должно быть строковым литералом, чтобы он был доступен в редакторах QML.</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available
@@ -45813,7 +45813,7 @@ Excluding: %3
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Набор текста</translation>
@@ -45917,7 +45917,7 @@ Specifies how backspace interacts with indentation.
         <translation>Кодировки файлов</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>По умолчанию: </translation>
     </message>
     <message>
@@ -46345,7 +46345,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Отображение</translation>
@@ -46478,7 +46478,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Шрифт</translation>
@@ -46775,7 +46775,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Табуляция и отступы</translation>
@@ -48680,7 +48680,7 @@ in &quot;%2&quot;.
         <translation>Терминальная команда, возможно, не является командой оболочки.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Не удалось запустить эмулятор терминала «%1», смените настройки в параметрах среды.</translation>
     </message>
     <message>

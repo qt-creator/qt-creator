@@ -103,7 +103,7 @@ ChooseFromPropertyListDialog::ChooseFromPropertyListDialog(const QStringList &pr
        return;
     }
     m_ui->setupUi(this);
-    setWindowTitle(tr("Select property"));
+    setWindowTitle(tr("Select Property"));
     m_ui->label->setText(tr("Bind to property:"));
     m_ui->label->setToolTip(tr("Binds this component to the parent's selected property."));
     setFixedSize(size());

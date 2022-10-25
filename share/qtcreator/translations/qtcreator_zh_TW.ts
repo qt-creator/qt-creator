@@ -9136,7 +9136,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Family:</source>
         <translation>家族：</translation>
@@ -20463,16 +20463,16 @@ Do you want to retry?</source>
         <translation>基本狀態</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>無效狀態名稱</translation>
+        <source>Invalid state name.</source>
+        <translation>無效狀態名稱。</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>空字串是為基本狀態保留的名稱。</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>此名稱已經被其他狀態使用</translation>
+        <source>Name already used in another state.</source>
+        <translation>此名稱已經被其他狀態使用。</translation>
     </message>
 </context>
 <context>
@@ -26816,7 +26816,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>打字</translation>
@@ -26932,7 +26932,7 @@ Specifies how backspace interacts with indentation.
         <translation>檔案編碼</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>預設編碼：</translation>
     </message>
     <message>
@@ -27036,7 +27036,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>顯示</translation>
@@ -27163,7 +27163,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>

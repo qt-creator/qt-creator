@@ -18,7 +18,6 @@ struct VersionDetection
     QString executableArgs;
     QString xmlElement;
     QString xmlAttribute;
-    bool isFile;
 }; // struct VersionDetection
 
 struct PackageDescription
@@ -29,7 +28,7 @@ struct PackageDescription
     QString description;
     QString setting;
     Utils::FilePath defaultPath;
-    Utils::FilePath validationPath;
+    Utils::FilePath detectionPath;
     QStringList versions;
     VersionDetection versionDetection;
     bool shouldAddToSystemPath;
@@ -39,6 +38,7 @@ struct McuTargetDescription
 {
     enum class TargetType { MCU, Desktop };
 
+    Utils::FilePath sourceFile;
     QString qulVersion;
     QString compatVersion;
     struct Platform

@@ -62,20 +62,19 @@ def testModifyFile(fileName, editor, line, expectWarning):
     return checkOpenDocumentsContains("%s*" % simpleFName)
 
 def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
-    saveDlgStr = ("{name='Core__Internal__SaveItemsDialog' type='Core::Internal::SaveItemsDialog' "
-                  "visible='1' windowTitle='Save Changes'}")
+    saveDlgStr = ":Save Changes_Core::Internal::SaveItemsDialog"
     try:
         waitForObject(saveDlgStr)
     except:
         test.fail("Save Changes dialog did not come up, but was expected to appear.")
         return
-    treeWidget = waitForObject("{name='treeWidget' type='QTreeWidget' visible='1' window=%s}"
+    treeWidget = waitForObject("{type='QTreeWidget' unnamed='1' visible='1' window='%s'}"
                                % saveDlgStr)
     checkUnsavedChangesContains(treeWidget.model(), modifiedFiles)
     clickButton(waitForObject("{text='Save All' type='QPushButton' unnamed='1' visible='1' "
-                              "window=%s}" % saveDlgStr))
+                              "window='%s'}" % saveDlgStr))
     try:
-        filesTree = waitForObject("{name='treeWidget' type='QTreeWidget' visible='1' "
+        filesTree = waitForObject("{type='QTreeWidget' unnamed='1' visible='1' "
                                   "window=':WritePermissions_Core::Internal::ReadOnlyFilesDialog'}")
         items = map(os.path.expanduser, map(os.path.join, dumpItems(filesTree.model(), column=4),
                                             dumpItems(filesTree.model(), column=3)))
@@ -102,7 +101,7 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
         test.log("Exiting without saving.")
         waitForObject(saveDlgStr)
         clickButton(waitForObject("{text='Do not Save' type='QPushButton' unnamed='1' "
-                                  "visible='1' window=%s}" % saveDlgStr))
+                                  "visible='1' window='%s'}" % saveDlgStr))
 
 def checkOpenDocumentsContains(itemName):
     selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Open Documents")

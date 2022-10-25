@@ -4,6 +4,7 @@
 #include "mcutargetfactory.h"
 #include "mcuhelpers.h"
 #include "mcupackage.h"
+#include "mcusupportplugin.h"
 #include "mcusupportversiondetection.h"
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
@@ -16,15 +17,11 @@
 
 namespace McuSupport::Internal {
 
-bool isToolchainDescriptionValid(const McuTargetDescription::Toolchain &t)
-{
-    return !t.id.isEmpty() && !t.compiler.cmakeVar.isEmpty() && !t.file.cmakeVar.isEmpty();
-}
-
 bool isDesktopToolchain(McuToolChainPackage::ToolChainType type)
 {
     return type == McuToolChainPackage::ToolChainType::MSVC
-           || type == McuToolChainPackage::ToolChainType::GCC;
+           || type == McuToolChainPackage::ToolChainType::GCC
+           || type == McuToolChainPackage::ToolChainType::MinGW;
 }
 
 McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
@@ -39,10 +36,16 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
                                                            versionDetection.filePattern),
                                                        QStringList{versionDetection.executableArgs},
                                                        versionDetection.regex};
-    else
-        return new McuPackageDirectoryVersionDetector(versionDetection.filePattern,
-                                                      versionDetection.regex,
-                                                      versionDetection.isFile);
+    else if (!versionDetection.filePattern.isEmpty() && !versionDetection.regex.isEmpty())
+        return new McuPackageDirectoryEntriesVersionDetector(versionDetection.filePattern,
+                                                             versionDetection.regex);
+    else if (!versionDetection.regex.isEmpty())
+        return new McuPackagePathVersionDetector(versionDetection.regex);
+    else {
+        // In this case the JSON entry is either invalid or missing.
+        // After refactoring, this should raise a JSON error to the user.
+        return nullptr;
+    }
 }
 
 static void removeEmptyPackages(Packages &packages)
@@ -53,7 +56,7 @@ static void removeEmptyPackages(Packages &packages)
     }
 }
 
-static void expandVariables(Packages &packages)
+void McuTargetFactory::expandVariables(Packages &packages)
 {
     Utils::MacroExpander macroExpander;
     for (const auto &package : packages) {
@@ -79,7 +82,7 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         const McuTarget::Platform platform(
             {desc.platform.id, desc.platform.name, desc.platform.vendor});
 
-        auto *toolchain = createToolchain(desc.toolchain);
+        auto *toolchain = createToolchain(desc.toolchain, desc.sourceFile);
         McuPackagePtr toolchainFile{createPackage(desc.toolchain.file)};
         //Skip target with incorrect toolchain dir or toolchain file.
         if (!toolchain || !toolchainFile)
@@ -134,7 +137,7 @@ McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
     return McuPackagePtr{new McuPackage{settingsHandler,
                                         pkgDesc.label,
                                         pkgDesc.defaultPath,
-                                        pkgDesc.validationPath,
+                                        pkgDesc.detectionPath,
                                         pkgDesc.setting,
                                         pkgDesc.cmakeVar,
                                         pkgDesc.envVar,
@@ -145,13 +148,16 @@ McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
 }
 
 McuToolChainPackage *McuTargetFactory::createToolchain(
-    const McuTargetDescription::Toolchain &toolchain)
+    const McuTargetDescription::Toolchain &toolchain,
+    const Utils::FilePath &sourceFile
+    )
 {
     const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapping{
         {"iar", McuToolChainPackage::ToolChainType::IAR},
         {"keil", McuToolChainPackage::ToolChainType::KEIL},
         {"msvc", McuToolChainPackage::ToolChainType::MSVC},
         {"gcc", McuToolChainPackage::ToolChainType::GCC},
+        {"mingw", McuToolChainPackage::ToolChainType::MinGW},
         {"armgcc", McuToolChainPackage::ToolChainType::ArmGcc},
         {"greenhills", McuToolChainPackage::ToolChainType::GHS},
         {"arm-greenhills", McuToolChainPackage::ToolChainType::GHSArm},
@@ -166,20 +172,47 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
         return new McuToolChainPackage{settingsHandler,
                                        compilerDescription.label,
                                        compilerDescription.defaultPath,
-                                       compilerDescription.validationPath,
+                                       compilerDescription.detectionPath,
                                        {},
                                        toolchainType,
                                        toolchain.versions,
                                        compilerDescription.cmakeVar,
                                        {},
                                        createVersionDetection(compilerDescription.versionDetection)};
-    } else if (!isToolchainDescriptionValid(toolchain))
+    }
+
+    // Validate toolchain and provide a proper error message
+    QString errorMessage;
+
+    if (toolchain.id.isEmpty()) {
+        errorMessage = McuPackage::tr("the toolchain.id JSON entry is empty");
+    } else if (!toolchainTypeMapping.contains(toolchain.id)) {
+        errorMessage = McuPackage::tr("the given toolchain \"%1\" is not supported").arg(toolchain.id);
+    } else if (toolchain.compiler.cmakeVar.isEmpty()) {
+        errorMessage = McuPackage::tr("the toolchain.compiler.cmakeVar JSON entry is empty");
+    } else if (toolchain.file.cmakeVar.isEmpty()) {
+        errorMessage = McuPackage::tr("the toolchain.file.cmakeVar JSON entry is empty");
+    }
+
+    if (!errorMessage.isEmpty()) {
         toolchainType = McuToolChainPackage::ToolChainType::Unsupported;
+
+        if (toolchain.id.isEmpty()) {
+            printMessage(McuPackage::tr("Toolchain is invalid because %2 in file \"%3\".")
+                         .arg(errorMessage).arg(sourceFile.toUserOutput()),
+                         true);
+        } else {
+            printMessage(McuPackage::tr("Toolchain description for \"%1\" is invalid because %2 in file \"%3\".")
+                         .arg(toolchain.id).arg(errorMessage).arg(sourceFile.toUserOutput()),
+                         true);
+        }
+
+    }
 
     return new McuToolChainPackage{settingsHandler,
                                    compilerDescription.label,
                                    compilerDescription.defaultPath,
-                                   compilerDescription.validationPath,
+                                   compilerDescription.detectionPath,
                                    compilerDescription.setting,
                                    toolchainType,
                                    toolchain.versions,

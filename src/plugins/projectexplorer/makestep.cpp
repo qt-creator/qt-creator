@@ -75,7 +75,7 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     m_overrideMakeflagsAspect->setLabel(text, BoolAspect::LabelPlacement::AtCheckBox);
 
     m_nonOverrideWarning = addAspect<TextDisplay>();
-    m_nonOverrideWarning->setToolTip("<html><body><p>" +
+    m_nonOverrideWarning->setText("<html><body><p>" +
          tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
          .arg(text) + "</p></body></html>");
     m_nonOverrideWarning->setIconType(InfoLabel::Warning);

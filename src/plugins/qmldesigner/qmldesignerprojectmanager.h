@@ -7,6 +7,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QTimer>
 
 #include <memory>
 #include <mutex>
@@ -50,6 +51,7 @@ private:
     void projectAdded(::ProjectExplorer::Project *project);
     void aboutToRemoveProject(::ProjectExplorer::Project *project);
     void projectRemoved(::ProjectExplorer::Project *project);
+    void generatePreview();
     ImageCacheData *imageCacheData();
 
     void fileListChanged();
@@ -66,6 +68,7 @@ private:
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     std::unique_ptr<PreviewImageCacheData> m_previewImageCacheData;
     std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;
+    QTimer m_previewTimer;
     ExternalDependenciesInterface &m_externalDependencies;
 };
 } // namespace QmlDesigner

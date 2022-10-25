@@ -501,7 +501,7 @@ public:
                 if (metaInfo.isValid())
                     qDebug() << metaInfo.superClasses().front().typeName();
 
-                if (!typeName.startsWith("...") && m_model == m_model->metaInfoProxyModel()
+                if (!metaInfo.isFileComponent() && m_model == m_model->metaInfoProxyModel()
                     && metaInfo.isValid())
                     throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
             }
@@ -1357,6 +1357,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 }
 
                 syncSignalDeclarationProperty(modelProperty, signature, differenceHandler);
+                modelPropertyNames.remove(astName.toUtf8());
                 continue; // Done
             }
 

@@ -16,7 +16,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
@@ -37,19 +36,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
     , m_controller(this)
 {
-    setReadOnly(true);
-
-    DisplaySettings settings = displaySettings();
-    settings.m_textWrapping = false;
-    settings.m_displayLineNumbers = true;
-    settings.m_markTextChanges = false;
-    settings.m_highlightBlocks = false;
-    SelectableTextEditorWidget::setDisplaySettings(settings);
-    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
-            this, &UnifiedDiffEditorWidget::setDisplaySettings);
-    setDisplaySettings(TextEditorSettings::displaySettings());
-
-    setCodeStyle(TextEditorSettings::codeStyle());
+    setVisualIndentOffset(1);
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, &UnifiedDiffEditorWidget::setFontSettings);
@@ -64,7 +51,6 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     context->setWidget(this);
     context->setContext(Core::Context(Constants::UNIFIED_VIEW_ID));
     Core::ICore::addContextObject(context);
-    setCodeFoldingSupported(true);
 }
 
 UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
@@ -103,16 +89,6 @@ void UnifiedDiffEditorWidget::restoreState()
     const GuardLocker locker(m_controller.m_ignoreChanges);
     SelectableTextEditorWidget::restoreState(m_state);
     m_state.clear();
-}
-
-void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
-{
-    DisplaySettings settings = displaySettings();
-    settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
-    settings.m_displayFoldingMarkers = ds.m_displayFoldingMarkers;
-    settings.m_scrollBarHighlights = ds.m_scrollBarHighlights;
-    settings.m_highlightCurrentLine = ds.m_highlightCurrentLine;
-    SelectableTextEditorWidget::setDisplaySettings(settings);
 }
 
 void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)

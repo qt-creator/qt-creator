@@ -22,8 +22,12 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
                 "setting": "RenesasFlashProgrammer",
                 "cmakeVar": "RENESAS_FLASH_PROGRAMMER_PATH",
                 "defaultValue": {
-                    "windows": "%{Env:PROGRAMSANDFILES}/Renesas Electronics/Programming Tools/Renesas Flash Programmer V3.09",
-                    "unix": "%{Env:HOME}"
+                    "windows": "%{Env:PROGRAMFILES}/Renesas Electronics/Programming Tools/Renesas Flash Programmer V3.09",
+                    "linux": "%{Env:HOME}"
+                },
+                "detectionPath": {
+                    "windows": "rfp-cli.exe",
+                    "linux": "rfp-cli"
                 },
                 "envVar": "RENESAS_FLASH_PROGRAMMER_PATH",
                 "optional": true,
@@ -62,9 +66,7 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
         "type": "path",
         "defaultValue": "/Renesas_Electronics/D1x_RGL/rgl_ghs_D1Mx_obj_V.2.0.0a",
         "versionDetection": {
-            "filePattern": "rgl_*_obj_*",
-            "regex": "\\d+\\.\\d+\\.\\w+",
-            "isFile": false
+            "regex": "\\d+\\.\\d+\\.\\w+"
         },
         "optional": false
     }

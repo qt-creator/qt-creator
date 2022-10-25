@@ -672,7 +672,7 @@ public:
 
                     ActionTemplate *removeSignalHandlerAction = new ActionTemplate(
                         (propertyName + "RemoveSignalHandlerId").toLatin1(),
-                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove this handler")),
+                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove This Handler")),
                         [signalHandler](const SelectionContext &) {
                             signalHandler.parentModelNode().view()->executeInTransaction(
                                 "ConnectionsModelNodeActionGroup::"
@@ -691,7 +691,7 @@ public:
 
         //singular add connection:
         QMenu *addConnection = new QMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                   "Add signal handler")),
+                                                                   "Add Signal Handler")),
                                          menu());
 
         for (const auto &signalStr : signalsList) {
@@ -1802,7 +1802,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      rootCategory,
                                                      {},
                                                      50,
-                                                     &mergeWithTemplate,
+                                                     [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
                                                      &SelectionContextFunctors::always));
 
     addDesignerAction(new ActionGroup(
@@ -1944,8 +1944,9 @@ ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)
     return nullptr;
 }
 
-DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView)
+DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView, ExternalDependenciesInterface &externalDependencies)
     : m_designerActionManagerView(designerActionManagerView)
+    , m_externalDependencies(externalDependencies)
 {
 }
 

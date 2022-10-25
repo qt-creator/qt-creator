@@ -20,6 +20,8 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -130,13 +132,23 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
             interpreterAspect, &InterpreterAspect::updateInterpreters);
 
-    QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
+    const QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
         project()->projectDirectory());
     interpreterAspect->updateInterpreters(PythonSettings::interpreters());
     Interpreter defaultInterpreter = interpreters.isEmpty() ? PythonSettings::defaultInterpreter()
                                                             : interpreters.first();
     if (!defaultInterpreter.command.isExecutableFile())
         defaultInterpreter = PythonSettings::interpreters().value(0);
+    if (defaultInterpreter.command.isExecutableFile()) {
+        const IDeviceConstPtr device = DeviceKitAspect::device(target->kit());
+        if (device && !device->handlesFile(defaultInterpreter.command)) {
+            defaultInterpreter = Utils::findOr(PythonSettings::interpreters(),
+                                               defaultInterpreter,
+                                               [device](const Interpreter &interpreter) {
+                                                   return device->handlesFile(interpreter.command);
+                                               });
+        }
+    }
     interpreterAspect->setDefaultInterpreter(defaultInterpreter);
 
     auto bufferedAspect = addAspect<BoolAspect>();
@@ -194,51 +206,56 @@ PythonRunConfiguration::~PythonRunConfiguration()
     qDeleteAll(m_extraCompilers);
 }
 
+struct PythonTools
+{
+    FilePath pySideProjectPath;
+    FilePath pySideUicPath;
+};
+
 void PythonRunConfiguration::checkForPySide(const FilePath &python)
 {
     BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
 
-    FilePath pySideProjectPath;
-    m_pySideUicPath.clear();
-    const PipPackage pySide6Package("PySide6");
-    const PipPackageInfo info = pySide6Package.info(python);
 
-    for (const FilePath &file : std::as_const(info.files)) {
-        if (file.fileName() == HostOsInfo::withExecutableSuffix("pyside6-project")) {
-            pySideProjectPath = info.location.resolvePath(file);
-            pySideProjectPath = pySideProjectPath.cleanPath();
-            if (!m_pySideUicPath.isEmpty())
-                break;
-        } else if (file.fileName() == HostOsInfo::withExecutableSuffix("pyside6-uic")) {
-            m_pySideUicPath = info.location.resolvePath(file);
-            m_pySideUicPath = m_pySideUicPath.cleanPath();
-            if (!pySideProjectPath.isEmpty())
-                break;
+    const auto findPythonTools = [](const FilePaths &files,
+                                    const FilePath &location,
+                                    const FilePath &python) -> PythonTools {
+        PythonTools result;
+        const QString pySide6ProjectName
+            = OsSpecificAspects::withExecutableSuffix(python.osType(), "pyside6-project");
+        const QString pySide6UicName
+            = OsSpecificAspects::withExecutableSuffix(python.osType(), "pyside6-uic");
+        for (const FilePath &file : files) {
+            if (file.fileName() == pySide6ProjectName) {
+                result.pySideProjectPath = location.resolvePath(file).onDevice(python);
+                result.pySideProjectPath = result.pySideProjectPath.cleanPath();
+                if (!result.pySideUicPath.isEmpty())
+                    return result;
+            } else if (file.fileName() == pySide6UicName) {
+                result.pySideUicPath = location.resolvePath(file).onDevice(python);
+                result.pySideUicPath = result.pySideUicPath.cleanPath();
+                if (!result.pySideProjectPath.isEmpty())
+                    return result;
+            }
         }
+        return {};
+    };
+
+    const PipPackage pySide6EssentialPackage("PySide6-Essentials");
+    PipPackageInfo info = pySide6EssentialPackage.info(python);
+    PythonTools pythonTools = findPythonTools(info.files, info.location, python);
+    if (!pythonTools.pySideProjectPath.isExecutableFile()) {
+        const PipPackage pySide6Package("PySide6");
+        info = pySide6Package.info(python);
+        pythonTools = findPythonTools(info.files, info.location, python);
     }
 
-    // Workaround that pip might return an incomplete file list on windows
-    if (HostOsInfo::isWindowsHost() && !python.needsDevice()
-        && !info.location.isEmpty() && m_pySideUicPath.isEmpty()) {
-        // Scripts is next to the site-packages install dir for user installations
-        FilePath scripts = info.location.parentDir().pathAppended("Scripts");
-        if (!scripts.exists()) {
-            // in global/venv installations Scripts is next to Lib/site-packages
-            scripts = info.location.parentDir().parentDir().pathAppended("Scripts");
-        }
-        auto userInstalledPySideTool = [&](const QString &toolName) {
-            const FilePath tool = scripts.pathAppended(HostOsInfo::withExecutableSuffix(toolName));
-            return tool.isExecutableFile() ? tool : FilePath();
-        };
-        m_pySideUicPath = userInstalledPySideTool("pyside6-uic");
-        if (pySideProjectPath.isEmpty())
-            pySideProjectPath = userInstalledPySideTool("pyside6-project");
-    }
+    m_pySideUicPath = pythonTools.pySideUicPath;
 
     updateExtraCompilers();
 
     if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
-        pySideBuildStep->updatePySideProjectPath(pySideProjectPath);
+        pySideBuildStep->updatePySideProjectPath(pythonTools.pySideProjectPath);
 }
 
 void PythonRunConfiguration::currentInterpreterChanged()

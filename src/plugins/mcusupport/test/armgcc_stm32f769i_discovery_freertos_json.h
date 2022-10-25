@@ -20,8 +20,12 @@ constexpr auto armgcc_stm32f769i_discovery_freertos_json = R"(
                 "type": "path",
                 "setting": "Stm32CubeProgrammer",
                 "defaultValue": {
-                    "windows": "%{Env:PROGRAMSANDFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
-                    "unix": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
+                    "windows": "%{Env:PROGRAMFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
+                    "linux": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
+                },
+                "detectionPath": {
+                    "windows": "bin/STM32_Programmer_CLI.exe",
+                    "linux": "bin/STM32_Programmer.sh"
                 },
                 "optional": false,
                 "addToSystemPath": true
@@ -45,6 +49,10 @@ constexpr auto armgcc_stm32f769i_discovery_freertos_json = R"(
                 "filePattern": "bin/arm-none-eabi-g++",
                 "executableArgs": "--version",
                 "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+            },
+            "detectionPath": {
+                "windows": "bin/arm-none-eabi-g++.exe",
+                "linux": "bin/arm-none-eabi-g++"
             }
         },
         "file": {
@@ -78,7 +86,7 @@ constexpr auto armgcc_stm32f769i_discovery_freertos_json = R"(
         "label": "FreeRTOS SDK for STM32F769I-Discovery",
         "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "%{QUL_BOARD_SDK_DIR}/Middlewares/Third_Party/FreeRTOS/Source",
-        "validation": "tasks.c",
+        "detectionPath": "tasks.c",
         "type": "path",
         "setting": "FreeRTOSSourcePackage_STM32F7",
         "optional": false

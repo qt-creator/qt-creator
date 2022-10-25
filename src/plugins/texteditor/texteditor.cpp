@@ -810,6 +810,7 @@ public:
     using UndoMultiCursor = QList<UndoCursor>;
     QStack<UndoMultiCursor> m_undoCursorStack;
     QList<int> m_visualIndentCache;
+    int m_visualIndentOffset = 0;
 };
 
 class TextEditorWidgetFind : public BaseTextFind
@@ -954,8 +955,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(&m_codeAssistant, &CodeAssistant::finished,
             q, &TextEditorWidget::assistFinished);
 
-    connect(q, &QPlainTextEdit::blockCountChanged,
-            this, &TextEditorWidgetPrivate::slotUpdateExtraAreaWidth);
+    connect(q, &QPlainTextEdit::blockCountChanged, this, [this]() { slotUpdateExtraAreaWidth(); });
 
     connect(q, &QPlainTextEdit::modificationChanged,
             m_extraArea, QOverload<>::of(&QWidget::update));
@@ -1697,6 +1697,11 @@ void TextEditorWidget::insertPlainText(const QString &text)
 QString TextEditorWidget::selectedText() const
 {
     return d->m_cursors.selectedText();
+}
+
+void TextEditorWidget::setVisualIndentOffset(int offset)
+{
+    d->m_visualIndentOffset = qMax(0, offset);
 }
 
 void TextEditorWidgetPrivate::updateCannotDecodeInfo()
@@ -4106,7 +4111,7 @@ void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainte
     // Don't use QFontMetricsF::averageCharWidth here, due to it returning
     // a fractional size even when this is not supported by the platform.
     data.rightMargin = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'))
-            * m_visibleWrapColumn
+            * (m_visibleWrapColumn + m_visualIndentOffset)
             + data.offset.x() + 4;
     if (m_marginSettings.m_tintMarginArea && data.rightMargin < data.viewportRect.width()) {
         const QRectF behindMargin(data.rightMargin,
@@ -4389,7 +4394,7 @@ int TextEditorWidgetPrivate::indentDepthForBlock(const QTextBlock &block)
     const auto blockDepth = [&](const QTextBlock &block) {
         int depth = m_visualIndentCache.value(block.blockNumber(), -1);
         if (depth < 0) {
-            const QString text = block.text();
+            const QString text = block.text().mid(m_visualIndentOffset);
             depth = text.simplified().isEmpty() ? -1 : tabSettings.indentationColumn(text);
         }
         return depth;
@@ -4449,18 +4454,19 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
         return;
 
     const TabSettings &tabSettings = m_document->tabSettings();
-    const qreal horizontalAdvance = QFontMetricsF(q->font()).horizontalAdvance(
-        QString(tabSettings.m_indentSize, QChar(' ')));
+    const qreal horizontalAdvance = QFontMetricsF(q->font()).horizontalAdvance(' ');
+    const qreal fullHorizontalAdvance = horizontalAdvance * tabSettings.m_indentSize;
 
     painter.save();
     painter.setPen(data.visualWhitespaceFormat.foreground().color());
 
     const QTextLine textLine = blockData.layout->lineAt(0);
     const QRectF rect = textLine.naturalTextRect();
-    qreal x = textLine.cursorToX(0) + data.offset.x() + qMax(0, q->cursorWidth() - 1);
+    qreal x = textLine.cursorToX(0) + data.offset.x() + qMax(0, q->cursorWidth() - 1)
+            + horizontalAdvance * m_visualIndentOffset;
     int paintColumn = 0;
 
-    const QString text = data.block.text();
+    const QString text = data.block.text().mid(m_visualIndentOffset);
     while (paintColumn < depth) {
         if (x >= 0) {
             int paintPosition = tabSettings.positionAtColumn(text, paintColumn);
@@ -4471,7 +4477,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
             const QLineF line(top, bottom);
             painter.drawLine(line);
         }
-        x += horizontalAdvance;
+        x += fullHorizontalAdvance;
         paintColumn += tabSettings.m_indentSize;
     }
     painter.restore();
@@ -8017,8 +8023,11 @@ void TextEditorWidget::setupFallBackEditor(Id id)
 
 void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
-    if (optionalActions() & TextEditorActionHandler::FindUsage)
-        menu->addAction(ActionManager::command(Constants::FIND_USAGES)->action());
+    if (optionalActions() & TextEditorActionHandler::FindUsage) {
+        const auto findUsage = ActionManager::command(Constants::FIND_USAGES)->action();
+        if (!menu->actions().contains(findUsage))
+            menu->addAction(findUsage);
+    }
 
     menu->addSeparator();
     appendMenuActionsFromContext(menu, Constants::M_STANDARDCONTEXTMENU);

@@ -30,7 +30,12 @@ constexpr auto iar_example_baremetal_json = R"(
                 "filePattern": "bin/iccarm",
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
-            }
+            },
+            "detectionPath": {
+                "windows": "bin/iccarm.exe",
+                "linux": "bin/iccarm"
+            },
+            "optional": false
         },
         "file": {
             "id": "IAR_CMAKE_TOOLCHAIN_FILE",

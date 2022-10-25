@@ -9899,7 +9899,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Pisava</translation>
@@ -20732,7 +20732,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
     <message>
         <location/>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Privzeto kodiranje: </translation>
     </message>
     <message>
@@ -25066,16 +25066,16 @@ Ali še vedno želite naložiti nastavitveno datoteko?</translation>
         <translation>osnovno stanje</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Neveljavno ime stanja</translation>
+        <source>Invalid state name.</source>
+        <translation>Neveljavno ime stanja.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Prazen niz za ime je rezervirano za osnovno stanje.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Ime je že uporabljeno v drugem stanju</translation>
+        <source>Name already used in another state.</source>
+        <translation>Ime je že uporabljeno v drugem stanju.</translation>
     </message>
 </context>
 <context>

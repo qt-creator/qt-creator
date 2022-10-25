@@ -88,6 +88,7 @@ private:
     QPair<QString, QString> m_currentFileChunk;
     int m_currentViewIndex = -1;
     int m_currentDiffFileIndex = -1;
+    int m_descriptionHeight = 8;
     Utils::Guard m_ignoreChanges;
     bool m_sync = false;
     bool m_showDescription = true;

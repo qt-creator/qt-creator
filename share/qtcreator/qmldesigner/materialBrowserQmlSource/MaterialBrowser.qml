@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick 2.15
-import QtQuick.Layouts 1.15
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
@@ -14,12 +13,7 @@ Item {
     readonly property int cellWidth: 100
     readonly property int cellHeight: 120
 
-    property var currentMaterial: null
-    property int currentMaterialIdx: 0
-    property var currentBundleMaterial: null
-    property int copiedMaterialInternalId: -1
-
-    property var matSectionsModel: []
+    property var currMaterialItem: null
 
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()
@@ -54,10 +48,9 @@ Item {
             var userMatsSecBottom = mapFromItem(userMaterialsSection, 0, userMaterialsSection.y).y
                                     + userMaterialsSection.height;
 
-            if (!materialBrowserModel.hasMaterialRoot && (!materialBrowserBundleModel.matBundleExists
-                                                          || mouse.y < userMatsSecBottom)) {
-                root.currentMaterial = null
-                ctxMenu.popup()
+            if (!materialBrowserModel.hasMaterialRoot && materialBrowserModel.hasQuick3DImport
+                && (!materialBrowserBundleModel.matBundleExists || mouse.y < userMatsSecBottom)) {
+                ctxMenu.popupMenu()
             }
         }
     }
@@ -67,162 +60,28 @@ Item {
 
         function onSelectedIndexChanged() {
             // commit rename upon changing selection
-            var item = gridRepeater.itemAt(currentMaterialIdx);
-            if (item)
-                item.commitRename();
+            if (root.currMaterialItem)
+                root.currMaterialItem.commitRename();
 
-            currentMaterialIdx = materialBrowserModel.selectedIndex;
+            root.currMaterialItem = gridRepeater.itemAt(materialBrowserModel.selectedIndex);
+        }
+    }
+
+    MaterialBrowserContextMenu {
+        id: ctxMenu
+    }
+
+    MaterialBundleContextMenu {
+        id: ctxMenuBundle
+
+        onUnimport: (bundleMat) => {
+            unimportBundleMaterialDialog.targetBundleMaterial = bundleMat
+            unimportBundleMaterialDialog.open()
         }
     }
 
     UnimportBundleMaterialDialog {
         id: unimportBundleMaterialDialog
-    }
-
-    StudioControls.Menu {
-        id: ctxMenu
-
-        closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
-
-        StudioControls.MenuItem {
-            text: qsTr("Apply to selected (replace)")
-            enabled: root.currentMaterial && materialBrowserModel.hasModelSelection
-            onTriggered: materialBrowserModel.applyToSelected(root.currentMaterial.materialInternalId, false)
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Apply to selected (add)")
-            enabled: root.currentMaterial && materialBrowserModel.hasModelSelection
-            onTriggered: materialBrowserModel.applyToSelected(root.currentMaterial.materialInternalId, true)
-        }
-
-        StudioControls.MenuSeparator {
-            height: StudioTheme.Values.border
-        }
-
-        StudioControls.Menu {
-            title: qsTr("Copy properties")
-            enabled: root.currentMaterial
-
-            width: parent.width
-
-            onAboutToShow: {
-                if (root.currentMaterial.hasDynamicProperties)
-                    root.matSectionsModel = ["All", "Custom"];
-                else
-                    root.matSectionsModel = ["All"];
-
-                switch (root.currentMaterial.materialType) {
-                case "DefaultMaterial":
-                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.defaultMaterialSections);
-                    break;
-
-                case "PrincipledMaterial":
-                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.principledMaterialSections);
-                    break;
-
-                case "CustomMaterial":
-                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.customMaterialSections);
-                    break;
-                }
-            }
-
-            Repeater {
-                model: root.matSectionsModel
-
-                StudioControls.MenuItem {
-                    text: modelData
-                    enabled: root.currentMaterial
-                    onTriggered: {
-                        root.copiedMaterialInternalId = root.currentMaterial.materialInternalId
-                        materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx, modelData)
-                    }
-                }
-            }
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Paste properties")
-            enabled: root.currentMaterial
-                     && root.copiedMaterialInternalId !== root.currentMaterial.materialInternalId
-                     && root.currentMaterial.materialType === materialBrowserModel.copiedMaterialType
-                     && materialBrowserModel.isCopiedMaterialValid()
-            onTriggered: materialBrowserModel.pasteMaterialProperties(root.currentMaterialIdx)
-        }
-
-        StudioControls.MenuSeparator {
-            height: StudioTheme.Values.border
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Duplicate")
-            enabled: root.currentMaterial
-            onTriggered: materialBrowserModel.duplicateMaterial(root.currentMaterialIdx)
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Rename")
-            enabled: root.currentMaterial
-            onTriggered: {
-                var item = gridRepeater.itemAt(root.currentMaterialIdx);
-                if (item)
-                    item.startRename();
-            }
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Delete")
-            enabled: root.currentMaterial
-
-            onTriggered: materialBrowserModel.deleteMaterial(root.currentMaterialIdx)
-        }
-
-        StudioControls.MenuSeparator {}
-
-        StudioControls.MenuItem {
-            text: qsTr("Create New Material")
-
-            onTriggered: materialBrowserModel.addNewMaterial()
-        }
-    }
-
-    StudioControls.Menu {
-        id: ctxMenuBundle
-
-        closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
-
-        StudioControls.MenuItem {
-            text: qsTr("Apply to selected (replace)")
-            enabled: root.currentBundleMaterial && materialBrowserModel.hasModelSelection
-            onTriggered: materialBrowserBundleModel.applyToSelected(root.currentBundleMaterial, false)
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Apply to selected (add)")
-            enabled: root.currentBundleMaterial && materialBrowserModel.hasModelSelection
-            onTriggered: materialBrowserBundleModel.applyToSelected(root.currentBundleMaterial, true)
-        }
-
-        StudioControls.MenuSeparator {}
-
-        StudioControls.MenuItem {
-            enabled: !materialBrowserBundleModel.importerRunning
-            text: qsTr("Add an instance to project")
-
-            onTriggered: {
-                materialBrowserBundleModel.addToProject(root.currentBundleMaterial)
-            }
-        }
-
-        StudioControls.MenuItem {
-            enabled: !materialBrowserBundleModel.importerRunning && root.currentBundleMaterial.bundleMaterialImported
-            text: qsTr("Remove from project")
-
-            onTriggered: {
-                unimportBundleMaterialDialog.targetBundleMaterial = root.currentBundleMaterial
-                unimportBundleMaterialDialog.open()
-            }
-        }
     }
 
     Column {
@@ -266,6 +125,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 buttonSize: searchBox.height
                 onClicked: materialBrowserModel.addNewMaterial()
+                enabled: materialBrowserModel.hasQuick3DImport
             }
         }
 
@@ -305,6 +165,21 @@ Item {
                     width: root.width
                     caption: qsTr("Materials")
                     hideHeader: !materialBrowserBundleModel.matBundleExists
+                    dropEnabled: true
+
+                    onDropEnter: (drag) => {
+                        drag.accepted = rootView.draggedBundleMaterial
+                        userMaterialsSection.highlight = rootView.draggedBundleMaterial
+                    }
+
+                    onDropExit: {
+                        userMaterialsSection.highlight = false
+                    }
+
+                    onDrop: {
+                        userMaterialsSection.highlight = false
+                        materialBrowserBundleModel.addToProject(rootView.draggedBundleMaterial)
+                    }
 
                     Grid {
                         id: grid
@@ -324,8 +199,7 @@ Item {
                                 height: root.cellHeight
 
                                 onShowContextMenu: {
-                                    root.currentMaterial = model
-                                    ctxMenu.popup()
+                                    ctxMenu.popupMenu(this, model)
                                 }
                             }
                         }
@@ -387,8 +261,7 @@ Item {
                                             height: root.cellHeight
 
                                             onShowContextMenu: {
-                                                root.currentBundleMaterial = modelData
-                                                ctxMenuBundle.popup()
+                                                ctxMenuBundle.popupMenu(modelData)
                                             }
                                         }
                                     }

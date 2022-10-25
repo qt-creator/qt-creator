@@ -397,7 +397,7 @@ void TerminalImpl::start()
     d->m_process.start();
     if (!d->m_process.waitForStarted()) {
         const QString msg = QtcProcess::tr("Cannot start the terminal emulator \"%1\", change the "
-                                           "setting in the Environment options. (%2)")
+                                           "setting in the Environment preferences. (%2)")
                                 .arg(terminal.command).arg(d->m_process.errorString());
         cleanupAfterStartFailure(msg);
         return;

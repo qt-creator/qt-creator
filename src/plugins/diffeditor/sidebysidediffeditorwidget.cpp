@@ -55,7 +55,7 @@ public:
 
     void setFolded(int blockNumber, bool folded);
 
-    void setDisplaySettings(const DisplaySettings &ds) override;
+    void setDisplaySettings(const DisplaySettings &displaySettings) override;
 
     SideDiffData diffData() const { return m_data; }
     void setDiffData(const SideDiffData &data) { m_data = data; }
@@ -68,7 +68,6 @@ signals:
                               int diffFileIndex,
                               int chunkIndex,
                               const ChunkSelection &selection);
-    void foldChanged(int blockNumber, bool folded);
     void gotDisplaySettings();
     void gotFocus();
 
@@ -119,13 +118,6 @@ private:
 SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.SideDiffEditor", parent)
 {
-    DisplaySettings settings = displaySettings();
-    settings.m_textWrapping = false;
-    settings.m_displayLineNumbers = true;
-    settings.m_markTextChanges = false;
-    settings.m_highlightBlocks = false;
-    SelectableTextEditorWidget::setDisplaySettings(settings);
-
     connect(this, &TextEditorWidget::tooltipRequested, this, [this](const QPoint &point, int position) {
         const int block = document()->findBlock(position).blockNumber();
         const auto it = m_data.m_fileInfo.constFind(block);
@@ -135,11 +127,6 @@ SideDiffEditorWidget::SideDiffEditorWidget(QWidget *parent)
             ToolTip::hide();
     });
 
-    auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
-    if (documentLayout)
-        connect(documentLayout, &TextDocumentLayout::foldChanged,
-                this, &SideDiffEditorWidget::foldChanged);
-    setCodeFoldingSupported(true);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 }
 
@@ -176,14 +163,9 @@ void SideDiffEditorWidget::setFolded(int blockNumber, bool folded)
     documentLayout->emitDocumentSizeChanged();
 }
 
-void SideDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
+void SideDiffEditorWidget::setDisplaySettings(const DisplaySettings &displaySettings)
 {
-    DisplaySettings settings = displaySettings();
-    settings.m_visualizeWhitespace = ds.m_visualizeWhitespace;
-    settings.m_displayFoldingMarkers = ds.m_displayFoldingMarkers;
-    settings.m_scrollBarHighlights = ds.m_scrollBarHighlights;
-    settings.m_highlightCurrentLine = ds.m_highlightCurrentLine;
-    SelectableTextEditorWidget::setDisplaySettings(settings);
+    SelectableTextEditorWidget::setDisplaySettings(displaySettings);
     emit gotDisplaySettings();
 }
 
@@ -714,8 +696,6 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 {
     auto setupEditor = [this](DiffSide side) {
         m_editor[side] = new SideDiffEditorWidget(this);
-        m_editor[side]->setReadOnly(true);
-        m_editor[side]->setCodeStyle(TextEditorSettings::codeStyle());
 
         connect(m_editor[side], &SideDiffEditorWidget::jumpToOriginalFileRequested,
                 this, std::bind(&SideBySideDiffEditorWidget::jumpToOriginalFileRequested, this,
@@ -788,11 +768,6 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
             &TextEditorSettings::fontSettingsChanged,
             this, &SideBySideDiffEditorWidget::setFontSettings);
     setFontSettings(TextEditorSettings::fontSettings());
-
-    connect(m_editor[LeftSide], &SideDiffEditorWidget::foldChanged,
-            m_editor[RightSide], &SideDiffEditorWidget::setFolded);
-    connect(m_editor[RightSide], &SideDiffEditorWidget::foldChanged,
-            m_editor[LeftSide], &SideDiffEditorWidget::setFolded);
 
     syncHorizontalScrollBarPolicy();
 
@@ -925,6 +900,16 @@ void SideBySideDiffEditorWidget::showDiff()
 
                 m_editor[LeftSide]->setReadOnly(true);
                 m_editor[RightSide]->setReadOnly(true);
+            }
+            auto leftDocumentLayout = qobject_cast<TextDocumentLayout*>(
+                        m_editor[LeftSide]->document()->documentLayout());
+            auto rightDocumentLayout = qobject_cast<TextDocumentLayout*>(
+                        m_editor[RightSide]->document()->documentLayout());
+            if (leftDocumentLayout && rightDocumentLayout) {
+                connect(leftDocumentLayout, &TextDocumentLayout::foldChanged,
+                        m_editor[RightSide], &SideDiffEditorWidget::setFolded);
+                connect(rightDocumentLayout, &TextDocumentLayout::foldChanged,
+                        m_editor[LeftSide], &SideDiffEditorWidget::setFolded);
             }
             m_editor[LeftSide]->setSelections(results[LeftSide].selections);
             m_editor[RightSide]->setSelections(results[RightSide].selections);

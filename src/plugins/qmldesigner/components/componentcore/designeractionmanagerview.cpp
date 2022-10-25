@@ -13,7 +13,7 @@ namespace QmlDesigner {
 
 DesignerActionManagerView::DesignerActionManagerView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
-    , m_designerActionManager(this)
+    , m_designerActionManager(this, externalDependencies)
     , m_isInRewriterTransaction(false)
     , m_setupContextDirty(false)
 {

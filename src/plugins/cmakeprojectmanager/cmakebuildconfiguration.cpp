@@ -530,6 +530,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                 CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
             });
 
+    if (HostOsInfo::isMacHost())
+        m_configurationStates->setDrawBase(false);
+    m_configurationStates->setExpanding(false);
+    m_reconfigureButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
     updateSelection();
     updateConfigurationStateSelection();
 }
@@ -1236,6 +1241,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                                               env,
                                               project->projectDirectory(),
                                               buildDirectory);
+    CMakePresets::Macros::updateInstallDir(configurePreset, env, project->projectDirectory());
 
     // Merge the presets cache variables
     CMakeConfig cache;

@@ -142,10 +142,18 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     m_onboardingLabel = new QLabel(this);
     QString labelText =
             tr("Your file does not import Qt Quick 3D.<br><br>"
-               "To create a 3D view, add the QtQuick3D module in the Library view. Or click"
-               " <a href=\"#add_import\"><span style=\"text-decoration:none;color:%1\">here</span></a> "
-               "to add it immediately.<br><br>"
-               "To import 3D assets from another tool, click the \"Add New Assets...\" button in the Assets tab of the Library view.");
+               "To create a 3D view, add the"
+               " <b>QtQuick3D</b>"
+               " module in the"
+               " <b>Components</b>"
+               " view or click"
+               " <a href=\"#add_import\"><span style=\"text-decoration:none;color:%1\">here</span></a>"
+               ".<br><br>"
+               "To import 3D assets, select"
+               " <b>+</b>"
+               " in the"
+               " <b>Assets</b>"
+               " view.");
     m_onboardingLabel->setText(labelText.arg(Utils::creatorTheme()->color(Utils::Theme::TextColorLink).name()));
     m_onboardingLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     connect(m_onboardingLabel, &QLabel::linkActivated, this, &Edit3DWidget::linkActivated);

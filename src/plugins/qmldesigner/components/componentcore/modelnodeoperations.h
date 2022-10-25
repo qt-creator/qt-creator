@@ -68,7 +68,7 @@ void addCustomFlowEffect(const SelectionContext &selectionState);
 void setFlowStartItem(const SelectionContext &selectionContext);
 void addToGroupItem(const SelectionContext &selectionContext);
 void selectFlowEffect(const SelectionContext &selectionContext);
-void mergeWithTemplate(const SelectionContext &selectionContext);
+void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDependenciesInterface &externalDependencies);
 void removeGroup(const SelectionContext &selectionContext);
 void editAnnotation(const SelectionContext &selectionContext);
 void addMouseAreaFill(const SelectionContext &selectionContext);

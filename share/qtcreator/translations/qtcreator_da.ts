@@ -30154,16 +30154,16 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <translation>grundlæggende tilstand</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Ugyldig tilstandsnavn</translation>
+        <source>Invalid state name.</source>
+        <translation>Ugyldig tilstandsnavn.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Den tomme streng som et navn er reserveret til den grundlæggende tilstand.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Navn allerede brugt i anden tilstand</translation>
+        <source>Name already used in another state.</source>
+        <translation>Navn allerede brugt i anden tilstand.</translation>
     </message>
 </context>
 <context>
@@ -31402,8 +31402,8 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <translation>Qt Quick</translation>
     </message>
     <message>
-        <source>The type will only be available in the QML editors when the type name is a string literal</source>
-        <translation>Typen er kun tilgængelig i QML-redigeringerne når typenavnet er en streng-literal</translation>
+        <source>The type will only be available in the QML editors when the type name is a string literal.</source>
+        <translation>Typen er kun tilgængelig i QML-redigeringerne når typenavnet er en streng-literal.</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available
@@ -35813,7 +35813,7 @@ Ekskludering: %3
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Skrivning</translation>
@@ -35929,7 +35929,7 @@ Angiver hvordan backspace interagerer med indrykning.
         <translation>Filkodninger</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Standard kodning: </translation>
     </message>
     <message>
@@ -36336,7 +36336,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>Tekstombrydning</translation>
@@ -36469,7 +36469,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Skrifttype</translation>
@@ -36728,7 +36728,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Tabulatorer og indrykning</translation>
@@ -38429,7 +38429,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <translation>Terminal-kommando må ikke være en skalkommando.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Kan ikke starte terminalemulatoren &quot;%1&quot;, skifte indstillingen i Miljø-valgmulighederne.</translation>
     </message>
     <message>

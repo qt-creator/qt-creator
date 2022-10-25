@@ -697,10 +697,15 @@ void ModelPrivate::setAuxiliaryData(const InternalNodePointer &node,
 
 void ModelPrivate::resetModelByRewriter(const QString &description)
 {
-    if (rewriterView())
+    if (rewriterView()) {
         rewriterView()->resetToLastCorrectQml();
 
-    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description.toUtf8(), rewriterView()->textModifierContent());
+        throw RewritingException(__LINE__,
+                                 __FUNCTION__,
+                                 __FILE__,
+                                 description.toUtf8(),
+                                 rewriterView()->textModifierContent());
+    }
 }
 
 void ModelPrivate::attachView(AbstractView *view)

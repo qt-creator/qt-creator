@@ -136,7 +136,14 @@ void AndroidDebugSupport::start()
         setAbi(AndroidManager::androidAbi2Abi(devicePreferredAbi));
 
         if (cppEngineType() == LldbEngineType) {
-            setRemoteChannel("adb://" + AndroidManager::deviceSerialNumber(target),
+            QString deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
+            const int colonPos = deviceSerialNumber.indexOf(QLatin1Char(':'));
+            if (colonPos > 0) {
+                // When wireless debugging is used then the device serial number will include a port number
+                // The port number must be removed to form a valid hostname
+                deviceSerialNumber.truncate(colonPos);
+            }
+            setRemoteChannel("adb://" + deviceSerialNumber,
                              m_runner->debugServerPort().number());
         } else {
             QUrl debugServer;

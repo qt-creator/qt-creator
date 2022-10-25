@@ -19,7 +19,7 @@ namespace TextEditor {
 QString continuationTooltip()
 {
     // FIXME: This is unfair towards translators.
-    return QCoreApplication::translate("TextEditor::Internal::TabSettingsWidget",
+    return QCoreApplication::translate("TextEditor::TabSettingsWidget",
         "<html><head/><body>\n"
         "Influences the indentation of continuation lines.\n"
         "\n"

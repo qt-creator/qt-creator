@@ -215,12 +215,12 @@ void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
     } else {
         if (project.accessLevel != -1) {
             m_infoLabel->setType(Utils::InfoLabel::Ok);
-            m_infoLabel->setText(tr("Accessible (%1)")
+            m_infoLabel->setText(tr("Accessible (%1).")
                                  .arg(accessLevelString(project.accessLevel)));
             linkable = true;
         } else {
             m_infoLabel->setType(Utils::InfoLabel::Warning);
-            m_infoLabel->setText(tr("Read only access"));
+            m_infoLabel->setText(tr("Read only access."));
         }
     }
     m_infoLabel->setVisible(true);

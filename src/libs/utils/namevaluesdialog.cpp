@@ -74,7 +74,7 @@ NameValuesDialog::NameValuesDialog(const QString &windowTitle, const QString &he
     auto box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                     Qt::Horizontal,
                                     this);
-    box->button(QDialogButtonBox::Ok)->setText(tr("&Ok"));
+    box->button(QDialogButtonBox::Ok)->setText(tr("&OK"));
     box->button(QDialogButtonBox::Cancel)->setText(tr("&Cancel"));
     connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(box, &QDialogButtonBox::rejected, this, &QDialog::reject);

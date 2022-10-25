@@ -20,8 +20,9 @@ public:
     QPair<Targets, Packages> createTargets(const McuTargetDescription &,
                                            const McuPackagePtr &qtForMCUsPackage) override;
     Packages createPackages(const McuTargetDescription &);
-    McuToolChainPackage *createToolchain(const McuTargetDescription::Toolchain &);
+    McuToolChainPackage *createToolchain(const McuTargetDescription::Toolchain &, const Utils::FilePath &sourceFile = Utils::FilePath());
     McuPackagePtr createPackage(const PackageDescription &);
+    static void expandVariables(Packages &packages);
 
 private:
     SettingsHandler::Ptr settingsHandler;

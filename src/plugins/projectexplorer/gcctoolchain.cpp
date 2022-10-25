@@ -1964,7 +1964,8 @@ Toolchains MingwToolChainFactory::detectForImport(const ToolChainDescription &tc
     const QString fileName = tcd.compilerPath.completeBaseName();
 
     const bool cCompiler = tcd.language == Constants::C_LANGUAGE_ID
-                           && (fileName.startsWith("gcc") || fileName.endsWith("gcc"));
+                           && ((fileName.startsWith("gcc") || fileName.endsWith("gcc"))
+                               || fileName == "cc");
 
     const bool cxxCompiler = tcd.language == Constants::CXX_LANGUAGE_ID
                              && ((fileName.startsWith("g++") || fileName.endsWith("g++"))

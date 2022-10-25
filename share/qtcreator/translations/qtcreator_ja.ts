@@ -6107,7 +6107,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>タイピング</translation>
@@ -6211,7 +6211,7 @@ Backspace キーが押された時のインデントの動作を指定します�
         <translation>ファイルの文字コード</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>既定の文字コード: </translation>
     </message>
     <message>
@@ -6470,7 +6470,7 @@ Backspace キーが押された時のインデントの動作を指定します�
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>行の折り返し</translation>
@@ -6585,7 +6585,7 @@ Backspace キーが押された時のインデントの動作を指定します�
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>フォント</translation>
@@ -6795,7 +6795,7 @@ Backspace キーが押された時のインデントの動作を指定します�
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -10742,7 +10742,7 @@ with a password, which you can enter below.</source>
         <translation>ターミナルコマンドがシェルコマンドではない可能性があります。</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>ターミナルエミュレータ &quot;%1&quot; が起動できません。環境オプションの設定を変更してください。</translation>
     </message>
     <message>
@@ -14492,7 +14492,7 @@ Note: This might remove the local file.</source>
         <translation type="vanished">以下のファイルをバージョン管理システム (%2) から削除しますか? %1注: これにより、ローカル・ファイルが削除される場合があります。</translation>
     </message>
     <message>
-        <source>Remove the following files from the version control system (%2)?%1Note: This might remove the local file.</source>
+        <source>Remove the following files from the version control system (%2)? %1Note: This might remove the local file.</source>
         <translation>以下のファイルをバージョン管理システム (%2) から削除しますか? %1注: これにより、ローカルファイルが削除される場合があります。</translation>
     </message>
     <message>
@@ -28364,16 +28364,16 @@ Locked items cannot be modified or selected.</source>
         <translation>初期状態</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>無効な状態名</translation>
+        <source>Invalid state name.</source>
+        <translation>無効な状態名。</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>空文字は初期状態用に予約された名前です。</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>名前が他の状態名と重複しています</translation>
+        <source>Name already used in another state.</source>
+        <translation>名前が他の状態名と重複しています。</translation>
     </message>
 </context>
 <context>
@@ -28867,8 +28867,8 @@ Qt Creator know about a likely URI.</source>
 &quot;// @uri My.Module.Uri&quot; を記述することによって Qt Creator に URI を通知できます。</translation>
     </message>
     <message>
-        <source>The type will only be available in the QML editors when the type name is a string literal</source>
-        <translation>この型は型名が文字列リテラルであるため、QML エディタでのみ利用可能できます</translation>
+        <source>The type will only be available in the QML editors when the type name is a string literal.</source>
+        <translation>この型は型名が文字列リテラルであるため、QML エディタでのみ利用可能できます。</translation>
     </message>
     <message>
         <source>The module URI cannot be determined by static analysis. The type will be available

@@ -51,6 +51,7 @@ private slots:
     void test_createDesktopGccToolchain();
     void test_legacy_createDesktopMsvcToolchain();
     void test_createDesktopMsvcToolchain();
+    void test_createDesktopMingwToolchain();
     void test_verifyManuallyCreatedArmGccToolchain();
     void test_legacy_createArmGccToolchain();
     void test_createArmGccToolchain_data();
@@ -99,8 +100,12 @@ private slots:
     void test_legacy_createCypressProgrammer3rdPartyPackage();
     void test_createJLink3rdPartyPackage();
 
-    void test_defaultValueForEachOperationSystem();
+    void test_differentValueForEachOperationSystem();
     void test_addToSystemPathFlag();
+
+    void test_nonemptyVersionDetector();
+    void test_emptyVersionDetector();
+    void test_emptyVersionDetectorFromJson();
 
 private:
     QVersionNumber currentQulVersion{2, 0};

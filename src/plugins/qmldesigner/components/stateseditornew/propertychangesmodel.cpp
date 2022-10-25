@@ -123,6 +123,7 @@ void PropertyChangesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
         m_view->registerPropertyChangesModel(this);
 
     emit modelNodeBackendChanged();
+    emit propertyChangesVisibleChanged();
 }
 
 void PropertyChangesModel::reset()

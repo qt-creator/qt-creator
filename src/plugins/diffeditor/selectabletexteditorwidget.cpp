@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "selectabletexteditorwidget.h"
+
+#include <texteditor/displaysettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QPainter>
 #include <QTextBlock>
+
+using namespace TextEditor;
 
 namespace DiffEditor {
 namespace Internal {
@@ -16,6 +21,15 @@ SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *pa
 {
     setFrameStyle(QFrame::NoFrame);
     setupFallBackEditor(id);
+
+    setReadOnly(true);
+
+    connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
+            this, &SelectableTextEditorWidget::setDisplaySettings);
+    SelectableTextEditorWidget::setDisplaySettings(TextEditorSettings::displaySettings());
+
+    setCodeStyle(TextEditorSettings::codeStyle());
+    setCodeFoldingSupported(true);
 }
 
 SelectableTextEditorWidget::~SelectableTextEditorWidget() = default;
@@ -23,6 +37,16 @@ SelectableTextEditorWidget::~SelectableTextEditorWidget() = default;
 void SelectableTextEditorWidget::setSelections(const DiffSelections &selections)
 {
     m_diffSelections = selections;
+}
+
+void SelectableTextEditorWidget::setDisplaySettings(const DisplaySettings &displaySettings)
+{
+    DisplaySettings settings = displaySettings;
+    settings.m_textWrapping = false;
+    settings.m_displayLineNumbers = true;
+    settings.m_markTextChanges = false;
+    settings.m_highlightBlocks = false;
+    TextEditorWidget::setDisplaySettings(settings);
 }
 
 static QList<DiffSelection> subtractSelection(
@@ -84,7 +108,7 @@ DiffSelections SelectableTextEditorWidget::polishedSelections(const DiffSelectio
 
 void SelectableTextEditorWidget::setFoldingIndent(const QTextBlock &block, int indent)
 {
-    if (TextEditor::TextBlockUserData *userData = TextEditor::TextDocumentLayout::userData(block))
+    if (TextBlockUserData *userData = TextDocumentLayout::userData(block))
          userData->setFoldingIndent(indent);
 }
 

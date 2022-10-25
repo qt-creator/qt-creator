@@ -17,7 +17,7 @@ ExternalToolsFilter::ExternalToolsFilter()
 {
     setId("Run external tool");
     setDisplayName(tr("Run External Tool"));
-    setDescription(tr("Runs an external tool that you have set up in the options (Environment > "
+    setDescription(tr("Runs an external tool that you have set up in the preferences (Environment > "
                       "External Tools)."));
     setDefaultShortcutString("x");
     setPriority(Medium);

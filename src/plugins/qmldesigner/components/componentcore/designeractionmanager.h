@@ -81,7 +81,7 @@ private:
 class QMLDESIGNERCOMPONENTS_EXPORT DesignerActionManager
 {
 public:
-    DesignerActionManager(DesignerActionManagerView *designerActionManagerView);
+    DesignerActionManager(DesignerActionManagerView *designerActionManagerView, ExternalDependenciesInterface &externalDependencies);
     ~DesignerActionManager();
 
     void addDesignerAction(ActionInterface *newAction);
@@ -127,6 +127,7 @@ private:
     DesignerActionManagerView *m_designerActionManagerView;
     QList<AddResourceHandler> m_addResourceHandler;
     QList<ModelNodePreviewImageHandler> m_modelNodePreviewImageHandlers;
+    ExternalDependenciesInterface &m_externalDependencies;
 };
 
 } //QmlDesigner

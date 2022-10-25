@@ -180,6 +180,11 @@ QString FilePath::encodedHost() const
     return result;
 }
 
+QString decodeHost(QString host)
+{
+    return host.replace("%25", "%").replace("%2f", "/");
+}
+
 /// \returns a QString for passing on to QString based APIs
 QString FilePath::toString() const
 {
@@ -765,10 +770,10 @@ void FilePath::setFromString(const QString &unnormalizedFileName)
         const int firstSlash = withoutQtcDeviceRoot.indexOf(slash);
 
         if (firstSlash != -1) {
-            QString scheme = withoutQtcDeviceRoot.left(firstSlash).toString();
+            const QString scheme = withoutQtcDeviceRoot.left(firstSlash).toString();
             const int secondSlash = withoutQtcDeviceRoot.indexOf(slash, firstSlash + 1);
-            QString host = withoutQtcDeviceRoot.mid(firstSlash + 1, secondSlash - firstSlash - 1)
-                         .toString();
+            const QString host = decodeHost(
+                withoutQtcDeviceRoot.mid(firstSlash + 1, secondSlash - firstSlash - 1).toString());
             if (secondSlash != -1) {
                 QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
                 setParts(scheme, host, path);
@@ -787,9 +792,9 @@ void FilePath::setFromString(const QString &unnormalizedFileName)
     const int schemeEnd = fileName.indexOf(colonSlashSlash);
     if (schemeEnd != -1 && schemeEnd < firstSlash) {
         // This is a pseudo Url, we can't use QUrl here sadly.
-        QString scheme = fileName.left(schemeEnd);
+        const QString scheme = fileName.left(schemeEnd);
         const int hostEnd = fileName.indexOf(slash, schemeEnd + 3);
-        QString host = fileName.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
+        const QString host = decodeHost(fileName.mid(schemeEnd + 3, hostEnd - schemeEnd - 3));
         setParts(scheme, host, hostEnd != -1 ? QStringView(fileName).mid(hostEnd) : QStringView());
         return;
     }
@@ -1259,7 +1264,16 @@ bool FilePath::copyFile(const FilePath &target) const
         const std::optional<QByteArray> ba = fileContents();
         if (!ba)
             return false;
-        return target.writeFileContents(*ba);
+        const auto perms = permissions();
+        if (!target.writeFileContents(*ba))
+            return false;
+
+        if (!target.setPermissions(perms)) {
+            target.removeFile();
+            return false;
+        }
+
+        return true;
     }
     return fileAccess()->copyFile(*this, target);
 }

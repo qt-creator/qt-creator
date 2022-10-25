@@ -100,7 +100,7 @@ class McuToolChainPackage final : public McuPackage
 {
     Q_OBJECT
 public:
-    enum class ToolChainType { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, Unsupported };
+    enum class ToolChainType { IAR, KEIL, MSVC, GCC, ArmGcc, GHS, GHSArm, MinGW, Unsupported };
 
     McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                         const QString &label,

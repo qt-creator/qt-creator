@@ -46,7 +46,7 @@ Item {
     property alias menuChecked: menuButton.checked
     property bool baseState: false
     property bool isTiny: false
-    property bool propertyChangesVisible: false
+    property bool propertyChangesVisible: propertyChangesModel.propertyChangesVisible
     property bool isChecked: false
 
     property bool hasExtend: false
@@ -55,7 +55,8 @@ Item {
 
     property bool hasWhenCondition: false
 
-    property bool scrollViewActive: false
+    property bool menuOpen: stateMenu.opened
+    property bool blockDragHandler: false
 
     property Item dragParent
 
@@ -79,6 +80,11 @@ Item {
         return statesEditorModel.hasAnnotation(root.internalNodeId)
     }
 
+    function setPropertyChangesVisible(value) {
+        root.propertyChangesVisible = value
+        propertyChangesModel.setPropertyChangesVisible(value)
+    }
+
     onIsTinyChanged: {
         if (root.isTiny) {
             buttonGrid.rows = 2
@@ -91,7 +97,7 @@ Item {
 
     DragHandler {
         id: dragHandler
-        enabled: !root.baseState && !root.extendedState && !root.scrollViewActive
+        enabled: !root.baseState && !root.extendedState && !root.blockDragHandler
         onGrabChanged: function (transition, point) {
             if (transition === PointerDevice.GrabPassive
                     || transition === PointerDevice.GrabExclusive)
@@ -314,6 +320,9 @@ Item {
                     Column {
                         id: column
 
+                        property bool hoverEnabled: false
+                        onPositioningComplete: column.hoverEnabled = true
+
                         // Grid sizes
                         property int gridSpacing: 20
                         property int gridRowSpacing: 5
@@ -353,7 +362,7 @@ Item {
                                     Item {
                                         id: section
                                         property int animationDuration: 120
-                                        property bool expanded: false
+                                        property bool expanded: propertyModel.expanded
 
                                         clip: true
                                         width: stateBackground.innerWidth
@@ -415,6 +424,7 @@ Item {
                                                 anchors.fill: parent
                                                 onClicked: {
                                                     section.expanded = !section.expanded
+                                                    propertyModel.setExpanded(section.expanded)
                                                     if (!section.expanded)
                                                         section.forceActiveFocus()
                                                     root.focusSignal()
@@ -518,6 +528,8 @@ Item {
                                         Repeater {
                                             model: propertyModel
 
+                                            onModelChanged: column.hoverEnabled = false
+
                                             delegate: ItemDelegate {
                                                 id: propertyDelegate
 
@@ -527,7 +539,7 @@ Item {
 
                                                 width: stateBackground.innerWidth - 2 * column.gridPadding
                                                 height: 26
-                                                hoverEnabled: true
+                                                hoverEnabled: column.hoverEnabled
 
                                                 onClicked: root.focusSignal()
 
@@ -560,7 +572,7 @@ Item {
                                                     MouseArea {
                                                         id: propertyDelegateMouseArea
                                                         anchors.fill: parent
-                                                        hoverEnabled: true
+                                                        hoverEnabled: column.hoverEnabled
                                                         onClicked: {
                                                             root.focusSignal()
                                                             propertyModel.removeProperty(
@@ -717,7 +729,7 @@ Item {
         onClone: root.clone()
         onExtend: root.extend()
         onRemove: root.remove()
-        onToggle: root.propertyChangesVisible = !root.propertyChangesVisible
+        onToggle: root.setPropertyChangesVisible(!root.propertyChangesVisible)
         onResetWhenCondition: statesEditorModel.resetWhenCondition(root.internalNodeId)
         onEditAnnotation: {
             statesEditorModel.setAnnotation(root.internalNodeId)

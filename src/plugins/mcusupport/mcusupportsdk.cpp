@@ -22,7 +22,6 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>
@@ -83,7 +82,7 @@ static McuPackageVersionDetector *generatePackageVersionDetector(const QString &
                                                 R"(\b(\d+\.\d+\.\d+)\b)");
 
     if (envVar.startsWith("RGL"))
-        return new McuPackageDirectoryVersionDetector("rgl_*_obj_*", R"(\d+\.\d+\.\w+)", false);
+        return new McuPackagePathVersionDetector(R"(\d+\.\d+\.\w+)");
 
     return nullptr;
 }
@@ -369,8 +368,8 @@ McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &setti
         FilePath defaultPath = {};
 
     const FilePath detectionPath = FilePath::fromUserInput(
-        QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
-                                                         : "/bin/STM32_Programmer.sh"));
+        QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "bin/STM32_Programmer_CLI.exe"
+                                                         : "bin/STM32_Programmer.sh"));
 
     return McuPackagePtr{
         new McuPackage(settingsHandler,
@@ -614,8 +613,17 @@ VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
         versioning["executableArgs"].toString(),
         versioning["xmlElement"].toString(),
         versioning["xmlAttribute"].toString(),
-        versioning["isFile"].toBool(true),
     };
+}
+
+QString getOsSpecificValue(const QJsonValue &entry)
+{
+    if (entry.isObject()) {
+        //The json entry has os-specific values
+        return entry[HostOsInfo::isWindowsHost() ? QString("windows") : QString("linux")].toString();
+    }
+    //The entry does not have os-specific values
+    return entry.toString();
 }
 
 static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
@@ -627,14 +635,8 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
                                                         });
 
     //Parse the default value depending on the operating system
-    QString defaultPathString;
-    if (cmakeEntry["defaultValue"].isObject())
-        defaultPathString
-            = cmakeEntry["defaultValue"]
-                  .toObject()[HostOsInfo::isWindowsHost() ? QString("windows") : QString("unix")]
-                  .toString("");
-    else
-        defaultPathString = cmakeEntry["defaultValue"].toString();
+    QString defaultPathString = getOsSpecificValue(cmakeEntry["defaultValue"]);
+    QString detectionPathString = getOsSpecificValue(cmakeEntry["detectionPath"]);
 
     QString label = cmakeEntry["label"].toString();
 
@@ -647,7 +649,7 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             cmakeEntry["description"].toString(),
             cmakeEntry["setting"].toString(),
             FilePath::fromUserInput(defaultPathString),
-            FilePath::fromUserInput(cmakeEntry["validation"].toString()),
+            FilePath::fromUserInput(detectionPathString),
             versions,
             parseVersionDetection(cmakeEntry),
             cmakeEntry["addToSystemPath"].toBool()};
@@ -663,7 +665,7 @@ static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)
     return result;
 }
 
-McuTargetDescription parseDescriptionJson(const QByteArray &data)
+McuTargetDescription parseDescriptionJson(const QByteArray &data, const Utils::FilePath &sourceFile)
 {
     const QJsonDocument document = QJsonDocument::fromJson(data);
     const QJsonObject target = document.object();
@@ -697,7 +699,8 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
                                                                   });
     const QString platformName = platform.value("platformName").toString();
 
-    return {qulVersion,
+    return {sourceFile,
+            qulVersion,
             compatVersion,
             {platform.value("id").toString(),
              platformName,
@@ -759,7 +762,8 @@ McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
         if (!filePath.isReadableFile())
             continue;
         const McuTargetDescription desc = parseDescriptionJson(
-            filePath.fileContents().value_or(QByteArray()));
+            filePath.fileContents().value_or(QByteArray()),
+            filePath);
         bool ok = false;
         const int compatVersion = desc.compatVersion.toInt(&ok);
         if (!desc.compatVersion.isEmpty() && ok && compatVersion > MAX_COMPATIBILITY_VERSION) {

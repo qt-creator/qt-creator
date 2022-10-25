@@ -22,6 +22,7 @@ public:
         InvalidPath,
         ValidPathInvalidPackage,
         ValidPackageMismatchedVersion,
+        ValidPackageVersionNotDetected,
         ValidPackage
     };
 

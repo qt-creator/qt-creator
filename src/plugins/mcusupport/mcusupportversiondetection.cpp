@@ -80,18 +80,15 @@ QString McuPackageXmlVersionDetector::parseVersion(const FilePath &packagePath) 
     return QString();
 }
 
-McuPackageDirectoryVersionDetector::McuPackageDirectoryVersionDetector(const QString &filePattern,
-                                                                       const QString &versionRegExp,
-                                                                       const bool isFile)
+McuPackageDirectoryEntriesVersionDetector::McuPackageDirectoryEntriesVersionDetector(
+    const QString &filePattern, const QString &versionRegExp)
     : m_filePattern(filePattern)
     , m_versionRegExp(versionRegExp)
-    , m_isFile(isFile)
 {}
 
-QString McuPackageDirectoryVersionDetector::parseVersion(const FilePath &packagePath) const
+QString McuPackageDirectoryEntriesVersionDetector::parseVersion(const FilePath &packagePath) const
 {
-    const auto files = QDir(packagePath.toString(), m_filePattern)
-                           .entryInfoList(m_isFile ? QDir::Filter::Files : QDir::Filter::Dirs);
+    const auto files = QDir(packagePath.toString(), m_filePattern).entryInfoList();
     for (const auto &entry : files) {
         const QString matched = matchRegExp(entry.fileName(), m_versionRegExp);
         if (!matched.isEmpty())

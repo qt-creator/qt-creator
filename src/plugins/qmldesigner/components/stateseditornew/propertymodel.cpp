@@ -117,6 +117,7 @@ void PropertyModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
     setupModel();
     emit modelNodeBackendChanged();
+    emit expandedChanged();
 }
 
 void PropertyModel::setExplicit(bool value)

@@ -94,7 +94,7 @@ const McuPackageVersionDetector *McuPackage::getVersionDetector() const
 
 FilePath McuPackage::basePath() const
 {
-    return m_fileChooser != nullptr ? m_fileChooser->filePath() : m_path;
+    return m_path;
 }
 
 FilePath McuPackage::path() const
@@ -114,15 +114,12 @@ FilePath McuPackage::detectionPath() const
 
 void McuPackage::setPath(const FilePath &newPath)
 {
+    if (m_path == newPath)
+        return;
+
     m_path = newPath;
     updateStatus();
-}
-
-void McuPackage::updatePath()
-{
-    m_path = m_fileChooser->rawFilePath();
-    m_fileChooser->lineEdit()->button(FancyLineEdit::Right)->setEnabled(m_path != m_defaultPath);
-    updateStatus();
+    emit changed();
 }
 
 void McuPackage::updateStatus()
@@ -133,14 +130,22 @@ void McuPackage::updateStatus()
     m_detectedVersion = validPath && validPackage && m_versionDetector
                             ? m_versionDetector->parseVersion(basePath())
                             : QString();
-    const bool validVersion = m_detectedVersion.isEmpty() || m_versions.isEmpty()
-                              || m_versions.contains(m_detectedVersion);
 
-    m_status = validPath          ? (validPackage ? (validVersion ? Status::ValidPackage
-                                                                  : Status::ValidPackageMismatchedVersion)
-                                                  : Status::ValidPathInvalidPackage)
-               : m_path.isEmpty() ? Status::EmptyPath
-                                  : Status::InvalidPath;
+    const bool validVersion = m_versions.isEmpty() || m_versions.contains(m_detectedVersion);
+
+    if (m_path.isEmpty()) {
+        m_status = Status::EmptyPath;
+    } else if (!validPath) {
+        m_status = Status::InvalidPath;
+    } else if (!validPackage) {
+        m_status = Status::ValidPathInvalidPackage;
+    } else if (m_versionDetector && m_detectedVersion.isEmpty()) {
+        m_status = Status::ValidPackageVersionNotDetected;
+    } else if (!validVersion) {
+        m_status = Status::ValidPackageMismatchedVersion;
+    } else {
+        m_status = Status::ValidPackage;
+    }
 
     emit statusChanged();
 }
@@ -162,6 +167,7 @@ void McuPackage::updateStatusUi()
         m_infoLabel->setType(InfoLabel::Ok);
         break;
     case Status::ValidPackageMismatchedVersion:
+    case Status::ValidPackageVersionNotDetected:
         m_infoLabel->setType(InfoLabel::Warning);
         break;
     default:
@@ -216,12 +222,21 @@ QString McuPackage::statusText() const
                        ? tr("Path is empty.")
                        : tr("Path is empty, %1 not found.").arg(displayRequiredPath);
         break;
+    case Status::ValidPackageVersionNotDetected:
+        response = tr("Path %1 exists, but version could not be detected.").arg(displayPackagePath);
+        break;
     }
     return response;
 }
 
 bool McuPackage::writeToSettings() const
 {
+    if (m_settingsKey.isEmpty()) {
+        // Writing with an empty settings key will result in multiple packages writing their value
+        // in the same key "Package_", with the suffix missing, overwriting each other.
+        return false;
+    }
+
     return settingsHandler->write(m_settingsKey, m_path, m_defaultPath);
 }
 
@@ -254,11 +269,15 @@ QWidget *McuPackage::widget()
 
     m_fileChooser->setFilePath(m_path);
 
-    QObject::connect(this, &McuPackage::statusChanged, this, [this] { updateStatusUi(); });
+    QObject::connect(this, &McuPackage::statusChanged, widget, [this] { updateStatusUi(); });
 
     QObject::connect(m_fileChooser, &PathChooser::textChanged, this, [this] {
-        updatePath();
-        emit changed();
+        setPath(m_fileChooser->rawFilePath());
+    });
+
+    connect(this, &McuPackage::changed, m_fileChooser, [this] {
+        m_fileChooser->lineEdit()->button(FancyLineEdit::Right)->setEnabled(m_path != m_defaultPath);
+        m_fileChooser->setFilePath(m_path);
     });
 
     updateStatus();
@@ -332,7 +351,8 @@ McuToolChainPackage::ToolChainType McuToolChainPackage::toolchainType() const
 
 bool McuToolChainPackage::isDesktopToolchain() const
 {
-    return m_type == ToolChainType::MSVC || m_type == ToolChainType::GCC;
+    return m_type == ToolChainType::MSVC || m_type == ToolChainType::GCC
+           || m_type == ToolChainType::MinGW;
 }
 
 ToolChain *McuToolChainPackage::msvcToolChain(Id language)
@@ -355,6 +375,28 @@ ToolChain *McuToolChainPackage::gccToolChain(Id language)
         return abi.os() != Abi::WindowsOS && abi.architecture() == Abi::X86Architecture
                && abi.wordWidth() == 64 && t->language() == language;
     });
+    return toolChain;
+}
+
+static ToolChain *mingwToolChain(const FilePath &path, Id language)
+{
+    ToolChain *toolChain = ToolChainManager::toolChain([&path, language](const ToolChain *t) {
+        // find a MinGW toolchain having the same path from registered toolchains
+        const Abi abi = t->targetAbi();
+        return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+               && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
+               && t->language() == language && t->compilerCommand() == path;
+    });
+    if (!toolChain) {
+        // if there's no MinGW toolchain having the same path,
+        // a proper MinGW would be selected from the registered toolchains.
+        toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
+            const Abi abi = t->targetAbi();
+            return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
+                   && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
+                   && t->language() == language;
+        });
+    }
     return toolChain;
 }
 
@@ -422,6 +464,12 @@ ToolChain *McuToolChainPackage::toolChain(Id language) const
         return msvcToolChain(language);
     case ToolChainType::GCC:
         return gccToolChain(language);
+    case ToolChainType::MinGW: {
+        const QLatin1String compilerName(
+            language == ProjectExplorer::Constants::C_LANGUAGE_ID ? "gcc" : "g++");
+        const FilePath compilerPath = (path() / "bin" / compilerName).withExecutableSuffix();
+        return mingwToolChain(compilerPath, language);
+    }
     case ToolChainType::IAR: {
         const FilePath compiler = (path() / "/bin/iccarm").withExecutableSuffix();
         return iarToolChain(compiler, language);
@@ -452,6 +500,8 @@ QString McuToolChainPackage::toolChainName() const
         return QLatin1String("msvc");
     case ToolChainType::GCC:
         return QLatin1String("gcc");
+    case ToolChainType::MinGW:
+        return QLatin1String("mingw");
     case ToolChainType::ArmGcc:
         return QLatin1String("armgcc");
     case ToolChainType::IAR:

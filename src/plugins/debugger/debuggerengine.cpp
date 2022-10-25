@@ -1369,7 +1369,8 @@ void DebuggerEngine::notifyInferiorStopFailed()
 
 void DebuggerEnginePrivate::setInitialActionStates()
 {
-    m_returnWindow->setVisible(false);
+    if (m_returnWindow)
+        m_returnWindow->setVisible(false);
     setBusyCursor(false);
 
     m_recordForReverseOperationAction.setCheckable(true);
@@ -1417,7 +1418,8 @@ void DebuggerEnginePrivate::setInitialActionStates()
     debuggerSettings()->autoDerefPointers.setEnabled(true);
     debuggerSettings()->expandStack.setEnabled(false);
 
-    m_threadLabel->setEnabled(false);
+    if (m_threadLabel)
+        m_threadLabel->setEnabled(false);
 }
 
 void DebuggerEnginePrivate::updateState()

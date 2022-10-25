@@ -2387,7 +2387,7 @@ Voulez vous les écraser ?</translation>
         <translation>La commande terminal peut ne pas être une commande shell. </translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &apos;%1&apos;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &apos;%1&apos;, change the setting in the Environment preferences.</source>
         <translation>Impossible de démarrer l&apos;émulateur de terminal &quot;%1&quot;, modifiez les paramètres dans les options d&apos;environnement.</translation>
     </message>
     <message>
@@ -16077,7 +16077,7 @@ Les encodages suivants pourraient convenir :</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Police</translation>
@@ -35326,16 +35326,16 @@ Do you want to retry?</source>
         <translation>état de base</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Nom d&apos;état invalide</translation>
+        <source>Invalid state name.</source>
+        <translation>Nom d&apos;état invalide.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>La chaîne vide comme nom est réservée à l&apos;état de base.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Le nom est déjà utilisé dans un autre état</translation>
+        <source>Name already used in another state.</source>
+        <translation>Le nom est déjà utilisé dans un autre état.</translation>
     </message>
 </context>
 <context>
@@ -43377,7 +43377,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Frappe</translation>
@@ -43493,7 +43493,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <translation>Encodages de fichier</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Encodage par défaut :</translation>
     </message>
     <message>
@@ -43605,7 +43605,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Affichage</translation>
@@ -43744,7 +43744,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>

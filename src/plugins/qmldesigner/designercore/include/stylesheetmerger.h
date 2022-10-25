@@ -26,6 +26,8 @@ class QMLDESIGNERCORE_EXPORT StylesheetMerger
 public:
     StylesheetMerger(AbstractView*, AbstractView*);
     void merge();
+    static void styleMerge(Model *model, const QString &templateFile, class ExternalDependenciesInterface &externalDependencies);
+
 private:
     void preprocessStyleSheet();
     bool idExistsInBothModels(const QString& id);

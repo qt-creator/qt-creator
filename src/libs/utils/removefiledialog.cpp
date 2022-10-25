@@ -16,7 +16,8 @@ namespace Utils {
 RemoveFileDialog::RemoveFileDialog(const FilePath &filePath, QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Remove File"));
+    const bool isFile = filePath.isFile();
+    setWindowTitle(isFile ? tr("Remove File") : tr("Remove Folder"));
     resize(514, 159);
 
     QFont font;
@@ -36,7 +37,7 @@ RemoveFileDialog::RemoveFileDialog(const FilePath &filePath, QWidget *parent)
     using namespace Layouting;
 
     Column {
-        tr("File to remove:"),
+        isFile ? tr("File to remove:") : tr("Folder to remove:"),
         fileNameLabel,
         Space(10),
         m_deleteFileCheckBox,

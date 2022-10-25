@@ -177,6 +177,8 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
             preset.generator = object.value("generator").toString();
         if (object.contains("binaryDir"))
             preset.binaryDir = object.value("binaryDir").toString();
+        if (object.contains("installDir"))
+            preset.installDir = object.value("installDir").toString();
         if (object.contains("toolchainFile"))
             preset.toolchainFile = object.value("toolchainFile").toString();
         if (object.contains("cmakeExecutable"))
@@ -461,6 +463,9 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 
     if (!binaryDir && other.binaryDir)
         binaryDir = other.binaryDir;
+
+    if (!installDir && other.installDir)
+        installDir = other.installDir;
 
     if (!cmakeExecutable && other.cmakeExecutable)
         cmakeExecutable = other.cmakeExecutable;

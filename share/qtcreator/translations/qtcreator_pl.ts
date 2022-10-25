@@ -1330,7 +1330,7 @@
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FontSettingsPage</name>
+    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Czcionka</translation>
@@ -1785,7 +1785,7 @@ Przyczyna: %3</translation>
         <translation>Komenda terminala nie musi być komendą powłoki.</translation>
     </message>
     <message>
-        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment options.</source>
+        <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences.</source>
         <translation>Nie można uruchomić emulatora terminala &quot;%1&quot;, zmień ustawienie w opcjach środowiska.</translation>
     </message>
     <message>
@@ -15860,16 +15860,16 @@ Ponowić próbę?</translation>
         <translation>Stan bazowy</translation>
     </message>
     <message>
-        <source>Invalid state name</source>
-        <translation>Niepoprawna nazwa stanu</translation>
+        <source>Invalid state name.</source>
+        <translation>Niepoprawna nazwa stanu.</translation>
     </message>
     <message>
         <source>The empty string as a name is reserved for the base state.</source>
         <translation>Pusta nazwa jest zarezerwowana dla stanu bazowego.</translation>
     </message>
     <message>
-        <source>Name already used in another state</source>
-        <translation>Nazwa jest już użyta w innym stanie</translation>
+        <source>Name already used in another state.</source>
+        <translation>Nazwa jest już użyta w innym stanie.</translation>
     </message>
 </context>
 <context>
@@ -19865,7 +19865,7 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsWidget</name>
+    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Pisanie</translation>
@@ -19969,7 +19969,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <translation>Kodowania plików</translation>
     </message>
     <message>
-        <source>Default encoding: </source>
+        <source>Default encoding:</source>
         <translation>Domyślne kodowanie: </translation>
     </message>
     <message>
@@ -20098,7 +20098,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::DisplaySettingsPage</name>
+    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Wyświetlanie</translation>
@@ -20257,7 +20257,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TabSettingsWidget</name>
+    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>

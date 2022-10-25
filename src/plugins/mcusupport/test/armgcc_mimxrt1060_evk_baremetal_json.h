@@ -21,7 +21,11 @@ constexpr auto armgcc_mimxrt1060_evk_baremetal_json = R"(
                 "cmakeVar": "MCUXPRESSO_IDE_PATH",
                 "defaultValue": {
                     "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*",
-                    "unix": "/usr/local/mcuxpressoide/"
+                    "linux": "/usr/local/mcuxpressoide/"
+                },
+                "detectionPath": {
+                    "windows": "ide/binaries/crt_emu_cm_redlink.exe",
+                    "linux": "ide/binaries/crt_emu_cm_redlink"
                 },
                 "optional": false,
                 "addToSystemPath": true
@@ -45,6 +49,10 @@ constexpr auto armgcc_mimxrt1060_evk_baremetal_json = R"(
                 "filePattern": "bin/arm-none-eabi-g++",
                 "executableArgs": "--version",
                 "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+            },
+            "detectionPath": {
+                "windows": "bin/arm-none-eabi-g++.exe",
+                "linux": "bin/arm-none-eabi-g++"
             }
         },
         "file": {

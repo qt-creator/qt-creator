@@ -42,6 +42,8 @@ class PropertyChangesModel : public QAbstractListModel
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend
                    NOTIFY modelNodeBackendChanged)
+    Q_PROPERTY(bool propertyChangesVisible READ propertyChangesVisible NOTIFY
+                   propertyChangesVisibleChanged)
 
     enum {
         Target = Qt::DisplayRole,
@@ -70,6 +72,7 @@ public:
 signals:
     void modelNodeBackendChanged();
     void countChanged();
+    void propertyChangesVisibleChanged();
 
 private:
     QVariant modelNodeBackend() const;

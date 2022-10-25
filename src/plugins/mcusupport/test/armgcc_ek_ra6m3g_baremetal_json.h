@@ -21,8 +21,8 @@ constexpr auto armgcc_ek_ra6m3g_baremetal_json = R"(
                 "label": "Path to SEGGER J-Link",
                 "type": "path",
                 "defaultValue": {
-                    "windows": "%{Env:PROGRAMSANDFILES}/SEGGER/JLink",
-                    "unix": "/opt/SEGGER/JLink"
+                    "windows": "%{Env:PROGRAMFILES}/SEGGER/JLink",
+                    "linux": "/opt/SEGGER/JLink"
                 },
                 "optional": true,
                 "addToSystemPath": true
@@ -46,6 +46,10 @@ constexpr auto armgcc_ek_ra6m3g_baremetal_json = R"(
                 "filePattern": "bin/arm-none-eabi-g++",
                 "executableArgs": "--version",
                 "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+            },
+            "detectionPath": {
+                "windows": "bin/arm-none-eabi-g++.exe",
+                "linux": "bin/arm-none-eabi-g++"
             }
         },
         "file": {

@@ -188,7 +188,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 
     Row {
         Form {
-            tr("Default encoding: "), d->encodingBox, br,
+            tr("Default encoding:"), d->encodingBox, br,
             tr("UTF-8 BOM:"), d->utf8BomBox, br,
             tr("Default line endings:"), d->defaultLineEndings, br,
         }, st
