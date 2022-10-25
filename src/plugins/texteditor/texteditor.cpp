@@ -8022,8 +8022,11 @@ void TextEditorWidget::setupFallBackEditor(Id id)
 
 void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
-    if (optionalActions() & TextEditorActionHandler::FindUsage)
-        menu->addAction(ActionManager::command(Constants::FIND_USAGES)->action());
+    if (optionalActions() & TextEditorActionHandler::FindUsage) {
+        const auto findUsage = ActionManager::command(Constants::FIND_USAGES)->action();
+        if (!menu->actions().contains(findUsage))
+            menu->addAction(findUsage);
+    }
 
     menu->addSeparator();
     appendMenuActionsFromContext(menu, Constants::M_STANDARDCONTEXTMENU);
