@@ -101,6 +101,7 @@ public:
     static const NodeMatcher AllFiles;
     static const NodeMatcher SourceFiles;
     static const NodeMatcher GeneratedFiles;
+    static const NodeMatcher HiddenRccFolders;
 
     Utils::FilePaths files(const NodeMatcher &matcher) const;
     bool isKnownFile(const Utils::FilePath &filename) const;

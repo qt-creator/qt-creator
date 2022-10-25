@@ -312,8 +312,9 @@ void QmlBuildSystem::refresh(RefreshOptions options)
     if (!modelManager)
         return;
 
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            modelManager->defaultProjectInfoForProject(project());
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo
+        = modelManager->defaultProjectInfoForProject(project(),
+                                                     project()->files(Project::HiddenRccFolders));
     const QStringList searchPaths = makeAbsolute(canonicalProjectDir(), customImportPaths());
     for (const QString &searchPath : searchPaths)
         projectInfo.importPaths.maybeInsert(Utils::FilePath::fromString(searchPath),

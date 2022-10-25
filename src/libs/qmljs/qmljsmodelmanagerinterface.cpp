@@ -432,15 +432,13 @@ bool pInfoLessThanImports(const ModelManagerInterface::ProjectInfo &p1,
 
 }
 
-static QList<Utils::FilePath> generatedQrc(QList<Utils::FilePath> applicationDirectories)
+static QSet<Utils::FilePath> generatedQrc(
+    const QList<ModelManagerInterface::ProjectInfo> &projectInfos)
 {
-    QList<Utils::FilePath> res;
-    for (const Utils::FilePath &path : applicationDirectories) {
-        Utils::FilePath generatedQrcDir = path.pathAppended(".rcc");
-        if (generatedQrcDir.isReadableDir()) {
-            for (const Utils::FilePath & qrcPath: generatedQrcDir.dirEntries(FileFilter(QStringList({QStringLiteral(u"*.qrc")}), QDir::Files)))
-                res.append(qrcPath.canonicalPath());
-        }
+    QSet<Utils::FilePath> res;
+    for (const auto &pInfo : projectInfos) {
+        for (const auto &generatedQrcFile: pInfo.generatedQrcFiles)
+            res.insert(generatedQrcFile);
     }
     return res;
 }
@@ -467,7 +465,7 @@ void ModelManagerInterface::iterateQrcFiles(
             qrcFilePaths = pInfo.activeResourceFiles;
         else
             qrcFilePaths = pInfo.allResourceFiles;
-        for (const Utils::FilePath &p : generatedQrc(pInfo.applicationDirectories))
+        for (const Utils::FilePath &p : generatedQrc({pInfo}))
             qrcFilePaths.append(p);
         for (const Utils::FilePath &qrcFilePath : std::as_const(qrcFilePaths)) {
             if (pathsChecked.contains(qrcFilePath))
@@ -590,7 +588,7 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
     m_qrcContents = pinfo.resourceFileContents;
     for (const Utils::FilePath &newQrc : std::as_const(pinfo.allResourceFiles))
         m_qrcCache.addPath(newQrc.toString(), m_qrcContents.value(newQrc));
-    for (const Utils::FilePath &newQrc : generatedQrc(pinfo.applicationDirectories))
+    for (const Utils::FilePath &newQrc : pinfo.generatedQrcFiles)
         m_qrcCache.addPath(newQrc.toString(), m_qrcContents.value(newQrc));
     for (const Utils::FilePath &oldQrc : std::as_const(oldInfo.allResourceFiles))
         m_qrcCache.removePath(oldQrc.toString());
@@ -1293,7 +1291,7 @@ void ModelManagerInterface::updateImportPaths()
         allImportPaths.maybeInsert(path, Dialect::Qml);
         findNewQmlApplicationInPath(path, snapshot, this, &newLibraries);
     }
-    for (const Utils::FilePath &qrcPath : generatedQrc(allApplicationDirectories))
+    for (const Utils::FilePath &qrcPath : generatedQrc(m_projects.values()))
         updateQrcFile(qrcPath);
 
     updateSourceFiles(importedFiles, true);
@@ -1625,8 +1623,10 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() c
 }
 
 ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfoForProject(
-        ProjectExplorer::Project *) const
+    ProjectExplorer::Project *project, const FilePaths &hiddenRccFolders) const
 {
+    Q_UNUSED(project);
+    Q_UNUSED(hiddenRccFolders);
     return ModelManagerInterface::ProjectInfo();
 }
 

@@ -81,8 +81,36 @@ static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &proje
     }
 }
 
+static void findAllQrcFiles(const FilePath &filePath, FilePaths &out)
+{
+    filePath.iterateDirectory(
+        [&out](const FilePath &path) {
+            out.append(path.canonicalPath());
+            return true;
+        },
+        {{"*.qrc"}, QDir::Files});
+}
+
+static FilePaths findGeneratedQrcFiles(const ModelManagerInterface::ProjectInfo &pInfo,
+                                       const FilePaths &hiddenRccFolders)
+{
+    FilePaths result;
+    // Search in Application Directories for directories named ".rcc"
+    // and add all .qrc files in there to the resource file list.
+    for (const Utils::FilePath &path : pInfo.applicationDirectories) {
+        Utils::FilePath generatedQrcDir = path.pathAppended(".rcc");
+        findAllQrcFiles(generatedQrcDir, result);
+    }
+
+    for (const Utils::FilePath &hiddenRccFolder : hiddenRccFolders) {
+        findAllQrcFiles(hiddenRccFolder, result);
+    }
+
+    return result;
+}
+
 ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
-        Project *project) const
+    Project *project, const FilePaths &hiddenRccFolders) const
 {
     ModelManagerInterface::ProjectInfo projectInfo;
     projectInfo.project = project;
@@ -183,6 +211,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     }
 
     setupProjectInfoQmlBundles(projectInfo);
+    projectInfo.generatedQrcFiles = findGeneratedQrcFiles(projectInfo, hiddenRccFolders);
     return projectInfo;
 }
 
@@ -294,7 +323,7 @@ void ModelManager::updateDefaultProjectInfo()
     Project *currentProject = SessionManager::startupProject();
     setDefaultProject(containsProject(currentProject)
                             ? projectInfo(currentProject)
-                            : defaultProjectInfoForProject(currentProject),
+                            : defaultProjectInfoForProject(currentProject, {}),
                       currentProject);
 }
 
