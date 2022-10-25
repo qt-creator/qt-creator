@@ -13,12 +13,13 @@ using namespace QmlDesigner;
 void BackgroundColorSelection::showBackgroundColorSelectionWidget(QWidget *parent,
                                                                   const QByteArray &key,
                                                                   AbstractView *view,
-                                                                  View3DActionType actionType)
+                                                                  View3DActionType actionType,
+                                                                  const std::function<void()> &colorSelected)
 {
     if (m_dialog)
         return;
 
-    m_dialog = BackgroundColorSelection::createColorDialog(parent, key, view, actionType);
+    m_dialog = BackgroundColorSelection::createColorDialog(parent, key, view, actionType, colorSelected);
     QTC_ASSERT(m_dialog, return);
 
     QObject::connect(m_dialog, &QWidget::destroyed, m_dialog, [&]() {
@@ -29,32 +30,36 @@ void BackgroundColorSelection::showBackgroundColorSelectionWidget(QWidget *paren
 QColorDialog *BackgroundColorSelection::createColorDialog(QWidget *parent,
                                                           const QByteArray &key,
                                                           AbstractView *view,
-                                                          View3DActionType actionType)
+                                                          View3DActionType actionType,
+                                                          const std::function<void()> &colorSelected)
 {
     auto dialog = new QColorDialog(parent);
 
     dialog->setModal(true);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
 
-    QList<QColor> oldColorConfig = Edit3DViewConfig::load(key);
+    QList<QColor> oldColorConfig = Edit3DViewConfig::loadColor(key);
 
     dialog->show();
 
-    QObject::connect(dialog,
-                     &QColorDialog::currentColorChanged,
-                     dialog,
+    QObject::connect(dialog, &QColorDialog::currentColorChanged, dialog,
                      [actionType, view](const QColor &color) {
-                         Edit3DViewConfig::set(view, actionType, color);
+                         Edit3DViewConfig::setColor(view, actionType, color);
                      });
 
-    QObject::connect(dialog, &QColorDialog::colorSelected, dialog, [key](const QColor &color) {
-        Edit3DViewConfig::save(key, color);
-    });
+    QObject::connect(dialog, &QColorDialog::colorSelected, dialog,
+                     [key, colorSelected](const QColor &color) {
+                         if (colorSelected)
+                             colorSelected();
 
-    if (Edit3DViewConfig::isValid(oldColorConfig)) {
-        QObject::connect(dialog, &QColorDialog::rejected, dialog, [actionType, oldColorConfig, view]() {
-            Edit3DViewConfig::set(view, actionType, oldColorConfig);
-        });
+                         Edit3DViewConfig::saveColor(key, color);
+                     });
+
+    if (Edit3DViewConfig::isColorValid(oldColorConfig)) {
+        QObject::connect(dialog, &QColorDialog::rejected, dialog,
+                         [actionType, oldColorConfig, view]() {
+                             Edit3DViewConfig::setColor(view, actionType, oldColorConfig);
+                         });
     }
 
     return dialog;

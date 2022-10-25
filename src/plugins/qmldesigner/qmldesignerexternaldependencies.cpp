@@ -62,12 +62,12 @@ QString ExternalDependencies::currentProjectDirPath() const
 
 QList<QColor> ExternalDependencies::designerSettingsEdit3DViewBackgroundColor() const
 {
-    return Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
+    return Edit3DViewConfig::loadColor(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
 }
 
 QColor ExternalDependencies::designerSettingsEdit3DViewGridColor() const
 {
-    QList<QColor> gridColorList = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
+    QList<QColor> gridColorList = Edit3DViewConfig::loadColor(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
     if (!gridColorList.isEmpty())
         return gridColorList.front();
 

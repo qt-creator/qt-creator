@@ -315,19 +315,25 @@ void Edit3DView::setSeeker(SeekerSlider *slider)
     m_seeker = slider;
 }
 
-Edit3DAction *Edit3DView::createSelectBackgrounColorAction()
+Edit3DAction *Edit3DView::createSelectBackgroundColorAction(QAction *syncBackgroundColorAction)
 {
     QString description = QCoreApplication::translate("SelectBackgroundColorAction",
                                                       "Select Background Color");
     QString tooltip = QCoreApplication::translate("SelectBackgroundColorAction",
                                                   "Select a color for the background of the 3D view.");
 
-    auto operation = [this](const SelectionContext &) {
+    auto operation = [this, syncBackgroundColorAction](const SelectionContext &) {
         BackgroundColorSelection::showBackgroundColorSelectionWidget(
             edit3DWidget(),
             DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
             this,
-            View3DActionType::SelectBackgroundColor);
+            View3DActionType::SelectBackgroundColor,
+            [this, syncBackgroundColorAction]() {
+                if (syncBackgroundColorAction->isChecked()) {
+                    Edit3DViewConfig::set(this, View3DActionType::SyncBackgroundColor, false);
+                    syncBackgroundColorAction->setChecked(false);
+                }
+            });
     };
 
     return new Edit3DAction(Constants::EDIT3D_EDIT_SELECT_BACKGROUND_COLOR,
@@ -370,21 +376,26 @@ Edit3DAction *Edit3DView::createGridColorSelectionAction()
                             tooltip);
 }
 
-Edit3DAction *Edit3DView::createResetColorAction()
+Edit3DAction *Edit3DView::createResetColorAction(QAction *syncBackgroundColorAction)
 {
     QString description = QCoreApplication::translate("ResetEdit3DColorsAction", "Reset Colors");
     QString tooltip = QCoreApplication::translate("ResetEdit3DColorsAction",
                                                   "Reset the background color and the color of the "
                                                   "grid lines of the 3D view to the default values.");
 
-    auto operation = [&](const SelectionContext &) {
+    auto operation = [this, syncBackgroundColorAction](const SelectionContext &) {
         QList<QColor> bgColors = {QRgb(0x222222), QRgb(0x999999)};
-        Edit3DViewConfig::set(this, View3DActionType::SelectBackgroundColor, bgColors);
-        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
+        Edit3DViewConfig::setColor(this, View3DActionType::SelectBackgroundColor, bgColors);
+        Edit3DViewConfig::saveColor(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
 
         QColor gridColor{0xaaaaaa};
-        Edit3DViewConfig::set(this, View3DActionType::SelectGridColor, gridColor);
-        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, gridColor);
+        Edit3DViewConfig::setColor(this, View3DActionType::SelectGridColor, gridColor);
+        Edit3DViewConfig::saveColor(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, gridColor);
+
+        if (syncBackgroundColorAction->isChecked()) {
+            Edit3DViewConfig::set(this, View3DActionType::SyncBackgroundColor, false);
+            syncBackgroundColorAction->setChecked(false);
+        }
     };
 
     return new Edit3DAction(QmlDesigner::Constants::EDIT3D_EDIT_RESET_BACKGROUND_COLOR,
@@ -772,10 +783,11 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_showCameraFrustumAction;
     m_visibilityToggleActions << m_showParticleEmitterAction;
 
-    m_backgroundColorActions << createSelectBackgrounColorAction();
+    Edit3DAction *syncBackgroundColorAction = createSyncBackgroundColorAction();
+    m_backgroundColorActions << createSelectBackgroundColorAction(syncBackgroundColorAction->action());
     m_backgroundColorActions << createGridColorSelectionAction();
-    m_backgroundColorActions << createSyncBackgroundColorAction();
-    m_backgroundColorActions << createResetColorAction();
+    m_backgroundColorActions << syncBackgroundColorAction;
+    m_backgroundColorActions << createResetColorAction(syncBackgroundColorAction->action());
 }
 
 QVector<Edit3DAction *> Edit3DView::leftActions() const

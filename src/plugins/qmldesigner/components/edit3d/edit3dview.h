@@ -15,6 +15,7 @@
 
 QT_BEGIN_NAMESPACE
 class QInputEvent;
+class QAction;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -77,9 +78,9 @@ private:
     void checkImports();
     void handleEntriesChanged();
 
-    Edit3DAction *createSelectBackgrounColorAction();
+    Edit3DAction *createSelectBackgroundColorAction(QAction *syncBackgroundColorAction);
     Edit3DAction *createGridColorSelectionAction();
-    Edit3DAction *createResetColorAction();
+    Edit3DAction *createResetColorAction(QAction *syncBackgroundColorAction);
     Edit3DAction *createSyncBackgroundColorAction();
 
     QPointer<Edit3DWidget> m_edit3DWidget;
