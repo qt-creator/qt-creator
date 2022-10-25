@@ -360,7 +360,7 @@ void HighlightScrollBarController::setScrollArea(QAbstractScrollArea *scrollArea
 
 double HighlightScrollBarController::lineHeight() const
 {
-    return m_lineHeight;
+    return ceil(m_lineHeight);
 }
 
 void HighlightScrollBarController::setLineHeight(double lineHeight)
