@@ -47,6 +47,7 @@ class MaterialBrowserModel : public QAbstractListModel
     Q_PROPERTY(QString copiedMaterialType READ copiedMaterialType WRITE setCopiedMaterialType NOTIFY copiedMaterialTypeChanged)
     Q_PROPERTY(QStringList defaultMaterialSections MEMBER m_defaultMaterialSections NOTIFY materialSectionsChanged)
     Q_PROPERTY(QStringList principledMaterialSections MEMBER m_principledMaterialSections NOTIFY materialSectionsChanged)
+    Q_PROPERTY(QStringList specularGlossyMaterialSections MEMBER m_specularGlossyMaterialSections NOTIFY materialSectionsChanged)
     Q_PROPERTY(QStringList customMaterialSections MEMBER m_customMaterialSections NOTIFY materialSectionsChanged)
 
 public:
@@ -128,6 +129,7 @@ private:
     QString m_searchText;
     QList<ModelNode> m_materialList;
     QStringList m_defaultMaterialSections;
+    QStringList m_specularGlossyMaterialSections;
     QStringList m_principledMaterialSections;
     QStringList m_customMaterialSections;
     ModelNode m_copiedMaterial;

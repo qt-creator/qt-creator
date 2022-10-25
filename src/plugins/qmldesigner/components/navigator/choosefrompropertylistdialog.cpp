@@ -40,6 +40,7 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     // Texture
     //  -> DefaultMaterial
     //  -> PrincipledMaterial
+    //  -> SpecularGlossyMaterial
     //  -> SpriteParticle3D
     //  -> TextureInput
     //  -> SceneEnvironment
@@ -65,7 +66,8 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     if (insertInfo.isSubclassOf(textureType)) {
         const TypeName textureTypeCpp = "<cpp>.QQuick3DTexture";
         if (parentInfo.isSubclassOf("QtQuick3D.DefaultMaterial")
-            || parentInfo.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
+            || parentInfo.isSubclassOf("QtQuick3D.PrincipledMaterial")
+            || parentInfo.isSubclassOf("QtQuick3D.SpecularGlossyMaterial")) {
             // All texture properties are valid targets
             const PropertyNameList targetNodeNameList = parentInfo.propertyNames();
             for (const PropertyName &name : targetNodeNameList) {

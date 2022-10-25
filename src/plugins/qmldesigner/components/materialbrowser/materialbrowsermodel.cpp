@@ -123,10 +123,12 @@ bool MaterialBrowserModel::loadPropertyGroups(const QString &path)
 
     m_defaultMaterialSections.clear();
     m_principledMaterialSections.clear();
+    m_specularGlossyMaterialSections.clear();
     m_customMaterialSections.clear();
     if (ok) {
         m_defaultMaterialSections.append(m_propertyGroupsObj.value("DefaultMaterial").toObject().keys());
         m_principledMaterialSections.append(m_propertyGroupsObj.value("PrincipledMaterial").toObject().keys());
+        m_specularGlossyMaterialSections.append(m_propertyGroupsObj.value("SpecularGlossyMaterial").toObject().keys());
 
         QStringList customMatSections = m_propertyGroupsObj.value("CustomMaterial").toObject().keys();
         if (customMatSections.size() > 1) // as of now custom material has only 1 section, so we don't add it
@@ -145,6 +147,7 @@ void MaterialBrowserModel::unloadPropertyGroups()
         m_propertyGroupsObj = {};
         m_defaultMaterialSections.clear();
         m_principledMaterialSections.clear();
+        m_specularGlossyMaterialSections.clear();
         m_customMaterialSections.clear();
         emit materialSectionsChanged();
     }

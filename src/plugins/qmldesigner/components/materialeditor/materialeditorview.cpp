@@ -718,8 +718,8 @@ void MaterialEditorView::updatePossibleTypes()
         return;
 
     // Ensure basic types are always first
-    static const QStringList basicTypes {"DefaultMaterial", "PrincipledMaterial", "CustomMaterial"};
-    QStringList allTypes = basicTypes;
+    QStringList nonQuick3dTypes;
+    QStringList allTypes;
 
     const QList<ItemLibraryEntry> itemLibEntries = m_itemLibraryInfo->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
@@ -734,12 +734,22 @@ void MaterialEditorView::updatePossibleTypes()
                 addImport = model()->hasImport(import, true, true);
             }
             if (addImport) {
-                QString typeName = QString::fromLatin1(entry.typeName().split('.').last());
-                if (!allTypes.contains(typeName))
-                    allTypes.append(typeName);
+                const QList<QByteArray> typeSplit = entry.typeName().split('.');
+                const QString typeName = QString::fromLatin1(typeSplit.last());
+                if (typeSplit.size() == 2 && typeSplit.first() == "QtQuick3D") {
+                    if (!allTypes.contains(typeName))
+                        allTypes.append(typeName);
+                } else if (!nonQuick3dTypes.contains(typeName)) {
+                    nonQuick3dTypes.append(typeName);
+                }
             }
         }
     }
+
+    allTypes.sort();
+    nonQuick3dTypes.sort();
+    allTypes.append(nonQuick3dTypes);
+
     m_qmlBackEnd->contextObject()->setPossibleTypes(allTypes);
 }
 
