@@ -1458,7 +1458,7 @@ private:
 
         const FilePath targetDir = target.parentDir();
         if (!m_checkedDirectories.contains(targetDir)) {
-            emit progress(tr("Creating directory: %1")
+            emit progress(tr("Creating directory: %1\n")
               .arg(targetDir.toUserOutput()));
             if (!targetDir.ensureWritableDir()) {
                 result.m_errorString = tr("Failed.");
@@ -1469,7 +1469,7 @@ private:
             m_checkedDirectories.insert(targetDir);
         }
 
-        emit progress(tr("Copying %1/%2: %3 -> %4")
+        emit progress(tr("Copying %1/%2: %3 -> %4\n")
           .arg(m_currentIndex).arg(m_fileCount).arg(source.toUserOutput(), target.toUserOutput()));
         if (!source.copyFile(target)) {
             result.m_errorString = tr("Failed.");

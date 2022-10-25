@@ -1264,7 +1264,16 @@ bool FilePath::copyFile(const FilePath &target) const
         const std::optional<QByteArray> ba = fileContents();
         if (!ba)
             return false;
-        return target.writeFileContents(*ba);
+        const auto perms = permissions();
+        if (!target.writeFileContents(*ba))
+            return false;
+
+        if (!target.setPermissions(perms)) {
+            target.removeFile();
+            return false;
+        }
+
+        return true;
     }
     return fileAccess()->copyFile(*this, target);
 }
