@@ -423,6 +423,7 @@ Item {
                                     ListElement { name: "Qt 5.15" }
                                     ListElement { name: "Qt 6.2" }
                                     ListElement { name: "Qt 6.3" }
+                                    ListElement { name: "Qt 6.4" }
                                 }
 
                                 onActivated: (index) => {
