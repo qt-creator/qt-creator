@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "classviewnavigationwidgetfactory.h"
+
 #include "classviewnavigationwidget.h"
-#include "classviewconstants.h"
 
-#include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
-#include <QKeySequence>
 #include <QSettings>
 
 namespace ClassView {

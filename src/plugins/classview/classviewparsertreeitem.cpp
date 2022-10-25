@@ -2,28 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "classviewparsertreeitem.h"
-#include "classviewsymbollocation.h"
-#include "classviewsymbolinformation.h"
+
 #include "classviewconstants.h"
-#include "classviewutils.h"
 
 #include <cplusplus/Icons.h>
-#include <cplusplus/Name.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/Symbol.h>
-#include <cplusplus/Symbols.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/session.h>
-#include <utils/algorithm.h>
-
-#include <QHash>
-#include <QPair>
-#include <QIcon>
-#include <QStandardItem>
 
 #include <QDebug>
+#include <QHash>
+#include <QStandardItem>
 
 namespace ClassView {
 namespace Internal {

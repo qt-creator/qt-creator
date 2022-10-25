@@ -2,16 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "classviewparser.h"
-#include "classviewconstants.h"
-#include "classviewutils.h"
 
-// cplusplus shared library. the same folder (cplusplus)
-#include <cplusplus/Symbol.h>
-
-// other
 #include <cppeditor/cppmodelmanager.h>
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QElapsedTimer>
 #include <QDebug>

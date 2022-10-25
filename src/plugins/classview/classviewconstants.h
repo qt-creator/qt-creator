@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <Qt>
+
 namespace ClassView {
 namespace Constants {
 

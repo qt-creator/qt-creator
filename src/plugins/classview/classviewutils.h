@@ -3,14 +3,16 @@
 
 #pragma once
 
-#include "classviewsymbollocation.h"
 #include "classviewsymbolinformation.h"
+#include "classviewsymbollocation.h"
 
-#include <QVariant>
 #include <QList>
 #include <QSet>
+#include <QVariant>
 
-QT_FORWARD_DECLARE_CLASS(QStandardItem)
+QT_BEGIN_NAMESPACE
+class QStandardItem;
+QT_END_NAMESPACE
 
 namespace ClassView {
 namespace Internal {

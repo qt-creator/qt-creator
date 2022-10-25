@@ -2,20 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "classviewmanager.h"
-#include "classviewsymbollocation.h"
-#include "classviewnavigationwidgetfactory.h"
+
 #include "classviewparser.h"
 #include "classviewutils.h"
 
-#include <utils/qtcassert.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
+#include <projectexplorer/session.h>
 #include <texteditor/texteditor.h>
 
 #include <QThread>

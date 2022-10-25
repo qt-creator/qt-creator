@@ -7,11 +7,6 @@
 #include <QSharedPointer>
 #include <QStandardItem>
 
-#include <cplusplus/CppDocument.h>
-#include <utils/id.h>
-
-#include "classviewparsertreeitem.h"
-
 namespace ClassView {
 namespace Internal {
 

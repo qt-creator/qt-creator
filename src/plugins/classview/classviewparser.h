@@ -7,16 +7,6 @@
 
 #include "classviewparsertreeitem.h"
 
-#include <cplusplus/CppDocument.h>
-
-// might be changed to forward declaration - is not done to be less dependent
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/project.h>
-
-#include <QList>
-#include <QSharedPointer>
-#include <QStandardItem>
-
 namespace ClassView {
 namespace Internal {
 

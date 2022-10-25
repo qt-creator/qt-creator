@@ -3,12 +3,8 @@
 
 #include "classviewsymbolinformation.h"
 
-#include "classviewconstants.h"
-#include "classviewutils.h"
-
 #include <utils/utilsicons.h>
 
-#include <QPair>
 #include <QHash>
 
 namespace ClassView {

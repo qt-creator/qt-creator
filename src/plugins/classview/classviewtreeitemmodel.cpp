@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "classviewtreeitemmodel.h"
+
 #include "classviewconstants.h"
 #include "classviewmanager.h"
 #include "classviewutils.h"

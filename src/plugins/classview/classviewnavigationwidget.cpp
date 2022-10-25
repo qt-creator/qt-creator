@@ -2,23 +2,20 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "classviewnavigationwidget.h"
-#include "classviewmanager.h"
-#include "classviewsymbollocation.h"
-#include "classviewsymbolinformation.h"
-#include "classviewutils.h"
+
 #include "classviewconstants.h"
+#include "classviewmanager.h"
+#include "classviewutils.h"
 
 #include <coreplugin/find/itemviewfind.h>
-
 #include <cplusplus/Icons.h>
-
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QVariant>
 #include <QVBoxLayout>
-#include <QElapsedTimer>
 
 enum { debug = false };
 

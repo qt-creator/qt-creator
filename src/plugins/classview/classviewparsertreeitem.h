@@ -3,15 +3,18 @@
 
 #pragma once
 
-#include "classviewsymbollocation.h"
 #include "classviewsymbolinformation.h"
+#include "classviewsymbollocation.h"
 
 #include <cplusplus/CppDocument.h>
 
 #include <QSharedPointer>
-#include <QHash>
 
-QT_FORWARD_DECLARE_CLASS(QStandardItem)
+QT_BEGIN_NAMESPACE
+template <typename K, typename T>
+class QHash;
+class QStandardItem;
+QT_END_NAMESPACE
 
 namespace ClassView {
 namespace Internal {
