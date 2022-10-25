@@ -24,6 +24,10 @@
     To override this choice, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Kits.
 
+    For more information about setting up the debugger, see
+    \l {Setting Up Debugger}. If you encounter problems, see
+    \l {Troubleshooting Debugger}.
+
     To add debuggers:
 
     \list 1
@@ -31,7 +35,7 @@
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Debuggers > \uicontrol Add.
 
-            \image qtcreator-options-build-run-debuggers.png "Adding debuggers"
+            \image qtcreator-preferences-kits-debuggers.webp "Debuggers tab in Kits preferences"
 
         \li In the \uicontrol Name field, give a descriptive name for the debugger.
 
@@ -40,7 +44,12 @@
             \list
 
                 \li For CDB (Windows only), specify the path to the Windows
-                    Console Debugger executable.
+                    Console Debugger executable, \c cdb.exe.
+
+                    The 32-bit version can only debug 32-bit executables, whereas
+                    the 64-bit version can debug both 64-bit and 32-bit
+                    executables. For more information, see
+                    \l {Debugging Tools for Windows}.
 
                 \li For GDB, specify the path to the GDB executable. The
                     executable must be built with Python scripting support

@@ -162,23 +162,28 @@
 
     \section2 Debugging Tools for Windows
 
-    To use the CDB debugger, you must install the
-    \e{Debugging tools for Windows}. You can download them from
-    \l{https://developer.microsoft.com/windows/downloads/windows-10-sdk}
-    {Download and Install Debugging Tools for Windows} as part of the Windows
-    SDK.
+    To use the CDB debugger, install the \e {Debugging Tools for Windows} when
+    you install \QC either by using the Qt Online Installer (in \uicontrol Qt
+    > \uicontrol Tools > \uicontrol {\QC}) or by using the stand-alone \QC
+    installation packages.
 
-    \note Visual Studio does not include the Debugging tools needed,
-    and therefore, you must install them separately.
+    The 32-bit CDB version can only debug 32-bit executables, whereas the 64-bit
+    version can debug both 64-bit and 32-bit executables. However, interrupting a
+    32-bit executable with a 64-bit debugger can result in a stacktrace of the
+    WOW64 emulator 32-bit emulation layer being displayed.
 
-    In addition, you must select \uicontrol {\QC CDB Debugger Support}
-    (in \uicontrol Qt > \uicontrol Tools > \uicontrol {\QC}) when you install
-    Qt or the stand-alone \QC.
+    \QC extends the command line debugger by loading the
+    \c qtcreatorcdbext.dll extension library into it. The
+    library must be available in the \c {libs\qtcreatorcdbext64}
+    and \c {libs\qtcreatorcdbext32} folder. To install it there,
+    select \uicontrol {\QC CDB Debugger Support} when you install \QC.
 
     When manually building \QC using
     the Microsoft Visual C++ Compiler, the build process checks for
     the required files in
     \c{"%ProgramFiles%\Debugging Tools for Windows"}.
+
+    \section3 Symbol Server
 
     It is highly recommended that you add the Symbol Server provided
     by Microsoft to the symbol search path of the debugger. The
