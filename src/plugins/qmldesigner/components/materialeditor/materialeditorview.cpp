@@ -1022,6 +1022,8 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 
     TypeName matType = material.type();
     QmlObjectNode sourceMat(material);
+    ModelNode duplicateMatNode;
+    QList<AbstractProperty> dynamicProps;
 
     executeInTransaction(__FUNCTION__, [&] {
         ModelNode matLib = materialLibraryNode();
@@ -1032,25 +1034,57 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
         NodeMetaInfo metaInfo = model()->metaInfo(matType);
         QmlObjectNode duplicateMat = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
 
+        duplicateMatNode = duplicateMat.modelNode();
+
         // set name and id
         QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString() + " copy";
-        duplicateMat.modelNode().variantProperty("objectName").setValue(newName);
-        duplicateMat.modelNode().setIdWithoutRefactoring(model()->generateIdFromName(newName, "material"));
+        duplicateMatNode.variantProperty("objectName").setValue(newName);
+        duplicateMatNode.setIdWithoutRefactoring(model()->generateIdFromName(newName, "material"));
 
-        // sync properties
+        // sync properties. Only the base state is duplicated.
         const QList<AbstractProperty> props = material.properties();
         for (const AbstractProperty &prop : props) {
-            if (prop.name() == "objectName")
+            if (prop.name() == "objectName" || prop.name() == "data")
                 continue;
 
-            if (prop.isVariantProperty())
-                duplicateMat.setVariantProperty(prop.name(), prop.toVariantProperty().value());
-            else if (prop.isBindingProperty())
-                duplicateMat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
+            if (prop.isVariantProperty()) {
+                if (prop.isDynamic()) {
+                    dynamicProps.append(prop);
+                } else {
+                    duplicateMatNode.variantProperty(prop.name())
+                            .setValue(prop.toVariantProperty().value());
+                }
+            } else if (prop.isBindingProperty()) {
+                if (prop.isDynamic()) {
+                    dynamicProps.append(prop);
+                } else {
+                    duplicateMatNode.bindingProperty(prop.name())
+                            .setExpression(prop.toBindingProperty().expression());
+                }
+            }
         }
 
         matLib.defaultNodeListProperty().reparentHere(duplicateMat);
     });
+
+    // For some reason, creating dynamic properties in the same transaction doesn't work, so
+    // let's do it in separate transaction.
+    // TODO: Fix the issue and merge transactions (QDS-8094)
+    if (!dynamicProps.isEmpty()) {
+        executeInTransaction(__FUNCTION__, [&] {
+            for (const AbstractProperty &prop : std::as_const(dynamicProps)) {
+                if (prop.isVariantProperty()) {
+                    duplicateMatNode.variantProperty(prop.name())
+                            .setDynamicTypeNameAndValue(prop.dynamicTypeName(),
+                                                        prop.toVariantProperty().value());
+                } else if (prop.isBindingProperty()) {
+                    duplicateMatNode.bindingProperty(prop.name())
+                            .setDynamicTypeNameAndExpression(prop.dynamicTypeName(),
+                                                             prop.toBindingProperty().expression());
+                }
+            }
+        });
+    }
 }
 
 void MaterialEditorView::customNotification(const AbstractView *view, const QString &identifier,
