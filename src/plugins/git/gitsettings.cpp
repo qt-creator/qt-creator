@@ -88,6 +88,13 @@ GitSettings::GitSettings()
     repositoryBrowserCmd.setDisplayName(Tr::tr("Git Repository Browser Command"));
     repositoryBrowserCmd.setLabelText(Tr::tr("Command:"));
 
+    registerAspect(&instantBlame);
+    instantBlame.setSettingsKey("Git Instant");
+    instantBlame.setDefaultValue(true);
+    instantBlame.setLabelText(Tr::tr("Add instant blame annotations to editor"));
+    instantBlame.setToolTip(Tr::tr("Directly annotate each line in the editor "
+                                   "when scrolling through the document."));
+
     registerAspect(&graphLog);
     graphLog.setSettingsKey("GraphLog");
 
@@ -171,6 +178,11 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
             Group {
                 title(Tr::tr("Repository Browser")),
                 Row { s.repositoryBrowserCmd }
+            },
+
+            Group {
+                title(Tr::tr("Instant Blame")),
+                Row { s.instantBlame }
             },
 
             st

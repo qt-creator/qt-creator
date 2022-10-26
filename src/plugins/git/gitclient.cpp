@@ -2729,6 +2729,22 @@ bool GitClient::readDataFromCommit(const FilePath &repoDirectory, const QString 
     return true;
 }
 
+Author GitClient::getAuthor(const Utils::FilePath &workingDirectory)
+{
+    // The format is:
+    // Joe Developer <joedev@example.com> unixtimestamp +HHMM
+    const QString authorInfo = readGitVar(workingDirectory, "GIT_AUTHOR_IDENT");
+    int lt = authorInfo.lastIndexOf('<');
+    int gt = authorInfo.lastIndexOf('>');
+    if (gt == -1 || uint(lt) > uint(gt)) {
+        // shouldn't happen!
+        return {};
+    }
+
+    const Author result {authorInfo.left(lt - 1), authorInfo.mid(lt + 1, gt - lt - 1)};
+    return result;
+}
+
 bool GitClient::getCommitData(const FilePath &workingDirectory,
                               QString *commitTemplate,
                               CommitData &commitData,
@@ -2826,19 +2842,9 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
             commitData.amendSHA1.clear();
         }
         if (!authorFromCherryPick) {
-            // the format is:
-            // Joe Developer <joedev@example.com> unixtimestamp +HHMM
-            QString author_info = readGitVar(workingDirectory, "GIT_AUTHOR_IDENT");
-            int lt = author_info.lastIndexOf('<');
-            int gt = author_info.lastIndexOf('>');
-            if (gt == -1 || uint(lt) > uint(gt)) {
-                // shouldn't happen!
-                commitData.panelData.author.clear();
-                commitData.panelData.email.clear();
-            } else {
-                commitData.panelData.author = author_info.left(lt - 1);
-                commitData.panelData.email = author_info.mid(lt + 1, gt - lt - 1);
-            }
+            const Author author = getAuthor(workingDirectory);
+            commitData.panelData.author = author.name;
+            commitData.panelData.email = author.email;
         }
         // Commit: Get the commit template
         QString templateFilename = gitDirectory.absoluteFilePath("MERGE_MSG");

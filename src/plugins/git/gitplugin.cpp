@@ -36,7 +36,9 @@
 
 #include <aggregation/aggregate.h>
 
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
@@ -177,6 +179,64 @@ const VcsBaseEditorParameters rebaseEditorParameters {
     Git::Constants::GIT_REBASE_EDITOR_DISPLAY_NAME,
     "text/vnd.qtcreator.git.rebase"
 };
+
+class CommitInfo {
+public:
+    QString sha1;
+    QString shortAuthor;
+    QString author;
+    QString authorMail;
+    QDateTime authorTime;
+    QString summary;
+    QString fileName;
+};
+
+class BlameMark : public TextEditor::TextMark
+{
+public:
+    BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo &info)
+        : TextEditor::TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BLAME)
+    {
+        const QString text = info.shortAuthor + " " + info.authorTime.toString("yyyy-MM-dd");
+
+        setPriority(TextEditor::TextMark::LowPriority);
+        setToolTip(toolTipText(info));
+        setLineAnnotation(text);
+        setSettingsPage(VcsBase::Constants::VCS_ID_GIT);
+        setActionsProvider([info] {
+            QAction *copyToClipboardAction = new QAction;
+            copyToClipboardAction->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
+            copyToClipboardAction->setToolTip(TextMark::tr("Copy SHA1 to Clipboard"));
+            QObject::connect(copyToClipboardAction, &QAction::triggered, [info]() {
+                Utils::setClipboardAndSelection(info.sha1);
+            });
+            QAction *showAction = new QAction;
+            showAction->setIcon(Utils::Icons::ZOOM.icon());
+            showAction->setToolTip(TextMark::tr("Show Commit %1").arg(info.sha1.left(8)));
+            QObject::connect(showAction, &QAction::triggered, [info]() {
+                GitClient::instance()->show(info.fileName, info.sha1);
+            });
+            return QList<QAction *>{copyToClipboardAction, showAction};
+        });
+    }
+
+    QString toolTipText(const CommitInfo &info) const
+    {
+        const QString result = QString(
+                "<table>"
+                "  <tr><td>commit</td><td>%1</td></tr>"
+                "  <tr><td>Author:</td><td>%2 &lt;%3&gt;</td></tr>"
+                "  <tr><td>Date:</td><td>%4</td></tr>"
+                "  <tr></tr>"
+                "  <tr><td colspan='2' align='left'>%5</td></tr>"
+                "</table>")
+                .arg(info.sha1, info.author, info.authorMail,
+                     info.authorTime.toString("yyyy-MM-dd hh:mm:ss"), info.summary);
+        return result;
+    }
+};
+
+static BlameMark *m_blameMark = nullptr;
 
 // GitPlugin
 
@@ -330,6 +390,9 @@ public:
     void applyPatch(const FilePath &workingDirectory, QString file = {});
     void updateVersionWarning();
 
+    void setupInstantBlame();
+    void instantBlameOnce();
+    void instantBlame();
 
     void onApplySettings();;
 
@@ -363,6 +426,10 @@ public:
     QPointer<RemoteDialog> m_remoteDialog;
     FilePath m_submitRepository;
     QString m_commitMessageFileName;
+
+    Author m_author;
+    int m_lastVisitedEditorLine = -1;
+    QTimer *m_cursorPositionChangedTimer = nullptr;
 
     GitSettingsPage settingPage{&m_settings};
 
@@ -674,6 +741,11 @@ GitPluginPrivate::GitPluginPrivate()
                      Tr::tr("Blame for \"%1\"", "Avoid translating \"Blame\""),
                      "Git.Blame", context, true, std::bind(&GitPluginPrivate::blameFile, this),
                      QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+B") : Tr::tr("Alt+G,Alt+B")));
+
+    createFileAction(currentFileMenu, Tr::tr("Instant Blame Current Line", "Avoid translating \"Blame\""),
+                     Tr::tr("Instant Blame for \"%1\"", "Avoid translating \"Blame\""),
+                     "Git.InstantBlame", context, true, std::bind(&GitPluginPrivate::instantBlameOnce, this),
+                     QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+I") : Tr::tr("Alt+G,Alt+I")));
 
     currentFileMenu->addSeparator(context);
 
@@ -996,6 +1068,8 @@ GitPluginPrivate::GitPluginPrivate()
     m_gerritPlugin->addToLocator(m_commandLocator);
 
     connect(&m_settings, &AspectContainer::applied, this, &GitPluginPrivate::onApplySettings);
+
+    setupInstantBlame();
 }
 
 void GitPluginPrivate::diffCurrentFile()
@@ -1351,6 +1425,164 @@ void GitPluginPrivate::updateVersionWarning()
                          Tr::tr("Unsupported version of Git found. Git %1 or later required.")
                              .arg(versionString(minimumRequiredVersion)),
                          InfoBarEntry::GlobalSuppression::Enabled));
+    });
+}
+
+void GitPluginPrivate::setupInstantBlame()
+{
+    m_cursorPositionChangedTimer = new QTimer(this);
+    m_cursorPositionChangedTimer->setSingleShot(true);
+    connect(m_cursorPositionChangedTimer, &QTimer::timeout, this, &GitPluginPrivate::instantBlame);
+
+    auto setupBlameForEditor = [this](Core::IEditor *editor) {
+        if (!editor)
+            return;
+
+        if (!GitClient::instance()->settings().instantBlame.value()) {
+            m_lastVisitedEditorLine = -1;
+            delete m_blameMark;
+            m_blameMark = nullptr;
+            return;
+        }
+
+        const Utils::FilePath workingDirectory = GitPlugin::currentState().topLevel();
+        if (workingDirectory.isEmpty())
+            return;
+        m_author = GitClient::instance()->getAuthor(workingDirectory);
+
+        const TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
+        if (!widget)
+            return;
+
+        if (qobject_cast<const VcsBaseEditorWidget *>(widget))
+            return; // Skip in VCS editors like log or blame
+
+        auto cursorPosConn = std::make_shared<QMetaObject::Connection>();
+        *cursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
+                                 [this, cursorPosConn] {
+            if (!GitClient::instance()->settings().instantBlame.value()) {
+                disconnect(*cursorPosConn);
+                return;
+            }
+            m_cursorPositionChangedTimer->start(500);
+        });
+
+        m_lastVisitedEditorLine = -1;
+        instantBlame();
+    };
+
+    connect(&GitClient::instance()->settings().instantBlame,
+            &BoolAspect::valueChanged, this, [setupBlameForEditor](bool enabled) {
+        if (enabled) {
+            setupBlameForEditor(EditorManager::currentEditor());
+        } else {
+            delete m_blameMark;
+            m_blameMark = nullptr;
+        }
+    });
+
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, setupBlameForEditor);
+}
+
+// Porcelain format of git blame output
+// 8b649d2d61416205977aba56ef93e1e1f155005e 5 5 1
+// author John Doe
+// author-mail <john.doe@gmail.com>
+// author-time 1613752276
+// author-tz +0100
+// committer John Doe
+// committer-mail <john.doe@gmail.com>
+// committer-time 1613752312
+// committer-tz +0100
+// summary Add greeting to script
+// boundary
+// filename foo
+//     echo Hello World!
+
+CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &filePath,
+                            const Git::Internal::Author &author)
+{
+    CommitInfo result;
+    QTC_ASSERT(blame.size() > 12, return result);
+
+    result.sha1 = blame.at(0).left(40);
+    result.author = blame.at(1).mid(7);
+    result.authorMail = blame.at(2).mid(13).chopped(1);
+    if (result.author == author.name || result.authorMail == author.email)
+        result.shortAuthor = Tr::tr("You");
+    else
+        result.shortAuthor = result.author;
+    const uint timeStamp = blame.at(3).mid(12).toUInt();
+    result.authorTime = QDateTime::fromSecsSinceEpoch(timeStamp);
+    result.summary = blame.at(9).mid(8);
+    result.fileName = filePath.toString();
+    return result;
+}
+
+void GitPluginPrivate::instantBlameOnce()
+{
+    if (!GitClient::instance()->settings().instantBlame.value()) {
+        const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+        if (!widget)
+            return;
+        auto editorChangedConn = std::make_shared<QMetaObject::Connection>();
+        connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+                this, [editorChangedConn] {
+            disconnect(*editorChangedConn);
+            delete m_blameMark;
+            m_blameMark = nullptr;
+        });
+
+        auto cursorPosConn = std::make_shared<QMetaObject::Connection>();
+        *cursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged,
+                                 this, [cursorPosConn] {
+            disconnect(*cursorPosConn);
+            delete m_blameMark;
+            m_blameMark = nullptr;
+        });
+
+        const Utils::FilePath workingDirectory = GitPlugin::currentState().topLevel();
+        if (workingDirectory.isEmpty())
+            return;
+        m_author = GitClient::instance()->getAuthor(workingDirectory);
+    }
+
+    m_lastVisitedEditorLine = -1;
+    instantBlame();
+}
+
+void GitPluginPrivate::instantBlame()
+{
+    const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+    const QTextCursor cursor = widget->textCursor();
+    const QTextBlock block = cursor.block();
+    const int line = block.blockNumber() + 1;
+    const int lines = widget->document()->lineCount();
+
+    if (line >= lines) {
+        delete m_blameMark;
+        m_blameMark = nullptr;
+        return;
+    }
+
+    if (m_lastVisitedEditorLine == line)
+        return;
+
+    m_lastVisitedEditorLine = line;
+
+    const Utils::FilePath filePath = widget->textDocument()->filePath();
+    const QFileInfo fi(filePath.toString());
+    const Utils::FilePath workingDirectory = Utils::FilePath::fromString(fi.path());
+    const QString lineString = QString("%1,%1").arg(line);
+    const VcsCommand *command = GitClient::instance()->vcsExec(
+                workingDirectory, {"blame", "-p", "-L", lineString, "--", filePath.toString()},
+                nullptr, false, RunFlags::SuppressCommandLogging | RunFlags::ProgressiveOutput);
+    connect(command, &VcsCommand::done, this, [command, filePath, line, this]() {
+        const QString output = command->cleanedStdOut();
+        const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
+        delete m_blameMark;
+        m_blameMark = new BlameMark(filePath, line, info);
     });
 }
 

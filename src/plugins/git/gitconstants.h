@@ -36,5 +36,7 @@ const int MAX_OBSOLETE_COMMITS_TO_DISPLAY = 5;
 const char EXPAND_BRANCHES[] = "Branches: <Expand>";
 const char DEFAULT_COMMENT_CHAR = '#';
 
+const char TEXT_MARK_CATEGORY_BLAME[] = "Git.Mark.Blame";
+
 } // namespace Constants
 } // namespace Git

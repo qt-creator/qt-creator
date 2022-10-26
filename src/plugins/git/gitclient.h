@@ -77,6 +77,11 @@ public:
     int behind = 0;
 };
 
+struct Author {
+    QString name;
+    QString email;
+};
+
 class GITSHARED_EXPORT GitClient : public VcsBase::VcsBaseClientImpl
 {
 public:
@@ -338,6 +343,7 @@ public:
     Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,
                                   const QString &path, ShowEditor showSetting = ShowEditor::Always);
 
+    Author getAuthor(const Utils::FilePath &workingDirectory);
 private:
     void finishSubmoduleUpdate();
     void chunkActionsRequested(DiffEditor::DiffEditorController *controller,
