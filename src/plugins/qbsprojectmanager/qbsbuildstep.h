@@ -89,7 +89,6 @@ private:
     void finish();
 
     void updateState();
-    void changeBuildVariant();
     QStringList configuredArchitectures() const;
 
     QVariantMap m_qbsConfiguration;
