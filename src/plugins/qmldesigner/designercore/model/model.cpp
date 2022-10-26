@@ -88,10 +88,7 @@ ModelPrivate::ModelPrivate(
     m_currentTimelineNode = m_rootInternalNode;
 }
 
-ModelPrivate::~ModelPrivate()
-{
-    detachAllViews();
-}
+ModelPrivate::~ModelPrivate() = default;
 
 void ModelPrivate::detachAllViews()
 {
@@ -1397,7 +1394,11 @@ Model::Model(const TypeName &typeName, int major, int minor, Model *metaInfoProx
     : d(std::make_unique<Internal::ModelPrivate>(this, typeName, major, minor, metaInfoProxyModel))
 {}
 
-Model::~Model() = default;
+Model::~Model()
+{
+    d->detachAllViews();
+    d.reset(nullptr);
+}
 
 const QList<Import> &Model::imports() const
 {
