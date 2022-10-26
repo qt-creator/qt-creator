@@ -186,11 +186,6 @@ bool MakeStep::isJobCountSupported() const
     return tc && tc->isJobCountSupported();
 }
 
-int MakeStep::jobCount() const
-{
-    return m_userJobCountAspect->value();
-}
-
 bool MakeStep::jobCountOverridesMakeflags() const
 {
     return m_overrideMakeflagsAspect->value();

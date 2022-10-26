@@ -45,7 +45,6 @@ public:
     static Task makeCommandMissingTask();
 
     virtual bool isJobCountSupported() const;
-    int jobCount() const;
     bool jobCountOverridesMakeflags() const;
     bool makeflagsContainsJobCount() const;
     bool userArgsContainsJobCount() const;
