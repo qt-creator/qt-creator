@@ -263,8 +263,8 @@ void StateListener::slotStateChanged()
             }
 
             if (state.currentFile.isDir()) {
-                state.currentFile.clear();
                 state.currentFileDirectory = state.currentFile.absoluteFilePath();
+                state.currentFile.clear();
             } else {
                 state.currentFileDirectory = state.currentFile.absolutePath();
                 state.currentFileName = state.currentFile.fileName();
