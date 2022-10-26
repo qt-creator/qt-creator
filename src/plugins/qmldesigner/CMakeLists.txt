@@ -913,6 +913,20 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/contentlibrary
+  SOURCES
+    contentlibrarybundleimporter.cpp contentlibrarybundleimporter.h
+    contentlibraryview.cpp contentlibraryview.h
+    contentlibrarywidget.cpp contentlibrarywidget.h
+    contentlibrarytexturesmodel.cpp contentlibrarytexturesmodel.h
+    contentlibrarytexturescategory.cpp contentlibrarytexturescategory.h
+    contentlibrarytexture.cpp contentlibrarytexture.h
+    contentlibrarymaterialsmodel.cpp contentlibrarymaterialsmodel.h
+    contentlibrarymaterialscategory.cpp contentlibrarymaterialscategory.h
+    contentlibrarymaterial.cpp contentlibrarymaterial.h
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/materialeditor
   SOURCES
     materialeditorcontextobject.cpp materialeditorcontextobject.h
@@ -929,10 +943,7 @@ extend_qtc_plugin(QmlDesigner
     materialbrowserview.cpp materialbrowserview.h
     materialbrowserwidget.cpp materialbrowserwidget.h
     materialbrowsermodel.cpp materialbrowsermodel.h
-    bundleimporter.cpp bundleimporter.h
-    materialbrowserbundlemodel.cpp materialbrowserbundlemodel.h
-    bundlematerial.cpp bundlematerial.h
-    bundlematerialcategory.cpp bundlematerialcategory.h
+    materialbrowsertexturesmodel.cpp materialbrowsertexturesmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

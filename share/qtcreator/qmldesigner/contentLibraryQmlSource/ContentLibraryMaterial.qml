@@ -1,27 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
@@ -45,8 +23,8 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
-            if (mouse.button === Qt.LeftButton && !materialBrowserBundleModel.importerRunning)
-                rootView.startDragBundleMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
+            if (mouse.button === Qt.LeftButton && !materialsModel.importerRunning)
+                rootView.startDragMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
@@ -102,10 +80,10 @@ Item {
                 pressColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .4)
                 anchors.right: img.right
                 anchors.bottom: img.bottom
-                enabled: !materialBrowserBundleModel.importerRunning
+                enabled: !materialsModel.importerRunning
 
                 onClicked: {
-                    materialBrowserBundleModel.addToProject(modelData)
+                    materialsModel.addToProject(modelData)
                 }
             }
         }

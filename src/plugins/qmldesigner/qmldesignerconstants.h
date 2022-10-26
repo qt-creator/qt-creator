@@ -76,6 +76,7 @@ const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.iteml
 const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";
 const char MIME_TYPE_MATERIAL[]          = "application/vnd.qtdesignstudio.material";
 const char MIME_TYPE_BUNDLE_MATERIAL[]   = "application/vnd.qtdesignstudio.bundlematerial";
+const char MIME_TYPE_BUNDLE_TEXTURE[]    = "application/vnd.qtdesignstudio.bundletexture";
 const char MIME_TYPE_ASSET_IMAGE[]       = "application/vnd.qtdesignstudio.asset.image";
 const char MIME_TYPE_ASSET_FONT[]        = "application/vnd.qtdesignstudio.asset.font";
 const char MIME_TYPE_ASSET_SHADER[]      = "application/vnd.qtdesignstudio.asset.shader";

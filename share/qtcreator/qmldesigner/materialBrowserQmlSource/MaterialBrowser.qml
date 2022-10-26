@@ -19,13 +19,12 @@ Item {
     function closeContextMenu()
     {
         ctxMenu.close()
-        ctxMenuBundle.close()
     }
 
     // Called from C++ to refresh a preview material after it changes
     function refreshPreview(idx)
     {
-        var item = gridRepeater.itemAt(idx);
+        var item = materialRepeater.itemAt(idx);
         if (item)
             item.refreshPreview();
     }
@@ -44,12 +43,14 @@ Item {
         acceptedButtons: Qt.RightButton
 
         onClicked: (mouse) => {
-            // root context-menu works only for user materials
-            var userMatsSecBottom = mapFromItem(userMaterialsSection, 0, userMaterialsSection.y).y
-                                    + userMaterialsSection.height;
+            if (materialBrowserModel.hasMaterialRoot || !materialBrowserModel.hasQuick3DImport)
+                return;
+
+            var matsSecBottom = mapFromItem(materialsSection, 0, materialsSection.y).y
+                                + materialsSection.height;
 
             if (!materialBrowserModel.hasMaterialRoot && materialBrowserModel.hasQuick3DImport
-                && (!materialBrowserBundleModel.matBundleExists || mouse.y < userMatsSecBottom)) {
+                && mouse.y < matsSecBottom) {
                 ctxMenu.popupMenu()
             }
         }
@@ -63,25 +64,12 @@ Item {
             if (root.currMaterialItem)
                 root.currMaterialItem.commitRename();
 
-            root.currMaterialItem = gridRepeater.itemAt(materialBrowserModel.selectedIndex);
+            root.currMaterialItem = materialRepeater.itemAt(materialBrowserModel.selectedIndex);
         }
     }
 
     MaterialBrowserContextMenu {
         id: ctxMenu
-    }
-
-    MaterialBundleContextMenu {
-        id: ctxMenuBundle
-
-        onUnimport: (bundleMat) => {
-            unimportBundleMaterialDialog.targetBundleMaterial = bundleMat
-            unimportBundleMaterialDialog.open()
-        }
-    }
-
-    UnimportBundleMaterialDialog {
-        id: unimportBundleMaterialDialog
     }
 
     Column {
@@ -100,19 +88,6 @@ Item {
 
                 onSearchChanged: (searchText) => {
                     rootView.handleSearchFilterChanged(searchText)
-
-                    // make sure searched categories that have matches are expanded
-                    if (!materialBrowserModel.isEmpty && !userMaterialsSection.expanded)
-                        userMaterialsSection.expanded = true
-
-                    if (!materialBrowserBundleModel.isEmpty && !bundleMaterialsSection.expanded)
-                        bundleMaterialsSection.expanded = true
-
-                    for (let i = 0; i < bundleMaterialsSectionRepeater.count; ++i) {
-                        let sec = bundleMaterialsSectionRepeater.itemAt(i)
-                        if (sec.visible && !sec.expanded)
-                            sec.expanded = true
-                    }
                 }
             }
 
@@ -156,29 +131,28 @@ Item {
             height: root.height - searchBox.height
             clip: true
             visible: materialBrowserModel.hasQuick3DImport && !materialBrowserModel.hasMaterialRoot
-            interactive: !ctxMenu.opened && !ctxMenuBundle.opened
+            interactive: !ctxMenu.opened
 
             Column {
                 Section {
-                    id: userMaterialsSection
+                    id: materialsSection
 
                     width: root.width
                     caption: qsTr("Materials")
-                    hideHeader: !materialBrowserBundleModel.matBundleExists
                     dropEnabled: true
 
                     onDropEnter: (drag) => {
-                        drag.accepted = rootView.draggedBundleMaterial
-                        userMaterialsSection.highlight = rootView.draggedBundleMaterial
+                        drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.bundlematerial"
+                        materialsSection.highlight = drag.accepted
                     }
 
                     onDropExit: {
-                        userMaterialsSection.highlight = false
+                        materialsSection.highlight = false
                     }
 
                     onDrop: {
-                        userMaterialsSection.highlight = false
-                        materialBrowserBundleModel.addToProject(rootView.draggedBundleMaterial)
+                        materialsSection.highlight = false
+                        rootView.acceptBundleMaterialDrop()
                     }
 
                     Grid {
@@ -191,7 +165,7 @@ Item {
                         columns: root.width / root.cellWidth
 
                         Repeater {
-                            id: gridRepeater
+                            id: materialRepeater
 
                             model: materialBrowserModel
                             delegate: MaterialItem {
@@ -226,62 +200,51 @@ Item {
                 }
 
                 Section {
-                    id: bundleMaterialsSection
+                    id: texturesSection
 
                     width: root.width
-                    caption: qsTr("Material Library")
-                    addTopPadding: noMatchText.visible
-                    visible: materialBrowserBundleModel.matBundleExists
+                    caption: qsTr("Textures")
 
-                    Column {
+                    Grid {
+                        width: scrollView.width
+                        leftPadding: 5
+                        rightPadding: 5
+                        bottomPadding: 5
+                        spacing: 5
+                        columns: root.width / root.cellWidth
+
                         Repeater {
-                            id: bundleMaterialsSectionRepeater
+                            id: texturesRepeater
 
-                            model: materialBrowserBundleModel
+                            model: materialBrowserTexturesModel
+                            delegate: TextureItem {
+                                width: root.cellWidth
+                                height: root.cellWidth
 
-                            delegate: Section {
-                                width: root.width
-                                caption: bundleCategoryName
-                                addTopPadding: false
-                                sectionBackgroundColor: "transparent"
-                                visible: bundleCategoryVisible
-                                expanded: bundleCategoryExpanded
-                                expandOnClick: false
-                                onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
-                                onExpand: bundleCategoryExpanded = true
-                                onCollapse: bundleCategoryExpanded = false
-
-                                Grid {
-                                    width: scrollView.width
-                                    leftPadding: 5
-                                    rightPadding: 5
-                                    bottomPadding: 5
-                                    columns: root.width / root.cellWidth
-
-                                    Repeater {
-                                        model: bundleCategoryMaterials
-
-                                        delegate: BundleMaterialItem {
-                                            width: root.cellWidth
-                                            height: root.cellHeight
-
-                                            onShowContextMenu: {
-                                                ctxMenuBundle.popupMenu(modelData)
-                                            }
-                                        }
-                                    }
+                                onShowContextMenu: {
+//                                    ctxMenuTexture.popupMenu(this, model) // TODO: implement textures context menu
                                 }
                             }
                         }
+                    }
 
-                        Text {
-                            id: noMatchText
-                            text: qsTr("No match found.");
-                            color: StudioTheme.Values.themeTextColor
-                            font.pixelSize: StudioTheme.Values.baseFontSize
-                            leftPadding: 10
-                            visible: materialBrowserBundleModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
-                        }
+                    Text {
+                        text: qsTr("No match found.");
+                        color: StudioTheme.Values.themeTextColor
+                        font.pixelSize: StudioTheme.Values.baseFontSize
+                        leftPadding: 10
+                        visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
+                    }
+
+                    Text {
+                        text:qsTr("There are no texture in this project.")
+                        visible: materialBrowserTexturesModel.isEmpty && searchBox.isEmpty()
+                        textFormat: Text.RichText
+                        color: StudioTheme.Values.themeTextColor
+                        font.pixelSize: StudioTheme.Values.mediumFontSize
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                        width: root.width
                     }
                 }
             }

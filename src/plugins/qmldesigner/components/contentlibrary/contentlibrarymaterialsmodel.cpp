@@ -1,33 +1,11 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "materialbrowserbundlemodel.h"
+#include "contentlibrarymaterialsmodel.h"
 
-#include "bundleimporter.h"
-#include "bundlematerial.h"
-#include "bundlematerialcategory.h"
+#include "contentlibrarybundleimporter.h"
+#include "contentlibrarymaterial.h"
+#include "contentlibrarymaterialscategory.h"
 #include "qmldesignerconstants.h"
 #include "utils/qtcassert.h"
 
@@ -38,18 +16,18 @@
 
 namespace QmlDesigner {
 
-MaterialBrowserBundleModel::MaterialBrowserBundleModel(QObject *parent)
+ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(QObject *parent)
     : QAbstractListModel(parent)
 {
     loadMaterialBundle();
 }
 
-int MaterialBrowserBundleModel::rowCount(const QModelIndex &) const
+int ContentLibraryMaterialsModel::rowCount(const QModelIndex &) const
 {
     return m_bundleCategories.size();
 }
 
-QVariant MaterialBrowserBundleModel::data(const QModelIndex &index, int role) const
+QVariant ContentLibraryMaterialsModel::data(const QModelIndex &index, int role) const
 {
     QTC_ASSERT(index.isValid() && index.row() < m_bundleCategories.count(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
@@ -57,13 +35,13 @@ QVariant MaterialBrowserBundleModel::data(const QModelIndex &index, int role) co
     return m_bundleCategories.at(index.row())->property(roleNames().value(role));
 }
 
-bool MaterialBrowserBundleModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool ContentLibraryMaterialsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid() || !roleNames().contains(role))
         return false;
 
     QByteArray roleName = roleNames().value(role);
-    BundleMaterialCategory *bundleCategory = m_bundleCategories.at(index.row());
+    ContentLibraryMaterialsCategory *bundleCategory = m_bundleCategories.at(index.row());
     QVariant currValue = bundleCategory->property(roleName);
 
     if (currValue != value) {
@@ -76,12 +54,12 @@ bool MaterialBrowserBundleModel::setData(const QModelIndex &index, const QVarian
     return false;
 }
 
-bool MaterialBrowserBundleModel::isValidIndex(int idx) const
+bool ContentLibraryMaterialsModel::isValidIndex(int idx) const
 {
     return idx > -1 && idx < rowCount();
 }
 
-QHash<int, QByteArray> MaterialBrowserBundleModel::roleNames() const
+QHash<int, QByteArray> ContentLibraryMaterialsModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
         {Qt::UserRole + 1, "bundleCategoryName"},
@@ -92,7 +70,7 @@ QHash<int, QByteArray> MaterialBrowserBundleModel::roleNames() const
     return roles;
 }
 
-void MaterialBrowserBundleModel::loadMaterialBundle()
+void ContentLibraryMaterialsModel::loadMaterialBundle()
 {
     if (m_matBundleLoaded || m_probeMatBundleDir)
         return;
@@ -137,7 +115,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
     const QJsonObject catsObj = m_matBundleObj.value("categories").toObject();
     const QStringList categories = catsObj.keys();
     for (const QString &cat : categories) {
-        auto category = new BundleMaterialCategory(this, cat);
+        auto category = new ContentLibraryMaterialsCategory(this, cat);
 
         const QJsonObject matsObj = catsObj.value(cat).toObject();
         const QStringList mats = matsObj.keys();
@@ -156,7 +134,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
                                     bundleId,
                                     qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
-            auto bundleMat = new BundleMaterial(category, mat, qml, type, icon, files);
+            auto bundleMat = new ContentLibraryMaterial(category, mat, qml, type, icon, files);
 
             category->addBundleMaterial(bundleMat);
         }
@@ -168,15 +146,17 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
     for (const auto /*QJson{Const,}ValueRef*/ &file : sharedFilesArr)
         sharedFiles.append(file.toString());
 
-    m_importer = new Internal::BundleImporter(matBundleDir.path(), bundleId, sharedFiles);
-    connect(m_importer, &Internal::BundleImporter::importFinished, this, [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
+    m_importer = new Internal::ContentLibraryBundleImporter(matBundleDir.path(), bundleId, sharedFiles);
+    connect(m_importer, &Internal::ContentLibraryBundleImporter::importFinished, this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
         m_importerRunning = false;
         emit importerRunningChanged();
         if (metaInfo.isValid())
             emit bundleMaterialImported(metaInfo);
     });
 
-    connect(m_importer, &Internal::BundleImporter::unimportFinished, this, [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
+    connect(m_importer, &Internal::ContentLibraryBundleImporter::unimportFinished, this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
         Q_UNUSED(metaInfo)
         m_importerRunning = false;
         emit importerRunningChanged();
@@ -184,12 +164,26 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
     });
 }
 
-bool MaterialBrowserBundleModel::hasMaterialRoot() const
+bool ContentLibraryMaterialsModel::hasQuick3DImport() const
+{
+    return m_hasQuick3DImport;
+}
+
+void ContentLibraryMaterialsModel::setHasQuick3DImport(bool b)
+{
+    if (b == m_hasQuick3DImport)
+        return;
+
+    m_hasQuick3DImport = b;
+    emit hasQuick3DImportChanged();
+}
+
+bool ContentLibraryMaterialsModel::hasMaterialRoot() const
 {
     return m_hasMaterialRoot;
 }
 
-void MaterialBrowserBundleModel::setHasMaterialRoot(bool b)
+void ContentLibraryMaterialsModel::setHasMaterialRoot(bool b)
 {
     if (m_hasMaterialRoot == b)
         return;
@@ -198,17 +192,17 @@ void MaterialBrowserBundleModel::setHasMaterialRoot(bool b)
     emit hasMaterialRootChanged();
 }
 
-bool MaterialBrowserBundleModel::matBundleExists() const
+bool ContentLibraryMaterialsModel::matBundleExists() const
 {
     return m_matBundleLoaded && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
 }
 
-Internal::BundleImporter *MaterialBrowserBundleModel::bundleImporter() const
+Internal::ContentLibraryBundleImporter *ContentLibraryMaterialsModel::bundleImporter() const
 {
     return m_importer;
 }
 
-void MaterialBrowserBundleModel::setSearchText(const QString &searchText)
+void ContentLibraryMaterialsModel::setSearchText(const QString &searchText)
 {
     QString lowerSearchText = searchText.toLower();
 
@@ -220,7 +214,7 @@ void MaterialBrowserBundleModel::setSearchText(const QString &searchText)
     bool anyCatVisible = false;
     bool catVisibilityChanged = false;
 
-    for (BundleMaterialCategory *cat : std::as_const(m_bundleCategories)) {
+    for (ContentLibraryMaterialsCategory *cat : std::as_const(m_bundleCategories)) {
         catVisibilityChanged |= cat->filter(m_searchText);
         anyCatVisible |= cat->visible();
     }
@@ -234,17 +228,17 @@ void MaterialBrowserBundleModel::setSearchText(const QString &searchText)
         resetModel();
 }
 
-void MaterialBrowserBundleModel::updateImportedState(const QStringList &importedMats)
+void ContentLibraryMaterialsModel::updateImportedState(const QStringList &importedMats)
 {
     bool changed = false;
-    for (BundleMaterialCategory *cat : std::as_const(m_bundleCategories))
+    for (ContentLibraryMaterialsCategory *cat : std::as_const(m_bundleCategories))
         changed |= cat->updateImportedState(importedMats);
 
     if (changed)
         resetModel();
 }
 
-void MaterialBrowserBundleModel::setQuick3DImportVersion(int major, int minor)
+void ContentLibraryMaterialsModel::setQuick3DImportVersion(int major, int minor)
 {
     bool bundleExisted = matBundleExists();
 
@@ -255,18 +249,18 @@ void MaterialBrowserBundleModel::setQuick3DImportVersion(int major, int minor)
         emit matBundleExistsChanged();
 }
 
-void MaterialBrowserBundleModel::resetModel()
+void ContentLibraryMaterialsModel::resetModel()
 {
     beginResetModel();
     endResetModel();
 }
 
-void MaterialBrowserBundleModel::applyToSelected(BundleMaterial *mat, bool add)
+void ContentLibraryMaterialsModel::applyToSelected(ContentLibraryMaterial *mat, bool add)
 {
     emit applyToSelectedTriggered(mat, add);
 }
 
-void MaterialBrowserBundleModel::addToProject(BundleMaterial *mat)
+void ContentLibraryMaterialsModel::addToProject(ContentLibraryMaterial *mat)
 {
     QString err = m_importer->importComponent(mat->qml(), mat->files());
 
@@ -278,7 +272,7 @@ void MaterialBrowserBundleModel::addToProject(BundleMaterial *mat)
     }
 }
 
-void MaterialBrowserBundleModel::removeFromProject(BundleMaterial *mat)
+void ContentLibraryMaterialsModel::removeFromProject(ContentLibraryMaterial *mat)
 {
     emit bundleMaterialAboutToUnimport(mat->type());
 
@@ -290,6 +284,20 @@ void MaterialBrowserBundleModel::removeFromProject(BundleMaterial *mat)
     } else {
         qWarning() << __FUNCTION__ << err;
     }
+}
+
+bool ContentLibraryMaterialsModel::hasModelSelection() const
+{
+    return m_hasModelSelection;
+}
+
+void ContentLibraryMaterialsModel::setHasModelSelection(bool b)
+{
+    if (b == m_hasModelSelection)
+        return;
+
+    m_hasModelSelection = b;
+    emit hasModelSelectionChanged();
 }
 
 } // namespace QmlDesigner

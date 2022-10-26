@@ -448,7 +448,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files)
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_RESOURCE_IMPORTED + category);
         if (operation) {
             AddFilesResult result = operation(fileNames,
-                                              document->fileName().parentDir().toString());
+                                              document->fileName().parentDir().toString(), true);
             if (result == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                       tr("Could not add %1 to project.")

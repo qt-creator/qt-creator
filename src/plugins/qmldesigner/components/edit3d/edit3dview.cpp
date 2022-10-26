@@ -286,7 +286,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
             });
         }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {
-        emitCustomNotification("drop_bundle_material", {modelNode}); // To MaterialBrowserView
+        emitCustomNotification("drop_bundle_material", {modelNode}); // To ContentLibraryView
     }
     m_nodeAtPosReqType = NodeAtPosReqType::None;
 }

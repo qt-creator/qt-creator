@@ -11,32 +11,27 @@
 
 #include <QFileIconProvider>
 #include <QFrame>
-#include <QJsonObject>
-#include <QPointF>
 #include <QQmlPropertyMap>
-#include <QQuickWidget>
-#include <QTimer>
-#include <QToolButton>
 
 #include <memory>
 
 QT_BEGIN_NAMESPACE
-class QStackedWidget;
+class QQuickWidget;
+class QPointF;
 class QShortcut;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class BundleMaterial;
 class MaterialBrowserView;
 class MaterialBrowserModel;
-class MaterialBrowserBundleModel;
+class MaterialBrowserTexturesModel;
 class PreviewImageProvider;
 
 class MaterialBrowserWidget : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY(BundleMaterial *draggedBundleMaterial MEMBER m_draggedBundleMaterial NOTIFY draggedBundleMaterialChanged)
 
 public:
     MaterialBrowserWidget(MaterialBrowserView *view);
@@ -49,18 +44,14 @@ public:
     void clearSearchFilter();
 
     QPointer<MaterialBrowserModel> materialBrowserModel() const;
-    QPointer<MaterialBrowserBundleModel> materialBrowserBundleModel() const;
+    QPointer<MaterialBrowserTexturesModel> materialBrowserTexturesModel() const;
     void updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap);
 
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
-    Q_INVOKABLE void startDragBundleMaterial(QmlDesigner::BundleMaterial *bundleMat, const QPointF &mousePos);
+    Q_INVOKABLE void acceptBundleMaterialDrop();
 
     QQuickWidget *quickWidget() const;
-
-signals:
-    void bundleMaterialDragStarted(QmlDesigner::BundleMaterial *bundleMat);
-    void draggedBundleMaterialChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -71,7 +62,7 @@ private:
 
     QPointer<MaterialBrowserView>  m_materialBrowserView;
     QPointer<MaterialBrowserModel> m_materialBrowserModel;
-    QPointer<MaterialBrowserBundleModel> m_materialBrowserBundleModel;
+    QPointer<MaterialBrowserTexturesModel> m_materialBrowserTexturesModel;
     QScopedPointer<QQuickWidget> m_quickWidget;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
@@ -81,8 +72,6 @@ private:
     QString m_filterText;
 
     ModelNode m_materialToDrag;
-    BundleMaterial *m_bundleMaterialToDrag = nullptr;
-    BundleMaterial *m_draggedBundleMaterial = nullptr;
     QPoint m_dragStartPoint;
 };
 

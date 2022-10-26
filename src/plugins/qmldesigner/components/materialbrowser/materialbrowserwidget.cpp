@@ -3,9 +3,8 @@
 
 #include "materialbrowserwidget.h"
 
-#include "bundlematerial.h"
-#include "materialbrowserbundlemodel.h"
 #include "materialbrowsermodel.h"
+#include "materialbrowsertexturesmodel.h"
 #include "materialbrowserview.h"
 
 #include <designeractionmanager.h>
@@ -30,10 +29,10 @@
 #include <QQmlEngine>
 #include <QQuickImageProvider>
 #include <QQuickItem>
+#include <QQuickWidget>
 #include <QShortcut>
 #include <QStackedWidget>
 #include <QTabBar>
-#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWheelEvent>
@@ -108,34 +107,9 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                                  QString::number(m_materialToDrag.internalId()), nullptr, {128, 128}));
                 m_materialToDrag = {};
             }
-        } else if (m_bundleMaterialToDrag != nullptr) {
-            QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
-                QByteArray data;
-                QMimeData *mimeData = new QMimeData;
-                QDataStream stream(&data, QIODevice::WriteOnly);
-                stream << m_bundleMaterialToDrag->type();
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_MATERIAL, data);
-                mimeData->removeFormat("text/plain");
-
-                if (!m_draggedBundleMaterial) {
-                    m_draggedBundleMaterial = m_bundleMaterialToDrag;
-                    emit draggedBundleMaterialChanged();
-                }
-
-                emit bundleMaterialDragStarted(m_bundleMaterialToDrag);
-                model->startDrag(mimeData, m_bundleMaterialToDrag->icon().toLocalFile());
-                m_bundleMaterialToDrag = nullptr;
-            }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = {};
-        m_bundleMaterialToDrag = nullptr;
-
-        if (m_draggedBundleMaterial) {
-            m_draggedBundleMaterial = nullptr;
-            emit draggedBundleMaterialChanged();
-        }
     }
 
     return QObject::eventFilter(obj, event);
@@ -144,7 +118,7 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
 MaterialBrowserWidget::MaterialBrowserWidget(MaterialBrowserView *view)
     : m_materialBrowserView(view)
     , m_materialBrowserModel(new MaterialBrowserModel(this))
-    , m_materialBrowserBundleModel(new MaterialBrowserBundleModel(this))
+    , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(this))
     , m_quickWidget(new QQuickWidget(this))
     , m_previewImageProvider(new PreviewImageProvider())
 {
@@ -163,7 +137,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(MaterialBrowserView *view)
     m_quickWidget->rootContext()->setContextProperties({
         {"rootView", QVariant::fromValue(this)},
         {"materialBrowserModel", QVariant::fromValue(m_materialBrowserModel.data())},
-        {"materialBrowserBundleModel", QVariant::fromValue(m_materialBrowserBundleModel.data())},
+        {"materialBrowserTexturesModel", QVariant::fromValue(m_materialBrowserTexturesModel.data())},
     });
 
     m_quickWidget->engine()->addImageProvider("materialBrowser", m_previewImageProvider);
@@ -223,10 +197,9 @@ void MaterialBrowserWidget::startDragMaterial(int index, const QPointF &mousePos
     m_dragStartPoint = mousePos.toPoint();
 }
 
-void MaterialBrowserWidget::startDragBundleMaterial(QmlDesigner::BundleMaterial *bundleMat, const QPointF &mousePos)
+void MaterialBrowserWidget::acceptBundleMaterialDrop()
 {
-    m_bundleMaterialToDrag = bundleMat;
-    m_dragStartPoint = mousePos.toPoint();
+    m_materialBrowserView->emitCustomNotification("drop_bundle_material", {}, {}); // To ContentLibraryView
 }
 
 QString MaterialBrowserWidget::qmlSourcesPath()
@@ -256,7 +229,6 @@ void MaterialBrowserWidget::reloadQmlSource()
 void MaterialBrowserWidget::updateSearch()
 {
     m_materialBrowserModel->setSearchText(m_filterText);
-    m_materialBrowserBundleModel->setSearchText(m_filterText);
     m_quickWidget->update();
 }
 
@@ -270,10 +242,9 @@ QPointer<MaterialBrowserModel> MaterialBrowserWidget::materialBrowserModel() con
     return m_materialBrowserModel;
 }
 
-QPointer<MaterialBrowserBundleModel> MaterialBrowserWidget::materialBrowserBundleModel() const
+QPointer<MaterialBrowserTexturesModel> MaterialBrowserWidget::materialBrowserTexturesModel() const
 {
-    return m_materialBrowserBundleModel;
+    return m_materialBrowserTexturesModel;
 }
-
 
 } // namespace QmlDesigner

@@ -1,29 +1,7 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "bundleimporter.h"
+#include "contentlibrarybundleimporter.h"
 
 #include "documentmanager.h"
 #include "import.h"
@@ -43,17 +21,17 @@ using namespace Utils;
 
 namespace QmlDesigner::Internal {
 
-BundleImporter::BundleImporter(const QString &bundleDir,
-                               const QString &bundleId,
-                               const QStringList &sharedFiles,
-                               QObject *parent)
+ContentLibraryBundleImporter::ContentLibraryBundleImporter(const QString &bundleDir,
+                                                           const QString &bundleId,
+                                                           const QStringList &sharedFiles,
+                                                           QObject *parent)
     : QObject(parent)
     , m_bundleDir(FilePath::fromString(bundleDir))
     , m_bundleId(bundleId)
     , m_sharedFiles(sharedFiles)
 {
     m_importTimer.setInterval(200);
-    connect(&m_importTimer, &QTimer::timeout, this, &BundleImporter::handleImportTimer);
+    connect(&m_importTimer, &QTimer::timeout, this, &ContentLibraryBundleImporter::handleImportTimer);
     m_moduleName = QStringLiteral("%1.%2").arg(
                 QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER),
                 m_bundleId).mid(1); // Chop leading slash
@@ -63,8 +41,8 @@ BundleImporter::BundleImporter(const QString &bundleDir,
 // Note that there is also an asynchronous portion to the import, which will only
 // be done if this method returns success. Once the asynchronous portion of the
 // import is completed, importFinished signal will be emitted.
-QString BundleImporter::importComponent(const QString &qmlFile,
-                                        const QStringList &files)
+QString ContentLibraryBundleImporter::importComponent(const QString &qmlFile,
+                                                      const QStringList &files)
 {
     FilePath bundleImportPath = resolveBundleImportPath();
     if (bundleImportPath.isEmpty())
@@ -171,7 +149,7 @@ QString BundleImporter::importComponent(const QString &qmlFile,
     return {};
 }
 
-void BundleImporter::handleImportTimer()
+void ContentLibraryBundleImporter::handleImportTimer()
 {
     auto handleFailure = [this]() {
         m_importTimer.stop();
@@ -243,7 +221,7 @@ void BundleImporter::handleImportTimer()
     }
 }
 
-QVariantHash BundleImporter::loadAssetRefMap(const Utils::FilePath &bundlePath)
+QVariantHash ContentLibraryBundleImporter::loadAssetRefMap(const Utils::FilePath &bundlePath)
 {
     FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
     const std::optional<QByteArray> content = assetRefPath.fileContents();
@@ -260,8 +238,8 @@ QVariantHash BundleImporter::loadAssetRefMap(const Utils::FilePath &bundlePath)
     return {};
 }
 
-void BundleImporter::writeAssetRefMap(const Utils::FilePath &bundlePath,
-                                      const QVariantHash &assetRefMap)
+void ContentLibraryBundleImporter::writeAssetRefMap(const Utils::FilePath &bundlePath,
+                                                    const QVariantHash &assetRefMap)
 {
     FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
     QJsonObject jsonObj = QJsonObject::fromVariantHash(assetRefMap);
@@ -271,7 +249,7 @@ void BundleImporter::writeAssetRefMap(const Utils::FilePath &bundlePath,
     }
 }
 
-QString BundleImporter::unimportComponent(const QString &qmlFile)
+QString ContentLibraryBundleImporter::unimportComponent(const QString &qmlFile)
 {
     FilePath bundleImportPath = resolveBundleImportPath();
     if (bundleImportPath.isEmpty())
@@ -358,7 +336,7 @@ QString BundleImporter::unimportComponent(const QString &qmlFile)
     return {};
 }
 
-FilePath BundleImporter::resolveBundleImportPath()
+FilePath ContentLibraryBundleImporter::resolveBundleImportPath()
 {
     FilePath bundleImportPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
     if (bundleImportPath.isEmpty())

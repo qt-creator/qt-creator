@@ -8,6 +8,8 @@
 #include <assetslibraryview.h>
 #include <capturingconnectionmanager.h>
 #include <componentaction.h>
+#include <contentlibraryview.h>
+#include <componentaction.h>
 #include <componentview.h>
 #include <crumblebar.h>
 #include <debugview.h>
@@ -56,6 +58,7 @@ public:
                                ? capturingConnectionManager
                                : connectionManager,
                            externalDependencies)
+        , contentLibraryView{externalDependencies}
         , componentView{externalDependencies}
         , edit3DView{externalDependencies}
         , formEditorView{externalDependencies}
@@ -76,6 +79,7 @@ public:
     Internal::DebugView debugView;
     DesignerActionManagerView designerActionManagerView;
     NodeInstanceView nodeInstanceView;
+    ContentLibraryView contentLibraryView;
     ComponentView componentView;
     Edit3DView edit3DView;
     FormEditorView formEditorView;
@@ -212,6 +216,7 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->itemLibraryView,
                                   &d->navigatorView,
                                   &d->propertyEditorView,
+                                  &d->contentLibraryView,
                                   &d->materialEditorView,
                                   &d->materialBrowserView,
                                   &d->statesEditorView,
@@ -392,6 +397,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->itemLibraryView.widgetInfo());
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
+    widgetInfoList.append(d->contentLibraryView.widgetInfo());
     widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
     if (useOldStatesEditor())

@@ -544,7 +544,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
             ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.isValid())
-                m_view->emitCustomNotification("drop_bundle_material", {targetNode}); // To MaterialBrowserView
+                m_view->emitCustomNotification("drop_bundle_material", {targetNode}); // To ContentLibraryView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
             const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
             NodeAbstractProperty targetProperty;
