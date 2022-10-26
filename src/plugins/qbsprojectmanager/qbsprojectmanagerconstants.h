@@ -41,6 +41,7 @@ const char QBS_BC_ID[] = "Qbs.QbsBuildConfiguration";
 // QBS strings:
 const char QBS_VARIANT_DEBUG[] = "debug";
 const char QBS_VARIANT_RELEASE[] = "release";
+const char QBS_VARIANT_PROFILING[] = "profiling";
 
 const char QBS_CONFIG_VARIANT_KEY[] = "qbs.defaultBuildVariant";
 const char QBS_CONFIG_PROFILE_KEY[] = "qbs.profile";

@@ -212,6 +212,8 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_buildVariant->addOption({ProjectExplorer::Tr::tr("Debug"), {}, Constants::QBS_VARIANT_DEBUG});
     m_buildVariant->addOption({ProjectExplorer::Tr::tr("Release"), {},
                                Constants::QBS_VARIANT_RELEASE});
+    m_buildVariant->addOption({ProjectExplorer::Tr::tr("Profile"), {},
+                               Constants::QBS_VARIANT_PROFILING});
 
     m_selectedAbis = addAspect<ArchitecturesAspect>();
     m_selectedAbis->setLabelText(QbsProjectManager::Tr::tr("ABIs:"));
