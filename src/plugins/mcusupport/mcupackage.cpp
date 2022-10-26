@@ -156,7 +156,8 @@ McuPackage::Status McuPackage::status() const
 
 bool McuPackage::isValidStatus() const
 {
-    return m_status == Status::ValidPackage || m_status == Status::ValidPackageMismatchedVersion;
+    return m_status == Status::ValidPackage || m_status == Status::ValidPackageMismatchedVersion
+           || m_status == Status::ValidPackageVersionNotDetected;
 }
 
 void McuPackage::updateStatusUi()
