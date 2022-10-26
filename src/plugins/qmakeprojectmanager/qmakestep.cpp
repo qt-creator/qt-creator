@@ -703,15 +703,19 @@ void QMakeStep::updateAbiWidgets()
 
         if (selectedAbis.isEmpty()) {
             if (qtVersion->hasAbi(Abi::LinuxOS, Abi::AndroidLinuxFlavor)) {
-                // Prefer ARM for Android, prefer 32bit.
+                // Prefer ARM/X86_64 for Android, prefer 64bit.
                 for (const Abi &abi : abis) {
-                    if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
+                    if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A) {
                         selectedAbis.append(abi.param());
+                        break;
+                    }
                 }
                 if (selectedAbis.isEmpty()) {
                     for (const Abi &abi : abis) {
-                        if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
+                        if (abi.param() == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
                             selectedAbis.append(abi.param());
+                            break;
+                        }
                     }
                 }
             } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit()) && HostOsInfo::isRunningUnderRosetta()) {
