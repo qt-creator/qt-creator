@@ -39,8 +39,7 @@ FontSettings::FontSettings() :
     m_fontSize(defaultFontSize()),
     m_fontZoom(100),
     m_lineSpacing(100),
-    m_antialias(DEFAULT_ANTIALIAS),
-    m_lineSpacingCache(0)
+    m_antialias(DEFAULT_ANTIALIAS)
 {
 }
 
@@ -261,7 +260,6 @@ void FontSettings::clearCaches()
 {
     m_formatCache.clear();
     m_textCharFormatCache.clear();
-    m_lineSpacingCache = 0;
 }
 
 QTextCharFormat FontSettings::toTextCharFormat(TextStyles textStyles) const
@@ -337,17 +335,12 @@ void FontSettings::setFontZoom(int zoom)
 
 qreal FontSettings::lineSpacing() const
 {
-    if (m_lineSpacing == 100) {
-        QFontMetricsF fm(font());
-        return fm.lineSpacing();
-    }
-
-    if (qFuzzyIsNull(m_lineSpacingCache)) {
-      auto currentFont = font();
-      currentFont.setPointSize(m_fontSize * m_fontZoom / 100);
-      m_lineSpacingCache = QFontMetricsF(currentFont).lineSpacing() / 100 * m_lineSpacing;
-    }
-    return m_lineSpacingCache;
+    QFont currentFont = font();
+    currentFont.setPointSize(m_fontSize * m_fontZoom / 100);
+    qreal spacing = QFontMetricsF(currentFont).lineSpacing();
+    if (m_lineSpacing != 100)
+        spacing *= 100 / m_lineSpacing;
+    return spacing;
 }
 
 int FontSettings::relativeLineSpacing() const
@@ -358,7 +351,6 @@ int FontSettings::relativeLineSpacing() const
 void FontSettings::setRelativeLineSpacing(int relativeLineSpacing)
 {
     m_lineSpacing = relativeLineSpacing;
-    m_lineSpacingCache = 0;
 }
 
 QFont FontSettings::font() const
