@@ -190,7 +190,7 @@ McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &se
     const FilePath defaultPath = toolChain ? toolChain->compilerCommand().parentDir() : FilePath();
 
     const auto *versionDetector = new McuPackageExecutableVersionDetector(detectionPath,
-                                                                          {"--version"},
+                                                                          {"/?"},
                                                                           R"(\b(\d+\.\d+)\.\d+\b)");
 
     return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
