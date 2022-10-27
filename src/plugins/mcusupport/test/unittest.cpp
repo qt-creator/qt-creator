@@ -165,6 +165,9 @@ const char jlinkSetting[]{"JLinkPath"};
 const char jlinkCmakeVar[]{"JLINK_PATH"};
 const char jlinkEnvVar[]{"JLINK_PATH"};
 const char jlinkLabel[]{"Path to SEGGER J-Link"};
+const QString jlinkDetectionPath{HostOsInfo::isWindowsHost()
+                                                 ? QString("JLink.exe")
+                                                 : QString("JLinkExe")};
 
 const QString unsupportedToolchainFilePath = QString{qtForMcuSdkPath}
                                              + "/lib/cmake/Qul/toolchain/unsupported.cmake";
@@ -1611,7 +1614,7 @@ void McuSupportTest::test_createJLink3rdPartyPackage()
                   jlinkCmakeVar,
                   jlinkEnvVar,
                   jlinkLabel,
-                  {},
+                  jlinkDetectionPath,
                   {});
 }
 

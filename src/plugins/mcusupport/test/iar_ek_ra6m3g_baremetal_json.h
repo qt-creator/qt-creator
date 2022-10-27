@@ -24,6 +24,10 @@ constexpr auto iar_ek_ra6m3g_baremetal_json = R"(
                     "windows": "%{Env:PROGRAMFILES}/SEGGER/JLink",
                     "linux": "/opt/SEGGER/JLink"
                 },
+                "detectionPath": {
+                    "windows": "JLink.exe",
+                    "linux": "JLinkExe"
+                },
                 "optional": true,
                 "addToSystemPath": true
             }

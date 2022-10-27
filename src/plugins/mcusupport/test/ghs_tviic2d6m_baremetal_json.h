@@ -20,6 +20,7 @@ constexpr auto ghs_tviic2d6m_baremetal_json = R"(
                 "label": "Cypress Auto Flash Utility",
                 "type": "path",
                 "cmakeVar": "INFINEON_AUTO_FLASH_UTILITY_DIR",
+                "detectionPath": "bin/openocd.exe",
                 "optional": false,
                 "addToSystemPath": true
             }
@@ -33,8 +34,9 @@ constexpr auto ghs_tviic2d6m_baremetal_json = R"(
         "compiler": {
             "id": "GHS_ARM_DIR",
             "label": "Green Hills Compiler for ARM",
-            "setting": "GHSArmToolchain",
             "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
+            "setting": "GHSArmToolchain",
+            "detectionPath": "cxarm.exe",
             "type": "path",
             "optional": false
         },

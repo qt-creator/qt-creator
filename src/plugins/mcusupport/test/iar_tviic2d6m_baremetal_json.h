@@ -20,6 +20,7 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
                 "label": "Cypress Auto Flash Utility",
                 "type": "path",
                 "cmakeVar": "INFINEON_AUTO_FLASH_UTILITY_DIR",
+                "detectionPath": "bin/openocd.exe",
                 "optional": false,
                 "addToSystemPath": true
             }
@@ -45,7 +46,7 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
             },
-            "detectionPath":  "bin/iccarm.exe",
+            "detectionPath": "bin/iccarm.exe",
             "optional": false
         },
         "file": {
