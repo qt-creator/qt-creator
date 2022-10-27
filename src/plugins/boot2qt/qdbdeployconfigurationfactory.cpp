@@ -34,11 +34,28 @@ QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
     addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
     addInitialStep(RemoteLinux::Constants::RsyncDeployStepId, [](Target *target) {
         auto device = DeviceKitAspect::device(target->kit());
-        return device && device->extraData(RemoteLinux::Constants::SupportsRSync).toBool();
+        auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+        if (buildDevice && buildDevice->rootPath().needsDevice())
+            return false;
+        return !device
+               || (device && device->extraData(RemoteLinux::Constants::SupportsRSync).toBool());
     });
     addInitialStep(RemoteLinux::Constants::DirectUploadStepId, [](Target *target) {
         auto device = DeviceKitAspect::device(target->kit());
+        auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+        if (buildDevice && buildDevice->rootPath().needsDevice())
+            return false;
         return device && !device->extraData(RemoteLinux::Constants::SupportsRSync).toBool();
+    });
+    // This step is for:
+    // a) A remote build device, as they do not support real rsync yet.
+    // b) If there is no target device setup yet.
+    addInitialStep(RemoteLinux::Constants::DirectUploadStepId, [](Target *target) {
+        auto device = DeviceKitAspect::device(target->kit());
+        auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+        if (buildDevice && buildDevice->rootPath().needsDevice())
+            return true;
+        return false;
     });
 }
 
