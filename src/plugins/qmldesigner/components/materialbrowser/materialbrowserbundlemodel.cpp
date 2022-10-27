@@ -94,7 +94,7 @@ QHash<int, QByteArray> MaterialBrowserBundleModel::roleNames() const
 
 void MaterialBrowserBundleModel::loadMaterialBundle()
 {
-    if (m_matBundleExists || m_probeMatBundleDir)
+    if (m_matBundleLoaded || m_probeMatBundleDir)
         return;
 
     QDir matBundleDir(qEnvironmentVariable("MATERIAL_BUNDLE_PATH"));
@@ -130,7 +130,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
         }
     }
 
-    m_matBundleExists = true;
+    m_matBundleLoaded = true;
 
     QString bundleId = m_matBundleObj.value("id").toString();
 
@@ -184,20 +184,6 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
     });
 }
 
-bool MaterialBrowserBundleModel::hasQuick3DImport() const
-{
-    return m_hasQuick3DImport;
-}
-
-void MaterialBrowserBundleModel::setHasQuick3DImport(bool b)
-{
-    if (b == m_hasQuick3DImport)
-        return;
-
-    m_hasQuick3DImport = b;
-    emit hasQuick3DImportChanged();
-}
-
 bool MaterialBrowserBundleModel::hasMaterialRoot() const
 {
     return m_hasMaterialRoot;
@@ -210,6 +196,11 @@ void MaterialBrowserBundleModel::setHasMaterialRoot(bool b)
 
     m_hasMaterialRoot = b;
     emit hasMaterialRootChanged();
+}
+
+bool MaterialBrowserBundleModel::matBundleExists() const
+{
+    return m_matBundleLoaded && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
 }
 
 Internal::BundleImporter *MaterialBrowserBundleModel::bundleImporter() const
@@ -251,6 +242,17 @@ void MaterialBrowserBundleModel::updateImportedState(const QStringList &imported
 
     if (changed)
         resetModel();
+}
+
+void MaterialBrowserBundleModel::setQuick3DImportVersion(int major, int minor)
+{
+    bool bundleExisted = matBundleExists();
+
+    m_quick3dMajorVersion = major;
+    m_quick3dMinorVersion = minor;
+
+    if (bundleExisted != matBundleExists())
+        emit matBundleExistsChanged();
 }
 
 void MaterialBrowserBundleModel::resetModel()

@@ -102,11 +102,26 @@ int Import::majorVersion() const
     return majorFromVersion(m_version);
 }
 
+int Import::minorVersion() const
+{
+    return minorFromVersion(m_version);
+}
+
 int Import::majorFromVersion(const QString &version)
 {
     if (version.isEmpty())
         return -1;
     return version.split('.').first().toInt();
+}
+
+int Import::minorFromVersion(const QString &version)
+{
+    if (version.isEmpty())
+        return -1;
+    const QStringList parts = version.split('.');
+    if (parts.size() < 2)
+        return -1;
+    return parts[1].toInt();
 }
 
 Utils::QHashValueType qHash(const Import &import)

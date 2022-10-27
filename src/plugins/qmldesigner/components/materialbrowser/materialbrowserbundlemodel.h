@@ -46,9 +46,8 @@ class MaterialBrowserBundleModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool matBundleExists MEMBER m_matBundleExists CONSTANT)
+    Q_PROPERTY(bool matBundleExists READ matBundleExists NOTIFY matBundleExistsChanged)
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
-    Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasMaterialRoot READ hasMaterialRoot WRITE setHasMaterialRoot NOTIFY hasMaterialRootChanged)
     Q_PROPERTY(bool importerRunning MEMBER m_importerRunning NOTIFY importerRunningChanged)
 
@@ -63,11 +62,12 @@ public:
     void setSearchText(const QString &searchText);
     void updateImportedState(const QStringList &importedMats);
 
-    bool hasQuick3DImport() const;
-    void setHasQuick3DImport(bool b);
+    void setQuick3DImportVersion(int major, int minor);
 
     bool hasMaterialRoot() const;
     void setHasMaterialRoot(bool b);
+
+    bool matBundleExists() const;
 
     Internal::BundleImporter *bundleImporter() const;
 
@@ -87,6 +87,7 @@ signals:
     void bundleMaterialAboutToUnimport(const QmlDesigner::TypeName &type);
     void bundleMaterialUnimported(const QmlDesigner::NodeMetaInfo &metaInfo);
     void importerRunningChanged();
+    void matBundleExistsChanged();
 
 private:
     void loadMaterialBundle();
@@ -98,11 +99,13 @@ private:
     Internal::BundleImporter *m_importer = nullptr;
 
     bool m_isEmpty = true;
-    bool m_hasQuick3DImport = false;
     bool m_hasMaterialRoot = false;
-    bool m_matBundleExists = false;
+    bool m_matBundleLoaded = false;
     bool m_probeMatBundleDir = false;
     bool m_importerRunning = false;
+
+    int m_quick3dMajorVersion = -1;
+    int m_quick3dMinorVersion = -1;
 };
 
 } // namespace QmlDesigner

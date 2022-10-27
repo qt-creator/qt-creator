@@ -43,6 +43,14 @@
 #include <qmldesignerconstants.h>
 #include <utils/algorithm.h>
 
+#ifndef QMLDESIGNER_TEST
+#include <projectexplorer/kit.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+#endif
+
 #include <QQuickItem>
 #include <QRegularExpression>
 #include <QTimer>
@@ -289,6 +297,7 @@ void MaterialBrowserView::modelAttached(Model *model)
     m_widget->materialBrowserModel()->setHasMaterialRoot(rootModelNode().isSubclassOf("QtQuick3D.Material"));
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
+    updateBundleMaterialsQuick3DVersion();
     updateBundleMaterialsImportedState();
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
@@ -482,6 +491,41 @@ void MaterialBrowserView::updateBundleMaterialsImportedState()
     m_widget->materialBrowserBundleModel()->updateImportedState(importedBundleMats);
 }
 
+void MaterialBrowserView::updateBundleMaterialsQuick3DVersion()
+{
+    bool hasImport = false;
+    int major = -1;
+    int minor = -1;
+    const QString url {"QtQuick3D"};
+    const auto imports = model()->imports();
+    for (const auto &import : imports) {
+        if (import.url() == url) {
+            hasImport = true;
+            const int importMajor = import.majorVersion();
+            if (major < importMajor) {
+                minor = -1;
+                major = importMajor;
+            }
+            if (major == importMajor)
+                minor = qMax(minor, import.minorVersion());
+        }
+    }
+#ifndef QMLDESIGNER_TEST
+    if (hasImport && major == -1) {
+        // Import without specifying version, so we take the kit version
+        auto target = ProjectExplorer::SessionManager::startupTarget();
+        if (target) {
+            QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+            if (qtVersion) {
+                major = qtVersion->qtVersion().majorVersion;
+                minor = qtVersion->qtVersion().minorVersion;
+            }
+        }
+    }
+#endif
+    m_widget->materialBrowserBundleModel()->setQuick3DImportVersion(major, minor);
+}
+
 ModelNode MaterialBrowserView::getBundleMaterialDefaultInstance(const TypeName &type)
 {
     const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
@@ -510,6 +554,8 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
     Q_UNUSED(removedImports)
 
     bool hasQuick3DImport = model()->hasImport("QtQuick3D");
+
+    updateBundleMaterialsQuick3DVersion();
 
     if (hasQuick3DImport == m_hasQuick3DImport)
         return;

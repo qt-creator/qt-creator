@@ -69,6 +69,7 @@ private:
     bool isMaterial(const ModelNode &node) const;
     void loadPropertyGroups();
     void updateBundleMaterialsImportedState();
+    void updateBundleMaterialsQuick3DVersion();
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const NodeMetaInfo &metaInfo = {});
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
 
