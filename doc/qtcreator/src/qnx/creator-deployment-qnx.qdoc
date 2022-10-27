@@ -9,11 +9,10 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-deployment-embedded-linux.html
+    \previouspage creator-deployment-b2qt.html
     \page creator-deployment-qnx.html
-    \nextpage creator-connecting-mobile.html
-
-    \title Deploying Applications to QNX Neutrino Devices
+    \nextpage creator-deployment-embedded-linux.html
+    \title Deploying to QNX Neutrino
 
     You can specify settings for deploying applications to QNX Neutrino
     devices in the project configuration file and in \uicontrol Projects
@@ -22,7 +21,7 @@
     \image qtcreator-qnx-deployment.png "Deploy to device"
 
     The deployment process is described in more detail in
-    \l{Deploying Applications to Generic Remote Linux Devices}.
+    \l{Deploying to Remote Linux}.
 
     \section1 Finding Configured Devices
 

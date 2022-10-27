@@ -9,20 +9,16 @@
 
 /*!
     \page creator-deployment-embedded-linux.html
-    \previouspage creator-deployment-b2qt.html
-    \if defined(qtdesignstudio)
+    \previouspage creator-deployment-qnx.html
     \nextpage creator-connecting-mobile.html
-    \else
-    \nextpage creator-deployment-qnx.html
-    \endif
 
-    \title Deploying Applications to Generic Remote Linux Devices
+    \title Deploying to Remote Linux
 
     You can specify settings for deploying applications to generic remote
     Linux devices in the project configuration file and in the
     \uicontrol Projects mode, in \uicontrol {Run Settings}.
 
-    \image qtcreator-embedded-linux-deployment-details.png "Deploy to embedded Linux"
+    \image qtcreator-embedded-linux-deployment-details.png "Deploy to remote Linux devices"
 
     The files to be installed are listed in the \uicontrol {Deployment} step,
     the \uicontrol {Files to deploy} field. The \uicontrol {Source File Path}

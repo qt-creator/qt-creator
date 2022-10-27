@@ -216,7 +216,7 @@
     To start an AVD, select \uicontrol {Start AVD}. Usually, you don't need to
     start AVDs separately because they are automatically started when you
     select them in the \l{Building for Multiple Platforms}{kit selector} to
-    \l{Deploying Applications to Android Devices}{deploy applications} to them.
+    \l{Deploying to Android}{deploy applications} to them.
 
     To remove an AVD from the list and the kit selector, select
     \uicontrol {Erase AVD}.
