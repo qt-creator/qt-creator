@@ -125,7 +125,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                 args.append("/TP");
         } else {
             QStringList langOption
-                    = createLanguageOptionGcc(kind,
+                    = createLanguageOptionGcc(projectPart.language, kind,
                                               projectPart.languageExtensions
                                               & LanguageExtension::ObjectiveC);
             for (const QString &langOptionPart : langOption)

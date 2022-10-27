@@ -167,7 +167,7 @@ void CompilerOptionsBuilder::addSyntaxOnly()
     isClStyle() ? add("/Zs") : add("-fsyntax-only");
 }
 
-QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
+QStringList createLanguageOptionGcc(Language language, ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList options;
 
@@ -176,23 +176,22 @@ QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
     case ProjectFile::Unsupported:
         break;
     case ProjectFile::CHeader:
-        if (objcExt)
-            options += "objective-c-header";
-        else
-            options += "c-header";
+    case ProjectFile::AmbiguousHeader:
+        if (language == Language::C)
+            options += QLatin1String(objcExt ? "objective-c-header" : "c-header");
+        else if (language == Language::Cxx)
+            options += QLatin1String(objcExt ? "objective-c++-header" : "c++-header");
         break;
     case ProjectFile::CXXHeader:
-    default:
-        if (!objcExt) {
-            options += "c++-header";
-            break;
-        }
-        Q_FALLTHROUGH();
+        options += QLatin1String(objcExt ? "objective-c++-header" : "c++-header");
+        break;
     case ProjectFile::ObjCHeader:
+        options += QLatin1String(language == Language::C ? "objective-c-header"
+                                                         : "objective-c++-header");
+        break;
     case ProjectFile::ObjCXXHeader:
         options += "objective-c++-header";
         break;
-
     case ProjectFile::CSource:
         if (!objcExt) {
             options += "c";
@@ -447,7 +446,7 @@ void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
     }
 
     const bool objcExt = m_projectPart.languageExtensions & LanguageExtension::ObjectiveC;
-    const QStringList options = createLanguageOptionGcc(fileKind, objcExt);
+    const QStringList options = createLanguageOptionGcc(m_projectPart.language, fileKind, objcExt);
     if (options.isEmpty())
         return;
 
