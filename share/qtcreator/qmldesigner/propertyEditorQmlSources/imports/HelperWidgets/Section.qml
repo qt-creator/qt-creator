@@ -72,10 +72,19 @@ Item {
     Connections {
         target: Controller
         function onCollapseAll() {
-            if (collapsible)
-                section.expanded = false
+            if (collapsible) {
+                if (section.expandOnClick)
+                    section.expanded = false
+                else
+                    section.collapse()
+            }
         }
-        function onExpandAll() { section.expanded = true }
+        function onExpandAll() {
+            if (section.expandOnClick)
+                section.expanded = true
+            else
+                section.expand()
+        }
     }
 
     signal drop(var drag)
@@ -83,6 +92,8 @@ Item {
     signal dropExit()
     signal showContextMenu()
     signal toggleExpand()
+    signal expand()
+    signal collapse()
 
     DropArea {
         id: dropArea

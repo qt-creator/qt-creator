@@ -270,6 +270,8 @@ Item {
                                 expanded: bundleCategoryExpanded
                                 expandOnClick: false
                                 onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
+                                onExpand: bundleCategoryExpanded = true
+                                onCollapse: bundleCategoryExpanded = false
 
                                 Grid {
                                     width: scrollView.width
