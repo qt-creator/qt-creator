@@ -295,6 +295,9 @@ CMakeTool::Version CMakeTool::version() const
 
 QString CMakeTool::versionDisplay() const
 {
+    if (m_executable.isEmpty())
+        return {};
+
     if (!isValid())
         return Tr::tr("Version not parseable");
 
