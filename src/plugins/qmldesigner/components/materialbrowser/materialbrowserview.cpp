@@ -302,7 +302,7 @@ void MaterialBrowserView::modelAttached(Model *model)
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
     // before refreshing the model
-    QTimer::singleShot(1000, this, [this]() {
+    QTimer::singleShot(1000, model, [this]() {
         refreshModel(true);
         loadPropertyGroups(); // Needs the delay because it uses metaInfo
     });
@@ -310,9 +310,6 @@ void MaterialBrowserView::modelAttached(Model *model)
 
 void MaterialBrowserView::refreshModel(bool updateImages)
 {
-    if (!model() || !model()->nodeInstanceView())
-        return;
-
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
     QList <ModelNode> materials;
 
@@ -581,7 +578,7 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
     } else if (identifier == "refresh_material_browser") {
-        QTimer::singleShot(0, this, [this]() {
+        QTimer::singleShot(0, model(), [this]() {
             refreshModel(true);
         });
     } else if (identifier == "delete_selected_material") {
