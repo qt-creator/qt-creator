@@ -3,11 +3,7 @@
 
 /*!
     \page creator-logging-viewer.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-quick-ui-forms.html
-    \else
     \previouspage creator-task-lists.html
-    \endif
     \nextpage creator-telemetry.html
 
     \title Inspecting Internal Logs
