@@ -52,9 +52,15 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             isRelative = true;
             directoryWithoutPrefix = directory.relativeChildPath(path);
         } else {
-            isRelative = false;
-            path.clear();
-            directoryWithoutPrefix = directory;
+            const FilePath relativePath = directory.relativePathFrom(path);
+            if (relativePath.path().count("../") < 5) {
+                isRelative = true;
+                directoryWithoutPrefix = relativePath;
+            } else {
+                isRelative = false;
+                path.clear();
+                directoryWithoutPrefix = directory;
+            }
         }
     }
     QStringList parts = directoryWithoutPrefix.path().split('/', Qt::SkipEmptyParts);
