@@ -41,6 +41,8 @@ private:
     void globalRename(const CursorInEditor &data, const QString &replacement) override;
     void findUsages(const CursorInEditor &data) const override;
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
+    void checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                     const Utils::LinkHandler &callback) override;
 
     QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbol;

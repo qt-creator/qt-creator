@@ -784,6 +784,56 @@ void CppFindReferences::renameMacroUses(const CPlusPlus::Macro &macro, const QSt
     findMacroUses(macro, textToReplace, true);
 }
 
+void CppFindReferences::checkUnused(Core::SearchResult *search, const Link &link,
+                                    CPlusPlus::Symbol *symbol,
+                                    const CPlusPlus::LookupContext &context,
+                                    const LinkHandler &callback)
+{
+    const auto isProperUsage = [symbol](const CPlusPlus::Usage &usage) {
+        if (!usage.tags.testFlag(CPlusPlus::Usage::Tag::Declaration))
+            return usage.containingFunctionSymbol != symbol;
+        return usage.tags.testAnyFlags({CPlusPlus::Usage::Tag::Override,
+                                        CPlusPlus::Usage::Tag::MocInvokable,
+                                        CPlusPlus::Usage::Tag::Template,
+                                        CPlusPlus::Usage::Tag::Operator,
+                                        CPlusPlus::Usage::Tag::ConstructorDestructor});
+    };
+    const auto watcher = new QFutureWatcher<CPlusPlus::Usage>();
+    connect(watcher, &QFutureWatcherBase::finished, watcher,
+            [watcher, link, callback, search, isProperUsage] {
+        watcher->deleteLater();
+        if (watcher->isCanceled())
+            return callback(link);
+        for (int i = 0; i < watcher->future().resultCount(); ++i) {
+            if (isProperUsage(watcher->resultAt(i)))
+                return callback(link);
+        }
+        for (int i = 0; i < watcher->future().resultCount(); ++i) {
+            const CPlusPlus::Usage usage = watcher->resultAt(i);
+            SearchResultItem item;
+            item.setFilePath(usage.path);
+            item.setLineText(usage.lineText);
+            item.setMainRange(usage.line, usage.col, usage.len);
+            item.setUseTextEditorFont(true);
+            search->addResult(item);
+        }
+        callback(link);
+    });
+    connect(watcher, &QFutureWatcherBase::resultsReadyAt, search,
+            [watcher, isProperUsage](int first, int end) {
+        for (int i = first; i < end; ++i) {
+            if (isProperUsage(watcher->resultAt(i))) {
+                watcher->cancel();
+                break;
+            }
+        }
+    });
+    connect(search, &SearchResult::canceled, watcher, [watcher] { watcher->cancel(); });
+    connect(search, &SearchResult::destroyed, watcher, [watcher] { watcher->cancel(); });
+    watcher->setFuture(Utils::runAsync(m_modelManager->sharedThreadPool(), find_helper,
+                                       m_modelManager->workingCopy(), context, symbol, true));
+}
+
 void CppFindReferences::createWatcher(const QFuture<CPlusPlus::Usage> &future, SearchResult *search)
 {
     auto watcher = new QFutureWatcher<CPlusPlus::Usage>();

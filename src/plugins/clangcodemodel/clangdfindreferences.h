@@ -5,6 +5,7 @@
 
 #include <coreplugin/find/searchresultitem.h>
 #include <cppeditor/cursorineditor.h>
+#include <utils/link.h>
 
 #include <QObject>
 
@@ -14,6 +15,7 @@ QT_BEGIN_NAMESPACE
 class QTextCursor;
 QT_END_NAMESPACE
 
+namespace Core { class SearchResult; }
 namespace TextEditor { class TextDocument; }
 
 namespace ClangCodeModel::Internal {
@@ -23,9 +25,11 @@ class ClangdFindReferences : public QObject
 {
     Q_OBJECT
 public:
-    explicit ClangdFindReferences(ClangdClient *client, TextEditor::TextDocument *document,
-                                  const QTextCursor &cursor, const QString &searchTerm,
-                                  const std::optional<QString> &replacement, bool categorize);
+    ClangdFindReferences(ClangdClient *client, TextEditor::TextDocument *document,
+                         const QTextCursor &cursor, const QString &searchTerm,
+                         const std::optional<QString> &replacement, bool categorize);
+    ClangdFindReferences(ClangdClient *client, const Utils::Link &link, Core::SearchResult *search,
+                         const Utils::LinkHandler &callback);
     ~ClangdFindReferences();
 
 signals:
@@ -34,6 +38,7 @@ signals:
 
 private:
     class Private;
+    class CheckUnusedData;
     Private * const d;
 };
 

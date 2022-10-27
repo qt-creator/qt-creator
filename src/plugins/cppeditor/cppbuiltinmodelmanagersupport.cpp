@@ -18,8 +18,11 @@
 #include <texteditor/basehoverhandler.h>
 #include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 
 #include <QCoreApplication>
+#include <QFile>
+#include <QTextDocument>
 
 using namespace Core;
 using namespace TextEditor;
@@ -191,6 +194,29 @@ void BuiltinModelManagerSupport::switchHeaderSource(const Utils::FilePath &fileP
                 correspondingHeaderOrSource(filePath.toString()));
     if (!otherFile.isEmpty())
         openEditor(otherFile, inNextSplit);
+}
+
+void BuiltinModelManagerSupport::checkUnused(const Utils::Link &link, SearchResult *search,
+                                             const Utils::LinkHandler &callback)
+{
+    CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
+    QFile file(link.targetFilePath.toString());
+    if (!file.open(QIODevice::ReadOnly))
+        return callback(link);
+    const QByteArray &contents = file.readAll();
+    CPlusPlus::Document::Ptr cppDoc = snapshot.preprocessedDocument(contents, link.targetFilePath);
+    if (!cppDoc->parse())
+        return callback(link);
+    cppDoc->check();
+    snapshot.insert(cppDoc);
+    QTextDocument doc(QString::fromUtf8(contents));
+    QTextCursor cursor(&doc);
+    cursor.setPosition(Utils::Text::positionInText(&doc, link.targetLine, link.targetColumn + 1));
+    Internal::CanonicalSymbol cs(cppDoc, snapshot);
+    CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
+    if (!canonicalSymbol || !canonicalSymbol->identifier())
+        return callback(link);
+    CppModelManager::checkForUnusedSymbol(search, link, canonicalSymbol, cs.context(), callback);
 }
 
 } // namespace CppEditor::Internal

@@ -14,6 +14,7 @@
 
 #include <optional>
 
+namespace Core { class SearchResult; }
 namespace CppEditor { class CppEditorWidget; }
 namespace LanguageServerProtocol { class Range; }
 namespace ProjectExplorer {
@@ -52,6 +53,8 @@ public:
 
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
                     const std::optional<QString> &replacement);
+    void checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                     const Utils::LinkHandler &callback);
     void followSymbol(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
             CppEditor::CppEditorWidget *editorWidget,

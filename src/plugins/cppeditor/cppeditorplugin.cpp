@@ -276,6 +276,27 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     connect(showPreprocessedInSplitAction, &QAction::triggered,
             this, [] { CppModelManager::showPreprocessedFile(true); });
 
+    QAction * const findUnusedFunctionsAction = new QAction(tr("Find Unused Functions"), this);
+    command = ActionManager::registerAction(findUnusedFunctionsAction,
+                                            "CppTools.FindUnusedFunctions");
+    mcpptools->addAction(command);
+    connect(findUnusedFunctionsAction, &QAction::triggered,
+            this, [] { CppModelManager::findUnusedFunctions({}); });
+    QAction * const findUnusedFunctionsInSubProjectAction
+            = new QAction(tr("Find Unused C/C++ Functions"), this);
+    command = ActionManager::registerAction(findUnusedFunctionsInSubProjectAction,
+                                            "CppTools.FindUnusedFunctionsInSubProject");
+    for (ActionContainer * const projectContextMenu : {
+         ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT),
+         ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT)}) {
+         projectContextMenu->addSeparator(ProjectExplorer::Constants::G_PROJECT_TREE);
+         projectContextMenu->addAction(command, ProjectExplorer::Constants::G_PROJECT_TREE);
+    }
+    connect(findUnusedFunctionsInSubProjectAction, &QAction::triggered, this, [] {
+        if (const Node * const node = ProjectTree::currentNode(); node && node->asFolderNode())
+            CppModelManager::findUnusedFunctions(node->directory());
+    });
+
     MacroExpander *expander = globalMacroExpander();
     expander->registerVariable("Cpp:LicenseTemplate",
                                tr("The license template."),

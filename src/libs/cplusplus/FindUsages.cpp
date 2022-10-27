@@ -118,14 +118,18 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
         lineText = matchingLine(tk);
     const int len = tk.utf16chars();
 
-    const Usage u(_doc->filePath(), lineText,
-                  getContainingFunction(line, col), getTags(line, col, tokenIndex),
-                  line, col - 1, len);
+    QString callerName;
+    const Function * const caller = getContainingFunction(line, col);
+    if (caller)
+        callerName = Overview().prettyName(caller->name());
+    Usage u(_doc->filePath(), lineText, callerName, getTags(line, col, tokenIndex),
+            line, col - 1, len);
+    u.containingFunctionSymbol = caller;
     _usages.append(u);
     _references.append(tokenIndex);
 }
 
-QString FindUsages::getContainingFunction(int line, int column)
+Function *FindUsages::getContainingFunction(int line, int column)
 {
     const QList<AST *> astPath = ASTPath(_doc)(line, column);
     bool hasBlock = false;
@@ -135,9 +139,7 @@ QString FindUsages::getContainingFunction(int line, int column)
         if (const auto func = (*it)->asFunctionDefinition()) {
             if (!hasBlock)
                 return {};
-            if (!func->symbol)
-                return {};
-            return Overview().prettyName(func->symbol->name());
+            return func->symbol;
         }
     }
     return {};
@@ -222,7 +224,7 @@ public:
                 // We don't want to classify constructors and destructors as declarations
                 // when listing class usages.
                 if (m_findUsages->_declSymbol->asClass())
-                    return {};
+                    return Usage::Tag::ConstructorDestructor;
                 continue;
             }
             if (const auto declarator = (*it)->asDeclarator()) {
@@ -257,6 +259,10 @@ public:
                             }
                         }
                     }
+                    if (const auto declId = declarator->core_declarator->asDeclaratorId()) {
+                        if (declId->name && declId->name->asOperatorFunctionId())
+                            tags |= Usage::Tag::Operator;
+                    }
                 }
                 if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
                     if (tags.toInt() && decl->qt_invokable_token)
@@ -267,6 +273,11 @@ public:
                                         getTagsFromLhsAndRhs(decl->symbols->value->type(),
                                                              declarator->initializer, it + 1),
                                         it + 1);
+                        }
+                        Class *clazz = decl->symbols->value->enclosingClass();
+                        if (clazz && clazz->name()
+                                && decl->symbols->value->name()->match(clazz->name())) {
+                            return tags |= Usage::Tag::ConstructorDestructor;
                         }
                         if (const auto func = decl->symbols->value->type()->asFunctionType()) {
                             if (func->isSignal() || func->isSlot() || func->isInvokable())

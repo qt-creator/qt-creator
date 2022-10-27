@@ -519,6 +519,12 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     requestSymbolInfo(document->filePath(), Range(adjustedCursor).start(), symbolInfoHandler);
 }
 
+void ClangdClient::checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                               const Utils::LinkHandler &callback)
+{
+    new ClangdFindReferences(this, link, search, callback);
+}
+
 void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
     const DocumentUri &uri = params.uri();

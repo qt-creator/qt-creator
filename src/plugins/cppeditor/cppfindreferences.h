@@ -8,6 +8,7 @@
 #include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/FindUsages.h>
 #include <utils/filepath.h>
+#include <utils/link.h>
 
 #include <QObject>
 #include <QPointer>
@@ -68,6 +69,9 @@ public:
 
     void findMacroUses(const CPlusPlus::Macro &macro);
     void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
+
+    void checkUnused(Core::SearchResult *search, const Utils::Link &link, CPlusPlus::Symbol *symbol,
+                     const CPlusPlus::LookupContext &context, const Utils::LinkHandler &callback);
 
 private:
     void setupSearch(Core::SearchResult *search);

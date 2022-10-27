@@ -352,6 +352,22 @@ void ClangModelManagerSupport::switchHeaderSource(const Utils::FilePath &filePat
     CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
 }
 
+void ClangModelManagerSupport::checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                                           const Utils::LinkHandler &callback)
+{
+    if (const ProjectExplorer::Project * const project
+            = ProjectExplorer::SessionManager::projectForFile(link.targetFilePath)) {
+        if (ClangdClient * const client = clientWithProject(project);
+                client && client->isFullyIndexed()) {
+            client->checkUnused(link, search, callback);
+            return;
+        }
+    }
+
+    CppModelManager::instance()->modelManagerSupport(
+                CppModelManager::Backend::Builtin)->checkUnused(link, search, callback);
+}
+
 bool ClangModelManagerSupport::usesClangd(const TextEditor::TextDocument *document) const
 {
     return clientForFile(document->filePath());

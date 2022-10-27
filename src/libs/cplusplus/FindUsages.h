@@ -25,6 +25,9 @@ public:
         Override = 1 << 4,
         MocInvokable = 1 << 5,
         Template = 1 << 6,
+        ConstructorDestructor = 1 << 7,
+        Operator = 1 << 8,
+        Used = 1 << 9,
     };
     using Tags = QFlags<Tag>;
 
@@ -37,6 +40,7 @@ public:
     Utils::FilePath path;
     QString lineText;
     QString containingFunction;
+    const Function *containingFunctionSymbol = nullptr;
     Tags tags;
     int line = 0;
     int col = 0;
@@ -65,7 +69,7 @@ protected:
     void reportResult(unsigned tokenIndex, const Name *name, Scope *scope = nullptr);
     void reportResult(unsigned tokenIndex, const QList<LookupItem> &candidates);
     Usage::Tags getTags(int line, int column, int tokenIndex);
-    QString getContainingFunction(int line, int column);
+    Function *getContainingFunction(int line, int column);
 
     bool checkCandidates(const QList<LookupItem> &candidates) const;
     void checkExpression(unsigned startToken, unsigned endToken, Scope *scope = nullptr);

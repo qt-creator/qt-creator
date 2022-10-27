@@ -13,6 +13,7 @@
 
 #include <memory>
 
+namespace Core { class SearchResult; }
 namespace TextEditor {
 class TextDocument;
 class BaseHoverHandler;
@@ -51,6 +52,9 @@ public:
     virtual void globalRename(const CursorInEditor &data, const QString &replacement) = 0;
     virtual void findUsages(const CursorInEditor &data) const = 0;
     virtual void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) = 0;
+
+    virtual void checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                             const Utils::LinkHandler &callback) = 0;
 };
 
 } // CppEditor namespace

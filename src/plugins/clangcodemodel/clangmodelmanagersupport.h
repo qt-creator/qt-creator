@@ -63,6 +63,8 @@ private:
     void globalRename(const CppEditor::CursorInEditor &cursor, const QString &replacement) override;
     void findUsages(const CppEditor::CursorInEditor &cursor) const override;
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
+    void checkUnused(const Utils::Link &link, Core::SearchResult *search,
+                     const Utils::LinkHandler &callback) override;
 
     void onEditorOpened(Core::IEditor *editor);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);

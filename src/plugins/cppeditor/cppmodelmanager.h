@@ -24,6 +24,7 @@
 namespace Core {
 class IDocument;
 class IEditor;
+class SearchResult;
 }
 namespace CPlusPlus {
 class AST;
@@ -181,6 +182,11 @@ public:
     static void findUsages(const CursorInEditor &data, Backend backend = Backend::Best);
     static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);
     static void showPreprocessedFile(bool inNextSplit);
+    static void findUnusedFunctions(const Utils::FilePath &folder);
+    static void checkForUnusedSymbol(Core::SearchResult *search, const Utils::Link &link,
+                                     CPlusPlus::Symbol *symbol,
+                                     const CPlusPlus::LookupContext &context,
+                                     const Utils::LinkHandler &callback);
 
     static Core::ILocatorFilter *createAuxiliaryCurrentDocumentFilter();
 
@@ -234,6 +240,8 @@ public:
     // for VcsBaseSubmitEditor
     Q_INVOKABLE QSet<QString> symbolsInFiles(const QSet<Utils::FilePath> &files) const;
 
+    ModelManagerSupport *modelManagerSupport(Backend backend) const;
+
 signals:
     /// Project data might be locked while this is emitted.
     void aboutToRemoveFiles(const QStringList &files);
@@ -280,8 +288,6 @@ private:
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
     WorkingCopy buildWorkingCopyList();
-
-    ModelManagerSupport *modelManagerSupport(Backend backend) const;
 
     void ensureUpdated();
     QStringList internalProjectFiles() const;

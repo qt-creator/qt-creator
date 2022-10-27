@@ -251,7 +251,8 @@ void ClangdTestFindReferences::test_data()
     // Some of these are conceptually questionable, as S is a type and thus we cannot "read from"
     // or "write to" it. But it probably matches the intuitive user expectation.
     QTest::newRow("struct type") << "defs.h" << 7 << ItemList{
-        makeItem(1, 7, Usage::Tag::Declaration), makeItem(2, 4, Usage::Tag::Declaration),
+        makeItem(1, 7, Usage::Tag::Declaration),
+        makeItem(2, 4, (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::ConstructorDestructor})),
         makeItem(20, 19, Usage::Tags()), makeItem(10, 9, Usage::Tag::WritableRef),
         makeItem(12, 4, Usage::Tag::Write), makeItem(44, 12, Usage::Tag::Read),
         makeItem(45, 13, Usage::Tag::Read), makeItem(47, 12, Usage::Tag::Write),
@@ -266,7 +267,8 @@ void ClangdTestFindReferences::test_data()
         makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
 
     QTest::newRow("constructor") << "defs.h" << 627 << ItemList{
-        makeItem(31, 4, Usage::Tag::Declaration), makeItem(36, 7, Usage::Tags())};
+        makeItem(31, 4, (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::ConstructorDestructor})),
+        makeItem(36, 7, Usage::Tag::ConstructorDestructor)};
 
     QTest::newRow("subclass") << "defs.h" << 450 << ItemList{
         makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
@@ -303,7 +305,10 @@ void ClangdTestFindReferences::test()
         const SearchResultItem &curExpected = expectedResults.at(i);
         QCOMPARE(curActual.mainRange().begin.line, curExpected.mainRange().begin.line);
         QCOMPARE(curActual.mainRange().begin.column, curExpected.mainRange().begin.column);
-        QCOMPARE(curActual.userData(), curExpected.userData());
+        const auto actualTags = Usage::Tags::fromInt(curActual.userData().toInt())
+                & ~Usage::Tags(Usage::Tag::Used);
+        const auto expectedTags = Usage::Tags::fromInt(curExpected.userData().toInt());
+        QCOMPARE(actualTags, expectedTags);
     }
 }
 

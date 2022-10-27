@@ -26,12 +26,15 @@
 #include "symbolfinder.h"
 #include "symbolsfindfilter.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <cplusplus/ASTPath.h>
@@ -59,9 +62,11 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/runextensions.h>
 #include <utils/savefile.h>
 #include <utils/temporarydirectory.h>
 
+#include <QAction>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -72,9 +77,12 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QTextBlock>
+#include <QThread>
 #include <QThreadPool>
 #include <QTimer>
 #include <QWriteLocker>
+
+#include <memory>
 
 #if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
 #define WITH_AST_DUMP
@@ -454,6 +462,179 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
             openEditor(outFilePath, inNextSplit, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     });
     compiler->start();
+}
+
+class FindUnusedActionsEnabledSwitcher
+{
+public:
+    FindUnusedActionsEnabledSwitcher()
+        : actions{Core::ActionManager::command("CppTools.FindUnusedFunctions"),
+                  Core::ActionManager::command("CppTools.FindUnusedFunctionsInSubProject")}
+    {
+        for (Core::Command * const action : actions)
+            action->action()->setEnabled(false);
+    }
+    ~FindUnusedActionsEnabledSwitcher()
+    {
+        for (Core::Command * const action : actions)
+            action->action()->setEnabled(true);
+    }
+private:
+    const QList<Core::Command *> actions;
+};
+using FindUnusedActionsEnabledSwitcherPtr = std::shared_ptr<FindUnusedActionsEnabledSwitcher>;
+
+static void checkNextFunctionForUnused(
+        const QPointer<Core::SearchResult> &search,
+        const std::shared_ptr<QFutureInterface<bool>> &findRefsFuture,
+        const FindUnusedActionsEnabledSwitcherPtr &actionsSwitcher)
+{
+    if (!search || findRefsFuture->isCanceled())
+        return;
+    QVariantMap data = search->userData().toMap();
+    QVariant &remainingLinks = data["remaining"];
+    QVariantList remainingLinksList = remainingLinks.toList();
+    QVariant &activeLinks = data["active"];
+    QVariantList activeLinksList = activeLinks.toList();
+    if (remainingLinksList.isEmpty()) {
+        if (activeLinksList.isEmpty()) {
+            search->finishSearch(false);
+            findRefsFuture->reportFinished();
+        }
+        return;
+    }
+    const auto link = qvariant_cast<Link>(remainingLinksList.takeFirst());
+    activeLinksList << QVariant::fromValue(link);
+    remainingLinks = remainingLinksList;
+    activeLinks = activeLinksList;
+    search->setUserData(data);
+    CppModelManager::instance()->modelManagerSupport(CppModelManager::Backend::Best)
+            ->checkUnused(link, search, [search, link, findRefsFuture, actionsSwitcher](const Link &) {
+        if (!search || findRefsFuture->isCanceled())
+            return;
+        const int newProgress = findRefsFuture->progressValue() + 1;
+        findRefsFuture->setProgressValueAndText(newProgress, Tr::tr("Checked %1 of %2 functions")
+                .arg(newProgress).arg(findRefsFuture->progressMaximum()));
+        QVariantMap data = search->userData().toMap();
+        QVariant &activeLinks = data["active"];
+        QVariantList activeLinksList = activeLinks.toList();
+        QTC_CHECK(activeLinksList.removeOne(QVariant::fromValue(link)));
+        activeLinks = activeLinksList;
+        search->setUserData(data);
+        checkNextFunctionForUnused(search, findRefsFuture, actionsSwitcher);
+    });
+}
+
+void CppModelManager::findUnusedFunctions(const FilePath &folder)
+{
+    const auto actionsSwitcher = std::make_shared<FindUnusedActionsEnabledSwitcher>();
+
+    // Step 1: Employ locator to find all functions
+    Core::ILocatorFilter *const functionsFilter
+            = Utils::findOrDefault(Core::ILocatorFilter::allLocatorFilters(),
+                                   Utils::equal(&Core::ILocatorFilter::id,
+                                                Id(Constants::FUNCTIONS_FILTER_ID)));
+    QTC_ASSERT(functionsFilter, return);
+    const QPointer<Core::SearchResult> search
+            = Core::SearchResultWindow::instance()
+            ->startNewSearch(tr("Find Unused Functions"),
+                             {},
+                             {},
+                             Core::SearchResultWindow::SearchOnly,
+                             Core::SearchResultWindow::PreserveCaseDisabled,
+                             "CppEditor");
+    connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
+        Core::EditorManager::openEditorAtSearchResult(item);
+    });
+    Core::SearchResultWindow::instance()->popup(Core::IOutputPane::ModeSwitch
+                                                | Core::IOutputPane::WithFocus);
+    const auto locatorWatcher = new QFutureWatcher<Core::LocatorFilterEntry>(search);
+    functionsFilter->prepareSearch({});
+    connect(search, &Core::SearchResult::canceled, locatorWatcher, [locatorWatcher] {
+        locatorWatcher->cancel();
+    });
+    connect(locatorWatcher, &QFutureWatcher<Core::LocatorFilterEntry>::finished, search,
+            [locatorWatcher, search, folder, actionsSwitcher] {
+        locatorWatcher->deleteLater();
+        if (locatorWatcher->isCanceled()) {
+            search->finishSearch(true);
+            return;
+        }
+        Links links;
+        for (int i = 0; i < locatorWatcher->future().resultCount(); ++i) {
+            const Core::LocatorFilterEntry &entry = locatorWatcher->resultAt(i);
+            static const QStringList prefixBlacklist{"main(", "~", "qHash(", "begin()", "end()",
+                    "cbegin()", "cend()", "constBegin()", "constEnd()"};
+            if (Utils::anyOf(prefixBlacklist, [&entry](const QString &prefix) {
+                    return entry.displayName.startsWith(prefix); })) {
+                continue;
+            }
+            Link link;
+            if (entry.internalData.canConvert<Link>()) {
+                link = qvariant_cast<Link>(entry.internalData);
+            } else {
+                const auto item = qvariant_cast<IndexItem::Ptr>(entry.internalData);
+                if (item) {
+                    link = Link(FilePath::fromString(item->fileName()), item->line(),
+                                item->column());
+                }
+            }
+            if (link.hasValidTarget() && link.targetFilePath.isReadableFile()
+                    && (folder.isEmpty() || link.targetFilePath.isChildOf(folder))
+                    && SessionManager::projectForFile(link.targetFilePath)) {
+                links << link;
+            }
+        }
+        if (links.isEmpty()) {
+            search->finishSearch(false);
+            return;
+        }
+        QVariantMap remainingAndActiveLinks;
+        remainingAndActiveLinks.insert("active", QVariantList());
+        remainingAndActiveLinks.insert("remaining",
+            Utils::transform<QVariantList>(links, [](const Link &l) { return QVariant::fromValue(l);
+        }));
+        search->setUserData(remainingAndActiveLinks);
+        const auto findRefsFuture = std::make_shared<QFutureInterface<bool>>();
+        Core::FutureProgress *const progress
+                = Core::ProgressManager::addTask(findRefsFuture->future(),
+                                                 Tr::tr("Finding Unused Functions"),
+                                                 "CppEditor.FindUnusedFunctions");
+        connect(progress,
+                &Core::FutureProgress::canceled,
+                search,
+                [search, future = std::weak_ptr<QFutureInterface<bool>>(findRefsFuture)] {
+            search->finishSearch(true);
+            if (const auto f = future.lock()) {
+                f->cancel();
+                f->reportFinished();
+            }
+        });
+        findRefsFuture->setProgressRange(0, links.size());
+        connect(search, &Core::SearchResult::canceled, [findRefsFuture] {
+            findRefsFuture->cancel();
+            findRefsFuture->reportFinished();
+        });
+
+        // Step 2: Forward search results one by one to backend to check which functions are unused.
+        //         We keep several requests in flight for decent throughput.
+        const int inFlightCount = std::min(QThread::idealThreadCount() / 2 + 1, int(links.size()));
+        for (int i = 0; i < inFlightCount; ++i)
+            checkNextFunctionForUnused(search, findRefsFuture, actionsSwitcher);
+    });
+    locatorWatcher->setFuture(
+                Utils::runAsync([functionsFilter](QFutureInterface<Core::LocatorFilterEntry> &future) {
+                    future.reportResults(functionsFilter->matchesFor(future, {}));
+                }));
+}
+
+void CppModelManager::checkForUnusedSymbol(Core::SearchResult *search,
+                                           const Link &link,
+                                           CPlusPlus::Symbol *symbol,
+                                           const CPlusPlus::LookupContext &context,
+                                           const LinkHandler &callback)
+{
+    instance()->d->m_findReferences->checkUnused(search, link, symbol, context, callback);
 }
 
 int argumentPositionOf(const AST *last, const CallAST *callAst)

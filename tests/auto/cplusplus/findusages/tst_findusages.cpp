@@ -1180,12 +1180,12 @@ void tst_FindUsages::templateClass_className()
     findUsages(classTS);
     QCOMPARE(findUsages.usages().size(), 7);
     QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
-    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
-    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::ConstructorDestructor);
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tag::ConstructorDestructor);
     QCOMPARE(findUsages.usages().at(3).tags, Usage::Tags());
-    QCOMPARE(findUsages.usages().at(4).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(4).tags, Usage::Tag::ConstructorDestructor);
     QCOMPARE(findUsages.usages().at(5).tags, Usage::Tags());
-    QCOMPARE(findUsages.usages().at(6).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(6).tags, Usage::Tag::ConstructorDestructor);
 }
 
 void tst_FindUsages::templateFunctionParameters()
@@ -2324,7 +2324,7 @@ int main()
     find(structS);
     QCOMPARE(find.usages().size(), 18);
     QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
-    QCOMPARE(find.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::ConstructorDestructor);
     QCOMPARE(find.usages().at(2).tags, Usage::Tags());
     QCOMPARE(find.usages().at(3).tags, Usage::Tags());
     QCOMPARE(find.usages().at(4).tags, Usage::Tags());
