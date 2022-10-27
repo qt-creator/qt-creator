@@ -74,8 +74,14 @@ QStringList DeviceShell::missingFeatures() const { return m_missingFeatures; }
 
 RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 {
-    if (m_shellScriptState == State::NoScript) {
-        // Fallback ...
+    // If the script failed to install, use QtcProcess directly instead.
+    bool useProcess = m_shellScriptState == State::NoScript;
+
+    // Transferring large amounts of stdInData is slow via the shell script.
+    // Use QtcProcess directly if the size exceeds 100kb.
+    useProcess |= stdInData.size() > (1024 * 100);
+
+    if (useProcess) {
         QtcProcess proc;
         proc.setCommand(createFallbackCommand(cmd));
         proc.setWriteData(stdInData);
