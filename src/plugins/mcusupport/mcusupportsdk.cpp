@@ -276,8 +276,8 @@ McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &set
     const FilePath defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
 
     const auto *versionDetector
-        = new McuPackageExecutableVersionDetector(FilePath("as850").withExecutableSuffix(),
-                                                  {"-V"},
+        = new McuPackageExecutableVersionDetector(FilePath("gversion").withExecutableSuffix(),
+                                                  {"-help"},
                                                   R"(\bv(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{
@@ -301,8 +301,8 @@ McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &
     const FilePath defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
 
     const auto *versionDetector
-        = new McuPackageExecutableVersionDetector(FilePath("asarm").withExecutableSuffix(),
-                                                  {"-V"},
+        = new McuPackageExecutableVersionDetector(FilePath("gversion").withExecutableSuffix(),
+                                                  {"-help"},
                                                   R"(\bv(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{
