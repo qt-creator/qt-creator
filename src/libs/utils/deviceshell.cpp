@@ -83,7 +83,9 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 
     if (useProcess) {
         QtcProcess proc;
-        proc.setCommand(createFallbackCommand(cmd));
+        const CommandLine fallbackCmd = createFallbackCommand(cmd);
+        qCDebug(deviceShellLog) << "Running fallback:" << fallbackCmd;
+        proc.setCommand(fallbackCmd);
         proc.setWriteData(stdInData);
 
         proc.start();
@@ -111,7 +113,7 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
                                     .arg(id)
                                     .arg(QString::fromLatin1(stdInData.toBase64()))
                                     .arg(cmd.toUserOutput());
-        qCDebug(deviceShellLog) << "Running:" << command;
+        qCDebug(deviceShellLog) << "Running via shell:" << command;
         m_shellProcess->writeRaw(command.toUtf8());
     });
 
