@@ -140,7 +140,7 @@ void McuPackage::updateStatus()
         m_status = Status::ValidPathInvalidPackage;
     } else if (m_versionDetector && m_detectedVersion.isEmpty()) {
         m_status = Status::ValidPackageVersionNotDetected;
-    } else if (!validVersion) {
+    } else if (m_versionDetector && !validVersion) {
         m_status = Status::ValidPackageMismatchedVersion;
     } else {
         m_status = Status::ValidPackage;
@@ -223,7 +223,8 @@ QString McuPackage::statusText() const
                        : tr("Path is empty, %1 not found.").arg(displayRequiredPath);
         break;
     case Status::ValidPackageVersionNotDetected:
-        response = tr("Path %1 exists, but version could not be detected.").arg(displayPackagePath);
+        response = tr("Path %1 exists, but version %2 could not be detected.")
+                       .arg(displayPackagePath, displayVersions);
         break;
     }
     return response;
