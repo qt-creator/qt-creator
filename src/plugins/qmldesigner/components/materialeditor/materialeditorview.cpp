@@ -80,9 +80,7 @@ MaterialEditorView::MaterialEditorView(QWidget *parent)
     m_ensureMatLibTimer.callOnTimeout([this] {
         if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
             && model()->rewriterView()->errors().isEmpty()) {
-            executeInTransaction("MaterialEditorView::MaterialEditorView", [this] {
-                ensureMaterialLibraryNode();
-            });
+            ensureMaterialLibraryNode();
             m_ensureMatLibTimer.stop();
         }
     });
