@@ -171,9 +171,6 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
     } else if (isOverlayCategory(category)) {
         // overlays without a background schouldn't get painted
         tf.setBackground(QColor());
-    } else if (f.underlineStyle() != QTextCharFormat::NoUnderline) {
-        // underline does not need to fill without having background color
-        tf.setBackground(Qt::BrushStyle::NoBrush);
     }
 
     tf.setFontWeight(f.bold() ? QFont::Bold : QFont::Normal);
