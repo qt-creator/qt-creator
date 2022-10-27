@@ -22,7 +22,13 @@ constexpr auto mingw_desktop_json = R"(
         ],
         "compiler": {
             "label": "MinGW Toolchain",
-            "defaultValue": "%{QT_TOOLS_DIR}/mingw1120_64"
+            "defaultValue": "%{QT_TOOLS_DIR}/mingw1120_64",
+            "detectionPath": "bin/g++.exe",
+            "versionDetection": {
+                "filePattern": "bin//g++.exe",
+                "executableArgs": "--version",
+                "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
+            }
         }
     }
 }

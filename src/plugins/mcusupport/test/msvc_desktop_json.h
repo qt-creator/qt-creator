@@ -37,7 +37,8 @@ constexpr auto msvc_desktop_json = R"(
                 "filePattern": "cl.exe",
                 "executableArgs": "--version",
                 "regex": "\\b(\\d+\\.\\d+)\\.\\d+\\b"
-            }
+            },
+            "detectionPath": "cl.exe"
         }
     }
 }

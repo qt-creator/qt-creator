@@ -45,7 +45,16 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
             "setting": "GHSToolchain",
             "label": "Green Hills Compiler",
             "type": "path",
-            "optional": false
+            "optional": false,
+            "versionDetection": {
+                "filePattern": "gversion",
+                "executableArgs": "-help",
+                "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+            },
+            "detectionPath": {
+                "windows": "cxv850.exe",
+                "linux": "cxv850"
+            }
         },
         "file": {
             "cmakeVar": "CMAKE_TOOLCHAIN_FILE",

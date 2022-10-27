@@ -29,7 +29,8 @@ constexpr auto gcc_desktop_json = R"(
                 "executableArgs": "--version",
                 "filePattern": "bin/g++",
                 "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
-            }
+            },
+            "detectionPath": "bin/g++"
         }
     }
 }
