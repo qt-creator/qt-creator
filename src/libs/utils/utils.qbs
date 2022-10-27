@@ -50,6 +50,8 @@ Project {
             "archive.h",
             "aspects.cpp",
             "aspects.h",
+            "asynctask.cpp",
+            "asynctask.h",
             "basetreeview.cpp",
             "basetreeview.h",
             "benchmarker.cpp",
