@@ -152,7 +152,7 @@ static Model *currentModel()
     return nullptr;
 }
 
-std::unique_ptr<Model> DesignDocumentView::pasteToModel(ExternalDependenciesInterface &externalDependencies)
+ModelPointer DesignDocumentView::pasteToModel(ExternalDependenciesInterface &externalDependencies)
 {
     Model *parentModel = currentModel();
 

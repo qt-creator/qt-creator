@@ -1394,11 +1394,7 @@ Model::Model(const TypeName &typeName, int major, int minor, Model *metaInfoProx
     : d(std::make_unique<Internal::ModelPrivate>(this, typeName, major, minor, metaInfoProxyModel))
 {}
 
-Model::~Model()
-{
-    d->detachAllViews();
-    d.reset(nullptr);
-}
+Model::~Model() = default;
 
 const QList<Import> &Model::imports() const
 {
@@ -1607,6 +1603,11 @@ void Model::endDrag()
 NotNullPointer<const ProjectStorage<Sqlite::Database>> Model::projectStorage() const
 {
     return d->projectStorage;
+}
+
+void Model::detachAllViews()
+{
+    d->detachAllViews();
 }
 
 bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion) const

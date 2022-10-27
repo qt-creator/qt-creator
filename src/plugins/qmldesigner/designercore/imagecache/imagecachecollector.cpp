@@ -64,7 +64,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
                                                           captureImageMaximumSize);
 
     const QString filePath{name};
-    std::unique_ptr<Model> model{QmlDesigner::Model::create("QtQuick/Item", 2, 1)};
+    auto model = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
     model->setFileUrl(QUrl::fromLocalFile(filePath));
 
     auto textDocument = std::make_unique<QTextDocument>(fileToString(filePath));

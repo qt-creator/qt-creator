@@ -65,12 +65,15 @@ public:
 
     ~Model();
 
-    static std::unique_ptr<Model> create(const TypeName &typeName,
-                                         int major = 1,
-                                         int minor = 1,
-                                         Model *metaInfoProxyModel = nullptr)
+    static ModelPointer create(const TypeName &typeName,
+                               int major = 1,
+                               int minor = 1,
+                               Model *metaInfoProxyModel = nullptr)
     {
-        return std::make_unique<Model>(typeName, major, minor, metaInfoProxyModel);
+        return ModelPointer(new Model(typeName, major, minor, metaInfoProxyModel), [](Model *model) {
+            model->detachAllViews();
+            delete model;
+        });
     }
 
     QUrl fileUrl() const;
@@ -155,6 +158,7 @@ public:
 private:
     template<const auto &moduleName, const auto &typeName>
     NodeMetaInfo createNodeMetaInfo() const;
+    void detachAllViews();
 
 private:
     std::unique_ptr<Internal::ModelPrivate> d;

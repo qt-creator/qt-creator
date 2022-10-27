@@ -147,7 +147,7 @@ const AbstractView *DesignDocument::view() const
     return viewManager().view();
 }
 
-std::unique_ptr<Model> DesignDocument::createInFileComponentModel()
+ModelPointer DesignDocument::createInFileComponentModel()
 {
     auto model = Model::create("QtQuick.Item", 1, 0);
     model->setFileUrl(m_documentModel->fileUrl());

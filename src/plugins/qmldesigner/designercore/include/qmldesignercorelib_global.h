@@ -45,6 +45,8 @@ enum AnchorLineType {
     AnchorLineAllMask = AnchorLineVerticalMask | AnchorLineHorizontalMask
 };
 
+using ModelPointer = std::unique_ptr<class Model, std::function<void(Model *model)>>;
+
 constexpr bool useProjectStorage()
 {
 #ifdef QDS_USE_PROJECTSTORAGE

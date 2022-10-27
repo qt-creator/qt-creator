@@ -166,10 +166,10 @@ public:
     Model &model;
 };
 
-std::unique_ptr<QmlDesigner::Model> createModel(const QString &typeName,
-                                                int major = 2,
-                                                int minor = 1,
-                                                Model *metaInfoPropxyModel = 0)
+ModelPointer createModel(const QString &typeName,
+                         int major = 2,
+                         int minor = 1,
+                         Model *metaInfoPropxyModel = 0)
 {
     QApplication::processEvents();
 
