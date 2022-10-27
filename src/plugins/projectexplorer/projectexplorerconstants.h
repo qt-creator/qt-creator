@@ -60,6 +60,7 @@ const char G_PROJECT_BUILD[]      = "Project.Group.Build";
 const char G_PROJECT_REBUILD[]    = "Project.Group.Rebuild";
 const char G_PROJECT_RUN[]        = "Project.Group.Run";
 const char G_PROJECT_FILES[]      = "Project.Group.Files";
+const char G_PROJECT_CLOSE[]      = "Project.Group.Close";
 const char G_PROJECT_TREE[]       = "Project.Group.Tree";
 const char G_PROJECT_LAST[]       = "Project.Group.Last";
 
