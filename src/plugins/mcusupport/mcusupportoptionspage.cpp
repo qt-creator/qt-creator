@@ -7,6 +7,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
 #include "mcusupportsdk.h"
+#include "mcusupporttr.h"
 #include "mcutarget.h"
 #include "mcutargetfactory.h"
 #include "settingshandler.h"
@@ -28,6 +29,7 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -288,8 +290,27 @@ void McuSupportOptionsWidget::apply()
 
     m_settingsHandler->setAutomaticKitCreation(m_options.automaticKitCreationEnabled());
     McuTargetFactory::expandVariables(m_options.sdkRepository.packages);
+
+    QMessageBox warningPopup(QMessageBox::Icon::Warning,
+                             Tr::tr("Warning"),
+                             Tr::tr("Unable to apply changes."),
+                             QMessageBox::Ok,
+                             this);
+
+    auto target = currentMcuTarget();
+    if (!target) {
+        warningPopup.setInformativeText(Tr::tr("No target selected."));
+        warningPopup.exec();
+        return;
+    }
+    if (!target->isValid()) {
+        warningPopup.setInformativeText(Tr::tr("Invalid path(s) present."));
+        warningPopup.exec();
+        return;
+    }
+
     pathsChanged |= m_options.qtForMCUsSdkPackage->writeToSettings();
-    for (const auto &package : std::as_const(m_options.sdkRepository.packages))
+    for (const auto &package : target->packages())
         pathsChanged |= package->writeToSettings();
 
     if (pathsChanged) {
