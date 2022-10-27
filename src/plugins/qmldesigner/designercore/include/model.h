@@ -49,6 +49,7 @@ class QMLDESIGNERCORE_EXPORT Model : public QObject
     friend AbstractView;
     friend Internal::ModelPrivate;
     friend Internal::WriteLocker;
+    friend ModelDeleter;
     friend class NodeMetaInfoPrivate;
 
     Q_OBJECT
@@ -70,10 +71,7 @@ public:
                                int minor = 1,
                                Model *metaInfoProxyModel = nullptr)
     {
-        return ModelPointer(new Model(typeName, major, minor, metaInfoProxyModel), [](Model *model) {
-            model->detachAllViews();
-            delete model;
-        });
+        return ModelPointer(new Model(typeName, major, minor, metaInfoProxyModel));
     }
 
     QUrl fileUrl() const;

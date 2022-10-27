@@ -1605,6 +1605,12 @@ NotNullPointer<const ProjectStorage<Sqlite::Database>> Model::projectStorage() c
     return d->projectStorage;
 }
 
+void ModelDeleter::operator()(class Model *model)
+{
+    model->detachAllViews();
+    delete model;
+}
+
 void Model::detachAllViews()
 {
     d->detachAllViews();
