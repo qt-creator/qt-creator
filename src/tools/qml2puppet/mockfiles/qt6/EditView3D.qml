@@ -196,8 +196,13 @@ Item {
         if ("selectBackgroundColor" in viewStates) {
             if (Array.isArray(viewStates.selectBackgroundColor)) {
                 var colors = viewStates.selectBackgroundColor
-                backgroundGradientColorStart = colors[0];
-                backgroundGradientColorEnd = colors[1];
+                if (colors.length === 1) {
+                    backgroundGradientColorStart = colors[0];
+                    backgroundGradientColorEnd = colors[0];
+                } else {
+                    backgroundGradientColorStart = colors[0];
+                    backgroundGradientColorEnd = colors[1];
+                }
             } else {
                 var color = viewStates.selectBackgroundColor
                 backgroundGradientColorStart = color;

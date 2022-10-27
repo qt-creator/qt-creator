@@ -1912,6 +1912,19 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
 
     m_editView3DSetupDone = true;
 
+    auto activeView = qobject_cast<QQuick3DViewport *>(m_active3DView);
+    if (activeView) {
+        QQuick3DSceneEnvironment *activeEnv = activeView->environment();
+        QColor clearColor = activeEnv->clearColor();
+
+        if (clearColor.isValid() && helper) {
+            ServerNodeInstance activeSceneInstance = active3DSceneInstance();
+            const QString sceneId = activeSceneInstance.id();
+
+            helper->setSceneEnvironmentColor(sceneId, clearColor);
+        }
+    }
+
     if (toolStates.contains({})) {
         // Update tool state to an existing no-scene state before updating the active scene to
         // ensure the previous state is inherited properly in all cases.
