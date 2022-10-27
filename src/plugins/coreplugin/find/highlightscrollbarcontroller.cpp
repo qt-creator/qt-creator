@@ -232,6 +232,12 @@ bool HighlightScrollBarOverlay::eventFilter(QObject *object, QEvent *event)
     case QEvent::ZOrderChange:
         raise();
         break;
+    case QEvent::Show:
+        show();
+        break;
+    case QEvent::Hide:
+        hide();
+        break;
     default:
         break;
     }
