@@ -145,6 +145,20 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
     default:
         break;
     }
+
+    if (interface->reason() == ActivationCharacter) {
+        switch (interface->characterAt(interface->position() - 1).toLatin1()) {
+        case '"': case '<': case '/':
+            if (contextAnalyzer.completionAction()
+                    != ClangCompletionContextAnalyzer::CompleteIncludePath) {
+                class NoOpProcessor : public IAssistProcessor {
+                    IAssistProposal *perform(const AssistInterface *) override { return nullptr; }
+                };
+                return new NoOpProcessor;
+            }
+        }
+    }
+
     const QString snippetsGroup = contextAnalyzer.addSnippets() && !isInCommentOrString(interface)
                                       ? CppEditor::Constants::CPP_SNIPPETS_GROUP_ID
                                       : QString();
@@ -166,10 +180,11 @@ bool ClangdCompletionAssistProvider::isActivationCharSequence(const QString &seq
 
     // We want to minimize unneeded completion requests, as those trigger document updates,
     // which trigger re-highlighting and diagnostics, which we try to delay.
-    // Therefore, we do not trigger on syntax elements that often occur in non-applicable
-    // contexts, such as '(', '<' or '/'.
+    // Therefore, for '"', '<', and '/', a follow-up check will verify whether we are in
+    // an include completion context and otherwise not start the LSP completion procedure.
     switch (kind) {
     case T_DOT: case T_COLON_COLON: case T_ARROW: case T_DOT_STAR: case T_ARROW_STAR: case T_POUND:
+    case T_STRING_LITERAL: case T_ANGLE_STRING_LITERAL: case T_SLASH:
         qCDebug(clangdLogCompletion) << "detected" << sequence << "as activation char sequence";
         return true;
     }
