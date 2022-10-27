@@ -345,7 +345,15 @@ Kit *newKit(const McuTarget *mcuTarget, const McuPackagePtr &qtForMCUsSdk)
         k->fix();
     };
 
-    return KitManager::registerKit(init);
+    Kit *kit = KitManager::registerKit(init);
+    if (kit) {
+        printMessage(Tr::tr("Kit for %1 created.").arg(generateKitNameFromTarget(mcuTarget)), false);
+    } else {
+        printMessage(Tr::tr("Error registering Kit for %1.")
+                         .arg(generateKitNameFromTarget(mcuTarget)),
+                     true);
+    }
+    return kit;
 }
 
 // Kit Information
