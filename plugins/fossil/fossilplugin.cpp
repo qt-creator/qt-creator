@@ -172,7 +172,7 @@ public:
                                              const QStringList &extraArgs) final;
 
     void updateActions(VcsBase::VcsBasePluginPrivate::ActionState) override;
-    bool submitEditorAboutToClose() override;
+    bool activateCommit() override;
 
     // File menu action slots
     void addCurrentFile();
@@ -784,24 +784,12 @@ void FossilPluginPrivate::createRepository()
     }
 }
 
-bool FossilPluginPrivate::submitEditorAboutToClose()
+bool FossilPluginPrivate::activateCommit()
 {
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor());
     QTC_ASSERT(commitEditor, return true);
     Core::IDocument *editorDocument = commitEditor->document();
     QTC_ASSERT(editorDocument, return true);
-
-    const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult response
-        = commitEditor->promptSubmit(this);
-
-    switch (response) {
-    case VcsBase::VcsBaseSubmitEditor::SubmitCanceled:
-        return false;
-    case VcsBase::VcsBaseSubmitEditor::SubmitDiscarded:
-        return true;
-    default:
-        break;
-    }
 
     QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
