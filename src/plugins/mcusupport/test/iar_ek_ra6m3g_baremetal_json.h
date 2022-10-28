@@ -42,7 +42,10 @@ constexpr auto iar_ek_ra6m3g_baremetal_json = R"(
             "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
             "type": "path",
             "versionDetection": {
-                "filePattern": "bin/iccarm",
+                "filePattern": {
+                    "windows": "bin/iccarm.exe",
+                    "linux": "bin/iccarm"
+                },
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
             },

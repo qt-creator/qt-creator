@@ -80,7 +80,7 @@ const char armGccDir[]{"/opt/armgcc"};
 const char armGccDirectorySetting[]{"GNUArmEmbeddedToolchain"};
 const char armGccEnvVar[]{"ARMGCC_DIR"};
 const char armGccLabel[]{"GNU Arm Embedded Toolchain"};
-const char armGccSuffix[]{"bin/arm-none-eabi-g++"};
+const QString armGccSuffix{HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++")};
 const char armGccToolchainFilePath[]{"/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake"};
 const char armGccToolchainFileUnexpandedPath[]{"%{Qul_ROOT}/lib/cmake/Qul/toolchain/armgcc.cmake"};
 const char armGccVersion[]{"10.3.1"};
@@ -1245,7 +1245,7 @@ void McuSupportTest::test_passExecutableVersionDetectorToToolchainPackage_data()
         << armGccVersionDetectionRegex;
 
     QTest::newRow("iar_stm32f469i_discovery_baremetal_json")
-        << iar_stm32f469i_discovery_baremetal_json << QString{"bin/iccarm"} << version
+        << iar_stm32f469i_discovery_baremetal_json << HostOsInfo::withExecutableSuffix("bin/iccarm") << version
         << iarVersionDetectionRegex;
 }
 

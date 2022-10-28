@@ -47,7 +47,10 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
             "type": "path",
             "optional": false,
             "versionDetection": {
-                "filePattern": "gversion",
+                "filePattern": {
+                    "windows": "gversion.exe",
+                    "linux": "gversion"
+                },
                 "executableArgs": "-help",
                 "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
             },

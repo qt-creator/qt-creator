@@ -28,7 +28,10 @@ constexpr auto armgcc_example_baremetal_json = R"(
             "type": "path",
             "optional": false,
             "versionDetection": {
-                "filePattern": "bin/arm-none-eabi-g++",
+                "filePattern": {
+                    "windows": "bin/arm-none-eabi-g++.exe",
+                    "linux": "bin/arm-none-eabi-g++"
+                },
                 "executableArgs": "--version",
                 "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
             },

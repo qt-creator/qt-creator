@@ -608,19 +608,7 @@ static FilePaths targetDescriptionFiles(const FilePath &dir)
     return kitsPath(dir).dirEntries(Utils::FileFilter({"*.json"}, QDir::Files));
 }
 
-VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
-{
-    const QJsonObject versioning = packageEntry.value("versionDetection").toObject();
-    return {
-        versioning["regex"].toString(),
-        versioning["filePattern"].toString(),
-        versioning["executableArgs"].toString(),
-        versioning["xmlElement"].toString(),
-        versioning["xmlAttribute"].toString(),
-    };
-}
-
-QString getOsSpecificValue(const QJsonValue &entry)
+static QString getOsSpecificValue(const QJsonValue &entry)
 {
     if (entry.isObject()) {
         //The json entry has os-specific values
@@ -629,6 +617,19 @@ QString getOsSpecificValue(const QJsonValue &entry)
     //The entry does not have os-specific values
     return entry.toString();
 }
+
+static VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
+{
+    const QJsonObject versioning = packageEntry.value("versionDetection").toObject();
+    return {
+        versioning["regex"].toString(),
+        getOsSpecificValue(versioning["filePattern"]),
+        versioning["executableArgs"].toString(),
+        versioning["xmlElement"].toString(),
+        versioning["xmlAttribute"].toString(),
+    };
+}
+
 
 static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
 {

@@ -47,7 +47,10 @@ constexpr auto armgcc_mimxrt1064_evk_freertos_json = R"(
             "type": "path",
             "optional": false,
             "versionDetection": {
-                "filePattern": "bin/arm-none-eabi-g++",
+                "filePattern": {
+                    "windows": "bin/arm-none-eabi-g++.exe",
+                    "linux": "bin/arm-none-eabi-g++"
+                },
                 "executableArgs": "--version",
                 "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
             },

@@ -46,7 +46,10 @@ constexpr auto iar_mimxrt1050_evk_baremetal_json = R"(
             "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
             "type": "path",
             "versionDetection": {
-                "filePattern": "bin/iccarm",
+                "filePattern": {
+                    "windows": "bin/iccarm.exe",
+                    "linux": "bin/iccarm"
+                },
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
             },
