@@ -580,12 +580,11 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     return true;
 }
 
-void DiffEditorPlugin::addFuture(const QFuture<void> &future)
+FutureSynchronizer *DiffEditorPlugin::futureSynchronizer()
 {
-    QTC_ASSERT(s_instance, return);
-    s_instance->d->m_futureSynchronizer.addFuture(future);
+    QTC_ASSERT(s_instance, return nullptr);
+    return &s_instance->d->m_futureSynchronizer;
 }
-
 
 } // namespace Internal
 } // namespace DiffEditor

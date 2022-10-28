@@ -8,6 +8,8 @@
 #include <coreplugin/diffservice.h>
 #include <extensionsystem/iplugin.h>
 
+namespace Utils { class FutureSynchronizer; }
+
 QT_BEGIN_NAMESPACE
 template <typename T>
 class QFuture;
@@ -39,9 +41,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
 
-    template <typename T>
-    static void addFuture(const QFuture<T> &future) { addFuture(QFuture<void>(future)); }
-    static void addFuture(const QFuture<void> &future);
+    static Utils::FutureSynchronizer *futureSynchronizer();
 
 private:
     class DiffEditorPluginPrivate *d = nullptr;

@@ -25,6 +25,7 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/futuresynchronizer.h>
 #include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -784,7 +785,7 @@ SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
 {
     if (m_watcher) {
         m_watcher->cancel();
-        DiffEditorPlugin::addFuture(m_watcher->future());
+        DiffEditorPlugin::futureSynchronizer()->addFuture(m_watcher->future());
     }
 }
 
@@ -816,7 +817,7 @@ void SideBySideDiffEditorWidget::clear(const QString &message)
         editor->clearAll(message);
     if (m_watcher) {
         m_watcher->cancel();
-        DiffEditorPlugin::addFuture(m_watcher->future());
+        DiffEditorPlugin::futureSynchronizer()->addFuture(m_watcher->future());
         m_watcher.reset();
         m_controller.setBusyShowing(false);
     }
