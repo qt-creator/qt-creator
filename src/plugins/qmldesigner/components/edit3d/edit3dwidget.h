@@ -62,6 +62,7 @@ private:
     QPointer<QMenu> m_contextMenu;
     QPointer<QAction> m_editMaterialAction;
     QPointer<QAction> m_deleteAction;
+    QPointer<QAction> m_copyAction;
     QPointer<QMenu> m_createSubMenu;
     ModelNode m_contextMenuTarget;
     QVector3D m_contextMenuPos3d;

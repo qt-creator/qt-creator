@@ -174,12 +174,21 @@ void Edit3DWidget::createContextMenu()
         ModelNodeOperations::editMaterial(selCtx);
     });
 
+    m_contextMenu->addSeparator();
+
+    m_copyAction = m_contextMenu->addAction(tr("Copy"), [&] {
+        QmlDesignerPlugin::instance()->currentDesignDocument()->copySelected();
+    });
+
     m_deleteAction = m_contextMenu->addAction(tr("Delete"), [&] {
         view()->executeInTransaction("Edit3DWidget::createContextMenu", [&] {
             for (ModelNode &node : m_view->selectedModelNodes())
                 node.destroy();
         });
     });
+
+
+    m_contextMenu->addSeparator();
 }
 
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
@@ -303,8 +312,11 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
 
     const bool isValid = modelNode.isValid();
     const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
+    const bool isValidNotRoot = isValid && !modelNode.isRootNode();
+
     m_editMaterialAction->setEnabled(isModel);
-    m_deleteAction->setEnabled(isValid && !modelNode.isRootNode());
+    m_deleteAction->setEnabled(isValidNotRoot);
+    m_copyAction->setEnabled(isValidNotRoot);
 
     m_contextMenu->popup(mapToGlobal(pos));
 }
