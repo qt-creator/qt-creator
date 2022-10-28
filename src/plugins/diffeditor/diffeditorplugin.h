@@ -3,17 +3,10 @@
 
 #pragma once
 
-#include "diffeditor_global.h"
-
 #include <coreplugin/diffservice.h>
 #include <extensionsystem/iplugin.h>
 
 namespace Utils { class FutureSynchronizer; }
-
-QT_BEGIN_NAMESPACE
-template <typename T>
-class QFuture;
-QT_END_NAMESPACE
 
 namespace DiffEditor {
 namespace Internal {

@@ -21,9 +21,8 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/futuresynchronizer.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -54,13 +53,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     Core::ICore::addContextObject(context);
 }
 
-UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
-{
-    if (m_watcher) {
-        m_watcher->cancel();
-        DiffEditorPlugin::futureSynchronizer()->addFuture(m_watcher->future());
-    }
-}
+UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget() = default;
 
 void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
@@ -203,10 +196,8 @@ void UnifiedDiffEditorWidget::clear(const QString &message)
 {
     m_data = {};
     setSelections({});
-    if (m_watcher) {
-        m_watcher->cancel();
-        DiffEditorPlugin::futureSynchronizer()->addFuture(m_watcher->future());
-        m_watcher.reset();
+    if (m_asyncTask) {
+        m_asyncTask.reset();
         m_controller.setBusyShowing(false);
     }
 
@@ -462,13 +453,14 @@ void UnifiedDiffEditorWidget::showDiff()
         return;
     }
 
-    m_watcher.reset(new QFutureWatcher<ShowResult>());
+    m_asyncTask.reset(new AsyncTask<ShowResult>());
+    m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
     m_controller.setBusyShowing(true);
-    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
-        if (m_watcher->isCanceled()) {
+    connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
+        if (m_asyncTask->isCanceled()) {
             setPlainText(tr("Retrieving data failed."));
         } else {
-            const ShowResult result = m_watcher->result();
+            const ShowResult result = m_asyncTask->result();
             m_data = result.diffData;
             TextDocumentPtr doc(result.textDocument);
             {
@@ -482,7 +474,7 @@ void UnifiedDiffEditorWidget::showDiff()
             setSelections(result.selections);
             setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
-        m_watcher.release()->deleteLater();
+        m_asyncTask.release()->deleteLater();
         m_controller.setBusyShowing(false);
     });
 
@@ -535,8 +527,9 @@ void UnifiedDiffEditorWidget::showDiff()
         futureInterface.reportResult(result);
     };
 
-    m_watcher->setFuture(runAsync(getDocument));
-    ProgressManager::addTask(m_watcher->future(), tr("Rendering diff"), "DiffEditor");
+    m_asyncTask->setAsyncCallData(getDocument);
+    m_asyncTask->start();
+    ProgressManager::addTask(m_asyncTask->future(), tr("Rendering diff"), "DiffEditor");
 }
 
 void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)

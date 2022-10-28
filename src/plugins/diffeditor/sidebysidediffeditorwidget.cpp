@@ -25,8 +25,7 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/futuresynchronizer.h>
-#include <utils/runextensions.h>
+#include <utils/asynctask.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -781,13 +780,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     setFocusProxy(m_editor[LeftSide]);
 }
 
-SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
-{
-    if (m_watcher) {
-        m_watcher->cancel();
-        DiffEditorPlugin::futureSynchronizer()->addFuture(m_watcher->future());
-    }
-}
+SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget() = default;
 
 TextEditorWidget *SideBySideDiffEditorWidget::sideEditorWidget(DiffSide side) const
 {
@@ -815,10 +808,8 @@ void SideBySideDiffEditorWidget::clear(const QString &message)
     setDiff({});
     for (SideDiffEditorWidget *editor : m_editor)
         editor->clearAll(message);
-    if (m_watcher) {
-        m_watcher->cancel();
-        DiffEditorPlugin::futureSynchronizer()->addFuture(m_watcher->future());
-        m_watcher.reset();
+    if (m_asyncTask) {
+        m_asyncTask.reset();
         m_controller.setBusyShowing(false);
     }
 }
@@ -878,15 +869,16 @@ void SideBySideDiffEditorWidget::restoreState()
 
 void SideBySideDiffEditorWidget::showDiff()
 {
-    m_watcher.reset(new QFutureWatcher<ShowResults>());
+    m_asyncTask.reset(new AsyncTask<ShowResults>());
+    m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
     m_controller.setBusyShowing(true);
 
-    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
-        if (m_watcher->isCanceled()) {
+    connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
+        if (m_asyncTask->isCanceled()) {
             for (SideDiffEditorWidget *editor : m_editor)
                 editor->clearAll(tr("Retrieving data failed."));
         } else {
-            const ShowResults results = m_watcher->result();
+            const ShowResults results = m_asyncTask->result();
             m_editor[LeftSide]->setDiffData(results[LeftSide].diffData);
             m_editor[RightSide]->setDiffData(results[RightSide].diffData);
             TextDocumentPtr leftDoc(results[LeftSide].textDocument);
@@ -916,7 +908,7 @@ void SideBySideDiffEditorWidget::showDiff()
             m_editor[RightSide]->setSelections(results[RightSide].selections);
             setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
-        m_watcher.release()->deleteLater();
+        m_asyncTask.release()->deleteLater();
         m_controller.setBusyShowing(false);
     });
 
@@ -985,8 +977,9 @@ void SideBySideDiffEditorWidget::showDiff()
         futureInterface.reportResult(result);
     };
 
-    m_watcher->setFuture(runAsync(getDocument));
-    ProgressManager::addTask(m_watcher->future(), tr("Rendering diff"), "DiffEditor");
+    m_asyncTask->setAsyncCallData(getDocument);
+    m_asyncTask->start();
+    ProgressManager::addTask(m_asyncTask->future(), tr("Rendering diff"), "DiffEditor");
 }
 
 void SideBySideDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)

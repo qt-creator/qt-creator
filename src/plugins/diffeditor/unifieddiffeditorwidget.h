@@ -6,11 +6,16 @@
 #include "diffeditorwidgetcontroller.h"
 #include "selectabletexteditorwidget.h"
 
-#include <QFutureWatcher>
+#include <QFutureInterface>
 
 namespace Core { class IContext; }
 
 namespace TextEditor { class FontSettings; }
+
+namespace Utils {
+template <typename R>
+class AsyncTask;
+}
 
 namespace DiffEditor {
 
@@ -107,7 +112,7 @@ private:
         DiffSelections selections;
     };
 
-    std::unique_ptr<QFutureWatcher<ShowResult>> m_watcher;
+    std::unique_ptr<Utils::AsyncTask<ShowResult>> m_asyncTask;
 };
 
 } // namespace Internal
