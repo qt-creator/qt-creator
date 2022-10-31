@@ -68,7 +68,9 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
         "label": "Graphics Driver for Traveo II Cluster Series",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
-        "optional": false
+        "optional": false,
+        "versionDetection": {
+            "regex": "V\\w+\\.\\d+\\.\\d+"
     }
 }
 )";

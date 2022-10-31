@@ -29,7 +29,7 @@ constexpr auto ghs_tviic2d4m_baremetal_json = R"(
     "toolchain": {
         "id": "arm-greenhills",
         "versions": [
-            "201954"
+            "2019.5.4"
         ],
         "compiler": {
             "id": "GHS_ARM_DIR",
@@ -38,7 +38,13 @@ constexpr auto ghs_tviic2d4m_baremetal_json = R"(
             "setting": "GHSArmToolchain",
             "detectionPath": "cxarm.exe",
             "type": "path",
-            "optional": false
+            "optional": false,
+            "versionDetection": {
+                "filePattern": "gversion.exe",
+                "executableArgs": "-help",
+                "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+            },
+            "detectionPath": "cxarm.exe"
         },
         "file": {
             "id": "GHS_ARM_CMAKE_TOOLCHAIN_FILE",
@@ -59,7 +65,9 @@ constexpr auto ghs_tviic2d4m_baremetal_json = R"(
         "label": "Graphics Driver for Traveo II Cluster Series",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
-        "optional": false
+        "optional": false,
+        "versionDetection": {
+            "regex": "V\\w+\\.\\d+\\.\\d+"
     }
 }
 )";
