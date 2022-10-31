@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "edit3dwidget.h"
+#include "designdocumentview.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
@@ -11,6 +12,7 @@
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
+#include "timelineactions.h"
 #include "viewmanager.h"
 
 #include <auxiliarydataproperties.h>
@@ -185,13 +187,16 @@ void Edit3DWidget::createContextMenu()
         QmlDesignerPlugin::instance()->currentDesignDocument()->copySelected();
     });
 
+    m_pasteAction = m_contextMenu->addAction(tr("Paste"), [&] {
+        QmlDesignerPlugin::instance()->currentDesignDocument()->paste();
+    });
+
     m_deleteAction = m_contextMenu->addAction(tr("Delete"), [&] {
         view()->executeInTransaction("Edit3DWidget::createContextMenu", [&] {
             for (ModelNode &node : m_view->selectedModelNodes())
                 node.destroy();
         });
     });
-
 
     m_contextMenu->addSeparator();
 
@@ -204,6 +209,38 @@ void Edit3DWidget::createContextMenu()
     });
 
     m_contextMenu->addSeparator();
+}
+
+bool Edit3DWidget::isPasteAvailable() const
+{
+    if (TimelineActions::clipboardContainsKeyframes())
+        return false;
+
+    auto pasteModel(DesignDocumentView::pasteToModel(view()->externalDependencies()));
+    if (!pasteModel)
+        return false;
+
+    DesignDocumentView docView{view()->externalDependencies()};
+    pasteModel->attachView(&docView);
+    auto rootNode = docView.rootModelNode();
+
+    if (rootNode.type() == "empty")
+        return false;
+
+    QList<ModelNode> allNodes;
+    if (rootNode.id() == "__multi__selection__")
+        allNodes << rootNode.directSubModelNodes();
+    else
+        allNodes << rootNode;
+
+    bool hasNon3DNode = std::any_of(allNodes.begin(), allNodes.end(), [](const ModelNode &node) {
+        return !node.metaInfo().isQtQuick3DNode();
+    });
+
+    if (hasNon3DNode)
+        return false;
+
+    return true;
 }
 
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
@@ -333,8 +370,9 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
 
     m_editComponentAction->setEnabled(isSingleComponent);
     m_editMaterialAction->setEnabled(isModel);
-    m_deleteAction->setEnabled(isNotRoot);
     m_copyAction->setEnabled(isNotRoot);
+    m_pasteAction->setEnabled(isPasteAvailable());
+    m_deleteAction->setEnabled(isNotRoot);
     m_alignCameraAction->setEnabled(isCamera);
     m_alignViewAction->setEnabled(isCamera);
 
