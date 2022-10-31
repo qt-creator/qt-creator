@@ -3,6 +3,8 @@
 
 #include "utils/asynctask.h"
 
+#include "utils/algorithm.h"
+
 #include <QtTest>
 
 using namespace Utils;
@@ -15,6 +17,11 @@ private slots:
     void runAsync();
     void crefFunction();
     void futureSynchonizer();
+    void taskTree();
+    void mapReduce_data();
+    void mapReduce();
+private:
+    QThreadPool m_threadPool;
 };
 
 void report3(QFutureInterface<int> &fi)
@@ -248,6 +255,181 @@ void tst_AsyncTask::futureSynchonizer()
     synchronizer.flushFinishedFutures();
     QVERIFY(!synchronizer.isEmpty());
     // The destructor of synchronizer should wait for about 90 ms for worker thread to be canceled
+}
+
+void multiplyBy2(QFutureInterface<int> &fi, int input) { fi.reportResult(input * 2); }
+
+void tst_AsyncTask::taskTree()
+{
+    using namespace Tasking;
+
+    int value = 1;
+
+    const auto setupIntAsync = [&](AsyncTask<int> &task) {
+        task.setAsyncCallData(multiplyBy2, value);
+    };
+    const auto handleIntAsync = [&](const AsyncTask<int> &task) {
+        value = task.result();
+    };
+
+    const Group root {
+        Async<int>(setupIntAsync, handleIntAsync),
+        Async<int>(setupIntAsync, handleIntAsync),
+        Async<int>(setupIntAsync, handleIntAsync),
+        Async<int>(setupIntAsync, handleIntAsync),
+    };
+
+    TaskTree tree(root);
+
+    QEventLoop eventLoop;
+    connect(&tree, &TaskTree::done, &eventLoop, &QEventLoop::quit);
+    tree.start();
+    eventLoop.exec();
+
+    QCOMPARE(value, 16);
+}
+
+static int returnxx(int x)
+{
+    return x * x;
+}
+
+static void returnxxWithFI(QFutureInterface<int> &fi, int x)
+{
+    fi.reportResult(x * x);
+}
+
+static double s_sum = 0;
+static QList<double> s_results;
+
+void tst_AsyncTask::mapReduce_data()
+{
+    using namespace Tasking;
+
+    QTest::addColumn<Group>("root");
+    QTest::addColumn<double>("sum");
+    QTest::addColumn<QList<double>>("results");
+
+    const auto initTree = [] {
+        s_sum = 0;
+        s_results.append(s_sum);
+    };
+    const auto setupAsync = [](AsyncTask<int> &task, int input) {
+        task.setAsyncCallData(returnxx, input);
+    };
+    const auto setupAsyncWithFI = [](AsyncTask<int> &task, int input) {
+        task.setAsyncCallData(returnxxWithFI, input);
+    };
+    const auto setupAsyncWithTP = [this](AsyncTask<int> &task, int input) {
+        task.setAsyncCallData(returnxx, input);
+        task.setThreadPool(&m_threadPool);
+    };
+    const auto handleAsync = [](const AsyncTask<int> &task) {
+        s_sum += task.result();
+        s_results.append(task.result());
+    };
+    const auto handleTreeParallel = [] {
+        s_sum /= 2;
+        s_results.append(s_sum);
+        Utils::sort(s_results); // mapping order is undefined
+    };
+    const auto handleTreeSequential = [] {
+        s_sum /= 2;
+        s_results.append(s_sum);
+    };
+
+    using namespace Tasking;
+    using namespace std::placeholders;
+
+    using SetupHandler = std::function<void(AsyncTask<int> &task, int input)>;
+    using DoneHandler = std::function<void()>;
+
+    const auto createTask = [=](const TaskItem &executeMode,
+                                const SetupHandler &setupHandler,
+                                const DoneHandler &doneHandler) {
+        return Group {
+            executeMode,
+            OnGroupSetup(initTree),
+            Async<int>(std::bind(setupHandler, _1, 1), handleAsync),
+            Async<int>(std::bind(setupHandler, _1, 2), handleAsync),
+            Async<int>(std::bind(setupHandler, _1, 3), handleAsync),
+            Async<int>(std::bind(setupHandler, _1, 4), handleAsync),
+            Async<int>(std::bind(setupHandler, _1, 5), handleAsync),
+            OnGroupDone(doneHandler)
+        };
+    };
+
+    const Group parallelRoot = createTask(parallel, setupAsync, handleTreeParallel);
+    const Group parallelRootWithFI = createTask(parallel, setupAsyncWithFI, handleTreeParallel);
+    const Group parallelRootWithTP = createTask(parallel, setupAsyncWithTP, handleTreeParallel);
+    const Group sequentialRoot = createTask(sequential, setupAsync, handleTreeSequential);
+    const Group sequentialRootWithFI = createTask(sequential, setupAsyncWithFI, handleTreeSequential);
+    const Group sequentialRootWithTP = createTask(sequential, setupAsyncWithTP, handleTreeSequential);
+
+    const double defaultSum = 27.5;
+    const QList<double> defaultResult{0., 1., 4., 9., 16., 25., 27.5};
+
+    QTest::newRow("Parallel") << parallelRoot << defaultSum << defaultResult;
+    QTest::newRow("ParallelWithFutureInterface") << parallelRootWithFI << defaultSum << defaultResult;
+    QTest::newRow("ParallelWithThreadPool") << parallelRootWithTP << defaultSum << defaultResult;
+    QTest::newRow("Sequential") << sequentialRoot << defaultSum << defaultResult;
+    QTest::newRow("SequentialWithFutureInterface") << sequentialRootWithFI << defaultSum << defaultResult;
+    QTest::newRow("SequentialWithThreadPool") << sequentialRootWithTP << defaultSum << defaultResult;
+
+    const auto setupSimpleAsync = [](AsyncTask<int> &task, int input) {
+        task.setAsyncCallData([](int input) { return input * 2; }, input);
+    };
+    const auto handleSimpleAsync = [](const AsyncTask<int> &task) {
+        s_sum += task.result() / 4.;
+        s_results.append(s_sum);
+    };
+    const Group simpleRoot = {
+        sequential,
+        OnGroupSetup([] { s_sum = 0; }),
+        Async<int>(std::bind(setupSimpleAsync, _1, 1), handleSimpleAsync),
+        Async<int>(std::bind(setupSimpleAsync, _1, 2), handleSimpleAsync),
+        Async<int>(std::bind(setupSimpleAsync, _1, 3), handleSimpleAsync)
+    };
+    QTest::newRow("Simple") << simpleRoot << 3.0 << QList<double>({.5, 1.5, 3.});
+
+    const auto setupStringAsync = [](AsyncTask<int> &task, const QString &input) {
+        task.setAsyncCallData([](const QString &input) -> int { return input.size(); }, input);
+    };
+    const auto handleStringAsync = [](const AsyncTask<int> &task) {
+        s_sum /= task.result();
+    };
+    const Group stringRoot = {
+        parallel,
+        OnGroupSetup([] { s_sum = 90.0; }),
+        Async<int>(std::bind(setupStringAsync, _1, "blubb"), handleStringAsync),
+        Async<int>(std::bind(setupStringAsync, _1, "foo"), handleStringAsync),
+        Async<int>(std::bind(setupStringAsync, _1, "blah"), handleStringAsync)
+    };
+    QTest::newRow("String") << stringRoot << 1.5 << QList<double>({});
+}
+
+void tst_AsyncTask::mapReduce()
+{
+    QThreadPool pool;
+
+    s_sum = 0;
+    s_results.clear();
+
+    using namespace Tasking;
+
+    QFETCH(Group, root);
+    QFETCH(double, sum);
+    QFETCH(QList<double>, results);
+
+    TaskTree tree(root);
+
+    QEventLoop eventLoop;
+    connect(&tree, &TaskTree::done, &eventLoop, &QEventLoop::quit);
+    tree.start();
+    eventLoop.exec();
+
+    QCOMPARE(s_results, results);
+    QCOMPARE(s_sum, sum);
 }
 
 QTEST_GUILESS_MAIN(tst_AsyncTask)

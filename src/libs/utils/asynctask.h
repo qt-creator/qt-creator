@@ -8,6 +8,7 @@
 #include "futuresynchronizer.h"
 #include "qtcassert.h"
 #include "runextensions.h"
+#include "tasktree.h"
 
 #include <QFutureWatcher>
 
@@ -77,4 +78,18 @@ private:
     QFutureWatcher<ResultType> m_watcher;
 };
 
+template <typename ResultType>
+class AsyncTaskAdapter : public Tasking::TaskAdapter<AsyncTask<ResultType>>
+{
+public:
+    AsyncTaskAdapter() {
+        this->connect(this->task(), &AsyncTaskBase::done, this, [this] {
+            emit this->done(!this->task()->isCanceled());
+        });
+    }
+    void start() final { this->task()->start(); }
+};
+
 } // namespace Utils
+
+QTC_DECLARE_CUSTOM_TEMPLATE_TASK(Async, AsyncTaskAdapter);
