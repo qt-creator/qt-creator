@@ -38,7 +38,9 @@ public:
 
     Q_INVOKABLE QList<QModelIndex> parentIndices(const QModelIndex &index) const;
     Q_INVOKABLE bool indexIsValid(const QModelIndex &index) const;
-    Q_INVOKABLE void deleteFiles(const QStringList &filePaths);
+    Q_INVOKABLE QString currentProjectDirPath() const;
+    Q_INVOKABLE bool requestDeleteFiles(const QStringList &filePaths);
+    Q_INVOKABLE void deleteFiles(const QStringList &filePaths, bool dontAskAgain);
     Q_INVOKABLE bool renameFolder(const QString &folderPath, const QString &newName);
     Q_INVOKABLE bool addNewFolder(const QString &folderPath);
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);

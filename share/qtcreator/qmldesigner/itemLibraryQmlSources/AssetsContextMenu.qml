@@ -87,7 +87,19 @@ StudioControls.Menu {
         text: qsTr("Delete File")
         visible: root._fileIndex
         height: deleteFileItem.visible ? deleteFileItem.implicitHeight : 0
-        onTriggered: assetsModel.deleteFiles(root._selectedAssetPathsList)
+        onTriggered: {
+            let deleted = assetsModel.requestDeleteFiles(root._selectedAssetPathsList)
+            if (!deleted)
+                confirmDeleteFiles.open()
+        }
+
+        ConfirmDeleteFilesDialog {
+            id: confirmDeleteFiles
+            parent: root.assetsView
+            files: root._selectedAssetPathsList
+
+            onAccepted: root.assetsView.selectedAssets = {}
+        }
     }
 
     StudioControls.MenuSeparator {

@@ -36,9 +36,10 @@ void AssetsLibraryModel::createBackendModel()
     QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this, &AssetsLibraryModel::directoryLoaded);
     QObject::connect(m_sourceFsModel, &QFileSystemModel::dataChanged, this, &AssetsLibraryModel::onDataChanged);
 
-    QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this, [this](const QString &dir) {
-        syncHaveFiles();
-    });
+    QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this,
+                     [this]([[maybe_unused]] const QString &dir) {
+                         syncHaveFiles();
+                     });
 }
 
 bool AssetsLibraryModel::isEffectQmlExist(const QString &effectName)
@@ -49,7 +50,7 @@ bool AssetsLibraryModel::isEffectQmlExist(const QString &effectName)
 }
 
 void AssetsLibraryModel::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                                       const QList<int> &roles)
+                                       [[maybe_unused]] const QList<int> &roles)
 {
     for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
         QModelIndex index = m_sourceFsModel->index(i, 0, topLeft.parent());
@@ -94,43 +95,34 @@ QList<QModelIndex> AssetsLibraryModel::parentIndices(const QModelIndex &index) c
     return result;
 }
 
-void AssetsLibraryModel::deleteFiles(const QStringList &filePaths)
+QString AssetsLibraryModel::currentProjectDirPath() const
+{
+    return DocumentManager::currentProjectDirPath().toString().append('/');
+}
+
+bool AssetsLibraryModel::requestDeleteFiles(const QStringList &filePaths)
 {
     bool askBeforeDelete = QmlDesignerPlugin::settings()
                                .value(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET)
                                .toBool();
-    bool assetDelete = true;
 
-    if (askBeforeDelete) {
-        QMessageBox msg(QMessageBox::Question, tr("Confirm Delete File"),
-                        tr("File%1 might be in use. Delete anyway?\n\n%2")
-                            .arg(filePaths.size() > 1 ? QChar('s') : QChar())
-                            .arg(filePaths.join('\n').remove(DocumentManager::currentProjectDirPath()
-                                                                 .toString().append('/'))),
-                        QMessageBox::No | QMessageBox::Yes);
-        QCheckBox cb;
-        cb.setText(tr("Do not ask this again"));
-        msg.setCheckBox(&cb);
-        int ret = msg.exec();
+    if (askBeforeDelete)
+        return false;
 
-        if (ret == QMessageBox::No)
-            assetDelete = false;
+    deleteFiles(filePaths, false);
+    return true;
+}
 
-        if (cb.isChecked())
-            QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
-    }
+void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskAgain)
+{
+    if (dontAskAgain)
+        QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
 
-    if (assetDelete) {
-        for (const QString &filePath : filePaths) {
-            if (!QFile::exists(filePath)) {
-                QMessageBox::warning(Core::ICore::dialogParent(),
-                                     tr("Failed to Locate File"),
-                                     tr("Could not find \"%1\".").arg(filePath));
-            } else if (!QFile::remove(filePath)) {
-                QMessageBox::warning(Core::ICore::dialogParent(),
-                                     tr("Failed to Delete File"),
-                                     tr("Could not delete \"%1\".").arg(filePath));
-            }
+    for (const QString &filePath : filePaths) {
+        if (QFile::exists(filePath) && !QFile::remove(filePath)) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                                 tr("Failed to Delete File"),
+                                 tr("Could not delete \"%1\".").arg(filePath));
         }
     }
 }
