@@ -310,6 +310,9 @@ void MaterialBrowserView::modelAttached(Model *model)
 
 void MaterialBrowserView::refreshModel(bool updateImages)
 {
+    if (!model())
+        return;
+
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
     QList <ModelNode> materials;
 
@@ -461,7 +464,7 @@ void MaterialBrowserView::nodeRemoved(const ModelNode &removedNode,
 
 void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
 {
-    if (!m_hasQuick3DImport || m_propertyGroupsLoaded)
+    if (!m_hasQuick3DImport || m_propertyGroupsLoaded || !model())
         return;
 
     QString matPropsPath = model()->metaInfo("QtQuick3D.Material").importDirectoryPath()
