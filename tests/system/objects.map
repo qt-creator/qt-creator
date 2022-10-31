@@ -14,6 +14,7 @@
 :*Qt Creator_Utils::FilterLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :About Qt Creator_Core::Internal::VersionDialog	{type='Core::Internal::VersionDialog' unnamed='1' visible='1' windowTitle='About Qt Creator'}
+:Activate completion:_QComboBox	{buddy=':Behavior.Activate completion:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :Add Bookmark.ExpandBookmarksList_QToolButton	{text='+' type='QToolButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark.New Folder_QPushButton	{text='New Folder' type='QPushButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
@@ -26,8 +27,8 @@
 :Analyzer Toolbar.Clear_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' toolTip='Discard data' type='QToolButton' unnamed='1' visible='1'}
 :Analyzer Toolbar.Elapsed:_QLabel	{container=':DebugModeWidget.Toolbar_QDockWidget' text~='Elapsed:    \\\\d+.\\\\d s' type='QLabel' unnamed='1' visible='1'}
 :Analyzer Toolbar.Start_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' text='Start' type='QToolButton' unnamed='1' visible='1'}
-:Behavior.Autocomplete common prefix_QCheckBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='partiallyComplete' text='Autocomplete common prefix' type='QCheckBox' visible='1'}
-:Behavior.completionTrigger_QComboBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='completionTrigger' type='QComboBox' visible='1'}
+:Behavior.Activate completion:_QLabel	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' text='Activate completion:' type='QLabel' unnamed='1' visible='1'}
+:Behavior.Autocomplete common prefix_QCheckBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' text='Autocomplete common prefix' type='QCheckBox' unnamed='1' visible='1'}
 :Breakpoints_Debugger::Internal::BreakTreeView	{container=':Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame' type='Utils::BaseTreeView' unnamed='1' visible='1'}
 :Build and Run.Save all files before build_QCheckBox	{container=':Build and Run_QGroupBox' text='Save all files before build' type='QCheckBox' unnamed='1' visible='1'}
 :Build and Run_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='Build and Run' type='QGroupBox' visible='1'}
@@ -43,7 +44,7 @@
 :Core__Internal__GeneralSettings.User Interface_QGroupBox	{container=':qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget' name='interfaceBox' title='User Interface' type='QGroupBox' visible='1'}
 :CppCompiler:_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':CppCompiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :CppCompiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='C++:' type='QLabel' unnamed='1' visible='1'}
-:CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
+:CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='Behavior' type='QGroupBox' visible='1'}
 :DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='GlobalLogDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.BreakpointManagerDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.Debugger.Docks.LocalsAndInspectorDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name~='Debugger\\\\.Dock\\\\.LocalsAndInspector\\\\.\\\\d+DockWidget' type='QDockWidget' visible='1'}
