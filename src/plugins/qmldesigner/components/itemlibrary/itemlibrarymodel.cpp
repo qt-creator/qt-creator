@@ -339,11 +339,16 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
     QString projectName = project ? project->displayName() : "";
 
+    QString materialBundlePrefix = QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1);
+    materialBundlePrefix.append(".MaterialBundle");
+
     // create import sections
     const QList<Import> usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.url() != projectName) {
+            if (import.url() == materialBundlePrefix)
+                continue;
             bool addNew = true;
             bool isQuick3DAsset = import.url().startsWith("Quick3DAssets.");
             QString importUrl = import.url();
