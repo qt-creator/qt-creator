@@ -37,7 +37,8 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QStringList &versions,
                        const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector,
-                       const bool addToSystemPath)
+                       const bool addToSystemPath,
+                       const Utils::PathChooser::Kind &valueType)
     : settingsHandler(settingsHandler)
     , m_label(label)
     , m_defaultPath(settingsHandler->getPath(settingsKey, QSettings::SystemScope, defaultPath))
@@ -49,6 +50,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_environmentVariableName(envVarName)
     , m_downloadUrl(downloadUrl)
     , m_addToSystemPath(addToSystemPath)
+    , m_valueType(valueType)
 {
     m_path = FilePath::fromUserInput(qtcEnvironmentVariable(m_environmentVariableName));
     if (!m_path.exists()) {
@@ -245,6 +247,7 @@ QWidget *McuPackage::widget()
 {
     auto *widget = new QWidget;
     m_fileChooser = new PathChooser(widget);
+    m_fileChooser->setExpectedKind(m_valueType);
     m_fileChooser->lineEdit()->setButtonIcon(FancyLineEdit::Right, Icons::RESET.icon());
     m_fileChooser->lineEdit()->setButtonVisible(FancyLineEdit::Right, true);
     connect(m_fileChooser->lineEdit(), &FancyLineEdit::rightButtonClicked, this, [&] {

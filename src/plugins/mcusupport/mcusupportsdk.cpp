@@ -9,6 +9,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
 #include "mcusupportplugin.h"
+#include "mcusupporttr.h"
 #include "mcusupportversiondetection.h"
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
@@ -630,6 +631,39 @@ static VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
     };
 }
 
+static Utils::PathChooser::Kind parseLineEditType(const QJsonValue &type)
+{
+    //Utility function to handle the different kinds of PathChooser
+    //Default is ExistingDirectory, see pathchooser.h for more options
+    const auto defaultValue = Utils::PathChooser::Kind::ExistingDirectory;
+    if (type.isUndefined()) {
+        //No "type" entry in the json file, this is not an error
+        return defaultValue;
+    }
+
+    const QString typeString = type.toString();
+    if (typeString.isNull()) {
+        printMessage(Tr::tr("Parsing error: the type entry in JSON kit files must be a string, "
+                            "defaulting to \"path\"")
+                         .arg(typeString),
+                     true);
+
+        return defaultValue;
+
+    } else if (typeString.compare("file", Qt::CaseInsensitive) == 0) {
+        return Utils::PathChooser::File;
+    } else if (typeString.compare("path", Qt::CaseInsensitive) == 0) {
+        return Utils::PathChooser::ExistingDirectory;
+    } else {
+        printMessage(Tr::tr(
+                         "Parsing error: the type entry \"%2\" in JSON kit files is not supported, "
+                         "defaulting to \"path\"")
+                         .arg(typeString),
+                     true);
+
+        return defaultValue;
+    }
+}
 
 static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
 {
@@ -652,7 +686,8 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             FilePath::fromUserInput(detectionPathString),
             versions,
             parseVersionDetection(cmakeEntry),
-            cmakeEntry["addToSystemPath"].toBool()};
+            cmakeEntry["addToSystemPath"].toBool(),
+            parseLineEditType(cmakeEntry["type"])};
 }
 
 static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)

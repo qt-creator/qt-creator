@@ -131,7 +131,8 @@ McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
                                         pkgDesc.versions,
                                         {},
                                         createVersionDetection(pkgDesc.versionDetection),
-                                        pkgDesc.shouldAddToSystemPath}};
+                                        pkgDesc.shouldAddToSystemPath,
+                                        pkgDesc.type}};
 }
 
 McuToolChainPackage *McuTargetFactory::createToolchain(

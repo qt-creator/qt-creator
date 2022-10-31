@@ -110,6 +110,8 @@ private slots:
     void test_emptyVersionDetector();
     void test_emptyVersionDetectorFromJson();
 
+    void test_expectedValueType();
+
 private:
     QVersionNumber currentQulVersion{2, 0};
     PackageMock *freeRtosPackage{new PackageMock};
