@@ -41,7 +41,7 @@ public:
     Packages packages;
 
     void expandVariables();
-    MacroExpanderPtr getMacroExpander();
+    MacroExpanderPtr getMacroExpander(const McuTarget &target);
 
     static Macros *globalMacros();
 };

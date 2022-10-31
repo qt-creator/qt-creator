@@ -38,17 +38,20 @@ Macros *McuSdkRepository::globalMacros()
 
 void McuSdkRepository::expandVariables()
 {
-    auto macroExpander = getMacroExpander();
-    for (const auto &package : std::as_const(packages))
-        package->setPath(macroExpander->expand(package->path()));
+    for (const auto &target : std::as_const(mcuTargets)) {
+        auto macroExpander = getMacroExpander(*target);
+        for (const auto &package : target->packages()) {
+            package->setPath(macroExpander->expand(package->path()));
+        }
+    }
 }
 
-MacroExpanderPtr McuSdkRepository::getMacroExpander()
+MacroExpanderPtr McuSdkRepository::getMacroExpander(const McuTarget &target)
 {
     auto macroExpander = std::make_shared<Utils::MacroExpander>();
 
     //register the macros
-    for (const auto &package : std::as_const(packages)) {
+    for (const auto &package : target.packages()) {
         macroExpander->registerVariable(package->cmakeVariableName().toLocal8Bit(),
                                         package->label(),
                                         [package] { return package->path().toString(); });
