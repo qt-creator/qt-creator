@@ -4713,6 +4713,95 @@ void QuickfixTest::testInsertDefFromDeclTemplateFunction()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+void QuickfixTest::testInsertDefFromDeclFunctionWithSignedUnsignedArgument()
+{
+    QByteArray original;
+    QByteArray expected;
+    InsertDefFromDecl factory;
+
+    original =R"--(
+class myclass
+{
+    myc@lass(QVector<signed> g);
+    myclass(QVector<unsigned> g);
+}
+)--";
+    expected =R"--(
+class myclass
+{
+    myclass(QVector<signed> g);
+    myclass(QVector<unsigned> g);
+}
+
+myclass::myclass(QVector<signed int> g)
+{
+
+}
+)--";
+
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+
+    original =R"--(
+class myclass
+{
+    myclass(QVector<signed> g);
+    myc@lass(QVector<unsigned> g);
+}
+)--";
+    expected =R"--(
+class myclass
+{
+    myclass(QVector<signed> g);
+    myclass(QVector<unsigned> g);
+}
+
+myclass::myclass(QVector<unsigned int> g)
+{
+
+}
+)--";
+
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+
+    original =R"--(
+class myclass
+{
+    unsigned f@oo(unsigned);
+}
+)--";
+    expected =R"--(
+class myclass
+{
+    unsigned foo(unsigned);
+}
+
+unsigned int myclass::foo(unsigned int)
+{
+
+}
+)--";
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+
+    original =R"--(
+class myclass
+{
+    signed f@oo(signed);
+}
+)--";
+    expected =R"--(
+class myclass
+{
+    signed foo(signed);
+}
+
+signed int myclass::foo(signed int)
+{
+
+}
+)--";
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 void QuickfixTest::testInsertDefFromDeclNotTriggeredForFriendFunc()
 {
     const QByteArray contents =
