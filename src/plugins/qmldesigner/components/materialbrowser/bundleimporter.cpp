@@ -340,6 +340,17 @@ QString BundleImporter::unimportComponent(const QString &qmlFile)
     if (writeAssetRefs)
         writeAssetRefMap(bundleImportPath, assetRefMap);
 
+    // If the bundle module contains no .qml files after unimport, remove the import statement
+    if (bundleImportPath.dirEntries({{"*.qml"}, QDir::Files}).isEmpty()) {
+        auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+        Model *model = doc ? doc->currentModel() : nullptr;
+        if (model) {
+            Import import = Import::createLibraryImport(m_moduleName, "1.0");
+            if (model->imports().contains(import))
+                model->changeImports({}, {import});
+        }
+    }
+
     m_fullReset = true;
     m_importTimerCount = 0;
     m_importTimer.start();
