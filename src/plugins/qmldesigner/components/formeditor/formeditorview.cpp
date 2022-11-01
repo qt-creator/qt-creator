@@ -65,6 +65,8 @@ void FormEditorView::modelAttached(Model *model)
 
     temporaryBlockView();
     setupFormEditorWidget();
+
+    setupRootItemSize();
 }
 
 
@@ -687,41 +689,18 @@ constexpr AuxiliaryDataKeyView autoSizeProperty{AuxiliaryDataType::Temporary, "a
 
 void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
-    QList<FormEditorItem*> changedItems;
-    const int rootElementInitWidth = QmlDesignerPlugin::settings().value(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt();
-    const int rootElementInitHeight = QmlDesignerPlugin::settings().value(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt();
+    QList<FormEditorItem *> changedItems;
 
-    QList<ModelNode> informationChangedNodes = Utils::filtered(informationChangedHash.keys(), [](const ModelNode &node) {
-        return QmlItemNode::isValidQmlItemNode(node);
-    });
+    QList<ModelNode> informationChangedNodes = Utils::filtered(
+        informationChangedHash.keys(),
+        [](const ModelNode &node) { return QmlItemNode::isValidQmlItemNode(node); });
 
     for (const ModelNode &node : informationChangedNodes) {
         const QmlItemNode qmlItemNode(node);
         if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(item);
-            if (qmlItemNode.isRootModelNode() && informationChangedHash.values(node).contains(Size)) {
-                if (qmlItemNode.instanceBoundingRect().isEmpty() &&
-                        !(qmlItemNode.propertyAffectedByCurrentState("width")
-                          && qmlItemNode.propertyAffectedByCurrentState("height"))) {
-                    if (!rootModelNode().hasAuxiliaryData(widthProperty))
-                        rootModelNode().setAuxiliaryData(widthProperty, rootElementInitWidth);
-                    if (!rootModelNode().hasAuxiliaryData(heightProperty))
-                        rootModelNode().setAuxiliaryData(heightProperty, rootElementInitHeight);
-                    rootModelNode().setAuxiliaryData(autoSizeProperty, true);
-                    formEditorWidget()->updateActions();
-                } else {
-                    if (rootModelNode().hasAuxiliaryData(autoSizeProperty)
-                        && (qmlItemNode.propertyAffectedByCurrentState("width")
-                            || qmlItemNode.propertyAffectedByCurrentState("height"))) {
-                        rootModelNode().removeAuxiliaryData(widthProperty);
-                        rootModelNode().removeAuxiliaryData(heightProperty);
-                        rootModelNode().removeAuxiliaryData(autoSizeProperty);
-                        formEditorWidget()->updateActions();
-                    }
-                }
-                formEditorWidget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
-                formEditorWidget()->centerScene();
-            }
+            if (qmlItemNode.isRootModelNode() && informationChangedHash.values(node).contains(Size))
+                setupRootItemSize();
 
             changedItems.append(item);
         }
@@ -938,6 +917,41 @@ void FormEditorView::setupFormEditor3DView()
     m_scene->addFormEditorItem(rootModelNode(), FormEditorScene::Preview3d);
     FormEditorItem *item = m_scene->itemForQmlItemNode(rootModelNode());
     item->updateGeometry();
+}
+
+void FormEditorView::setupRootItemSize()
+{
+    if (const QmlItemNode rootQmlNode = rootModelNode()) {
+        const int rootElementInitWidth = QmlDesignerPlugin::settings()
+                                             .value(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH)
+                                             .toInt();
+        const int rootElementInitHeight = QmlDesignerPlugin::settings()
+                                              .value(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT)
+                                              .toInt();
+
+        if (rootQmlNode.instanceBoundingRect().isEmpty()
+            && !(rootQmlNode.propertyAffectedByCurrentState("width")
+                 && rootQmlNode.propertyAffectedByCurrentState("height"))) {
+            if (!rootModelNode().hasAuxiliaryData(widthProperty))
+                rootModelNode().setAuxiliaryData(widthProperty, rootElementInitWidth);
+            if (!rootModelNode().hasAuxiliaryData(heightProperty))
+                rootModelNode().setAuxiliaryData(heightProperty, rootElementInitHeight);
+            rootModelNode().setAuxiliaryData(autoSizeProperty, true);
+            formEditorWidget()->updateActions();
+        } else {
+            if (rootModelNode().hasAuxiliaryData(autoSizeProperty)
+                && (rootQmlNode.propertyAffectedByCurrentState("width")
+                    || rootQmlNode.propertyAffectedByCurrentState("height"))) {
+                rootModelNode().removeAuxiliaryData(widthProperty);
+                rootModelNode().removeAuxiliaryData(heightProperty);
+                rootModelNode().removeAuxiliaryData(autoSizeProperty);
+                formEditorWidget()->updateActions();
+            }
+        }
+
+        formEditorWidget()->setRootItemRect(rootQmlNode.instanceBoundingRect());
+        formEditorWidget()->centerScene();
+    }
 }
 
 void FormEditorView::reset()

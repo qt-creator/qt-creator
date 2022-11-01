@@ -1028,10 +1028,15 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     QList<ModelNode> nodeList = allModelNodes();
     QList<NodeInstance> instanceList;
 
-    for (const ModelNode &node : std::as_const(nodeList)) {
-        NodeInstance instance = loadNode(node);
-        if (!isSkippedNode(node))
-            instanceList.append(instance);
+    std::optional oldNodeInstanceHash = m_nodeInstanceCache.take(model());
+    if (oldNodeInstanceHash && oldNodeInstanceHash->instances.value(rootModelNode()).isValid()) {
+        instanceList = loadInstancesFromCache(nodeList, oldNodeInstanceHash.value());
+    } else {
+        for (const ModelNode &node : std::as_const(nodeList)) {
+            NodeInstance instance = loadNode(node);
+            if (!isSkippedNode(node))
+                instanceList.append(instance);
+        }
     }
 
     clearErrors();
