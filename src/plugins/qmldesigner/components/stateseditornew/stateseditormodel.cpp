@@ -289,7 +289,7 @@ QStringList StatesEditorModel::stateGroups() const
     auto stateGroups = Utils::transform(m_statesEditorView->allModelNodesOfType(
                                             "QtQuick.StateGroup"),
                                         [](const ModelNode &node) { return node.displayName(); });
-    stateGroups.prepend(tr("Root"));
+    stateGroups.prepend(tr("Default"));
     return stateGroups;
 }
 
