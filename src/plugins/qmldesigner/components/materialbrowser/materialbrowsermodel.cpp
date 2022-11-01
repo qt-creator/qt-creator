@@ -83,39 +83,52 @@ bool MaterialBrowserModel::loadPropertyGroups(const QString &path)
 {
     bool ok = true;
 
-    if (m_propertyGroupsObj.isEmpty()) {
-        QFile matPropsFile(path);
+    QFile matPropsFile(path);
+    if (!matPropsFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open propertyGroups.json");
+        ok = false;
+    }
 
-        if (!matPropsFile.open(QIODevice::ReadOnly)) {
-            qWarning("Couldn't open propertyGroups.json");
+    if (ok) {
+        QJsonDocument matPropsJsonDoc = QJsonDocument::fromJson(matPropsFile.readAll());
+        if (matPropsJsonDoc.isNull()) {
+            qWarning("Invalid propertyGroups.json file");
             ok = false;
-        }
-
-        if (ok) {
-            QJsonDocument matPropsJsonDoc = QJsonDocument::fromJson(matPropsFile.readAll());
-            if (matPropsJsonDoc.isNull()) {
-                qWarning("Invalid propertyGroups.json file");
-                ok = false;
-            } else {
-                m_propertyGroupsObj = matPropsJsonDoc.object();
-            }
+        } else {
+            m_propertyGroupsObj = matPropsJsonDoc.object();
         }
     }
 
     m_defaultMaterialSections.clear();
     m_principledMaterialSections.clear();
+    m_specularGlossyMaterialSections.clear();
     m_customMaterialSections.clear();
     if (ok) {
         m_defaultMaterialSections.append(m_propertyGroupsObj.value("DefaultMaterial").toObject().keys());
         m_principledMaterialSections.append(m_propertyGroupsObj.value("PrincipledMaterial").toObject().keys());
+        m_specularGlossyMaterialSections.append(m_propertyGroupsObj.value("SpecularGlossyMaterial").toObject().keys());
 
         QStringList customMatSections = m_propertyGroupsObj.value("CustomMaterial").toObject().keys();
         if (customMatSections.size() > 1) // as of now custom material has only 1 section, so we don't add it
             m_customMaterialSections.append(customMatSections);
+    } else {
+        m_propertyGroupsObj = {};
     }
     emit materialSectionsChanged();
 
     return ok;
+}
+
+void MaterialBrowserModel::unloadPropertyGroups()
+{
+    if (!m_propertyGroupsObj.isEmpty()) {
+        m_propertyGroupsObj = {};
+        m_defaultMaterialSections.clear();
+        m_principledMaterialSections.clear();
+        m_specularGlossyMaterialSections.clear();
+        m_customMaterialSections.clear();
+        emit materialSectionsChanged();
+    }
 }
 
 QHash<int, QByteArray> MaterialBrowserModel::roleNames() const
@@ -381,6 +394,7 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
         }
     }
     validProps.remove("objectName");
+    validProps.remove("data");
 
     if (m_allPropsCopied || dynamicPropsCopied || m_propertyGroupsObj.empty()) {
         copiedProps = validProps.values();

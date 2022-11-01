@@ -2734,6 +2734,16 @@ bool NodeMetaInfo::isQtQuick3DPrincipledMaterial() const
     }
 }
 
+bool NodeMetaInfo::isQtQuick3DSpecularGlossyMaterial() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick3D, SpecularGlossyMaterial>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.SpecularGlossyMaterial");
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DParticles3DSpriteParticle3D() const
 {
     if constexpr (useProjectStorage()) {

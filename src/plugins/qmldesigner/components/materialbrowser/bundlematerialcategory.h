@@ -35,8 +35,11 @@ class BundleMaterialCategory : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString categoryName MEMBER m_name CONSTANT)
-    Q_PROPERTY(bool categoryVisible MEMBER m_visible NOTIFY categoryVisibleChanged)
+    Q_PROPERTY(QString bundleCategoryName MEMBER m_name CONSTANT)
+    Q_PROPERTY(bool bundleCategoryVisible MEMBER m_visible NOTIFY categoryVisibleChanged)
+    Q_PROPERTY(bool bundleCategoryExpanded MEMBER m_expanded NOTIFY categoryExpandChanged)
+    Q_PROPERTY(QList<BundleMaterial *> bundleCategoryMaterials MEMBER m_categoryMaterials
+               NOTIFY bundleMaterialsModelChanged)
 
 public:
     BundleMaterialCategory(QObject *parent, const QString &name);
@@ -47,14 +50,18 @@ public:
 
     QString name() const;
     bool visible() const;
+    bool expanded() const;
     QList<BundleMaterial *> categoryMaterials() const;
 
 signals:
     void categoryVisibleChanged();
+    void categoryExpandChanged();
+    void bundleMaterialsModelChanged();
 
 private:
     QString m_name;
     bool m_visible = true;
+    bool m_expanded = true;
 
     QList<BundleMaterial *> m_categoryMaterials;
 };

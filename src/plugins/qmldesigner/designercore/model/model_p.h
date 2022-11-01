@@ -197,7 +197,7 @@ public:
                           const AuxiliaryDataKeyView &key,
                           const QVariant &data);
     void removeAuxiliaryData(const InternalNodePointer &node, const AuxiliaryDataKeyView &key);
-    [[noreturn]] void resetModelByRewriter(const QString &description);
+    void resetModelByRewriter(const QString &description);
 
     // Imports:
     const QList<Import> &imports() const { return m_imports; }

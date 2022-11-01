@@ -72,6 +72,11 @@ bool BundleMaterialCategory::visible() const
     return m_visible;
 }
 
+bool BundleMaterialCategory::expanded() const
+{
+    return m_expanded;
+}
+
 QList<BundleMaterial *> BundleMaterialCategory::categoryMaterials() const
 {
     return m_categoryMaterials;

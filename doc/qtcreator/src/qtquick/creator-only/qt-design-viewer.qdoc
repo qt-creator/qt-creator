@@ -3,13 +3,8 @@
 
 /*!
     \page qt-design-viewer.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-live-preview-android.html
-    \nextpage studio-exporting-and-importing.html
-    \else
     \previouspage creator-live-preview-devices.html
     \nextpage creator-building-targets.html
-    \endif
 
     \title Previewing in Browsers
 
@@ -24,24 +19,17 @@
     However, the actual performance of the application once started is
     indistinguishable from the same application running on the desktop.
 
-    \if defined(qtdesignstudio)
-    To create a resource file out of your project, select \uicontrol Build >
-    \uicontrol {Generate Resource File} in \QC. Then upload the package into
-    \QDV.
-    \else
     You can run \l{Creating Qt Quick UI Projects}{Qt Quick UI projects}, which
     have a .qmlproject file that define the main QML file and the import paths.
     Compress the project folder into a ZIP file that you upload to \QDV.
-    \endif
 
     The loaded applications remain locally in your browser. No data is uploaded
     into the cloud.
 
     To preview an application in a web browser:
 
-    \list
-        \li In the browser, open \l{http://qt-webassembly.io/designviewer/}
-            {\QDV}.
+    \list 1
+        \li In the browser, open \l{ https://designviewer.qt.io/}{\QDV}.
         \li Drag and drop your application package to \QDV, or click the load
             icon to browse for your file.
     \endlist

@@ -70,7 +70,7 @@ QStringList supportedVersionsList()
 {
     static const QStringList list = {"2.0",  "2.1",  "2.2", "2.3",  "2.4",  "2.5",  "2.6",
                                      "2.7",  "2.8",  "2.9", "2.10", "2.11", "2.12", "2.13",
-                                     "2.14", "2.15", "6.0", "6.1",  "6.2",  "6.3"};
+                                     "2.14", "2.15", "6.0", "6.1",  "6.2",  "6.3",  "6.4"};
     return list;
 }
 
@@ -509,10 +509,6 @@ public:
                 qDebug() << metaInfo.isValid() << metaInfo.typeName();
                 if (metaInfo.isValid())
                     qDebug() << metaInfo.superClasses().front().typeName();
-
-                if (!metaInfo.isFileComponent() && m_model == m_model->metaInfoProxyModel()
-                    && metaInfo.isValid())
-                    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
             }
 
             typeName = QString::fromUtf8(metaInfo.typeName());

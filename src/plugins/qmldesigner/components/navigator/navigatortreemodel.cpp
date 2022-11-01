@@ -1024,7 +1024,8 @@ bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
     };
 
     if (targetNode.metaInfo().isQtQuick3DDefaultMaterial()
-        || targetNode.metaInfo().isQtQuick3DPrincipledMaterial()) {
+        || targetNode.metaInfo().isQtQuick3DPrincipledMaterial()
+        || targetNode.metaInfo().isQtQuick3DSpecularGlossyMaterial()) {
         // if dropping an image on a material, create a texture instead of image
         // Show texture property selection dialog
         auto dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode,
