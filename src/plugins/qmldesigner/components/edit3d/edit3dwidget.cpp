@@ -168,6 +168,11 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 void Edit3DWidget::createContextMenu()
 {
     m_contextMenu = new QMenu(this);
+
+    m_editComponentAction = m_contextMenu->addAction(tr("Edit Component"), [&] {
+        DocumentManager::goIntoComponent(m_view->singleSelectedModelNode());
+    });
+
     m_editMaterialAction = m_contextMenu->addAction(tr("Edit Material"), [&] {
         SelectionContext selCtx(m_view);
         selCtx.setTargetNode(m_contextMenuTarget);
@@ -324,7 +329,9 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
     const bool isNotRoot = isValid && !modelNode.isRootNode();
     const bool isCamera = isValid && modelNode.metaInfo().isQtQuick3DCamera();
+    const bool isSingleComponent = view()->hasSingleSelectedModelNode() && modelNode.isComponent();
 
+    m_editComponentAction->setEnabled(isSingleComponent);
     m_editMaterialAction->setEnabled(isModel);
     m_deleteAction->setEnabled(isNotRoot);
     m_copyAction->setEnabled(isNotRoot);
