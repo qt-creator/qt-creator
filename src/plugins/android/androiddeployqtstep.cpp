@@ -181,7 +181,8 @@ bool AndroidDeployQtStep::init()
     }
 
     const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
-    if (qt && qt->supportsMultipleQtAbis() && !selectedAbis.contains(info.cpuAbi.first())) {
+    if (qt && qt->supportsMultipleQtAbis() && !info.cpuAbi.isEmpty() &&
+            !selectedAbis.contains(info.cpuAbi.first())) {
         TaskHub::addTask(DeploymentTask(Task::Warning,
             Tr::tr("Android: The main ABI of the deployment device (%1) is not selected. The app "
                    "execution or debugging might not work properly. Add it from Projects > Build > "

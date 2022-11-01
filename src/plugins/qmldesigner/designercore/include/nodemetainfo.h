@@ -135,6 +135,7 @@ public:
     bool isQtQuick3DParticles3DSpriteParticle3D() const;
     bool isQtQuick3DPass() const;
     bool isQtQuick3DPrincipledMaterial() const;
+    bool isQtQuick3DSpecularGlossyMaterial() const;
     bool isQtQuick3DSceneEnvironment() const;
     bool isQtQuick3DShader() const;
     bool isQtQuick3DTexture() const;

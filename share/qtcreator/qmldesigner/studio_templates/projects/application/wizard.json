@@ -261,6 +261,13 @@
                                 "({
                                     'TargetQuickVersion': '6.3'
                                 })"
+                            },
+                            {
+                                "trKey": "Qt 6.4",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.4'
+                                })"
                             }
                         ]
                     }

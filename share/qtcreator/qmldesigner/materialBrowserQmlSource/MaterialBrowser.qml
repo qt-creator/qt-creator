@@ -241,10 +241,15 @@ Item {
 
                             delegate: Section {
                                 width: root.width
-                                caption: bundleCategory
+                                caption: bundleCategoryName
                                 addTopPadding: false
                                 sectionBackgroundColor: "transparent"
                                 visible: bundleCategoryVisible
+                                expanded: bundleCategoryExpanded
+                                expandOnClick: false
+                                onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
+                                onExpand: bundleCategoryExpanded = true
+                                onCollapse: bundleCategoryExpanded = false
 
                                 Grid {
                                     width: scrollView.width
@@ -254,7 +259,7 @@ Item {
                                     columns: root.width / root.cellWidth
 
                                     Repeater {
-                                        model: bundleMaterialsModel
+                                        model: bundleCategoryMaterials
 
                                         delegate: BundleMaterialItem {
                                             width: root.cellWidth

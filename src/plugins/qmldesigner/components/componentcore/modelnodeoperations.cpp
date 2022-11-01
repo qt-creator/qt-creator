@@ -1607,8 +1607,21 @@ void updateImported3DAsset(const SelectionContext &selectionContext)
     if (selectionContext.view()) {
         selectionContext.view()->emitCustomNotification(
                     "UpdateImported3DAsset", {selectionContext.currentSingleSelectedNode()});
-
     }
+}
+
+Utils::FilePath getEffectsDirectory()
+{
+    QString defaultDir = "asset_imports/Effects";
+    Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
+    Utils::FilePath effectsPath = projectPath.pathAppended(defaultDir);
+
+    if (!effectsPath.exists()) {
+        QDir dir(projectPath.toString());
+        dir.mkpath(defaultDir);
+    }
+
+    return effectsPath;
 }
 
 } // namespace ModelNodeOperations

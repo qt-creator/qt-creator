@@ -20,7 +20,10 @@ QT_BEGIN_NAMESPACE
 class QShortcut;
 QT_END_NAMESPACE
 
-namespace Utils { class FileSystemWatcher; }
+namespace Utils {
+    class FileSystemWatcher;
+    class QtcProcess;
+}
 
 namespace QmlDesigner {
 
@@ -61,6 +64,7 @@ public:
                                         const QList<QUrl> &complexFilePaths,
                                         const QString &targetDirPath = {});
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
+    Q_INVOKABLE void openEffectMaker(const QString &filePath);
 
 signals:
     void itemActivated(const QString &itemName);
@@ -92,6 +96,8 @@ private:
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
+
+    std::unique_ptr<Utils::QtcProcess> m_qqemProcess;
 };
 
 } // namespace QmlDesigner
