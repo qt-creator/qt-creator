@@ -139,8 +139,8 @@ const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
 const char stmCubeProgrammerLabel[]{"STM32CubeProgrammer"};
 const QString stmCubeProgrammerPath{QString{defaultToolPath} + "/bin"};
 const QString stmCubeProgrammerDetectionPath{HostOsInfo::isWindowsHost()
-                                                 ? QString("bin/STM32_Programmer_CLI.exe")
-                                                 : QString("bin/STM32_Programmer.sh")};
+                                                 ? QString("STM32_Programmer_CLI.exe")
+                                                 : QString("STM32_Programmer.sh")};
 
 const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
 const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
