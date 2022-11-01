@@ -189,6 +189,16 @@ void Edit3DWidget::createContextMenu()
 
 
     m_contextMenu->addSeparator();
+
+    m_alignCameraAction = m_contextMenu->addAction(tr("Align Camera to View"), [&] {
+        view()->emitView3DAction(View3DActionType::AlignCamerasToView, true);
+    });
+
+    m_alignViewAction = m_contextMenu->addAction(tr("Align View to Camera"), [&] {
+        view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
+    });
+
+    m_contextMenu->addSeparator();
 }
 
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
@@ -312,11 +322,14 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
 
     const bool isValid = modelNode.isValid();
     const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-    const bool isValidNotRoot = isValid && !modelNode.isRootNode();
+    const bool isNotRoot = isValid && !modelNode.isRootNode();
+    const bool isCamera = isValid && modelNode.metaInfo().isQtQuick3DCamera();
 
     m_editMaterialAction->setEnabled(isModel);
-    m_deleteAction->setEnabled(isValidNotRoot);
-    m_copyAction->setEnabled(isValidNotRoot);
+    m_deleteAction->setEnabled(isNotRoot);
+    m_copyAction->setEnabled(isNotRoot);
+    m_alignCameraAction->setEnabled(isCamera);
+    m_alignViewAction->setEnabled(isCamera);
 
     m_contextMenu->popup(mapToGlobal(pos));
 }
