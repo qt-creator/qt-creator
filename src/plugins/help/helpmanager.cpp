@@ -195,17 +195,32 @@ QSet<QString> HelpManager::userDocumentationPaths()
     return d->m_userRegisteredFiles;
 }
 
-// This should go into Qt 4.8 once we start using it for Qt Creator
+QMultiMap<QString, QUrl> HelpManager::linksForKeyword(QHelpEngineCore *engine,
+                                                      const QString &key,
+                                                      std::optional<QString> filterName)
+{
+    QMultiMap<QString, QUrl> links;
+    const QList<QHelpLink> docs = filterName.has_value()
+                                      ? engine->documentsForKeyword(key, filterName.value())
+                                      : engine->documentsForKeyword(key);
+
+    for (const auto &doc : docs)
+        links.insert(doc.title, doc.url);
+
+    // Remove duplicates (workaround for QTBUG-108131)
+    links.removeIf([&links](const QMultiMap<QString, QUrl>::iterator it) {
+        return links.find(it.key(), it.value()) != it;
+    });
+
+    return links;
+}
+
 QMultiMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 {
     QTC_ASSERT(!d->m_needsSetup, return {});
     if (key.isEmpty())
         return {};
-    QMultiMap<QString, QUrl> links;
-    const QList<QHelpLink> docs = d->m_helpEngine->documentsForKeyword(key, QString());
-    for (const auto &doc : docs)
-        links.insert(doc.title, doc.url);
-    return links;
+    return HelpManager::linksForKeyword(d->m_helpEngine, key, QString());
 }
 
 QMultiMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)

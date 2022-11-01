@@ -33,6 +33,7 @@
 #include <QDesktopServices>
 #include <QFontDatabase>
 #include <QHelpEngine>
+#include <QHelpLink>
 #include <QMutexLocker>
 
 #include <optional>
@@ -520,4 +521,9 @@ bool LocalHelpManager::openOnlineHelp(const QUrl &url)
         return true;
     }
     return false;
+}
+
+QMultiMap<QString, QUrl> LocalHelpManager::linksForKeyword(const QString &keyword)
+{
+    return HelpManager::linksForKeyword(&LocalHelpManager::helpEngine(), keyword, std::nullopt);
 }

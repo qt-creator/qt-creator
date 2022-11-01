@@ -175,10 +175,7 @@ void IndexWindow::disableSearchLineEdit()
 void IndexWindow::open(const QModelIndex &index, bool newPage)
 {
     const QString keyword = m_filteredIndexModel->data(index, Qt::DisplayRole).toString();
-    QMultiMap<QString, QUrl> links;
-    const QList<QHelpLink> docs = LocalHelpManager::helpEngine().documentsForKeyword(keyword);
-    for (const auto &doc : docs)
-        links.insert(doc.title, doc.url);
+    const QMultiMap<QString, QUrl> links = LocalHelpManager::linksForKeyword(keyword);
 
     emit linksActivated(links, keyword, newPage);
 }

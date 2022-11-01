@@ -99,6 +99,8 @@ public:
     static bool canOpenOnlineHelp(const QUrl &url);
     static bool openOnlineHelp(const QUrl &url);
 
+    static QMultiMap<QString, QUrl> linksForKeyword(const QString &keyword);
+
 signals:
     void fallbackFontChanged(const QFont &font);
     void fontZoomChanged(int percentage);

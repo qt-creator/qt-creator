@@ -8,6 +8,7 @@
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
 #include <QFutureInterface>
+#include <QHelpEngineCore>
 #include <QVariant>
 
 namespace Help {
@@ -34,6 +35,9 @@ public:
 
     QMultiMap<QString, QUrl> linksForIdentifier(const QString &id) override;
     QMultiMap<QString, QUrl> linksForKeyword(const QString &key) override;
+    static QMultiMap<QString, QUrl> linksForKeyword(QHelpEngineCore *engine,
+                                                    const QString &key,
+                                                    std::optional<QString> filterName);
 
     static QUrl findFile(const QUrl &url);
     QByteArray fileData(const QUrl &url) override;

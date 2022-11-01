@@ -101,10 +101,7 @@ void HelpIndexFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     const QString &key = selection.displayName;
-    QMultiMap<QString, QUrl> links;
-    const QList<QHelpLink> docs = LocalHelpManager::helpEngine().documentsForKeyword(key, QString());
-    for (const auto &doc : docs)
-        links.insert(doc.title, doc.url);
+    const QMultiMap<QString, QUrl> links = LocalHelpManager::linksForKeyword(key);
     emit linksActivated(links, key);
 }
 
