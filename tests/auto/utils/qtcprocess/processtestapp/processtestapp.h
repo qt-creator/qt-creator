@@ -72,8 +72,8 @@ class SubProcessConfig
 {
 public:
     SubProcessConfig(const char *envVar, const QString &envVal);
-    void setupSubProcess(Utils::QtcProcess *subProcess);
-    void setupSubProcess(QProcess *subProcess);
+    void setupSubProcess(Utils::QtcProcess *subProcess) const;
+    void setupSubProcess(QProcess *subProcess) const;
 
     static void setPathToProcessTestApp(const QString &path);
 

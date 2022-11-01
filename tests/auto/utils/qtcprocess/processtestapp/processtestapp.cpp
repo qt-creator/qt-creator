@@ -77,7 +77,7 @@ SubProcessConfig::SubProcessConfig(const char *envVar, const QString &envVal)
 {
 }
 
-void SubProcessConfig::setupSubProcess(QtcProcess *subProcess)
+void SubProcessConfig::setupSubProcess(QtcProcess *subProcess) const
 {
     subProcess->setEnvironment(m_environment);
     const FilePath filePath = FilePath::fromString(s_pathToProcessTestApp
@@ -85,13 +85,12 @@ void SubProcessConfig::setupSubProcess(QtcProcess *subProcess)
     subProcess->setCommand(CommandLine(filePath, {}));
 }
 
-void SubProcessConfig::setupSubProcess(QProcess *subProcess)
+void SubProcessConfig::setupSubProcess(QProcess *subProcess) const
 {
     subProcess->setProcessEnvironment(m_environment.toProcessEnvironment());
     subProcess->setProgram(FilePath::fromString(s_pathToProcessTestApp
                            + QLatin1String("/processtestapp")).withExecutableSuffix().toString());
 }
-
 
 static void doCrash()
 {
