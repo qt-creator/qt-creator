@@ -200,7 +200,7 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
 
     if (m_createSubMenu) {
         m_contextMenu->removeAction(m_createSubMenu->menuAction());
-        m_createSubMenu.clear();
+        m_createSubMenu->deleteLater();
     }
 
     m_nameToEntry.clear();
