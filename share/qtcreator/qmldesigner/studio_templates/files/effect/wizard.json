@@ -11,7 +11,10 @@
     "enabled": "%{JS: value('Features').indexOf('QmlDesigner.Wizards.Enterprise') >= 0}",
     "featuresRequired": [ "QmlDesigner.Wizards.Enterprise" ],
 
-    "options": { "key": "DefaultSuffix", "value": "qep" },
+    "options": [
+        { "key": "DefaultSuffix", "value": "qep" },
+        { "key": "DoNotOpenFile", "value": "true" }
+    ],
 
     "pages" :
     [
@@ -19,11 +22,6 @@
             "trDisplayName": "Location",
             "trShortTitle": "Location",
             "typeId": "File"
-        },
-        {
-            "trDisplayName": "Project Management",
-            "trShortTitle": "Summary",
-            "typeId": "Summary"
         }
     ],
     "generators" :
