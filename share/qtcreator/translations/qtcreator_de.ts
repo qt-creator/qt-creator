@@ -10244,7 +10244,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Could not start process &quot;%1&quot; %2.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; %2. konnte nicht gestartet werden {1&quot;?}</translation>
+        <translation>Der Prozess &quot;%1&quot; %2 konnte nicht gestartet werden.</translation>
     </message>
 </context>
 <context>
@@ -10270,7 +10270,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>The build device failed to prepare for the build of %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Gerät konnte nicht für das Erstellen von %1 (%2) vorbereitet werden.</translation>
     </message>
     <message>
         <source>Compile</source>
@@ -10392,11 +10392,11 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Append &lt;b&gt;%2&lt;/b&gt; to &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge &lt;b&gt;%2&lt;/b&gt; zu &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; hinzu</translation>
     </message>
     <message>
         <source>Prepend &lt;b&gt;%2&lt;/b&gt; to &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge &lt;b&gt;%2&lt;/b&gt; am Anfang von &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; hinzu</translation>
     </message>
     <message>
         <source>Set &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; to &lt;b&gt;%2&lt;/b&gt; [disabled]</source>
@@ -10433,7 +10433,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Matches all files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Dateien aus allen geöffneten Projekten. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
 </context>
 <context>
@@ -10539,15 +10539,15 @@ Außer: %2
     </message>
     <message>
         <source>Show Compile &amp;Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der &amp;Kompilierung zeigen</translation>
     </message>
     <message>
         <source>Show the output that generated this issue in Compile Output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige das Problem in der Ausgabe der Kompilierung.</translation>
     </message>
     <message>
         <source>O</source>
-        <translation type="unfinished">O</translation>
+        <translation>K</translation>
     </message>
 </context>
 <context>
@@ -10558,7 +10558,7 @@ Außer: %2
     </message>
     <message>
         <source>Matches all files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Dateien aus dem Projekt des aktuellen Dokuments. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
 </context>
 <context>
@@ -10630,7 +10630,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Hide Source and Header Groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Source- und Headergruppen ausblenden</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -10638,7 +10638,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Filter Tree</source>
-        <translation type="unfinished">Baum filtern</translation>
+        <translation>Baum filtern</translation>
     </message>
 </context>
 <context>
@@ -10726,7 +10726,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Manage...</source>
-        <translation type="unfinished">Verwalten...</translation>
+        <translation>Verwalten...</translation>
     </message>
     <message>
         <source>Sessions</source>
@@ -10741,7 +10741,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;version control:</source>
-        <translation type="unfinished">Unter &amp;Versionskontrolle stellen:</translation>
+        <translation>Unter &amp;Versionskontrolle stellen:</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -11092,39 +11092,39 @@ Möchten Sie sie ignorieren?</translation>
     </message>
     <message>
         <source>Build for &amp;Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Für &amp;Ausführungskonfiguration erstellen</translation>
     </message>
     <message>
         <source>Build for &amp;Run Configuration &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Für &amp;Ausführungskonfiguration &quot;%1&quot; erstellen</translation>
     </message>
     <message>
         <source>Add New...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Close Other Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere Projekte schließen</translation>
     </message>
     <message>
         <source>Close All Projects Except &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Projekte außer &quot;%1&quot; schließen</translation>
     </message>
     <message>
         <source>Remove...</source>
-        <translation type="unfinished">Entfernen...</translation>
+        <translation>Entfernen...</translation>
     </message>
     <message>
         <source>Rename...</source>
-        <translation type="unfinished">Umbenennen...</translation>
+        <translation>Umbenennen...</translation>
     </message>
     <message>
         <source>Main file of the project the current document belongs to.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptdatei des Projekts, zu dem das aktuelle Dokument gehört.</translation>
     </message>
     <message>
         <source>The name of the project the current document belongs to.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des Projekts, zu dem das aktuelle Dokument gehört.</translation>
     </message>
     <message>
         <source>Adding Files to Project Failed</source>
@@ -11292,43 +11292,43 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>The name of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Active project&apos;s main file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptdatei des aktiven Projekts.</translation>
     </message>
     <message>
         <source>The type of the active project&apos;s active build configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Typ der aktiven Build-Konfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Full build path of the active project&apos;s active build configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständiger Pfad der aktiven Build-Konfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Active build environment of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Build-Umgebung des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Name of the active project&apos;s active run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der aktiven Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>The executable of the active project&apos;s active run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei der aktiven Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Active run environment of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Ausführungsumgebung des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Variables in the environment of the active project&apos;s active run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der Umgebung der aktiven Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>The working directory of the active project&apos;s active run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Arbeitsverzeichnis der aktiven Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Load Project</source>
@@ -11337,7 +11337,7 @@ Bitte versuchen Sie es erneut.</translation>
     <message>
         <source>Sanitizer</source>
         <comment>Category for sanitizer issues listed under &apos;Issues&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sanitizer</translation>
     </message>
     <message>
         <source>Parse Build Output...</source>
@@ -11358,19 +11358,19 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Open Project in &quot;%1&quot;</source>
-        <translation type="unfinished">Projekt in &quot;%1&quot; öffnen</translation>
+        <translation>Projekt in &quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>Open Project &quot;%1&quot;</source>
-        <translation type="unfinished">Projekt &quot;%1&quot; öffnen</translation>
+        <translation>Projekt &quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
-        <translation type="unfinished">Die Datei &quot;%1&quot; wurde in &quot;%2&quot; umbenannt, aber die folgenden Projekte konnten nicht automatisch geändert werden: %3</translation>
+        <translation>Die Datei &quot;%1&quot; wurde in &quot;%2&quot; umbenannt, aber die folgenden Projekte konnten nicht automatisch geändert werden: %3</translation>
     </message>
     <message>
         <source>The following projects failed to automatically remove the file: %1</source>
-        <translation type="unfinished">Die folgenden Projekte konnten die Datei nicht automatisch entfernen: %1</translation>
+        <translation>Die folgenden Projekte konnten die Datei nicht automatisch entfernen: %1</translation>
     </message>
     <message>
         <source>No project loaded.</source>
@@ -11463,28 +11463,29 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Matches all files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Dateien aus allen Projektverzeichnissen. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Run run configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration ausführen</translation>
     </message>
     <message>
         <source>Run a run configuration of the current active project</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Ausführungskonfiguration des aktiven Projekts ausführen</translation>
     </message>
     <message>
         <source>Switch run configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration auswählen</translation>
     </message>
     <message>
         <source>Switch active run configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Ausführungskonfiguration auswählen</translation>
     </message>
     <message>
         <source>Switched run configuration to
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration wurde geändert auf
+%1</translation>
     </message>
     <message>
         <source>Close Project &quot;%1&quot;</source>
@@ -13697,7 +13698,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
-        <translation type="unfinished">&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert&lt;br/&gt;&lt;br/&gt;Sie können es im &lt;a href=&quot;projectmode&quot;&gt;Projektmodus&lt;/a&gt; konfigurieren&lt;br/&gt; {128, 128, 255)?} {1&lt;?}</translation>
+        <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255);}&lt;/style&gt;Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert&lt;br/&gt;&lt;br/&gt;Sie können es im &lt;a href=&quot;projectmode&quot;&gt;Projektmodus&lt;/a&gt; konfigurieren&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Project: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
@@ -13760,7 +13761,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Main file of the project</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptdatei des Projekts</translation>
     </message>
     <message>
         <source>Name of current project</source>
@@ -13768,15 +13769,15 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Name of the project</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des Projekts</translation>
     </message>
     <message>
         <source>Name of the project&apos;s active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der aktiven Build-Konfiguration des Projekts</translation>
     </message>
     <message>
         <source>Name of the project&apos;s active build system</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des aktiven Build-Systems des Projekts</translation>
     </message>
     <message>
         <source>Type of current build</source>
@@ -13784,7 +13785,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Type of the project&apos;s active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ der aktiven Build-Konfiguration des Projekts</translation>
     </message>
     <message>
         <source>Kits</source>
@@ -13800,103 +13801,103 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Start removing auto-detected items associated with this docker image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beginne mit dem Entfernen der automatisch bestimmten Einträge, die mit diesem Docker-Image verbunden sind.</translation>
     </message>
     <message>
         <source>Removing kits...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Kits...</translation>
     </message>
     <message>
         <source>Removed &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; entfernt</translation>
     </message>
     <message>
         <source>Removing Qt version entries...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Qt-Versions-Einträge...</translation>
     </message>
     <message>
         <source>Removing toolchain entries...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Toolchain-Einträge...</translation>
     </message>
     <message>
         <source>Removal of previously auto-detected kit items finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen von ehemals automatisch bestimmten Kit-Einträgen beendet.</translation>
     </message>
     <message>
         <source>Start listing auto-detected items associated with this docker image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beginne mit dem Auflisten der automatisch bestimmten Einträge, die mit diesem Docker-Image verbundenden sind.</translation>
     </message>
     <message>
         <source>Kits:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits:</translation>
     </message>
     <message>
         <source>Qt versions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Versionen:</translation>
     </message>
     <message>
         <source>Toolchains:</source>
-        <translation type="unfinished"></translation>
+        <translation>Toolchains:</translation>
     </message>
     <message>
         <source>Listing of previously auto-detected kit items finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflisten der ehemals automatisch bestimmten Kit-Einträge beendet.</translation>
     </message>
     <message>
         <source>Found &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; gefunden</translation>
     </message>
     <message>
         <source>Searching for qmake executables...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach ausführbaren qmake-Dateien...</translation>
     </message>
     <message>
         <source>Error: %1.</source>
-        <translation type="unfinished">Fehler: %1.</translation>
+        <translation>Fehler: %1.</translation>
     </message>
     <message>
         <source>No Qt installation found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Qt-Installation gefunden.</translation>
     </message>
     <message>
         <source>Searching toolchains...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach Toolchains...</translation>
     </message>
     <message>
         <source>Searching toolchains of type %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach Toolchains vom Typ %1</translation>
     </message>
     <message>
         <source>%1 new toolchains found.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 neue Toolchain(s) gefunden.</translation>
     </message>
     <message>
         <source>Starting auto-detection. This will take a while...</source>
-        <translation type="unfinished"></translation>
+        <translation>Beginne mit der automatischen Bestimmung. Dies wird eine Weile dauern...</translation>
     </message>
     <message>
         <source>Registered kit %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit %1 registriert</translation>
     </message>
     <message>
         <source>Auto-detected</source>
-        <translation type="unfinished">Automatisch bestimmt</translation>
+        <translation>Automatisch bestimmt</translation>
     </message>
     <message>
         <source>Automatically managed by %1 or the installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch von %1 oder vom Installationsprogramm verwaltet.</translation>
     </message>
     <message>
         <source>Manual</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <source>Debug</source>
-        <translation type="unfinished">Debug</translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Release</translation>
+        <translation>Release</translation>
     </message>
 </context>
 <context>
@@ -15259,7 +15260,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Name of the build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der Build-Konfiguration</translation>
     </message>
     <message>
         <source>Variables in the current build environment</source>
@@ -15267,15 +15268,15 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Variables in the build configuration&apos;s environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der Umgebungseinstellung der Build-Konfiguration</translation>
     </message>
     <message>
         <source>Tooltip in target selector:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis in der Zielauswahl:</translation>
     </message>
     <message>
         <source>Appears as a tooltip when hovering the build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Erscheint als Hinweis, wenn die Maus über die Build-Konfiguration bewegt wird</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -15310,15 +15311,15 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Variables in the current build environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der aktuellen Build-Umgebung.</translation>
     </message>
     <message>
         <source>Variables in the active build environment of the project containing the currently open document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der aktiven Build-Umgebung des Projekts, welches das aktuelle offene Dokument enthält.</translation>
     </message>
     <message>
         <source>Variables in the active build environment of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der aktiven Build-Umgebung des aktiven Projekts.</translation>
     </message>
 </context>
 <context>
@@ -16223,7 +16224,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Starting %1...</source>
-        <translation type="unfinished">Starte %1 %2... {1.?}</translation>
+        <translation>Starte %1...</translation>
     </message>
     <message>
         <source>No executable specified.</source>
@@ -17684,7 +17685,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Target triple:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieltripel:</translation>
     </message>
 </context>
 <context>
@@ -17729,7 +17730,9 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <source>If checked, %1 will set up two instances of each x86_64 compiler:
 One for the native x86_64 target, and one for a plain x86 target.
 Enable this if you plan to create 32-bit x86 binaries without using a dedicated cross compiler.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn dies aktiviert ist, wird %1 zwei Instanzen jedes x86_64-Compilers erstellen:
+eine für das native x86_64-Ziel und eine für ein x86-Ziel.
+Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne einen speziellen Cross-Compiler zu verwenden.</translation>
     </message>
     <message>
         <source>Clone</source>
@@ -19974,15 +19977,15 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Show &amp;App Output</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ausgabe der Anwendung zeigen</translation>
     </message>
     <message>
         <source>Show the output that generated this issue in Application Output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige das Problem in der Ausgabe der Anwendung.</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Re-run this run-configuration.</source>
@@ -25744,7 +25747,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Fetching process list. This might take a while.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufe Prozessliste ab. Dies kann eine Weile dauern.</translation>
     </message>
 </context>
 <context>
@@ -26335,7 +26338,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>The name of the kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des Kits.</translation>
     </message>
     <message>
         <source>The name of the currently active kit in a filesystem-friendly version.</source>
@@ -26343,15 +26346,15 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>The name of the kit in a filesystem-friendly version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des aktiven Kits zur Verwendung als Dateiname.</translation>
     </message>
     <message>
         <source>The ID of the currently active kit.</source>
-        <translation type="unfinished">Die ID des aktiven Kits.</translation>
+        <translation>Die ID des aktiven Kits.</translation>
     </message>
     <message>
         <source>The ID of the kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ID des Kits.</translation>
     </message>
     <message>
         <source>Clone of %1</source>
@@ -26444,29 +26447,29 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Variables in the run environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der Ausführungsumgebung.</translation>
     </message>
     <message>
         <source>The run configuration&apos;s working directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Arbeitsverzeichnis der Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>The run configuration&apos;s name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name der Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>The run configuration&apos;s executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei der Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>Run on %{Device:Name}</source>
         <extracomment>Shown in Run configuration if no executable is given, %1 is device name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Auf %{Device:Name} ausführen</translation>
     </message>
     <message>
         <source>%1 (on %{Device:Name})</source>
         <extracomment>Shown in Run configuration, Add menu: &quot;name of runnable (on device name)&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (auf %{Device:Name})</translation>
     </message>
     <message>
         <source>No build system active</source>
@@ -26708,7 +26711,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>%1 (%2, %3 %4 at %5)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2, %3 %4 an %5)</translation>
     </message>
 </context>
 <context>
@@ -30278,11 +30281,11 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
     <message>
         <source>Import Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Importwarnung</translation>
     </message>
     <message>
         <source>Import Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Build importieren</translation>
     </message>
     <message>
         <source>%1 - temporary</source>
@@ -33092,7 +33095,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Define Item Model Class</source>
-        <translation>Item Model-Klasse definieren</translation>
+        <translation>Item Model-Klasse festlegen</translation>
     </message>
     <message>
         <source>Creates a Qt item model.</source>
@@ -33144,7 +33147,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Qt Quick Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick-Anwendung</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project.</source>
@@ -33160,7 +33163,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Generate setup code</source>
-        <translation type="unfinished"></translation>
+        <translation>Setup-Code erzeugen</translation>
     </message>
     <message>
         <source>Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
@@ -33168,7 +33171,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt eine QML-Datei mit allgemeingültigem Quelltext, beginnend mit &quot;import QtQuick&quot;.</translation>
     </message>
     <message>
         <source>Choose a Form Template</source>
@@ -33188,15 +33191,15 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Creates an Effect Maker file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt eine Effect Maker-Datei.</translation>
     </message>
     <message>
         <source>Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekte</translation>
     </message>
     <message>
         <source>Effect File (Effect Maker)</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt-Datei (Effect Maker)</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -33670,11 +33673,13 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Fully qualified name, including namespaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständig qualifizierter Name einschließlich Namensräumen</translation>
     </message>
     <message>
         <source>Creates a widget-based Qt application that contains a Qt Designer-based main window.Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Widget-basierte Qt-Anwendung mit einem Qt Designer-basierten Hauptfenster.
+
+Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
     </message>
     <message>
         <source>Shared Library</source>
@@ -33755,63 +33760,67 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Creates a project containing a single main.cpp file with a stub implementation.Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Projekt, das aus einer main.cpp-Datei mit einem Implementationsrumpf besteht.
+
+Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
     </message>
     <message>
         <source>%{JS: value(&apos;BaseCB&apos;) ? value(&apos;BaseCB&apos;).slice(1) : &apos;MyClass&apos;}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: value(&apos;BaseCB&apos;) ? value(&apos;BaseCB&apos;).slice(1) : &apos;MyClass&apos;}</translation>
     </message>
     <message>
         <source>%{JS: Util.fileName(&apos;%{ProjectName}&apos;, &apos;pyproject&apos;)}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: Util.fileName(&apos;%{ProjectName}&apos;, &apos;pyproject&apos;)}</translation>
     </message>
     <message>
         <source>Empty Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Leeres Fenster</translation>
     </message>
     <message>
         <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file) - Requires .ui to Python conversion</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt for Python-Anwendung, die ein Qt Designer-basiertes Widget (ui-Datei) enthält. Erfordert Umwandlung von .ui nach Python.</translation>
     </message>
     <message>
         <source>Window UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenster-UI</translation>
     </message>
     <message>
         <source>Creates a Qt for Python application that includes a Qt Designer-based widget (.ui file) - Load the forms dynamically/at runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt for Python-Anwendung, die ein Qt Designer-basiertes Widget (ui-Datei) enthält. Lädt die Formulare dynamisch zur Laufzeit.</translation>
     </message>
     <message>
         <source>Window UI - Dynamic load</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenster-UI - dynamisch laden</translation>
     </message>
     <message>
         <source>Empty Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Leere Anwendung</translation>
     </message>
     <message>
         <source>PySide 6</source>
-        <translation type="unfinished">PySide 6</translation>
+        <translation>PySide 6</translation>
     </message>
     <message>
         <source>Qt 6.2</source>
-        <translation type="unfinished">Qt 6.2</translation>
+        <translation>Qt 6.2</translation>
     </message>
     <message>
         <source>Minimum required Qt version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mindestens benötigte Qt-Version:</translation>
     </message>
     <message>
         <source>Create example project</source>
-        <translation type="unfinished"></translation>
+        <translation>Beispielprojekt erzeugen</translation>
     </message>
     <message>
         <source>Qt 6</source>
-        <translation type="unfinished">Qt 6</translation>
+        <translation>Qt 6</translation>
     </message>
     <message>
         <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment.Use this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Qt Quick 2 UI-Projekt mit QML-Einsprungpunkt. Um es zu verwenden, brauchen Sie eine QML-Laufzeitumgebung wie qmlscene.
+
+Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anwendung erstellen. Vielleicht ist ein Qt Quick-Anwendungsprojekt besser geeignet.</translation>
     </message>
     <message>
         <source>Binary</source>
@@ -33919,43 +33928,43 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Creates a CMake-based test project for which a code snippet can be entered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein CMake-basiertes Testprojekt, für welches ein Code-Ausschnitt angegeben werden kann.</translation>
     </message>
     <message>
         <source>int main(int argc, char *argv[]){    return 0;}</source>
-        <translation type="unfinished"></translation>
+        <translation>int main(int argc, char *argv[]){    return 0;}</translation>
     </message>
     <message>
         <source>Code:</source>
-        <translation type="unfinished">Code:</translation>
+        <translation>Code:</translation>
     </message>
     <message>
         <source>QtCore</source>
-        <translation type="unfinished"></translation>
+        <translation>QtCore</translation>
     </message>
     <message>
         <source>QtCore, QtWidgets</source>
-        <translation type="unfinished"></translation>
+        <translation>QtCore, QtWidgets</translation>
     </message>
     <message>
         <source>Use Qt Modules:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Module verwenden:</translation>
     </message>
     <message>
         <source>Application bundle (macOS)</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungs-Bundle (macOS)</translation>
     </message>
     <message>
         <source>Define Code snippet</source>
-        <translation type="unfinished"></translation>
+        <translation>Code-Ausschnitt festlegen</translation>
     </message>
     <message>
         <source>Code snippet</source>
-        <translation type="unfinished"></translation>
+        <translation>Code-Ausschnitt</translation>
     </message>
     <message>
         <source>Code Snippet</source>
-        <translation type="unfinished">Code-Ausschnitt</translation>
+        <translation>Code-Ausschnitt</translation>
     </message>
     <message>
         <source>MyItem</source>
@@ -34738,7 +34747,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>LineEdit (&quot;%1&quot;) has an invalid value &quot;%2&quot; in &quot;completion&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>LineEdit (&quot;%1&quot;) hat einen ungültigen Wert &quot;%2&quot; in &quot;completion&quot;.</translation>
     </message>
     <message>
         <source>TextEdit (&quot;%1&quot;) data is not an object.</source>
@@ -35037,7 +35046,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Replacement for</source>
-        <translation type="unfinished"></translation>
+        <translation>Ersatz für</translation>
     </message>
     <message>
         <source>Replacement for &quot;%1&quot;</source>
@@ -35049,7 +35058,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Could not find any qml_*.qm file at &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte in &quot;%1&quot; keine qml_*.qm-Datei finden</translation>
     </message>
 </context>
 <context>
@@ -35064,23 +35073,23 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Build system</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-System</translation>
     </message>
     <message>
         <source>The currently active run configuration&apos;s name.</source>
-        <translation type="unfinished">Der Name der aktiven Ausführungskonfiguration.</translation>
+        <translation>Der Name der aktiven Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>The currently active run configuration&apos;s executable (if applicable).</source>
-        <translation type="unfinished">Die ausführbare Datei der aktiven Ausführungskonfiguration (falls möglich).</translation>
+        <translation>Die ausführbare Datei der aktiven Ausführungskonfiguration (falls möglich).</translation>
     </message>
     <message>
         <source>Variables in the current run environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der aktuellen Ausführungsumgebung.</translation>
     </message>
     <message>
         <source>The currently active run configuration&apos;s working directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Arbeitsverzeichnis der aktiven Ausführungskonfiguration.</translation>
     </message>
 </context>
 <context>
@@ -36004,7 +36013,7 @@ provided they were unmodified before the refactoring.</source>
     <name>ProjectExplorer::ProjectTree</name>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is generated.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Warnung:&lt;/b&gt; Diese Datei wurde generiert.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
@@ -36057,7 +36066,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Reset to Default</source>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen</translation>
+        <translation>Auf Vorgabe zurücksetzen</translation>
     </message>
 </context>
 <context>
@@ -40883,15 +40892,15 @@ Ablaufdatum: %3</translation>
     <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Use Regular Expressions</source>
-        <translation type="unfinished">Reguläre Ausdrücke verwenden</translation>
+        <translation>Reguläre Ausdrücke verwenden</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Groß-/Kleinschreibung</translation>
     </message>
     <message>
         <source>Show Non-matching Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht passende Zeilen anzeigen</translation>
     </message>
     <message>
         <source>Project Settings</source>
@@ -40923,7 +40932,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Build System Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe des Build-Systems</translation>
     </message>
     <message>
         <source>Import Directory</source>
@@ -40969,7 +40978,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>The process crashed.</source>
-        <translation type="unfinished">Der Prozess ist abgestürzt.</translation>
+        <translation>Der Prozess ist abgestürzt.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -42698,7 +42707,8 @@ Ausgabe:
     <message>
         <source>You just dragged some files from one project node to another.
 What should %1 do now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie haben gerade eine oder mehrere Dateien von einem Projektknoten zu einem anderen gezogen.
+Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Copy Only File References</source>
@@ -43243,39 +43253,39 @@ What should %1 do now?</source>
     <name>ProjectExplorer::MakeStep</name>
     <message>
         <source>Make arguments:</source>
-        <translation type="unfinished">Kommandozeilenargumente für make:</translation>
+        <translation>Kommandozeilenargumente für make:</translation>
     </message>
     <message>
         <source>Parallel jobs:</source>
-        <translation type="unfinished">Parallele Jobs:</translation>
+        <translation>Parallele Jobs:</translation>
     </message>
     <message>
         <source>Override MAKEFLAGS</source>
-        <translation type="unfinished">MAKEFLAGS überschreiben</translation>
+        <translation>MAKEFLAGS überschreiben</translation>
     </message>
     <message>
         <source>&lt;code&gt;MAKEFLAGS&lt;/code&gt; specifies parallel jobs. Check &quot;%1&quot; to override.</source>
-        <translation type="unfinished">&lt;code&gt;MAKEFLAGS&lt;/code&gt; legt parallele Jobs fest. Wählen Sie &quot;%1&quot;, um dies zu überstimmen.</translation>
+        <translation>&lt;code&gt;MAKEFLAGS&lt;/code&gt; legt parallele Jobs fest. Wählen Sie &quot;%1&quot;, um dies zu überstimmen.</translation>
     </message>
     <message>
         <source>Disable in subdirectories:</source>
-        <translation type="unfinished"></translation>
+        <translation>In Unterverzeichnissen deaktivieren:</translation>
     </message>
     <message>
         <source>Runs this step only for a top-level build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt diesen Schritt nur beim Erstellen des obersten Verzeichnisses aus.</translation>
     </message>
     <message>
         <source>Targets:</source>
-        <translation type="unfinished">Ziele:</translation>
+        <translation>Ziele:</translation>
     </message>
     <message>
         <source>Make:</source>
-        <translation type="unfinished">Make:</translation>
+        <translation>Make:</translation>
     </message>
     <message>
         <source>Override %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibe %1:</translation>
     </message>
     <message>
         <source>Make</source>
@@ -43287,15 +43297,15 @@ What should %1 do now?</source>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1</source>
-        <translation type="unfinished">&lt;b&gt;Make:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; No build configuration.</source>
-        <translation type="unfinished">&lt;b&gt;Make:&lt;/b&gt; Keine Build-Konfiguration.</translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; Keine Build-Konfiguration.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
-        <translation type="unfinished">&lt;b&gt;Make:&lt;/b&gt; %1 konnte in der Umgebung nicht gefunden werden.</translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; %1 konnte in der Umgebung nicht gefunden werden.</translation>
     </message>
 </context>
 <context>
@@ -46328,7 +46338,7 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::Internal::AddRunConfigDialog</name>
     <message>
         <source>[none]</source>
-        <translation type="unfinished"></translation>
+        <translation>[leer]</translation>
     </message>
     <message>
         <source>Name</source>
@@ -46336,30 +46346,30 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle</translation>
     </message>
     <message>
         <source>Create Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration erzeugen</translation>
     </message>
     <message>
         <source>Filter candidates by name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Name filtern</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugen</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::AppOutputSettingsPage</name>
     <message>
         <source>Word-wrap output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe umbrechen</translation>
     </message>
     <message>
         <source>Clear old output on a new run</source>
-        <translation type="unfinished"></translation>
+        <translation>Alte Ausgabe bei erneutem Start leeren</translation>
     </message>
     <message>
         <source>Merge stderr and stdout</source>
@@ -46375,19 +46385,19 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>On First Output Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur bei erster Ausgabe</translation>
     </message>
     <message>
         <source>Limit output to %1 characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe auf %1 Zeichen beschränken</translation>
     </message>
     <message>
         <source>Open Application Output when running:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der Anwendung beim Ausführen öffnen:</translation>
     </message>
     <message>
         <source>Open Application Output when debugging:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der Anwendung beim Debuggen öffnen:</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -46402,7 +46412,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>The build directory is not reachable from the build device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Verzeichnis kann auf dem Build-Gerät nicht erreicht werden.</translation>
     </message>
     <message>
         <source>Shadow build:</source>
@@ -46428,15 +46438,15 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::Internal::CompileOutputSettingsPage</name>
     <message>
         <source>Word-wrap output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe umbrechen</translation>
     </message>
     <message>
         <source>Open Compile Output when building</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der Kompilierung beim Erstellen öffnen</translation>
     </message>
     <message>
         <source>Limit output to %1 characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe auf %1 Zeichen beschränken</translation>
     </message>
     <message>
         <source>Compile Output</source>
@@ -46447,11 +46457,11 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::Internal::DeploymentDataView</name>
     <message>
         <source>Source File Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelldateipfad</translation>
     </message>
     <message>
         <source>Target Directory</source>
-        <translation type="unfinished">Zielverzeichnis</translation>
+        <translation>Zielverzeichnis</translation>
     </message>
     <message>
         <source>Add</source>
@@ -46467,7 +46477,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Override deployment data from build system</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment-Daten des Build-Systems überschreiben</translation>
     </message>
 </context>
 <context>
@@ -46647,7 +46657,7 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::KitAspectWidget</name>
     <message>
         <source>Mark as Mutable</source>
-        <translation type="unfinished">Als veränderlich kennzeichnen</translation>
+        <translation>Als veränderlich kennzeichnen</translation>
     </message>
     <message>
         <source>Manage...</source>
@@ -46684,19 +46694,19 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::Internal::ParseIssuesDialog</name>
     <message>
         <source>Parse Build Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Ausgabe auswerten</translation>
     </message>
     <message>
         <source>Output went to stderr</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe ging in die Standardfehlerausgabe</translation>
     </message>
     <message>
         <source>Clear existing tasks</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende Aufgaben entfernen</translation>
     </message>
     <message>
         <source>Load from File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus Datei laden...</translation>
     </message>
     <message>
         <source>Choose File</source>
@@ -46704,31 +46714,31 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Could Not Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei konnte nicht geöffnet werden</translation>
     </message>
     <message>
         <source>Could not open file: &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; kann nicht geöffnet werden: %2</translation>
     </message>
     <message>
         <source>Build Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Ausgabe</translation>
     </message>
     <message>
         <source>Parsing Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswertungseinstellungen</translation>
     </message>
     <message>
         <source>Use parsers from kit:</source>
-        <translation type="unfinished"></translation>
+        <translation>Parser vom Kit benutzen:</translation>
     </message>
     <message>
         <source>Cannot Parse</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswerten fehlgeschlagen</translation>
     </message>
     <message>
         <source>Cannot parse: The chosen kit does not provide an output parser.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswerten fehlgeschlagen: Das gewählte Kit stellt keine Ausgabe-Parser bereit.</translation>
     </message>
 </context>
 <context>
@@ -46769,63 +46779,63 @@ Do you want to display them anyway?</source>
     <name>ProjextExplorer::Internal::ProjectExplorerSettings</name>
     <message>
         <source>Current directory</source>
-        <translation type="unfinished">Arbeitsverzeichnis</translation>
+        <translation>Arbeitsverzeichnis</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">Verzeichnis</translation>
+        <translation>Verzeichnis</translation>
     </message>
     <message>
         <source>Close source files along with project</source>
-        <translation type="unfinished">Quelldateien zusammen mit Projekt schließen</translation>
+        <translation>Quelldateien zusammen mit Projekt schließen</translation>
     </message>
     <message>
         <source>Save all files before build</source>
-        <translation type="unfinished">Alle Dateien vor Erstellen speichern</translation>
+        <translation>Alle Dateien vor Erstellen speichern</translation>
     </message>
     <message>
         <source>Always deploy project before running it</source>
-        <translation type="unfinished">Vor Ausführung des Projekts stets Deployment durchführen</translation>
+        <translation>Vor Ausführung des Projekts stets Deployment durchführen</translation>
     </message>
     <message>
         <source>Add linker library search paths to run environment</source>
-        <translation type="unfinished">Linker-Bibliothekspfade zur Ausführungsumgebung hinzufügen</translation>
+        <translation>Linker-Bibliothekspfade zur Ausführungsumgebung hinzufügen</translation>
     </message>
     <message>
         <source>Always ask before stopping applications</source>
-        <translation type="unfinished">Nachfrage beim Stoppen von Anwendungen</translation>
+        <translation>Beim Stoppen von Anwendungen stets nachfragen</translation>
     </message>
     <message>
         <source>Create suitable run configurations automatically</source>
-        <translation type="unfinished">Automatisch Ausführungskonfigurationen erzeugen</translation>
+        <translation>Automatisch Ausführungskonfigurationen erzeugen</translation>
     </message>
     <message>
         <source>Clear issues list on new build</source>
-        <translation type="unfinished">Problemliste bei neuer Erstellung leeren</translation>
+        <translation>Problemliste bei neuer Erstellung leeren</translation>
     </message>
     <message>
         <source>Abort on error when building all projects</source>
-        <translation type="unfinished">Bei Fehler abbrechen, wenn alle Projekte erstellt werden</translation>
+        <translation>Bei Fehler abbrechen, wenn alle Projekte erstellt werden</translation>
     </message>
     <message>
         <source>Start build processes with low priority</source>
-        <translation type="unfinished">Erstellungsprozesse mit niedriger Priorität starten</translation>
+        <translation>Erstellungsprozesse mit niedriger Priorität starten</translation>
     </message>
     <message>
         <source>Do Not Build Anything</source>
-        <translation type="unfinished"></translation>
+        <translation>Nichts erstellen</translation>
     </message>
     <message>
         <source>Build the Whole Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ganze Projekt erstellen</translation>
     </message>
     <message>
         <source>Build Only the Application to Be Run</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur die auszuführende Anwendung erstellen</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>All</source>
@@ -46841,47 +46851,47 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Same Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Gleiche Anwendung</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">Aktiviert</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished">Deaktiviert</translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <source>Deduced from Project</source>
-        <translation type="unfinished">Aus Projekt abgeleitet</translation>
+        <translation>Aus Projekt abgeleitet</translation>
     </message>
     <message>
         <source>Use jom instead of nmake</source>
-        <translation type="unfinished">jom statt nmake verwenden</translation>
+        <translation>jom statt nmake verwenden</translation>
     </message>
     <message>
         <source>Projects Directory</source>
-        <translation type="unfinished">Projektverzeichnis</translation>
+        <translation>Projektverzeichnis</translation>
     </message>
     <message>
         <source>Closing Projects</source>
-        <translation type="unfinished">Schließen von Projekten</translation>
+        <translation>Schließen von Projekten</translation>
     </message>
     <message>
         <source>Build and Run</source>
-        <translation type="unfinished">Erstellung und Ausführung</translation>
+        <translation>Erstellung und Ausführung</translation>
     </message>
     <message>
         <source>Build before deploying:</source>
-        <translation type="unfinished">Vor dem Deployment erstellen:</translation>
+        <translation>Vor dem Deployment erstellen:</translation>
     </message>
     <message>
         <source>Stop applications before building:</source>
-        <translation type="unfinished">Anwendungen vor dem Erstellen beenden:</translation>
+        <translation>Anwendungen vor dem Erstellen beenden:</translation>
     </message>
     <message>
         <source>Default for &quot;Run in terminal&quot;:</source>
-        <translation type="unfinished">Vorgabe für &quot;Im Terminal ausführen&quot;:</translation>
+        <translation>Vorgabe für &quot;Im Terminal ausführen&quot;:</translation>
     </message>
     <message>
         <source>General</source>
@@ -47406,7 +47416,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <source>File Selection</source>
@@ -48316,7 +48326,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     <name>ProjectExplorer::Internal::CustomParsersSettingsPage</name>
     <message>
         <source>Custom output parsers defined here can be enabled individually in the project&apos;s build or run settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parser, die hier vom Benutzer definiert wurden, können einzeln in den Build- oder Ausführungseinstellungen des Projekts aktiviert werden.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -48328,11 +48338,11 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>New Parser</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Parser</translation>
     </message>
     <message>
         <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Ausgabe-Parser</translation>
     </message>
 </context>
 <context>
@@ -55310,91 +55320,91 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <name>ProjectExplorer::SeparateDebugInfoAspect</name>
     <message>
         <source>Separate debug info:</source>
-        <translation type="unfinished"></translation>
+        <translation>Separate Debug-Information:</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::CustomParsersBuildWidget</name>
     <message>
         <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Ausgabe-Parser</translation>
     </message>
     <message>
         <source>Parse standard output during build</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardausgabe während des Erstellens auswerten</translation>
     </message>
     <message>
         <source>Makes output parsers look for diagnostics on stdout rather than stderr.</source>
-        <translation type="unfinished"></translation>
+        <translation>Veranlasst Parser, in der Standardausgabe anstelle der Standardfehlerausgabe nach Diagnosemeldungen zu suchen.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::BuildPropertiesSettings</name>
     <message>
         <source>Enable</source>
-        <translation type="unfinished">Aktivieren</translation>
+        <translation>Aktivieren</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished">Deaktivieren</translation>
+        <translation>Deaktivieren</translation>
     </message>
     <message>
         <source>Use Project Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt-Vorgabe benutzen</translation>
     </message>
     <message>
         <source>Default build directory:</source>
-        <translation type="unfinished">Vorgabe-Build-Verzeichnis:</translation>
+        <translation>Vorgabe-Build-Verzeichnis:</translation>
     </message>
     <message>
         <source>Separate debug info:</source>
-        <translation type="unfinished"></translation>
+        <translation>Separate Debug-Information:</translation>
     </message>
     <message>
         <source>QML debugging:</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Debuggen:</translation>
     </message>
     <message>
         <source>Use qmlcachegen:</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlcachegen benutzen:</translation>
     </message>
     <message>
         <source>Default Build Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Build-Eigenschaften</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::CodeStyleSettingsWidget</name>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">Sprache:</translation>
+        <translation>Sprache:</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::CustomParsersAspect</name>
     <message>
         <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Ausgabe-Parser</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SelectionWidget</name>
     <message>
         <source>Custom output parsers scan command line output for user-provided error patterns&lt;br&gt;to create entries in Issues.&lt;br&gt;The parsers can be configured &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Parser werten die Kommandozeilenausgabe mit vom Benutzer gewählten Fehler-Suchmustern aus.&lt;br&gt;Sie können diese Parser &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; konfigurieren.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::CustomParsersSelectionWidget</name>
     <message>
         <source>There are no custom parsers active</source>
-        <translation type="unfinished"></translation>
+        <translation>Es sind keine benutzerdefinierten Parser aktiv</translation>
     </message>
     <message numerus="yes">
         <source>There are %n custom parsers active</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Es ist ein benutzerdefinierter Parser aktiv</numerusform>
+            <numerusform>Es sind %n benutzerdefinierte Parser aktiv</numerusform>
         </translation>
     </message>
 </context>
@@ -55402,186 +55412,186 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <name>ProjectExplorer::DeviceFileSystemModel</name>
     <message>
         <source>File Type</source>
-        <translation type="unfinished">Dateityp</translation>
+        <translation>Dateityp</translation>
     </message>
     <message>
         <source>File Name</source>
-        <translation type="unfinished">Dateiname</translation>
+        <translation>Dateiname</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::FileTransferPrivate</name>
     <message>
         <source>No device set for test transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät für die Testübertragung gesetzt.</translation>
     </message>
     <message>
         <source>No files to transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Dateien zu übertragen.</translation>
     </message>
     <message>
         <source>Missing transfer implementation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Implementation der Dateiübertragungsmethode nicht vorhanden.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::FileTransfer</name>
     <message>
         <source>sftp</source>
-        <translation type="unfinished"></translation>
+        <translation>sftp</translation>
     </message>
     <message>
         <source>rsync</source>
-        <translation type="unfinished"></translation>
+        <translation>rsync</translation>
     </message>
     <message>
         <source>generic file copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Generisches Dateikopieren</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::EditorSettingsWidget</name>
     <message>
         <source>Restore Global</source>
-        <translation type="unfinished">Globale Einstellungen wiederherstellen</translation>
+        <translation>Globale Einstellungen wiederherstellen</translation>
     </message>
     <message>
         <source>Display Settings</source>
-        <translation type="unfinished">Anzeigeeinstellungen</translation>
+        <translation>Anzeigeeinstellungen</translation>
     </message>
     <message>
         <source>Display right &amp;margin at column:</source>
-        <translation type="unfinished">Rechten &amp;Rand anzeigen bei Spalte:</translation>
+        <translation>Rechten &amp;Rand anzeigen bei Spalte:</translation>
     </message>
     <message>
         <source>Use context-specific margin</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontextspezifischen Rand verwenden</translation>
     </message>
     <message>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzt unterschiedlichen Rand abhängig vom Kontext, falls verfügbar. Zum Beispiel das ColumnLimit vom ClangFormat Plugin.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::FilesInAllProjectsFind</name>
     <message>
         <source>Files in All Project Directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien in allen Projektverzeichnissen</translation>
     </message>
     <message>
         <source>Files in All Project Directories:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien in allen Projektverzeichnissen:</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::TargetTripleWidget</name>
     <message>
         <source>Override for code model</source>
-        <translation type="unfinished"></translation>
+        <translation>Für Codemodell überschreiben</translation>
     </message>
     <message>
         <source>Enable in the rare case that the code model
 fails because Clang does not understand the target architecture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivieren Sie diese Einstellung, falls das Codemodell Fehler anzeigt, weil Clang die Zielarchitektur nicht versteht.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::BuildDeviceKitAspect</name>
     <message>
         <source>Build device</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Gerät</translation>
     </message>
     <message>
         <source>The device used to build applications on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät, auf dem Anwendungen erstellt werden.</translation>
     </message>
     <message>
         <source>No build device set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Build-Gerät gesetzt.</translation>
     </message>
     <message>
         <source>Unconfigured</source>
-        <translation type="unfinished">Nicht konfiguriert</translation>
+        <translation>Nicht konfiguriert</translation>
     </message>
     <message>
         <source>Build host address</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostadresse des Build-Geräts</translation>
     </message>
     <message>
         <source>Build SSH port</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Port des Build-Geräts</translation>
     </message>
     <message>
         <source>Build user name</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername des Build-Geräts</translation>
     </message>
     <message>
         <source>Build private key file</source>
-        <translation type="unfinished"></translation>
+        <translation>Private Schlüsseldatei des Build-Geräts</translation>
     </message>
     <message>
         <source>Build device name</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Gerätename</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::RunAsRootAspect</name>
     <message>
         <source>Run as root user</source>
-        <translation type="unfinished"></translation>
+        <translation>Als root-Benutzer ausführen</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::InterpreterAspect</name>
     <message>
         <source>Manage...</source>
-        <translation type="unfinished">Verwalten...</translation>
+        <translation>Verwalten...</translation>
     </message>
     <message>
         <source>Interpreter</source>
-        <translation type="unfinished">Interpreter</translation>
+        <translation>Interpreter</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SimpleTargetRunnerPrivate</name>
     <message>
         <source>Cannot retrieve debugging output.</source>
-        <translation type="unfinished">Es konnte keine Debug-Ausgabe erhalten werden.</translation>
+        <translation>Es konnte keine Debug-Ausgabe erhalten werden.</translation>
     </message>
     <message>
         <source>User requested stop. Shutting down...</source>
-        <translation type="unfinished">Abbruch auf Nutzeranforderung...</translation>
+        <translation>Abbruch auf Nutzeranforderung...</translation>
     </message>
     <message>
         <source>Cannot run: No command given.</source>
-        <translation type="unfinished">Keine Ausführung möglich: Kein Kommando angegeben.</translation>
+        <translation>Keine Ausführung möglich: Kein Kommando angegeben.</translation>
     </message>
     <message>
         <source>%1 exited with code %2</source>
-        <translation type="unfinished">%2 wurde mit dem Rückgabewert %2 beendet {1 ?}</translation>
+        <translation>%1 wurde mit dem Rückgabewert %2 beendet</translation>
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation type="unfinished">%1 ist abgestürzt.</translation>
+        <translation>%1 ist abgestürzt.</translation>
     </message>
     <message>
         <source>The process was ended forcefully.</source>
-        <translation type="unfinished">Der Prozess wurde gestoppt.</translation>
+        <translation>Der Prozess wurde gestoppt.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake or CMake Project (Limited Functionality)</source>
-        <translation type="unfinished"></translation>
+        <translation>Als qmake- oder CMake-Projekt importieren (eingeschränkte Funktionalität)</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.&lt;p&gt;This creates a project file that allows you to use %1 as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importiert ein existierendes Projekt, dass nicht qmake, CMake, Qbs, Meson oder Autotools benutzt.&lt;p&gt;Dies erstellt eine Projektdatei, die Ihnen erlaubt, %1 als Code-Editor und zum Starten des Debuggers und von Analysewerkzeugen zu benutzen. Wenn Sie das Projekt bauen wollen, müssen Sie die generierte Datei möglicherweise anpassen.</translation>
     </message>
     <message>
         <source>Unknown build system &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekanntes Build-System &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
