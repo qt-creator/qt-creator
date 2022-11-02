@@ -21301,8 +21301,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
-        <translation>Die folgenden Plugins sind fehlerhaft und konnten nicht geladen werden:
-</translation>
+        <translation>Die folgenden Plugins sind fehlerhaft und können nicht geladen werden:</translation>
     </message>
     <message>
         <source>Details:</source>
@@ -45363,29 +45362,31 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <name>ExtensionSystem::Internal::PluginManagerPrivate</name>
     <message>
         <source>%1 &gt; About Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 &gt; Plugins</translation>
     </message>
     <message>
         <source>Help &gt; About Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Hilfe &gt; Plugins</translation>
     </message>
     <message>
         <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie %1 vorübergehend deaktivieren, werden die folgenden Plugins, die davon abhängen, auch deaktiviert: %2.
+
+</translation>
     </message>
     <message>
         <source>Disable plugins permanently in %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können Plugins in %1 auch dauerhaft deaktivieren.</translation>
     </message>
     <message>
         <source>The last time you started %1, it seems to have closed because of a problem with the &quot;%2&quot; plugin. Temporarily disable the plugin?</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 scheint sich beim letzten Start wegen eines Problems mit dem Plugin &quot;%2&quot; selbst geschlossen zu haben. Wollen Sie das Plugin vorübergehend deaktivieren?</translation>
     </message>
     <message>
         <source>Disable Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin deaktivieren</translation>
     </message>
     <message>
         <source>Continue</source>
