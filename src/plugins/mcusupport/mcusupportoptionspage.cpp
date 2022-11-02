@@ -293,7 +293,7 @@ void McuSupportOptionsWidget::apply()
 
     QMessageBox warningPopup(QMessageBox::Icon::Warning,
                              Tr::tr("Warning"),
-                             Tr::tr("Unable to apply changes."),
+                             Tr::tr("Unable to apply changes in Devices > MCU."),
                              QMessageBox::Ok,
                              this);
 
@@ -304,7 +304,9 @@ void McuSupportOptionsWidget::apply()
         return;
     }
     if (!target->isValid()) {
-        warningPopup.setInformativeText(Tr::tr("Invalid path(s) present."));
+        warningPopup.setInformativeText(
+            Tr::tr("Invalid paths present for target\n%1")
+                .arg(McuKitManager::generateKitNameFromTarget(target.get())));
         warningPopup.exec();
         return;
     }
