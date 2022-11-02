@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmldesignerplugin.h"
+#include "coreplugin/iwizardfactory.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
 #include "dynamiclicensecheck.h"
@@ -61,8 +62,10 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/featureprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/iwizardfactory.h>
 #include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -74,19 +77,19 @@
 #include <sqlitelibraryinitializer.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/algorithm.h>
 
 #include <QAction>
-#include <QTimer>
+#include <QApplication>
 #include <QCoreApplication>
-#include <qplugin.h>
 #include <QDebug>
 #include <QProcessEnvironment>
 #include <QScreen>
+#include <QTimer>
 #include <QWindow>
-#include <QApplication>
+#include <qplugin.h>
 
 #include "nanotrace/nanotrace.h"
 #include <modelnodecontextmenu_helper.h>
@@ -98,6 +101,17 @@ using namespace QmlDesigner::Internal;
 namespace QmlDesigner {
 
 namespace Internal {
+
+class EnterpriseFeatureProvider : public Core::IFeatureProvider
+{
+public:
+    QSet<Utils::Id> availableFeatures(Utils::Id id) const override
+    {
+        return {"QmlDesigner.Wizards.Enterprise"};
+    }
+    QSet<Utils::Id> availablePlatforms() const override { return {}; }
+    QString displayNameForPlatform(Utils::Id id) const override { return {}; }
+};
 
 QString normalizeIdentifier(const QString &string)
 {
@@ -283,6 +297,10 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 #endif
     //TODO Move registering those types out of the property editor, since they are used also in the states editor
     Quick2PropertyEditorView::registerQmlTypes();
+
+    if (QmlDesigner::checkLicense() == QmlDesigner::FoundLicense::enterprise)
+        Core::IWizardFactory::registerFeatureProvider(new EnterpriseFeatureProvider);
+
     return true;
 }
 
