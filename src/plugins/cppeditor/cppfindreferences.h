@@ -24,7 +24,7 @@ namespace CppEditor {
 class CppModelManager;
 
 Core::SearchResultColor::Style CPPEDITOR_EXPORT
-colorStyleForUsageType(CPlusPlus::Usage::Type type);
+colorStyleForUsageType(CPlusPlus::Usage::Tags tags);
 
 class CPPEDITOR_EXPORT CppSearchResultFilter : public Core::SearchResultFilter
 {

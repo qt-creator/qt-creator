@@ -62,6 +62,8 @@ namespace ClangCodeModel {
 namespace Internal {
 namespace Tests {
 
+const Usage::Tags Initialization{Usage::Tag::Declaration, Usage::Tag::Write};
+
 static QString qrcPath(const QByteArray &relativeFilePath)
 {
     return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath);
@@ -187,89 +189,89 @@ void ClangdTestFindReferences::test_data()
     using ItemList = QList<SearchResultItem>;
     QTest::addColumn<ItemList>("expectedResults");
 
-    static const auto makeItem = [](int line, int column, Usage::Type type) {
+    static const auto makeItem = [](int line, int column, Usage::Tags tags) {
         SearchResultItem item;
         item.setMainRange(line, column, 0);
-        item.setUserData(int(type));
+        item.setUserData(tags.toInt());
         return item;
     };
 
     QTest::newRow("struct member") << "defs.h" << 55 << ItemList{
-        makeItem(2, 17, Usage::Type::Read), makeItem(3, 15, Usage::Type::Declaration),
-        makeItem(6, 17, Usage::Type::WritableRef), makeItem(8, 11, Usage::Type::WritableRef),
-        makeItem(9, 13, Usage::Type::WritableRef), makeItem(10, 12, Usage::Type::WritableRef),
-        makeItem(11, 13, Usage::Type::WritableRef), makeItem(12, 14, Usage::Type::WritableRef),
-        makeItem(13, 26, Usage::Type::WritableRef), makeItem(14, 23, Usage::Type::Read),
-        makeItem(15, 14, Usage::Type::Read), makeItem(16, 24, Usage::Type::WritableRef),
-        makeItem(17, 15, Usage::Type::WritableRef), makeItem(18, 22, Usage::Type::Read),
-        makeItem(19, 12, Usage::Type::WritableRef), makeItem(20, 12, Usage::Type::Read),
-        makeItem(21, 13, Usage::Type::WritableRef), makeItem(22, 13, Usage::Type::Read),
-        makeItem(23, 12, Usage::Type::Read), makeItem(42, 20, Usage::Type::Read),
-        makeItem(44, 15, Usage::Type::Read), makeItem(47, 15, Usage::Type::Write),
-        makeItem(50, 11, Usage::Type::Read), makeItem(51, 11, Usage::Type::Write),
-        makeItem(52, 9, Usage::Type::Write), makeItem(53, 7, Usage::Type::Write),
-        makeItem(56, 7, Usage::Type::Write), makeItem(56, 25, Usage::Type::Other),
-        makeItem(58, 13, Usage::Type::Read), makeItem(58, 25, Usage::Type::Read),
-        makeItem(59, 7, Usage::Type::Write), makeItem(59, 24, Usage::Type::Read)};
+        makeItem(2, 17, Usage::Tag::Read), makeItem(3, 15, Usage::Tag::Declaration),
+        makeItem(6, 17, Usage::Tag::WritableRef), makeItem(8, 11, Usage::Tag::WritableRef),
+        makeItem(9, 13, Usage::Tag::WritableRef), makeItem(10, 12, Usage::Tag::WritableRef),
+        makeItem(11, 13, Usage::Tag::WritableRef), makeItem(12, 14, Usage::Tag::WritableRef),
+        makeItem(13, 26, Usage::Tag::WritableRef), makeItem(14, 23, Usage::Tag::Read),
+        makeItem(15, 14, Usage::Tag::Read), makeItem(16, 24, Usage::Tag::WritableRef),
+        makeItem(17, 15, Usage::Tag::WritableRef), makeItem(18, 22, Usage::Tag::Read),
+        makeItem(19, 12, Usage::Tag::WritableRef), makeItem(20, 12, Usage::Tag::Read),
+        makeItem(21, 13, Usage::Tag::WritableRef), makeItem(22, 13, Usage::Tag::Read),
+        makeItem(23, 12, Usage::Tag::Read), makeItem(42, 20, Usage::Tag::Read),
+        makeItem(44, 15, Usage::Tag::Read), makeItem(47, 15, Usage::Tag::Write),
+        makeItem(50, 11, Usage::Tag::Read), makeItem(51, 11, Usage::Tag::Write),
+        makeItem(52, 9, Usage::Tag::Write), makeItem(53, 7, Usage::Tag::Write),
+        makeItem(56, 7, Usage::Tag::Write), makeItem(56, 25, Usage::Tags()),
+        makeItem(58, 13, Usage::Tag::Read), makeItem(58, 25, Usage::Tag::Read),
+        makeItem(59, 7, Usage::Tag::Write), makeItem(59, 24, Usage::Tag::Read)};
     QTest::newRow("constructor member initialization") << "defs.h" << 68 << ItemList{
-        makeItem(2, 10, Usage::Type::Write), makeItem(4, 8, Usage::Type::Declaration)};
+        makeItem(2, 10, Usage::Tag::Write), makeItem(4, 8, Usage::Tag::Declaration)};
     QTest::newRow("direct member initialization") << "defs.h" << 101 << ItemList{
-        makeItem(5, 21, Usage::Type::Initialization), makeItem(45, 16, Usage::Type::Read)};
+        makeItem(5, 21, Initialization), makeItem(45, 16, Usage::Tag::Read)};
 
-    ItemList pureVirtualRefs{makeItem(17, 17, Usage::Type::Declaration),
-                             makeItem(21, 9, Usage::Type::Declaration)};
+    ItemList pureVirtualRefs{makeItem(17, 17, Usage::Tag::Declaration),
+                             makeItem(21, 9, Usage::Tag::Declaration)};
     QTest::newRow("pure virtual declaration") << "defs.h" << 420 << pureVirtualRefs;
 
     QTest::newRow("pointer variable") << "main.cpp" << 52 << ItemList{
-        makeItem(6, 10, Usage::Type::Initialization), makeItem(8, 4, Usage::Type::Write),
-        makeItem(10, 4, Usage::Type::Write), makeItem(24, 5, Usage::Type::Write),
-        makeItem(25, 11, Usage::Type::WritableRef), makeItem(26, 11, Usage::Type::Read),
-        makeItem(27, 10, Usage::Type::WritableRef), makeItem(28, 10, Usage::Type::Read),
-        makeItem(29, 11, Usage::Type::Read), makeItem(30, 15, Usage::Type::WritableRef),
-        makeItem(31, 22, Usage::Type::Read)};
+        makeItem(6, 10, Initialization), makeItem(8, 4, Usage::Tag::Write),
+        makeItem(10, 4, Usage::Tag::Write), makeItem(24, 5, Usage::Tag::Write),
+        makeItem(25, 11, Usage::Tag::WritableRef), makeItem(26, 11, Usage::Tag::Read),
+        makeItem(27, 10, Usage::Tag::WritableRef), makeItem(28, 10, Usage::Tag::Read),
+        makeItem(29, 11, Usage::Tag::Read), makeItem(30, 15, Usage::Tag::WritableRef),
+        makeItem(31, 22, Usage::Tag::Read)};
     QTest::newRow("struct variable") << "main.cpp" << 39 << ItemList{
-        makeItem(5, 7, Usage::Type::Declaration), makeItem(6, 15, Usage::Type::WritableRef),
-        makeItem(8, 9, Usage::Type::WritableRef), makeItem(9, 11, Usage::Type::WritableRef),
-        makeItem(11, 4, Usage::Type::Write), makeItem(11, 11, Usage::Type::WritableRef),
-        makeItem(12, 12, Usage::Type::WritableRef), makeItem(13, 6, Usage::Type::Write),
-        makeItem(14, 21, Usage::Type::Read), makeItem(15, 4, Usage::Type::Write),
-        makeItem(15, 12, Usage::Type::Read), makeItem(16, 22, Usage::Type::WritableRef),
-        makeItem(17, 13, Usage::Type::WritableRef), makeItem(18, 20, Usage::Type::Read),
-        makeItem(19, 10, Usage::Type::WritableRef), makeItem(20, 10, Usage::Type::Read),
-        makeItem(21, 11, Usage::Type::WritableRef), makeItem(22, 11, Usage::Type::Read),
-        makeItem(23, 10, Usage::Type::Read), makeItem(32, 4, Usage::Type::Write),
-        makeItem(33, 23, Usage::Type::WritableRef), makeItem(34, 23, Usage::Type::Read),
-        makeItem(35, 15, Usage::Type::WritableRef), makeItem(36, 22, Usage::Type::WritableRef),
-        makeItem(37, 4, Usage::Type::Read), makeItem(38, 4, Usage::Type::WritableRef),
-        makeItem(39, 6, Usage::Type::WritableRef), makeItem(40, 4, Usage::Type::Read),
-        makeItem(41, 4, Usage::Type::WritableRef), makeItem(42, 4, Usage::Type::Read),
-        makeItem(42, 18, Usage::Type::Read), makeItem(43, 11, Usage::Type::Write),
-        makeItem(54, 4, Usage::Type::Other), makeItem(55, 4, Usage::Type::Other)};
+        makeItem(5, 7, Usage::Tag::Declaration), makeItem(6, 15, Usage::Tag::WritableRef),
+        makeItem(8, 9, Usage::Tag::WritableRef), makeItem(9, 11, Usage::Tag::WritableRef),
+        makeItem(11, 4, Usage::Tag::Write), makeItem(11, 11, Usage::Tag::WritableRef),
+        makeItem(12, 12, Usage::Tag::WritableRef), makeItem(13, 6, Usage::Tag::Write),
+        makeItem(14, 21, Usage::Tag::Read), makeItem(15, 4, Usage::Tag::Write),
+        makeItem(15, 12, Usage::Tag::Read), makeItem(16, 22, Usage::Tag::WritableRef),
+        makeItem(17, 13, Usage::Tag::WritableRef), makeItem(18, 20, Usage::Tag::Read),
+        makeItem(19, 10, Usage::Tag::WritableRef), makeItem(20, 10, Usage::Tag::Read),
+        makeItem(21, 11, Usage::Tag::WritableRef), makeItem(22, 11, Usage::Tag::Read),
+        makeItem(23, 10, Usage::Tag::Read), makeItem(32, 4, Usage::Tag::Write),
+        makeItem(33, 23, Usage::Tag::WritableRef), makeItem(34, 23, Usage::Tag::Read),
+        makeItem(35, 15, Usage::Tag::WritableRef), makeItem(36, 22, Usage::Tag::WritableRef),
+        makeItem(37, 4, Usage::Tag::Read), makeItem(38, 4, Usage::Tag::WritableRef),
+        makeItem(39, 6, Usage::Tag::WritableRef), makeItem(40, 4, Usage::Tag::Read),
+        makeItem(41, 4, Usage::Tag::WritableRef), makeItem(42, 4, Usage::Tag::Read),
+        makeItem(42, 18, Usage::Tag::Read), makeItem(43, 11, Usage::Tag::Write),
+        makeItem(54, 4, Usage::Tags()), makeItem(55, 4, Usage::Tags())};
 
     // Some of these are conceptually questionable, as S is a type and thus we cannot "read from"
     // or "write to" it. But it probably matches the intuitive user expectation.
     QTest::newRow("struct type") << "defs.h" << 7 << ItemList{
-        makeItem(1, 7, Usage::Type::Declaration), makeItem(2, 4, Usage::Type::Declaration),
-        makeItem(20, 19, Usage::Type::Other), makeItem(10, 9, Usage::Type::WritableRef),
-        makeItem(12, 4, Usage::Type::Write), makeItem(44, 12, Usage::Type::Read),
-        makeItem(45, 13, Usage::Type::Read), makeItem(47, 12, Usage::Type::Write),
-        makeItem(50, 8, Usage::Type::Read), makeItem(51, 8, Usage::Type::Write),
-        makeItem(52, 6, Usage::Type::Write), makeItem(53, 4, Usage::Type::Write),
-        makeItem(56, 4, Usage::Type::Write), makeItem(56, 22, Usage::Type::Other),
-        makeItem(58, 10, Usage::Type::Read), makeItem(58, 22, Usage::Type::Read),
-        makeItem(59, 4, Usage::Type::Write), makeItem(59, 21, Usage::Type::Read)};
+        makeItem(1, 7, Usage::Tag::Declaration), makeItem(2, 4, Usage::Tag::Declaration),
+        makeItem(20, 19, Usage::Tags()), makeItem(10, 9, Usage::Tag::WritableRef),
+        makeItem(12, 4, Usage::Tag::Write), makeItem(44, 12, Usage::Tag::Read),
+        makeItem(45, 13, Usage::Tag::Read), makeItem(47, 12, Usage::Tag::Write),
+        makeItem(50, 8, Usage::Tag::Read), makeItem(51, 8, Usage::Tag::Write),
+        makeItem(52, 6, Usage::Tag::Write), makeItem(53, 4, Usage::Tag::Write),
+        makeItem(56, 4, Usage::Tag::Write), makeItem(56, 22, Usage::Tags()),
+        makeItem(58, 10, Usage::Tag::Read), makeItem(58, 22, Usage::Tag::Read),
+        makeItem(59, 4, Usage::Tag::Write), makeItem(59, 21, Usage::Tag::Read)};
 
     QTest::newRow("subclass") << "defs.h" << 450 << ItemList{
-        makeItem(20, 7, Usage::Type::Declaration), makeItem(5, 4, Usage::Type::Other),
-        makeItem(13, 21, Usage::Type::Other), makeItem(32, 8, Usage::Type::Other)};
+        makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
+        makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
     QTest::newRow("array variable") << "main.cpp" << 1134 << ItemList{
-        makeItem(57, 8, Usage::Type::Declaration), makeItem(58, 4, Usage::Type::Write),
-        makeItem(59, 15, Usage::Type::Read)};
+        makeItem(57, 8, Usage::Tag::Declaration), makeItem(58, 4, Usage::Tag::Write),
+        makeItem(59, 15, Usage::Tag::Read)};
     QTest::newRow("free function") << "defs.h" << 510 << ItemList{
-        makeItem(24, 5, Usage::Type::Declaration), makeItem(19, 4, Usage::Type::Other),
-        makeItem(25, 4, Usage::Type::Other), makeItem(60, 26, Usage::Type::Read)};
+        makeItem(24, 5, Usage::Tag::Declaration), makeItem(19, 4, Usage::Tags()),
+        makeItem(25, 4, Usage::Tags()), makeItem(60, 26, Usage::Tag::Read)};
     QTest::newRow("member function") << "defs.h" << 192 << ItemList{
-        makeItem(9, 12, Usage::Type::Declaration), makeItem(40, 8, Usage::Type::Other)};
+        makeItem(9, 12, Usage::Tag::Declaration), makeItem(40, 8, Usage::Tags())};
 }
 
 // The main point here is to test our access type categorization.

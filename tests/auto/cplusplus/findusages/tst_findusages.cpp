@@ -47,6 +47,8 @@ private:
     const char *_name;
 };
 
+const Usage::Tags Initialization{Usage::Tag::Declaration, Usage::Tag::Write};
+
 class tst_FindUsages: public QObject
 {
     Q_OBJECT
@@ -158,8 +160,8 @@ void tst_FindUsages::inlineMethod()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(arg);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
     QCOMPARE(findUsages.references().size(), 2);
 }
 
@@ -193,9 +195,9 @@ void tst_FindUsages::lambdaCaptureByValue()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 3);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::lambdaCaptureByReference()
@@ -228,10 +230,10 @@ void tst_FindUsages::lambdaCaptureByReference()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 3);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
     QEXPECT_FAIL(nullptr, "parser does not record capture type", Continue);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Write);
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tag::Write);
 }
 
 void tst_FindUsages::shadowedNames_1()
@@ -262,8 +264,8 @@ void tst_FindUsages::shadowedNames_1()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
 }
 
 void tst_FindUsages::shadowedNames_2()
@@ -297,9 +299,9 @@ void tst_FindUsages::shadowedNames_2()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 3);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
 }
 
 void tst_FindUsages::staticVariables()
@@ -346,11 +348,11 @@ void tst_FindUsages::staticVariables()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d);
     QCOMPARE(findUsages.usages().size(), 5);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Initialization);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Write);
-    QCOMPARE(findUsages.usages().at(3).type, Usage::Type::Write);
-    QCOMPARE(findUsages.usages().at(4).type, Usage::Type::Write);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Initialization);
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tag::Write);
+    QCOMPARE(findUsages.usages().at(3).tags, Usage::Tag::Write);
+    QCOMPARE(findUsages.usages().at(4).tags, Usage::Tag::Write);
 }
 
 void tst_FindUsages::structuredBinding()
@@ -380,13 +382,13 @@ void tst_FindUsages::structuredBinding()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(d1);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Initialization);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Initialization);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
 
     findUsages(d2);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Initialization);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Initialization);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::functionNameFoundInArguments()
@@ -419,15 +421,15 @@ void foo2(int b=bar()){}    // 3rd result
 
     QCOMPARE(find.usages().size(), 3);
 
-    QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+    QCOMPARE(find.usages()[0].tags, Usage::Tag::Declaration);
     QCOMPARE(find.usages()[0].line, 1);
     QCOMPARE(find.usages()[0].col, 5);
 
-    QCOMPARE(find.usages()[1].type, Usage::Type::Other);
+    QCOMPARE(find.usages()[1].tags, Usage::Tags());
     QCOMPARE(find.usages()[1].line, 4);
     QCOMPARE(find.usages()[1].col, 16);
 
-    QCOMPARE(find.usages()[2].type, Usage::Type::Other);
+    QCOMPARE(find.usages()[2].tags, Usage::Tags());
     QCOMPARE(find.usages()[2].line, 5);
     QCOMPARE(find.usages()[2].col, 16);
 }
@@ -486,22 +488,22 @@ struct Struct{
     find(memberFunctionFoo);
     QCOMPARE(find.usages().size(), 2);
 
-    QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+    QCOMPARE(find.usages()[0].tags, Usage::Tag::Declaration);
     QCOMPARE(find.usages()[0].line, 3);
     QCOMPARE(find.usages()[0].col, 15);
 
-    QCOMPARE(find.usages()[1].type, Usage::Type::Other);
+    QCOMPARE(find.usages()[1].tags, Usage::Tags());
     QCOMPARE(find.usages()[1].line, 5);
     QCOMPARE(find.usages()[1].col, 24);
 
     find(variableFoo);
     QCOMPARE(find.usages().size(), 2);
 
-    QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
+    QCOMPARE(find.usages()[0].tags, Initialization);
     QCOMPARE(find.usages()[0].line, 5);
     QCOMPARE(find.usages()[0].col, 12);
 
-    QCOMPARE(find.usages()[1].type, Usage::Type::Read);
+    QCOMPARE(find.usages()[1].tags, Usage::Tag::Read);
     QCOMPARE(find.usages()[1].line, 6);
     QCOMPARE(find.usages()[1].col, 22);
 }
@@ -558,13 +560,13 @@ int main() {
     FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 7);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(2).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(3).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(4).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(5).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(6).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(2).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(3).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(4).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(5).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(6).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::templateConstructorVsCallOperator()
@@ -617,13 +619,13 @@ int main()
     FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 7);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(2).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(3).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(4).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(5).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(6).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(2).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(3).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(4).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(5).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(6).tags, Usage::Tag::Read);
 }
 
 #if 0
@@ -720,8 +722,8 @@ void tst_FindUsages::qproperty_1()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(setX_method);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Declaration);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Declaration);
     QCOMPARE(findUsages.references().size(), 2);
 }
 
@@ -766,8 +768,8 @@ void tst_FindUsages::instantiateTemplateWithNestedClass()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(barDeclaration);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG9006()
@@ -813,8 +815,8 @@ void tst_FindUsages::operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG90
     findUsages(fooDeclaration);
 
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::anonymousClass_QTCREATORBUG8963()
@@ -858,8 +860,8 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG8963()
     findUsages(isNotIntDeclaration);
 
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::anonymousClass_QTCREATORBUG11859()
@@ -901,12 +903,12 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG11859()
     findUsages(fooAsStruct);
     QCOMPARE(findUsages.references().size(), 1);
     QCOMPARE(findUsages.usages().size(), 1);
-    QCOMPARE(findUsages.usages().first().type, Usage::Type::Declaration);
+    QCOMPARE(findUsages.usages().first().tags, Usage::Tag::Declaration);
 
     findUsages(fooAsMemberOfAnonymousStruct);
     QCOMPARE(findUsages.references().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::using_insideGlobalNamespace()
@@ -947,9 +949,9 @@ void tst_FindUsages::using_insideGlobalNamespace()
     findUsages(structSymbol);
 
     QCOMPARE(findUsages.usages().size(), 3);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
 }
 
 void tst_FindUsages::using_insideNamespace()
@@ -993,9 +995,9 @@ void tst_FindUsages::using_insideNamespace()
     findUsages(structSymbol);
 
     QCOMPARE(findUsages.usages().size(), 3);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
 }
 
 void tst_FindUsages::using_insideFunction()
@@ -1036,9 +1038,9 @@ void tst_FindUsages::using_insideFunction()
     findUsages(structSymbol);
 
     QCOMPARE(findUsages.usages().size(), 3);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
 }
 
 void tst_FindUsages::operatorArrowOfNestedClassOfTemplateClass_QTCREATORBUG9005()
@@ -1083,8 +1085,8 @@ void tst_FindUsages::operatorArrowOfNestedClassOfTemplateClass_QTCREATORBUG9005(
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(fooDeclaration);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::templateClassParameters()
@@ -1120,11 +1122,11 @@ void tst_FindUsages::templateClassParameters()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(templArgument);
     QCOMPARE(findUsages.usages().size(), 5);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(3).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(4).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(3).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(4).tags, Usage::Tags());
 }
 
 void tst_FindUsages::templateClass_className()
@@ -1166,13 +1168,13 @@ void tst_FindUsages::templateClass_className()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(classTS);
     QCOMPARE(findUsages.usages().size(), 7);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(3).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(4).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(5).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(6).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(3).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(4).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(5).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(6).tags, Usage::Tags());
 }
 
 void tst_FindUsages::templateFunctionParameters()
@@ -1206,10 +1208,10 @@ void tst_FindUsages::templateFunctionParameters()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(templArgument);
     QCOMPARE(findUsages.usages().size(), 4);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(3).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(3).tags, Usage::Tags());
 }
 
 void tst_FindUsages::templatedFunction_QTCREATORBUG9749()
@@ -1240,8 +1242,8 @@ void tst_FindUsages::templatedFunction_QTCREATORBUG9749()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(func);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
 }
 
 void tst_FindUsages::templateInNamespaceTypeOutside()
@@ -1279,8 +1281,8 @@ int func()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(v);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::usingInDifferentNamespace_QTCREATORBUG7978()
@@ -1320,9 +1322,9 @@ void tst_FindUsages::usingInDifferentNamespace_QTCREATORBUG7978()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(templateClass);
     QCOMPARE(findUsages.usages().size(), 3);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Other);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
 }
 
 void tst_FindUsages::unicodeIdentifier()
@@ -1350,8 +1352,8 @@ void tst_FindUsages::unicodeIdentifier()
     findUsages(declaration);
     const QList<Usage> usages = findUsages.usages();
     QCOMPARE(usages.size(), 2);
-    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Write);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Write);
     QCOMPARE(usages.at(0).len, 7);
     QCOMPARE(usages.at(1).len, 7);
 }
@@ -1381,10 +1383,10 @@ void tst_FindUsages::inAlignas()
     FindUsages find(src, doc, snapshot, true);
     find(c);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+    QCOMPARE(find.usages()[0].tags, Usage::Tag::Declaration);
     QCOMPARE(find.usages()[0].line, 1);
     QCOMPARE(find.usages()[0].col, 7);
-    QCOMPARE(find.usages()[1].type, Usage::Type::Other);
+    QCOMPARE(find.usages()[1].tags, Usage::Tags());
     QCOMPARE(find.usages()[1].line, 2);
     QCOMPARE(find.usages()[1].col, 15);
 }
@@ -1424,10 +1426,10 @@ void tst_FindUsages::memberAccessAsTemplate()
         FindUsages find(src, doc, snapshot, true);
         find(c);
         QCOMPARE(find.usages().size(), 2);
-        QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+        QCOMPARE(find.usages()[0].tags, Usage::Tag::Declaration);
         QCOMPARE(find.usages()[0].line, 1);
         QCOMPARE(find.usages()[0].col, 7);
-        QCOMPARE(find.usages()[1].type, Usage::Type::Other);
+        QCOMPARE(find.usages()[1].tags, Usage::Tags());
         QCOMPARE(find.usages()[1].line, 11);
         QCOMPARE(find.usages()[1].col, 24);
     }
@@ -1445,10 +1447,10 @@ void tst_FindUsages::memberAccessAsTemplate()
         FindUsages find(src, doc, snapshot, true);
         find(f);
         QCOMPARE(find.usages().size(), 2);
-        QCOMPARE(find.usages()[0].type, Usage::Type::Declaration);
+        QCOMPARE(find.usages()[0].tags, Usage::Tag::Declaration);
         QCOMPARE(find.usages()[0].line, 4);
         QCOMPARE(find.usages()[0].col, 7);
-        QCOMPARE(find.usages()[1].type, Usage::Type::Other);
+        QCOMPARE(find.usages()[1].tags, Usage::Tags());
         QCOMPARE(find.usages()[1].line, 11);
         QCOMPARE(find.usages()[1].col, 11);
     }
@@ -1488,10 +1490,10 @@ void tst_FindUsages::variadicFunctionTemplate()
         FindUsages find(src, doc, snapshot, true);
         find(v);
         QCOMPARE(find.usages().size(), 4);
-        QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-        QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
-        QCOMPARE(find.usages().at(2).type, Usage::Type::Read);
-        QCOMPARE(find.usages().at(3).type, Usage::Type::Read);
+        QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+        QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
+        QCOMPARE(find.usages().at(2).tags, Usage::Tag::Read);
+        QCOMPARE(find.usages().at(3).tags, Usage::Tag::Read);
     }
 }
 
@@ -1539,13 +1541,13 @@ void tst_FindUsages::typeTemplateParameterWithDefault()
         FindUsages find(src, doc, snapshot, true);
         find(xv);
         QCOMPARE(find.usages().size(), 2);
-        QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-        QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
+        QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+        QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
         find(sv);
         QCOMPARE(find.usages().size(), 3);
-        QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-        QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
-        QCOMPARE(find.usages().at(2).type, Usage::Type::Read);
+        QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+        QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
+        QCOMPARE(find.usages().at(2).tags, Usage::Tag::Read);
     }
 }
 
@@ -1583,8 +1585,8 @@ void tst_FindUsages::resolveOrder_for_templateFunction_vs_function()
         FindUsages find(src, doc, snapshot, true);
         find(xv);
         QCOMPARE(find.usages().size(), 2);
-        QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-        QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
+        QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+        QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
     }
 }
 
@@ -1625,9 +1627,9 @@ void tst_FindUsages::templateArrowOperator_with_defaultType()
         FindUsages find(src, doc, snapshot, true);
         find(sv);
         QCOMPARE(find.usages().size(), 3);
-        QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-        QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
-        QCOMPARE(find.usages().at(2).type, Usage::Type::Read);
+        QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+        QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
+        QCOMPARE(find.usages().at(2).tags, Usage::Tag::Read);
     }
 }
 
@@ -1707,23 +1709,23 @@ void tst_FindUsages::templateSpecialization_with_IntArgument()
         find(sv[1]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
+        QCOMPARE(find.usages()[0].tags, Initialization);
         QCOMPARE(find.usages()[0].line, 2);
         QCOMPARE(find.usages()[0].col, 15);
-        QCOMPARE(find.usages()[1].type, Usage::Type::Read);
+        QCOMPARE(find.usages()[1].tags, Usage::Tag::Read);
         QCOMPARE(find.usages()[1].line, 13);
         QCOMPARE(find.usages()[1].col, 9);
 
         find(sv[2]);
         QCOMPARE(find.usages().size(), 3);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
+        QCOMPARE(find.usages()[0].tags, Initialization);
         QCOMPARE(find.usages()[0].line, 3);
         QCOMPARE(find.usages()[0].col, 15);
-        QCOMPARE(find.usages()[1].type, Usage::Type::Write);
+        QCOMPARE(find.usages()[1].tags, Usage::Tag::Write);
         QCOMPARE(find.usages()[1].line, 14);
         QCOMPARE(find.usages()[1].col, 9);
-        QCOMPARE(find.usages()[2].type, Usage::Type::Read);
+        QCOMPARE(find.usages()[2].tags, Usage::Tag::Read);
         QCOMPARE(find.usages()[2].line, 14);
         QCOMPARE(find.usages()[2].col, 22);
     }
@@ -1786,20 +1788,20 @@ void tst_FindUsages::templateSpecialization_with_BoolArgument()
         find(sv[0]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
+        QCOMPARE(find.usages()[0].tags, Initialization);
         QCOMPARE(find.usages()[0].line, 1);
         QCOMPARE(find.usages()[0].col, 15);
-        QCOMPARE(find.usages()[1].type, Usage::Type::Read);
+        QCOMPARE(find.usages()[1].tags, Usage::Tag::Read);
         QCOMPARE(find.usages()[1].line, 9);
         QCOMPARE(find.usages()[1].col, 9);
 
         find(sv[1]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
+        QCOMPARE(find.usages()[0].tags, Initialization);
         QCOMPARE(find.usages()[0].line, 2);
         QCOMPARE(find.usages()[0].col, 15);
-        QCOMPARE(find.usages()[1].type, Usage::Type::Read);
+        QCOMPARE(find.usages()[1].tags, Usage::Tag::Read);
         QCOMPARE(find.usages()[1].line, 10);
         QCOMPARE(find.usages()[1].col, 9);
     }
@@ -1862,20 +1864,20 @@ void tst_FindUsages::templatePartialSpecialization()
         find(sv[0]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
+        QCOMPARE(find.usages()[0].tags, Initialization);
         QCOMPARE(find.usages()[0].line, 1);
         QCOMPARE(find.usages()[0].col, 15);
-        QCOMPARE(find.usages()[1].type, Usage::Type::Read);
+        QCOMPARE(find.usages()[1].tags, Usage::Tag::Read);
         QCOMPARE(find.usages()[1].line, 9);
         QCOMPARE(find.usages()[1].col, 10);
 
         find(sv[1]);
         QCOMPARE(find.usages().size(), 2);
 
-        QCOMPARE(find.usages()[0].type, Usage::Type::Initialization);
+        QCOMPARE(find.usages()[0].tags, Initialization);
         QCOMPARE(find.usages()[0].line, 2);
         QCOMPARE(find.usages()[0].col, 15);
-        QCOMPARE(find.usages()[1].type, Usage::Type::Read);
+        QCOMPARE(find.usages()[1].tags, Usage::Tag::Read);
         QCOMPARE(find.usages()[1].line, 10);
         QCOMPARE(find.usages()[1].col, 10);
     }
@@ -1931,18 +1933,18 @@ int main()
 
     find(sv[0]);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Initialization);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
 
     find(sv[1]);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Initialization);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
 
     find(sv[2]);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Initialization);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::template_SFINAE_1()
@@ -1981,8 +1983,8 @@ int main(){
     FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Initialization);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::variableTemplateInExpression()
@@ -2026,8 +2028,8 @@ int main(){
     FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::variadicMacros()
@@ -2066,8 +2068,8 @@ int main(){}
     FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Read);
 }
 
 void tst_FindUsages::writableRefs()
@@ -2179,37 +2181,37 @@ int main()
     FindUsages find(src, doc, snapshot, true);
     find(sv);
     QCOMPARE(find.usages().size(), 31);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(3).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(4).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(5).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(6).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(7).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(8).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(9).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(10).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(11).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(12).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(13).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(14).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(15).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(18).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(19).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(20).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(21).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(22).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(23).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(24).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(25).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(26).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(27).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(28).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(29).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(30).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Declaration);
+    QCOMPARE(find.usages().at(2).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(3).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(4).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(5).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(6).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(7).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(8).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(9).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(10).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(11).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(12).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(13).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(14).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(15).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(16).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(17).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(18).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(19).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(20).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(21).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(22).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(23).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(24).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(25).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(26).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(27).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(28).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(29).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(30).tags, Usage::Tag::Read);
 
     Declaration * const sv2 = structS->memberAt(2)->asDeclaration();
     QVERIFY(sv2);
@@ -2218,8 +2220,8 @@ int main()
     // Member initialization in constructor
     find(sv2);
     QCOMPARE(find.usages().size(), 2);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Declaration);
 
     // Make sure that pure virtual declaration is not mistaken for an assignment.
     Declaration * const pureVirtual = structS->memberAt(11)->asDeclaration();
@@ -2227,13 +2229,13 @@ int main()
     QCOMPARE(pureVirtual->name()->identifier()->chars(), "pureVirtual");
     find(pureVirtual);
     QCOMPARE(find.usages().size(), 1);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
     Function * const pureVirtual2 = structS->memberAt(12)->asFunction();
     QVERIFY(pureVirtual2);
     QCOMPARE(pureVirtual2->name()->identifier()->chars(), "pureVirtual2");
     find(pureVirtual2);
     QCOMPARE(find.usages().size(), 1);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
 
     Function * const main = doc->globalSymbolAt(6)->asFunction();
     QVERIFY(main);
@@ -2248,16 +2250,16 @@ int main()
     QCOMPARE(p->name()->identifier()->chars(), "p");
     find(p);
     QCOMPARE(find.usages().size(), 10);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Initialization);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(2).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(3).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(4).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(5).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(6).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(7).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(8).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(9).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Initialization);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(2).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(3).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(4).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(5).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(6).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(7).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(8).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(9).tags, Usage::Tag::Read);
 
     // Access to struct variable via its members
     Declaration * const varS = block->memberAt(0)->asDeclaration();
@@ -2265,70 +2267,70 @@ int main()
     QCOMPARE(varS->name()->identifier()->chars(), "s");
     find(varS);
     QCOMPARE(find.usages().size(), 33);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(2).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(3).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(4).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(5).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(6).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(7).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(8).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(9).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(10).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(11).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(12).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(13).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(14).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(15).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(16).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(2).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(3).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(4).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(5).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(6).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(7).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(8).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(9).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(10).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(11).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(12).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(13).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(14).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(15).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(16).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(17).tags, Usage::Tag::Read);
 
     // Direct access to struct variable
-    QCOMPARE(find.usages().at(18).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(19).type, Usage::Type::WritableRef);
+    QCOMPARE(find.usages().at(18).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(19).tags, Usage::Tag::WritableRef);
     QEXPECT_FAIL(nullptr, "parser does not record const qualifier for auto types", Continue);
-    QCOMPARE(find.usages().at(20).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(20).tags, Usage::Tag::Read);
     QEXPECT_FAIL(nullptr, "parser does not record reference qualifier for auto types", Continue);
-    QCOMPARE(find.usages().at(21).type, Usage::Type::WritableRef);
+    QCOMPARE(find.usages().at(21).tags, Usage::Tag::WritableRef);
     QEXPECT_FAIL(nullptr, "parser does not record const qualifier for auto types", Continue);
-    QCOMPARE(find.usages().at(22).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(22).tags, Usage::Tag::Read);
 
     // Member function calls.
-    QCOMPARE(find.usages().at(23).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(24).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(25).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(26).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(27).type, Usage::Type::WritableRef);
-    QCOMPARE(find.usages().at(28).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(29).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(31).type, Usage::Type::Other);
-    QCOMPARE(find.usages().at(32).type, Usage::Type::Other);
+    QCOMPARE(find.usages().at(23).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(24).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(25).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(26).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(27).tags, Usage::Tag::WritableRef);
+    QCOMPARE(find.usages().at(28).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(29).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(31).tags, Usage::Tags());
+    QCOMPARE(find.usages().at(32).tags, Usage::Tags());
 
     // Usages of struct type
     find(structS);
     QCOMPARE(find.usages().size(), 18);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Other);
-    QCOMPARE(find.usages().at(2).type, Usage::Type::Other);
-    QCOMPARE(find.usages().at(3).type, Usage::Type::Other);
-    QCOMPARE(find.usages().at(4).type, Usage::Type::Other);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(find.usages().at(2).tags, Usage::Tags());
+    QCOMPARE(find.usages().at(3).tags, Usage::Tags());
+    QCOMPARE(find.usages().at(4).tags, Usage::Tags());
 
     // These are conceptually questionable, as S is a type and thus we cannot "read from"
     // or "write to" it. But it possibly matches the intuitive user expectation.
-    QCOMPARE(find.usages().at(5).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(6).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(7).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(8).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(9).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(10).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(11).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(12).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(13).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(14).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(15).type, Usage::Type::Read);
-    QCOMPARE(find.usages().at(16).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(17).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(5).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(6).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(7).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(8).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(9).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(10).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(11).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(12).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(13).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(14).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(15).tags, Usage::Tag::Read);
+    QCOMPARE(find.usages().at(16).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(17).tags, Usage::Tag::Read);
 
     // Arrays.
     Declaration * const array = block->memberAt(17)->asDeclaration();
@@ -2336,9 +2338,9 @@ int main()
     QCOMPARE(array->name()->identifier()->chars(), "array");
     find(array);
     QCOMPARE(find.usages().size(), 3);
-    QCOMPARE(find.usages().at(0).type, Usage::Type::Declaration);
-    QCOMPARE(find.usages().at(1).type, Usage::Type::Write);
-    QCOMPARE(find.usages().at(2).type, Usage::Type::Read);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(find.usages().at(1).tags, Usage::Tag::Write);
+    QCOMPARE(find.usages().at(2).tags, Usage::Tag::Read);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

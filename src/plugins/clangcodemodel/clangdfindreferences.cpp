@@ -286,7 +286,7 @@ void ClangdFindReferences::Private::reportAllSearchResultsAndFinish()
     finishSearch();
 }
 
-static Usage::Type getUsageType(const ClangdAstPath &path);
+static Usage::Tags getUsageType(const ClangdAstPath &path);
 
 void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file,
                                                             const ReferencesFileData &fileData)
@@ -296,11 +296,11 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
     for (const auto &rangeWithText : fileData.rangesAndLineText) {
         const Range &range = rangeWithText.first;
         const ClangdAstPath astPath = getAstPath(fileData.ast, range);
-        const Usage::Type usageType = fileData.ast.isValid() ? getUsageType(astPath)
-                                                             : Usage::Type::Other;
+        const Usage::Tags usageType = fileData.ast.isValid() ? getUsageType(astPath)
+                                                             : Usage::Tags();
 
         SearchResultItem item;
-        item.setUserData(int(usageType));
+        item.setUserData(usageType.toInt());
         item.setStyle(CppEditor::colorStyleForUsageType(usageType));
         item.setFilePath(file);
         item.setMainRange(SymbolSupport::convertRange(range));
@@ -349,7 +349,7 @@ std::optional<QString> ClangdFindReferences::Private::getContainingFunctionName(
     return containingFuncNode->detail();
 }
 
-static Usage::Type getUsageType(const ClangdAstPath &path)
+static Usage::Tags getUsageType(const ClangdAstPath &path)
 {
     bool potentialWrite = false;
     bool isFunction = false;
@@ -357,24 +357,24 @@ static Usage::Type getUsageType(const ClangdAstPath &path)
     const auto isPotentialWrite = [&] { return potentialWrite && !isFunction; };
     for (auto pathIt = path.rbegin(); pathIt != path.rend(); ++pathIt) {
         if (pathIt->arcanaContains("non_odr_use_unevaluated"))
-            return Usage::Type::Other;
+            return {};
         if (pathIt->kind() == "CXXDelete")
-            return Usage::Type::Write;
+            return Usage::Tag::Write;
         if (pathIt->kind() == "CXXNew")
-            return Usage::Type::Other;
+            return {};
         if (pathIt->kind() == "Switch" || pathIt->kind() == "If")
-            return Usage::Type::Read;
+            return Usage::Tag::Read;
         if (pathIt->kind() == "Call")
-            return isFunction ? Usage::Type::Other
-                              : potentialWrite ? Usage::Type::WritableRef : Usage::Type::Read;
+            return isFunction ? Usage::Tags()
+                              : potentialWrite ? Usage::Tag::WritableRef : Usage::Tag::Read;
         if (pathIt->kind() == "CXXMemberCall") {
             const auto children = pathIt->children();
             if (children && children->size() == 1
                     && children->first() == path.last()
                     && children->first().arcanaContains("bound member function")) {
-                return Usage::Type::Other;
+                return {};
             }
-            return isPotentialWrite() ? Usage::Type::WritableRef : Usage::Type::Read;
+            return isPotentialWrite() ? Usage::Tag::WritableRef : Usage::Tag::Read;
         }
         if ((pathIt->kind() == "DeclRef" || pathIt->kind() == "Member")
                 && pathIt->arcanaContains("lvalue")) {
@@ -385,25 +385,25 @@ static Usage::Type getUsageType(const ClangdAstPath &path)
         }
         if (pathIt->role() == "declaration") {
             if (symbolIsDataType)
-                return Usage::Type::Other;
+                return {};
             if (pathIt->arcanaContains("cinit")) {
                 if (pathIt == path.rbegin())
-                    return Usage::Type::Initialization;
+                    return {Usage::Tag::Declaration, Usage::Tag::Write};
                 if (pathIt->childContainsRange(0, path.last().range()))
-                    return Usage::Type::Initialization;
+                    return {Usage::Tag::Declaration, Usage::Tag::Write};
                 if (isFunction)
-                    return Usage::Type::Read;
+                    return Usage::Tag::Read;
                 if (!pathIt->hasConstType())
-                    return Usage::Type::WritableRef;
-                return Usage::Type::Read;
+                    return Usage::Tag::WritableRef;
+                return Usage::Tag::Read;
             }
-            return Usage::Type::Declaration;
+            return Usage::Tag::Declaration;
         }
         if (pathIt->kind() == "MemberInitializer")
-            return pathIt == path.rbegin() ? Usage::Type::Write : Usage::Type::Read;
+            return pathIt == path.rbegin() ? Usage::Tag::Write : Usage::Tag::Read;
         if (pathIt->kind() == "UnaryOperator"
                 && (pathIt->detailIs("++") || pathIt->detailIs("--"))) {
-            return Usage::Type::Write;
+            return Usage::Tag::Write;
         }
 
         // LLVM uses BinaryOperator only for built-in types; for classes, CXXOperatorCall
@@ -413,29 +413,29 @@ static Usage::Type getUsageType(const ClangdAstPath &path)
         const bool isOpCall = pathIt->kind() == "CXXOperatorCall";
         if (isBinaryOp || isOpCall) {
             if (isOpCall && symbolIsDataType) // Constructor invocation.
-                return Usage::Type::Other;
+                return {};
 
             const QString op = pathIt->operatorString();
             if (op.endsWith("=") && op != "==") { // Assignment.
                 const int lhsIndex = isBinaryOp ? 0 : 1;
                 if (pathIt->childContainsRange(lhsIndex, path.last().range()))
-                    return Usage::Type::Write;
-                return isPotentialWrite() ? Usage::Type::WritableRef : Usage::Type::Read;
+                    return Usage::Tag::Write;
+                return isPotentialWrite() ? Usage::Tag::WritableRef : Usage::Tag::Read;
             }
-            return Usage::Type::Read;
+            return Usage::Tag::Read;
         }
 
         if (pathIt->kind() == "ImplicitCast") {
             if (pathIt->detailIs("FunctionToPointerDecay"))
-                return Usage::Type::Other;
+                return {};
             if (pathIt->hasConstType())
-                return Usage::Type::Read;
+                return Usage::Tag::Read;
             potentialWrite = true;
             continue;
         }
     }
 
-    return Usage::Type::Other;
+    return {};
 }
 
 class ClangdFindLocalReferences::Private

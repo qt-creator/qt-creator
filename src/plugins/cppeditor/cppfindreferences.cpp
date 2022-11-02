@@ -41,20 +41,13 @@ using namespace std::placeholders;
 
 namespace CppEditor {
 
-SearchResultColor::Style colorStyleForUsageType(CPlusPlus::Usage::Type type)
+SearchResultColor::Style colorStyleForUsageType(CPlusPlus::Usage::Tags tags)
 {
-    switch (type) {
-    case CPlusPlus::Usage::Type::Read:
+    if (tags.testFlag(CPlusPlus::Usage::Tag::Read))
         return SearchResultColor::Style::Alt1;
-    case CPlusPlus::Usage::Type::Initialization:
-    case CPlusPlus::Usage::Type::Write:
-    case CPlusPlus::Usage::Type::WritableRef:
+    if (tags.testAnyFlags({CPlusPlus::Usage::Tag::Write, CPlusPlus::Usage::Tag::WritableRef}))
         return SearchResultColor::Style::Alt2;
-    case CPlusPlus::Usage::Type::Declaration:
-    case CPlusPlus::Usage::Type::Other:
-        return SearchResultColor::Style::Default;
-    }
-    return SearchResultColor::Style::Default; // For dumb compilers.
+    return SearchResultColor::Style::Default;
 }
 
 QWidget *CppSearchResultFilter::createWidget()
@@ -87,19 +80,14 @@ QWidget *CppSearchResultFilter::createWidget()
 
 bool CppSearchResultFilter::matches(const SearchResultItem &item) const
 {
-    switch (static_cast<CPlusPlus::Usage::Type>(item.userData().toInt())) {
-    case CPlusPlus::Usage::Type::Read:
+    const auto usageTags = CPlusPlus::Usage::Tags::fromInt(item.userData().toInt());
+    if (usageTags.testFlag(CPlusPlus::Usage::Tag::Read))
         return m_showReads;
-    case CPlusPlus::Usage::Type::Write:
-    case CPlusPlus::Usage::Type::WritableRef:
-    case CPlusPlus::Usage::Type::Initialization:
+    if (usageTags.testAnyFlags({CPlusPlus::Usage::Tag::Write, CPlusPlus::Usage::Tag::WritableRef}))
         return m_showWrites;
-    case CPlusPlus::Usage::Type::Declaration:
+    if (usageTags.testFlag(CPlusPlus::Usage::Tag::Declaration))
         return m_showDecls;
-    case CPlusPlus::Usage::Type::Other:
-        return m_showOther;
-    }
-    return false;
+    return m_showOther;
 }
 
 void CppSearchResultFilter::setValue(bool &member, bool value)
@@ -582,9 +570,9 @@ static void displayResults(SearchResult *search,
         item.setFilePath(result.path);
         item.setMainRange(result.line, result.col, result.len);
         item.setLineText(result.lineText);
-        item.setUserData(int(result.type));
+        item.setUserData(result.tags.toInt());
         item.setContainingFunctionName(result.containingFunction);
-        item.setStyle(colorStyleForUsageType(result.type));
+        item.setStyle(colorStyleForUsageType(result.tags));
         item.setUseTextEditorFont(true);
         if (search->supportsReplace())
             item.setSelectForReplacement(SessionManager::projectForFile(result.path));
@@ -678,7 +666,7 @@ restart_search:
                     unsigned column;
                     const QString &lineSource = matchingLine(use.bytesBegin(), source, &column);
                     usages.append(CPlusPlus::Usage(fileName, lineSource, {},
-                                                   CPlusPlus::Usage::Type::Other, use.beginLine(),
+                                                   {}, use.beginLine(),
                                                    column, useMacro.nameToQString().size()));
                 }
             }
