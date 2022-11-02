@@ -97,12 +97,23 @@ function(_create_ts_custom_target name)
     DEPENDS ${_sources}
     VERBATIM)
 
-  add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
-    COMMAND Qt5::lupdate -locations relative -no-ui-lines -no-sort -no-obsolete -locations none "@${ts_file_list}" -ts ${ts_files}
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generate .ts files, remove obsolete and vanished translations, and do not add files and line number"
-    DEPENDS ${_sources}
-    VERBATIM)
+  # Add cleaned target only for single-ts targets
+  # Uses lupdate + convert instead of just lupdate with '-locations none -no-obsolete'
+  # to keep the same sorting as the non-'cleaned' target and therefore keep the diff small
+  list(LENGTH ts_files file_count)
+  if(file_count EQUAL 1)
+    # get path for lconvert...
+    get_target_property(_lupdate_binary Qt5::lupdate IMPORTED_LOCATION)
+    get_filename_component(_bin_dir ${_lupdate_binary} DIRECTORY)
+
+    add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
+      COMMAND Qt5::lupdate -locations relative -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
+      COMMAND ${_bin_dir}/lconvert -locations none -no-ui-lines -no-obsolete ${ts_files} -o ${ts_files}
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      COMMENT "Generate .ts files, remove obsolete and vanished translations, and do not add files and line number"
+      DEPENDS ${_sources}
+      VERBATIM)
+  endif()
 endfunction()
 
 function(add_translation_targets file_prefix)
