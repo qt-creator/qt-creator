@@ -42,6 +42,7 @@ add_qtc_library(QmlDesignerCore STATIC
     QmlProjectManager
     QtSupport
   PUBLIC_DEPENDS
+    QmlPuppetCommunication
     QmlDesignerUtils
     TextEditor
     Sqlite
@@ -350,118 +351,6 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
-  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet
-  INCLUDES
-    ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/commands
-    ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/container
-  PUBLIC_INCLUDES
-    "${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
-    "${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/types"
-  SOURCES
-    commands/captureddatacommand.h
-    commands/changeauxiliarycommand.cpp
-    commands/changeauxiliarycommand.h
-    commands/changebindingscommand.cpp
-    commands/changebindingscommand.h
-    commands/changefileurlcommand.cpp
-    commands/changefileurlcommand.h
-    commands/changeidscommand.cpp
-    commands/changeidscommand.h
-    commands/changelanguagecommand.cpp
-    commands/changelanguagecommand.h
-    commands/changenodesourcecommand.cpp
-    commands/changenodesourcecommand.h
-    commands/changepreviewimagesizecommand.cpp
-    commands/changepreviewimagesizecommand.h
-    commands/changeselectioncommand.cpp
-    commands/changeselectioncommand.h
-    commands/changestatecommand.cpp
-    commands/changestatecommand.h
-    commands/changevaluescommand.cpp
-    commands/changevaluescommand.h
-    commands/childrenchangedcommand.cpp
-    commands/childrenchangedcommand.h
-    commands/clearscenecommand.cpp
-    commands/clearscenecommand.h
-    commands/completecomponentcommand.cpp
-    commands/completecomponentcommand.h
-    commands/componentcompletedcommand.cpp
-    commands/componentcompletedcommand.h
-    commands/createinstancescommand.cpp
-    commands/createinstancescommand.h
-    commands/createscenecommand.cpp
-    commands/createscenecommand.h
-    commands/debugoutputcommand.cpp
-    commands/debugoutputcommand.h
-    commands/endpuppetcommand.cpp
-    commands/endpuppetcommand.h
-    commands/informationchangedcommand.cpp
-    commands/informationchangedcommand.h
-    commands/nanotracecommand.cpp
-    commands/nanotracecommand.h
-    commands/inputeventcommand.cpp
-    commands/inputeventcommand.h
-    commands/pixmapchangedcommand.cpp
-    commands/pixmapchangedcommand.h
-    commands/puppetalivecommand.cpp
-    commands/puppetalivecommand.h
-    commands/puppettocreatorcommand.cpp
-    commands/puppettocreatorcommand.h
-    commands/removeinstancescommand.cpp
-    commands/removeinstancescommand.h
-    commands/removepropertiescommand.cpp
-    commands/removepropertiescommand.h
-    commands/removesharedmemorycommand.cpp
-    commands/removesharedmemorycommand.h
-    commands/reparentinstancescommand.cpp
-    commands/reparentinstancescommand.h
-    commands/requestmodelnodepreviewimagecommand.cpp
-    commands/requestmodelnodepreviewimagecommand.h
-    commands/scenecreatedcommand.h
-    commands/statepreviewimagechangedcommand.cpp
-    commands/statepreviewimagechangedcommand.h
-    commands/synchronizecommand.h
-    commands/tokencommand.cpp
-    commands/tokencommand.h
-    commands/update3dviewstatecommand.cpp
-    commands/update3dviewstatecommand.h
-    commands/valueschangedcommand.cpp
-    commands/valueschangedcommand.h
-    commands/view3dactioncommand.cpp
-    commands/view3dactioncommand.h
-
-    container/addimportcontainer.cpp
-    container/addimportcontainer.h
-    container/idcontainer.cpp
-    container/idcontainer.h
-    container/imagecontainer.cpp
-    container/imagecontainer.h
-    container/informationcontainer.cpp
-    container/informationcontainer.h
-    container/instancecontainer.cpp
-    container/instancecontainer.h
-    container/mockuptypecontainer.cpp
-    container/mockuptypecontainer.h
-    container/propertyabstractcontainer.cpp
-    container/propertyabstractcontainer.h
-    container/propertybindingcontainer.cpp
-    container/propertybindingcontainer.h
-    container/propertyvaluecontainer.cpp
-    container/propertyvaluecontainer.h
-    container/reparentcontainer.cpp
-    container/reparentcontainer.h
-    container/sharedmemory.h
-
-    interfaces/commondefines.h
-    interfaces/nodeinstanceclientinterface.h
-    interfaces/nodeinstanceglobal.h
-    interfaces/nodeinstanceserverinterface.cpp
-    interfaces/nodeinstanceserverinterface.h
-
-    types/enumeration.h
-)
-
-extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX designercore/projectstorage
   PUBLIC_INCLUDES designercore/projectstorage
   SOURCES
@@ -496,18 +385,6 @@ extend_qtc_library(QmlDesignerCore
     qmltypesparserinterface.h
     qmltypesparser.cpp qmltypesparser.h
     qmldocumentparser.cpp qmldocumentparser.h
-)
-
-extend_qtc_library(QmlDesignerCore
-  CONDITION UNIX
-  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/container
-  SOURCES sharedmemory_unix.cpp
-)
-
-extend_qtc_library(QmlDesignerCore
-  CONDITION NOT UNIX
-  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/container
-  SOURCES sharedmemory_qt.cpp
 )
 
 file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)

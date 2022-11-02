@@ -15,6 +15,7 @@ add_subdirectory(glsl)
 add_subdirectory(languageserverprotocol)
 add_subdirectory(sqlite)
 add_subdirectory(tracing)
+add_subdirectory(qmlpuppetcommunication)
 
 add_subdirectory(qtcreatorcdbext)
 

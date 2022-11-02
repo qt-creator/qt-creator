@@ -4,7 +4,6 @@ set(resource_directories
   glsl
   indexer_preincludes
   modeleditor
-  qml
   qmldesigner
   qmlicons
   qml-type-descriptions
