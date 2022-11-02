@@ -43,7 +43,7 @@
     application with root user permissions.
 
     You can also create custom executable run configurations where you
-    can set the executable to be run. For more information, see
+    can set the executable to run. For more information, see
     \l{Specifying a Custom Executable to Run}.
 
 //! [run settings desktop]

@@ -16,8 +16,8 @@
 
     \QC is an integrated development environment (IDE) that provides you with
     tools to design and develop applications with the Qt application framework.
-    Qt is designed for developing applications and user interfaces once and
-    deploying them to several desktop, embedded, and mobile operating systems or
+    With Qt you can develop applications and user interfaces once and deploy
+    them to several desktop, embedded, and mobile operating systems or
     web browsers (experimental). \QC
     provides you with tools for accomplishing your tasks throughout the whole
     application development life-cycle, from creating a project to deploying the
@@ -32,20 +32,20 @@
             \li \b {\l{Managing Projects}}
 
                 To be able to build and run applications, \QC needs the same
-                information as a compiler would need. This information is
-                specified in the project settings.
+                information as a compiler would need. It stores the information
+                in the project settings.
 
-                Setting up a new project in \QC is aided by a wizard that guides
-                you step-by-step through the project creation process, creates
-                the necessary files, and specifies settings depending on the
+                \QC contains templates for creating new projects. They guide
+                you step-by-step through the project creation process, create
+                the necessary files, and specify settings depending on the
                 choices you make. For more information, see
                 \l{Managing Projects}.
             \li \b {\l{Designing User Interfaces}}
 
                 To create intuitive, modern-looking, fluid user interfaces, you
                 can use \l{Qt Quick} and \l{Qt Design Studio Manual}{\QDS}.
-                If you need a traditional user interface that is clearly
-                structured and enforces a platform look and feel, you can use
+                If you need a traditional user interface that has a clear
+                structure and enforces a platform look and feel, you can use
                 the integrated \QD. For more information, see
                 \l{Designing User Interfaces}.
             \li \b {\l{Coding}}
@@ -66,33 +66,33 @@
         \row
             \li \b {\l{Building and Running}}
 
-                \QC is integrated with cross-platform systems for build
+                \QC integrates cross-platform systems for build
                 automation: qmake, Qbs, CMake, and Autotools. In addition, you
                 can import
                 projects as \e {generic projects} and fully control the steps
                 and commands used to build the project.
 
-                \QC provides support for running and deploying Qt applications
-                built for the desktop environment or a \l{glossary-device}
-                {device}. \l{glossary-buildandrun-kit}{Kits}, build,
-                run, and deployment settings allow you to quickly switch between
-                different setups and target platforms.
+                You can build applications for, deploy them to, and run them on
+                the desktop environment or a \l{glossary-device}{device}.
+                \l{glossary-buildandrun-kit}{Kits}, build, run, and deployment
+                settings allow you to quickly switch between different setups and
+                target platforms.
 
                 For more information, see \l{Building and Running}.
             \li \b {\l{Testing}}
 
-                \QC is integrated to several external native debuggers: GNU
+                \QC integrates several external native debuggers: GNU
                 Symbolic Debugger (GDB), Microsoft Console Debugger (CDB), and
                 internal JavaScript debugger. In the \uicontrol Debug mode, you
                 can inspect the state of your application while debugging.
 
-                The memory and CPU power available on devices are limited and
+                Devices have limited memory and CPU power, so
                 you should use them carefully. \QC integrates Valgrind code
                 analysis tools for detecting memory leaks and profiling function
                 execution. In addition, the QML Profiler enables you to profile
                 Qt Quick applications.
 
-                \QC is integrated to the \l{Qt Test}, Boost.Test, Catch 2 test,
+                \QC integrates the \l{Qt Test}, Boost.Test, Catch 2 test,
                 and Google C++ Testing frameworks for unit testing applications
                 and libraries. You can use \QC to create, build, and run
                 autotests.
@@ -100,8 +100,8 @@
                 For more information, see \l{Testing}.
             \li \b {Publishing}
 
-                \QC allows you to create installation packages for mobile
-                devices that are suitable for publishing to application stores
+                \QC enables you to create installation packages for mobile
+                devices that you can publish to application stores
                 and other channels. You must make sure that the package contents
                 meet the requirements for publishing on the channel.
 

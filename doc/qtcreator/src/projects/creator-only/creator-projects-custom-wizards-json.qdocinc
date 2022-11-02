@@ -28,7 +28,7 @@
     You can use variables (\c {%\{<variableName>\}}) in strings in the JSON configuration
     file and in template source files.
     A set of variables is predefined by the wizards and their pages.
-    You can introduce new variables as shortcuts to be used later by
+    You can introduce new variables as shortcuts for later use by
     defining the variable key names and values in the \c options section in the
     \c {wizard.json} file.
 
@@ -225,8 +225,8 @@
             \li The \c options section contains an array of objects with \e key
                 and \e value attributes. You can define your own variables to
                 use in the configuration and template source files, in addition
-                to the predefined variables. For example, the following
-                variables are used in the C++ class creation wizard:
+                to the predefined variables. For example, the C++ class creation
+                wizard uses the following variables:
 
                 \code
                 "options":
@@ -372,7 +372,7 @@
             may be empty.
     \endlist
 
-    The following information is only available when the wizard was triggered
+    The following information is only available when users trigger the wizard
     via the context menu of a node in the \uicontrol Projects view:
 
     \list
@@ -563,12 +563,12 @@
             settings:
 
             \list
-                \li \c skipIfEmpty will cause empty arguments to be silently
-                    removed from the command to be run if set to \c true.
+                \li \c skipIfEmpty silently removes empty arguments from the
+                    command to run if you set it to \c true.
                     Defaults to \c true.
 
                 \li \c directory with the working directory of the command to
-                    be run. This defaults to the value of \c baseDirectory.
+                    run. This defaults to the value of \c baseDirectory.
 
                 \li \c command with the command to be run.
 
@@ -605,8 +605,8 @@
         \li Text Edit
     \endlist
 
-    \note Only the the settings documented in the following sections are
-    supported in wizards.
+    \note Wizards support only the the settings documented in the following
+    sections.
 
     Specify the following settings for each widget:
 
@@ -629,8 +629,8 @@
             must have their \c isComplete evaluate to \c true for this to
             happen. This setting defaults to \c true.
 
-        \li \c trIncompleteMessage is shown when the field's \c isComplete was
-            evaluated to \c false.
+        \li \c trIncompleteMessage is shown when the field's \c isComplete
+            evaluates to \c false.
 
         \li \c persistenceKey makes the user choice persistent. The value is
             taken to be a settings key. If the user changes the default

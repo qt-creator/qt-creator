@@ -62,8 +62,8 @@
 
     \image qtcreator-vcs-diff.png
 
-    The diff is displayed side-by-side in a \l{Comparing Files}{diff editor}
-    by default. To use the unified diff view instead, select the
+    The \l{Comparing Files}{diff editor} displays the diff side-by-side. To use
+    the unified diff view instead, select the
     \uicontrol {Switch to Unified Diff Editor} (1) option from the toolbar.
     In both views, you can use context menu commands to apply, revert, stage,
     and unstage chunks or selected lines, as well as send chunks to a code
@@ -125,7 +125,7 @@
     The other actions in the context-menu enable you to apply actions to the
     commit, such as cherry-pick, checkout, or revert it.
 
-    To rescan the files, click \inlineimage icons/reload_gray.png
+    To rescan the files, select \inlineimage icons/reload_gray.png
     (\uicontrol Reload).
 
     \section2 Staging Changes
@@ -136,7 +136,7 @@
 
     \section2 Resetting Changes
 
-    Git has an index that is used to stage changes. The index is committed on
+    Git uses an index to stage changes. The index is committed on
     the next commit. Git allows you to revert back to the state of the last
     commit as well as to the state staged in the index.
 
@@ -158,9 +158,8 @@
 
     To clean the working directory, select \uicontrol {Build Project} > \uicontrol {Clean}.
     All files that are not under version control are displayed in
-    the \uicontrol {Clean Repository} dialog. Ignored files are
-    deselected by default. Select the files to delete and click
-    \uicontrol Delete.
+    the \uicontrol {Clean Repository} dialog. Ignored files are deselected by
+    default. Select the files to delete, and then select \uicontrol Delete.
 
     \section1 Working with Local Repositories
 
@@ -185,7 +184,7 @@
 
     To submit your changes to Git, select \uicontrol Commit. \QC displays a
     commit page containing a text editor where you can enter your commit
-    message and a checkable list of modified files to be included.
+    message and a checkable list of modified files to include.
 
     \image qtcreator-vcs-commit.png "Committing changes with Git"
 
@@ -194,7 +193,7 @@
 
     In \uicontrol {Commit Information}, you can edit information about the
     author of the commit. To bypass re-commit and commit message hooks,
-    select \uicontrol {Bypass hooks}. If signoffs are used for your project,
+    select \uicontrol {Bypass hooks}. If your project uses signoffs,
     select \uicontrol {Sign off} to add a \e signed-off-by trailer by the
     author at the end of the commit log message.
 
@@ -202,7 +201,7 @@
 
     In \uicontrol Files, select the files to include in the commit.
 
-    When you have finished filling out the commit page information, click on
+    When you have finished filling out the commit page information, select
     \uicontrol Commit to start committing.
 
     The \uicontrol {Diff Selected Files} button opens a \l{Viewing Git Diff}
@@ -236,7 +235,7 @@
 
     To amend an earlier comment in a series of related commits, select
     \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} >
-    \uicontrol {Fixup Previous Commit}. This operation is done using interactive
+    \uicontrol {Fixup Previous Commit}. This operation uses interactive
     rebase. In case of conflicts, a merge tool is suggested.
 
     \section2 Resetting Local Repository
@@ -265,9 +264,9 @@
 
     \section2 Working with Branches
 
-    To work with Git branches, select \uicontrol {Branches}. The checked out
-    branch is shown in bold and underlined in the list of branches in the
-    \uicontrol {Git Branches} sidebar view.
+    To work with Git branches, select \uicontrol {Branches}. The
+    \uicontrol {Git Branches} sidebar view shows the checked out
+    branch in bold and underlined in the list of branches.
 
     \image qtcreator-vcs-gitbranch.png "Git Branches sidebar view"
 
@@ -283,13 +282,13 @@
     If you checked out a specific commit, the list of branches displays a
     \e {Detached HEAD} entry.
 
-    For local and remote branches, the changes log can be shown by double
-    clicking on the branch name.
+    For local and remote branches, double-click the branch name to view the
+    change log.
 
-    To refresh the list of branches, click \inlineimage icons/reload_gray.png
+    To refresh the list of branches, select \inlineimage icons/reload_gray.png
     (\uicontrol Refresh).
 
-    The following operations are supported in the context-menu for a branch:
+    The context menu for a branch contains the following functions:
 
     \table
         \header
@@ -347,9 +346,9 @@
             \li Push the committed changes to the selected remote branch.
     \endtable
 
-    The following additional context-menu operations are available for
-    \uicontrol{Remote Branches}. The context-menu can be opened on
-    \uicontrol{Remote Branches} or on a specific remote repository.
+    The context menu for a remote branch contains the following additional
+    functions. To open it, select \uicontrol{Remote Branches} or a remote
+    repository.
 
     \table
         \header
@@ -378,7 +377,7 @@
 
     \section2 Applying Patches
 
-    Patches are rewriting instructions that can be applied to a set of files.
+    Patches are rewriting instructions that Git can apply to a set of files.
     To apply a patch file that is open in \QC, select \uicontrol Patch >
     \uicontrol {Apply from Editor}.
 
@@ -444,8 +443,8 @@
     To start controlling a project directory that is currently not under
     version control, select \uicontrol Tools > \uicontrol Git >
     \uicontrol {Create Repository}. \QC creates a new subdirectory named .git
-    that contains all the necessary repository files. However, nothing in the
-    project is tracked yet, so you will need to create an initial commit to
+    that contains all the necessary repository files. However, Git does not track
+    anyhing in the project yet, so you will need to create an initial commit to
     start tracking the project files.
 
     \section1 Working with Remote Repositories
