@@ -226,6 +226,7 @@ public:
                 continue;
             }
             if (const auto declarator = (*it)->asDeclarator()) {
+                Usage::Tags tags;
                 if (containsToken(declarator->core_declarator)) {
                     if (declarator->initializer && declarator->equal_token
                             && (!declarator->postfix_declarator_list
@@ -233,17 +234,47 @@ public:
                             || !declarator->postfix_declarator_list->value->asFunctionDeclarator())) {
                         return {Usage::Tag::Declaration, Usage::Tag::Write};
                     }
-                    return Usage::Tag::Declaration;
-                }
-                if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
-                    if (decl->symbols && decl->symbols->value) {
-                        return checkPotentialWrite(
-                                    getTagsFromLhsAndRhs(decl->symbols->value->type(),
-                                                              declarator->initializer, it + 1),
-                                    it + 1);
+                    tags = Usage::Tag::Declaration;
+                    if (declarator->postfix_declarator_list
+                            && declarator->postfix_declarator_list->value) {
+                        if (const FunctionDeclaratorAST * const funcDecl = declarator
+                                ->postfix_declarator_list->value->asFunctionDeclarator()) {
+                            for (SpecifierListAST *iter = funcDecl->cv_qualifier_list; iter;
+                                 iter = iter->next) {
+                                if (!iter->value)
+                                    continue;
+                                if (const auto simpleSpec = iter->value->asSimpleSpecifier();
+                                        simpleSpec && simpleSpec->specifier_token) {
+                                    const Control * const ctl = m_findUsages->control();
+                                    const Identifier * const id = m_findUsages->translationUnit()
+                                            ->tokenAt(simpleSpec->specifier_token).identifier;
+                                    if (id && (id->equalTo(ctl->cpp11Override())
+                                               || id->equalTo(ctl->cpp11Final()))) {
+                                        tags |= Usage::Tag::Override;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-                return {};
+                if (const auto decl = (*(it + 1))->asSimpleDeclaration()) {
+                    if (tags.toInt() && decl->qt_invokable_token)
+                        return tags |= Usage::Tag::MocInvokable;
+                    if (decl->symbols && decl->symbols->value) {
+                        if (!tags) {
+                            return checkPotentialWrite(
+                                        getTagsFromLhsAndRhs(decl->symbols->value->type(),
+                                                             declarator->initializer, it + 1),
+                                        it + 1);
+                        }
+                        if (const auto func = decl->symbols->value->type()->asFunctionType()) {
+                            if (func->isSignal() || func->isSlot() || func->isInvokable())
+                                return tags |= Usage::Tag::MocInvokable;
+                        }
+                    }
+                }
+                return tags;
             }
             if (const auto retStmt = (*it)->asReturnStatement()) {
                 for (auto funcIt = it + 1; funcIt != m_astPath.rend(); ++funcIt) {

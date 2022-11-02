@@ -116,6 +116,8 @@ private Q_SLOTS:
 
     void variadicMacros();
     void writableRefs();
+    void mocInvokables();
+    void virtualOverride();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -724,7 +726,16 @@ void tst_FindUsages::qproperty_1()
     QCOMPARE(findUsages.usages().size(), 2);
     QCOMPARE(findUsages.usages().at(0).tags, Usage::Tags());
     QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Declaration);
-    QCOMPARE(findUsages.references().size(), 2);
+
+    Declaration *xChangedSignal = tst->memberAt(3)->asDeclaration();
+    QVERIFY(xChangedSignal);
+    QCOMPARE(xChangedSignal->identifier()->chars(), "xChanged");
+    findUsages(xChangedSignal);
+    QCOMPARE(findUsages.usages().size(), 3);
+    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags,
+             (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::MocInvokable}));
 }
 
 void tst_FindUsages::instantiateTemplateWithNestedClass()
@@ -2341,6 +2352,138 @@ int main()
     QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
     QCOMPARE(find.usages().at(1).tags, Usage::Tag::Write);
     QCOMPARE(find.usages().at(2).tags, Usage::Tag::Read);
+}
+
+void tst_FindUsages::mocInvokables()
+{
+    const QByteArray src =
+        R"(
+class O : public QObject {
+public:
+    void aPublicFunction();
+    Q_SLOT void aSlot();
+    Q_SIGNAL void aSignal();
+    Q_INVOKABLE void anInvokable();
+public slots:
+    void anotherSlot();
+signals:
+    void anotherSignal();
+private slots:
+    void yetAnotherSlot();
+private:
+    void aPrivateFunction();
+};
+)";
+
+    Document::Ptr doc = Document::create("mocInvokables");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount() >= 1);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *s = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(s);
+    QCOMPARE(s->name()->identifier()->chars(), "O");
+    QCOMPARE(s->memberCount(), 8);
+
+    const Usage::Tags invokable{Usage::Tag::Declaration, Usage::Tag::MocInvokable};
+
+    Declaration *sv = s->memberAt(0)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "aPublicFunction");
+    FindUsages find(src, doc, snapshot, true);
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+
+    sv = s->memberAt(1)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "aSlot");
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags, invokable);
+
+    sv = s->memberAt(2)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "aSignal");
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags, invokable);
+
+    sv = s->memberAt(3)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "anInvokable");
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags, invokable);
+
+    sv = s->memberAt(4)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "anotherSlot");
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags, invokable);
+
+    sv = s->memberAt(5)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "anotherSignal");
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags, invokable);
+
+    sv = s->memberAt(6)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "yetAnotherSlot");
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags, invokable);
+
+    sv = s->memberAt(7)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "aPrivateFunction");
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags, Usage::Tag::Declaration);
+}
+
+void tst_FindUsages::virtualOverride()
+{
+    const QByteArray src =
+        R"(
+struct Base { virtual void foo(); };
+struct Derived : public Base { void foo() override; };
+)";
+
+    Document::Ptr doc = Document::create("virtualOverride");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(doc->globalSymbolCount() >= 2);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *s = doc->globalSymbolAt(1)->asClass();
+    QVERIFY(s);
+    QCOMPARE(s->name()->identifier()->chars(), "Derived");
+    QCOMPARE(s->memberCount(), 1);
+
+    Declaration *sv = s->memberAt(0)->asDeclaration();
+    QVERIFY(sv);
+    QCOMPARE(sv->name()->identifier()->chars(), "foo");
+
+    FindUsages find(src, doc, snapshot, true);
+    find(sv);
+    QCOMPARE(find.usages().size(), 1);
+    QCOMPARE(find.usages().at(0).tags,
+             (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::Override}));
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)

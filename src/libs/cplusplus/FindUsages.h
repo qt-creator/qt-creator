@@ -22,6 +22,8 @@ public:
         Read = 1 << 1,
         Write = 1 << 2,
         WritableRef = 1 << 3,
+        Override = 1 << 4,
+        MocInvokable = 1 << 5,
     };
     using Tags = QFlags<Tag>;
 

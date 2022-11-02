@@ -219,7 +219,7 @@ void ClangdTestFindReferences::test_data()
         makeItem(5, 21, Initialization), makeItem(45, 16, Usage::Tag::Read)};
 
     ItemList pureVirtualRefs{makeItem(17, 17, Usage::Tag::Declaration),
-                             makeItem(21, 9, Usage::Tag::Declaration)};
+                             makeItem(21, 9, {Usage::Tag::Declaration, Usage::Tag::Override})};
     QTest::newRow("pure virtual declaration") << "defs.h" << 420 << pureVirtualRefs;
 
     QTest::newRow("pointer variable") << "main.cpp" << 52 << ItemList{

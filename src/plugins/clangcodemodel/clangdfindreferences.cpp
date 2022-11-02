@@ -397,7 +397,17 @@ static Usage::Tags getUsageType(const ClangdAstPath &path)
                     return Usage::Tag::WritableRef;
                 return Usage::Tag::Read;
             }
-            return Usage::Tag::Declaration;
+            Usage::Tags tags = Usage::Tag::Declaration;
+            const auto children = pathIt->children().value_or(QList<ClangdAstNode>());
+            for (const ClangdAstNode &child : children) {
+                if (child.role() == "attribute") {
+                    if (child.kind() == "Override" || child.kind() == "Final")
+                        tags |= Usage::Tag::Override;
+                    else if (child.kind() == "Annotate" && child.arcanaContains("qt_"))
+                        tags |= Usage::Tag::MocInvokable;
+                }
+            }
+            return tags;
         }
         if (pathIt->kind() == "MemberInitializer")
             return pathIt == path.rbegin() ? Usage::Tag::Write : Usage::Tag::Read;
