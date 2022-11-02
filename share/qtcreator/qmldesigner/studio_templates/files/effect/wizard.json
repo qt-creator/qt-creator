@@ -7,8 +7,8 @@
     "trDisplayName": "Effect File (Effect Maker)",
     "trDisplayCategory": "Effects",
     "iconText": "qep",
-    "platformIndependent": false,
-    "enabled": true,
+    "platformIndependent": true,
+    "enabled": "%{JS: value('Features').indexOf('QmlDesigner.Wizards.Enterprise') >= 0}",
     "featuresRequired": [ "QmlDesigner.Wizards.Enterprise" ],
 
     "options": { "key": "DefaultSuffix", "value": "qep" },
