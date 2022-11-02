@@ -254,8 +254,7 @@ Process *LauncherSocketHandler::setupProcess(quintptr token)
     const auto p = new Process(token, this);
     connect(p, &QProcess::started, this, [this, p] { handleProcessStarted(p); });
     connect(p, &QProcess::errorOccurred, this, [this, p] { handleProcessError(p); });
-    connect(p, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
-            this, [this, p] { handleProcessFinished(p); });
+    connect(p, &QProcess::finished, this, [this, p] { handleProcessFinished(p); });
     connect(p, &QProcess::readyReadStandardOutput,
             this, [this, p] { handleReadyReadStandardOutput(p); });
     connect(p, &QProcess::readyReadStandardError,

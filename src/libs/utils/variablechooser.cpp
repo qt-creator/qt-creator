@@ -84,7 +84,7 @@ public:
         m_iconButton->setIcon(Icons::REPLACE.icon());
         m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
         m_iconButton->hide();
-        connect(m_iconButton.data(), static_cast<void(QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
+        connect(m_iconButton.data(), &QAbstractButton::clicked,
                 this, &VariableChooserPrivate::updatePositionAndShow);
     }
 

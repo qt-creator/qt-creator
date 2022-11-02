@@ -91,8 +91,7 @@ void LauncherInterfacePrivate::doStart()
     }
     m_process = new LauncherProcess(this);
     connect(m_process, &QProcess::errorOccurred, this, &LauncherInterfacePrivate::handleProcessError);
-    connect(m_process,
-            static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+    connect(m_process, &QProcess::finished,
             this, &LauncherInterfacePrivate::handleProcessFinished);
     connect(m_process, &QProcess::readyReadStandardError,
             this, &LauncherInterfacePrivate::handleProcessStderr);
