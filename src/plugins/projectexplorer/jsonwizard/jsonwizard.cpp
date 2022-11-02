@@ -442,7 +442,7 @@ QString JsonWizard::evaluate(const QVariant &v) const
 void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
 {
     QString errorMessage;
-    bool openedSomething = false;
+    bool openedSomething = stringValue("DoNotOpenFile") == "true";
     for (const JsonWizard::GeneratorFile &f : files) {
         const Core::GeneratedFile &file = f.file;
         if (!QFileInfo::exists(file.path())) {
