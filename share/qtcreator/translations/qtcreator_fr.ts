@@ -15873,48 +15873,8 @@ Influence l&apos;indentation des lignes de continuation.
 <context>
     <name>TextEditor::DisplaySettingsPage</name>
     <message>
-        <source>Display</source>
-        <translation type="obsolete">Affichage</translation>
-    </message>
-    <message>
-        <source>Display line &amp;numbers</source>
-        <translation type="obsolete">Afficher les &amp;numéros de ligne</translation>
-    </message>
-    <message>
-        <source>Display &amp;folding markers</source>
-        <translation type="obsolete">Affiche les marqueurs de &amp;pliage</translation>
-    </message>
-    <message>
-        <source>Show tabs and spaces.</source>
-        <translation type="obsolete">Afficher les tabulations et espaces.</translation>
-    </message>
-    <message>
-        <source>&amp;Visualize whitespace</source>
-        <translation type="obsolete">&amp;Visualiser les espaces</translation>
-    </message>
-    <message>
-        <source>Highlight current &amp;line</source>
-        <translation type="obsolete">Surligner la &amp;ligne courante</translation>
-    </message>
-    <message>
-        <source>Highlight &amp;blocks</source>
-        <translation type="obsolete">Surligner les &amp;blocs</translation>
-    </message>
-    <message>
         <source>Animate matching parentheses</source>
         <translation type="obsolete">Animer les parenthèses correspondantes</translation>
-    </message>
-    <message>
-        <source>Text Wrapping</source>
-        <translation type="obsolete">Retour à la ligne dynamique</translation>
-    </message>
-    <message>
-        <source>Enable text &amp;wrapping</source>
-        <translation type="obsolete">Activer le &amp;retour à la ligne automatique</translation>
-    </message>
-    <message>
-        <source>Display right &amp;margin at column:</source>
-        <translation type="obsolete">Afficher une &amp;marge à la colonne :</translation>
     </message>
     <message>
         <source>Navigation</source>
@@ -15928,24 +15888,6 @@ Influence l&apos;indentation des lignes de continuation.
         <source>Mark text changes</source>
         <translatorcomment>Put a red mark next to the text that has been modified since the last save</translatorcomment>
         <translation type="obsolete">Marquer le texte modifié</translation>
-    </message>
-    <message>
-        <source>Mark &amp;text changes</source>
-        <translation type="obsolete">Marquer les modifications de &amp;texte</translation>
-    </message>
-    <message>
-        <source>&amp;Animate matching parentheses</source>
-        <translation type="obsolete">&amp;Animer les parenthèses correspondantes</translation>
-    </message>
-    <message>
-        <source>Auto-fold first &amp;comment</source>
-        <translatorcomment>reformulation à l&apos;infinitif
-francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
-        <translation type="obsolete">Replier automatiquement le premier &amp;commentaire</translation>
-    </message>
-    <message>
-        <source>Center &amp;cursor on scroll</source>
-        <translation type="obsolete">Centrer le &amp;curseur sur le barre de défilement</translation>
     </message>
 </context>
 <context>
@@ -37243,14 +37185,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
 <context>
     <name>TextEditor::TabSettingsWidget</name>
     <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Tabs And Indentation</source>
-        <translation type="obsolete">Tabulation et indentation</translation>
-    </message>
-    <message>
         <source>Insert &amp;spaces instead of tabs</source>
         <translation type="obsolete">Insérer des e&amp;spaces au lieu de tabulations</translation>
     </message>
@@ -37263,14 +37197,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
         <translation type="obsolete">Basé sur les lignes environnantes</translation>
     </message>
     <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Taille de ta&amp;bulation : </translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">Taille de l&apos;&amp;indentation : </translation>
-    </message>
-    <message>
         <source>Enable automatic &amp;indentation</source>
         <translation type="obsolete">Activer l&apos;&amp;indentation automatique</translation>
     </message>
@@ -37281,71 +37207,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     <message>
         <source>&amp;Backspace follows indentation</source>
         <translation type="obsolete">La touche &amp;retour arrière suit l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>Align continuation lines:</source>
-        <translation type="obsolete">Aligner les lignes de continuation : </translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influences the indentation of continuation lines.
-
-&lt;ul&gt;
-&lt;li&gt;Not At All: Do not align at all. Lines will only be indented to the current logical indentation depth.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Spaces: Always use spaces for alignment, regardless of the other indentation settings.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Regular Indent: Use tabs and/or spaces for alignment, as configured above.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influence l&apos;indentation des lignes de continuation. 
-&lt;ul&gt;
-&lt;li&gt;Pas du tout : ne pas aligner. Les lignes ne seront indentées jusqu&apos;à la profondeur d&apos;indentation logique. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec espaces : toujours utiliser des espaces pour l&apos;alignement, sans tenir compte des autres paramètres d&apos;indentation. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec indentation régulière : utiliser des tabulations et/ou des espaces pour l&apos;alignement, en fonction de la configuration.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Not At All</source>
-        <translation type="obsolete">Pas du tout</translation>
-    </message>
-    <message>
-        <source>With Spaces</source>
-        <translation type="obsolete">Avec espaces</translation>
-    </message>
-    <message>
-        <source>With Regular Indent</source>
-        <translation type="obsolete">Avec indentation régulière</translation>
     </message>
     <message>
         <source>Tab key performs auto-indent:</source>
@@ -37362,22 +37223,6 @@ Influence l&apos;indentation des lignes de continuation.
     <message>
         <source>In Leading White Space</source>
         <translation type="obsolete">En début de ligne uniquement</translation>
-    </message>
-    <message>
-        <source>Tab policy:</source>
-        <translation type="obsolete">Politique de tabulation :</translation>
-    </message>
-    <message>
-        <source>Spaces Only</source>
-        <translation type="obsolete">Espaces seulement</translation>
-    </message>
-    <message>
-        <source>Tabs Only</source>
-        <translation type="obsolete">Tabulation seulement</translation>
-    </message>
-    <message>
-        <source>Mixed</source>
-        <translation type="obsolete">Mixte</translation>
     </message>
 </context>
 <context>
@@ -43644,6 +43489,8 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
     <message>
         <source>Auto-fold first &amp;comment</source>
+        <translatorcomment>reformulation à l&apos;infinitif
+francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
         <translation>Replier automatiquement le premier &amp;commentaire</translation>
     </message>
     <message>

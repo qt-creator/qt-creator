@@ -245,7 +245,6 @@ void Edit3DWidget::onCreateAction()
         if (modelNode.metaInfo().isQtQuick3DModel())
             m_view->assignMaterialTo3dModel(modelNode);
     });
-
 }
 
 void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

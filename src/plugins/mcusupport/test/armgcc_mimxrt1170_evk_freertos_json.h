@@ -47,9 +47,12 @@ constexpr auto armgcc_mimxrt1170_evk_freertos_json = R"(
             "type": "path",
             "optional": false,
             "versionDetection": {
-                "filePattern": "bin/arm-none-eabi-g++",
+                "filePattern": {
+                    "windows": "bin/arm-none-eabi-g++.exe",
+                    "linux": "bin/arm-none-eabi-g++"
+                },
                 "executableArgs": "--version",
-                "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+                "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
             },
             "detectionPath": {
                 "windows": "bin/arm-none-eabi-g++.exe",
@@ -85,6 +88,7 @@ constexpr auto armgcc_mimxrt1170_evk_freertos_json = R"(
         "cmakeVar": "FREERTOS_DIR",
         "envVar": "EVK_MIMXRT1170_FREERTOS_PATH",
         "label": "FreeRTOS SDK for MIMXRT1170-EVK",
+        "setting": "FreeRTOSSourcePackage_IMXRT1170",
         "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
         "detectionPath": "tasks.c",
         "type": "path",

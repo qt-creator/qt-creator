@@ -8,6 +8,7 @@
 #include "settingshandler.h"
 
 #include <utils/filepath.h>
+#include <utils/pathchooser.h>
 
 #include <QObject>
 
@@ -18,7 +19,6 @@ class ToolChain;
 }
 
 namespace Utils {
-class PathChooser;
 class InfoLabel;
 class Id;
 } // namespace Utils
@@ -30,17 +30,19 @@ class McuPackage : public McuAbstractPackage
     Q_OBJECT
 
 public:
-    McuPackage(const SettingsHandler::Ptr &settingsHandler,
-               const QString &label,
-               const Utils::FilePath &defaultPath,
-               const Utils::FilePath &detectionPath,
-               const QString &settingsKey,
-               const QString &cmakeVarName,
-               const QString &envVarName,
-               const QStringList &versions = {},
-               const QString &downloadUrl = {},
-               const McuPackageVersionDetector *versionDetector = nullptr,
-               const bool addToPath = false);
+    McuPackage(
+        const SettingsHandler::Ptr &settingsHandler,
+        const QString &label,
+        const Utils::FilePath &defaultPath,
+        const Utils::FilePath &detectionPath,
+        const QString &settingsKey,
+        const QString &cmakeVarName,
+        const QString &envVarName,
+        const QStringList &versions = {},
+        const QString &downloadUrl = {},
+        const McuPackageVersionDetector *versionDetector = nullptr,
+        const bool addToPath = false,
+        const Utils::PathChooser::Kind &valueType = Utils::PathChooser::Kind::ExistingDirectory);
 
     ~McuPackage() override = default;
 
@@ -92,6 +94,7 @@ private:
     const QString m_environmentVariableName;
     const QString m_downloadUrl;
     const bool m_addToSystemPath;
+    const Utils::PathChooser::Kind m_valueType;
 
     Status m_status = Status::InvalidPath;
 }; // class McuPackage

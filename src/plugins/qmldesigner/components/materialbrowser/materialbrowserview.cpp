@@ -22,6 +22,14 @@
 #include <qmldesignerconstants.h>
 #include <utils/algorithm.h>
 
+#ifndef QMLDESIGNER_TEST
+#include <projectexplorer/kit.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+#endif
+
 #include <QQuickItem>
 #include <QRegularExpression>
 #include <QTimer>
@@ -102,7 +110,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                         }
                     }
                     for (const PropertyName &propName : std::as_const(propNames)) {
-                        if (propName != "objectName")
+                        if (propName != "objectName" && propName != "data")
                             mat.removeProperty(propName);
                     }
                 }
@@ -269,11 +277,12 @@ void MaterialBrowserView::modelAttached(Model *model)
         rootModelNode().metaInfo().isQtQuick3DMaterial());
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
+    updateBundleMaterialsQuick3DVersion();
     updateBundleMaterialsImportedState();
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
     // before refreshing the model
-    QTimer::singleShot(1000, this, [this]() {
+    QTimer::singleShot(1000, model, [this]() {
         refreshModel(true);
         loadPropertyGroups(); // Needs the delay because it uses metaInfo
     });
@@ -281,7 +290,7 @@ void MaterialBrowserView::modelAttached(Model *model)
 
 void MaterialBrowserView::refreshModel(bool updateImages)
 {
-    if (!model() || !model()->nodeInstanceView())
+    if (!model())
         return;
 
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
@@ -312,6 +321,11 @@ bool MaterialBrowserView::isMaterial(const ModelNode &node) const
 void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 {
     m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
+
+    if (m_propertyGroupsLoaded) {
+        m_propertyGroupsLoaded = false;
+        m_widget->materialBrowserModel()->unloadPropertyGroups();
+    }
 
     AbstractView::modelAboutToBeDetached(model);
 }
@@ -418,7 +432,7 @@ void MaterialBrowserView::nodeRemoved([[maybe_unused]] const ModelNode &removedN
 
 void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
 {
-    if (!m_hasQuick3DImport || m_propertyGroupsLoaded)
+    if (!m_hasQuick3DImport || m_propertyGroupsLoaded || !model())
         return;
 
     QString matPropsPath = model()->metaInfo("QtQuick3D.Material").importDirectoryPath()
@@ -443,6 +457,41 @@ void MaterialBrowserView::updateBundleMaterialsImportedState()
     }
 
     m_widget->materialBrowserBundleModel()->updateImportedState(importedBundleMats);
+}
+
+void MaterialBrowserView::updateBundleMaterialsQuick3DVersion()
+{
+    bool hasImport = false;
+    int major = -1;
+    int minor = -1;
+    const QString url {"QtQuick3D"};
+    const auto imports = model()->imports();
+    for (const auto &import : imports) {
+        if (import.url() == url) {
+            hasImport = true;
+            const int importMajor = import.majorVersion();
+            if (major < importMajor) {
+                minor = -1;
+                major = importMajor;
+            }
+            if (major == importMajor)
+                minor = qMax(minor, import.minorVersion());
+        }
+    }
+#ifndef QMLDESIGNER_TEST
+    if (hasImport && major == -1) {
+        // Import without specifying version, so we take the kit version
+        auto target = ProjectExplorer::SessionManager::startupTarget();
+        if (target) {
+            QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+            if (qtVersion) {
+                major = qtVersion->qtVersion().majorVersion();
+                minor = qtVersion->qtVersion().minorVersion();
+            }
+        }
+    }
+#endif
+    m_widget->materialBrowserBundleModel()->setQuick3DImportVersion(major, minor);
 }
 
 ModelNode MaterialBrowserView::getBundleMaterialDefaultInstance(const TypeName &type)
@@ -472,6 +521,8 @@ void MaterialBrowserView::importsChanged([[maybe_unused]] const QList<Import> &a
 {
     bool hasQuick3DImport = model()->hasImport("QtQuick3D");
 
+    updateBundleMaterialsQuick3DVersion();
+
     if (hasQuick3DImport == m_hasQuick3DImport)
         return;
 
@@ -496,7 +547,7 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
     } else if (identifier == "refresh_material_browser") {
-        QTimer::singleShot(0, this, [this]() {
+        QTimer::singleShot(0, model(), [this]() {
             refreshModel(true);
         });
     } else if (identifier == "delete_selected_material") {

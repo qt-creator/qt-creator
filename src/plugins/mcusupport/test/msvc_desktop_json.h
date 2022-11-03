@@ -31,12 +31,14 @@ constexpr auto msvc_desktop_json = R"(
         ],
         "compiler": {
             "label": "MSVC Toolchain",
+            "setting": "MsvcToolchain",
             "defaultValue": "%{Env:MSVC_COMPILER_DIR}",
             "versionDetection": {
                 "filePattern": "cl.exe",
                 "executableArgs": "--version",
                 "regex": "\\b(\\d+\\.\\d+)\\.\\d+\\b"
-            }
+            },
+            "detectionPath": "cl.exe"
         }
     }
 }

@@ -29,10 +29,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <designmodewidget.h>
-#include <qmldesignerplugin.h>
+#include <propertyeditorqmlbackend.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <propertyeditorqmlbackend.h>
+#include <qmldesignerplugin.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -59,9 +60,7 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
     m_ensureMatLibTimer.callOnTimeout([this] {
         if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
             && model()->rewriterView()->errors().isEmpty()) {
-            executeInTransaction("MaterialEditorView::MaterialEditorView", [this] {
-                ensureMaterialLibraryNode();
-            });
+            ensureMaterialLibraryNode();
             m_ensureMatLibTimer.stop();
         }
     });
@@ -364,7 +363,7 @@ void MaterialEditorView::resetView()
 QString MaterialEditorView::materialEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/materialEditorQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/materialEditorQmlSources").toString();
@@ -714,8 +713,8 @@ void MaterialEditorView::updatePossibleTypes()
         return;
 
     // Ensure basic types are always first
-    static const QStringList basicTypes {"DefaultMaterial", "PrincipledMaterial", "CustomMaterial"};
-    QStringList allTypes = basicTypes;
+    QStringList nonQuick3dTypes;
+    QStringList allTypes;
 
     const QList<ItemLibraryEntry> itemLibEntries = m_itemLibraryInfo->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
@@ -730,12 +729,22 @@ void MaterialEditorView::updatePossibleTypes()
                 addImport = model()->hasImport(import, true, true);
             }
             if (addImport) {
-                QString typeName = QString::fromLatin1(entry.typeName().split('.').last());
-                if (!allTypes.contains(typeName))
-                    allTypes.append(typeName);
+                const QList<QByteArray> typeSplit = entry.typeName().split('.');
+                const QString typeName = QString::fromLatin1(typeSplit.last());
+                if (typeSplit.size() == 2 && typeSplit.first() == "QtQuick3D") {
+                    if (!allTypes.contains(typeName))
+                        allTypes.append(typeName);
+                } else if (!nonQuick3dTypes.contains(typeName)) {
+                    nonQuick3dTypes.append(typeName);
+                }
             }
         }
     }
+
+    allTypes.sort();
+    nonQuick3dTypes.sort();
+    allTypes.append(nonQuick3dTypes);
+
     m_qmlBackEnd->contextObject()->setPossibleTypes(allTypes);
 }
 
@@ -1006,6 +1015,8 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 
     TypeName matType = material.type();
     QmlObjectNode sourceMat(material);
+    ModelNode duplicateMatNode;
+    QList<AbstractProperty> dynamicProps;
 
     executeInTransaction(__FUNCTION__, [&] {
         ModelNode matLib = materialLibraryNode();
@@ -1016,25 +1027,57 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
         NodeMetaInfo metaInfo = model()->metaInfo(matType);
         QmlObjectNode duplicateMat = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
 
+        duplicateMatNode = duplicateMat.modelNode();
+
         // set name and id
         QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString() + " copy";
-        duplicateMat.modelNode().variantProperty("objectName").setValue(newName);
-        duplicateMat.modelNode().setIdWithoutRefactoring(model()->generateIdFromName(newName, "material"));
+        duplicateMatNode.variantProperty("objectName").setValue(newName);
+        duplicateMatNode.setIdWithoutRefactoring(model()->generateIdFromName(newName, "material"));
 
-        // sync properties
+        // sync properties. Only the base state is duplicated.
         const QList<AbstractProperty> props = material.properties();
         for (const AbstractProperty &prop : props) {
-            if (prop.name() == "objectName")
+            if (prop.name() == "objectName" || prop.name() == "data")
                 continue;
 
-            if (prop.isVariantProperty())
-                duplicateMat.setVariantProperty(prop.name(), prop.toVariantProperty().value());
-            else if (prop.isBindingProperty())
-                duplicateMat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
+            if (prop.isVariantProperty()) {
+                if (prop.isDynamic()) {
+                    dynamicProps.append(prop);
+                } else {
+                    duplicateMatNode.variantProperty(prop.name())
+                            .setValue(prop.toVariantProperty().value());
+                }
+            } else if (prop.isBindingProperty()) {
+                if (prop.isDynamic()) {
+                    dynamicProps.append(prop);
+                } else {
+                    duplicateMatNode.bindingProperty(prop.name())
+                            .setExpression(prop.toBindingProperty().expression());
+                }
+            }
         }
 
         matLib.defaultNodeListProperty().reparentHere(duplicateMat);
     });
+
+    // For some reason, creating dynamic properties in the same transaction doesn't work, so
+    // let's do it in separate transaction.
+    // TODO: Fix the issue and merge transactions (QDS-8094)
+    if (!dynamicProps.isEmpty()) {
+        executeInTransaction(__FUNCTION__, [&] {
+            for (const AbstractProperty &prop : std::as_const(dynamicProps)) {
+                if (prop.isVariantProperty()) {
+                    duplicateMatNode.variantProperty(prop.name())
+                            .setDynamicTypeNameAndValue(prop.dynamicTypeName(),
+                                                        prop.toVariantProperty().value());
+                } else if (prop.isBindingProperty()) {
+                    duplicateMatNode.bindingProperty(prop.name())
+                            .setDynamicTypeNameAndExpression(prop.dynamicTypeName(),
+                                                             prop.toBindingProperty().expression());
+                }
+            }
+        });
+    }
 }
 
 void MaterialEditorView::customNotification([[maybe_unused]] const AbstractView *view,

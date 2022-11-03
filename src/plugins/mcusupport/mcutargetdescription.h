@@ -4,6 +4,8 @@
 #pragma once
 
 #include <utils/filepath.h>
+#include <utils/pathchooser.h>
+
 #include <QString>
 #include <QStringList>
 #include <QVector>
@@ -32,6 +34,7 @@ struct PackageDescription
     QStringList versions;
     VersionDetection versionDetection;
     bool shouldAddToSystemPath;
+    Utils::PathChooser::Kind type;
 }; //struct PackageDescription
 
 struct McuTargetDescription

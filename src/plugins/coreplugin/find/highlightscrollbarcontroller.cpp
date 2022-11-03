@@ -232,6 +232,12 @@ bool HighlightScrollBarOverlay::eventFilter(QObject *object, QEvent *event)
     case QEvent::ZOrderChange:
         raise();
         break;
+    case QEvent::Show:
+        show();
+        break;
+    case QEvent::Hide:
+        hide();
+        break;
     default:
         break;
     }
@@ -360,7 +366,7 @@ void HighlightScrollBarController::setScrollArea(QAbstractScrollArea *scrollArea
 
 double HighlightScrollBarController::lineHeight() const
 {
-    return m_lineHeight;
+    return ceil(m_lineHeight);
 }
 
 void HighlightScrollBarController::setLineHeight(double lineHeight)

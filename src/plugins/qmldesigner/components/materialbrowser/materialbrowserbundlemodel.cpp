@@ -54,17 +54,26 @@ QVariant MaterialBrowserBundleModel::data(const QModelIndex &index, int role) co
     QTC_ASSERT(index.isValid() && index.row() < m_bundleCategories.count(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
+    return m_bundleCategories.at(index.row())->property(roleNames().value(role));
+}
+
+bool MaterialBrowserBundleModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid() || !roleNames().contains(role))
+        return false;
+
     QByteArray roleName = roleNames().value(role);
-    if (roleName == "bundleCategory")
-        return m_bundleCategories.at(index.row())->name();
+    BundleMaterialCategory *bundleCategory = m_bundleCategories.at(index.row());
+    QVariant currValue = bundleCategory->property(roleName);
 
-    if (roleName == "bundleCategoryVisible")
-        return m_bundleCategories.at(index.row())->visible();
+    if (currValue != value) {
+        bundleCategory->setProperty(roleName, value);
 
-    if (roleName == "bundleMaterialsModel")
-        return QVariant::fromValue(m_bundleCategories.at(index.row())->categoryMaterials());
+        emit dataChanged(index, index, {role});
+        return true;
+    }
 
-    return {};
+    return false;
 }
 
 bool MaterialBrowserBundleModel::isValidIndex(int idx) const
@@ -75,16 +84,17 @@ bool MaterialBrowserBundleModel::isValidIndex(int idx) const
 QHash<int, QByteArray> MaterialBrowserBundleModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
-        {Qt::UserRole + 1, "bundleCategory"},
+        {Qt::UserRole + 1, "bundleCategoryName"},
         {Qt::UserRole + 2, "bundleCategoryVisible"},
-        {Qt::UserRole + 3, "bundleMaterialsModel"}
+        {Qt::UserRole + 3, "bundleCategoryExpanded"},
+        {Qt::UserRole + 4, "bundleCategoryMaterials"}
     };
     return roles;
 }
 
 void MaterialBrowserBundleModel::loadMaterialBundle()
 {
-    if (m_matBundleExists || m_probeMatBundleDir)
+    if (m_matBundleLoaded || m_probeMatBundleDir)
         return;
 
     QDir matBundleDir(qEnvironmentVariable("MATERIAL_BUNDLE_PATH"));
@@ -120,7 +130,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
         }
     }
 
-    m_matBundleExists = true;
+    m_matBundleLoaded = true;
 
     QString bundleId = m_matBundleObj.value("id").toString();
 
@@ -174,20 +184,6 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
     });
 }
 
-bool MaterialBrowserBundleModel::hasQuick3DImport() const
-{
-    return m_hasQuick3DImport;
-}
-
-void MaterialBrowserBundleModel::setHasQuick3DImport(bool b)
-{
-    if (b == m_hasQuick3DImport)
-        return;
-
-    m_hasQuick3DImport = b;
-    emit hasQuick3DImportChanged();
-}
-
 bool MaterialBrowserBundleModel::hasMaterialRoot() const
 {
     return m_hasMaterialRoot;
@@ -200,6 +196,11 @@ void MaterialBrowserBundleModel::setHasMaterialRoot(bool b)
 
     m_hasMaterialRoot = b;
     emit hasMaterialRootChanged();
+}
+
+bool MaterialBrowserBundleModel::matBundleExists() const
+{
+    return m_matBundleLoaded && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
 }
 
 Internal::BundleImporter *MaterialBrowserBundleModel::bundleImporter() const
@@ -241,6 +242,17 @@ void MaterialBrowserBundleModel::updateImportedState(const QStringList &imported
 
     if (changed)
         resetModel();
+}
+
+void MaterialBrowserBundleModel::setQuick3DImportVersion(int major, int minor)
+{
+    bool bundleExisted = matBundleExists();
+
+    m_quick3dMajorVersion = major;
+    m_quick3dMinorVersion = minor;
+
+    if (bundleExisted != matBundleExists())
+        emit matBundleExistsChanged();
 }
 
 void MaterialBrowserBundleModel::resetModel()

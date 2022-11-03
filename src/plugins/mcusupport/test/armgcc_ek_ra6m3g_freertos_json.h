@@ -24,6 +24,10 @@ constexpr auto armgcc_ek_ra6m3g_freertos_json = R"(
                     "windows": "%{Env:PROGRAMFILES}/SEGGER/JLink",
                     "linux": "/opt/SEGGER/JLink"
                 },
+                "detectionPath": {
+                    "windows": "JLink.exe",
+                    "linux": "JLinkExe"
+                },
                 "optional": true,
                 "addToSystemPath": true
             }
@@ -43,9 +47,12 @@ constexpr auto armgcc_ek_ra6m3g_freertos_json = R"(
             "type": "path",
             "optional": false,
             "versionDetection": {
-                "filePattern": "bin/arm-none-eabi-g++",
+                "filePattern": {
+                    "windows": "bin/arm-none-eabi-g++.exe",
+                    "linux": "bin/arm-none-eabi-g++"
+                },
                 "executableArgs": "--version",
-                "regex": "\\bv(\\d+\\.\\d+\\.\\d+)\\b"
+                "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
             },
             "detectionPath": {
                 "windows": "bin/arm-none-eabi-g++.exe",
@@ -64,6 +71,7 @@ constexpr auto armgcc_ek_ra6m3g_freertos_json = R"(
     "boardSdk": {
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "envVar": "EK_RA6M3G_FSP_PATH",
+        "setting": "EK_RA6M3G_FSP_PATH",
         "id": "EK_RA6M3G_FSP_PATH",
         "label": "Flexible Software Package for Renesas RA MCU Family",
         "optional": false,
@@ -76,6 +84,7 @@ constexpr auto armgcc_ek_ra6m3g_freertos_json = R"(
         "envVar": "EK_RA6M3G_FREERTOS_DIR",
         "id": "EK_RA6M3G_FREERTOS_DIR",
         "label": "FreeRTOS SDK for EK-RA6M3G",
+        "setting": "FreeRTOSSourcePackage_EK_RA6M3G",
         "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "%{Qul_ROOT}/platform/boards/renesas/ek-ra6m3g-common/3rdparty/freertos",
         "detectionPath": "tasks.c",

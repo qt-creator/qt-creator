@@ -162,6 +162,7 @@ ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
 
                 readonly property string suffix: fileName.substr(-4)
                 readonly property bool isFont: suffix === ".ttf" || suffix === ".otf"
+                readonly property bool isEffect: suffix === ".qep"
                 property bool currFileSelected: false
 
                 MouseArea {
@@ -180,7 +181,7 @@ ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
                         allowTooltip = true
                     }
                     onPositionChanged: tooltipBackend.reposition()
-                    onPressed: (mouse)=> {
+                    onPressed: (mouse) => {
                         forceActiveFocus()
                         allowTooltip = false
                         tooltipBackend.hideTooltip()
@@ -212,7 +213,7 @@ ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
                         }
                     }
 
-                    onReleased: (mouse)=> {
+                    onReleased: (mouse) => {
                         allowTooltip = true
                         if (mouse.button === Qt.LeftButton) {
                             if (!(mouse.modifiers & Qt.ControlModifier))
@@ -220,6 +221,14 @@ ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
                             root.selectedAssets[filePath] = currFileSelected
                             root.selectedAssetsChanged()
                         }
+                    }
+
+                    onDoubleClicked: (mouse) => {
+                        forceActiveFocus()
+                        allowTooltip = false
+                        tooltipBackend.hideTooltip()
+                        if (mouse.button === Qt.LeftButton && isEffect)
+                            rootView.openEffectMaker(filePath)
                     }
 
                     ToolTip {

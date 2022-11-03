@@ -66,6 +66,7 @@ inline constexpr char Picture[] = "Picture";
 inline constexpr char Popup[] = "Popup";
 inline constexpr char Positioner[] = "Positioner";
 inline constexpr char PrincipledMaterial[] = "PrincipledMaterial";
+inline constexpr char SpecularGlossyMaterial[] = "SpecularGlossyMaterial";
 inline constexpr char PropertyAnimation[] = "PropertyAnimation";
 inline constexpr char PropertyChanges[] = "PropertyChanges";
 inline constexpr char QML[] = "QML";

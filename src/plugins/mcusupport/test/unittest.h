@@ -22,6 +22,7 @@ class McuSupportTest : public QObject
 
 public:
     McuSupportTest();
+    std::pair<Targets, Packages> createTestingKitTargetsAndPackages(QByteArray test_file);
 
 private slots:
     void initTestCase();
@@ -102,10 +103,14 @@ private slots:
 
     void test_differentValueForEachOperationSystem();
     void test_addToSystemPathFlag();
+    void test_processWildcards_data();
+    void test_processWildcards();
 
     void test_nonemptyVersionDetector();
     void test_emptyVersionDetector();
     void test_emptyVersionDetectorFromJson();
+
+    void test_expectedValueType();
 
 private:
     QVersionNumber currentQulVersion{2, 0};

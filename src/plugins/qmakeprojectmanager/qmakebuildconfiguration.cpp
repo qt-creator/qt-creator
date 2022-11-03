@@ -153,6 +153,8 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     });
 
     buildDirectoryAspect()->allowInSourceBuilds(target->project()->projectDirectory());
+    connect(this, &BuildConfiguration::buildDirectoryInitialized,
+            this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(this, &BuildConfiguration::buildDirectoryChanged,
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(this, &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,

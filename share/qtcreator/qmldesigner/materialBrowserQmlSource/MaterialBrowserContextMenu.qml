@@ -80,6 +80,10 @@ StudioControls.Menu {
                 root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.principledMaterialSections);
                 break;
 
+            case "SpecularGlossyMaterial":
+                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.specularGlossyMaterialSections);
+                break;
+
             case "CustomMaterial":
                 root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.customMaterialSections);
                 break;

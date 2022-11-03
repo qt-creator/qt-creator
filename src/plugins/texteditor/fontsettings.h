@@ -99,7 +99,6 @@ private:
     ColorScheme m_scheme;
     mutable QHash<TextStyle, QTextCharFormat> m_formatCache;
     mutable QHash<TextStyles, QTextCharFormat> m_textCharFormatCache;
-    mutable qreal m_lineSpacingCache;
 };
 
 } // namespace TextEditor

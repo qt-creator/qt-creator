@@ -25,44 +25,44 @@
             \li \l Windows
         \row
             \li \l Android
-            \li \image ok
-            \li \image ok
-            \li \image ok
+            \li \image ok.png
+            \li \image ok.png
+            \li \image ok.png
         \row
             \li \l{Bare Metal}
-            \li \image ok
-            \li \image ok
-            \li \image ok
+            \li \image ok.png
+            \li \image ok.png
+            \li \image ok.png
         \row
             \li \l Boot2Qt
-            \li \image ok
-            \li \image ok
-            \li \image ok
+            \li \image ok.png
+            \li \image ok.png
+            \li \image ok.png
         \row
-            \li \l{Generic Remote Linux}
-            \li \image ok
-            \li \image ok
-            \li \image ok
+            \li \l{Remote Linux}
+            \li \image ok.png
+            \li \image ok.png
+            \li \image ok.png
         \row
             \li \l iOS
             \li
-            \li \image ok
+            \li \image ok.png
             \li
         \row
             \li \l{Microcontroller Units (MCU)}{MCUs}
             \li
             \li
-            \li \image ok
+            \li \image ok.png
         \row
             \li \l QNX
-            \li \image ok
-            \li \image ok
-            \li \inlineimage ok
+            \li \image ok.png
+            \li \image ok.png
+            \li \inlineimage ok.png
         \row
             \li \l{Building Applications for the Web}{WebAssembly}
-            \li \image ok
-            \li \image ok
-            \li \image ok
+            \li \image ok.png
+            \li \image ok.png
+            \li \image ok.png
     \endtable
 
     \note UWP support was removed from \QC 8.0.

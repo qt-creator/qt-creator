@@ -155,16 +155,9 @@ void TestResultDelegate::currentChanged(const QModelIndex &current, const QModel
 
 void TestResultDelegate::clearCache()
 {
-    const QModelIndex current = m_lastProcessedIndex;
     m_lastProcessedIndex = QModelIndex();
     m_lastProcessedFont = QFont();
     m_lastWidth = -1;
-    if (current.isValid()) {
-        if (auto model = current.model()) {
-            if (model->index(current.row(), current.column(), current.parent()) == current)
-                emit sizeHintChanged(current);
-        }
-    }
 }
 
 void TestResultDelegate::limitTextOutput(QString &output) const

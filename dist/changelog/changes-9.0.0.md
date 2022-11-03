@@ -34,6 +34,7 @@ Editing
 * Added option for `Tint whole margin area`
 * Added option for line spacing (QTCREATORBUG-13727)
 * Added `Create Cursors at Selected Line Ends`
+* Added support for character encoding in binary/memory editor
 * Improved UI for multiple markers on the same line (QTCREATORBUG-27415)
 * Fixed performance issue with large selections
 * Fixed saving files with non-breaking spaces (QTCREATORBUG-17875)
@@ -76,10 +77,6 @@ Editing
 * Fixed that server was not restarted after 5 times, even if a long time passed
   after the last time
 
-### Binaries
-
-* Added support for character encoding
-
 ### Image Viewer
 
 * Made `Fit to Screen` sticky and added option for the default
@@ -88,6 +85,7 @@ Editing
 ### Diff Viewer
 
 * Fixed that calculating differences blocked Qt Creator
+* Fixed that description widget height was not persistent (QTCREATORBUG-24286)
 
 Projects
 --------
@@ -105,6 +103,7 @@ Projects
   toolchain files (QTCREATORBUG-24555)
 * Added option for changing environment for configure step
 * Added option for hiding subfolders in source groups (QTCREATORBUG-27432)
+* Added support for `Build File` also from header files (QTCREATORBUG-26164)
 * Fixed that `PATH` environment variable was not completely set up during first
   CMake run
 * Fixed issues with importing builds using Visual C++ generator
@@ -132,6 +131,9 @@ Version Control Systems
 ### Git
 
 * Added support for user-configured comment character (QTCREATORBUG-28042)
+* Improved matching of commit hashes (QTCREATORBUG-24768, QTCREATORBUG-28268)
+* Fixed adding or deleting files in nested directories (QTCREATORBUG-27644, QTCREATORBUG-27405)
+* Fixed that text encoding in project settings was not respected on diff
 
 Test Integration
 ----------------

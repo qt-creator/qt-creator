@@ -15,8 +15,9 @@
 #include "ghs_tviic2d6m_baremetal_json.h"
 #include "iar_mimxrt1064_evk_freertos_json.h"
 #include "iar_stm32f469i_discovery_baremetal_json.h"
-#include "msvc_desktop_json.h"
 #include "mingw_desktop_json.h"
+#include "msvc_desktop_json.h"
+#include "wildcards_test_kit_json.h"
 
 #include "mcuhelpers.h"
 #include "mcukitmanager.h"
@@ -27,6 +28,7 @@
 #include "mcusupportsdk.h"
 #include "mcusupportversiondetection.h"
 #include "mcutargetdescription.h"
+#include "mcutargetfactory.h"
 #include "mcutargetfactorylegacy.h"
 
 #include <baremetal/baremetalconstants.h>
@@ -44,13 +46,15 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 
+#include <QCoreApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QtTest>
 
 #include <algorithm>
+#include <tuple>
 #include <type_traits>
 
 namespace McuSupport::Internal::Test {
@@ -75,12 +79,12 @@ using testing::Return;
 namespace {
 const char empty[]{""};
 const char armGcc[]{"armgcc"};
-const char armGccVersionDetectionRegex[]{R"(\bv(\d+\.\d+\.\d+)\b)"};
+const char armGccVersionDetectionRegex[]{R"(\b(\d+\.\d+\.\d+)\b)"};
 const char armGccDir[]{"/opt/armgcc"};
 const char armGccDirectorySetting[]{"GNUArmEmbeddedToolchain"};
 const char armGccEnvVar[]{"ARMGCC_DIR"};
 const char armGccLabel[]{"GNU Arm Embedded Toolchain"};
-const char armGccSuffix[]{"bin/arm-none-eabi-g++"};
+const QString armGccSuffix{HostOsInfo::withExecutableSuffix("bin/arm-none-eabi-g++")};
 const char armGccToolchainFilePath[]{"/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake"};
 const char armGccToolchainFileUnexpandedPath[]{"%{Qul_ROOT}/lib/cmake/Qul/toolchain/armgcc.cmake"};
 const char armGccVersion[]{"10.3.1"};
@@ -139,8 +143,8 @@ const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
 const char stmCubeProgrammerLabel[]{"STM32CubeProgrammer"};
 const QString stmCubeProgrammerPath{QString{defaultToolPath} + "/bin"};
 const QString stmCubeProgrammerDetectionPath{HostOsInfo::isWindowsHost()
-                                                 ? QString("bin/STM32_Programmer_CLI.exe")
-                                                 : QString("bin/STM32_Programmer.sh")};
+                                                 ? QString("STM32_Programmer_CLI.exe")
+                                                 : QString("STM32_Programmer.sh")};
 
 const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
 const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
@@ -165,9 +169,17 @@ const char jlinkSetting[]{"JLinkPath"};
 const char jlinkCmakeVar[]{"JLINK_PATH"};
 const char jlinkEnvVar[]{"JLINK_PATH"};
 const char jlinkLabel[]{"Path to SEGGER J-Link"};
+const QString jlinkDetectionPath{HostOsInfo::isWindowsHost()
+                                                 ? QString("JLink.exe")
+                                                 : QString("JLinkExe")};
 
 const QString unsupportedToolchainFilePath = QString{qtForMcuSdkPath}
                                              + "/lib/cmake/Qul/toolchain/unsupported.cmake";
+
+// Build/Testing/QtMCUs
+const auto testing_output_dir = (FilePath::fromString(QCoreApplication::applicationDirPath()).parentDir()
+                           / "Testing/QtMCUs")
+                              .canonicalPath();
 
 const QStringList jsonFiles{QString::fromUtf8(armgcc_mimxrt1050_evk_freertos_json),
                             QString::fromUtf8(iar_mimxrt1064_evk_freertos_json)};
@@ -185,7 +197,8 @@ const PackageDescription
                             Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH,
                             {},
                             VersionDetection{},
-                            false};
+                            false,
+                            Utils::PathChooser::Kind::ExistingDirectory};
 
 const McuTargetDescription::Platform platformDescription{id,
                                                          "",
@@ -195,6 +208,11 @@ const McuTargetDescription::Platform platformDescription{id,
                                                          {qtForMCUsSDKDescription}};
 const Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 } // namespace
+
+//Expand variables in a tested {targets, packages} pair
+auto expandTargetsAndPackages = [](Targets &targets, Packages &packages) {
+    McuSdkRepository{targets, packages}.expandVariablesAndWildcards();
+};
 
 void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
 {
@@ -350,10 +368,34 @@ void verifyPackage(const McuPackagePtr &package,
     QCOMPARE(package->versions(), versions);
 }
 
+// create fake files and folders for testing under the "testing_output_dir" folder
+bool createFakePath(const FilePath& path, const bool is_file = false)
+{
+    if (path.exists())
+        return true;
+
+    //create an empty file or folder
+    if (is_file) {
+        if (!path.parentDir().createDir()) {
+            qWarning() << "Could not create the parent dir for testing file " << path;
+            return false;
+        }
+        if (!path.writeFileContents("placeholder text")) {
+            qWarning() << "Could not write to testing file " << path;
+            return false;
+        }
+    } else if (!path.createDir()) {
+        qWarning() << "Could not create testing dir " << path;
+        return false;
+    }
+
+    return true;
+};
+
 McuSupportTest::McuSupportTest()
     : targetFactory{settingsMockPtr}
-    , compilerDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_DIR_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false}
-     , toochainFileDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_FILE_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false}
+    , compilerDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_DIR_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false, Utils::PathChooser::Kind::ExistingDirectory }
+     , toochainFileDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_FILE_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false, Utils::PathChooser::Kind::ExistingDirectory }
     , targetDescription {
         "autotest-sourceFile",
         "2.0.1",
@@ -407,6 +449,15 @@ McuSupportTest::McuSupportTest()
     testing::FLAGS_gmock_verbose = "error";
 }
 
+// load the test file
+std::pair<Targets, Packages> McuSupportTest::createTestingKitTargetsAndPackages(QByteArray test_file)
+{
+    McuTargetFactory factory(settingsMockPtr);
+    auto [targets, packages] = factory.createTargets(parseDescriptionJson(test_file), sdkPackagePtr);
+    expandTargetsAndPackages(targets, packages);
+    return {targets, packages};
+}
+
 void McuSupportTest::initTestCase()
 {
     EXPECT_CALL(*freeRtosPackage, environmentVariableName())
@@ -447,6 +498,9 @@ void McuSupportTest::initTestCase()
 
 void McuSupportTest::init()
 {
+    McuSdkRepository::globalMacros()
+        ->insert("MCU_TESTING_FOLDER",
+                 [dir = testing_output_dir.absoluteFilePath().toString()] { return dir; });
     qDebug() << __func__;
 }
 
@@ -676,7 +730,7 @@ void McuSupportTest::test_legacy_createPackagesWithCorrespondingSettings()
 {
     QFETCH(QString, json);
     const McuTargetDescription description = parseDescriptionJson(json.toLocal8Bit());
-    const auto [targets, packages]{
+    auto [targets, packages]{
         targetsFromDescriptions({description}, settingsMockPtr, sdkPackagePtr, runLegacy)};
     Q_UNUSED(targets);
 
@@ -698,10 +752,12 @@ void McuSupportTest::test_createTargets()
                                           freeRtosDetectionPath,
                                           {},
                                           VersionDetection{},
-                                          true};
+                                          true,
+                                          Utils::PathChooser::Kind::ExistingDirectory};
     targetDescription.toolchain.id = armGcc;
 
-    const auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
     QCOMPARE(targets.size(), 1);
     const McuTargetPtr target{targets.at(0)};
 
@@ -749,7 +805,8 @@ void McuSupportTest::test_createPackages()
                                           freeRtosDetectionPath,
                                           {},
                                           VersionDetection{},
-                                          true};
+                                          true,
+                                          Utils::PathChooser::Kind::ExistingDirectory};
 
     const auto packages{targetFactory.createPackages(targetDescription)};
     QVERIFY(!packages.empty());
@@ -794,7 +851,8 @@ void McuSupportTest::test_useFallbackPathForToolchainWhenPathFromSettingsIsNotAv
                                            {},
                                            {},
                                            VersionDetection{},
-                                           false};
+                                           false,
+                                           Utils::PathChooser::Kind::ExistingDirectory};
     McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};
 
     EXPECT_CALL(*settingsMockPtr, getPath(QString{armGccDirectorySetting}, _, FilePath{fallbackDir}))
@@ -817,7 +875,8 @@ void McuSupportTest::test_usePathFromSettingsForToolchainPath()
                                            {},
                                            {},
                                            VersionDetection{},
-                                           false};
+                                           false,
+                                           Utils::PathChooser::Kind::ExistingDirectory};
     McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};
 
     EXPECT_CALL(*settingsMockPtr, getPath(QString{armGccDirectorySetting}, _, FilePath{empty}))
@@ -1154,7 +1213,8 @@ void McuSupportTest::test_createFreeRtosPackage()
     EXPECT_CALL(*settingsMockPtr, getPath(targetDescription.boardSdk.envVar, _, _))
         .WillRepeatedly(Return(FilePath::fromString(boardSdkDir)));
 
-    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
 
     auto freeRtos = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->cmakeVariableName() == freeRtosCMakeVar);
@@ -1238,7 +1298,7 @@ void McuSupportTest::test_passExecutableVersionDetectorToToolchainPackage_data()
         << armGccVersionDetectionRegex;
 
     QTest::newRow("iar_stm32f469i_discovery_baremetal_json")
-        << iar_stm32f469i_discovery_baremetal_json << QString{"bin/iccarm"} << version
+        << iar_stm32f469i_discovery_baremetal_json << HostOsInfo::withExecutableSuffix("bin/iccarm") << version
         << iarVersionDetectionRegex;
 }
 
@@ -1379,7 +1439,8 @@ void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
     toochainFileDescription.defaultPath = FilePath::fromUserInput(toolchainFileDefaultPath);
     targetDescription.toolchain.file = toochainFileDescription;
 
-    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
     auto qtForMCUPkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return pkg->environmentVariableName() == QUL_ENV_VAR;
     });
@@ -1413,7 +1474,8 @@ void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
     toochainFileDescription.defaultPath = FilePath::fromUserInput(toolchainFileDefaultPath);
     targetDescription.toolchain.file = toochainFileDescription;
 
-    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
     auto qtForMCUPkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return pkg->cmakeVariableName() == QUL_CMAKE_VAR;
     });
@@ -1541,6 +1603,7 @@ void McuSupportTest::test_createThirdPartyPackage()
         .WillOnce(Return(FilePath::fromUserInput(path)));
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    expandTargetsAndPackages(targets, packages);
 
     auto thirdPartyPackage = findOrDefault(packages, [&setting](const McuPackagePtr &pkg) {
         return (pkg->settingsKey() == setting);
@@ -1588,6 +1651,7 @@ void McuSupportTest::test_createJLink3rdPartyPackage()
         .WillOnce(Return(FilePath::fromUserInput(jlinkPath)));
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    expandTargetsAndPackages(targets, packages);
 
     auto thirdPartyPackage = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->settingsKey() == jlinkSetting);
@@ -1600,7 +1664,7 @@ void McuSupportTest::test_createJLink3rdPartyPackage()
                   jlinkCmakeVar,
                   jlinkEnvVar,
                   jlinkLabel,
-                  {},
+                  jlinkDetectionPath,
                   {});
 }
 
@@ -1636,6 +1700,36 @@ void McuSupportTest::test_addToSystemPathFlag()
     QCOMPARE(freeRtosPackage.shouldAddToSystemPath, false);
 }
 
+void McuSupportTest::test_processWildcards_data()
+{
+    QTest::addColumn<QString>("package_label");
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<bool>("isFile");
+
+    QTest::newRow("\"*\" at the end") << "FAKE_WILDCARD_TEST_1"
+                                      << "folder-123" << false;
+    QTest::newRow("\"*\" in the middle") << "FAKE_WILDCARD_TEST_2"
+                                         << "file-123.exe" << true;
+    QTest::newRow("\"*\" at the start") << "FAKE_WILDCARD_TEST_3"
+                                        << "123-file.exe" << true;
+}
+
+void McuSupportTest::test_processWildcards()
+{
+    QFETCH(QString, package_label);
+    QFETCH(QString, path);
+    QFETCH(bool, isFile);
+
+    QVERIFY(createFakePath(testing_output_dir / "wildcards" / path, isFile));
+
+    auto [targets, packages] = createTestingKitTargetsAndPackages(wildcards_test_kit);
+    auto testWildcardsPackage = findOrDefault(packages, [&](const McuPackagePtr &pkg) {
+        return (pkg->label() == package_label);
+    });
+    QVERIFY(testWildcardsPackage != nullptr);
+    QCOMPARE(testWildcardsPackage->path().toString(), FilePath(testing_output_dir / "wildcards" / path).toString());
+}
+
 void McuSupportTest::test_nonemptyVersionDetector()
 {
     PackageDescription pkgDesc;
@@ -1648,12 +1742,11 @@ void McuSupportTest::test_nonemptyVersionDetector()
     // pkgDesc.validationPath left empty
     // pkgDesc.versions left empty
     pkgDesc.versionDetection.filePattern = "bin/arm-none-eabi-g++";
-    pkgDesc.versionDetection.regex = "\\bv?(\\d+\\.\\d+\\.\\d+)\\b";
+    pkgDesc.versionDetection.regex = "\\b(\\d+\\.\\d+\\.\\d+)\\b";
     pkgDesc.versionDetection.executableArgs = "--version";
     // pkgDesc.versionDetection.xmlElement left empty
     // pkgDesc.versionDetection.xmlAttribute left empty
     pkgDesc.shouldAddToSystemPath = false;
-
     const auto package = targetFactory.createPackage(pkgDesc);
     QVERIFY(package->getVersionDetector() != nullptr);
     QCOMPARE(typeid(*package->getVersionDetector()).name(),
@@ -1686,7 +1779,8 @@ void McuSupportTest::test_emptyVersionDetector()
 void McuSupportTest::test_emptyVersionDetectorFromJson()
 {
     const auto targetDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
-    auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
+    auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
+    expandTargetsAndPackages(targets, packages);
 
     auto freeRtos = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->cmakeVariableName() == freeRtosCMakeVar);
@@ -1699,5 +1793,16 @@ void McuSupportTest::test_emptyVersionDetectorFromJson()
     QVERIFY(freeRtos->getVersionDetector() == nullptr);
 }
 
+void McuSupportTest::test_expectedValueType()
+{
+    const auto targetDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
+
+    QCOMPARE(targetDescription.toolchain.file.type, Utils::PathChooser::Kind::File);
+    QCOMPARE(targetDescription.toolchain.compiler.type, Utils::PathChooser::Kind::ExistingDirectory);
+    QCOMPARE(targetDescription.boardSdk.type, Utils::PathChooser::Kind::ExistingDirectory);
+    QCOMPARE(targetDescription.freeRTOS.package.type, Utils::PathChooser::Kind::ExistingDirectory);
+    QCOMPARE(targetDescription.platform.entries[0].type,
+             Utils::PathChooser::Kind::ExistingDirectory);
+}
 
 } // namespace McuSupport::Internal::Test

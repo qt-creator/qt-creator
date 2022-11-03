@@ -71,6 +71,7 @@ Project {
     Environment {
        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+       QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT: "1"
 @if %{IsQt6Project}
 @else
        QMLSCENE_CORE_PROFILE: "true" // Required for macOS, but can create issues on embedded Linux
@@ -99,7 +100,7 @@ Project {
     /* Required for deployment */
     targetDirectory: "/opt/%{ProjectName}"
 
-    qdsVersion: "3.7"
+    qdsVersion: "3.8"
 
     quickVersion: "%{QtQuickVersion}"
 

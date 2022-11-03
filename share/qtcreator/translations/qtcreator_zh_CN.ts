@@ -14945,46 +14945,6 @@ Influences the indentation of continuation lines.
 <context>
     <name>TextEditor::DisplaySettingsPage</name>
     <message>
-        <source>Display</source>
-        <translation type="obsolete">显示</translation>
-    </message>
-    <message>
-        <source>Display line &amp;numbers</source>
-        <translation type="obsolete">显示行号(&amp;N)</translation>
-    </message>
-    <message>
-        <source>Display &amp;folding markers</source>
-        <translation type="obsolete">显示折叠标记(&amp;F)</translation>
-    </message>
-    <message>
-        <source>Show tabs and spaces.</source>
-        <translation type="obsolete">显示制表符和空白.</translation>
-    </message>
-    <message>
-        <source>&amp;Visualize whitespace</source>
-        <translation type="obsolete">标示空白</translation>
-    </message>
-    <message>
-        <source>Highlight current &amp;line</source>
-        <translation type="obsolete">高亮显示当前行(&amp;L)</translation>
-    </message>
-    <message>
-        <source>Text Wrapping</source>
-        <translation type="obsolete">文字折行</translation>
-    </message>
-    <message>
-        <source>Enable text &amp;wrapping</source>
-        <translation type="obsolete">开启文字折行</translation>
-    </message>
-    <message>
-        <source>Display right &amp;margin at column:</source>
-        <translation type="obsolete">显示右边分界(&amp;M)在列:</translation>
-    </message>
-    <message>
-        <source>Highlight &amp;blocks</source>
-        <translation type="obsolete">高亮显示段落(&amp;B)</translation>
-    </message>
-    <message>
         <source>Animate matching parentheses</source>
         <translation type="obsolete">动画显示对应的括号</translation>
     </message>
@@ -14999,22 +14959,6 @@ Influences the indentation of continuation lines.
     <message>
         <source>Mark text changes</source>
         <translation type="obsolete">标记文本改变</translation>
-    </message>
-    <message>
-        <source>Mark &amp;text changes</source>
-        <translation type="obsolete">标记文本改变(&amp;T)</translation>
-    </message>
-    <message>
-        <source>&amp;Animate matching parentheses</source>
-        <translation type="obsolete">动画显示对应的括号(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Auto-fold first &amp;comment</source>
-        <translation type="obsolete">自动折叠开头的注释(&amp;C)</translation>
-    </message>
-    <message>
-        <source>Center &amp;cursor on scroll</source>
-        <translation type="obsolete">滚动时居中光标(&amp;C)</translation>
     </message>
 </context>
 <context>
@@ -35242,14 +35186,6 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
 <context>
     <name>TextEditor::TabSettingsWidget</name>
     <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
-    <message>
-        <source>Tabs And Indentation</source>
-        <translation type="obsolete">制表符和缩进</translation>
-    </message>
-    <message>
         <source>Insert &amp;spaces instead of tabs</source>
         <translation type="obsolete">插入空格代替制表符(&amp;S)</translation>
     </message>
@@ -35260,14 +35196,6 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     <message>
         <source>Based on the surrounding lines</source>
         <translation type="obsolete">依据周围行的情况</translation>
-    </message>
-    <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">制表符尺寸(&amp;B):</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">缩进尺寸(&amp;i):</translation>
     </message>
     <message>
         <source>Enable automatic &amp;indentation</source>
@@ -35282,74 +35210,6 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         <translation type="obsolete">退格键跟随缩进(&amp;B)</translation>
     </message>
     <message>
-        <source>Align continuation lines:</source>
-        <translation type="obsolete">对齐连续行:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influences the indentation of continuation lines.
-
-&lt;ul&gt;
-&lt;li&gt;Not At All: Do not align at all. Lines will only be indented to the current logical indentation depth.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Spaces: Always use spaces for alignment, regardless of the other indentation settings.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Regular Indent: Use tabs and/or spaces for alignment, as configured above.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-改变连续行的缩进
-
-&lt;ul&gt;
-&lt;li&gt;不对齐: 不进行对齐。代码行只根据当前逻辑缩进深度进行缩进。
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;伴随空格: 允许使用空格进行对齐，忽略其他缩进设置。
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;伴随规则缩进: 在原设置上使用 tab 或 空格进行对齐。
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Not At All</source>
-        <translation type="obsolete">不对齐</translation>
-    </message>
-    <message>
-        <source>With Spaces</source>
-        <translation type="obsolete">伴随空格</translation>
-    </message>
-    <message>
-        <source>With Regular Indent</source>
-        <translation type="obsolete">伴随规则缩进</translation>
-    </message>
-    <message>
         <source>Never</source>
         <translation type="obsolete">从不</translation>
     </message>
@@ -35360,22 +35220,6 @@ Influences the indentation of continuation lines.
     <message>
         <source>In Leading White Space</source>
         <translation type="obsolete">仅用于行首空白</translation>
-    </message>
-    <message>
-        <source>Tab policy:</source>
-        <translation type="obsolete">缩进策略:</translation>
-    </message>
-    <message>
-        <source>Spaces Only</source>
-        <translation type="obsolete">仅空格</translation>
-    </message>
-    <message>
-        <source>Tabs Only</source>
-        <translation type="obsolete">仅缩进</translation>
-    </message>
-    <message>
-        <source>Mixed</source>
-        <translation type="obsolete">混合</translation>
     </message>
 </context>
 <context>

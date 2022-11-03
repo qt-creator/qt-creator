@@ -52042,10 +52042,6 @@ Row: %4, Column: %5
 </context>
 <context>
     <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>表示</translation>
-    </message>
 </context>
 <context>
     <name>TextEditor::FontSettingsPageWidget</name>

@@ -9,6 +9,7 @@
 #include "mcusupportconstants.h"
 #include "mcusupportoptions.h"
 #include "mcusupportplugin.h"
+#include "mcusupporttr.h"
 #include "mcusupportversiondetection.h"
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
@@ -190,7 +191,7 @@ McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &se
     const FilePath defaultPath = toolChain ? toolChain->compilerCommand().parentDir() : FilePath();
 
     const auto *versionDetector = new McuPackageExecutableVersionDetector(detectionPath,
-                                                                          {"--version"},
+                                                                          {"/?"},
                                                                           R"(\b(\d+\.\d+)\.\d+\b)");
 
     return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
@@ -276,8 +277,8 @@ McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &set
     const FilePath defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
 
     const auto *versionDetector
-        = new McuPackageExecutableVersionDetector(FilePath("as850").withExecutableSuffix(),
-                                                  {"-V"},
+        = new McuPackageExecutableVersionDetector(FilePath("gversion").withExecutableSuffix(),
+                                                  {"-help"},
                                                   R"(\bv(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{
@@ -301,8 +302,8 @@ McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &
     const FilePath defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
 
     const auto *versionDetector
-        = new McuPackageExecutableVersionDetector(FilePath("asarm").withExecutableSuffix(),
-                                                  {"-V"},
+        = new McuPackageExecutableVersionDetector(FilePath("gversion").withExecutableSuffix(),
+                                                  {"-help"},
                                                   R"(\bv(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{
@@ -368,8 +369,8 @@ McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &setti
         FilePath defaultPath = {};
 
     const FilePath detectionPath = FilePath::fromUserInput(
-        QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "bin/STM32_Programmer_CLI.exe"
-                                                         : "bin/STM32_Programmer.sh"));
+        QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "STM32_Programmer_CLI.exe"
+                                                         : "STM32_Programmer.sh"));
 
     return McuPackagePtr{
         new McuPackage(settingsHandler,
@@ -591,7 +592,11 @@ McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &desc
             mcuPackages.insert(package);
         }
     }
-    return McuSdkRepository{mcuTargets, mcuPackages};
+
+    McuSdkRepository repo{mcuTargets, mcuPackages};
+    repo.expandVariablesAndWildcards();
+
+    return repo;
 }
 
 FilePath kitsPath(const FilePath &qtMcuSdkPath)
@@ -604,19 +609,7 @@ static FilePaths targetDescriptionFiles(const FilePath &dir)
     return kitsPath(dir).dirEntries(Utils::FileFilter({"*.json"}, QDir::Files));
 }
 
-VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
-{
-    const QJsonObject versioning = packageEntry.value("versionDetection").toObject();
-    return {
-        versioning["regex"].toString(),
-        versioning["filePattern"].toString(),
-        versioning["executableArgs"].toString(),
-        versioning["xmlElement"].toString(),
-        versioning["xmlAttribute"].toString(),
-    };
-}
-
-QString getOsSpecificValue(const QJsonValue &entry)
+static QString getOsSpecificValue(const QJsonValue &entry)
 {
     if (entry.isObject()) {
         //The json entry has os-specific values
@@ -624,6 +617,52 @@ QString getOsSpecificValue(const QJsonValue &entry)
     }
     //The entry does not have os-specific values
     return entry.toString();
+}
+
+static VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
+{
+    const QJsonObject versioning = packageEntry.value("versionDetection").toObject();
+    return {
+        versioning["regex"].toString(),
+        getOsSpecificValue(versioning["filePattern"]),
+        versioning["executableArgs"].toString(),
+        versioning["xmlElement"].toString(),
+        versioning["xmlAttribute"].toString(),
+    };
+}
+
+static Utils::PathChooser::Kind parseLineEditType(const QJsonValue &type)
+{
+    //Utility function to handle the different kinds of PathChooser
+    //Default is ExistingDirectory, see pathchooser.h for more options
+    const auto defaultValue = Utils::PathChooser::Kind::ExistingDirectory;
+    if (type.isUndefined()) {
+        //No "type" entry in the json file, this is not an error
+        return defaultValue;
+    }
+
+    const QString typeString = type.toString();
+    if (typeString.isNull()) {
+        printMessage(Tr::tr("Parsing error: the type entry in JSON kit files must be a string, "
+                            "defaulting to \"path\"")
+                         .arg(typeString),
+                     true);
+
+        return defaultValue;
+
+    } else if (typeString.compare("file", Qt::CaseInsensitive) == 0) {
+        return Utils::PathChooser::File;
+    } else if (typeString.compare("path", Qt::CaseInsensitive) == 0) {
+        return Utils::PathChooser::ExistingDirectory;
+    } else {
+        printMessage(Tr::tr(
+                         "Parsing error: the type entry \"%2\" in JSON kit files is not supported, "
+                         "defaulting to \"path\"")
+                         .arg(typeString),
+                     true);
+
+        return defaultValue;
+    }
 }
 
 static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
@@ -652,7 +691,8 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             FilePath::fromUserInput(detectionPathString),
             versions,
             parseVersionDetection(cmakeEntry),
-            cmakeEntry["addToSystemPath"].toBool()};
+            cmakeEntry["addToSystemPath"].toBool(),
+            parseLineEditType(cmakeEntry["type"])};
 }
 
 static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)
@@ -820,11 +860,6 @@ McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
                < McuKitManager::generateKitNameFromTarget(rhs.get());
     });
 
-    for (const auto &target : repo.mcuTargets) {
-        printMessage(McuTarget::tr("Kit for %1 created.")
-                         .arg(McuKitManager::generateKitNameFromTarget(target.get())),
-                     false);
-    }
     return repo;
 }
 

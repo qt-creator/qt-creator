@@ -11,11 +11,10 @@ def renameBookmarkFolder(view, item, newName):
     return
 
 def invokeContextMenuItemOnBookmarkFolder(view, item, menuItem):
-    aboveWidget = "{name='line' type='QFrame' visible='1' window=':Add Bookmark_BookmarkDialog'}"
     mouseClick(waitForObjectItem(view, item))
     openItemContextMenu(view, item, 5, 5, 0)
-    activateItem(waitForObject("{aboveWidget=%s type='QMenu' unnamed='1' visible='1' "
-                               "window=':Add Bookmark_BookmarkDialog'}" % aboveWidget), menuItem)
+    activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1' "
+                                   "window=':Add Bookmark_BookmarkDialog'}", menuItem))
 
 def textForQtVersion(text):
     suffix = "Qt Creator Manual"
@@ -51,6 +50,8 @@ def main():
     # create root bookmark directory
     clickButton(waitForObject(":Add Bookmark.New Folder_QPushButton"))
     # rename root bookmark directory
+    bookmarkDialog = waitForObject(":Add Bookmark_BookmarkDialog")
+    waitFor("bookmarkDialog.isActiveWindow")
     bookmarkView = waitForObject(":Add Bookmark.treeView_QTreeView")
     renameBookmarkFolder(bookmarkView, "New Folder*", "Sample")
     # create two more subfolders

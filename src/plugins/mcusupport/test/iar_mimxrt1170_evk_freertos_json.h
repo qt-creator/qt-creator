@@ -46,7 +46,10 @@ constexpr auto iar_mimxrt1170_evk_freertos_json = R"(
             "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
             "type": "path",
             "versionDetection": {
-                "filePattern": "bin/iccarm",
+                "filePattern": {
+                    "windows": "bin/iccarm.exe",
+                    "linux": "bin/iccarm"
+                },
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
             },
@@ -85,6 +88,7 @@ constexpr auto iar_mimxrt1170_evk_freertos_json = R"(
         "cmakeVar": "FREERTOS_DIR",
         "envVar": "EVK_MIMXRT1170_FREERTOS_PATH",
         "label": "FreeRTOS SDK for MIMXRT1170-EVK",
+        "setting": "FreeRTOSSourcePackage_IMXRT1170",
         "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
         "detectionPath": "tasks.c",
         "type": "path",
