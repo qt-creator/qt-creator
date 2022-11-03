@@ -181,7 +181,7 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
     }
     data->setTexts(name,
                    JsonWizardFactory::localizedString(consumeValue(tmp, DISPLAY_NAME_KEY).toString()),
-                   consumeValue(tmp, TOOLTIP_KEY).toString());
+                   JsonWizardFactory::localizedString(consumeValue(tmp, TOOLTIP_KEY).toString()));
 
     data->setVisibleExpression(consumeValue(tmp, VISIBLE_KEY, true));
     data->setEnabledExpression(consumeValue(tmp, ENABLED_KEY, true));
