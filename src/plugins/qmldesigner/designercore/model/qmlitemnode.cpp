@@ -39,6 +39,8 @@
 #include "modelmerger.h"
 #include "rewritingexception.h"
 
+#include <coreplugin/icore.h>
+
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QFileInfo>
@@ -181,11 +183,21 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
     return newQmlItemNode;
 }
 
+static bool useLayerEffect()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString layerEffectEntry = "QML/Designer/UseLayerEffect";
+
+    return settings->value(layerEffectEntry, true).toBool();
+}
+
 QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
                                                     const QmlItemNode &parentNode,
                                                     const QString &effectName)
 {
     QmlItemNode newQmlItemNode;
+
+    const bool layerEffect = useLayerEffect();
 
     QmlDesigner::Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
     try {
@@ -197,11 +209,17 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
 
     TypeName type(effectName.toUtf8());
     newQmlItemNode = QmlItemNode(view->createModelNode(type, 1, 0));
-    NodeAbstractProperty parentProperty = parentNode.defaultNodeAbstractProperty();
+    NodeAbstractProperty parentProperty = layerEffect
+                                              ? parentNode.nodeAbstractProperty("layer.effect")
+                                              : parentNode.defaultNodeAbstractProperty();
     parentProperty.reparentHere(newQmlItemNode);
 
-    newQmlItemNode.modelNode().bindingProperty("source").setExpression("parent");
-    newQmlItemNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
+    if (!layerEffect) {
+        newQmlItemNode.modelNode().bindingProperty("source").setExpression("parent");
+        newQmlItemNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
+    } else {
+        parentNode.modelNode().variantProperty("layer.enabled").setValue(true);
+    }
 
     QTC_ASSERT(newQmlItemNode.isValid(), return QmlItemNode());
 
