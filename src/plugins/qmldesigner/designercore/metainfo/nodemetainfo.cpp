@@ -2768,6 +2768,17 @@ bool NodeMetaInfo::isQtQuick3DTextureInput() const
     }
 }
 
+bool NodeMetaInfo::isQtQuick3DCubeMapTexture() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick3D, CubeMapTexture>(m_projectStorage, m_typeId);
+    } else {
+        return isValid()
+               && (isSubclassOf("QtQuick3D.CubeMapTexture") || isSubclassOf("<cpp>.QQuick3DCubeMapTexture"));
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DSceneEnvironment() const
 {
     if constexpr (useProjectStorage()) {

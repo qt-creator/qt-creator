@@ -140,6 +140,7 @@ public:
     bool isQtQuick3DShader() const;
     bool isQtQuick3DTexture() const;
     bool isQtQuick3DTextureInput() const;
+    bool isQtQuick3DCubeMapTexture() const;
     bool isQtQuick3DView3D() const;
     bool isQtQuickBorderImage() const;
     bool isQtQuickControlsSwipeView() const;
