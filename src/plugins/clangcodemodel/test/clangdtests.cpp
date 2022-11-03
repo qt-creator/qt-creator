@@ -261,6 +261,13 @@ void ClangdTestFindReferences::test_data()
         makeItem(58, 10, Usage::Tag::Read), makeItem(58, 22, Usage::Tag::Read),
         makeItem(59, 4, Usage::Tag::Write), makeItem(59, 21, Usage::Tag::Read)};
 
+    QTest::newRow("struct type 2") << "defs.h" << 450 << ItemList{
+        makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
+        makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};
+
+    QTest::newRow("constructor") << "defs.h" << 627 << ItemList{
+        makeItem(31, 4, Usage::Tag::Declaration), makeItem(36, 7, Usage::Tags())};
+
     QTest::newRow("subclass") << "defs.h" << 450 << ItemList{
         makeItem(20, 7, Usage::Tag::Declaration), makeItem(5, 4, Usage::Tags()),
         makeItem(13, 21, Usage::Tags()), makeItem(32, 8, Usage::Tags())};

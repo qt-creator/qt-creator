@@ -75,6 +75,7 @@ public:
     QList<MessageId> pendingAstRequests;
     QPointer<SearchResult> search;
     std::optional<ReplacementData> replacementData;
+    QString searchTerm;
     bool canceled = false;
     bool categorize = false;
 };
@@ -85,6 +86,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
     : QObject(client), d(new ClangdFindReferences::Private(this))
 {
     d->categorize = categorize;
+    d->searchTerm = searchTerm;
     if (replacement) {
         ReplacementData replacementData;
         replacementData.oldSymbolName = searchTerm;
@@ -286,7 +288,7 @@ void ClangdFindReferences::Private::reportAllSearchResultsAndFinish()
     finishSearch();
 }
 
-static Usage::Tags getUsageType(const ClangdAstPath &path);
+static Usage::Tags getUsageType(const ClangdAstPath &path, const QString &searchTerm);
 
 void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file,
                                                             const ReferencesFileData &fileData)
@@ -296,7 +298,7 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
     for (const auto &rangeWithText : fileData.rangesAndLineText) {
         const Range &range = rangeWithText.first;
         const ClangdAstPath astPath = getAstPath(fileData.ast, range);
-        const Usage::Tags usageType = fileData.ast.isValid() ? getUsageType(astPath)
+        const Usage::Tags usageType = fileData.ast.isValid() ? getUsageType(astPath, searchTerm)
                                                              : Usage::Tags();
 
         SearchResultItem item;
@@ -349,11 +351,14 @@ std::optional<QString> ClangdFindReferences::Private::getContainingFunctionName(
     return containingFuncNode->detail();
 }
 
-static Usage::Tags getUsageType(const ClangdAstPath &path)
+static Usage::Tags getUsageType(const ClangdAstPath &path, const QString &searchTerm)
 {
     bool potentialWrite = false;
     bool isFunction = false;
     const bool symbolIsDataType = path.last().role() == "type" && path.last().kind() == "Record";
+    QString invokedConstructor;
+    if (path.last().role() == "expression" && path.last().kind() == "CXXConstruct")
+        invokedConstructor = path.last().detail().value_or(QString());
     const auto isPotentialWrite = [&] { return potentialWrite && !isFunction; };
     for (auto pathIt = path.rbegin(); pathIt != path.rend(); ++pathIt) {
         if (pathIt->arcanaContains("non_odr_use_unevaluated"))
@@ -385,6 +390,8 @@ static Usage::Tags getUsageType(const ClangdAstPath &path)
         }
         if (pathIt->role() == "declaration") {
             if (symbolIsDataType)
+                return {};
+            if (!invokedConstructor.isEmpty() && invokedConstructor == searchTerm)
                 return {};
             if (pathIt->arcanaContains("cinit")) {
                 if (pathIt == path.rbegin())
