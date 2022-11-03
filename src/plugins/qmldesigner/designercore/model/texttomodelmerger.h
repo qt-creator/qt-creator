@@ -9,7 +9,6 @@
 #include "modelnode.h"
 
 #include <qmljs/qmljsscopechain.h>
-#include <qmljs/qmljsscopechain.h>
 
 #include <QStringList>
 #include <QTimer>
