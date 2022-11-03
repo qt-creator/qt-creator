@@ -3342,7 +3342,9 @@ void TextEditorWidgetPrivate::updateFileLineEndingVisible()
 
 void TextEditorWidgetPrivate::reconfigure()
 {
-    m_document->setMimeType(Utils::mimeTypeForFile(m_document->filePath()).name());
+    m_document->setMimeType(
+        Utils::mimeTypeForFile(m_document->filePath(),
+                               MimeMatchMode::MatchDefaultAndRemote).name());
     q->configureGenericHighlighter();
 }
 

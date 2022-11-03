@@ -739,7 +739,8 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
     if (!filePath.exists())
         return false;
 
-    const MimeType mimeType = Utils::mimeTypeForFile(filePath);
+    const MimeType mimeType = Utils::mimeTypeForFile(filePath,
+                                                     MimeMatchMode::MatchDefaultAndRemote);
     if (!mimeType.inherits("text/plain"))
         return false;
 

@@ -15,7 +15,12 @@ class FilePath;
 // Wrapped QMimeDataBase functions
 QTCREATOR_UTILS_EXPORT MimeType mimeTypeForName(const QString &nameOrAlias);
 
-enum class MimeMatchMode { MatchDefault = 0x0, MatchExtension = 0x1, MatchContent = 0x2 };
+enum class MimeMatchMode {
+    MatchDefault = 0x0,
+    MatchExtension = 0x1,
+    MatchContent = 0x2,
+    MatchDefaultAndRemote = 0x3
+};
 
 QTCREATOR_UTILS_EXPORT MimeType mimeTypeForFile(const QString &fileName,
                                                 MimeMatchMode mode = MimeMatchMode::MatchDefault);
