@@ -25,6 +25,7 @@ public:
 
     QStringList options() const;
     void addOption(const QString &option);
+    void addOptions(const QStringList &options);
 
     Processing processing() const;
     void setProcessing(const Processing &processing);

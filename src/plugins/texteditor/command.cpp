@@ -30,6 +30,11 @@ void Command::addOption(const QString &option)
     m_options << option;
 }
 
+void Command::addOptions(const QStringList &options)
+{
+    m_options += options;
+}
+
 Command::Processing Command::processing() const
 {
     return m_processing;

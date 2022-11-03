@@ -42,6 +42,16 @@ public:
     bool foldAuxData() const;
     void setFoldAuxData(const bool foldAuxData);
 
+    QString defaultFormatCommand() const;
+    QString formatCommand() const;
+    void setFormatCommand(const QString &formatCommand);
+
+    QString formatCommandOptions() const;
+    void setFormatCommandOptions(const QString &formatCommandOptions);
+
+    bool useCustomFormatCommand() const;
+    void setUseCustomFormatCommand(bool customCommand);
+
     QmllsSettings &qmllsSettigs();
     const QmllsSettings &qmllsSettigs() const;
 
@@ -59,8 +69,11 @@ private:
     bool m_autoFormatOnSave = false;
     bool m_autoFormatOnlyCurrentProject = false;
     bool m_foldAuxData = true;
+    bool m_useCustomFormatCommand = false;
     QmllsSettings m_qmllsSettings;
-    QString m_uiQmlOpenMode = {};
+    QString m_uiQmlOpenMode;
+    QString m_formatCommand;
+    QString m_formatCommandOptions;
 };
 
 namespace Internal {
