@@ -25,6 +25,7 @@
 
 #include "bundleimporter.h"
 
+#include "documentmanager.h"
 #include "import.h"
 #include "model.h"
 #include "qmldesignerconstants.h"
@@ -205,8 +206,7 @@ void BundleImporter::handleImportTimer()
         return;
     }
 
-    if (model && model->rewriterView())
-        model->rewriterView()->resetPossibleImports();
+    QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
 
     if (m_importAddPending) {
         try {
