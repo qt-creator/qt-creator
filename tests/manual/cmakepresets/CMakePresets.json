@@ -12,7 +12,7 @@
       "generator": "Ninja",
       "installDir": "../inst-${presetName}",
       "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/mingw_64"
+        "CMAKE_PREFIX_PATH": "$env{SYSTEMDRIVE}/Qt/6.3.2/mingw_64"
       },
       "condition": {
         "type": "equals",
@@ -20,7 +20,7 @@
         "rhs": "Windows"
       },
       "environment": {
-        "PATH": "c:/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
+        "PATH": "$env{SYSTEMDRIVE}/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
       },
       "debug" : {
         "find" : true
@@ -34,7 +34,7 @@
       "inherits" : "mingw",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/mingw_64"
+        "CMAKE_PREFIX_PATH": "$env{SystemDrive}/Qt/6.3.2/mingw_64"
       }
     },
     {
@@ -45,7 +45,7 @@
       "architecture" : {
         "value": "x64"
       },
-      "toolchainFile" : "c:/Qt/6.3.2/msvc2019_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile" : "../cmakepresets/msvc-toolchain.cmake",
       "condition" : {
         "type": "not",
         "condition": {
@@ -55,7 +55,8 @@
         }
       },
       "environment" : {
-        "HOST_SYSTEM_NAME": "Windows"
+        "HOST_SYSTEM_NAME": "Windows",
+        "QT_VERSION": "6.3.2"
       }
     },
     {

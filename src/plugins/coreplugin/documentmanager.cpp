@@ -1376,6 +1376,21 @@ void DocumentManager::saveSettings()
     s->endGroup();
 }
 
+void restoreRecentFiles(const QVariantList &recentFiles, const QStringList &recentEditorIds)
+{
+    QList<DocumentManager::RecentFile> result;
+
+    for (int i = 0, n = recentFiles.size(); i < n; ++i) {
+        QString editorId;
+        if (i < recentEditorIds.size()) // guard against old or weird settings
+            editorId = recentEditorIds.at(i);
+        const Utils::FilePath &filePath = FilePath::fromVariant(recentFiles.at(i));
+        result.append({filePath, Id::fromString(editorId)});
+    }
+
+    d->m_recentFiles = result;
+}
+
 void readSettings()
 {
     QSettings *s = ICore::settings();
@@ -1384,23 +1399,14 @@ void readSettings()
     const QVariantList recentFiles = s->value(QLatin1String(filesKeyC)).toList();
     const QStringList recentEditorIds = s->value(QLatin1String(editorsKeyC)).toStringList();
     s->endGroup();
-    // clean non-existing files
-    for (int i = 0, n = recentFiles.size(); i < n; ++i) {
-        QString editorId;
-        if (i < recentEditorIds.size()) // guard against old or weird settings
-            editorId = recentEditorIds.at(i);
-        const Utils::FilePath &filePath = FilePath::fromVariant(recentFiles.at(i));
-        if (filePath.exists() && !filePath.isDir())
-            d->m_recentFiles.append({filePath, Id::fromString(editorId)});
-    }
+
+    restoreRecentFiles(recentFiles, recentEditorIds);
 
     s->beginGroup(QLatin1String(directoryGroupC));
-    const FilePath settingsProjectDir = FilePath::fromString(s->value(QLatin1String(projectDirectoryKeyC),
-                                                QString()).toString());
-    if (!settingsProjectDir.isEmpty() && settingsProjectDir.isDir())
-        d->m_projectsDirectory = settingsProjectDir;
-    else
-        d->m_projectsDirectory = PathChooser::homePath();
+
+    d->m_projectsDirectory = FilePath::fromVariant(
+        s->value(QLatin1String(projectDirectoryKeyC), PathChooser::homePath().toVariant()));
+
     d->m_useProjectsDirectory
         = s->value(QLatin1String(useProjectDirectoryKeyC), kUseProjectsDirectoryDefault).toBool();
 

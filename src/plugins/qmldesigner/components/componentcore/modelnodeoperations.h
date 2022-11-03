@@ -5,6 +5,8 @@
 
 #include "selectioncontext.h"
 
+#include <utils/fileutils.h>
+
 namespace QmlDesigner {
 
 enum class AddFilesResult { Succeeded, Failed, Cancelled };
@@ -55,7 +57,7 @@ void addItemToStackedContainer(const SelectionContext &selectionContext);
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void addTabBarToStackedContainer(const SelectionContext &selectionContext);
-AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory);
+QMLDESIGNERCORE_EXPORT AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory);
 AddFilesResult addImageToProject(const QStringList &fileNames, const QString &directory);
 AddFilesResult addFontToProject(const QStringList &fileNames, const QString &directory);
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &directory);
@@ -75,6 +77,8 @@ void addMouseAreaFill(const SelectionContext &selectionContext);
 
 void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);
+
+QMLDESIGNERCORE_EXPORT Utils::FilePath getEffectsDirectory();
 
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);

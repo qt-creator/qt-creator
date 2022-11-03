@@ -18,6 +18,8 @@
         { "key": "ProjectPluginClassName", "value": "%{ProjectName}Plugin" },
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qmlproject')}" },
         { "key": "ImportModuleName", "value": "%{ProjectName}" },
+        { "key": "UIClassName", "value": "Screen01" },
+        { "key": "UIClassFileName", "value": "%{JS: Util.fileName('%{UIClassName}', 'ui.qml')}" },
         { "key": "IsQt6Project", "value": "%{JS: value('QtQuickVersion') !== '2.15' }" },
         { "key": "QtQuickVersion", "value": "%{JS: %{TargetQtVersion}.TargetQuickVersion}" },
         { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
@@ -215,6 +217,13 @@
                                 "value":
                                 "({
                                     'TargetQuickVersion': '6.3'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.4",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.4'
                                 })"
                             }
                         ]

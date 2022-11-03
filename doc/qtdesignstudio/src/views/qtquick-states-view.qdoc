@@ -5,6 +5,7 @@
     \page qtquick-states-view.html
     \previouspage qtquick-connection-view.html
     \nextpage studio-translations.html
+    \sa {Working with States}
 
     \title States
 
@@ -25,48 +26,4 @@
 
     \youtube FzmLuRHQXaw
 
-    \section1 Summary of States View Actions
-
-    To open the \uicontrol Actions menu, select
-    \inlineimage icons/action-icon.png
-    . The actions available in the menu depend on the current context. For
-    example, the option for editing an annotation becomes available after
-    you add an annotation.
-
-    \table
-    \header
-        \li Action
-        \li Purpose
-        \li Read More
-    \row
-        \li \uicontrol {Set when Condition}
-        \li Determines when a state should be applied.
-        \li \l{Applying States}
-    \row
-        \li \uicontrol {Reset when Condition}
-        \li Removes \c when condition for the state.
-        \li \l{Applying States}
-    \row
-        \li \uicontrol {Set as Default}
-        \li Sets the current state as the startup state of the application.
-        \li \l{Setting the Default State}
-    \row
-        \li\uicontrol {Reset Default}
-        \li Resets the current state as the default state.
-        \li \l{Setting the Default State}
-    \row
-        \li \uicontrol {Add Annotation}
-        \li Opens the \uicontrol {Annotation Editor} when you can add an
-            annotation for the states that you create.
-        \li \l{Annotating Designs}
-    \row
-        \li \uicontrol {Edit Annotation}
-        \li Opens the \uicontrol {Annotation Editor} where you can edit the
-            annotation for the state.
-        \li \l{Annotating Designs}
-    \row
-        \li \uicontrol {Add Annotation}
-        \li Removes the annotation for the state.
-        \li \l{Annotating Designs}
-    \endtable
 */

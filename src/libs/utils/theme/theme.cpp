@@ -253,6 +253,13 @@ void Theme::setInitialPalette(Theme *initTheme)
     initialPalette();
 }
 
+void Theme::setHelpMenu(QMenu *menu)
+{
+#ifdef Q_OS_MACOS
+    Internal::setMacOSHelpMenu(menu);
+#endif
+}
+
 QPalette Theme::initialPalette()
 {
     static QPalette palette = copyPalette(QApplication::palette());

@@ -3,19 +3,15 @@
 
 #include "qmlitemnode.h"
 #include <metainfo.h>
-#include "qmlchangeset.h"
 #include "nodelistproperty.h"
 #include "nodehints.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
 #include "qmlanchors.h"
-#include "invalidmodelnodeexception.h"
 #include "itemlibraryinfo.h"
 
-#include "plaintexteditmodifier.h"
-#include "rewriterview.h"
-#include "modelmerger.h"
-#include "rewritingexception.h"
+#include <model.h>
+#include <abstractview.h>
 
 #include <QUrl>
 #include <QPlainTextEdit>
@@ -153,6 +149,33 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
         doCreateQmlItemNodeFromFont();
 
     return newQmlItemNode;
+}
+
+QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
+                                                    const QmlItemNode &parentNode,
+                                                    const QString &effectName)
+{
+    QmlItemNode newQmlItemNode;
+
+    QmlDesigner::Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
+    try {
+        if (!view->model()->hasImport(import, true, true))
+            view->model()->changeImports({import}, {});
+    } catch (const Exception &) {
+        QTC_ASSERT(false, return QmlItemNode());
+    }
+
+    TypeName type(effectName.toUtf8());
+    newQmlItemNode = QmlItemNode(view->createModelNode(type, 1, 0));
+    NodeAbstractProperty parentProperty = parentNode.defaultNodeAbstractProperty();
+    parentProperty.reparentHere(newQmlItemNode);
+
+    newQmlItemNode.modelNode().bindingProperty("source").setExpression("parent");
+    newQmlItemNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
+
+    QTC_ASSERT(newQmlItemNode.isValid(), return QmlItemNode());
+
+    return  newQmlItemNode;
 }
 
 bool QmlItemNode::isValid() const

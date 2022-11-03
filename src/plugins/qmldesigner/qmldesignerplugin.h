@@ -65,6 +65,8 @@ public:
     void switchToTextModeDeferred();
     void emitCurrentTextEditorChanged(Core::IEditor *editor);
 
+    void emitAssetChanged(const QString &assetPath);
+
     static double formEditorDevicePixelRatio();
 
     static void contextHelp(const Core::IContext::HelpCallback &callback, const QString &id);
@@ -83,7 +85,7 @@ public:
 signals:
     void usageStatisticsNotifier(const QString &identifier);
     void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
-
+    void assetChanged(const QString &assetPath);
 
 private: // functions
     void integrateIntoQtCreator(QWidget *modeWidget);

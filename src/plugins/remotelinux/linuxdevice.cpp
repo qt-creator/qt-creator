@@ -1455,10 +1455,9 @@ private:
 
         const FilePath targetDir = target.parentDir();
         if (!m_checkedDirectories.contains(targetDir)) {
-            emit progress(tr("Creating directory: %1\n")
-              .arg(targetDir.toUserOutput()));
+            emit progress(Tr::tr("Creating directory: %1\n").arg(targetDir.toUserOutput()));
             if (!targetDir.ensureWritableDir()) {
-                result.m_errorString = tr("Failed.");
+                result.m_errorString = Tr::tr("Failed.");
                 result.m_exitCode = -1; // Random pick
                 emit done(result);
                 return;
@@ -1466,10 +1465,12 @@ private:
             m_checkedDirectories.insert(targetDir);
         }
 
-        emit progress(tr("Copying %1/%2: %3 -> %4\n")
-          .arg(m_currentIndex).arg(m_fileCount).arg(source.toUserOutput(), target.toUserOutput()));
+        emit progress(Tr::tr("Copying %1/%2: %3 -> %4\n")
+                          .arg(m_currentIndex)
+                          .arg(m_fileCount)
+                          .arg(source.toUserOutput(), target.toUserOutput()));
         if (!source.copyFile(target)) {
-            result.m_errorString = tr("Failed.");
+            result.m_errorString = Tr::tr("Failed.");
             result.m_exitCode = -1; // Random pick
             emit done(result);
             return;

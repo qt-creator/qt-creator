@@ -10,11 +10,7 @@
 /*!
     \page creator-build-dependencies.html
     \previouspage creator-code-style-settings.html
-    \if defined(qtdesignstudio)
-    \nextpage studio-designing.html
-    \else
     \nextpage creator-project-settings-environment.html
-    \endif
 
     \title Specifying Dependencies
 

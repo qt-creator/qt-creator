@@ -514,6 +514,7 @@ void MainWindow::registerDefaultContainers()
     ac = ActionManager::createMenu(Constants::M_HELP);
     menubar->addMenu(ac, Constants::G_HELP);
     ac->menu()->setTitle(tr("&Help"));
+    Theme::setHelpMenu(ac->menu());
     ac->appendGroup(Constants::G_HELP_HELP);
     ac->appendGroup(Constants::G_HELP_SUPPORT);
     ac->appendGroup(Constants::G_HELP_ABOUT);

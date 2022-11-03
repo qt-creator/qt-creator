@@ -209,8 +209,9 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     m_buildVariant = addAspect<SelectionAspect>();
     m_buildVariant->setDisplayName(QbsProjectManager::Tr::tr("Build variant:"));
     m_buildVariant->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    m_buildVariant->addOption(ProjectExplorer::Tr::tr("Debug"));
-    m_buildVariant->addOption(ProjectExplorer::Tr::tr("Release"));
+    m_buildVariant->addOption({ProjectExplorer::Tr::tr("Debug"), {}, Constants::QBS_VARIANT_DEBUG});
+    m_buildVariant->addOption({ProjectExplorer::Tr::tr("Release"), {},
+                               Constants::QBS_VARIANT_RELEASE});
 
     m_selectedAbis = addAspect<ArchitecturesAspect>();
     m_selectedAbis->setLabelText(QbsProjectManager::Tr::tr("ABIs:"));
@@ -263,7 +264,9 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     connect(m_cleanInstallDir, &BaseAspect::changed, this, &QbsBuildStep::updateState);
     connect(m_forceProbes, &BaseAspect::changed, this, &QbsBuildStep::updateState);
 
-    connect(m_buildVariant, &SelectionAspect::changed, this, &QbsBuildStep::changeBuildVariant);
+    connect(m_buildVariant, &SelectionAspect::changed, this, [this] {
+        setBuildVariant(m_buildVariant->itemValue().toString());
+    });
     connect(m_selectedAbis, &SelectionAspect::changed, [this] {
         setConfiguredArchitectures(m_selectedAbis->selectedArchitectures()); });
 }
@@ -358,13 +361,16 @@ void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
 {
     QVariantMap tmp = config;
     tmp.insert(Constants::QBS_CONFIG_PROFILE_KEY, qbsBuildSystem()->profile());
-    if (!tmp.contains(Constants::QBS_CONFIG_VARIANT_KEY))
-        tmp.insert(Constants::QBS_CONFIG_VARIANT_KEY,
-                   QString::fromLatin1(Constants::QBS_VARIANT_DEBUG));
-
+    QString buildVariant = tmp.value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
+    if (buildVariant.isEmpty()) {
+        buildVariant = Constants::QBS_VARIANT_DEBUG;
+        tmp.insert(Constants::QBS_CONFIG_VARIANT_KEY, buildVariant);
+    }
     if (tmp == m_qbsConfiguration)
         return;
     m_qbsConfiguration = tmp;
+    if (m_buildVariant)
+        m_buildVariant->setValue(m_buildVariant->indexForItemValue(buildVariant));
     if (ProjectExplorer::BuildConfiguration *bc = buildConfiguration())
         emit bc->buildTypeChanged();
     emit qbsConfigurationChanged();
@@ -758,16 +764,6 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
         propertyList.append(i.key() + ':' + i.value().toString());
 
     propertyEdit->setText(ProcessArgs::joinArgs(propertyList));
-}
-
-void QbsBuildStep::changeBuildVariant()
-{
-    QString variant;
-    if (m_buildVariant->value() == 1)
-        variant = Constants::QBS_VARIANT_RELEASE;
-    else
-        variant = Constants::QBS_VARIANT_DEBUG;
-    setBuildVariant(variant);
 }
 
 void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)

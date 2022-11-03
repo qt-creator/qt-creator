@@ -45,8 +45,9 @@ bool TreeScanner::asyncScanForFiles(const Utils::FilePath &directory)
     if (!m_futureWatcher.isFinished())
         return false;
 
-    m_scanFuture = Utils::runAsync([this, directory](FutureInterface &fi) {
-        TreeScanner::scanForFiles(fi, directory, m_filter, m_factory);
+    m_scanFuture = Utils::runAsync(
+                [directory, filter = m_filter, factory = m_factory] (FutureInterface &fi) {
+        TreeScanner::scanForFiles(fi, directory, filter, factory);
     });
     m_futureWatcher.setFuture(m_scanFuture);
 

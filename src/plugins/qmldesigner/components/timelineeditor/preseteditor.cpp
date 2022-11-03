@@ -33,6 +33,19 @@ constexpr int spacingg = 5;
 
 const QColor background = Qt::white;
 
+
+QString makeNameUnique(const QString& name, const QStringList& currentNames)
+{
+    QString n = name;
+    int idx = 0;
+    while (true) {
+        if (!currentNames.contains(n))
+            return n;
+        n = name + "_" + QString::number(idx++);
+    }
+    return {};
+}
+
 PresetItemDelegate::PresetItemDelegate(const QColor& background)
     : QStyledItemDelegate()
     , m_background(background)
@@ -366,7 +379,7 @@ void PresetList::createItem()
 {
     EasingCurve curve;
     curve.makeDefault();
-    createItem(createUniqueName(), curve);
+    createItem(makeNameUnique("Default", allNames()), curve);
 }
 
 void PresetList::createItem(const QString &name, const EasingCurve &curve)
@@ -400,27 +413,6 @@ void PresetList::setItemData(const QModelIndex &index, const QVariant &curve, co
         model()->setData(index, true, PresetList::ItemRole_Dirty);
         model()->setData(index, icon, Qt::DecorationRole);
     }
-}
-
-QString PresetList::createUniqueName() const
-{
-    QStringList names = allNames();
-    auto nameIsUnique = [&](const QString &name) {
-        auto iter = std::find(names.begin(), names.end(), name);
-        if (iter == names.end())
-            return true;
-        else
-            return false;
-    };
-
-    int counter = 0;
-    QString tmp("Default");
-    QString name = tmp;
-
-    while (!nameIsUnique(name))
-        name = tmp + QString(" %1").arg(counter++);
-
-    return name;
 }
 
 QStringList PresetList::allNames() const
@@ -529,7 +521,8 @@ bool PresetEditor::writePresets(const EasingCurve &curve)
 
             if (ok && !name.isEmpty()) {
                 activate(m_customs->index());
-                m_customs->createItem(name, curve);
+                QString uname = makeNameUnique(name, m_customs->allNames());
+                m_customs->createItem(uname, curve);
             }
         }
 

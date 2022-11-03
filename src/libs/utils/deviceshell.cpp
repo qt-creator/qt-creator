@@ -74,10 +74,18 @@ QStringList DeviceShell::missingFeatures() const { return m_missingFeatures; }
 
 RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 {
-    if (m_shellScriptState == State::NoScript) {
-        // Fallback ...
+    // If the script failed to install, use QtcProcess directly instead.
+    bool useProcess = m_shellScriptState == State::NoScript;
+
+    // Transferring large amounts of stdInData is slow via the shell script.
+    // Use QtcProcess directly if the size exceeds 100kb.
+    useProcess |= stdInData.size() > (1024 * 100);
+
+    if (useProcess) {
         QtcProcess proc;
-        proc.setCommand(createFallbackCommand(cmd));
+        const CommandLine fallbackCmd = createFallbackCommand(cmd);
+        qCDebug(deviceShellLog) << "Running fallback:" << fallbackCmd;
+        proc.setCommand(fallbackCmd);
         proc.setWriteData(stdInData);
 
         proc.start();
@@ -105,7 +113,7 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
                                     .arg(id)
                                     .arg(QString::fromLatin1(stdInData.toBase64()))
                                     .arg(cmd.toUserOutput());
-        qCDebug(deviceShellLog) << "Running:" << command;
+        qCDebug(deviceShellLog) << "Running via shell:" << command;
         m_shellProcess->writeRaw(command.toUtf8());
     });
 

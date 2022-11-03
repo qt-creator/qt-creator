@@ -3,7 +3,7 @@
 
 #include "theme_mac.h"
 
-#include <qglobal.h>
+#include <QMenu>
 #include <QOperatingSystemVersion>
 
 #include <AppKit/AppKit.h>
@@ -45,6 +45,11 @@ bool currentAppearanceIsDark()
 {
     // double negation, so we get "false" for macOS 10.13
     return !currentAppearanceMatches(false /*==light*/);
+}
+
+void setMacOSHelpMenu(QMenu *menu)
+{
+    NSApp.helpMenu = menu->toNSMenu();
 }
 
 } // Internal

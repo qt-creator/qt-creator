@@ -19,6 +19,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QStandardItemModel>
+#include <QTimer>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -75,7 +76,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setActivationMode(Utils::DoubleClickActivation);
     connect(this, &LogChangeWidget::activated, this, &LogChangeWidget::emitCommitActivated);
-    setFocus();
+    QTimer::singleShot(0, [this] { setFocus(); });
 }
 
 bool LogChangeWidget::init(const FilePath &repository, const QString &commit, LogFlags flags)
@@ -211,16 +212,15 @@ const QStandardItem *LogChangeWidget::currentItem(int column) const
 LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     QDialog(parent)
     , m_widget(new LogChangeWidget)
-
-    , m_dialogButtonBox(new QDialogButtonBox(this))
+    , m_dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this))
 {
     auto layout = new QVBoxLayout(this);
     layout->addWidget(new QLabel(isReset ? Tr::tr("Reset to:") : Tr::tr("Select change:"), this));
     layout->addWidget(m_widget);
     auto popUpLayout = new QHBoxLayout;
     if (isReset) {
-        popUpLayout->addWidget(new QLabel(Tr::tr("Reset type:"), this));
-        m_resetTypeComboBox = new QComboBox(this);
+        popUpLayout->addWidget(new QLabel(Tr::tr("Reset type:")));
+        m_resetTypeComboBox = new QComboBox;
         m_resetTypeComboBox->addItem(Tr::tr("Hard"), "--hard");
         m_resetTypeComboBox->addItem(Tr::tr("Mixed"), "--mixed");
         m_resetTypeComboBox->addItem(Tr::tr("Soft"), "--soft");
@@ -230,8 +230,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     }
 
     popUpLayout->addWidget(m_dialogButtonBox);
-    m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
-    QPushButton *okButton = m_dialogButtonBox->addButton(QDialogButtonBox::Ok);
+    QPushButton *okButton = m_dialogButtonBox->button(QDialogButtonBox::Ok);
     layout->addLayout(popUpLayout);
 
     connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);

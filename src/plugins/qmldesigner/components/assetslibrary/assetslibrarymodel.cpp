@@ -208,7 +208,7 @@ QObject *AssetsLibraryModel::rootDir() const
 bool AssetsLibraryModel::isEmpty() const
 {
     return m_isEmpty;
-};
+}
 
 void AssetsLibraryModel::setIsEmpty(bool empty)
 {
@@ -216,7 +216,7 @@ void AssetsLibraryModel::setIsEmpty(bool empty)
         m_isEmpty = empty;
         emit isEmptyChanged();
     }
-};
+}
 
 QVariant AssetsLibraryModel::data(const QModelIndex &index, int role) const
 {
@@ -374,6 +374,13 @@ const QStringList &AssetsLibraryModel::supportedTexture3DSuffixes()
     return retList;
 }
 
+const QStringList &AssetsLibraryModel::supportedEffectMakerSuffixes()
+{
+    // These are file types only supported by Effect Maker
+    static QStringList retList {"*.qep"};
+    return retList;
+}
+
 const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
 {
     static QSet<QString> allSuffixes;
@@ -388,6 +395,7 @@ const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
         insertSuffixes(supportedAudioSuffixes());
         insertSuffixes(supportedVideoSuffixes());
         insertSuffixes(supportedTexture3DSuffixes());
+        insertSuffixes(supportedEffectMakerSuffixes());
     }
     return allSuffixes;
 }

@@ -799,47 +799,48 @@ void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, in
     m_model.data()->d->changeRootNodeType(type, majorVersion, minorVersion);
 }
 
-// Creates material library if it doesn't exist and moves any existing materials into it
-// This function should be called only from inside a transaction, as it potentially does many
-// changes to model, or undo stack should be cleared after the call.
+// Creates material library if it doesn't exist and moves any existing materials into it.
 void AbstractView::ensureMaterialLibraryNode()
 {
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
     if (matLib.isValid() || rootModelNode().metaInfo().isQtQuick3DMaterial())
         return;
 
-    // Create material library node
-    auto nodeType = rootModelNode().metaInfo().isQtQuick3DNode() ? model()->qtQuick3DNodeMetaInfo()
-                                                                 : model()->qtQuickItemMetaInfo();
-    matLib = createModelNode(nodeType.typeName(), nodeType.majorVersion(), nodeType.minorVersion());
+    executeInTransaction(__FUNCTION__, [&] {
+        // Create material library node
+        auto nodeType = rootModelNode().metaInfo().isQtQuick3DNode()
+                            ? model()->qtQuick3DNodeMetaInfo()
+                            : model()->qtQuickItemMetaInfo();
+        matLib = createModelNode(nodeType.typeName(), nodeType.majorVersion(), nodeType.minorVersion());
 
-    matLib.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
-    rootModelNode().defaultNodeListProperty().reparentHere(matLib);
+        matLib.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
+        rootModelNode().defaultNodeListProperty().reparentHere(matLib);
+    });
 
-    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType(
-        model()->qtQuick3DMaterialMetaInfo());
-    if (!materials.isEmpty()) {
-        // Move all materials to under material library node
-        for (const ModelNode &node : materials) {
-            // If material has no name, set name to id
-            QString matName = node.variantProperty("objectName").value().toString();
-            if (matName.isEmpty()) {
-                VariantProperty objNameProp = node.variantProperty("objectName");
-                objNameProp.setValue(node.id());
+    // Do the material reparentings in different transaction to work around issue QDS-8094
+    executeInTransaction(__FUNCTION__, [&] {
+        const QList<ModelNode> materials = rootModelNode().subModelNodesOfType(
+            model()->qtQuick3DMaterialMetaInfo());
+        if (!materials.isEmpty()) {
+            // Move all materials to under material library node
+            for (const ModelNode &node : materials) {
+                // If material has no name, set name to id
+                QString matName = node.variantProperty("objectName").value().toString();
+                if (matName.isEmpty()) {
+                    VariantProperty objNameProp = node.variantProperty("objectName");
+                    objNameProp.setValue(node.id());
+                }
+
+                matLib.defaultNodeListProperty().reparentHere(node);
             }
-
-            matLib.defaultNodeListProperty().reparentHere(node);
         }
-    }
+    });
 }
 
-// Returns ModelNode for project's material library.
-// Since this calls ensureMaterialLibraryNode(), it should only be called within a transaction.
+// Returns ModelNode for project's material library if it exists.
 ModelNode AbstractView::materialLibraryNode()
 {
-    ensureMaterialLibraryNode();
-    ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-    return matLib;
+    return modelNodeForId(Constants::MATERIAL_LIB_ID);
 }
 
 // Assigns given material to a 3D model.

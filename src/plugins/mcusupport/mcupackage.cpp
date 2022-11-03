@@ -38,7 +38,8 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QStringList &versions,
                        const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector,
-                       const bool addToSystemPath)
+                       const bool addToSystemPath,
+                       const Utils::PathChooser::Kind &valueType)
     : settingsHandler(settingsHandler)
     , m_label(label)
     , m_defaultPath(settingsHandler->getPath(settingsKey, QSettings::SystemScope, defaultPath))
@@ -50,6 +51,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_environmentVariableName(envVarName)
     , m_downloadUrl(downloadUrl)
     , m_addToSystemPath(addToSystemPath)
+    , m_valueType(valueType)
 {
     m_path = FilePath::fromUserInput(qtcEnvironmentVariable(m_environmentVariableName));
     if (!m_path.exists()) {
@@ -141,7 +143,7 @@ void McuPackage::updateStatus()
         m_status = Status::ValidPathInvalidPackage;
     } else if (m_versionDetector && m_detectedVersion.isEmpty()) {
         m_status = Status::ValidPackageVersionNotDetected;
-    } else if (!validVersion) {
+    } else if (m_versionDetector && !validVersion) {
         m_status = Status::ValidPackageMismatchedVersion;
     } else {
         m_status = Status::ValidPackage;
@@ -157,7 +159,8 @@ McuPackage::Status McuPackage::status() const
 
 bool McuPackage::isValidStatus() const
 {
-    return m_status == Status::ValidPackage || m_status == Status::ValidPackageMismatchedVersion;
+    return m_status == Status::ValidPackage || m_status == Status::ValidPackageMismatchedVersion
+           || m_status == Status::ValidPackageVersionNotDetected;
 }
 
 void McuPackage::updateStatusUi()
@@ -223,7 +226,8 @@ QString McuPackage::statusText() const
                        : tr("Path is empty, %1 not found.").arg(displayRequiredPath);
         break;
     case Status::ValidPackageVersionNotDetected:
-        response = tr("Path %1 exists, but version could not be detected.").arg(displayPackagePath);
+        response = tr("Path %1 exists, but version %2 could not be detected.")
+                       .arg(displayPackagePath, displayVersions);
         break;
     }
     return response;
@@ -244,6 +248,7 @@ QWidget *McuPackage::widget()
 {
     auto *widget = new QWidget;
     m_fileChooser = new PathChooser(widget);
+    m_fileChooser->setExpectedKind(m_valueType);
     m_fileChooser->lineEdit()->setButtonIcon(FancyLineEdit::Right, Icons::RESET.icon());
     m_fileChooser->lineEdit()->setButtonVisible(FancyLineEdit::Right, true);
     connect(m_fileChooser->lineEdit(), &FancyLineEdit::rightButtonClicked, this, [&] {
@@ -359,10 +364,9 @@ ToolChain *McuToolChainPackage::msvcToolChain(Id language)
 {
     ToolChain *toolChain = ToolChainManager::toolChain([language](const ToolChain *t) {
         const Abi abi = t->targetAbi();
-        // TODO: Should Abi::WindowsMsvc2022Flavor be added too?
-        return (abi.osFlavor() == Abi::WindowsMsvc2017Flavor
-                || abi.osFlavor() == Abi::WindowsMsvc2019Flavor)
+        return abi.osFlavor() == Abi::WindowsMsvc2019Flavor
                && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
+               && t->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                && t->language() == language;
     });
     return toolChain;

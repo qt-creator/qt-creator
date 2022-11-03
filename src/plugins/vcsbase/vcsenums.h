@@ -26,24 +26,24 @@ enum class RunFlags {
     NoOutput               = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
 };
 
-inline void VCSBASE_EXPORT operator|=(RunFlags &p, RunFlags r)
+inline void operator|=(RunFlags &p, RunFlags r)
 {
     p = RunFlags(int(p) | int(r));
 }
 
-inline RunFlags VCSBASE_EXPORT operator|(RunFlags p, RunFlags r)
+inline RunFlags operator|(RunFlags p, RunFlags r)
 {
     return RunFlags(int(p) | int(r));
 }
 
-inline void VCSBASE_EXPORT operator&=(RunFlags &p, RunFlags r)
+inline void operator&=(RunFlags &p, RunFlags r)
 {
     p = RunFlags(int(p) & int(r));
 }
 
 // Note, that it returns bool, not RunFlags.
 // It's only meant for testing whether a specific bit is set.
-inline bool VCSBASE_EXPORT operator&(RunFlags p, RunFlags r)
+inline bool operator&(RunFlags p, RunFlags r)
 {
     return bool(int(p) & int(r));
 }

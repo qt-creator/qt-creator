@@ -157,7 +157,6 @@ QList<Utils::OutputLineParser *> CustomToolChain::createOutputParsers() const
     if (m_outputParserId == MsvcParser::id())
         return {new MsvcParser};
     return {new Internal::CustomParser(customParserSettings())};
-    return {};
 }
 
 QStringList CustomToolChain::headerPathsList() const

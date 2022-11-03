@@ -3,11 +3,10 @@
 
 #include "connectionmanager.h"
 #include "endpuppetcommand.h"
-#include "nodeinstanceserverproxy.h"
-#include "nodeinstanceview.h"
 #include "puppetstarter.h"
 
 #include <externaldependenciesinterface.h>
+#include <abstractview.h>
 
 #include <projectexplorer/target.h>
 

@@ -14,12 +14,12 @@
 :*Qt Creator_Utils::FilterLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :About Qt Creator_Core::Internal::VersionDialog	{type='Core::Internal::VersionDialog' unnamed='1' visible='1' windowTitle='About Qt Creator'}
-:Add Bookmark.ExpandBookmarksList_QToolButton	{name='toolButton' text='+' type='QToolButton' visible='1' window=':Add Bookmark_BookmarkDialog'}
-:Add Bookmark.New Folder_QPushButton	{name='newFolderButton' text='New Folder' type='QPushButton' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark.ExpandBookmarksList_QToolButton	{text='+' type='QToolButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark.New Folder_QPushButton	{text='New Folder' type='QPushButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark.treeView_QExpandingLineEdit	{container=':Add Bookmark.treeView_QTreeView' type='QExpandingLineEdit' unnamed='1' visible='1'}
-:Add Bookmark.treeView_QTreeView	{name='treeView' type='QTreeView' visible='1' window=':Add Bookmark_BookmarkDialog'}
-:Add Bookmark_BookmarkDialog	{name='BookmarkDialog' type='BookmarkDialog' visible='1' windowTitle='Add Bookmark'}
+:Add Bookmark.treeView_QTreeView	{type='QTreeView' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
+:Add Bookmark_BookmarkDialog	{type='BookmarkDialog' unnamed='1' visible='1' windowTitle='Add Bookmark'}
 :Add to Version Control.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':Add to Version Control_QMessageBox'}
 :Add to Version Control_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Add to Version Control'}
 :Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox	{container=':DebugModeWidget.Toolbar_QDockWidget' name='PerspectiveChooser' type='QComboBox' visible='1'}

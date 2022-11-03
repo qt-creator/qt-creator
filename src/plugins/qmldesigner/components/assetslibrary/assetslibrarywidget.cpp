@@ -16,15 +16,23 @@
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/environment.h>
 #include <utils/filesystemwatcher.h>
-#include <utils/stylehelper.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include "utils/environment.h"
+#include "utils/filepath.h"
+#include "utils/qtcprocess.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 
 #include <QApplication>
 #include <QDrag>
@@ -42,12 +50,15 @@
 #include <QQmlContext>
 #include <QQuickItem>
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitinformation.h>
+
 namespace QmlDesigner {
 
 static QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
@@ -124,6 +135,11 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
             [this]([[maybe_unused]] const QString &changedDirPath) {
                 m_assetCompressionTimer.start();
             });
+
+    connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
+            [](const QString &changeFilePath) {
+        QmlDesignerPlugin::instance()->emitAssetChanged(changeFilePath);
+    });
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
@@ -224,6 +240,48 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
     return suffixes;
 }
 
+void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
+{
+    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
+    if (!target) {
+        qWarning() << __FUNCTION__ << "No project open";
+        return;
+    }
+
+    Utils::FilePath projectPath = target->project()->projectDirectory();
+    QString effectName = QFileInfo(filePath).baseName();
+    QString effectResDir = "asset_imports/Effects/" + effectName;
+    Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir);
+    if (!effectResPath.exists())
+        QDir(projectPath.toString()).mkpath(effectResDir);
+
+    const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+    if (baseQtVersion) {
+        auto effectMakerPath = baseQtVersion->binPath().pathAppended("QQEffectMaker").withExecutableSuffix();
+        if (!effectMakerPath.exists()) {
+            qWarning() << __FUNCTION__ << "Cannot find EffectMaker app";
+            return;
+        }
+
+        Utils::FilePath effectPath = Utils::FilePath::fromString(filePath);
+        QString effectContents = QString::fromUtf8(effectPath.fileContents().value_or(QByteArray()));
+        QStringList arguments;
+        arguments << filePath;
+        if (effectContents.isEmpty())
+            arguments << "--create";
+        arguments << "--exportpath" << effectResPath.toString();
+
+        Utils::Environment env = Utils::Environment::systemEnvironment();
+        if (env.osType() == Utils::OsTypeMac)
+            env.appendOrSet("QSG_RHI_BACKEND", "metal");
+
+        m_qqemProcess.reset(new Utils::QtcProcess);
+        m_qqemProcess->setEnvironment(env);
+        m_qqemProcess->setCommand({ effectMakerPath, arguments });
+        m_qqemProcess->start();
+    }
+}
+
 void AssetsLibraryWidget::setModel(Model *model)
 {
     m_model = model;
@@ -232,7 +290,7 @@ void AssetsLibraryWidget::setModel(Model *model)
 QString AssetsLibraryWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/itemLibraryQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/itemLibraryQmlSources").toString();
@@ -295,6 +353,9 @@ QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QStrin
         } else if (AssetsLibraryModel::supportedTexture3DSuffixes().contains(suffix)) {
             // Data: Image format (suffix)
             return {Constants::MIME_TYPE_ASSET_TEXTURE3D, suffix.toUtf8()};
+        } else if (AssetsLibraryModel::supportedEffectMakerSuffixes().contains(suffix)) {
+            // Data: Effect Maker format (suffix)
+            return {Constants::MIME_TYPE_ASSET_EFFECT, suffix.toUtf8()};
         }
     }
     return {};

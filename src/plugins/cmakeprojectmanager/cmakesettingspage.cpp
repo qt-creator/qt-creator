@@ -462,6 +462,7 @@ void CMakeToolItemConfigWidget::onBinaryPathEditingFinished()
 {
     updateQchFilePath();
     store();
+    load(m_model->cmakeToolItem(m_id));
 }
 
 void CMakeToolItemConfigWidget::updateQchFilePath()

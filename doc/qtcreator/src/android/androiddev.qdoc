@@ -4,11 +4,7 @@
     /*!
     \page creator-developing-android.html
     \previouspage creator-connecting-mobile.html
-    \if defined(qtdesignstudio)
-    \nextpage creator-developing-generic-linux.html
-    \else
     \nextpage creator-developing-baremetal.html
-    \endif
 
     \title Connecting Android Devices
 

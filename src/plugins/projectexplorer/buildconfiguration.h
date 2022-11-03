@@ -116,6 +116,7 @@ public:
 
 signals:
     void environmentChanged();
+    void buildDirectoryInitialized();
     void buildDirectoryChanged();
     void enabledChanged();
     void buildTypeChanged();

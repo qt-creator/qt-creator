@@ -16,9 +16,11 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
         "cmakeEntries": [
             {
                 "id": "INFINEON_AUTO_FLASH_UTILITY_DIR",
+                "setting": "CypressAutoFlashUtil",
                 "label": "Cypress Auto Flash Utility",
                 "type": "path",
                 "cmakeVar": "INFINEON_AUTO_FLASH_UTILITY_DIR",
+                "detectionPath": "bin/openocd.exe",
                 "optional": false,
                 "addToSystemPath": true
             }
@@ -37,11 +39,14 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
             "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
             "type": "path",
             "versionDetection": {
-                "filePattern": "bin/iccarm",
+                "filePattern": {
+                    "windows": "bin/iccarm.exe",
+                    "linux": "bin/iccarm"
+                },
                 "executableArgs": "--version",
                 "regex": "\\bV(\\d+\\.\\d+\\.\\d+)\\.\\d+\\b"
             },
-            "detectionPath":  "bin/iccarm.exe",
+            "detectionPath": "bin/iccarm.exe",
             "optional": false
         },
         "file": {
@@ -55,6 +60,7 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
     },
     "boardSdk": {
         "envVar": "TVII_GRAPHICS_DRIVER_DIR",
+        "setting": "TVII_GRAPHICS_DRIVER_DIR",
         "versions": [
             "V1e.1.0"
         ],
@@ -62,7 +68,9 @@ constexpr auto iar_tviic2d6m_baremetal_json = R"(
         "label": "Graphics Driver for Traveo II Cluster Series",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "type": "path",
-        "optional": false
+        "optional": false,
+        "versionDetection": {
+            "regex": "V\\w+\\.\\d+\\.\\d+"
     }
 }
 )";

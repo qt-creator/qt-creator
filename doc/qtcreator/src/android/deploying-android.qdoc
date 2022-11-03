@@ -34,10 +34,8 @@
     packages, select \uicontrol Projects > \uicontrol Build >
     \uicontrol {Build Android APK} > \uicontrol Details.
 
-    \if defined(qtcreator)
     For more information about options that you have for running applications,
     see \l {Specifying Run Settings for Android Devices}.
-    \endif
 
     \section1 Packaging Applications
 

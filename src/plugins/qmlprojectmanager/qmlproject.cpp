@@ -66,6 +66,14 @@ static int preferedQtTarget(Target *target)
     return 5;
 }
 
+static bool allowOnlySingleProject()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString qdsAllowMultipleProjects = "QML/Designer/AllowMultipleProjects";
+
+    return !settings->value(qdsAllowMultipleProjects, false).toBool();
+}
+
 Utils::FilePaths QmlProject::getUiQmlFilesForFolder(const Utils::FilePath &folder)
 {
     const Utils::FilePaths uiFiles = files([&](const ProjectExplorer::Node *node) {
@@ -86,9 +94,10 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
 
     if (QmlProject::isQtDesignStudio()) {
-
-        EditorManager::closeAllDocuments();
-        SessionManager::closeAllProjects();
+        if (allowOnlySingleProject()) {
+            EditorManager::closeAllDocuments();
+            SessionManager::closeAllProjects();
+        }
 
         m_openFileConnection
             = connect(this,

@@ -114,8 +114,10 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 
     // startup group box
     auto startupGroupBox = new QGroupBox(Tr::tr("Startup"));
+    startupGroupBox->setObjectName("startupGroupBox");
 
     contextHelpComboBox = new QComboBox(startupGroupBox);
+    contextHelpComboBox->setObjectName("contextHelpComboBox");
     contextHelpComboBox->addItem(Tr::tr("Show Side-by-Side if Possible"));
     contextHelpComboBox->addItem(Tr::tr("Always Show Side-by-Side"));
     contextHelpComboBox->addItem(Tr::tr("Always Show in Help Mode"));

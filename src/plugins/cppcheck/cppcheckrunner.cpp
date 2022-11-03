@@ -110,7 +110,7 @@ QString CppcheckRunner::currentCommand() const
 
 void CppcheckRunner::checkQueued()
 {
-    if (m_queue.isEmpty() || m_binary.isEmpty())
+    if (m_queue.isEmpty() || !m_binary.isExecutableFile())
         return;
 
     FilePaths files = m_queue.begin().value();

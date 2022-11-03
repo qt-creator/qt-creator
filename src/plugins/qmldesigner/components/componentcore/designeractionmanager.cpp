@@ -549,6 +549,8 @@ ModelNode createNewConnection(ModelNode targetNode)
 
 void removeSignal(SignalHandlerProperty signalHandler)
 {
+    if (!signalHandler.isValid())
+        return;
     auto connectionNode = signalHandler.parentModelNode();
     auto connectionSignals = connectionNode.signalProperties();
     if (connectionSignals.size() > 1) {
@@ -662,10 +664,14 @@ public:
                         QString(
                             QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
                         [=](const SelectionContext &) {
-                            signalHandler.parentModelNode().view()->executeInTransaction(
-                                "ConnectionsModelNodeActionGroup::"
-                                "openConnectionsEditor",
-                                [signalHandler]() { ActionEditor::invokeEditor(signalHandler); });
+                            signalHandler.parentModelNode()
+                                .view()
+                                ->executeInTransaction("ConnectionsModelNodeActionGroup::"
+                                                       "openConnectionsEditor",
+                                                       [signalHandler]() {
+                                                           ActionEditor::invokeEditor(signalHandler,
+                                                                                      removeSignal);
+                                                       });
                         });
 
                     activeSignalHandlerGroup->addAction(openEditorAction);
@@ -728,7 +734,7 @@ public:
 
                             newHandler.setSource(
                                 QString("console.log(\"%1.%2\")").arg(currentNode.id(), signalStr));
-                            ActionEditor::invokeEditor(newHandler, removeSignal);
+                            ActionEditor::invokeEditor(newHandler, removeSignal, true);
                         });
                 });
             newSignal->addAction(openEditorAction);

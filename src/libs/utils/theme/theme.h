@@ -9,6 +9,7 @@
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
+class QMenu;
 class QPalette;
 class QSettings;
 QT_END_NAMESPACE
@@ -472,6 +473,8 @@ public:
     static QPalette initialPalette();
 
     static void setInitialPalette(Theme *initTheme);
+
+    static void setHelpMenu(QMenu *menu);
 
 protected:
     Theme(Theme *originTheme, QObject *parent = nullptr);

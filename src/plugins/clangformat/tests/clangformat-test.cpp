@@ -704,4 +704,24 @@ void ClangFormatTest::testIndentFunctionArgumentOnNewLine()
               }));
 }
 
+void ClangFormatTest::testIndentCommentOnNewLine()
+{
+    insertLines(
+        {"/*!",
+         "    \\qmlproperty double Type::property",
+         " ",
+         "    \\brief The property of Type.",
+         "*/"
+        });
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    QCOMPARE(documentLines(),
+             (std::vector<QString>{
+                 "/*!",
+                 "    \\qmlproperty double Type::property",
+                 " ",
+                 "    \\brief The property of Type.",
+                 "*/"
+             }));
+}
+
 } // namespace ClangFormat::Internal
