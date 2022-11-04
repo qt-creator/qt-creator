@@ -74,6 +74,8 @@ public:
     static void saveExpandedState(bool expanded, const QString &assetPath);
     static bool loadExpandedState(const QString &assetPath);
 
+    static bool isEffectQmlExist(const QString &effectName);
+
     enum class DirExpandState {
         SomeExpanded,
         AllExpanded,

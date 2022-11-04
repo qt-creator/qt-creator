@@ -86,6 +86,13 @@ bool AssetsLibraryModel::loadExpandedState(const QString &assetPath)
     return m_expandedStateHash.value(assetPath, true);
 }
 
+bool AssetsLibraryModel::isEffectQmlExist(const QString &effectName)
+{
+    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsDirectory();
+    Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
+    return qmlPath.exists();
+}
+
 AssetsLibraryModel::DirExpandState AssetsLibraryModel::getAllExpandedState() const
 {
     const auto keys = m_expandedStateHash.keys();
