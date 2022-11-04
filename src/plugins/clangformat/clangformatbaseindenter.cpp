@@ -39,7 +39,11 @@ void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
 
     // This is a separate pass, don't do it unless it's the full formatting.
     style.FixNamespaceComments = false;
+#if LLVM_VERSION_MAJOR >= 16
+    style.AlignTrailingComments = {clang::format::FormatStyle::TCAS_Never, 0};
+#else
     style.AlignTrailingComments = false;
+#endif
 
     if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore)
         return;
