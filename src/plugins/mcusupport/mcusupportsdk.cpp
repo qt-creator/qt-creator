@@ -362,9 +362,9 @@ McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &setti
     FilePath defaultPath;
     const QString cubePath = "STMicroelectronics/STM32Cube/STM32CubeProgrammer";
     if (HostOsInfo::isWindowsHost())
-        defaultPath = findInProgramFiles(cubePath) / "bin";
+        defaultPath = findInProgramFiles(cubePath);
     else
-        defaultPath = FileUtils::homePath() / cubePath / "bin";
+        defaultPath = FileUtils::homePath() / cubePath;
     if (!defaultPath.exists())
         FilePath defaultPath = {};
 

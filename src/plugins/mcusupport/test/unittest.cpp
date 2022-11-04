@@ -141,7 +141,7 @@ const QString xpressoIdeDetectionPath{
 
 const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
 const char stmCubeProgrammerLabel[]{"STM32CubeProgrammer"};
-const QString stmCubeProgrammerPath{QString{defaultToolPath} + "/bin"};
+const QString stmCubeProgrammerPath{defaultToolPath};
 const QString stmCubeProgrammerDetectionPath{HostOsInfo::isWindowsHost()
                                                  ? QString("bin/STM32_Programmer_CLI.exe")
                                                  : QString("bin/STM32_Programmer.sh")};
