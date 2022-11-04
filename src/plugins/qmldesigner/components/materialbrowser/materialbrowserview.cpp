@@ -38,7 +38,10 @@ namespace QmlDesigner {
 
 MaterialBrowserView::MaterialBrowserView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
-{}
+{
+    m_previewTimer.setSingleShot(true);
+    connect(&m_previewTimer, &QTimer::timeout, this, &MaterialBrowserView::requestPreviews);
+}
 
 MaterialBrowserView::~MaterialBrowserView()
 {}
@@ -309,7 +312,9 @@ void MaterialBrowserView::refreshModel(bool updateImages)
 
     if (updateImages) {
         for (const ModelNode &node : std::as_const(materials))
-            model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+            m_previewRequests.insert(node);
+        if (!m_previewRequests.isEmpty())
+            m_previewTimer.start(0);
     }
 }
 
@@ -516,6 +521,15 @@ ModelNode MaterialBrowserView::getBundleMaterialDefaultInstance(const TypeName &
     return {};
 }
 
+void MaterialBrowserView::requestPreviews()
+{
+    if (model() && model()->nodeInstanceView()) {
+        for (const auto &node : std::as_const(m_previewRequests))
+            model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+    }
+    m_previewRequests.clear();
+}
+
 void MaterialBrowserView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
                                          [[maybe_unused]] const QList<Import> &removedImports)
 {
@@ -576,10 +590,26 @@ void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completed
                     return;
                 const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
                 for (const ModelNode &node : materials)
-                    model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+                    m_previewRequests.insert(node);
+                if (!m_previewRequests.isEmpty())
+                    m_previewTimer.start(0);
             });
             break;
         }
+    }
+}
+
+void MaterialBrowserView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
+{
+    for (const auto &nodeProp : propertyList) {
+        ModelNode node = nodeProp.first;
+        if (node.metaInfo().isQtQuick3DMaterial())
+            m_previewRequests.insert(node);
+    }
+    if (!m_previewRequests.isEmpty() && !m_previewTimer.isActive()) {
+        // Updating material browser isn't urgent in e.g. timeline scrubbing case, so have a bit
+        // of delay to reduce unnecessary rendering
+        m_previewTimer.start(500);
     }
 }
 

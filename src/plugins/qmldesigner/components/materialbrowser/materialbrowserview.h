@@ -7,6 +7,8 @@
 #include "nodemetainfo.h"
 
 #include <QPointer>
+#include <QSet>
+#include <QTimer>
 
 namespace QmlDesigner {
 
@@ -41,6 +43,7 @@ public:
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
+    void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
 private:
     void refreshModel(bool updateImages);
@@ -50,6 +53,7 @@ private:
     void updateBundleMaterialsQuick3DVersion();
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const NodeMetaInfo &metaInfo = {});
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
+    void requestPreviews();
 
     QPointer<MaterialBrowserWidget> m_widget;
     QList<ModelNode> m_bundleMaterialTargets;
@@ -61,6 +65,9 @@ private:
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action
     bool m_puppetResetPending = false;
     bool m_propertyGroupsLoaded = false;
+
+    QTimer m_previewTimer;
+    QSet<ModelNode> m_previewRequests;
 };
 
 } // namespace QmlDesigner
