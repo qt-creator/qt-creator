@@ -1158,6 +1158,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             if (!errors.isEmpty()) {
                 m_rewriterView->setErrors(errors);
                 setActive(false);
+                clearPossibleImportKeys();
                 return false;
             }
             if (!justSanityCheck)
@@ -1178,6 +1179,12 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setupUsedImports();
 
         setActive(false);
+
+        // Clear possible imports cache if code model hasn't settled yet
+        const int importKeysSize = m_possibleImportKeys.size();
+        if (m_previousPossibleImportsSize != importKeysSize)
+            m_possibleImportKeys.clear();
+        m_previousPossibleImportsSize = importKeysSize;
 
         return true;
     } catch (Exception &e) {
@@ -2452,6 +2459,7 @@ QList<QmlTypeData> TextToModelMerger::getQMLSingletons() const
 void TextToModelMerger::clearPossibleImportKeys()
 {
     m_possibleImportKeys.clear();
+    m_previousPossibleImportsSize = -1;
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
