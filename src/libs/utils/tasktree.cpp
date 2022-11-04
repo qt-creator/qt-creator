@@ -45,21 +45,26 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
         case Type::GroupHandler:
             QTC_ASSERT(m_type == Type::Group, qWarning("Group Handler may only be a "
                        "child of Group, skipping..."); break);
-            QTC_ASSERT(!child.m_groupHandler.m_simpleSetupHandler
-                       || !m_groupHandler.m_simpleSetupHandler,
+            QTC_ASSERT(!child.m_groupHandler.m_setupHandler
+                       || !m_groupHandler.m_setupHandler,
                        qWarning("Group Setup Handler redefinition, overriding..."));
-            QTC_ASSERT(!child.m_groupHandler.m_simpleDoneHandler
-                       || !m_groupHandler.m_simpleDoneHandler,
+            QTC_ASSERT(!child.m_groupHandler.m_doneHandler
+                       || !m_groupHandler.m_doneHandler,
                        qWarning("Group Done Handler redefinition, overriding..."));
-            QTC_ASSERT(!child.m_groupHandler.m_simpleErrorHandler
-                       || !m_groupHandler.m_simpleErrorHandler,
+            QTC_ASSERT(!child.m_groupHandler.m_errorHandler
+                       || !m_groupHandler.m_errorHandler,
                        qWarning("Group Error Handler redefinition, overriding..."));
-            if (child.m_groupHandler.m_simpleSetupHandler)
-                m_groupHandler.m_simpleSetupHandler = child.m_groupHandler.m_simpleSetupHandler;
-            if (child.m_groupHandler.m_simpleDoneHandler)
-                m_groupHandler.m_simpleDoneHandler = child.m_groupHandler.m_simpleDoneHandler;
-            if (child.m_groupHandler.m_simpleErrorHandler)
-                m_groupHandler.m_simpleErrorHandler = child.m_groupHandler.m_simpleErrorHandler;
+            QTC_ASSERT(!child.m_groupHandler.m_dynamicSetupHandler
+                       || !m_groupHandler.m_dynamicSetupHandler,
+                       qWarning("Dynamic Setup Handler redefinition, overriding..."));
+            if (child.m_groupHandler.m_setupHandler)
+                m_groupHandler.m_setupHandler = child.m_groupHandler.m_setupHandler;
+            if (child.m_groupHandler.m_doneHandler)
+                m_groupHandler.m_doneHandler = child.m_groupHandler.m_doneHandler;
+            if (child.m_groupHandler.m_errorHandler)
+                m_groupHandler.m_errorHandler = child.m_groupHandler.m_errorHandler;
+            if (child.m_groupHandler.m_dynamicSetupHandler)
+                m_groupHandler.m_dynamicSetupHandler = child.m_groupHandler.m_dynamicSetupHandler;
             break;
         }
     }
@@ -79,10 +84,11 @@ public:
                   const TaskItem &task);
     ~TaskContainer();
     void start();
+    void selectChildren();
     void stop();
     bool isRunning() const;
     void childDone(bool success);
-    void invokeSubTreeHandler(bool success);
+    void invokeEndHandler(bool success);
     void resetSuccessBit();
     void updateSuccessBit(bool success);
 
@@ -91,7 +97,9 @@ public:
     const TaskItem::ExecuteMode m_executeMode = TaskItem::ExecuteMode::Parallel;
     TaskItem::WorkflowPolicy m_workflowPolicy = TaskItem::WorkflowPolicy::StopOnError;
     const TaskItem::GroupHandler m_groupHandler;
+    GroupConfig m_groupConfig;
     QList<TaskNode *> m_children;
+    QList<TaskNode *> m_selectedChildren;
     int m_currentIndex = -1;
     bool m_successBit = true;
 };
@@ -157,13 +165,29 @@ TaskContainer::~TaskContainer()
 
 void TaskContainer::start()
 {
-    if (m_groupHandler.m_simpleSetupHandler) {
+    m_groupConfig = {};
+    m_selectedChildren.clear();
+
+    if (m_groupHandler.m_setupHandler) {
         GuardLocker locker(m_taskTreePrivate->m_guard);
-        m_groupHandler.m_simpleSetupHandler();
+        m_groupHandler.m_setupHandler();
     }
 
-    if (m_children.isEmpty()) {
-        invokeSubTreeHandler(true);
+    if (m_groupHandler.m_dynamicSetupHandler) {
+        GuardLocker locker(m_taskTreePrivate->m_guard);
+        m_groupConfig = m_groupHandler.m_dynamicSetupHandler();
+    }
+
+    if (m_groupConfig.action == GroupAction::StopWithDone || m_groupConfig.action == GroupAction::StopWithError) {
+        const bool success = m_groupConfig.action == GroupAction::StopWithDone;
+        invokeEndHandler(success);
+        return;
+    }
+
+    selectChildren();
+
+    if (m_selectedChildren.isEmpty()) {
+        invokeEndHandler(true);
         return;
     }
 
@@ -171,21 +195,34 @@ void TaskContainer::start()
     resetSuccessBit();
 
     if (m_executeMode == TaskItem::ExecuteMode::Sequential) {
-        m_children.at(m_currentIndex)->start();
+        m_selectedChildren.at(m_currentIndex)->start();
         return;
     }
 
     // Parallel case
-    for (TaskNode *child : std::as_const(m_children)) {
+    for (TaskNode *child : std::as_const(m_selectedChildren)) {
         if (!child->start())
             return;
+    }
+}
+
+void TaskContainer::selectChildren()
+{
+    if (m_groupConfig.action != GroupAction::ContinueSelected) {
+        m_selectedChildren = m_children;
+        return;
+    }
+    m_selectedChildren.clear();
+    for (int i = 0; i < m_children.size(); ++i) {
+        if (m_groupConfig.childrenToRun.contains(i))
+            m_selectedChildren.append(m_children.at(i));
     }
 }
 
 void TaskContainer::stop()
 {
     m_currentIndex = -1;
-    for (TaskNode *child : std::as_const(m_children))
+    for (TaskNode *child : std::as_const(m_selectedChildren))
         child->stop();
 }
 
@@ -199,32 +236,32 @@ void TaskContainer::childDone(bool success)
     if ((m_workflowPolicy == TaskItem::WorkflowPolicy::StopOnDone && success)
             || (m_workflowPolicy == TaskItem::WorkflowPolicy::StopOnError && !success)) {
         stop();
-        invokeSubTreeHandler(success);
+        invokeEndHandler(success);
         return;
     }
 
     ++m_currentIndex;
     updateSuccessBit(success);
 
-    if (m_currentIndex == m_children.size()) {
-        invokeSubTreeHandler(m_successBit);
+    if (m_currentIndex == m_selectedChildren.size()) {
+        invokeEndHandler(m_successBit);
         return;
     }
 
     if (m_executeMode == TaskItem::ExecuteMode::Sequential)
-        m_children.at(m_currentIndex)->start();
+        m_selectedChildren.at(m_currentIndex)->start();
 }
 
-void TaskContainer::invokeSubTreeHandler(bool success)
+void TaskContainer::invokeEndHandler(bool success)
 {
     m_currentIndex = -1;
     m_successBit = success;
-    if (success && m_groupHandler.m_simpleDoneHandler) {
+    if (success && m_groupHandler.m_doneHandler) {
         GuardLocker locker(m_taskTreePrivate->m_guard);
-        m_groupHandler.m_simpleDoneHandler();
-    } else if (!success && m_groupHandler.m_simpleErrorHandler) {
+        m_groupHandler.m_doneHandler();
+    } else if (!success && m_groupHandler.m_errorHandler) {
         GuardLocker locker(m_taskTreePrivate->m_guard);
-        m_groupHandler.m_simpleErrorHandler();
+        m_groupHandler.m_errorHandler();
     }
     if (m_parentContainer) {
         m_parentContainer->childDone(success);
@@ -238,7 +275,7 @@ void TaskContainer::invokeSubTreeHandler(bool success)
 
 void TaskContainer::resetSuccessBit()
 {
-    if (m_children.isEmpty())
+    if (m_selectedChildren.isEmpty())
         m_successBit = true;
 
     if (m_workflowPolicy == TaskItem::WorkflowPolicy::StopOnDone
@@ -260,7 +297,6 @@ void TaskContainer::updateSuccessBit(bool success)
         m_successBit = m_successBit && success;
     }
 }
-
 
 bool TaskNode::start()
 {

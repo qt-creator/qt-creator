@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include <QObject>
+#include <QSet>
 
 namespace Utils {
 namespace Tasking {
@@ -22,6 +23,21 @@ signals:
     void done(bool success);
 };
 
+enum class GroupAction
+{
+    ContinueAll,
+    ContinueSelected,
+    StopWithDone,
+    StopWithError
+};
+
+class GroupConfig
+{
+public:
+    GroupAction action = GroupAction::ContinueAll;
+    QSet<int> childrenToRun = {};
+};
+
 class QTCREATOR_UTILS_EXPORT TaskItem
 {
 public:
@@ -31,8 +47,12 @@ public:
     using TaskSetupHandler = std::function<void(TaskInterface &)>;
     // Called on task done / error
     using TaskEndHandler = std::function<void(const TaskInterface &)>;
-    // Called when sub tree entered / after sub three ended with success or failure
+    // Called when group entered / after group ended with success or failure
     using GroupSimpleHandler = std::function<void()>;
+    // Called when group entered
+    using GroupSetupHandler = std::function<GroupConfig()>;
+    // Called after group ended with success or failure, passed set of successful children
+//    using GroupEndHandler = std::function<void(const QSet<int> &)>;
 
     struct TaskHandler {
         TaskCreateHandler m_createHandler;
@@ -42,9 +62,10 @@ public:
     };
 
     struct GroupHandler {
-        GroupSimpleHandler m_simpleSetupHandler;
-        GroupSimpleHandler m_simpleDoneHandler;
-        GroupSimpleHandler m_simpleErrorHandler;
+        GroupSimpleHandler m_setupHandler;
+        GroupSimpleHandler m_doneHandler = {};
+        GroupSimpleHandler m_errorHandler = {};
+        GroupSetupHandler m_dynamicSetupHandler = {};
     };
 
     enum class ExecuteMode {
@@ -136,13 +157,13 @@ public:
 class QTCREATOR_UTILS_EXPORT OnGroupSetup : public TaskItem
 {
 public:
-    OnGroupSetup(const GroupSimpleHandler &handler) : TaskItem({{handler}, {}, {}}) {}
+    OnGroupSetup(const GroupSimpleHandler &handler) : TaskItem({handler}) {}
 };
 
 class QTCREATOR_UTILS_EXPORT OnGroupDone : public TaskItem
 {
 public:
-    OnGroupDone(const GroupSimpleHandler &handler) : TaskItem({{}, handler, {}}) {}
+    OnGroupDone(const GroupSimpleHandler &handler) : TaskItem({{}, handler}) {}
 };
 
 class QTCREATOR_UTILS_EXPORT OnGroupError : public TaskItem
@@ -150,6 +171,13 @@ class QTCREATOR_UTILS_EXPORT OnGroupError : public TaskItem
 public:
     OnGroupError(const GroupSimpleHandler &handler) : TaskItem({{}, {}, handler}) {}
 };
+
+class QTCREATOR_UTILS_EXPORT DynamicSetup : public TaskItem
+{
+public:
+    DynamicSetup(const GroupSetupHandler &handler) : TaskItem({{}, {}, {}, handler}) {}
+};
+
 
 QTCREATOR_UTILS_EXPORT extern ExecuteInSequence sequential;
 QTCREATOR_UTILS_EXPORT extern ExecuteInParallel parallel;

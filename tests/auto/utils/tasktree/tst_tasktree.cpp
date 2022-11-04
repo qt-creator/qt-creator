@@ -373,6 +373,52 @@ void tst_TaskTree::processTree_data()
                           {2, Handler::Error},
                           {-1, Handler::GroupDone}};
 
+    const auto stopWithDoneSetup = [] { return GroupConfig{GroupAction::StopWithDone}; };
+    const auto stopWithErrorSetup = [] { return GroupConfig{GroupAction::StopWithError}; };
+    const auto continueAllSetup = [] { return GroupConfig{GroupAction::ContinueAll}; };
+    const auto continueSelSetup = [] { return GroupConfig{GroupAction::ContinueSelected, {0, 2}}; };
+    const auto constructDynamicSetup = [=](const DynamicSetup &dynamicSetup) {
+        return Group {
+            Group {
+                Process(std::bind(setupProcess, _1, 1), readResult)
+            },
+            Group {
+                dynamicSetup,
+                Process(std::bind(setupProcess, _1, 2), readResult),
+                Process(std::bind(setupProcess, _1, 3), readResult),
+                Process(std::bind(setupProcess, _1, 4), readResult)
+            },
+            OnGroupDone(rootDone),
+            OnGroupError(rootError)
+        };
+    };
+    const Group dynamicSetupDoneRoot = constructDynamicSetup({stopWithDoneSetup});
+    const Log dynamicSetupDoneLog{{1, Handler::Setup},
+                                  {1, Handler::Done},
+                                  {-1, Handler::GroupDone}};
+    const Group dynamicSetupErrorRoot = constructDynamicSetup({stopWithErrorSetup});
+    const Log dynamicSetupErrorLog{{1, Handler::Setup},
+                                  {1, Handler::Done},
+                                  {-1, Handler::GroupError}};
+    const Group dynamicSetupAllRoot = constructDynamicSetup({continueAllSetup});
+    const Log dynamicSetupAllLog{{1, Handler::Setup},
+                                 {1, Handler::Done},
+                                 {2, Handler::Setup},
+                                 {2, Handler::Done},
+                                 {3, Handler::Setup},
+                                 {3, Handler::Done},
+                                 {4, Handler::Setup},
+                                 {4, Handler::Done},
+                                 {-1, Handler::GroupDone}};
+    const Group dynamicSetupSelRoot = constructDynamicSetup({continueSelSetup});
+    const Log dynamicSetupSelLog{{1, Handler::Setup},
+                                 {1, Handler::Done},
+                                 {2, Handler::Setup},
+                                 {2, Handler::Done},
+                                 {4, Handler::Setup},
+                                 {4, Handler::Done},
+                                 {-1, Handler::GroupDone}};
+
     QTest::newRow("Empty") << emptyRoot << emptyLog << false << true;
     QTest::newRow("Nested") << nestedRoot << nestedLog << true << true;
     QTest::newRow("Parallel") << parallelRoot << parallelLog << true << true;
@@ -385,6 +431,10 @@ void tst_TaskTree::processTree_data()
     QTest::newRow("StopOnDone") << stopOnDoneRoot << stopOnDoneLog << true << true;
     QTest::newRow("ContinueOnDone") << continueOnDoneRoot << continueOnDoneLog << true << true;
     QTest::newRow("Optional") << optionalRoot << optionalLog << true << true;
+    QTest::newRow("DynamicSetupDone") << dynamicSetupDoneRoot << dynamicSetupDoneLog << true << true;
+    QTest::newRow("DynamicSetupError") << dynamicSetupErrorRoot << dynamicSetupErrorLog << true << false;
+    QTest::newRow("DynamicSetupAll") << dynamicSetupAllRoot << dynamicSetupAllLog << true << true;
+    QTest::newRow("DynamicSetupSelected") << dynamicSetupSelRoot << dynamicSetupSelLog << true << true;
 }
 
 void tst_TaskTree::processTree()
