@@ -606,3 +606,24 @@ def stringify(obj):
     if isinstance(obj, bytes):
         tmp = obj.decode('cp1252') if platform.system() in ('Microsoft','Windows') else obj.decode()
         return tmp
+
+
+class GitClone:
+
+    def __init__(self, url, revision):
+        self.localPath = os.path.join(tempDir(),
+                                      url.rsplit('/', 1)[1].rsplit('.')[0])
+        self.url = url
+        self.revision = revision
+
+    def __enter__(self):
+        try:
+            subprocess.check_call(["git", "clone", "-b", self.revision,
+                                   "--depth", "1", self.url, self.localPath])
+            return self.localPath
+        except subprocess.CalledProcessError as e:
+            test.warning("Could not clone git repository %s" % self.url, str(e))
+            return None
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        deleteDirIfExists(self.localPath)
