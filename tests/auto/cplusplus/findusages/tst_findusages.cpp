@@ -1134,7 +1134,7 @@ void tst_FindUsages::templateClassParameters()
     findUsages(templArgument);
     QCOMPARE(findUsages.usages().size(), 5);
     QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
-    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(1).tags, Usage::Tag::Template);
     QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
     QCOMPARE(findUsages.usages().at(3).tags, Usage::Tags());
     QCOMPARE(findUsages.usages().at(4).tags, Usage::Tags());
@@ -1221,7 +1221,7 @@ void tst_FindUsages::templateFunctionParameters()
     QCOMPARE(findUsages.usages().size(), 4);
     QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
     QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
-    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tags());
+    QCOMPARE(findUsages.usages().at(2).tags, Usage::Tag::Template);
     QCOMPARE(findUsages.usages().at(3).tags, Usage::Tags());
 }
 
@@ -1253,7 +1253,8 @@ void tst_FindUsages::templatedFunction_QTCREATORBUG9749()
     FindUsages findUsages(src, doc, snapshot, true);
     findUsages(func);
     QCOMPARE(findUsages.usages().size(), 2);
-    QCOMPARE(findUsages.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findUsages.usages().at(0).tags,
+             (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::Template}));
     QCOMPARE(findUsages.usages().at(1).tags, Usage::Tags());
 }
 
@@ -1458,7 +1459,8 @@ void tst_FindUsages::memberAccessAsTemplate()
         FindUsages find(src, doc, snapshot, true);
         find(f);
         QCOMPARE(find.usages().size(), 2);
-        QCOMPARE(find.usages()[0].tags, Usage::Tag::Declaration);
+        QCOMPARE(find.usages()[0].tags,
+                (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::Template}));
         QCOMPARE(find.usages()[0].line, 4);
         QCOMPARE(find.usages()[0].col, 7);
         QCOMPARE(find.usages()[1].tags, Usage::Tags());

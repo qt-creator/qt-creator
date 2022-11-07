@@ -274,6 +274,10 @@ public:
                         }
                     }
                 }
+                for (auto it2 = it; it2 != m_astPath.rend(); ++it2) {
+                    if ((*it2)->asTemplateDeclaration())
+                        return tags |= Usage::Tag::Template;
+                }
                 return tags;
             }
             if (const auto retStmt = (*it)->asReturnStatement()) {
