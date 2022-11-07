@@ -287,7 +287,7 @@ public:
                          false);
         }
 
-        configMap.insert("QUL_PLATFORM", mcuTarget->platform().name.toUtf8());
+        configMap.insert("QUL_PLATFORM", mcuTarget->platform().name.toLower().toUtf8());
 
         if (mcuTarget->colorDepth() != McuTarget::UnspecifiedColorDepth)
             configMap.insert("QUL_COLOR_DEPTH", QString::number(mcuTarget->colorDepth()).toLatin1());
