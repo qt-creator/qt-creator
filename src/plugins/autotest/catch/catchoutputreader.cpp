@@ -18,6 +18,7 @@ namespace CatchXml {
     const char TestCaseElement[]       = "TestCase";
     const char SectionElement[]        = "Section";
     const char ExceptionElement[]      = "Exception";
+    const char InfoElement[]           = "Info";
     const char WarningElement[]        = "Warning";
     const char FailureElement[]        = "Failure";
     const char ExpressionElement[]     = "Expression";
@@ -106,6 +107,8 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
                     m_currentResult = m_mayFail || m_shouldFail ? ResultType::ExpectedFail : ResultType::Fail;
             } else if (m_currentTagName == CatchXml::WarningElement) {
                 m_currentResult = ResultType::MessageWarn;
+            } else if (m_currentTagName == CatchXml::InfoElement) {
+                m_currentResult = ResultType::MessageInfo;
             } else if (m_currentTagName == CatchXml::FailureElement) {
                 m_currentResult = ResultType::Fail;
                 recordTestInformation(m_xmlReader.attributes());
@@ -129,6 +132,7 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             if (m_currentTagName == CatchXml::ExpandedElement) {
                 m_currentExpression.append(text);
             } else if (m_currentTagName == CatchXml::ExceptionElement
+                       || m_currentTagName == CatchXml::InfoElement
                        || m_currentTagName == CatchXml::WarningElement
                        || m_currentTagName == CatchXml::FailureElement) {
                 m_currentExpression.append('\n').append(text.trimmed());
@@ -152,7 +156,8 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
                 sendResult(m_currentResult);
                 m_currentExpression.clear();
                 m_testCaseInfo.pop();
-            } else if (currentTag == QLatin1String(CatchXml::WarningElement)) {
+            } else if (currentTag == QLatin1String(CatchXml::WarningElement)
+                       || currentTag == QLatin1String(CatchXml::InfoElement)) {
                 sendResult(m_currentResult);
                 m_currentExpression.clear();
             }
@@ -268,7 +273,7 @@ void CatchOutputReader::sendResult(const ResultType result)
                                     .arg(catchResult->description()));
     } else if (result == ResultType::Benchmark || result == ResultType::MessageFatal) {
         catchResult->setDescription(m_currentExpression);
-    } else if (result == ResultType::MessageWarn) {
+    } else if (result == ResultType::MessageWarn || result == ResultType::MessageInfo) {
         catchResult->setDescription(m_currentExpression.trimmed());
     }
 
