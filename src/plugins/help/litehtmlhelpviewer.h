@@ -4,11 +4,11 @@
 #pragma once
 
 #include "helpviewer.h"
-#include "openpagesmanager.h"
 
 #include <qlitehtmlwidget.h>
 
 #include <QTextBrowser>
+#include <QUrl>
 
 #include <optional>
 
@@ -68,6 +68,7 @@ private:
     QLiteHtmlWidget *m_viewer;
     std::vector<HistoryItem> m_backItems;
     std::vector<HistoryItem> m_forwardItems;
+    QUrl m_highlightedLink;
 };
 
 }   // namespace Internal

@@ -593,6 +593,11 @@ void updatePathsInExistingKits(const SettingsHandler::Ptr &settingsHandler)
     for (const auto &target : std::as_const(repo.mcuTargets)) {
         if (target->isValid()) {
             for (auto *kit : kitsWithMismatchedDependencies(target.get())) {
+                if (kitQulVersion(kit) != target->qulVersion()) {
+                    //Do not update kits made for other Qt for MCUs SDK versions
+                    continue;
+                }
+
                 auto changes = cMakeConfigToMap(CMakeConfigurationKitAspect::configuration(kit));
 
                 const auto updateForPackage = [&changes](const McuPackagePtr &package) {

@@ -166,7 +166,8 @@ const EditorTypeList EditorType::defaultEditorTypes(const MimeType &mimeType)
 const EditorTypeList EditorType::preferredEditorTypes(const FilePath &filePath)
 {
     // default factories by mime type
-    const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
+    const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath,
+                                                            MimeMatchMode::MatchDefaultAndRemote);
     EditorTypeList factories = defaultEditorTypes(mimeType);
     // user preferred factory to front
     EditorType *userPreferred = Internal::userPreferredEditorTypes().value(mimeType);

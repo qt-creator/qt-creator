@@ -28,9 +28,12 @@ MimeType mimeTypeForFile(const QString &fileName, MimeMatchMode mode)
 MimeType mimeTypeForFile(const FilePath &filePath, MimeMatchMode mode)
 {
     MimeDatabase mdb;
-    if (filePath.needsDevice())
+    if (filePath.needsDevice() && mode != MimeMatchMode::MatchDefaultAndRemote)
         return mdb.mimeTypeForUrl(filePath.toUrl());
-    return mdb.mimeTypeForFile(filePath.toString(), MimeDatabase::MatchMode(mode));
+    if (mode == MimeMatchMode::MatchDefaultAndRemote) {
+        mode = MimeMatchMode::MatchDefault;
+    }
+    return mdb.mimeTypeForFile(filePath.toFSPathString(), MimeDatabase::MatchMode(mode));
 }
 
 QList<MimeType> mimeTypesForFileName(const QString &fileName)
