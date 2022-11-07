@@ -13,6 +13,7 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QMetaObject>
 #include <QTextCursor>
 
 #include <optional>
@@ -68,6 +69,7 @@ ClangdSwitchDeclDef::ClangdSwitchDeclDef(ClangdClient *client, TextDocument *doc
             [this](const DocumentUri &uri, const DocumentSymbolsResult &symbols) {
         if (uri != d->uri)
             return;
+        d->client->documentSymbolCache()->disconnect(this);
         d->docSymbols = symbols;
         if (d->ast)
             d->handleDeclDefSwitchReplies();
@@ -108,7 +110,7 @@ void ClangdSwitchDeclDef::emitDone()
         return;
 
     d->done = true;
-    emit done();
+    QMetaObject::invokeMethod(this, &ClangdSwitchDeclDef::done, Qt::QueuedConnection);
 }
 
 std::optional<ClangdAstNode> ClangdSwitchDeclDef::Private::getFunctionNode() const
