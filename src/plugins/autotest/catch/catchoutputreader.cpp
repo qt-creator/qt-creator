@@ -18,6 +18,8 @@ namespace CatchXml {
     const char TestCaseElement[]       = "TestCase";
     const char SectionElement[]        = "Section";
     const char ExceptionElement[]      = "Exception";
+    const char WarningElement[]        = "Warning";
+    const char FailureElement[]        = "Failure";
     const char ExpressionElement[]     = "Expression";
     const char ExpandedElement[]       = "Expanded";
     const char BenchmarkResults[]      = "BenchmarkResults";
@@ -102,6 +104,11 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
                     m_currentResult = m_shouldFail ? ResultType::UnexpectedPass : ResultType::Pass;
                 else
                     m_currentResult = m_mayFail || m_shouldFail ? ResultType::ExpectedFail : ResultType::Fail;
+            } else if (m_currentTagName == CatchXml::WarningElement) {
+                m_currentResult = ResultType::MessageWarn;
+            } else if (m_currentTagName == CatchXml::FailureElement) {
+                m_currentResult = ResultType::Fail;
+                recordTestInformation(m_xmlReader.attributes());
             } else if (m_currentTagName == CatchXml::BenchmarkResults) {
                 recordBenchmarkInformation(m_xmlReader.attributes());
                 m_currentResult = ResultType::Benchmark;
@@ -121,7 +128,9 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             const auto text = m_xmlReader.text();
             if (m_currentTagName == CatchXml::ExpandedElement) {
                 m_currentExpression.append(text);
-            } else if (m_currentTagName == CatchXml::ExceptionElement) {
+            } else if (m_currentTagName == CatchXml::ExceptionElement
+                       || m_currentTagName == CatchXml::WarningElement
+                       || m_currentTagName == CatchXml::FailureElement) {
                 m_currentExpression.append('\n').append(text.trimmed());
             }
             break;
@@ -138,10 +147,14 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             } else if (currentTag == QLatin1String(CatchXml::GroupElement)) {
                 testOutputNodeFinished(GroupNode);
             } else if (currentTag == QLatin1String(CatchXml::ExpressionElement)
+                       || currentTag == QLatin1String(CatchXml::FailureElement)
                        || currentTag == QLatin1String(CatchXml::BenchmarkResults)) {
                 sendResult(m_currentResult);
                 m_currentExpression.clear();
                 m_testCaseInfo.pop();
+            } else if (currentTag == QLatin1String(CatchXml::WarningElement)) {
+                sendResult(m_currentResult);
+                m_currentExpression.clear();
             }
             break;
         }
@@ -255,6 +268,8 @@ void CatchOutputReader::sendResult(const ResultType result)
                                     .arg(catchResult->description()));
     } else if (result == ResultType::Benchmark || result == ResultType::MessageFatal) {
         catchResult->setDescription(m_currentExpression);
+    } else if (result == ResultType::MessageWarn) {
+        catchResult->setDescription(m_currentExpression.trimmed());
     }
 
     reportResult(catchResult);
