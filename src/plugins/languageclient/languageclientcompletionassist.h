@@ -11,6 +11,7 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 
 #include <QPointer>
+#include <QScopedPointer>
 
 #include <functional>
 #include <optional>
@@ -74,7 +75,7 @@ protected:
 private:
     void handleCompletionResponse(const LanguageServerProtocol::CompletionRequest::Response &response);
 
-    QPointer<QTextDocument> m_document;
+    QScopedPointer<const TextEditor::AssistInterface> m_assistInterface;
     Utils::FilePath m_filePath;
     QPointer<Client> m_client;
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
