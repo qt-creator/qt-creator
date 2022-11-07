@@ -67,18 +67,20 @@ using namespace ExtensionSystem;
 enum { OptionIndent = 4, DescriptionIndent = 34 };
 
 const char corePluginNameC[] = "Core";
-const char fixedOptionsC[] =
-" [OPTION]... [FILE]...\n"
-"Options:\n"
-"    -help                         Display this help\n"
-"    -version                      Display program version\n"
-"    -client                       Attempt to connect to already running first instance\n"
-"    -settingspath <path>          Override the default path where user settings are stored\n"
-"    -installsettingspath <path>   Override the default path from where user-independent settings are read\n"
-"    -temporarycleansettings, -tcs Use clean settings for debug or testing reasons\n"
-"    -pid <pid>                    Attempt to connect to instance given by pid\n"
-"    -block                        Block until editor is closed\n"
-"    -pluginpath <path>            Add a custom search path for plugins\n";
+const char fixedOptionsC[]
+    = " [OPTION]... [FILE]...\n"
+      "Options:\n"
+      "    -help                         Display this help\n"
+      "    -version                      Display program version\n"
+      "    -client                       Attempt to connect to already running first instance\n"
+      "    -settingspath <path>          Override the default path where user settings are stored\n"
+      "    -installsettingspath <path>   Override the default path from where user-independent "
+      "settings are read\n"
+      "    -temporarycleansettings, -tcs Use clean settings for debug or testing reasons\n"
+      "    -pid <pid>                    Attempt to connect to instance given by pid\n"
+      "    -block                        Block until editor is closed\n"
+      "    -pluginpath <path>            Add a custom search path for plugins\n"
+      "    -language <locale>            Set the UI language\n";
 
 const char HELP_OPTION1[] = "-h";
 const char HELP_OPTION2[] = "-help";
@@ -95,6 +97,7 @@ const char TEMPORARY_CLEAN_SETTINGS2[] = "-tcs";
 const char PID_OPTION[] = "-pid";
 const char BLOCK_OPTION[] = "-block";
 const char PLUGINPATH_OPTION[] = "-pluginpath";
+const char LANGUAGE_OPTION[] = "-language";
 const char USER_LIBRARY_PATH_OPTION[] = "-user-library-path"; // hidden option for qtcreator.sh
 
 using PluginSpecSet = QVector<PluginSpec *>;
@@ -305,6 +308,7 @@ struct Options
     QString settingsPath;
     QString installSettingsPath;
     QStringList customPluginPaths;
+    QString uiLanguage;
     // list of arguments that were handled and not passed to the application or plugin manager
     QStringList preAppArguments;
     // list of arguments to be passed to the application or plugin manager
@@ -335,6 +339,10 @@ Options parseCommandLine(int argc, char *argv[])
         } else if (arg == PLUGINPATH_OPTION && hasNext) {
             ++it;
             options.customPluginPaths += QDir::fromNativeSeparators(nextArg);
+            options.preAppArguments << arg << nextArg;
+        } else if (arg == LANGUAGE_OPTION && hasNext) {
+            ++it;
+            options.uiLanguage = nextArg;
             options.preAppArguments << arg << nextArg;
         } else if (arg == USER_LIBRARY_PATH_OPTION && hasNext) {
             ++it;
@@ -597,6 +605,8 @@ int main(int argc, char **argv)
     QString overrideLanguage = settings->value(QLatin1String("General/OverrideLanguage")).toString();
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
+    if (!options.uiLanguage.isEmpty())
+        uiLanguages.prepend(options.uiLanguage);
     const QString &creatorTrPath = resourcePath() + "/translations";
     for (QString locale : std::as_const(uiLanguages)) {
         locale = QLocale(locale).name();
