@@ -141,10 +141,10 @@ const QString xpressoIdeDetectionPath{
 
 const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
 const char stmCubeProgrammerLabel[]{"STM32CubeProgrammer"};
-const QString stmCubeProgrammerPath{QString{defaultToolPath} + "/bin"};
+const QString stmCubeProgrammerPath{defaultToolPath};
 const QString stmCubeProgrammerDetectionPath{HostOsInfo::isWindowsHost()
-                                                 ? QString("STM32_Programmer_CLI.exe")
-                                                 : QString("STM32_Programmer.sh")};
+                                                 ? QString("bin/STM32_Programmer_CLI.exe")
+                                                 : QString("bin/STM32_Programmer.sh")};
 
 const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
 const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
@@ -1703,31 +1703,43 @@ void McuSupportTest::test_addToSystemPathFlag()
 void McuSupportTest::test_processWildcards_data()
 {
     QTest::addColumn<QString>("package_label");
-    QTest::addColumn<QString>("path");
-    QTest::addColumn<bool>("isFile");
+    QTest::addColumn<QString>("expected_path");
+    QTest::addColumn<QStringList>("paths");
 
-    QTest::newRow("\"*\" at the end") << "FAKE_WILDCARD_TEST_1"
-                                      << "folder-123" << false;
-    QTest::newRow("\"*\" in the middle") << "FAKE_WILDCARD_TEST_2"
-                                         << "file-123.exe" << true;
-    QTest::newRow("\"*\" at the start") << "FAKE_WILDCARD_TEST_3"
-                                        << "123-file.exe" << true;
+    QTest::newRow("wildcard_at_the_end") << "FAKE_WILDCARD_TEST_1" << "folder-123" << QStringList {"folder-123/" };
+    QTest::newRow("wildcard_in_th_middle") << "FAKE_WILDCARD_TEST_2" << "file-123.exe" << QStringList {"file-123.exe"};
+    QTest::newRow("wildcard_at_the_end") << "FAKE_WILDCARD_TEST_3" << "123-file.exe" << QStringList( "123-file.exe");
+    QTest::newRow("multi_wildcards")
+        << "FAKE_WILDCARD_TEST_MULTI"
+        << "2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64"
+        << QStringList{
+               "2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/",
+               "2019/Alpha/Beta/Gamma/",
+               "2019/Community/VC/Tools/MSVC/",
+               "2019/Community/VC/Tools/MSVC/14.29.30133/bin/",
+               "2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/",
+               "2019/Enterprise/VC/Tools/MSVC/",
+           };
 }
 
 void McuSupportTest::test_processWildcards()
 {
     QFETCH(QString, package_label);
-    QFETCH(QString, path);
-    QFETCH(bool, isFile);
+    QFETCH(QString, expected_path);
+    QFETCH(QStringList, paths);
 
-    QVERIFY(createFakePath(testing_output_dir / "wildcards" / path, isFile));
+    for (const auto &path : paths)
+        QVERIFY(createFakePath(testing_output_dir / "wildcards" / path, !path.endsWith("/")));
 
     auto [targets, packages] = createTestingKitTargetsAndPackages(wildcards_test_kit);
     auto testWildcardsPackage = findOrDefault(packages, [&](const McuPackagePtr &pkg) {
         return (pkg->label() == package_label);
     });
     QVERIFY(testWildcardsPackage != nullptr);
-    QCOMPARE(testWildcardsPackage->path().toString(), FilePath(testing_output_dir / "wildcards" / path).toString());
+    QVERIFY(paths.size() > 0);
+    // FilePaths with "/" at the end and without it evaluate to different paths.
+    QCOMPARE(testWildcardsPackage->path(),
+             FilePath(testing_output_dir / "wildcards" / expected_path));
 }
 
 void McuSupportTest::test_nonemptyVersionDetector()

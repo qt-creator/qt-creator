@@ -16,6 +16,7 @@
 #include <QGuiApplication>
 #include <QScrollBar>
 #include <QTimer>
+#include <QToolTip>
 #include <QVBoxLayout>
 #include <QWheelEvent>
 
@@ -100,6 +101,11 @@ LiteHtmlHelpViewer::LiteHtmlHelpViewer(QWidget *parent)
             &QLiteHtmlWidget::contextMenuRequested,
             this,
             &LiteHtmlHelpViewer::showContextMenu);
+    connect(m_viewer, &QLiteHtmlWidget::linkHighlighted, this, [this](const QUrl &url) {
+        m_highlightedLink = url;
+        if (!url.isValid())
+            QToolTip::hideText();
+    });
     auto layout = new QVBoxLayout;
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -284,6 +290,12 @@ bool LiteHtmlHelpViewer::eventFilter(QObject *src, QEvent *e)
             goForward(1);
             return true;
         }
+    } else if (e->type() == QEvent::ToolTip) {
+        auto he = static_cast<QHelpEvent *>(e);
+        if (m_highlightedLink.isValid())
+            QToolTip::showText(he->globalPos(),
+                               m_highlightedLink.toDisplayString(),
+                               m_viewer->viewport());
     }
     return HelpViewer::eventFilter(src, e);
 }
