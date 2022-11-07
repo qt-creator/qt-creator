@@ -20,22 +20,23 @@
 #include <qmljstools/qmljstoolssettings.h>
 #include <qmljstools/qmljscodestylepreferences.h>
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/taskhub.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/taskhub.h>
+#include <texteditor/formattexteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/texteditorconstants.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/qtcassert.h>
 #include <utils/json.h>
+#include <utils/qtcassert.h>
 
 #include <QTextDocument>
 #include <QMenu>
@@ -258,24 +259,14 @@ void QmlJSEditorPluginPrivate::reformatFile()
                                                  tabSettings.m_tabSize,
                                                  QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->currentCodeStyleSettings().lineLength);
 
-        //  QTextDocument::setPlainText cannot be used, as it would reset undo/redo history
-        const auto setNewText = [this, &newText]() {
+        auto ed = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
+        if (ed) {
+            TextEditor::updateEditorText(ed->editorWidget(), newText);
+        } else {
             QTextCursor tc(m_currentDocument->document());
             tc.movePosition(QTextCursor::Start);
             tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
             tc.insertText(newText);
-        };
-
-        IEditor *ed = EditorManager::currentEditor();
-        if (ed) {
-            QByteArray state = ed->saveState();
-            int line = ed->currentLine();
-            int column = ed->currentColumn();
-            setNewText();
-            ed->gotoLine(line, column - 1);
-            ed->restoreState(state);
-        } else {
-            setNewText();
         }
     }
 }
