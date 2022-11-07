@@ -12,6 +12,7 @@
 #include <documentmanager.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <variantproperty.h>
 
 #include <theme.h>
 
@@ -93,23 +94,36 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
         Model *model = document->currentModel();
         QTC_ASSERT(model, return false);
 
-        if (m_materialToDrag.isValid()) {
+        if (m_materialToDrag.isValid() || m_textureToDrag.isValid()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
+                bool isMaterial = m_materialToDrag.isValid();
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
                 QDataStream stream(&data, QIODevice::WriteOnly);
                 stream << m_materialToDrag.internalId();
-                mimeData->setData(Constants::MIME_TYPE_MATERIAL, data);
+                mimeData->setData(isMaterial ? QString::fromLatin1(Constants::MIME_TYPE_MATERIAL)
+                                             : QString::fromLatin1(Constants::MIME_TYPE_TEXTURE),
+                                  data);
                 mimeData->removeFormat("text/plain");
 
-                model->startDrag(mimeData, m_previewImageProvider->requestPixmap(
-                                 QString::number(m_materialToDrag.internalId()), nullptr, {128, 128}));
+                if (isMaterial) {
+                    model->startDrag(mimeData, m_previewImageProvider->requestPixmap(
+                                     QString::number(m_materialToDrag.internalId()), nullptr, {128, 128}));
+                } else {
+                    QString iconPath = QLatin1String("%1/%2")
+                                    .arg(DocumentManager::currentResourcePath().path(),
+                                         m_textureToDrag.variantProperty("source").value().toString());
+
+                    model->startDrag(mimeData, QPixmap(iconPath).scaled({128, 128}));
+                }
                 m_materialToDrag = {};
+                m_textureToDrag = {};
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = {};
+        m_textureToDrag = {};
     }
 
     return QObject::eventFilter(obj, event);
@@ -194,6 +208,12 @@ void MaterialBrowserWidget::handleSearchFilterChanged(const QString &filterText)
 void MaterialBrowserWidget::startDragMaterial(int index, const QPointF &mousePos)
 {
     m_materialToDrag = m_materialBrowserModel->materialAt(index);
+    m_dragStartPoint = mousePos.toPoint();
+}
+
+void MaterialBrowserWidget::startDragTexture(int index, const QPointF &mousePos)
+{
+    m_textureToDrag = m_materialBrowserTexturesModel->textureAt(index);
     m_dragStartPoint = mousePos.toPoint();
 }
 

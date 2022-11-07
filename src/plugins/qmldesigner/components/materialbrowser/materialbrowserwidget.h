@@ -49,6 +49,7 @@ public:
 
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
+    Q_INVOKABLE void startDragTexture(int index, const QPointF &mousePos);
     Q_INVOKABLE void acceptBundleMaterialDrop();
 
     QQuickWidget *quickWidget() const;
@@ -72,6 +73,7 @@ private:
     QString m_filterText;
 
     ModelNode m_materialToDrag;
+    ModelNode m_textureToDrag;
     QPoint m_dragStartPoint;
 };
 

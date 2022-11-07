@@ -26,7 +26,7 @@ Image {
 
         onPressed: (mouse) => {
             if (mouse.button === Qt.LeftButton)
-                rootView.startDragTexture(modelData, mapToGlobal(mouse.x, mouse.y))
+                rootView.startDragTexture(index, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
