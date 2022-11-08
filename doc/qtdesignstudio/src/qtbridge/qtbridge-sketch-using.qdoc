@@ -231,7 +231,7 @@
     you specified. This might take a little while depending on the complexity of
     your project.
 
-    You can now create a project in \QDS and import the .atbrige archive to it, as
+    You can now create a project in \QDS and import the .qtbridge archive to it, as
     described in \l {Creating Projects} and \l{Importing Designs}.
 
     \section1 Specifying Export Path and Asset Format
