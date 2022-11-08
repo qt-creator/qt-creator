@@ -10,6 +10,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QFuture>
 #include <QWidget>
 
 #include <atomic>
@@ -117,7 +118,7 @@ signals:
 protected:
     virtual QWidget *createConfigWidget();
 
-    void runInThread(const std::function<bool()> &syncImpl);
+    QFuture<bool> runInThread(const std::function<bool()> &syncImpl);
 
     std::function<bool()> cancelChecker() const;
     bool isCanceled() const;

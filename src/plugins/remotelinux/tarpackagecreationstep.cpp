@@ -13,6 +13,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
+#include <utils/futuresynchronizer.h>
+
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
@@ -80,6 +82,8 @@ private:
     BoolAspect *m_ignoreMissingFilesAspect = nullptr;
     bool m_packagingNeeded = false;
     QList<DeployableFile> m_files;
+
+    FutureSynchronizer m_synchronizer;
 };
 
 TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, Id id)
@@ -126,7 +130,7 @@ bool TarPackageCreationStep::init()
 
 void TarPackageCreationStep::doRun()
 {
-    runInThread([this] { return runImpl(); });
+    m_synchronizer.addFuture(runInThread([this] { return runImpl(); }));
 }
 
 bool TarPackageCreationStep::fromMap(const QVariantMap &map)
