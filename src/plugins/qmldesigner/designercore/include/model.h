@@ -148,6 +148,8 @@ public:
     QString generateNewId(const QString &prefixName, const QString &fallbackPrefix = "element") const;
     QString generateIdFromName(const QString &name, const QString &fallbackId = "element") const;
 
+    void setActive3DSceneId(qint32 sceneId);
+
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
 

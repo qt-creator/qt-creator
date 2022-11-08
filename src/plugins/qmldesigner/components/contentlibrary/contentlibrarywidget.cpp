@@ -225,14 +225,24 @@ void ContentLibraryWidget::addTexture(ContentLibraryTexture *tex)
     emit addTextureRequested(tex->path(), AddTextureMode::Texture);
 }
 
-void ContentLibraryWidget::addEnv(ContentLibraryTexture *tex)
+void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
 {
-    emit addTextureRequested(tex->path(), AddTextureMode::Environment);
+    emit addTextureRequested(tex->path(), AddTextureMode::LightProbe);
 }
 
 QPointer<ContentLibraryMaterialsModel> ContentLibraryWidget::materialsModel() const
 {
     return m_materialsModel;
+}
+
+QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::texturesModel() const
+{
+    return m_texturesModel;
+}
+
+QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::environmentsModel() const
+{
+    return m_environmentsModel;
 }
 
 } // namespace QmlDesigner

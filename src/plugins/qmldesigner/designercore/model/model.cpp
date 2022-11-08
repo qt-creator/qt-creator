@@ -6,9 +6,8 @@
 #include "model_p.h"
 #include <modelnode.h>
 
-
-
 #include "abstractview.h"
+#include "auxiliarydataproperties.h"
 #include "internalnodeabstractproperty.h"
 #include "internalnodelistproperty.h"
 #include "internalproperty.h"
@@ -569,6 +568,11 @@ void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode, const QVect
 void ModelPrivate::notifyView3DAction(View3DActionType type, const QVariant &value)
 {
     notifyNormalViewsLast([&](AbstractView *view) { view->view3DAction(type, value); });
+}
+
+void ModelPrivate::notifyActive3DSceneIdChanged(qint32 sceneId)
+{
+    notifyInstanceChanges([&](AbstractView *view) { view->active3DSceneChanged(sceneId); });
 }
 
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
@@ -1580,6 +1584,16 @@ QString Model::generateIdFromName(const QString &name, const QString &fallbackId
     }
 
     return newId;
+}
+
+void Model::setActive3DSceneId(qint32 sceneId)
+{
+    auto activeSceneAux = d->rootNode()->auxiliaryData(active3dSceneProperty);
+    if (activeSceneAux && activeSceneAux->toInt() == sceneId)
+        return;
+
+    d->rootNode()->setAuxiliaryData(active3dSceneProperty, sceneId);
+    d->notifyActive3DSceneIdChanged(sceneId);
 }
 
 void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)

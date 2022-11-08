@@ -115,6 +115,20 @@ void ContentLibraryTexturesModel::setHasMaterialRoot(bool b)
     emit hasMaterialRootChanged();
 }
 
+bool ContentLibraryTexturesModel::hasSceneEnv() const
+{
+    return m_hasSceneEnv;
+}
+
+void ContentLibraryTexturesModel::setHasSceneEnv(bool b)
+{
+    if (b == m_hasSceneEnv)
+        return;
+
+    m_hasSceneEnv = b;
+    emit hasSceneEnvChanged();
+}
+
 bool ContentLibraryTexturesModel::matBundleExists() const
 {
     return m_texBundleLoaded && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;

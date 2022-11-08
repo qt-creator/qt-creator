@@ -11,7 +11,6 @@
 #include "nodehints.h"
 #include "seekerslider.h"
 
-#include <auxiliarydataproperties.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <designeractionmanager.h>
@@ -110,7 +109,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
-        rootModelNode().setAuxiliaryData(active3dSceneProperty, newActiveScene);
+        model()->setActive3DSceneId(newActiveScene);
     }
 
     if (sceneState.contains(selectKey))

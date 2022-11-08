@@ -10,6 +10,7 @@ StudioControls.Menu {
     id: root
 
     property var targetTexture: null
+    property bool hasSceneEnv: false
 
     function popupMenu(targetTexture = null)
     {
@@ -32,8 +33,8 @@ StudioControls.Menu {
     }
 
     StudioControls.MenuItem {
-        text: qsTr("Add scene environment")
-        enabled: root.targetTexture
-        onTriggered: rootView.addEnv(root.targetTexture)
+        text: qsTr("Add light probe")
+        enabled: root.hasSceneEnv && root.targetTexture
+        onTriggered: rootView.addLightProbe(root.targetTexture)
     }
 }

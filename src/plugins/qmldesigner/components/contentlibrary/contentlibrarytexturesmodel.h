@@ -18,6 +18,7 @@ class ContentLibraryTexturesModel : public QAbstractListModel
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
     Q_PROPERTY(bool hasMaterialRoot READ hasMaterialRoot WRITE setHasMaterialRoot NOTIFY hasMaterialRootChanged)
+    Q_PROPERTY(bool hasSceneEnv READ hasSceneEnv WRITE setHasSceneEnv NOTIFY hasSceneEnvChanged)
 
 public:
     ContentLibraryTexturesModel(QObject *parent = nullptr);
@@ -42,6 +43,9 @@ public:
     bool hasModelSelection() const;
     void setHasModelSelection(bool b);
 
+    bool hasSceneEnv() const;
+    void setHasSceneEnv(bool b);
+
     void resetModel();
     void loadTextureBundle(const QString &bundlePath);
 
@@ -54,6 +58,7 @@ signals:
     void hasMaterialRootChanged();
     void materialVisibleChanged();
     void matBundleExistsChanged();
+    void hasSceneEnvChanged();
 
 private:
     bool isValidIndex(int idx) const;
@@ -66,6 +71,7 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_texBundleLoaded = false;
     bool m_hasModelSelection = false;
+    bool m_hasSceneEnv = false;
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;

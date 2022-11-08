@@ -36,14 +36,16 @@ public:
     void setMaterialsModel(QPointer<ContentLibraryMaterialsModel> newMaterialsModel);
 
     QPointer<ContentLibraryMaterialsModel> materialsModel() const;
+    QPointer<ContentLibraryTexturesModel> texturesModel() const;
+    QPointer<ContentLibraryTexturesModel> environmentsModel() const;
 
     Q_INVOKABLE void startDragMaterial(QmlDesigner::ContentLibraryMaterial *mat, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(QmlDesigner::ContentLibraryTexture *tex, const QPointF &mousePos);
     Q_INVOKABLE void addImage(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void addTexture(QmlDesigner::ContentLibraryTexture *tex);
-    Q_INVOKABLE void addEnv(QmlDesigner::ContentLibraryTexture *tex);
+    Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
 
-    enum class AddTextureMode { Image, Texture, Environment };
+    enum class AddTextureMode { Image, Texture, LightProbe };
 
 signals:
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);

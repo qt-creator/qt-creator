@@ -39,7 +39,7 @@ HelperWidgets.ScrollView {
         ContentLibraryTextureContextMenu {
             id: ctxMenu
 
-            // TODO
+            hasSceneEnv: root.model.hasSceneEnv
         }
 
         Repeater {

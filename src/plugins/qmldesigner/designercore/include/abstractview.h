@@ -219,6 +219,8 @@ public:
 
     virtual void view3DAction(View3DActionType type, const QVariant &value);
 
+    virtual void active3DSceneChanged(qint32 sceneId);
+
     virtual void dragStarted(QMimeData *mimeData);
     virtual void dragEnded();
 
@@ -226,6 +228,7 @@ public:
 
     void ensureMaterialLibraryNode();
     ModelNode materialLibraryNode();
+    ModelNode active3DSceneNode();
     void assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode = {});
 
     const NodeInstanceView *nodeInstanceView() const;

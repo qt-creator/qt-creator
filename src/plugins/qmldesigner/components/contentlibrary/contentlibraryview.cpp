@@ -3,16 +3,19 @@
 
 #include "contentlibraryview.h"
 
+#include "bindingproperty.h"
 #include "contentlibrarybundleimporter.h"
 #include "contentlibrarywidget.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
+#include "contentlibrarytexturesmodel.h"
 #include "modelnodeoperations.h"
 #include "nodelistproperty.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
 #include <coreplugin/messagebox.h>
+#include <enumeration.h>
 #include <utils/algorithm.h>
 
 #ifndef QMLDESIGNER_TEST
@@ -48,15 +51,20 @@ WidgetInfo ContentLibraryView::widgetInfo()
         });
         connect(m_widget, &ContentLibraryWidget::addTextureRequested, this,
                 [&] (const QString texPath, ContentLibraryWidget::AddTextureMode mode) {
-            AddFilesResult result = ModelNodeOperations::addImageToProject({texPath}, "images", false);
+            executeInTransaction("ContentLibraryView::widgetInfo", [&] {
+                // copy image to project
+                AddFilesResult result = ModelNodeOperations::addImageToProject({texPath}, "images", false);
 
-            if (result == AddFilesResult::Failed) {
-                Core::AsynchronousMessageBox::warning(tr("Failed to Add Texture"),
-                                                      tr("Could not add %1 to project.").arg(texPath));
-                return;
-            }
+                if (result == AddFilesResult::Failed) {
+                    Core::AsynchronousMessageBox::warning(tr("Failed to Add Texture"),
+                                                          tr("Could not add %1 to project.").arg(texPath));
+                    return;
+                }
 
-            if (mode == ContentLibraryWidget::AddTextureMode::Texture) {
+                if (mode == ContentLibraryWidget::AddTextureMode::Image)
+                    return;
+
+                // create a texture from the image
                 ModelNode matLib = materialLibraryNode();
                 if (!matLib.isValid())
                     return;
@@ -68,9 +76,15 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 VariantProperty sourceProp = newTexNode.variantProperty("source");
                 sourceProp.setValue(QLatin1String("images/%1").arg(texPath.split('/').last()));
                 matLib.defaultNodeListProperty().reparentHere(newTexNode);
-            } else if (mode == ContentLibraryWidget::AddTextureMode::Environment) {
-                // TODO: assign as env
-            }
+
+                // assign the texture as scene environment's light probe
+                if (mode == ContentLibraryWidget::AddTextureMode::LightProbe && m_activeSceneEnv.isValid()) {
+                    BindingProperty lightProbeProp = m_activeSceneEnv.bindingProperty("lightProbe");
+                    lightProbeProp.setExpression(newTexNode.id());
+                    VariantProperty bgModeProp = m_activeSceneEnv.variantProperty("backgroundMode");
+                    bgModeProp.setValue(QVariant::fromValue(Enumeration("SceneEnvironment", "SkyBox")));
+                }
+            });
         });
 
         ContentLibraryMaterialsModel *materialsModel = m_widget->materialsModel().data();
@@ -99,7 +113,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
         connect(materialsModel, &ContentLibraryMaterialsModel::bundleMaterialAboutToUnimport, this,
                 [&] (const QmlDesigner::TypeName &type) {
             // delete instances of the bundle material that is about to be unimported
-            executeInTransaction("MaterialBrowserView::widgetInfo", [&] {
+            executeInTransaction("ContentLibraryView::widgetInfo", [&] {
                 ModelNode matLib = materialLibraryNode();
                 if (!matLib.isValid())
                     return;
@@ -157,8 +171,36 @@ void ContentLibraryView::importsChanged(const QList<Import> &addedImports, const
     m_widget->materialsModel()->setHasQuick3DImport(m_hasQuick3DImport);
 }
 
+void ContentLibraryView::active3DSceneChanged(qint32 sceneId)
+{
+    m_activeSceneEnv = {};
+    bool sceneEnvExists = false;
+    if (sceneId != -1) {
+        ModelNode activeScene = active3DSceneNode();
+        if (activeScene.isValid()) {
+            ModelNode view3D;
+            if (activeScene.metaInfo().isQtQuick3DView3D()) {
+                view3D = activeScene;
+            } else {
+                ModelNode sceneParent = activeScene.parentProperty().parentModelNode();
+                if (sceneParent.metaInfo().isQtQuick3DView3D())
+                    view3D = sceneParent;
+            }
+
+            if (view3D.isValid()) {
+                m_activeSceneEnv = modelNodeForId(view3D.bindingProperty("environment").expression());
+                if (m_activeSceneEnv.isValid())
+                    sceneEnvExists = true;
+            }
+        }
+    }
+
+    m_widget->texturesModel()->setHasSceneEnv(sceneEnvExists);
+    m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);
+}
+
 void ContentLibraryView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                                               const QList<ModelNode> &lastSelectedNodeList)
+                                              const QList<ModelNode> &lastSelectedNodeList)
 {
     Q_UNUSED(lastSelectedNodeList)
 
@@ -204,7 +246,7 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
     if (!bundleMat.isValid() && !metaInfo.isValid())
         return;
 
-    executeInTransaction("MaterialBrowserView::applyBundleMaterialToDropTarget", [&] {
+    executeInTransaction("ContentLibraryView::applyBundleMaterialToDropTarget", [&] {
         ModelNode newMatNode = metaInfo.isValid() ? createMaterial(metaInfo) : bundleMat;
 
         // TODO: unify this logic as it exist elsewhere also

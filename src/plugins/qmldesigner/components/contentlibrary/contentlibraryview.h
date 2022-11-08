@@ -30,6 +30,7 @@ public:
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
+    void active3DSceneChanged(qint32 sceneId) override;
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void customNotification(const AbstractView *view, const QString &identifier,
@@ -46,6 +47,7 @@ private:
     QList<ModelNode> m_bundleMaterialTargets;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
+    ModelNode m_activeSceneEnv;
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
 };
