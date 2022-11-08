@@ -527,6 +527,8 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
             }
 
             McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
+            McuSdkRepository::updateQtDirMacro(qtForMCUsPackage->path());
+            repo.expandVariablesAndWildcards();
 
             bool needsUpgrade = false;
             for (const auto &target : std::as_const(repo.mcuTargets)) {
