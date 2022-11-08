@@ -254,7 +254,6 @@ void GdbMi::parseTuple_helper(DebuggerOutputParser &parser)
 {
     parser.skipCommas();
     //qDebug() << "parseTuple_helper: " << parser.buffer();
-    QString buf = parser.buffer();
     m_type = Tuple;
     while (!parser.isAtEnd()) {
         if (parser.isCurrent('}')) {
