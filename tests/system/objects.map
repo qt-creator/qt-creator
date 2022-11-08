@@ -95,7 +95,6 @@
 :New Text File.Add to project:_QLabel	{name='projectLabel' text='Add to project:' type='QLabel' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit	{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :New.comboBox_QComboBox	{type='QComboBox' unnamed='1' visible='1' window=':New_Core::Internal::NewDialog'}
-:New.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
 :New_Core::Internal::NewDialog	{name='Core.NewDialog' type='QDialog' visible='1' windowTitle?='New*'}
 :New_ProjectExplorer::JsonWizard	{type='ProjectExplorer::JsonWizard' unnamed='1' visible='1'}
