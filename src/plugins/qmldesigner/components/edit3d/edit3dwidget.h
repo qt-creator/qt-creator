@@ -67,6 +67,7 @@ private:
     QPointer<QAction> m_copyAction;
     QPointer<QAction> m_pasteAction;
     QPointer<QAction> m_deleteAction;
+    QPointer<QAction> m_fitSelectedAction;
     QPointer<QAction> m_alignCameraAction;
     QPointer<QAction> m_alignViewAction;
     QPointer<QMenu> m_createSubMenu;

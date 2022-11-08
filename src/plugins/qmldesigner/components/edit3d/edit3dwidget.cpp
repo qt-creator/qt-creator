@@ -200,6 +200,10 @@ void Edit3DWidget::createContextMenu()
 
     m_contextMenu->addSeparator();
 
+    m_fitSelectedAction = m_contextMenu->addAction(tr("Fit Selected Items to View"), [&] {
+        view()->emitView3DAction(View3DActionType::FitToView, true);
+    });
+
     m_alignCameraAction = m_contextMenu->addAction(tr("Align Camera to View"), [&] {
         view()->emitView3DAction(View3DActionType::AlignCamerasToView, true);
     });
@@ -373,6 +377,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_copyAction->setEnabled(isNotRoot);
     m_pasteAction->setEnabled(isPasteAvailable());
     m_deleteAction->setEnabled(isNotRoot);
+    m_fitSelectedAction->setEnabled(isNotRoot);
     m_alignCameraAction->setEnabled(isCamera);
     m_alignViewAction->setEnabled(isCamera);
 
