@@ -99,6 +99,7 @@ public:
     void copySelected();
     void cutSelected();
     void paste();
+    void pasteToPosition(const std::optional<QVector3D> &position);
     void selectAll();
     void undo();
     void redo();
@@ -128,6 +129,7 @@ private: // functions
     ModelPointer createInFileComponentModel();
 
     bool pasteSVG();
+    void moveNodesToPosition(const QList<ModelNode> &nodes, const std::optional<QVector3D> &position);
 
 private: // variables
     ModelPointer m_documentModel;
