@@ -9,6 +9,7 @@
 #include "edit3dvisibilitytogglesmenu.h"
 #include "metainfo.h"
 #include "modelnodeoperations.h"
+#include "nodeabstractproperty.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
@@ -217,6 +218,19 @@ void Edit3DWidget::createContextMenu()
     });
 
     m_contextMenu->addSeparator();
+
+    m_selectParentAction = m_contextMenu->addAction(tr("Select Parent"), [&] {
+        ModelNode parentNode = ModelNode::lowestCommonAncestor(view()->selectedModelNodes());
+        if (!parentNode.isValid())
+            return;
+
+        if (!parentNode.isRootNode() && view()->isSelectedModelNode(parentNode))
+            parentNode = parentNode.parentProperty().parentModelNode();
+
+        view()->setSelectedModelNode(parentNode);
+    });
+
+    m_contextMenu->addSeparator();
 }
 
 bool Edit3DWidget::isPasteAvailable() const
@@ -372,19 +386,21 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
 
     const bool isValid = modelNode.isValid();
     const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-    const bool isNotRoot = isValid && !modelNode.isRootNode();
     const bool isCamera = isValid && modelNode.metaInfo().isQtQuick3DCamera();
     const bool isSingleComponent = view()->hasSingleSelectedModelNode() && modelNode.isComponent();
+    const bool anyNodeSelected = view()->hasSelectedModelNodes();
+    const bool selectionExcludingRoot = anyNodeSelected && !view()->rootModelNode().isSelected();
 
     m_editComponentAction->setEnabled(isSingleComponent);
     m_editMaterialAction->setEnabled(isModel);
-    m_duplicateAction->setEnabled(isNotRoot);
-    m_copyAction->setEnabled(isNotRoot);
+    m_duplicateAction->setEnabled(selectionExcludingRoot);
+    m_copyAction->setEnabled(selectionExcludingRoot);
     m_pasteAction->setEnabled(isPasteAvailable());
-    m_deleteAction->setEnabled(isNotRoot);
-    m_fitSelectedAction->setEnabled(isNotRoot);
+    m_deleteAction->setEnabled(selectionExcludingRoot);
+    m_fitSelectedAction->setEnabled(anyNodeSelected);
     m_alignCameraAction->setEnabled(isCamera);
     m_alignViewAction->setEnabled(isCamera);
+    m_selectParentAction->setEnabled(selectionExcludingRoot);
 
     m_contextMenu->popup(mapToGlobal(pos));
 }
