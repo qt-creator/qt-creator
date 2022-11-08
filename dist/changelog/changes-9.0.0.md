@@ -145,6 +145,7 @@ Debugging
   devices
 * Fixed display of strings with characters more than 2 bytes long
 * Improved type name lookup performance for heavily templated code
+* Improved display performance for large array-like data (QTCREATORBUG-28111)
 
 Analyzer
 --------
