@@ -998,6 +998,10 @@ void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newN
 {
     QTC_ASSERT(material.isValid(), return);
 
+    QVariant objName = material.variantProperty("objectName").value();
+    if (objName.isValid() && objName.toString() == newName)
+        return;
+
     executeInTransaction("MaterialEditorView:renameMaterial", [&] {
         material.setIdWithRefactoring(model()->generateIdFromName(newName, "material"));
 

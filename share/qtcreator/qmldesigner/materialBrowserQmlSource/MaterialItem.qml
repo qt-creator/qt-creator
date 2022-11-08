@@ -23,6 +23,7 @@ Rectangle {
         matName.readOnly = false
         matName.selectAll()
         matName.forceActiveFocus()
+        matName.ensureVisible(matName.text.length)
         nameMouseArea.enabled = false
     }
 
@@ -31,10 +32,8 @@ Rectangle {
         if (matName.readOnly)
             return;
 
-        matName.readOnly = true
-        nameMouseArea.enabled = true
-
         materialBrowserModel.renameMaterial(index, matName.text);
+        mouseArea.forceActiveFocus()
     }
 
     border.width: materialBrowserModel.selectedIndex === index ? 1 : 0
@@ -101,6 +100,16 @@ Rectangle {
             validator: RegExpValidator { regExp: /^(\w+\s)*\w+$/ }
 
             onEditingFinished: root.commitRename()
+
+            onActiveFocusChanged: {
+                if (!activeFocus) {
+                    matName.readOnly = true
+                    nameMouseArea.enabled = true
+                    ensureVisible(0)
+                }
+            }
+
+            Component.onCompleted: ensureVisible(0)
 
             MouseArea {
                 id: nameMouseArea

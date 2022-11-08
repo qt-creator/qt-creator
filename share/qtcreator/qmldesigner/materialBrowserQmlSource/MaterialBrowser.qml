@@ -36,6 +36,17 @@ Item {
     }
 
     MouseArea {
+        id: focusGrabber
+        anchors.fill: parent
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        onPressed: (mouse) => {
+            forceActiveFocus() // Steal focus from name edit
+            mouse.accepted = false
+        }
+        z: 1
+    }
+
+    MouseArea {
         id: rootMouseArea
 
         anchors.fill: parent
