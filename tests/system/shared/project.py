@@ -418,7 +418,7 @@ def __chooseTargets__(targets, availableTargets=None, additionalFunc=None):
                                                   "window=':Qt Creator_Core::Internal::MainWindow' "
                                                   "summaryText='%s' visible='1'}"
                                                   % Targets.getStringForTarget(current))
-                    detailsButton = getChildByClass(detailsWidget, "Utils::DetailsButton")
+                    detailsButton = getChildByClass(detailsWidget, "QToolButton")
                     clickButton(detailsButton)
                     additionalFunc()
                     clickButton(detailsButton)
