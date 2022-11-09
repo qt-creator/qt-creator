@@ -182,6 +182,8 @@ bool DeviceShell::start()
 
     setupShellProcess(m_shellProcess.get());
 
+    CommandLine cmdLine = m_shellProcess->commandLine();
+
     m_shellProcess->setProcessMode(ProcessMode::Writer);
 
     // Moving the process into its own thread ...
@@ -232,7 +234,7 @@ bool DeviceShell::start()
         &result);
 
     if (!result) {
-        startupFailed(m_shellProcess->commandLine());
+        startupFailed(cmdLine);
     }
 
     return result;
