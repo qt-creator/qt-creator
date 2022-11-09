@@ -28,10 +28,7 @@ double ExternalDependencies::formEditorDevicePixelRatio() const
 
 QString ExternalDependencies::defaultPuppetFallbackDirectory() const
 {
-    if (Utils::HostOsInfo::isMacHost())
-        return Core::ICore::libexecPath("qmldesigner").toString();
-    else
-        return Core::ICore::libexecPath().toString();
+    return Core::ICore::libexecPath().toString();
 }
 
 QString ExternalDependencies::qmlPuppetFallbackDirectory() const
