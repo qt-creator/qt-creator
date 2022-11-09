@@ -53,6 +53,7 @@ public:
     OS os() const;
     int colorDepth() const;
     bool isValid() const;
+    QString desktopCompilerId() const;
     void printPackageProblems() const;
 
 private:

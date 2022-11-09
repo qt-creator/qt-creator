@@ -53,6 +53,6 @@ def main():
             type(editorWidget, "<Ctrl+Shift+u>")
             # wait until search finished and verify search results
             waitForSearchResults()
-            validateSearchResult(5 if JIRA.isBugStillOpen(2863) else 3)
+            validateSearchResult(3 if useClang else 5)
             invokeMenuItem("File", "Exit")
             waitForCleanShutdown()

@@ -1270,7 +1270,7 @@ class Dumper(DumperBase):
             self.reportResult('error="No frame"', args)
             return
 
-        self.output = ''
+        self.output = []
         isPartial = len(self.partialVariable) > 0
 
         self.currentIName = 'local'
@@ -1323,7 +1323,7 @@ class Dumper(DumperBase):
         self.handleWatches(args)
 
         self.put('],partial="%d"' % isPartial)
-        self.reportResult(self.output, args)
+        self.reportResult(self.takeOutput(), args)
 
 
     def fetchRegisters(self, args=None):
@@ -2101,7 +2101,7 @@ class SummaryDumper(Dumper, LogMixin):
 
         self.dumpermodules = ['qttypes']
         self.loadDumpers({})
-        self.output = ''
+        self.output = []
 
     def report(self, stuff):
         return  # Don't mess up lldb output
@@ -2123,12 +2123,12 @@ class SummaryDumper(Dumper, LogMixin):
         self.expandedINames = [value.name] if expanded else []
 
         savedOutput = self.output
-        self.output = ''
+        self.output = []
         with TopLevelItem(self, value.name):
             self.putItem(value)
 
         # FIXME: Hook into putField, etc to build up object instead of parsing MI
-        response = gdbmiparser.parse_response("^ok,summary=%s" % self.output)
+        response = gdbmiparser.parse_response("^ok,summary=%s" % self.takeOutput())
 
         self.output = savedOutput
         self.expandedINames = oldExpanded

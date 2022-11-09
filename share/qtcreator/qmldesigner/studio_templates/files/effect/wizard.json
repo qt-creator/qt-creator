@@ -1,0 +1,64 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "J.QEP",
+    "category": "U.QEP",
+    "trDescription": "Creates an Effect Maker file.",
+    "trDisplayName": "Effect File (Effect Maker)",
+    "trDisplayCategory": "Effects",
+    "iconText": "qep",
+    "platformIndependent": true,
+    "enabled": "%{JS: value('Features').indexOf('QmlDesigner.Wizards.Enterprise') >= 0}",
+    "featuresRequired": [ "QmlDesigner.Wizards.Enterprise" ],
+
+    "options": [
+        { "key": "EffectFile", "value": "%{Class}.qep" },
+        { "key": "DoNotOpenFile", "value": "true" }
+    ],
+
+    "pages" :
+    [
+    {
+        "trDisplayName": "Define Class",
+        "trShortTitle": "Details",
+        "typeId": "Fields",
+        "data" :
+            [
+            {
+                "name": "Class",
+                "trDisplayName": "Effect name:",
+                "mandatory": true,
+                "type": "LineEdit",
+                "data": {
+                    "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                    "fixup": "%{JS: '%{INPUT}'.charAt(0).toUpperCase() + '%{INPUT}'.slice(1) }"
+                }
+            },
+            {
+                "name": "TargetPath",
+                "type": "PathChooser",
+                "trDisplayName": "Path:",
+                "mandatory": true,
+                "data":
+                {
+                    "kind": "existingDirectory",
+                    "basePath": "%{InitialPath}",
+                    "path": "%{InitialPath}"
+                }
+            }
+        ]
+    }
+],
+    "generators" :
+    [
+        {
+            "typeId": "File",
+            "data":
+            {
+                "source": "file.qep",
+                "target": "%{TargetPath}/%{EffectFile}",
+                "openInEditor": false
+            }
+        }
+    ]
+}

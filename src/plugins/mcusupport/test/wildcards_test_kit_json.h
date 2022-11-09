@@ -34,6 +34,13 @@ constexpr auto wildcards_test_kit = R"(
                 "defaultValue": "%{MCU_TESTING_FOLDER}/wildcards/*-file.exe",
                 "envVar": "",
                 "type": "path"
+            },
+            {
+                "label": "FAKE_WILDCARD_TEST_MULTI",
+                "description": "Assert '*' is replaced by possible values",
+                "defaultValue": "%{MCU_TESTING_FOLDER}/wildcards/2019/*/VC/Tools/MSVC/*/bin/Hostx64/x64",
+                "envVar": "",
+                "type": "path"
             }
         ]
     },

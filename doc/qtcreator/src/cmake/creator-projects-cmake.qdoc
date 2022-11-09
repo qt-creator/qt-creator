@@ -176,6 +176,6 @@
         \li \l {Opening Projects}
         \li \l {CMake Build Configuration}
         \li \l {Specifying Run Settings}
-        \li \l {Deploying Applications to Generic Remote Linux Devices}
+        \li \l {Deploying to Remote Linux}
     \endlist
 */

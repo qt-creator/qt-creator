@@ -11,6 +11,7 @@
 #include <theme.h>
 #include <utils/hdrimage.h>
 #include <qmldesignerplugin.h>
+#include <modelnodeoperations.h>
 
 #include <coreplugin/icore.h>
 
@@ -62,6 +63,13 @@ void AssetsLibraryModel::saveExpandedState(bool expanded, const QString &assetPa
 bool AssetsLibraryModel::loadExpandedState(const QString &assetPath)
 {
     return m_expandedStateHash.value(assetPath, true);
+}
+
+bool AssetsLibraryModel::isEffectQmlExist(const QString &effectName)
+{
+    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsDirectory();
+    Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
+    return qmlPath.exists();
 }
 
 AssetsLibraryModel::DirExpandState AssetsLibraryModel::getAllExpandedState() const

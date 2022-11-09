@@ -112,7 +112,7 @@ class Children():
         self.d.currentNumChild = self.savedNumChild
         self.d.currentMaxNumChild = self.savedMaxNumChild
         if self.d.isCli:
-            self.d.output += '\n' + '   ' * self.d.indent
+            self.d.put('\n' + '   ' * self.d.indent)
         self.d.put(self.d.childrenSuffix)
         return True
 
@@ -173,7 +173,7 @@ class DumperBase():
         self.displayStringLimit = 100
         self.useTimeStamps = False
 
-        self.output = ''
+        self.output = []
         self.typesReported = {}
         self.typesToReport = {}
         self.qtNamespaceToReport = None
@@ -309,9 +309,9 @@ class DumperBase():
                 self.putField('name', item.name)
         else:
             self.indent += 1
-            self.output += '\n' + '   ' * self.indent
+            self.put('\n' + '   ' * self.indent)
             if isinstance(item.name, str):
-                self.output += item.name + ' = '
+                self.put(item.name + ' = ')
         item.savedIName = self.currentIName
         item.savedValue = self.currentValue
         item.savedType = self.currentType
@@ -869,7 +869,12 @@ class DumperBase():
             self.putPlainChildren(value)
 
     def put(self, stuff):
-        self.output += stuff
+        self.output.append(stuff)
+
+    def takeOutput(self):
+        res = '\n'.join(self.output)
+        self.output = []
+        return res
 
     def check(self, exp):
         if not exp:

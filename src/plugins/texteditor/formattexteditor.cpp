@@ -132,7 +132,7 @@ static FormatTask format(FormatTask task)
  * actually changed parts are updated while preserving the cursor position, the folded
  * blocks, and the scroll bar position.
  */
-static void updateEditorText(QPlainTextEdit *editor, const QString &text)
+void updateEditorText(QPlainTextEdit *editor, const QString &text)
 {
     const QString editorText = editor->toPlainText();
     if (editorText == text)

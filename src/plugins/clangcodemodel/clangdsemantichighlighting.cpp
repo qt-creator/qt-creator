@@ -164,9 +164,15 @@ void doSemanticHighlighting(
         const Position endPos = startPos.withOffset(token.length, &doc);
         return Range(startPos, endPos);
     };
-    const auto isOutputParameter = [&ast, &tokenRange](const ExpandedSemanticToken &token) {
+    const int clangdMajorVersion = clangdVersion.majorVersion();
+    const auto isOutputParameter = [&ast, &tokenRange, clangdMajorVersion]
+            (const ExpandedSemanticToken &token) {
         if (token.modifiers.contains(QLatin1String("usedAsMutableReference")))
             return true;
+        if (token.modifiers.contains(QLatin1String("usedAsMutablePointer")))
+            return true;
+        if (clangdMajorVersion >= 16)
+            return false;
         if (token.type != "variable" && token.type != "property" && token.type != "parameter")
             return false;
         const Range range = tokenRange(token);
@@ -260,7 +266,7 @@ void doSemanticHighlighting(
     };
 
     const std::function<HighlightingResult(const ExpandedSemanticToken &)> toResult
-            = [&ast, &isOutputParameter, &tokenRange, ver = clangdVersion.majorVersion()]
+            = [&ast, &isOutputParameter, &tokenRange, clangdMajorVersion]
             (const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
@@ -277,7 +283,7 @@ void doSemanticHighlighting(
                     ? C_VIRTUAL_METHOD : C_FUNCTION;
             if (token.modifiers.contains("definition")) {
                 styles.mixinStyles.push_back(C_FUNCTION_DEFINITION);
-            } else if (ver < 16 && ast.isValid()) {
+            } else if (clangdMajorVersion < 16 && ast.isValid()) {
                 const ClangdAstPath path = getAstPath(ast, tokenRange(token));
                 if (path.length() > 1) {
                     const ClangdAstNode declNode = path.at(path.length() - 2);
@@ -291,7 +297,7 @@ void doSemanticHighlighting(
             styles.mainStyle = C_TYPE;
             if (token.modifiers.contains("constructorOrDestructor")) {
                 styles.mainStyle = C_FUNCTION;
-            } else if (ver < 16 && ast.isValid()) {
+            } else if (clangdMajorVersion < 16 && ast.isValid()) {
                 const ClangdAstPath path = getAstPath(ast, tokenRange(token));
                 if (!path.isEmpty()) {
                     if (path.last().kind() == "CXXConstructor") {

@@ -6,7 +6,9 @@
 #include "formeditorscene.h"
 #include "formeditorview.h"
 #include "assetslibrarywidget.h"
+#include "assetslibrarymodel.h"
 #include <metainfo.h>
+#include <modelnodeoperations.h>
 #include <nodehints.h>
 #include <rewritingexception.h>
 #include "qmldesignerconstants.h"
@@ -19,6 +21,7 @@
 #include <QMimeData>
 #include <QTimer>
 #include <QWidget>
+#include <QMessageBox>
 
 static Q_LOGGING_CATEGORY(dragToolInfo, "qtc.qmldesigner.formeditor", QtWarningMsg);
 
@@ -242,9 +245,31 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
             if (targetContainerFormEditorItem) {
                 QmlItemNode parentQmlItemNode = targetContainerFormEditorItem->qmlItemNode();
                 QString effectName = QFileInfo(effectPath).baseName();
-                QmlItemNode effectNode = QmlItemNode::createQmlItemNodeForEffect(view(), parentQmlItemNode, effectName);
 
-                view()->setSelectedModelNodes({effectNode});
+                if (!AssetsLibraryModel::isEffectQmlExist(effectName)) {
+                    QMessageBox msgBox;
+                    msgBox.setText("Effect " + effectName + " is empty");
+                    msgBox.setInformativeText("Do you want to edit " + effectName + "?");
+                    msgBox.setStandardButtons(QMessageBox::No |QMessageBox::Yes);
+                    msgBox.setDefaultButton(QMessageBox::Yes);
+                    msgBox.setIcon(QMessageBox::Question);
+                    int ret = msgBox.exec();
+                    switch (ret) {
+                      case QMessageBox::Yes:
+                        ModelNodeOperations::openEffectMaker(effectPath);
+                        break;
+                      default:
+                        break;
+                    }
+
+                    event->ignore();
+                    return;
+                }
+
+                QmlItemNode effectNode = QmlItemNode::
+                        createQmlItemNodeForEffect(view(), parentQmlItemNode, effectName);
+
+                view()->setSelectedModelNodes({parentQmlItemNode});
                 view()->resetPuppet();
 
                 commitTransaction();

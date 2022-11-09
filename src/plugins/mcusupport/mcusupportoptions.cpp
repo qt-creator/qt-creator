@@ -30,23 +30,45 @@ using namespace Utils;
 
 namespace McuSupport::Internal {
 
-static const Utils::FilePath expandWildcards(const Utils::FilePath& path)
+// Utils::FileFilter do not support globbing with "*" placed in the middle of the path,
+// since it is required for paths such as "Microsoft Visual Studio/2019/*/VC/Tools/MSVC/*/bin/Hostx64/x64"
+// The filter is applied for each time a wildcard character is found in a path component.
+// Returns a pair of the longest path if multiple ones exists and the number of components that were not found.
+static const std::pair<Utils::FilePath, int> expandWildcards(
+    const FilePath path, const QList<QStringView> patternComponents)
 {
-    if (!path.fileName().contains("*") && !path.fileName().contains("?"))
-        return path;
+    // Only absolute paths are currently supported
+    // Call FilePath::cleanPath on the path before calling this function
+    if (!path.exists() || path.isRelativePath())
+        return {path, patternComponents.size()};
 
-    const FilePath p = path.parentDir();
+    // All components are found
+    if (patternComponents.empty())
+        return {path, patternComponents.size()};
 
-    auto entries = p.dirEntries(
-        Utils::FileFilter({path.fileName()}, QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot));
+    const QString currentComponent = patternComponents.front().toString();
+    FilePath currentPath = path / currentComponent;
 
-    if (entries.isEmpty())
-        return path;
+    if (!currentComponent.contains("*") && !currentComponent.contains("?") && currentPath.exists())
+        return expandWildcards(path / currentComponent,
+                               {patternComponents.constBegin() + 1, patternComponents.constEnd()});
 
-    // Return the last match (can correspond to the latest version)
+    auto entries = path.dirEntries(
+        Utils::FileFilter({currentComponent}, QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot));
+
+    std::pair<FilePath, int> retPair = {path, patternComponents.size()};
+
     sort(entries, [](const FilePath &a, const FilePath &b) { return a.fileName() < b.fileName(); });
+    for (const auto &entry : entries) {
+        auto [entry_path, remaining_components] = expandWildcards(entry,
+                                                                  {patternComponents.constBegin()
+                                                                       + 1,
+                                                                   patternComponents.constEnd()});
+        if (remaining_components <= retPair.second)
+            retPair = {entry_path, remaining_components};
+    }
 
-    return entries.last();
+    return retPair;
 }
 
 Macros *McuSdkRepository::globalMacros()
@@ -60,7 +82,32 @@ void McuSdkRepository::expandVariablesAndWildcards()
     for (const auto &target : std::as_const(mcuTargets)) {
         auto macroExpander = getMacroExpander(*target);
         for (const auto &package : target->packages()) {
-            package->setPath(expandWildcards(macroExpander->expand(package->path())));
+            // Expand variables
+            const auto path = macroExpander->expand(package->path());
+
+            //expand wildcards
+            // Ignore expanding if no wildcards are found
+            if (!path.path().contains("*") && !path.path().contains("?")) {
+                package->setPath(path);
+                continue;
+            }
+
+            QStringList pathComponents = path.cleanPath().path().split("/");
+
+            // Path components example on linux: {"", "home", "username"}
+            // Path components example on windows: {"C:", "Users", "username"}
+            // 2 for empty_split_entry(linux)|root(windows) + at least one component
+            if (pathComponents.size() < 2) {
+                package->setPath(path);
+                continue;
+            }
+            // drop empty_split_entry(linux)|root(windows)
+            pathComponents.pop_front();
+
+            package->setPath(
+                expandWildcards(FilePath::fromString(QDir::rootPath()),
+                                {pathComponents.constBegin(), pathComponents.constEnd()})
+                    .first);
         }
     }
 }

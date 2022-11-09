@@ -417,6 +417,7 @@ IAssistProposal *CustomAssistProcessor::perform(const AssistInterface *interface
         break;
     }
     }
+    delete interface;
     GenericProposalModelPtr model(new GenericProposalModel);
     model->loadContent(completions);
     const auto proposal = new GenericProposal(m_position, model);

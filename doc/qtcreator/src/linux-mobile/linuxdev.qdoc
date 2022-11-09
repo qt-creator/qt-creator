@@ -3,15 +3,10 @@
 
     /*!
     \page creator-developing-generic-linux.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-developing-android.html
-    \nextpage studio-advanced.html
-    \else
-    \previouspage creator-adding-docker-devices.html
-    \nextpage creator-developing-ios.html
-    \endif
+    \previouspage creator-developing-qnx.html
+    \nextpage creator-setup-webassembly.html
 
-    \title Connecting Generic Remote Linux Devices
+    \title Connecting Remote Linux Devices
 
     You can connect generic Linux devices to the development PC to run,
     debug, and analyze applications built for them from \QC.
@@ -19,10 +14,10 @@
     If you have a tool chain for building applications for embedded Linux
     devices installed on the development PC, you can add
     it to \QC. You can then select a \l{glossary-buildandrun-kit}{kit}
-    with \uicontrol {Embedded Linux} device type to
+    with the device type \uicontrol {Remote Linux Device} to
     build applications for and run them on the devices.
 
-    To be able to run and debug applications on generic remote Linux devices,
+    To be able to run and debug applications on remote Linux devices,
     you must add devices and select them in the \QC \l{glossary-buildandrun-kit}
     {kit}.
 
@@ -30,7 +25,7 @@
     in \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
     \uicontrol Devices.
 
-    \image qtcreator-linux-device-configurations.png "Devices dialog"
+    \image qtcreator-preferences-devices-remote-linux.webp "Remote Linux Device in the Devices tab"
 
     You can protect the connections between \QC and a device by using an
     \l{https://www.openssh.com/}{OpenSSH} connection. OpenSSH is a
@@ -47,7 +42,7 @@
     you may need to enter the password on every connection to the device,
     or, if caching is enabled, at every \QC restart.
 
-    To configure connections between \QC and an embedded Linux device and to
+    To configure connections between \QC and a remote Linux device and to
     specify build and run settings for the device:
 
     \list 1
@@ -69,19 +64,22 @@
 
                 \li Select \uicontrol Edit > \uicontrol Preferences >
                     \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
-                    \uicontrol {Generic Linux Device}
+                    \uicontrol {Remote Linux Device}
                     > \uicontrol {Start Wizard}.
 
-                    \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
+                    \image qtcreator-preferences-devices-remote-linux-connection.webp "Connection Data wizard"
 
-                \li In the \uicontrol {The name to identify this configuration} field,
+                \li In \uicontrol {The name to identify this configuration},
                     enter a name for the connection.
 
-                \li In the \uicontrol {The device's host name or IP address} field,
+                \li In \uicontrol {The device's host name or IP address},
                     enter the host name or IP address of the device.
                     This value will be available in the variable \c %{Device:HostAddress}.
 
-                \li In the \uicontrol {The username to log into the device} field,
+                \li In \uicontrol {The device's SSH port number}, enter the port
+                    number to use for SSH connections. This value will be
+                    available in the variable \c %{Device:SshPort}.
+                \li In \uicontrol {The username to log into the device},
                     enter the username to log into the device and run the
                     application as.
                     This value will be available in the variable \c %{Device:UserName}.
@@ -89,7 +87,7 @@
                 \li Select \uicontrol {Next} to open the
                     \uicontrol {Key Deployment} dialog.
 
-                    \image qtcreator-generic-linux-device-key-deployment.png "Key Deployment dialog"
+                    \image qtcreator-preferences-devices-remote-linux-key-deployment.webp "Key Deployment dialog"
 
                 \li In \uicontrol {Private key file}, select a private key file
                     to use for authentication. This value will be available in
@@ -107,14 +105,16 @@
             \endlist
 
             All of these parameters can be edited later, as well as additional ones that the
-            wizard does not show because there are sensible default values. One of these is
-            the SSH port number, which is available in the variable \c %{Device:SshPort}.
+            wizard does not show because there are sensible default values.
 
 
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
             \uicontrol Add to add a kit for building for the device. Select the
-            Qt version, compiler, and device that you added above, and choose
-            \uicontrol {Generic Linux Device} for the device type.
+            Qt version, compiler, and device that you added above, and select
+            \uicontrol {Remote Linux Device} in \uicontrol {Device type}.
+
+            To build on the remote device, select \uicontrol {Remote Linux Device}
+            also in \uicontrol {Build device}.
 
         \li To specify build settings:
 
@@ -133,7 +133,7 @@
 
     When you run the project, \QC deploys the application as specified by the
     deploy steps. By default, \QC copies the application files to the device.
-    For more information, see \l{Deploying Applications to Generic Remote Linux Devices}.
+    For more information, see \l{Deploying to Remote Linux}.
 
     \endlist
 

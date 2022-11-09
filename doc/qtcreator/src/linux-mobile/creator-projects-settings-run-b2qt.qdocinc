@@ -17,7 +17,7 @@
     host and on the device.
 
     For more information on the deployment steps, see
-    \l{Deploying Applications to Boot2Qt Devices}.
+    \l{Deploying to Boot2Qt}.
 
 //! [run settings boot2qt]
 */
