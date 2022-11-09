@@ -2128,7 +2128,7 @@ class SummaryDumper(Dumper, LogMixin):
             self.putItem(value)
 
         # FIXME: Hook into putField, etc to build up object instead of parsing MI
-        response = gdbmiparser.parse_response("^ok,summary=%s" % self.takeOutput()))
+        response = gdbmiparser.parse_response("^ok,summary=%s" % self.takeOutput())
 
         self.output = savedOutput
         self.expandedINames = oldExpanded
