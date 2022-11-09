@@ -22,16 +22,14 @@ public:
     QString startAvd(const QString &name) const;
     bool startAvdAsync(const QString &avdName) const;
     QString findAvd(const QString &avdName) const;
-    QString waitForAvd(const QString &avdName,
-                       const std::function<bool()> &cancelChecker = {}) const;
+    QString waitForAvd(const QString &avdName, const QFutureInterfaceBase &fi = {}) const;
     bool isAvdBooted(const QString &device) const;
     static bool avdManagerCommand(const AndroidConfig &config,
                                   const QStringList &args,
                                   QString *output);
 
 private:
-    bool waitForBooted(const QString &serialNumber,
-                       const std::function<bool()> &cancelChecker) const;
+    bool waitForBooted(const QString &serialNumber, const QFutureInterfaceBase &fi = {}) const;
 
 private:
     const AndroidConfig &m_config;

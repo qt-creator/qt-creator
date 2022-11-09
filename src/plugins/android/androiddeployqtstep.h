@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "androidbuildapkstep.h"
-#include "androidconfigurations.h"
+#include "androiddeviceinfo.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <qtsupport/baseqtversion.h>
@@ -49,11 +48,12 @@ private:
 
     bool init() override;
     void doRun() override;
+    void doCancel() override;
     void gatherFilesToPull();
     DeployErrorCode runDeploy();
     void slotAskForUninstall(DeployErrorCode errorCode);
 
-    bool runImpl();
+    void runImpl(QFutureInterface<bool> &fi);
 
     QWidget *createConfigWidget() override;
 
