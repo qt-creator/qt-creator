@@ -415,10 +415,10 @@ Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) co
 
 #ifdef Q_OS_WIN
 
+    QStringList registryNodes;
+    registryNodes << "HKEY_LOCAL_MACHINE\\SOFTWARE\\IAR Systems\\Embedded Workbench";
 #ifdef Q_OS_WIN64
-    static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\IAR Systems\\Embedded Workbench";
-#else
-    static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\IAR Systems\\Embedded Workbench";
+    registryNodes << "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\IAR Systems\\Embedded Workbench";
 #endif
 
     // Dictionary for know toolchains.
@@ -446,33 +446,35 @@ Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) co
         {{"EWCR16C"}, {"/cr16c/bin/icccr16c.exe"}},
     };
 
-    QSettings registry(kRegistryNode, QSettings::NativeFormat);
-    const auto oneLevelGroups = registry.childGroups();
-    for (const QString &oneLevelKey : oneLevelGroups) {
-        registry.beginGroup(oneLevelKey);
-        const auto twoLevelGroups = registry.childGroups();
-        for (const Entry &entry : knowToolchains) {
-            if (twoLevelGroups.contains(entry.registryKey)) {
-                registry.beginGroup(entry.registryKey);
-                const auto threeLevelGroups = registry.childGroups();
-                for (const QString &threeLevelKey : threeLevelGroups) {
-                    registry.beginGroup(threeLevelKey);
-                    QString compilerPath = registry.value("InstallPath").toString();
-                    if (!compilerPath.isEmpty()) {
-                        // Build full compiler path.
-                        compilerPath += entry.subExePath;
-                        const FilePath fn = FilePath::fromString(compilerPath);
-                        if (compilerExists(fn)) {
-                            // Note: threeLevelKey is a guessed toolchain version.
-                            candidates.push_back({fn, threeLevelKey});
+    for (const QString &registryNode : registryNodes) {
+        QSettings registry(registryNode, QSettings::NativeFormat);
+        const auto oneLevelGroups = registry.childGroups();
+        for (const QString &oneLevelKey : oneLevelGroups) {
+            registry.beginGroup(oneLevelKey);
+            const auto twoLevelGroups = registry.childGroups();
+            for (const Entry &entry : knowToolchains) {
+                if (twoLevelGroups.contains(entry.registryKey)) {
+                    registry.beginGroup(entry.registryKey);
+                    const auto threeLevelGroups = registry.childGroups();
+                    for (const QString &threeLevelKey : threeLevelGroups) {
+                        registry.beginGroup(threeLevelKey);
+                        QString compilerPath = registry.value("InstallPath").toString();
+                        if (!compilerPath.isEmpty()) {
+                            // Build full compiler path.
+                            compilerPath += entry.subExePath;
+                            const FilePath fn = FilePath::fromString(compilerPath);
+                            if (compilerExists(fn)) {
+                                // Note: threeLevelKey is a guessed toolchain version.
+                                candidates.push_back({fn, threeLevelKey});
+                            }
                         }
+                        registry.endGroup();
                     }
                     registry.endGroup();
                 }
-                registry.endGroup();
             }
+            registry.endGroup();
         }
-        registry.endGroup();
     }
 
 #endif // Q_OS_WIN
