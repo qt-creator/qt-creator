@@ -137,13 +137,6 @@ bool ExternalDependencies::hasStartupTarget() const
 }
 
 namespace {
-Utils::FilePath defaultPuppetFallbackDirectory()
-{
-    if (Utils::HostOsInfo::isMacHost())
-        return Core::ICore::libexecPath("qmldesigner");
-
-    return Core::ICore::libexecPath();
-}
 
 Utils::FilePath qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
 {
@@ -156,7 +149,7 @@ Utils::FilePath qmlPuppetFallbackDirectory(const DesignerSettings &settings)
     auto puppetFallbackDirectory = Utils::FilePath::fromString(
         settings.value(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY).toString());
     if (puppetFallbackDirectory.isEmpty() || !puppetFallbackDirectory.exists())
-        return defaultPuppetFallbackDirectory();
+        return Core::ICore::libexecPath();
     return puppetFallbackDirectory;
 }
 
