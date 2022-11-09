@@ -483,7 +483,17 @@ qint64 SshProcessInterface::processId() const
 
 bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
 {
-    return d->m_devicePrivate->runInShell(command, data).exitCode == 0;
+    QtcProcess process;
+    CommandLine cmd = {d->m_device->filePath("/bin/sh"), {"-c"}};
+    QString tmp;
+    ProcessArgs::addArg(&tmp, command.executable().path());
+    ProcessArgs::addArgs(&tmp, command.arguments());
+    cmd.addArg(tmp);
+    process.setCommand(cmd);
+    process.setWriteData(data);
+    process.start();
+    QTC_CHECK(process.waitForFinished()); // otherwise we may start producing killers for killers
+    return process.exitCode() == 0;
 }
 
 void SshProcessInterface::start()
