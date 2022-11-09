@@ -79,6 +79,7 @@ void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);
 
 QMLDESIGNERCORE_EXPORT Utils::FilePath getEffectsDirectory();
+void openEffectMaker(const QString &filePath);
 
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);

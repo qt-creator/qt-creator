@@ -1,0 +1,94 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+
+    \page qt-effect-maker-files.html
+    \nextpage qt-effect-maker.html
+    \previouspage creator-exporting-qml.html
+    \sa {Working with Effects in Qt Quick Effect Maker}
+
+    \title Creating Qt Quick Effect Maker Files
+
+    \section1 Creating an Effect File
+
+    You can create empty Qt Quick Effect Maker effect (.qep) files in \QDS and
+    then edit them in Qt Quick Effect Maker.
+
+    To create an effect file:
+
+    \list 1
+      \li In \QDS, go to \uicontrol File > \uicontrol {New File}.
+      \li Go to the \uicontrol Effects tab and select
+      \uicontrol {Effect file (Effect Maker)}.
+      \image new-effect-file.png
+      \li Select \uicontrol Choose and follow the wizard to create the file.
+    \endlist
+
+    After you have created the effect file, it is available in the
+    \uicontrol Assets view.
+
+    \image assets-view-effect.png
+
+    \section2 Editing and Re-importing an Effect File
+
+    To edit an effect file in Qt Quick Effect Maker, double-click it in
+    the \uicontrol Assets view. This opens the effect in Qt Quick Effect
+    Maker where you can make your changes.
+
+    When you have edited the effect file in Qt Quick Effect Maker, you need
+    to save and export it:
+    \list 1
+      \li In Qt Quick Effect Maker, go to \uicontrol File > \uicontrol Save.
+      \li Select \uicontrol File > \uicontrol Export.
+      \li With the default settings, select \uicontrol Ok.
+      \image effect-maker-export.png
+    \endlist
+
+    Now, you can close Qt Quick Effect Maker and return to \QDS and apply the
+    effect.
+
+    \section1 Applying an Effect
+
+    You can apply effects to components in \QDS. To do so, drag the effect
+    from the \uicontrol Assets view to the component in the \uicontrol 2D view.
+
+    \image apply-effect-maker-effect.webp
+
+    \section1 Animated Effect
+
+    When you import an animated effect, you need to turn on the animation for it
+    to see the animation in your \QDS application.
+
+    To turn on animation for an effect, first apply the effect to a component,
+    and then:
+
+    \list 1
+      \li Select the effect in \uicontrol Navigator.
+      \li In \uicontrol Properties, go to the
+      \uicontrol {Exposed Custom Properties} section and set
+      \uicontrol timeRunning to true.
+    \endlist
+*/

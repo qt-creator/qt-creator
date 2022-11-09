@@ -22,7 +22,6 @@ QT_END_NAMESPACE
 
 namespace Utils {
     class FileSystemWatcher;
-    class QtcProcess;
 }
 
 namespace QmlDesigner {
@@ -96,8 +95,6 @@ private:
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
-
-    std::unique_ptr<Utils::QtcProcess> m_qqemProcess;
 };
 
 } // namespace QmlDesigner

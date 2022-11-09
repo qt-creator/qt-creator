@@ -24,7 +24,6 @@
 #include <utils/utilsicons.h>
 #include "utils/environment.h"
 #include "utils/filepath.h"
-#include "utils/qtcprocess.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -49,9 +48,6 @@
 #include <QToolButton>
 #include <QQmlContext>
 #include <QQuickItem>
-
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
 
 namespace QmlDesigner {
 
@@ -242,44 +238,7 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
 
 void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
 {
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
-        qWarning() << __FUNCTION__ << "No project open";
-        return;
-    }
-
-    Utils::FilePath projectPath = target->project()->projectDirectory();
-    QString effectName = QFileInfo(filePath).baseName();
-    QString effectResDir = "asset_imports/Effects/" + effectName;
-    Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir);
-    if (!effectResPath.exists())
-        QDir(projectPath.toString()).mkpath(effectResDir);
-
-    const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-    if (baseQtVersion) {
-        auto effectMakerPath = baseQtVersion->binPath().pathAppended("QQEffectMaker").withExecutableSuffix();
-        if (!effectMakerPath.exists()) {
-            qWarning() << __FUNCTION__ << "Cannot find EffectMaker app";
-            return;
-        }
-
-        Utils::FilePath effectPath = Utils::FilePath::fromString(filePath);
-        QString effectContents = QString::fromUtf8(effectPath.fileContents().value_or(QByteArray()));
-        QStringList arguments;
-        arguments << filePath;
-        if (effectContents.isEmpty())
-            arguments << "--create";
-        arguments << "--exportpath" << effectResPath.toString();
-
-        Utils::Environment env = Utils::Environment::systemEnvironment();
-        if (env.osType() == Utils::OsTypeMac)
-            env.appendOrSet("QSG_RHI_BACKEND", "metal");
-
-        m_qqemProcess.reset(new Utils::QtcProcess);
-        m_qqemProcess->setEnvironment(env);
-        m_qqemProcess->setCommand({ effectMakerPath, arguments });
-        m_qqemProcess->start();
-    }
+    ModelNodeOperations::openEffectMaker(filePath);
 }
 
 void AssetsLibraryWidget::setModel(Model *model)
