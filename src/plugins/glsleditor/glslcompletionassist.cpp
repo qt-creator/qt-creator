@@ -290,7 +290,7 @@ static AssistProposalItem *createCompletionItem(const QString &text, const QIcon
     return item;
 }
 
-IAssistProposal *GlslCompletionAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *GlslCompletionAssistProcessor::performAsync(AssistInterface *interface)
 {
     m_interface.reset(static_cast<const GlslCompletionAssistInterface *>(interface));
 

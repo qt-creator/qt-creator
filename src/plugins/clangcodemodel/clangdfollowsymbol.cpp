@@ -42,18 +42,12 @@ public:
     void resetData(bool resetFollowSymbolData);
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override
+    IAssistProposal *perform(AssistInterface *interface) override
     {
         delete interface;
-        return nullptr;
-    }
-
-    IAssistProposal *immediateProposal(const AssistInterface *) override
-    {
         return createProposal(false);
     }
 
-    IAssistProposal *immediateProposalImpl() const;
     IAssistProposal *createProposal(bool final) const;
     VirtualFunctionProposalItem *createEntry(const QString &name, const Link &link) const;
 
@@ -67,7 +61,6 @@ public:
         : m_followSymbol(followSymbol) {}
 
 private:
-    RunType runType() const override { return Asynchronous; }
     IAssistProcessor *createProcessor(const AssistInterface *) const override;
 
     const QPointer<ClangdFollowSymbol> m_followSymbol;

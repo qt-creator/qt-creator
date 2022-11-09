@@ -27,22 +27,23 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/asyncprocessor.h>
+#include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/displaysettings.h>
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/indenter.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/textmark.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/typingsettings.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/indenter.h>
-#include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/codeassist/completionassistprovider.h>
-#include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/textmark.h>
+#include <texteditor/typingsettings.h>
 
 #include <utils/aspects.h>
 #include <utils/fancylineedit.h>
@@ -1037,14 +1038,14 @@ public:
     }
 };
 
-class FakeVimCompletionAssistProcessor : public IAssistProcessor
+class FakeVimCompletionAssistProcessor : public AsyncProcessor
 {
 public:
     FakeVimCompletionAssistProcessor(const IAssistProvider *provider)
         : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    IAssistProposal *perform(const AssistInterface *interface) override
+    IAssistProposal *performAsync(AssistInterface *interface) override
     {
         const QString &needle = m_provider->needle();
 

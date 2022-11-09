@@ -27,7 +27,6 @@ public:
     explicit FunctionHintAssistProvider(Client *client);
 
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
-    RunType runType() const override;
 
     int activationCharSequenceLength() const override;
     bool isActivationCharSequence(const QString &sequence) const override;
@@ -45,7 +44,7 @@ class LANGUAGECLIENT_EXPORT FunctionHintProcessor : public TextEditor::IAssistPr
 {
 public:
     explicit FunctionHintProcessor(Client *client);
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *perform(TextEditor::AssistInterface *interface) override;
     bool running() override { return m_currentRequest.has_value(); }
     bool needsRestart() const override { return true; }
     void cancel() override;

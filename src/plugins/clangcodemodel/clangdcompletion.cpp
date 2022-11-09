@@ -46,7 +46,7 @@ public:
                           unsigned completionOperator, CustomAssistMode mode);
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override;
+    IAssistProposal *perform(AssistInterface *interface) override;
 
     AssistProposalItemInterface *createItem(const QString &text, const QIcon &icon) const;
 
@@ -85,7 +85,7 @@ public:
     ~ClangdCompletionAssistProcessor();
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override;
+    IAssistProposal *perform(AssistInterface *interface) override;
     QList<AssistProposalItemInterface *> generateCompletionItems(
             const QList<LanguageServerProtocol::CompletionItem> &items) const override;
 
@@ -99,7 +99,7 @@ public:
     ClangdFunctionHintProcessor(ClangdClient *client);
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override;
+    IAssistProposal *perform(AssistInterface *interface) override;
 
     ClangdClient * const m_client;
 };
@@ -152,7 +152,7 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
             if (contextAnalyzer.completionAction()
                     != ClangCompletionContextAnalyzer::CompleteIncludePath) {
                 class NoOpProcessor : public IAssistProcessor {
-                    IAssistProposal *perform(const AssistInterface *) override { return nullptr; }
+                    IAssistProposal *perform(AssistInterface *) override { return nullptr; }
                 };
                 return new NoOpProcessor;
             }
@@ -402,7 +402,7 @@ CustomAssistProcessor::CustomAssistProcessor(ClangdClient *client, int position,
     , m_mode(mode)
 {}
 
-IAssistProposal *CustomAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *CustomAssistProcessor::perform(AssistInterface *interface)
 {
     QList<AssistProposalItemInterface *> completions;
     switch (m_mode) {
@@ -568,7 +568,7 @@ ClangdCompletionAssistProcessor::~ClangdCompletionAssistProcessor()
             << "ClangdCompletionAssistProcessor took: " << m_timer.elapsed() << " ms";
 }
 
-IAssistProposal *ClangdCompletionAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *ClangdCompletionAssistProcessor::perform(AssistInterface *interface)
 {
     if (m_client->testingEnabled()) {
         setAsyncCompletionAvailableHandler([this](IAssistProposal *proposal) {
@@ -614,7 +614,7 @@ ClangdFunctionHintProcessor::ClangdFunctionHintProcessor(ClangdClient *client)
     , m_client(client)
 {}
 
-IAssistProposal *ClangdFunctionHintProcessor::perform(const AssistInterface *interface)
+IAssistProposal *ClangdFunctionHintProcessor::perform(AssistInterface *interface)
 {
     if (m_client->testingEnabled()) {
         setAsyncCompletionAvailableHandler([this](IAssistProposal *proposal) {

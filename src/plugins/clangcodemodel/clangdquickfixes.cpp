@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    IAssistProposal *perform(const AssistInterface *interface) override
+    IAssistProposal *perform(AssistInterface *interface) override
     {
         m_interface = interface;
 

@@ -22,6 +22,7 @@ add_qtc_plugin(TextEditor
     codeassist/assistinterface.cpp codeassist/assistinterface.h
     codeassist/assistproposalitem.cpp codeassist/assistproposalitem.h
     codeassist/assistproposaliteminterface.h
+    codeassist/asyncprocessor.cpp codeassist/asyncprocessor.h
     codeassist/codeassistant.cpp codeassist/codeassistant.h
     codeassist/completionassistprovider.cpp codeassist/completionassistprovider.h
     codeassist/documentcontentcompletion.cpp codeassist/documentcontentcompletion.h
@@ -37,7 +38,6 @@ add_qtc_plugin(TextEditor
     codeassist/iassistprovider.cpp codeassist/iassistprovider.h
     codeassist/ifunctionhintproposalmodel.cpp codeassist/ifunctionhintproposalmodel.h
     codeassist/keywordscompletionassist.cpp codeassist/keywordscompletionassist.h
-    codeassist/runner.cpp codeassist/runner.h
     codeassist/textdocumentmanipulator.cpp codeassist/textdocumentmanipulator.h
     codeassist/textdocumentmanipulatorinterface.h
     codecchooser.cpp codecchooser.h

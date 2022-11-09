@@ -13,7 +13,6 @@ class ClipboardAssistProvider: public IAssistProvider
 {
 public:
     ClipboardAssistProvider(QObject *parent = nullptr) : IAssistProvider(parent) {}
-    IAssistProvider::RunType runType() const override;
     IAssistProcessor *createProcessor(const AssistInterface *) const override;
 };
 

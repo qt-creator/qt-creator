@@ -66,7 +66,7 @@ FunctionHintProcessor::FunctionHintProcessor(Client *client)
     : m_client(client)
 {}
 
-IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface)
+IAssistProposal *FunctionHintProcessor::perform(AssistInterface *interface)
 {
     const QScopedPointer<const AssistInterface> deleter(interface);
     QTC_ASSERT(m_client, return nullptr);
@@ -122,11 +122,6 @@ TextEditor::IAssistProcessor *FunctionHintAssistProvider::createProcessor(
     const AssistInterface *) const
 {
     return new FunctionHintProcessor(m_client);
-}
-
-IAssistProvider::RunType FunctionHintAssistProvider::runType() const
-{
-    return Asynchronous;
 }
 
 int FunctionHintAssistProvider::activationCharSequenceLength() const

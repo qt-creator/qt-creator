@@ -54,7 +54,6 @@ public:
     Parameters params() const { return m_params; }
     void clearParams() { m_params = Parameters(); }
 
-    IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
 private:

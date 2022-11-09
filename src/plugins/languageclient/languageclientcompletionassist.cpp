@@ -314,7 +314,7 @@ static QString assistReasonString(AssistReason reason)
     return QString("unknown reason");
 }
 
-IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *LanguageClientCompletionAssistProcessor::perform(AssistInterface *interface)
 {
     m_assistInterface.reset(interface);
     QTC_ASSERT(m_client, return nullptr);
@@ -452,11 +452,6 @@ IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor(
 {
     return new LanguageClientCompletionAssistProcessor(m_client,
                                                        m_snippetsGroup);
-}
-
-IAssistProvider::RunType LanguageClientCompletionAssistProvider::runType() const
-{
-    return IAssistProvider::Asynchronous;
 }
 
 int LanguageClientCompletionAssistProvider::activationCharSequenceLength() const

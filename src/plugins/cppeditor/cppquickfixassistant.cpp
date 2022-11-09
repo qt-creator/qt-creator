@@ -29,7 +29,7 @@ namespace Internal {
 // -------------------------
 class CppQuickFixAssistProcessor : public IAssistProcessor
 {
-    IAssistProposal *perform(const AssistInterface *interface) override
+    IAssistProposal *perform(AssistInterface *interface) override
     {
         QSharedPointer<const AssistInterface> dummy(interface); // FIXME: Surely this cannot be our way of doing memory management???
         return GenericProposal::createProposal(interface, quickFixOperations(interface));
@@ -39,10 +39,6 @@ class CppQuickFixAssistProcessor : public IAssistProcessor
 // -------------------------
 // CppQuickFixAssistProvider
 // -------------------------
-IAssistProvider::RunType CppQuickFixAssistProvider::runType() const
-{
-    return Synchronous;
-}
 
 IAssistProcessor *CppQuickFixAssistProvider::createProcessor(const AssistInterface *) const
 {

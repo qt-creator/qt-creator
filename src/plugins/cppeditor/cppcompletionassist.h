@@ -74,7 +74,7 @@ public:
     InternalCppCompletionAssistProcessor();
     ~InternalCppCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync(TextEditor::AssistInterface *interface) override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal();

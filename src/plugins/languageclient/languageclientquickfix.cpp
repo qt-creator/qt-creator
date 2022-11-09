@@ -45,7 +45,7 @@ void CommandQuickFixOperation::perform()
         m_client->executeCommand(m_command);
 }
 
-IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *LanguageClientQuickFixAssistProcessor::perform(AssistInterface *interface)
 {
     m_assistInterface = QSharedPointer<const AssistInterface>(interface);
 
@@ -120,11 +120,6 @@ LanguageClientQuickFixProvider::LanguageClientQuickFixProvider(Client *client)
     , m_client(client)
 {
     QTC_CHECK(client);
-}
-
-IAssistProvider::RunType LanguageClientQuickFixProvider::runType() const
-{
-    return Asynchronous;
 }
 
 IAssistProcessor *LanguageClientQuickFixProvider::createProcessor(const AssistInterface *) const

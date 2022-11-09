@@ -18,14 +18,6 @@ class TEXTEDITOR_EXPORT IAssistProvider : public QObject
 
 public:
     IAssistProvider(QObject *parent = nullptr) : QObject(parent) {}
-
-    enum RunType {
-        Synchronous,
-        Asynchronous,
-        AsynchronousWithThread
-    };
-
-    virtual RunType runType() const = 0;
     virtual IAssistProcessor *createProcessor(const AssistInterface *assistInterface) const = 0;
 };
 

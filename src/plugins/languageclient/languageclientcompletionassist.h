@@ -34,7 +34,6 @@ public:
     LanguageClientCompletionAssistProvider(Client *client);
 
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
-    RunType runType() const override;
 
     int activationCharSequenceLength() const override;
     bool isActivationCharSequence(const QString &sequence) const override;
@@ -60,7 +59,7 @@ class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProcessor
 public:
     LanguageClientCompletionAssistProcessor(Client *client, const QString &snippetsGroup);
     ~LanguageClientCompletionAssistProcessor() override;
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *perform(TextEditor::AssistInterface *interface) override;
     bool running() override;
     bool needsRestart() const override { return true; }
     void cancel() override;

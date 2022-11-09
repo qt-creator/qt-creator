@@ -50,7 +50,6 @@ class CppQuickFixAssistProvider : public TextEditor::IAssistProvider
 {
 public:
     CppQuickFixAssistProvider() = default;
-    IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 };
 

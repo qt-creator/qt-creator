@@ -16,7 +16,6 @@ public:
     CompletionAssistProvider(QObject *parent = nullptr);
     ~CompletionAssistProvider() override;
 
-    IAssistProvider::RunType runType() const override;
     virtual int activationCharSequenceLength() const;
     virtual bool isActivationCharSequence(const QString &sequence) const;
     virtual bool isContinuationChar(const QChar &c) const;

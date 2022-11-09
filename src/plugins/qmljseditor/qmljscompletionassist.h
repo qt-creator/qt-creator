@@ -6,13 +6,13 @@
 #include "qmljseditor_global.h"
 
 #include <qmljstools/qmljssemanticinfo.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
-#include <texteditor/codeassist/assistinterface.h>
-
 
 #include <QStringList>
 #include <QScopedPointer>
@@ -51,13 +51,13 @@ public:
 };
 
 
-class QmlJSCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class QmlJSCompletionAssistProcessor : public TextEditor::AsyncProcessor
 {
 public:
     QmlJSCompletionAssistProcessor();
     ~QmlJSCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync(TextEditor::AssistInterface *interface) override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;

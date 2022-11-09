@@ -794,7 +794,7 @@ InternalCppCompletionAssistProcessor::InternalCppCompletionAssistProcessor()
 
 InternalCppCompletionAssistProcessor::~InternalCppCompletionAssistProcessor() = default;
 
-IAssistProposal * InternalCppCompletionAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal * InternalCppCompletionAssistProcessor::performAsync(AssistInterface *interface)
 {
     m_interface.reset(static_cast<const CppCompletionAssistInterface *>(interface));
 

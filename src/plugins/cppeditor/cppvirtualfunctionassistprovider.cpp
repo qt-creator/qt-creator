@@ -15,9 +15,10 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/genericproposalwidget.h>
-#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/texteditorconstants.h>
@@ -79,14 +80,14 @@ private:
 
 
 
-class VirtualFunctionAssistProcessor : public IAssistProcessor
+class VirtualFunctionAssistProcessor : public AsyncProcessor
 {
 public:
     VirtualFunctionAssistProcessor(const VirtualFunctionAssistProvider::Parameters &params)
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const AssistInterface *) override
+    IAssistProposal *immediateProposal(AssistInterface *) override
     {
         QTC_ASSERT(m_params.function, return nullptr);
 
@@ -101,7 +102,7 @@ public:
         return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const AssistInterface *assistInterface) override
+    IAssistProposal *performAsync(AssistInterface *assistInterface) override
     {
         delete assistInterface;
 
@@ -160,11 +161,6 @@ bool VirtualFunctionAssistProvider::configure(const Parameters &parameters)
 {
     m_params = parameters;
     return true;
-}
-
-IAssistProvider::RunType VirtualFunctionAssistProvider::runType() const
-{
-    return AsynchronousWithThread;
 }
 
 IAssistProcessor *VirtualFunctionAssistProvider::createProcessor(const AssistInterface *) const

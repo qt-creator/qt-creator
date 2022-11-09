@@ -5,7 +5,7 @@
 
 #include "cppeditor_global.h"
 
-#include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 
 #include <functional>
@@ -18,7 +18,7 @@ namespace CPlusPlus { struct LanguageFeatures; }
 
 namespace CppEditor {
 
-class CPPEDITOR_EXPORT CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class CPPEDITOR_EXPORT CppCompletionAssistProcessor : public TextEditor::AsyncProcessor
 {
 public:
     explicit CppCompletionAssistProcessor(int snippetItemOrder = 0);

@@ -96,7 +96,7 @@ public:
         ai->recreateTextDocument();
         InternalCppCompletionAssistProcessor processor;
 
-        const QScopedPointer<IAssistProposal> proposal(processor.perform(ai));
+        const QScopedPointer<IAssistProposal> proposal(processor.performAsync(ai));
         if (!proposal)
             return completions;
         ProposalModelPtr model = proposal->model();

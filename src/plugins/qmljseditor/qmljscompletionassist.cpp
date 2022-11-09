@@ -525,7 +525,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::createHintProposal(
     return new FunctionHintProposal(m_startPosition, model);
 }
 
-IAssistProposal *QmlJSCompletionAssistProcessor::perform(const AssistInterface *assistInterface)
+IAssistProposal *QmlJSCompletionAssistProcessor::performAsync(AssistInterface *assistInterface)
 {
     m_interface.reset(static_cast<const QmlJSCompletionAssistInterface *>(assistInterface));
 

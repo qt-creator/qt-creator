@@ -13,11 +13,6 @@ CompletionAssistProvider::CompletionAssistProvider(QObject *parent)
 
 CompletionAssistProvider::~CompletionAssistProvider() = default;
 
-IAssistProvider::RunType CompletionAssistProvider::runType() const
-{
-    return AsynchronousWithThread;
-}
-
 int CompletionAssistProvider::activationCharSequenceLength() const
 {
     return 0;

@@ -43,7 +43,7 @@ class NimCompletionAssistProcessor : public QObject, public TextEditor::IAssistP
     Q_OBJECT
 
 public:
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) final
+    TextEditor::IAssistProposal *perform(TextEditor::AssistInterface *interface) final
     {
         QTC_ASSERT(this->thread() == qApp->thread(), return nullptr);
 
@@ -248,11 +248,6 @@ int NimCompletionAssistProvider::activationCharSequenceLength() const
 bool NimCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
 {
     return !sequence.isEmpty() && isActivationChar(sequence.at(0));
-}
-
-IAssistProvider::RunType NimCompletionAssistProvider::runType() const
-{
-    return RunType::Asynchronous;
 }
 
 }

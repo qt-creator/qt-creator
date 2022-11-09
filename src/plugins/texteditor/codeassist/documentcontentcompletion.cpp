@@ -5,8 +5,8 @@
 
 #include "assistinterface.h"
 #include "assistproposalitem.h"
+#include "asyncprocessor.h"
 #include "genericproposal.h"
-#include "genericproposalmodel.h"
 #include "iassistprocessor.h"
 #include "../snippets/snippetassistcollector.h"
 #include "../completionsettings.h"
@@ -23,29 +23,21 @@
 
 using namespace TextEditor;
 
-class DocumentContentCompletionProcessor final : public IAssistProcessor
+class DocumentContentCompletionProcessor final : public AsyncProcessor
 {
 public:
     DocumentContentCompletionProcessor(const QString &snippetGroupId);
     ~DocumentContentCompletionProcessor() final;
 
-    IAssistProposal *perform(const AssistInterface *interface) override;
-    bool running() final { return m_watcher.isRunning(); }
-    void cancel() final;
+    IAssistProposal *performAsync(AssistInterface *interface) override;
 
 private:
     QString m_snippetGroup;
-    QFutureWatcher<QStringList> m_watcher;
 };
 
 DocumentContentCompletionProvider::DocumentContentCompletionProvider(const QString &snippetGroup)
     : m_snippetGroup(snippetGroup)
 { }
-
-IAssistProvider::RunType DocumentContentCompletionProvider::runType() const
-{
-    return Asynchronous;
-}
 
 IAssistProcessor *DocumentContentCompletionProvider::createProcessor(const AssistInterface *) const
 {
@@ -61,38 +53,9 @@ DocumentContentCompletionProcessor::~DocumentContentCompletionProcessor()
     cancel();
 }
 
-static void createProposal(QFutureInterface<QStringList> &future, const QString &text,
-                           const QString &wordUnderCursor)
+IAssistProposal *DocumentContentCompletionProcessor::performAsync(AssistInterface *interface)
 {
-    const QRegularExpression wordRE("([\\p{L}_][\\p{L}0-9_]{2,})");
-
-    QSet<QString> words;
-    QRegularExpressionMatchIterator it = wordRE.globalMatch(text);
-    int wordUnderCursorFound = 0;
-    while (it.hasNext()) {
-        if (future.isCanceled())
-            return;
-        QRegularExpressionMatch match = it.next();
-        const QString &word = match.captured();
-        if (word == wordUnderCursor) {
-            // Only add the word under cursor if it
-            // already appears elsewhere in the text
-            if (++wordUnderCursorFound < 2)
-                continue;
-        }
-
-        if (!words.contains(word))
-            words.insert(word);
-    }
-
-    future.reportResult(Utils::toList(words));
-}
-
-IAssistProposal *DocumentContentCompletionProcessor::perform(const AssistInterface *interface)
-{
-    QScopedPointer<const AssistInterface> assistInterface(interface);
-    if (running())
-        return nullptr;
+    QScopedPointer<AssistInterface> interfaceDeleter(interface);
 
     int pos = interface->position();
 
@@ -113,27 +76,36 @@ IAssistProposal *DocumentContentCompletionProcessor::perform(const AssistInterfa
         }
     }
 
+    const TextEditor::SnippetAssistCollector snippetCollector(
+                m_snippetGroup, QIcon(":/texteditor/images/snippet.png"));
+    QList<AssistProposalItemInterface *> items = snippetCollector.collect();
+
     const QString wordUnderCursor = interface->textAt(pos, length);
     const QString text = interface->textDocument()->toPlainText();
 
-    m_watcher.setFuture(Utils::runAsync(&createProposal, text, wordUnderCursor));
-    QObject::connect(&m_watcher, &QFutureWatcher<QStringList>::resultReadyAt,
-                     &m_watcher, [this, pos](int index){
-        const TextEditor::SnippetAssistCollector snippetCollector(
-                    m_snippetGroup, QIcon(":/texteditor/images/snippet.png"));
-        QList<AssistProposalItemInterface *> items = snippetCollector.collect();
-        for (const QString &word : m_watcher.resultAt(index)) {
+    const QRegularExpression wordRE("([\\p{L}_][\\p{L}0-9_]{2,})");
+    QSet<QString> words;
+    QRegularExpressionMatchIterator it = wordRE.globalMatch(text);
+    int wordUnderCursorFound = 0;
+    while (it.hasNext()) {
+        if (isCanceled())
+            return nullptr;
+        QRegularExpressionMatch match = it.next();
+        const QString &word = match.captured();
+        if (word == wordUnderCursor) {
+            // Only add the word under cursor if it
+            // already appears elsewhere in the text
+            if (++wordUnderCursorFound < 2)
+                continue;
+        }
+
+        if (!words.contains(word)) {
             auto item = new AssistProposalItem();
             item->setText(word);
             items.append(item);
+            words.insert(word);
         }
-        setAsyncProposalAvailable(new GenericProposal(pos, items));
-    });
-    return nullptr;
-}
+    }
 
-void DocumentContentCompletionProcessor::cancel()
-{
-    if (running())
-        m_watcher.cancel();
+    return new GenericProposal(pos, items);
 }

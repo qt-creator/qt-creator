@@ -18,8 +18,7 @@ public:
     IAssistProcessor();
     virtual ~IAssistProcessor();
 
-    virtual IAssistProposal *immediateProposal(const AssistInterface *) { return nullptr; }
-    virtual IAssistProposal *perform(const AssistInterface *interface) = 0; // takes ownership
+    virtual IAssistProposal *perform(AssistInterface *interface) = 0; // takes ownership
 
     void setAsyncProposalAvailable(IAssistProposal *proposal);
 

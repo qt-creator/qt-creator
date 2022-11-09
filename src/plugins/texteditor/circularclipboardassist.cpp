@@ -63,7 +63,7 @@ private:
 class ClipboardAssistProcessor: public IAssistProcessor
 {
 public:
-    IAssistProposal *perform(const AssistInterface *interface) override
+    IAssistProposal *perform(AssistInterface *interface) override
     {
         if (!interface)
             return nullptr;
@@ -85,11 +85,6 @@ public:
         return new GenericProposal(interface->position(), items);
     }
 };
-
-IAssistProvider::RunType ClipboardAssistProvider::runType() const
-{
-    return Synchronous;
-}
 
 IAssistProcessor *ClipboardAssistProvider::createProcessor(const AssistInterface *) const
 {

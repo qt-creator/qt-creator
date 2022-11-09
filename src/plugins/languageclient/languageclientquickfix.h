@@ -48,7 +48,6 @@ class LANGUAGECLIENT_EXPORT LanguageClientQuickFixProvider : public TextEditor::
 {
 public:
     explicit LanguageClientQuickFixProvider(Client *client);
-    IAssistProvider::RunType runType() const override;
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
 protected:
@@ -64,7 +63,7 @@ class LANGUAGECLIENT_EXPORT LanguageClientQuickFixAssistProcessor
 public:
     explicit LanguageClientQuickFixAssistProcessor(Client *client) : m_client(client) {}
     bool running() override { return m_currentRequest.has_value(); }
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *perform(TextEditor::AssistInterface *interface) override;
     void cancel() override;
 
 protected:

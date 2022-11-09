@@ -150,7 +150,7 @@ KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(const Keywo
     , m_keywords(keywords)
 {}
 
-IAssistProposal *KeywordsCompletionAssistProcessor::perform(const AssistInterface *interface)
+IAssistProposal *KeywordsCompletionAssistProcessor::performAsync(AssistInterface *interface)
 {
     QScopedPointer<const AssistInterface> assistInterface(interface);
     if (isInComment(interface))
@@ -255,11 +255,6 @@ void KeywordsCompletionAssistProvider::setDynamicCompletionFunction(
         const DynamicCompletionFunction &func)
 {
     m_completionFunc = func;
-}
-
-IAssistProvider::RunType KeywordsCompletionAssistProvider::runType() const
-{
-    return Synchronous;
 }
 
 IAssistProcessor *KeywordsCompletionAssistProvider::createProcessor(const AssistInterface *) const

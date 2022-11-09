@@ -5,11 +5,11 @@
 
 #include "glsleditor.h"
 
+#include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
-
 
 #include <QScopedPointer>
 #include <QSharedPointer>
@@ -67,12 +67,12 @@ public:
     bool isActivationCharSequence(const QString &sequence) const override;
 };
 
-class GlslCompletionAssistProcessor : public TextEditor::IAssistProcessor
+class GlslCompletionAssistProcessor : public TextEditor::AsyncProcessor
 {
 public:
     ~GlslCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync(TextEditor::AssistInterface *interface) override;
 
 private:
     TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
