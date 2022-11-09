@@ -4,9 +4,9 @@
 /*!
     \page creator-deployment-b2qt.html
     \previouspage creator-deploying-android.html
-    \nextpage creator-deployment-embedded-linux.html
+    \nextpage creator-deployment-qnx.html
 
-    \title Deploying Applications to Boot2Qt Devices
+    \title Deploying to Boot2Qt
 
     You can specify settings for deploying applications to \l{Boot2Qt} devices
     in the project configuration file and in \uicontrol Projects >
@@ -15,7 +15,7 @@
     \image qtcreator-boot2qt-deployment-steps.png "Boot2Qt deployment steps"
 
     The deployment process is described in more detail in
-    \l{Deploying Applications to Generic Remote Linux Devices}.
+    \l{Deploying to Remote Linux}.
 
     \section1 Launching Applications on Boot
 

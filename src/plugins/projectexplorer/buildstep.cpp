@@ -295,7 +295,7 @@ QVariant BuildStep::data(Id id) const
     immutable steps are run. The default implementation returns \c false.
 */
 
-void BuildStep::runInThread(const std::function<bool()> &syncImpl)
+QFuture<bool> BuildStep::runInThread(const std::function<bool()> &syncImpl)
 {
     m_runInGuiThread = false;
     m_cancelFlag = false;
@@ -304,7 +304,9 @@ void BuildStep::runInThread(const std::function<bool()> &syncImpl)
         emit finished(watcher->result());
         watcher->deleteLater();
     });
-    watcher->setFuture(Utils::runAsync(syncImpl));
+    auto future = Utils::runAsync(syncImpl);
+    watcher->setFuture(future);
+    return future;
 }
 
 std::function<bool ()> BuildStep::cancelChecker() const

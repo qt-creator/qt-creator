@@ -12,6 +12,7 @@
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <languageserverprotocol/jsonrpcmessages.h>
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistprovider.h>
 #include <texteditor/textdocument.h>
@@ -41,8 +42,9 @@ public:
     void resetData(bool resetFollowSymbolData);
 
 private:
-    IAssistProposal *perform(const AssistInterface *) override
+    IAssistProposal *perform(const AssistInterface *interface) override
     {
+        delete interface;
         return nullptr;
     }
 

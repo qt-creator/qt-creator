@@ -32,7 +32,8 @@ protected:
     WorkingCopy workingCopyInternal() const override;
     void addTaskInternal(const QFuture<void> &result, const QString &msg,
                          const char *taskId) const override;
-    ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const override;
+    ProjectInfo defaultProjectInfoForProject(
+        ProjectExplorer::Project *project, const Utils::FilePaths &hiddenRccFolders) const override;
 private:
     void updateDefaultProjectInfo();
     void loadDefaultQmlTypeDescriptions();

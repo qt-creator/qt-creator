@@ -175,7 +175,9 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
         QHash<Id, IWizardFactory *> sanityCheck;
         for (const FactoryCreator &fc : std::as_const(s_factoryCreators)) {
             IWizardFactory *newFactory = fc();
-            QTC_ASSERT(newFactory, continue);
+            // skip factories referencing wizard page generators provided by plugins not loaded
+            if (!newFactory)
+                continue;
             IWizardFactory *existingFactory = sanityCheck.value(newFactory->id());
 
             QTC_ASSERT(existingFactory != newFactory, continue);

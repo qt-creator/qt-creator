@@ -10,6 +10,8 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 
+#include <QScopedPointer>
+
 using namespace TextEditor;
 using namespace LanguageServerProtocol;
 
@@ -66,6 +68,7 @@ FunctionHintProcessor::FunctionHintProcessor(Client *client)
 
 IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface)
 {
+    const QScopedPointer<const AssistInterface> deleter(interface);
     QTC_ASSERT(m_client, return nullptr);
     m_pos = interface->position();
     QTextCursor cursor(interface->textDocument());

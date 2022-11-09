@@ -49,7 +49,11 @@ clang::format::FormatStyle qtcStyle()
 #else
     style.AlignOperands = true;
 #endif
+#if LLVM_VERSION_MAJOR >= 16
+    style.AlignTrailingComments = {FormatStyle::TCAS_Always, 0};
+#else
     style.AlignTrailingComments = true;
+#endif
     style.AllowAllParametersOfDeclarationOnNextLine = true;
 #if LLVM_VERSION_MAJOR >= 10
     style.AllowShortBlocksOnASingleLine = FormatStyle::SBS_Never;

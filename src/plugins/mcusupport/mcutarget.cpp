@@ -61,6 +61,26 @@ bool McuTarget::isValid() const
     });
 }
 
+QString McuTarget::desktopCompilerId() const
+{
+    // MinGW shares CMake configuration with GCC
+    // and it is distinguished from MSVC by CMake compiler ID.
+    // This provides the compiler ID to set up a different Qul configuration
+    // for MSVC and MinGW.
+    if (m_toolChainPackage) {
+        switch (m_toolChainPackage->toolchainType()) {
+        case McuToolChainPackage::ToolChainType::MSVC:
+            return QLatin1String("msvc");
+        case McuToolChainPackage::ToolChainType::GCC:
+        case McuToolChainPackage::ToolChainType::MinGW:
+            return QLatin1String("gnu");
+        default:
+            return QLatin1String("unsupported");
+        }
+    }
+    return QLatin1String("invalid");
+}
+
 void McuTarget::printPackageProblems() const
 {
     for (auto package : packages()) {

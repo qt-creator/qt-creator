@@ -293,7 +293,8 @@ LanguageClientCompletionAssistProcessor::~LanguageClientCompletionAssistProcesso
 
 QTextDocument *LanguageClientCompletionAssistProcessor::document() const
 {
-    return m_document;
+    QTC_ASSERT(m_assistInterface, return nullptr);
+    return m_assistInterface->textDocument();
 }
 
 QList<AssistProposalItemInterface *> LanguageClientCompletionAssistProcessor::generateCompletionItems(
@@ -315,6 +316,7 @@ static QString assistReasonString(AssistReason reason)
 
 IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistInterface *interface)
 {
+    m_assistInterface.reset(interface);
     QTC_ASSERT(m_client, return nullptr);
     m_pos = interface->position();
     m_basePos = m_pos;
@@ -366,7 +368,6 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     m_client->sendMessage(completionRequest);
     m_client->addAssistProcessor(this);
     m_currentRequest = completionRequest.id();
-    m_document = interface->textDocument();
     m_filePath = interface->filePath();
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime()
                               << " : request completions at " << m_pos
@@ -425,7 +426,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     model->loadContent(proposalItems);
     LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_basePos,
                                                                                       model);
-    proposal->m_document = m_document;
+    proposal->m_document = m_assistInterface->textDocument();
     proposal->m_pos = m_pos;
     proposal->setSupportsPrefix(false);
     setAsyncProposalAvailable(proposal);

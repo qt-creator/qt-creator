@@ -4,15 +4,14 @@
     /*!
     \page creator-adding-docker-devices.html
     \previouspage creator-developing-b2qt.html
-    \nextpage creator-developing-generic-linux.html
+    \nextpage creator-developing-ios.html
 
     \title Adding Docker Devices
 
-    You can add \l{ https://docs.docker.com/get-started/overview/}
-    {Docker images} as \e devices to run, debug, and analyze applications
-    built for the Docker container from \QC. A Docker device operates like
-    a virtual machine but uses less system resources at the cost of being
-    less flexible.
+    Create Docker devices from \l{ https://docs.docker.com/get-started/overview/}
+    {Docker images} and use them to build, run, and debug applications. A Docker
+    container operates like a virtual machine but uses less system resources at
+    the cost of being less flexible.
 
     Docker support is experimental. While Linux, \macos, and Windows hosts are
     supported in principle, Linux is the recommended platform.
@@ -20,18 +19,19 @@
     Currently, only CMake is supported for building applications in the Docker
     container.
 
-    You can run applications locally or in a compatible Docker container. To be
-    able to run and debug applications on Docker devices, you must install Docker
-    as well as add Docker devices and select them in the kit. \QC automatically
-    detects kits in the shared Docker directories, but you need to check that
-    they point to the correct kit items.
+    To build, run, and debug applications on Docker devices, you must install and
+    configure \c docker-cli on the development host. \QC automatically detects
+    \l{Adding Kits}{build and run kit} items, such \l{Adding Debuggers}
+    {debuggers} and \l{Adding Qt Versions}{Qt versions}, in the Docker container
+    and creates kits for the devices.
 
-    Use a wizard to search for Docker images available on your local Docker
-    installation and add them as devices. To access images from Docker hub or
-    other registries, you first need to pull the images using the
+    You can use images that are available locally. You can pull
+    images from Docker hub or other registries using the
     \l{https://docs.docker.com/engine/reference/commandline/pull/}{docker pull}
-    command. You can edit the Docker device preferences later in
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices.
+    command. To check that an image is available locally, run the
+    \c {docker images} command in a terminal.
+
+    \section1 Enabling Docker Plugin
 
     To enable the experimental Docker plugin:
 
@@ -41,33 +41,67 @@
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
     \endlist
 
+    \section1 Adding Docker Images as Devices
+
     To add a Docker image as a device:
 
     \list 1
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices
-            > \uicontrol Devices > \uicontrol Add > \uicontrol {Docker Device}
-            > \uicontrol {Start Wizard} to search for images in your local Docker
-            installation.
-            \image qtcreator-docker-image-selection.png "Docker Image Selection dialog"
+            > \uicontrol Docker and enter the path to the Docker CLI in
+            the \uicontrol Command field.
+            \image qtcreator-preferences-devices-docker.webp "Docker tab in Devices preferences"
+        \li Select \uicontrol Devices > \uicontrol Add >
+            \uicontrol {Docker Device} > \uicontrol {Start Wizard}
+            to search for images in your local Docker installation.
         \li Select the Docker image to use, and then select \uicontrol OK.
-            \note If the Docker process is not found, make sure that Docker is
-            running and the Docker CLI executable is set in PATH.
         \li In \uicontrol Devices, check and modify Docker device preferences.
-            \image qtcreator-docker-preferences.png "Docker Device preferences"
-        \li Select \uicontrol {Run as outside user} to use the user ID and
-            group ID of the user running \QC in the Docker container.
-        \li In \uicontrol {Paths to mount}, specify host directories to mount
-            into the container, such as the project directory.
-        \li Select \uicontrol {Auto-detect Kit Items} to generate an initial
-            \l{Adding Kits}{build and run kit} for the Docker device.
+            \image qtcreator-preferences-devices-docker-device.webp "Docker device preferences"
+        \li Select \uicontrol {Run as outside user} to use the user ID
+            and group ID of the user running \QC in the Docker container.
+        \li Select \uicontrol {Do not modify entry point} to stop \QC from
+            modifying the entry point of the image if the image starts into
+            a shell.
+        \li In \uicontrol {Paths to mount}, specify host directories to
+            mount into the container, such as the project directory.
+        \li In \uicontrol {Search locations}, select where to search
+            for kit items.
+        \li Select \uicontrol {Auto-detect Kit Items} to find kit items and to
+            create kits for the Docker device.
+        \li Select \uicontrol Apply to save your changes.
     \endlist
 
-    \section1 Specifying Paths to Mount
+    The following sections describe the Docker device preferences in more detail.
+
+    \section2 Selecting Docker Images
+
+    The \uicontrol {Docker Image Selection} dialog displays a list of Docker
+    images in your local Docker installation. You can sort the images according
+    to the repository name or tag or the image ID or size.
+
+    \image qtcreator-docker-image-selection.webp "Docker Image Selection dialog"
+
+    Select \uicontrol {Show unnamed images} to show images that are not tagged.
+
+    Double-click an image to select it.
+
+    \section2 Modifying Entry Points
+
+    The entry point of a Docker container is specified in the container settings
+    and started as the main process when starting the container. The entry point
+    can be a shell, an SSH server, or another process, for example. By default,
+    \QC modifies the entry point before it starts a container to make sure that
+    the main process is an \c sh shell.
+
+    To stop \QC from modifying the entry point, select
+    \uicontrol {Do not modify entry point}. However, if the entry
+    point you specify is not a shell, \QC cannot start the container.
+
+    \section2 Specifying Paths to Mount
 
     You can either copy your project files into the Docker container or specify
     paths to them in \uicontrol {Paths to mount}. Shared mounts are restricted
     to locations in the host system that can end up in the same absolute location
-    in the Docker container. On Windows, mounted drives cannot be used as shared
+    in the Docker container. On Windows, network mounts cannot be used as shared
     mounts.
 
     The paths in \uicontrol {Paths to mount} are mapped one-to-one to the Docker
@@ -75,27 +109,33 @@
     \uicontrol {Delete Line} to delete the selected path or \uicontrol Clear
     to delete all paths.
 
-    \section1 Auto-detecting Kit Items
+    \section2 Auto-detecting Kit Items
 
-    Select \uicontrol {Auto-detect Kit Items} to generate an initial
-    \l{Adding Kits}{build and run kit} for the Docker device. You can
-    either set the kit items, such \l{Adding Debuggers}{debuggers} and
-    \l{Adding Qt Versions}{Qt version}, in PATH or install them in the
-    Docker container.
+    Select \uicontrol {Auto-detect Kit Items} to find kit items and create kits
+    for the Docker device. You can search for kit items in the device's PATH or
+    in the specified directories.
 
-    Select \uicontrol {Search in PATH} to detect kit items that are set in PATH.
+    In \uicontrol {Search locations}, select:
 
-    Select \uicontrol {Search in Selected Directories} to detect kit items in
-    the selected directories.
+    \list
+        \li \uicontrol {Search in PATH} to find kit items in PATH.
+        \li \uicontrol {Search in Selected Directories} to find kit items in
+            the selected directories.
+        \li \uicontrol {Search in PATH and Additional Directories} to find kit
+            items in the PATH and in the selected directories.
+    \endlist
 
-    To view the automatically detected kit items, select
+    When searching in directories, enter a semicolon-separated list of directory
+    paths in the Docker image to scan for kit entries.
+
+    To list the automatically detected kit items, select
     \uicontrol {List Auto-Detected Kit Items}. To remove
     them, select \uicontrol {Remove Auto-Detected Kit Items}.
 
     \section1 Editing Docker Device Kits
 
     Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits to check
-    that the automatically generated kit points to the appropriate kit items.
+    that the automatically generated kits point to the appropriate kit items.
 
     To specify build settings:
 

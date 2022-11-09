@@ -1,0 +1,93 @@
+/****************************************************************************
+**
+** Copyright (C) 2022 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+
+    \page qt-effect-maker.html
+    \previouspage qt-effect-maker-files.html
+    \nextpage qtquick-motion-design.html
+    \sa {Creating Qt Quick Effect Maker Files}
+
+    \title Working with Effects in Qt Quick Effect Maker
+
+    The Qt Quick Effect Maker is a tool to create high-performance
+    shader effects for Qt Quick.
+
+    You can import these effects to \QDS and you can run Qt Quick Effect Maker
+    from \QDS.
+
+    \section1 Creating Effects
+
+    When you run Qt Quick Effect Maker, it starts with an empty project. To
+    create your effect, add nodes to the node tree.
+
+    \image qt-quick-effect-maker.webp
+
+    Consider the following things when creating effects:
+
+    \list
+      \li Some nodes do not function alone, they need a helper node. For
+      example, the \uicontrol FastBlur node needs a \uicontrol BlurHelper node
+      and the \uicontrol Noise node needs a \uicontrol NoiseHelper node. If the
+      node needs another node, it is mentioned in the node description.
+      \li If your effect appears cropped, you need to go to \uicontrol Edit >
+      \uicontrol {Project Settings} and increase the item padding.
+    \endlist
+
+    \section2 Creating a Blur Effect
+
+    To create a blur effect:
+
+    \list 1
+      \li Add a \uicontrol FastBlur node to the node tree.
+      \li Add a \uicontrol BlurHelper node to the node tree. You need the
+      \uicontrol BlurHelper node for all effects that contains a blur effect.
+    \endlist
+
+    \image blur-effect-nodes.png
+
+    You can now select the \uicontrol FastBlur node and in the settings, change
+    the \uicontrol fastBlurAmount value to control the amount of blur.
+
+    \image blur-effect-step-1.webp
+
+    \section3 Adjusting Item Borders
+
+    The effect appears cropped. You need to adjust item borders:
+
+    \list 1
+      \li Select \inlineimage effect-item-borders-icon.png
+      to display item borders.
+      \image blur-effect-step-2.webp
+      \li Go to \uicontrol Edit > \uicontrol {Project Settings}.
+      \li Set the item padding for all sides to 100.
+      \image effect-item-padding-dialog.png
+    \endlist
+
+    Now, you can see the complete blur effect.
+
+    \image blur-effect-step-3.webp
+
+*/

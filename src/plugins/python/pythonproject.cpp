@@ -250,7 +250,8 @@ void PythonBuildSystem::triggerParsing()
 
     auto modelManager = QmlJS::ModelManagerInterface::instance();
     if (modelManager) {
-        auto projectInfo = modelManager->defaultProjectInfoForProject(project());
+        const auto hiddenRccFolders = project()->files(Project::HiddenRccFolders);
+        auto projectInfo = modelManager->defaultProjectInfoForProject(project(), hiddenRccFolders);
 
         for (const QString &importPath : std::as_const(m_qmlImportPaths)) {
             const FilePath filePath = FilePath::fromString(importPath);

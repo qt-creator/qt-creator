@@ -488,7 +488,7 @@ void AndroidDeployQtStep::gatherFilesToPull()
 
 void AndroidDeployQtStep::doRun()
 {
-    runInThread([this] { return runImpl(); });
+    m_synchronizer.addFuture(runInThread([this] { return runImpl(); }));
 }
 
 void AndroidDeployQtStep::runCommand(const CommandLine &command)

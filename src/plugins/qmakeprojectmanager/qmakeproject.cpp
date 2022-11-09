@@ -410,8 +410,9 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
     if (!modelManager)
         return;
 
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            modelManager->defaultProjectInfoForProject(project());
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo
+        = modelManager->defaultProjectInfoForProject(project(),
+                                                     project()->files(Project::HiddenRccFolders));
 
     const QList<QmakeProFile *> proFiles = rootProFile()->allProFiles();
 

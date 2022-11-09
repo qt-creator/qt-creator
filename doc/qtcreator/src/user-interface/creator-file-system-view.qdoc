@@ -17,7 +17,7 @@
 
     \image qtcreator-filesystem-view-design.png "File System view in the Design mode"
     \else
-    \image qtcreator-filesystem-view.png "File System view in the sidebar"
+    \image qtcreator-filesystem-view.webp "File System view in the sidebar"
     \endif
 
     To move to the root directory of the file system, select \uicontrol Computer

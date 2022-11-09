@@ -61,6 +61,8 @@ void ToolKitAspectWidget::removeTool(const MesonTools::Tool_t &tool)
 
 void ToolKitAspectWidget::setCurrentToolIndex(int index)
 {
+    if (m_toolsComboBox->count() == 0)
+        return;
     const Utils::Id id = Utils::Id::fromSetting(m_toolsComboBox->itemData(index));
     if (m_type == ToolType::Meson)
         MesonToolKitAspect::setMesonTool(m_kit, id);

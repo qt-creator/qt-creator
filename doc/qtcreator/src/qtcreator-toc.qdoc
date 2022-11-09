@@ -139,9 +139,10 @@
             \li \l{Running on Multiple Platforms}
             \li \l{Deploying to Devices}
             \list
-                \li \l{Deploying Applications to Android Devices}
-                \li \l{Deploying Applications to Generic Remote Linux Devices}
-                \li \l{Deploying Applications to QNX Neutrino Devices}
+                \li \l{Deploying to Android}
+                \li \l{Deploying to Boot2Qt}
+                \li \l{Deploying to QNX Neutrino}
+                \li \l{Deploying to Remote Linux}
             \endlist
             \li \l{Connecting Devices}
             \list
@@ -149,10 +150,10 @@
                 \li \l{Connecting Bare Metal Devices}
                 \li \l{Connecting Boot2Qt Devices}
                 \li \l{Adding Docker Devices}
-                \li \l{Connecting Generic Remote Linux Devices}
                 \li \l{Connecting iOS Devices}
                 \li \l{Connecting MCUs}
                 \li \l{Connecting QNX Devices}
+                \li \l{Connecting Remote Linux Devices}
                 \li \l{Building Applications for the Web}
             \endlist
             \li \l{Customizing the Build Process}

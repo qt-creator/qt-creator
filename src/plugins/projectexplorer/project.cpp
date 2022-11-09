@@ -109,6 +109,10 @@ const Project::NodeMatcher Project::GeneratedFiles = [](const Node *node) {
     return isListedFileNode(node) && node->isGenerated();
 };
 
+const Project::NodeMatcher Project::HiddenRccFolders = [](const Node *node) {
+    return node->isFolderNodeType() && node->filePath().fileName() == ".rcc";
+};
+
 // --------------------------------------------------------------------
 // ProjectDocument:
 // --------------------------------------------------------------------
