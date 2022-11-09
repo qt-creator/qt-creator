@@ -1192,15 +1192,13 @@ bool QtVersion::hasMkspec(const QString &spec) const
     if (spec.isEmpty())
         return true; // default spec of a Qt version
 
-    QDir mkspecDir = QDir(hostDataPath().toString() + "/mkspecs/");
-    const QString absSpec = mkspecDir.absoluteFilePath(spec);
-    if (QFileInfo(absSpec).isDir() && QFileInfo(absSpec + "/qmake.conf").isFile())
+    const FilePath absSpec = hostDataPath() / "mkspecs" / spec;
+    if (absSpec.pathAppended("qmake.conf").isReadableFile())
         return true;
-    mkspecDir.setPath(sourcePath().toString() + "/mkspecs/");
-    const QString absSrcSpec = mkspecDir.absoluteFilePath(spec);
+
+    const FilePath absSrcSpec = sourcePath() / "mkspecs" / spec;
     return absSrcSpec != absSpec
-            && QFileInfo(absSrcSpec).isDir()
-            && QFileInfo(absSrcSpec + "/qmake.conf").isFile();
+            && absSrcSpec.pathAppended("qmake.conf").isReadableFile();
 }
 
 QtVersion::QmakeBuildConfigs QtVersion::defaultBuildConfig() const
