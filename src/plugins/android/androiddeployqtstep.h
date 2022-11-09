@@ -16,8 +16,7 @@
 
 namespace Utils { class QtcProcess; }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidDeployQtStepFactory : public ProjectExplorer::BuildStepFactory
 {
@@ -78,7 +77,7 @@ private:
     QString m_serialNumber;
     QString m_avdName;
     Utils::FilePath m_apkPath;
-    QMap<QString, QString> m_filesToPull;
+    QMap<QString, Utils::FilePath> m_filesToPull;
 
     QStringList m_androidABIs;
     Utils::BoolAspect *m_uninstallPreviousPackage = nullptr;
@@ -96,5 +95,4 @@ private:
     Utils::FutureSynchronizer m_synchronizer;
 };
 
-}
-} // namespace Android
+} // Android::Internal

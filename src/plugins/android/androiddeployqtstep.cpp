@@ -44,17 +44,13 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
-namespace {
 static Q_LOGGING_CATEGORY(deployStepLog, "qtc.android.build.androiddeployqtstep", QtWarningMsg)
-}
 
 const QLatin1String UninstallPreviousPackageKey("UninstallPreviousPackage");
 const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES");
@@ -435,18 +431,17 @@ bool AndroidDeployQtStep::runImpl()
 
     // Note that values are not necessarily unique, e.g. app_process is looked up in several
     // directories
-    for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
-        QFile::remove(itr.value());
-    }
+    for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr)
+        itr.value().removeFile();
 
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
         runCommand({m_adbPath,
                    AndroidDeviceInfo::adbSelector(m_serialNumber)
-                   << "pull" << itr.key() << itr.value()});
-        if (!QFileInfo::exists(itr.value())) {
+                   << "pull" << itr.key() << itr.value().nativePath()});
+        if (!itr.value().exists()) {
             const QString error = Tr::tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
                     .arg(itr.key())
-                    .arg(itr.value());
+                    .arg(itr.value().nativePath());
             reportWarningOrError(error, Task::Error);
         }
     }
@@ -457,29 +452,26 @@ bool AndroidDeployQtStep::runImpl()
 void AndroidDeployQtStep::gatherFilesToPull()
 {
     m_filesToPull.clear();
-    QString buildDir = AndroidManager::buildDirectory(target()).toString();
-    if (!buildDir.endsWith("/")) {
-        buildDir += "/";
-    }
+    const FilePath buildDir = AndroidManager::buildDirectory(target());
 
     if (!m_deviceInfo.isValid())
         return;
 
     QString linkerName("linker");
     QString libDirName("lib");
-    auto preferreABI = AndroidManager::apkDevicePreferredAbi(target());
-    if (preferreABI == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
-            || preferreABI == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
-        m_filesToPull["/system/bin/app_process64"] = buildDir + "app_process";
+    const QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target());
+    if (preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
+            || preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
+        m_filesToPull["/system/bin/app_process64"] = buildDir / "app_process";
         libDirName = "lib64";
         linkerName = "linker64";
     } else {
-        m_filesToPull["/system/bin/app_process32"] = buildDir + "app_process";
-        m_filesToPull["/system/bin/app_process"] = buildDir + "app_process";
+        m_filesToPull["/system/bin/app_process32"] = buildDir / "app_process";
+        m_filesToPull["/system/bin/app_process"] = buildDir / "app_process";
     }
 
-    m_filesToPull["/system/bin/" + linkerName] = buildDir + linkerName;
-    m_filesToPull["/system/" + libDirName + "/libc.so"] = buildDir + "libc.so";
+    m_filesToPull["/system/bin/" + linkerName] = buildDir / linkerName;
+    m_filesToPull["/system/" + libDirName + "/libc.so"] = buildDir / "libc.so";
 
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr)
         qCDebug(deployStepLog).noquote() << "Pulling file from device:" << itr.key()
@@ -587,5 +579,4 @@ AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
     setDisplayName(Tr::tr("Deploy to Android device"));
 }
 
-} // Internal
-} // Android
+} // Android::Internal
