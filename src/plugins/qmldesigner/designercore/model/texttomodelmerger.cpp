@@ -1139,8 +1139,10 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
 
-        qCInfo(rewriterBenchmark) << "linked:" << time.elapsed();
-        collectLinkErrors(&errors, ctxt);
+        if (view()->checkLinkErrors()) {
+            qCInfo(rewriterBenchmark) << "linked:" << time.elapsed();
+            collectLinkErrors(&errors, ctxt);
+        }
 
         setupPossibleImports(snapshot, m_vContext);
 

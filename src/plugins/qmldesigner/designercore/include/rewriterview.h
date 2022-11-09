@@ -127,11 +127,13 @@ public:
 
     QString convertTypeToImportAlias(const QString &type) const;
 
-    bool checkSemanticErrors() const
-    { return m_checkErrors; }
+    bool checkSemanticErrors() const { return m_checkSemanticErrors; }
 
-    void setCheckSemanticErrors(bool b)
-    { m_checkErrors = b; }
+    void setCheckSemanticErrors(bool b) { m_checkSemanticErrors = b; }
+
+    bool checkLinkErrors() const { return m_checkLinkErrors; }
+
+    void setCheckLinkErrors(bool b) { m_checkLinkErrors = b; }
 
     QString pathForImport(const Import &import);
 
@@ -191,7 +193,8 @@ private: //variables
     TextModifier *m_textModifier = nullptr;
     int transactionLevel = 0;
     bool m_modificationGroupActive = false;
-    bool m_checkErrors = true;
+    bool m_checkSemanticErrors = true;
+    bool m_checkLinkErrors = true;
 
     DifferenceHandling m_differenceHandling;
     QScopedPointer<Internal::ModelNodePositionStorage> m_positionStorage;
