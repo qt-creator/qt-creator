@@ -136,6 +136,7 @@ public:
     bool hasProperty(const PropertyName &name) const;
     bool hasVariantProperty(const PropertyName &name) const;
     bool hasBindingProperty(const PropertyName &name) const;
+    bool hasSignalHandlerProperty(const PropertyName &name) const;
     bool hasNodeAbstractProperty(const PropertyName &name) const;
     bool hasDefaultNodeAbstractProperty() const;
     bool hasDefaultNodeListProperty() const;

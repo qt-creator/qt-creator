@@ -889,6 +889,11 @@ bool ModelNode::hasBindingProperty(const PropertyName &name) const
     return hasProperty(name) && m_internalNode->property(name)->isBindingProperty();
 }
 
+bool ModelNode::hasSignalHandlerProperty(const PropertyName &name) const
+{
+    return hasProperty(name) && m_internalNode->property(name)->isSignalHandlerProperty();
+}
+
 bool ModelNode::hasNodeAbstractProperty(const PropertyName &name) const
 {
     return hasProperty(name) && m_internalNode->property(name)->isNodeAbstractProperty();
