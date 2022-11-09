@@ -45,7 +45,7 @@ def main():
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "    xi")
     type(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit"), "<Return>")
     __typeAndWaitForAction__(waitForCppEditor(), "<F2>")
-    test.compare(lineUnderCursor(waitForCppEditor()), "extern int xi;")
+    test.compare(lineUnderCursor(waitForCppEditor()), "int xi = 10;")
 
 #    - Move the cursor to a function call.
 #    - Press F2 or select from the menu: Tools / C++ / Follow Symbol under Cursor
