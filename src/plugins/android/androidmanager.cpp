@@ -40,7 +40,6 @@
 #include <utils/stringutils.h>
 
 #include <QApplication>
-#include <QDir>
 #include <QDomDocument>
 #include <QFileSystemWatcher>
 #include <QJsonDocument>

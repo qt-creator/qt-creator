@@ -30,8 +30,8 @@ QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
+
 class AndroidManifestEditor;
 class AndroidManifestEditorIconContainerWidget;
 class AndroidManifestEditorWidget;
@@ -140,8 +140,8 @@ private:
 
     void addServiceMetadata(QXmlStreamWriter &writer);
 
-    bool m_dirty; // indicates that we need to call syncToEditor()
-    bool m_stayClean;
+    bool m_dirty = false; // indicates that we need to call syncToEditor()
+    bool m_stayClean = false;
     int m_errorLine;
     int m_errorColumn;
     QString m_currentsplashImageName[3];
@@ -180,5 +180,5 @@ private:
     QString m_androidNdkPlatform;
     QTabWidget *m_advanvedTabWidget = nullptr;
 };
-} // namespace Internal
-} // namespace Android
+
+} // Android::Internal

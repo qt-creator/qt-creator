@@ -38,7 +38,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDebug>
-#include <QDir>
 #include <QDomDocument>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -62,19 +61,19 @@
 #include <limits>
 
 using namespace ProjectExplorer;
-using namespace Android;
-using namespace Android::Internal;
+using namespace Utils;
 
-namespace {
+namespace Android::Internal {
+
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
 
-bool checkPackageName(const QString &packageName)
+static bool checkPackageName(const QString &packageName)
 {
     const QLatin1String packageNameRegExp("^([a-z]{1}[a-z0-9_]+(\\.[a-zA-Z]{1}[a-zA-Z0-9_]*)*)$");
     return QRegularExpression(packageNameRegExp).match(packageName).hasMatch();
 }
 
-Target *androidTarget(const Utils::FilePath &fileName)
+static Target *androidTarget(const FilePath &fileName)
 {
     for (Project *project : SessionManager::projects()) {
         if (Target *target = project->activeTarget()) {
@@ -87,12 +86,7 @@ Target *androidTarget(const Utils::FilePath &fileName)
     return nullptr;
 }
 
-} // anonymous namespace
-
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
-    : QStackedWidget(),
-      m_dirty(false),
-      m_stayClean(false)
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
 
@@ -129,138 +123,138 @@ QGroupBox *AndroidManifestEditorWidget::createPermissionsGroupBox(QWidget *paren
     layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
 
     m_permissionsComboBox = new QComboBox(permissionsGroupBox);
-    m_permissionsComboBox->insertItems(0, QStringList()
-     << QLatin1String("android.permission.ACCESS_CHECKIN_PROPERTIES")
-     << QLatin1String("android.permission.ACCESS_COARSE_LOCATION")
-     << QLatin1String("android.permission.ACCESS_FINE_LOCATION")
-     << QLatin1String("android.permission.ACCESS_LOCATION_EXTRA_COMMANDS")
-     << QLatin1String("android.permission.ACCESS_MOCK_LOCATION")
-     << QLatin1String("android.permission.ACCESS_NETWORK_STATE")
-     << QLatin1String("android.permission.ACCESS_SURFACE_FLINGER")
-     << QLatin1String("android.permission.ACCESS_WIFI_STATE")
-     << QLatin1String("android.permission.ACCOUNT_MANAGER")
-     << QLatin1String("com.android.voicemail.permission.ADD_VOICEMAIL")
-     << QLatin1String("android.permission.AUTHENTICATE_ACCOUNTS")
-     << QLatin1String("android.permission.BATTERY_STATS")
-     << QLatin1String("android.permission.BIND_ACCESSIBILITY_SERVICE")
-     << QLatin1String("android.permission.BIND_APPWIDGET")
-     << QLatin1String("android.permission.BIND_DEVICE_ADMIN")
-     << QLatin1String("android.permission.BIND_INPUT_METHOD")
-     << QLatin1String("android.permission.BIND_REMOTEVIEWS")
-     << QLatin1String("android.permission.BIND_TEXT_SERVICE")
-     << QLatin1String("android.permission.BIND_VPN_SERVICE")
-     << QLatin1String("android.permission.BIND_WALLPAPER")
-     << QLatin1String("android.permission.BLUETOOTH")
-     << QLatin1String("android.permission.BLUETOOTH_ADMIN")
-     << QLatin1String("android.permission.BRICK")
-     << QLatin1String("android.permission.BROADCAST_PACKAGE_REMOVED")
-     << QLatin1String("android.permission.BROADCAST_SMS")
-     << QLatin1String("android.permission.BROADCAST_STICKY")
-     << QLatin1String("android.permission.BROADCAST_WAP_PUSH")
-     << QLatin1String("android.permission.CALL_PHONE")
-     << QLatin1String("android.permission.CALL_PRIVILEGED")
-     << QLatin1String("android.permission.CAMERA")
-     << QLatin1String("android.permission.CHANGE_COMPONENT_ENABLED_STATE")
-     << QLatin1String("android.permission.CHANGE_CONFIGURATION")
-     << QLatin1String("android.permission.CHANGE_NETWORK_STATE")
-     << QLatin1String("android.permission.CHANGE_WIFI_MULTICAST_STATE")
-     << QLatin1String("android.permission.CHANGE_WIFI_STATE")
-     << QLatin1String("android.permission.CLEAR_APP_CACHE")
-     << QLatin1String("android.permission.CLEAR_APP_USER_DATA")
-     << QLatin1String("android.permission.CONTROL_LOCATION_UPDATES")
-     << QLatin1String("android.permission.DELETE_CACHE_FILES")
-     << QLatin1String("android.permission.DELETE_PACKAGES")
-     << QLatin1String("android.permission.DEVICE_POWER")
-     << QLatin1String("android.permission.DIAGNOSTIC")
-     << QLatin1String("android.permission.DISABLE_KEYGUARD")
-     << QLatin1String("android.permission.DUMP")
-     << QLatin1String("android.permission.EXPAND_STATUS_BAR")
-     << QLatin1String("android.permission.FACTORY_TEST")
-     << QLatin1String("android.permission.FLASHLIGHT")
-     << QLatin1String("android.permission.FORCE_BACK")
-     << QLatin1String("android.permission.GET_ACCOUNTS")
-     << QLatin1String("android.permission.GET_PACKAGE_SIZE")
-     << QLatin1String("android.permission.GET_TASKS")
-     << QLatin1String("android.permission.GLOBAL_SEARCH")
-     << QLatin1String("android.permission.HARDWARE_TEST")
-     << QLatin1String("android.permission.INJECT_EVENTS")
-     << QLatin1String("android.permission.INSTALL_LOCATION_PROVIDER")
-     << QLatin1String("android.permission.INSTALL_PACKAGES")
-     << QLatin1String("android.permission.INTERNAL_SYSTEM_WINDOW")
-     << QLatin1String("android.permission.INTERNET")
-     << QLatin1String("android.permission.KILL_BACKGROUND_PROCESSES")
-     << QLatin1String("android.permission.MANAGE_ACCOUNTS")
-     << QLatin1String("android.permission.MANAGE_APP_TOKENS")
-     << QLatin1String("android.permission.MASTER_CLEAR")
-     << QLatin1String("android.permission.MODIFY_AUDIO_SETTINGS")
-     << QLatin1String("android.permission.MODIFY_PHONE_STATE")
-     << QLatin1String("android.permission.MOUNT_FORMAT_FILESYSTEMS")
-     << QLatin1String("android.permission.MOUNT_UNMOUNT_FILESYSTEMS")
-     << QLatin1String("android.permission.NFC")
-     << QLatin1String("android.permission.PERSISTENT_ACTIVITY")
-     << QLatin1String("android.permission.PROCESS_OUTGOING_CALLS")
-     << QLatin1String("android.permission.READ_CALENDAR")
-     << QLatin1String("android.permission.READ_CALL_LOG")
-     << QLatin1String("android.permission.READ_CONTACTS")
-     << QLatin1String("android.permission.READ_EXTERNAL_STORAGE")
-     << QLatin1String("android.permission.READ_FRAME_BUFFER")
-     << QLatin1String("com.android.browser.permission.READ_HISTORY_BOOKMARKS")
-     << QLatin1String("android.permission.READ_INPUT_STATE")
-     << QLatin1String("android.permission.READ_LOGS")
-     << QLatin1String("android.permission.READ_PHONE_STATE")
-     << QLatin1String("android.permission.READ_PROFILE")
-     << QLatin1String("android.permission.READ_SMS")
-     << QLatin1String("android.permission.READ_SOCIAL_STREAM")
-     << QLatin1String("android.permission.READ_SYNC_SETTINGS")
-     << QLatin1String("android.permission.READ_SYNC_STATS")
-     << QLatin1String("android.permission.READ_USER_DICTIONARY")
-     << QLatin1String("android.permission.REBOOT")
-     << QLatin1String("android.permission.RECEIVE_BOOT_COMPLETED")
-     << QLatin1String("android.permission.RECEIVE_MMS")
-     << QLatin1String("android.permission.RECEIVE_SMS")
-     << QLatin1String("android.permission.RECEIVE_WAP_PUSH")
-     << QLatin1String("android.permission.RECORD_AUDIO")
-     << QLatin1String("android.permission.REORDER_TASKS")
-     << QLatin1String("android.permission.RESTART_PACKAGES")
-     << QLatin1String("android.permission.SEND_SMS")
-     << QLatin1String("android.permission.SET_ACTIVITY_WATCHER")
-     << QLatin1String("com.android.alarm.permission.SET_ALARM")
-     << QLatin1String("android.permission.SET_ALWAYS_FINISH")
-     << QLatin1String("android.permission.SET_ANIMATION_SCALE")
-     << QLatin1String("android.permission.SET_DEBUG_APP")
-     << QLatin1String("android.permission.SET_ORIENTATION")
-     << QLatin1String("android.permission.SET_POINTER_SPEED")
-     << QLatin1String("android.permission.SET_PREFERRED_APPLICATIONS")
-     << QLatin1String("android.permission.SET_PROCESS_LIMIT")
-     << QLatin1String("android.permission.SET_TIME")
-     << QLatin1String("android.permission.SET_TIME_ZONE")
-     << QLatin1String("android.permission.SET_WALLPAPER")
-     << QLatin1String("android.permission.SET_WALLPAPER_HINTS")
-     << QLatin1String("android.permission.SIGNAL_PERSISTENT_PROCESSES")
-     << QLatin1String("android.permission.STATUS_BAR")
-     << QLatin1String("android.permission.SUBSCRIBED_FEEDS_READ")
-     << QLatin1String("android.permission.SUBSCRIBED_FEEDS_WRITE")
-     << QLatin1String("android.permission.SYSTEM_ALERT_WINDOW")
-     << QLatin1String("android.permission.UPDATE_DEVICE_STATS")
-     << QLatin1String("android.permission.USE_CREDENTIALS")
-     << QLatin1String("android.permission.USE_SIP")
-     << QLatin1String("android.permission.VIBRATE")
-     << QLatin1String("android.permission.WAKE_LOCK")
-     << QLatin1String("android.permission.WRITE_APN_SETTINGS")
-     << QLatin1String("android.permission.WRITE_CALENDAR")
-     << QLatin1String("android.permission.WRITE_CALL_LOG")
-     << QLatin1String("android.permission.WRITE_CONTACTS")
-     << QLatin1String("android.permission.WRITE_EXTERNAL_STORAGE")
-     << QLatin1String("android.permission.WRITE_GSERVICES")
-     << QLatin1String("com.android.browser.permission.WRITE_HISTORY_BOOKMARKS")
-     << QLatin1String("android.permission.WRITE_PROFILE")
-     << QLatin1String("android.permission.WRITE_SECURE_SETTINGS")
-     << QLatin1String("android.permission.WRITE_SETTINGS")
-     << QLatin1String("android.permission.WRITE_SMS")
-     << QLatin1String("android.permission.WRITE_SOCIAL_STREAM")
-     << QLatin1String("android.permission.WRITE_SYNC_SETTINGS")
-     << QLatin1String("android.permission.WRITE_USER_DICTIONARY")
-    );
+    m_permissionsComboBox->insertItems(0, {
+        "android.permission.ACCESS_CHECKIN_PROPERTIES",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_LOCATION_EXTRA_COMMANDS",
+        "android.permission.ACCESS_MOCK_LOCATION",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_SURFACE_FLINGER",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.ACCOUNT_MANAGER",
+        "com.android.voicemail.permission.ADD_VOICEMAIL",
+        "android.permission.AUTHENTICATE_ACCOUNTS",
+        "android.permission.BATTERY_STATS",
+        "android.permission.BIND_ACCESSIBILITY_SERVICE",
+        "android.permission.BIND_APPWIDGET",
+        "android.permission.BIND_DEVICE_ADMIN",
+        "android.permission.BIND_INPUT_METHOD",
+        "android.permission.BIND_REMOTEVIEWS",
+        "android.permission.BIND_TEXT_SERVICE",
+        "android.permission.BIND_VPN_SERVICE",
+        "android.permission.BIND_WALLPAPER",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BRICK",
+        "android.permission.BROADCAST_PACKAGE_REMOVED",
+        "android.permission.BROADCAST_SMS",
+        "android.permission.BROADCAST_STICKY",
+        "android.permission.BROADCAST_WAP_PUSH",
+        "android.permission.CALL_PHONE",
+        "android.permission.CALL_PRIVILEGED",
+        "android.permission.CAMERA",
+        "android.permission.CHANGE_COMPONENT_ENABLED_STATE",
+        "android.permission.CHANGE_CONFIGURATION",
+        "android.permission.CHANGE_NETWORK_STATE",
+        "android.permission.CHANGE_WIFI_MULTICAST_STATE",
+        "android.permission.CHANGE_WIFI_STATE",
+        "android.permission.CLEAR_APP_CACHE",
+        "android.permission.CLEAR_APP_USER_DATA",
+        "android.permission.CONTROL_LOCATION_UPDATES",
+        "android.permission.DELETE_CACHE_FILES",
+        "android.permission.DELETE_PACKAGES",
+        "android.permission.DEVICE_POWER",
+        "android.permission.DIAGNOSTIC",
+        "android.permission.DISABLE_KEYGUARD",
+        "android.permission.DUMP",
+        "android.permission.EXPAND_STATUS_BAR",
+        "android.permission.FACTORY_TEST",
+        "android.permission.FLASHLIGHT",
+        "android.permission.FORCE_BACK",
+        "android.permission.GET_ACCOUNTS",
+        "android.permission.GET_PACKAGE_SIZE",
+        "android.permission.GET_TASKS",
+        "android.permission.GLOBAL_SEARCH",
+        "android.permission.HARDWARE_TEST",
+        "android.permission.INJECT_EVENTS",
+        "android.permission.INSTALL_LOCATION_PROVIDER",
+        "android.permission.INSTALL_PACKAGES",
+        "android.permission.INTERNAL_SYSTEM_WINDOW",
+        "android.permission.INTERNET",
+        "android.permission.KILL_BACKGROUND_PROCESSES",
+        "android.permission.MANAGE_ACCOUNTS",
+        "android.permission.MANAGE_APP_TOKENS",
+        "android.permission.MASTER_CLEAR",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.MODIFY_PHONE_STATE",
+        "android.permission.MOUNT_FORMAT_FILESYSTEMS",
+        "android.permission.MOUNT_UNMOUNT_FILESYSTEMS",
+        "android.permission.NFC",
+        "android.permission.PERSISTENT_ACTIVITY",
+        "android.permission.PROCESS_OUTGOING_CALLS",
+        "android.permission.READ_CALENDAR",
+        "android.permission.READ_CALL_LOG",
+        "android.permission.READ_CONTACTS",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_FRAME_BUFFER",
+        "com.android.browser.permission.READ_HISTORY_BOOKMARKS",
+        "android.permission.READ_INPUT_STATE",
+        "android.permission.READ_LOGS",
+        "android.permission.READ_PHONE_STATE",
+        "android.permission.READ_PROFILE",
+        "android.permission.READ_SMS",
+        "android.permission.READ_SOCIAL_STREAM",
+        "android.permission.READ_SYNC_SETTINGS",
+        "android.permission.READ_SYNC_STATS",
+        "android.permission.READ_USER_DICTIONARY",
+        "android.permission.REBOOT",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.RECEIVE_MMS",
+        "android.permission.RECEIVE_SMS",
+        "android.permission.RECEIVE_WAP_PUSH",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.REORDER_TASKS",
+        "android.permission.RESTART_PACKAGES",
+        "android.permission.SEND_SMS",
+        "android.permission.SET_ACTIVITY_WATCHER",
+        "com.android.alarm.permission.SET_ALARM",
+        "android.permission.SET_ALWAYS_FINISH",
+        "android.permission.SET_ANIMATION_SCALE",
+        "android.permission.SET_DEBUG_APP",
+        "android.permission.SET_ORIENTATION",
+        "android.permission.SET_POINTER_SPEED",
+        "android.permission.SET_PREFERRED_APPLICATIONS",
+        "android.permission.SET_PROCESS_LIMIT",
+        "android.permission.SET_TIME",
+        "android.permission.SET_TIME_ZONE",
+        "android.permission.SET_WALLPAPER",
+        "android.permission.SET_WALLPAPER_HINTS",
+        "android.permission.SIGNAL_PERSISTENT_PROCESSES",
+        "android.permission.STATUS_BAR",
+        "android.permission.SUBSCRIBED_FEEDS_READ",
+        "android.permission.SUBSCRIBED_FEEDS_WRITE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.UPDATE_DEVICE_STATS",
+        "android.permission.USE_CREDENTIALS",
+        "android.permission.USE_SIP",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.WRITE_APN_SETTINGS",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.WRITE_CALL_LOG",
+        "android.permission.WRITE_CONTACTS",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.WRITE_GSERVICES",
+        "com.android.browser.permission.WRITE_HISTORY_BOOKMARKS",
+        "android.permission.WRITE_PROFILE",
+        "android.permission.WRITE_SECURE_SETTINGS",
+        "android.permission.WRITE_SETTINGS",
+        "android.permission.WRITE_SMS",
+        "android.permission.WRITE_SOCIAL_STREAM",
+        "android.permission.WRITE_SYNC_SETTINGS",
+        "android.permission.WRITE_USER_DICTIONARY",
+    });
     m_permissionsComboBox->setEditable(true);
     layout->addWidget(m_permissionsComboBox, 2, 0);
 
@@ -597,7 +591,7 @@ void AndroidManifestEditorWidget::preSave()
 
 void AndroidManifestEditorWidget::postSave()
 {
-    const Utils::FilePath docPath = m_textEditorWidget->textDocument()->filePath();
+    const FilePath docPath = m_textEditorWidget->textDocument()->filePath();
     if (Target *target = androidTarget(docPath)) {
         if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
             QString androidNdkPlatform = AndroidConfigurations::currentConfig().bestNdkPlatformMatch(
@@ -709,13 +703,13 @@ void AndroidManifestEditorWidget::updateSdkVersions()
 
 void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int line, int column)
 {
-    Utils::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
+    InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
     QString text;
     if (line < 0)
         text = Tr::tr("Could not parse file: \"%1\".").arg(errorMessage);
     else
         text = Tr::tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
-    Utils::InfoBarEntry infoBarEntry(infoBarId, text);
+    InfoBarEntry infoBarEntry(infoBarId, text);
     infoBarEntry.addCustomButton(Tr::tr("Goto error"), [this] {
         m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
     });
@@ -729,7 +723,7 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
 
 void AndroidManifestEditorWidget::hideInfoBar()
 {
-    Utils::InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
+    InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
         infoBar->removeInfo(infoBarId);
         m_timerParseCheck.stop();
 }
@@ -738,10 +732,10 @@ static const char kServicesInvalid[] = "AndroidServiceDefinitionInvalid";
 
 void AndroidManifestEditorWidget::setInvalidServiceInfo()
 {
-    Utils::Id id(kServicesInvalid);
+    Id id(kServicesInvalid);
     if (m_textEditorWidget->textDocument()->infoBar()->containsInfo(id))
         return;
-    Utils::InfoBarEntry info(id,
+    InfoBarEntry info(id,
              Tr::tr("Services invalid. "
                     "Manifest cannot be saved. Correct the service definitions before saving."));
     m_textEditorWidget->textDocument()->infoBar()->addInfo(info);
@@ -750,7 +744,7 @@ void AndroidManifestEditorWidget::setInvalidServiceInfo()
 
 void AndroidManifestEditorWidget::clearInvalidServiceInfo()
 {
-    m_textEditorWidget->textDocument()->infoBar()->removeInfo(Utils::Id(kServicesInvalid));
+    m_textEditorWidget->textDocument()->infoBar()->removeInfo(Id(kServicesInvalid));
 }
 
 void setApiLevel(QComboBox *box, const QDomElement &element, const QString &attribute)
@@ -1610,3 +1604,5 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
     m_context->setContext(Core::Context(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT));
     Core::ICore::addContextObject(m_context);
 }
+
+} // Android::Internal
