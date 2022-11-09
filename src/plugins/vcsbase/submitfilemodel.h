@@ -5,6 +5,8 @@
 
 #include "vcsbase_global.h"
 
+#include <utils/filepath.h>
+
 #include <QStandardItemModel>
 
 #include <functional>
@@ -24,8 +26,8 @@ class VCSBASE_EXPORT SubmitFileModel : public QStandardItemModel
 public:
     explicit SubmitFileModel(QObject *parent = nullptr);
 
-    const QString &repositoryRoot() const;
-    void setRepositoryRoot(const QString &repoRoot);
+    const Utils::FilePath &repositoryRoot() const;
+    void setRepositoryRoot(const Utils::FilePath &repoRoot);
 
     // Convenience to create and add rows containing a file plus status text.
     QList<QStandardItem *> addFile(const QString &fileName, const QString &status = QString(),
@@ -67,7 +69,7 @@ public:
     void setFileStatusQualifier(FileStatusQualifier &&func);
 
 private:
-    QString m_repositoryRoot;
+    Utils::FilePath m_repositoryRoot;
     FileStatusQualifier m_fileStatusQualifier;
 };
 

@@ -11,7 +11,7 @@
 #include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
 
-#include <QDebug>
+using namespace Utils;
 
 namespace Bazaar::Internal {
 
@@ -26,7 +26,7 @@ BazaarCommitWidget *CommitEditor::commitWidget()
     return static_cast<BazaarCommitWidget *>(widget());
 }
 
-void CommitEditor::setFields(const QString &repositoryRoot, const BranchInfo &branch,
+void CommitEditor::setFields(const FilePath &repositoryRoot, const BranchInfo &branch,
                              const QString &userName, const QString &email,
                              const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus)
 {

@@ -708,7 +708,7 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const BranchInfo branch = m_client.synchronousBranchQuery(m_submitRepository);
-    commitEditor->setFields(m_submitRepository.toString(), branch,
+    commitEditor->setFields(m_submitRepository, branch,
                             m_settings.userName.value(),
                             m_settings.userEmail.value(), status);
 }

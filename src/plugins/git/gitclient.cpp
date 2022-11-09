@@ -2792,7 +2792,7 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
         // Filter out untracked files that are not part of the project
         QStringList untrackedFiles = commitData.filterFiles(UntrackedFile);
 
-        VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory.toString(), &untrackedFiles);
+        VcsBaseSubmitEditor::filterUntrackedFilesOfProject(repoDirectory, &untrackedFiles);
         QList<CommitData::StateFilePair> filteredFiles;
         QList<CommitData::StateFilePair>::const_iterator it = commitData.files.constBegin();
         for ( ; it != commitData.files.constEnd(); ++it) {

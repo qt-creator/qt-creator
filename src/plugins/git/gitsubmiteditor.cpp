@@ -115,10 +115,8 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     setEmptyFileListEnabled(m_commitType == AmendCommit); // Allow for just correcting the message
 
     m_model = new GitSubmitFileModel(this);
-    m_model->setRepositoryRoot(d.panelInfo.repository.toString());
-    m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData)
-                                    -> SubmitFileModel::FileStatusHint
-    {
+    m_model->setRepositoryRoot(d.panelInfo.repository);
+    m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData) {
         const FileStates state = static_cast<FileStates>(extraData.toInt());
         if (state & (UnmergedFile | UnmergedThem | UnmergedUs))
             return SubmitFileModel::FileUnmerged;

@@ -3,14 +3,14 @@
 
 #include "submitfilemodel.h"
 
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
 #include <QStandardItem>
-#include <QFileInfo>
 #include <QDebug>
+
+using namespace Utils;
 
 namespace VcsBase {
 
@@ -22,7 +22,6 @@ enum { StateColumn = 0, FileColumn = 1 };
 
 static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHint)
 {
-    using Utils::Theme;
     Theme::Color statusTextColor = Theme::VcsBase_FileStatusUnknown_TextColor;
     switch (statusHint) {
     case SubmitFileModel::FileStatusUnknown:
@@ -47,7 +46,7 @@ static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHin
     return QBrush(Utils::creatorTheme()->color(statusTextColor));
 }
 
-static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
+static QList<QStandardItem *> createFileRow(const FilePath &repositoryRoot,
                                             const QString &fileName,
                                             const QString &status,
                                             SubmitFileModel::FileStatusHint statusHint,
@@ -67,8 +66,7 @@ static QList<QStandardItem *> createFileRow(const QString &repositoryRoot,
     // For some reason, Windows (at least) requires a valid (existing) file path to the icon, so
     // the repository root is needed here.
     // Note: for "overlaid" icons in Utils::FileIconProvider a valid file path is not required
-    fileItem->setIcon(Utils::FileIconProvider::icon(
-        Utils::FilePath::fromString(repositoryRoot).pathAppended(fileName)));
+    fileItem->setIcon(FileIconProvider::icon(repositoryRoot.pathAppended(fileName)));
     const QList<QStandardItem *> row{statusItem, fileItem};
     if (statusHint != SubmitFileModel::FileStatusUnknown) {
         const QBrush textForeground = fileStatusTextForeground(statusHint);
@@ -97,12 +95,12 @@ SubmitFileModel::SubmitFileModel(QObject *parent) :
     setHorizontalHeaderLabels({tr("State"), tr("File")});
 }
 
-const QString &SubmitFileModel::repositoryRoot() const
+const FilePath &SubmitFileModel::repositoryRoot() const
 {
     return m_repositoryRoot;
 }
 
-void SubmitFileModel::setRepositoryRoot(const QString &repoRoot)
+void SubmitFileModel::setRepositoryRoot(const FilePath &repoRoot)
 {
     m_repositoryRoot = repoRoot;
 }

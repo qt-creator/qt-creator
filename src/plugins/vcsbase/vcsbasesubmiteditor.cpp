@@ -328,9 +328,9 @@ Core::IDocument *VcsBaseSubmitEditor::document() const
     return &d->m_file;
 }
 
-QString VcsBaseSubmitEditor::checkScriptWorkingDirectory() const
+FilePath VcsBaseSubmitEditor::checkScriptWorkingDirectory() const
 {
-    return d->m_checkScriptWorkingDirectory.toString();
+    return d->m_checkScriptWorkingDirectory;
 }
 
 void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const FilePath &s)
@@ -380,8 +380,7 @@ static QSet<FilePath> filesFromModel(SubmitFileModel *model)
     QSet<FilePath> result;
     result.reserve(model->rowCount());
     for (int row = 0; row < model->rowCount(); ++row) {
-        result.insert(FilePath::fromString(
-            QFileInfo(model->repositoryRoot(), model->file(row)).absoluteFilePath()));
+        result.insert(model->repositoryRoot().resolvePath(model->file(row)).absoluteFilePath());
     }
     return result;
 }
@@ -628,13 +627,12 @@ QIcon VcsBaseSubmitEditor::submitIcon()
 
 // Reduce a list of untracked files reported by a VCS down to the files
 // that are actually part of the current project(s).
-void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositoryDirectory,
+void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const FilePath &repositoryDirectory,
                                                         QStringList *untrackedFiles)
 {
-    const QDir repoDir(repositoryDirectory);
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
-        const QString path = repoDir.absoluteFilePath(*it);
-        if (ProjectExplorer::SessionManager::projectForFile(FilePath::fromString(path)))
+        const FilePath path = repositoryDirectory.resolvePath(*it).absoluteFilePath();
+        if (ProjectExplorer::SessionManager::projectForFile(path))
             ++it;
         else
             it = untrackedFiles->erase(it);

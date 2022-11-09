@@ -63,7 +63,7 @@ public:
     int lineWrapWidth() const;
     void setLineWrapWidth(int);
 
-    QString checkScriptWorkingDirectory() const;
+    Utils::FilePath checkScriptWorkingDirectory() const;
     void setCheckScriptWorkingDirectory(const Utils::FilePath &);
 
     Core::IDocument *document() const override;
@@ -83,7 +83,8 @@ public:
 
     // Reduce a list of untracked files reported by a VCS down to the files
     // that are actually part of the current project(s).
-    static void filterUntrackedFilesOfProject(const QString &repositoryDirectory, QStringList *untrackedFiles);
+    static void filterUntrackedFilesOfProject(const Utils::FilePath &repositoryDirectory,
+                                              QStringList *untrackedFiles);
 
 signals:
     void diffSelectedFiles(const QStringList &files);

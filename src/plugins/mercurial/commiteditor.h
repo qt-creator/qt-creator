@@ -6,8 +6,6 @@
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-#include <QFileInfo>
-
 namespace VcsBase { class SubmitFileModel; }
 
 namespace Mercurial::Internal {
@@ -21,7 +19,7 @@ class CommitEditor : public VcsBase::VcsBaseSubmitEditor
 public:
     CommitEditor();
 
-    void setFields(const QFileInfo &repositoryRoot, const QString &branch,
+    void setFields(const Utils::FilePath &repositoryRoot, const QString &branch,
                    const QString &userName, const QString &email,
                    const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus);
 
@@ -30,6 +28,7 @@ public:
 
 private:
     MercurialCommitWidget *commitWidget() const;
+
     VcsBase::SubmitFileModel *fileModel = nullptr;
 };
 
