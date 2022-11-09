@@ -2312,549 +2312,555 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+A</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+A</translation>
     </message>
     <message>
         <source>Run All Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所有测试但不部署</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+E</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+E</translation>
     </message>
     <message>
         <source>&amp;Run Selected Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所选的测试（&amp;R）</translation>
     </message>
     <message>
         <source>Run Selected Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所选的测试</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+R</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+R</translation>
     </message>
     <message>
         <source>&amp;Run Selected Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所选的测试但不部署（&amp;R）</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+W</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+W</translation>
     </message>
     <message>
         <source>Run &amp;Failed Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行失败的测试&amp;F</translation>
     </message>
     <message>
         <source>Run Failed Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行失败的测试</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+F</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+F</translation>
     </message>
     <message>
         <source>Run Tests for &amp;Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>为当前文件运行测试&amp;C</translation>
     </message>
     <message>
         <source>Run Tests for Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>为当前文件运行测试</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+C</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+C</translation>
     </message>
     <message>
         <source>Re&amp;scan Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>重新扫描测试（&amp;s）</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+S</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+S</translation>
     </message>
     <message>
         <source>&amp;Run Test Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>运行光标所选测试（&amp;R）</translation>
     </message>
     <message>
         <source>Run Test Under Cursor Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>运行光标所选测试但不部署</translation>
     </message>
     <message>
         <source>&amp;Debug Test Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>调试光标所选测试（&amp;D）</translation>
     </message>
     <message>
         <source>Debug Test Under Cursor Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>调试光标所选测试但不部署</translation>
     </message>
     <message>
         <source>Selected test was not found (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到所选测试（%1）。</translation>
     </message>
     <message>
         <source>Boost Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Boost 测试</translation>
     </message>
     <message>
         <source>Executing test case %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试用例 %1</translation>
     </message>
     <message>
         <source>Executing test suite %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试套件 %1</translation>
     </message>
     <message>
         <source>Test execution took %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试耗费 %1</translation>
     </message>
     <message>
         <source>Test suite execution took %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试套件耗费 %1</translation>
     </message>
     <message>
         <source>Executing test module %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试模块 %1</translation>
     </message>
     <message>
         <source>Test module execution took %1</source>
-        <translation type="unfinished"></translation>
+        <translation>测试模块耗费 %1</translation>
     </message>
     <message>
         <source>%1 failures detected in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>在 %2 中检测到错误 %1。</translation>
     </message>
     <message>
         <source>%1 tests passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 测试通过。</translation>
     </message>
     <message>
         <source>No errors detected.</source>
-        <translation type="unfinished"></translation>
+        <translation>未检测到错误。</translation>
     </message>
     <message>
         <source>Running tests exited with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试结束，返回值 %1</translation>
     </message>
     <message>
         <source>Executable: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>可执行： %1</translation>
     </message>
     <message>
         <source>Running tests failed.
 %1
 Executable: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试失败。
+%1
+可执行：%2</translation>
     </message>
     <message>
         <source>Running tests without output.</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试但不输出。</translation>
     </message>
     <message>
         <source>Log format:</source>
-        <translation type="unfinished"></translation>
+        <translation>日志格式：</translation>
     </message>
     <message>
         <source>Report level:</source>
-        <translation type="unfinished"></translation>
+        <translation>报告级别：</translation>
     </message>
     <message>
         <source>Seed:</source>
-        <translation type="unfinished"></translation>
+        <translation>随机种子：</translation>
     </message>
     <message>
         <source>A seed of 0 means no randomization. A value of 1 uses the current time, any other value is used as random seed generator.</source>
-        <translation type="unfinished"></translation>
+        <translation>随机种子 0 意味着无随机化。值 1 使用当前时间，任何其他值用作随机种子生成器。</translation>
     </message>
     <message>
         <source>Randomize</source>
-        <translation type="unfinished"></translation>
+        <translation>随机化</translation>
     </message>
     <message>
         <source>Randomize execution order.</source>
-        <translation type="unfinished"></translation>
+        <translation>随机化执行顺序。</translation>
     </message>
     <message>
         <source>Catch system errors</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获系统错误</translation>
     </message>
     <message>
         <source>Catch or ignore system errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获或忽略系统错误。</translation>
     </message>
     <message>
         <source>Floating point exceptions</source>
-        <translation type="unfinished"></translation>
+        <translation>浮点异常</translation>
     </message>
     <message>
         <source>Enable floating point exception traps.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用浮点异常陷阱。</translation>
     </message>
     <message>
         <source>Detect memory leaks</source>
-        <translation type="unfinished"></translation>
+        <translation>检测内存泄露</translation>
     </message>
     <message>
         <source>Enable memory leak detection.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用内存泄露检测。</translation>
     </message>
     <message>
         <source>parameterized</source>
-        <translation type="unfinished"></translation>
+        <translation>参数化</translation>
     </message>
     <message>
         <source>fixture</source>
-        <translation type="unfinished"></translation>
+        <translation>装置</translation>
     </message>
     <message>
         <source>templated</source>
-        <translation type="unfinished"></translation>
+        <translation>模板</translation>
     </message>
     <message>
         <source>Catch Test</source>
-        <translation type="unfinished"></translation>
+        <translation>捕捉测试</translation>
     </message>
     <message>
         <source>Exception:</source>
-        <translation type="unfinished"></translation>
+        <translation>异常：</translation>
     </message>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>执行 %1 “%1”</translation>
     </message>
     <message>
         <source>%1 &quot;%2&quot; passed</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 “%2” 通过</translation>
     </message>
     <message>
         <source>Expression passed</source>
-        <translation type="unfinished"></translation>
+        <translation>表达式通过</translation>
     </message>
     <message>
         <source>Expression failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>表达式失败：%1</translation>
     </message>
     <message>
         <source>Finished executing %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>结束执行 %1 “%2”</translation>
     </message>
     <message>
         <source>Number of resamples for bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>引导的重采样数</translation>
     </message>
     <message>
         <source> ms</source>
-        <translation type="unfinished">毫秒</translation>
+        <translation> 毫秒</translation>
     </message>
     <message>
         <source>Abort after</source>
-        <translation type="unfinished"></translation>
+        <translation>后中止</translation>
     </message>
     <message>
         <source>Aborts after the specified number of failures.</source>
-        <translation type="unfinished"></translation>
+        <translation>在指定失败次数后中止。</translation>
     </message>
     <message>
         <source>Benchmark samples</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试样本</translation>
     </message>
     <message>
         <source>Number of samples to collect while running benchmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>运行基准测试时的采样数。</translation>
     </message>
     <message>
         <source>Benchmark resamples</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试重采样</translation>
     </message>
     <message>
         <source>Number of resamples used for statistical bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>用于统计的引导重采样数</translation>
     </message>
     <message>
         <source>Confidence interval used for statistical bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>用于统计的引导置信区间。</translation>
     </message>
     <message>
         <source>Benchmark confidence interval</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试置信区间</translation>
     </message>
     <message>
         <source>Benchmark warmup time</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试预热时间</translation>
     </message>
     <message>
         <source>Warmup time for each test.</source>
-        <translation type="unfinished"></translation>
+        <translation>每个测试预热时间</translation>
     </message>
     <message>
         <source>Disable analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用分析</translation>
     </message>
     <message>
         <source>Disables statistical analysis and bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用统计分析和引导。</translation>
     </message>
     <message>
         <source>Show success</source>
-        <translation type="unfinished"></translation>
+        <translation>显示成功</translation>
     </message>
     <message>
         <source>Show success for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>显示测试成功。</translation>
     </message>
     <message>
         <source>Break on failure while debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>调试时失败跳出</translation>
     </message>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
-        <translation type="unfinished"></translation>
+        <translation>将故障转换为调试断点。</translation>
     </message>
     <message>
         <source>Skip throwing assertions</source>
-        <translation type="unfinished"></translation>
+        <translation>跳过抛出断言</translation>
     </message>
     <message>
         <source>Skips all assertions that test for thrown exceptions.</source>
-        <translation type="unfinished"></translation>
+        <translation>跳过所有测试抛出异常的断言。</translation>
     </message>
     <message>
         <source>Visualize whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>空白可视化</translation>
     </message>
     <message>
         <source>Makes whitespace visible.</source>
-        <translation type="unfinished"></translation>
+        <translation>使空白可见。</translation>
     </message>
     <message>
         <source>Warn on empty tests</source>
-        <translation type="unfinished"></translation>
+        <translation>空白测试时警告</translation>
     </message>
     <message>
         <source>Warns if a test section does not check any assertion.</source>
-        <translation type="unfinished"></translation>
+        <translation>若测试部分不做断言检查，发出警告。</translation>
     </message>
     <message>
         <source>Running tests for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>为 %1 运行测试</translation>
     </message>
     <message>
         <source>Output on failure</source>
-        <translation type="unfinished"></translation>
+        <translation>失败时输出</translation>
     </message>
     <message>
         <source>Output mode</source>
-        <translation type="unfinished"></translation>
+        <translation>输出模式</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <source>Verbose</source>
-        <translation type="unfinished">详细</translation>
+        <translation>详细</translation>
     </message>
     <message>
         <source>Very Verbose</source>
-        <translation type="unfinished"></translation>
+        <translation>非常详细</translation>
     </message>
     <message>
         <source>Repetition mode</source>
-        <translation type="unfinished"></translation>
+        <translation>重复模式</translation>
     </message>
     <message>
         <source>Until Fail</source>
-        <translation type="unfinished"></translation>
+        <translation>直到失败</translation>
     </message>
     <message>
         <source>Until Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>直到通过</translation>
     </message>
     <message>
         <source>After Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>超时后</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>计数</translation>
     </message>
     <message>
         <source>Number of re-runs for the test.</source>
-        <translation type="unfinished"></translation>
+        <translation>重复测试次数。</translation>
     </message>
     <message>
         <source>Schedule random</source>
-        <translation type="unfinished"></translation>
+        <translation>随机安排</translation>
     </message>
     <message>
         <source>Stop on failure</source>
-        <translation type="unfinished"></translation>
+        <translation>失败时停止</translation>
     </message>
     <message>
         <source>Run tests in parallel mode using given number of jobs.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用给定的作业数以并行模式运行测试。</translation>
     </message>
     <message>
         <source>Jobs</source>
-        <translation type="unfinished"></translation>
+        <translation>作业</translation>
     </message>
     <message>
         <source>Test load</source>
-        <translation type="unfinished"></translation>
+        <translation>测试加载</translation>
     </message>
     <message>
         <source>Try not to start tests when they may cause CPU load to pass a threshold.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试可能导致 CPU 负载超过阈值时，尽量不要开始测试。</translation>
     </message>
     <message>
         <source>Threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>阈值</translation>
     </message>
     <message>
         <source>CTest</source>
-        <translation type="unfinished"></translation>
+        <translation>C测试</translation>
     </message>
     <message>
         <source>Repeat tests</source>
-        <translation type="unfinished"></translation>
+        <translation>重复测试</translation>
     </message>
     <message>
         <source>Run in parallel</source>
-        <translation type="unfinished"></translation>
+        <translation>并行运行</translation>
     </message>
     <message>
         <source>Google Test</source>
-        <translation type="unfinished"></translation>
+        <translation>谷歌测试</translation>
     </message>
     <message>
         <source>Enable or disable grouping of test cases by folder or GTest filter.
 See also Google Test settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用或禁用按文件夹或 GTest 过滤器对测试用例进行分组。
+见谷歌测试设置。</translation>
     </message>
     <message>
         <source>Running tests failed.
  %1
 Executable: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试失败。
+%1
+可执行：%2</translation>
     </message>
     <message>
         <source>(iteration %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>（迭代 %1）</translation>
     </message>
     <message>
         <source>Repeating test suite %1 (iteration %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>重复测试套件 %1（迭代 %2）</translation>
     </message>
     <message>
         <source>Entering test case %1</source>
-        <translation type="unfinished"></translation>
+        <translation>进入测试用例 %1</translation>
     </message>
     <message>
         <source>Execution took %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行耗费 %1。</translation>
     </message>
     <message>
         <source>Iterations:</source>
-        <translation type="unfinished"></translation>
+        <translation>迭代：</translation>
     </message>
     <message>
         <source>A seed of 0 generates a seed based on the current timestamp.</source>
-        <translation type="unfinished"></translation>
+        <translation>种子 0 基于当前时间戳生成种子。</translation>
     </message>
     <message>
         <source>Run disabled tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行禁用的测试</translation>
     </message>
     <message>
         <source>Executes disabled tests when performing a test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>当执行的测试运行时，执行禁用的测试。</translation>
     </message>
     <message>
         <source>Shuffle tests</source>
-        <translation type="unfinished"></translation>
+        <translation>随机测试</translation>
     </message>
     <message>
         <source>Shuffles tests automatically on every iteration by the given seed.</source>
-        <translation type="unfinished"></translation>
+        <translation>在给定的种子每一次迭代中自动运行随机测试。</translation>
     </message>
     <message>
         <source>Repeats a test run (you might be required to increase the timeout to avoid canceling the tests).</source>
-        <translation type="unfinished"></translation>
+        <translation>重复运行测试（你可能会被要求增加超时来避免取消测试）。</translation>
     </message>
     <message>
         <source>Throw on failure</source>
-        <translation type="unfinished"></translation>
+        <translation>失败时抛出异常</translation>
     </message>
     <message>
         <source>Turns assertion failures into C++ exceptions.</source>
-        <translation type="unfinished"></translation>
+        <translation>将断言失败转换为 C++ 异常。</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">目录</translation>
+        <translation>目录</translation>
     </message>
     <message>
         <source>GTest Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>GTest 过滤器</translation>
     </message>
     <message>
         <source>Group mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>组模式：</translation>
     </message>
     <message>
         <source>Select on what grouping the tests should be based.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择测试应基于何种分组。</translation>
     </message>
     <message>
         <source>Active filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>激活的过滤器：</translation>
     </message>
     <message>
         <source>Set the GTest filter to be used for grouping.
 See Google Test documentation for further information on GTest filters.</source>
-        <translation type="unfinished"></translation>
+        <translation>设置 GTest 过滤器用于分组。
+见谷歌测试文档获取更多关于 GTest 过滤器的信息。</translation>
     </message>
     <message>
         <source>&lt;matching&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;匹配&gt;</translation>
     </message>
     <message>
         <source>&lt;not matching&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;不匹配&gt;</translation>
     </message>
     <message>
         <source>Change GTest filter in use inside the settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>在设置中改变使用的 GTest 过滤器。</translation>
     </message>
     <message>
         <source>typed</source>
@@ -2862,217 +2868,219 @@ See Google Test documentation for further information on GTest filters.</source>
     </message>
     <message>
         <source>Active frameworks:</source>
-        <translation type="unfinished"></translation>
+        <translation>活跃的框架：</translation>
     </message>
     <message>
         <source>Automatically run tests after build</source>
-        <translation type="unfinished"></translation>
+        <translation>在构建后自动运行测试</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">所有</translation>
+        <translation>所有</translation>
     </message>
     <message>
         <source>Selected</source>
-        <translation type="unfinished">选中</translation>
+        <translation>选中</translation>
     </message>
     <message>
         <source>Qt Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 测试</translation>
     </message>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 每次迭代（总共：%3，迭代：%4）</translation>
     </message>
     <message>
         <source>Qt version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 版本：%1</translation>
     </message>
     <message>
         <source>Qt build: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 构建：%1</translation>
     </message>
     <message>
         <source>QTest version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>QTest 版本：%1</translation>
     </message>
     <message>
         <source>XML parsing failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>XML 解析失败。</translation>
     </message>
     <message>
         <source>Entering test function %1::%2</source>
-        <translation type="unfinished"></translation>
+        <translation>进入测试函数 %1::%2</translation>
     </message>
     <message>
         <source>Executing test function %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试函数 %1</translation>
     </message>
     <message>
         <source>Execution took %1 ms.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行耗费 %1 毫秒。</translation>
     </message>
     <message>
         <source>Test execution took %1 ms.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试执行耗费 %1 毫秒。</translation>
     </message>
     <message>
         <source>Test function finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试函数结束。</translation>
     </message>
     <message>
         <source>Test finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试结束。</translation>
     </message>
     <message>
         <source>Walltime</source>
-        <translation type="unfinished"></translation>
+        <translation>现实时间</translation>
     </message>
     <message>
         <source>Uses walltime metrics for executing benchmarks (default).</source>
-        <translation type="unfinished"></translation>
+        <translation>使用现实时间指标执行基准测试（默认）。</translation>
     </message>
     <message>
         <source>Tick counter</source>
-        <translation type="unfinished"></translation>
+        <translation>时钟计数器</translation>
     </message>
     <message>
         <source>Uses tick counter when executing benchmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行基准测试时使用时钟计数器。</translation>
     </message>
     <message>
         <source>Event counter</source>
-        <translation type="unfinished"></translation>
+        <translation>事件计数器</translation>
     </message>
     <message>
         <source>Uses event counter when executing benchmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行基准测试时使用事件计数器。</translation>
     </message>
     <message>
         <source>Callgrind</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Uses Valgrind Callgrind when executing benchmarks (it must be installed).</source>
-        <translation type="unfinished"></translation>
+        <translation>执行基准测试时使用 Valgrind Callgrind（必须安装）。</translation>
     </message>
     <message>
         <source>Perf</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Uses Perf when executing benchmarks (it must be installed).</source>
-        <translation type="unfinished"></translation>
+        <translation>执行基准测试时使用 Perf（必须安装）。</translation>
     </message>
     <message>
         <source>Disable crash handler while debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>调试时禁用崩溃处理程序</translation>
     </message>
     <message>
         <source>Enables interrupting tests on assertions.</source>
-        <translation type="unfinished"></translation>
+        <translation>断言时启用中断测试。</translation>
     </message>
     <message>
         <source>Use XML output</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 XML 输出</translation>
     </message>
     <message>
         <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
 
 Warning: Plain text misses some information, such as duration.</source>
-        <translation type="unfinished"></translation>
+        <translation>建议使用 XML 输出，它避免了一些解析问题，虽然纯文本可读性更好。
+
+警告：纯文本丢失了一些信息，比如持续时间。</translation>
     </message>
     <message>
         <source>Verbose benchmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>详细基准测试</translation>
     </message>
     <message>
         <source>Log signals and slots</source>
-        <translation type="unfinished"></translation>
+        <translation>记录信号和槽</translation>
     </message>
     <message>
         <source>Log every signal emission and resulting slot invocations.</source>
-        <translation type="unfinished"></translation>
+        <translation>记录每个信号发射和产生的槽函数调用。</translation>
     </message>
     <message>
         <source>Limit warnings</source>
-        <translation type="unfinished"></translation>
+        <translation>限制警告</translation>
     </message>
     <message>
         <source>Set the maximum number of warnings. 0 means that the number is not limited.</source>
-        <translation type="unfinished"></translation>
+        <translation>设置警告数量最大值。0 意味着没有限制。</translation>
     </message>
     <message>
         <source>Unlimited</source>
-        <translation type="unfinished"></translation>
+        <translation>无限制的</translation>
     </message>
     <message>
         <source>Benchmark Metrics</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试指标</translation>
     </message>
     <message>
         <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;官方不支持单一可执行程序中的多个测试用例，根据具体实现，它可能会被执行，但绝不会被明确选择&lt;/p&gt;</translation>
     </message>
     <message>
         <source>inherited</source>
-        <translation type="unfinished"></translation>
+        <translation>继承</translation>
     </message>
     <message>
         <source>multiple testcases</source>
-        <translation type="unfinished"></translation>
+        <translation>多个测试用例</translation>
     </message>
     <message>
         <source>Quick Test</source>
-        <translation type="unfinished"></translation>
+        <translation>快速测试</translation>
     </message>
     <message>
         <source>&lt;unnamed&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;未命名&gt;</translation>
     </message>
     <message>
         <source>Give all test cases a name to ensure correct behavior when running test cases and to be able to select them</source>
-        <translation type="unfinished"></translation>
+        <translation>为所有的测试用例命名以确保在运行测试用例时有正确行为，并且可以选择它们</translation>
     </message>
     <message>
         <source>Scanning for Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>扫描测试</translation>
     </message>
     <message>
         <source>Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>测试</translation>
     </message>
     <message>
         <source>No active test frameworks.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有活跃的测试框架。</translation>
     </message>
     <message>
         <source>Run This Test</source>
-        <translation type="unfinished"></translation>
+        <translation>运行这个测试</translation>
     </message>
     <message>
         <source>Run Without Deployment</source>
-        <translation type="unfinished">忽略部署直接运行</translation>
+        <translation>忽略部署直接运行</translation>
     </message>
     <message>
         <source>Debug This Test</source>
-        <translation type="unfinished"></translation>
+        <translation>调试这个测试</translation>
     </message>
     <message>
         <source>Debug Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略部署直接调试</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished">全选</translation>
+        <translation>全选</translation>
     </message>
     <message>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>反选所有</translation>
     </message>
     <message>
         <source>Filter Test Tree</source>
@@ -3080,499 +3088,509 @@ Warning: Plain text misses some information, such as duration.</source>
     </message>
     <message>
         <source>Sort Naturally</source>
-        <translation type="unfinished"></translation>
+        <translation>自然排序</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">展开全部</translation>
+        <translation>展开全部</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">折叠全部</translation>
+        <translation>折叠全部</translation>
     </message>
     <message>
         <source>Sort Alphabetically</source>
-        <translation type="unfinished">按字母排序</translation>
+        <translation>按字母排序</translation>
     </message>
     <message>
         <source>Show Init and Cleanup Functions</source>
-        <translation type="unfinished"></translation>
+        <translation>显示初始化和清场函数</translation>
     </message>
     <message>
         <source>Show Data Functions</source>
-        <translation type="unfinished"></translation>
+        <translation>显示数据函数</translation>
     </message>
     <message>
         <source>Test executable crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>可执行程序测试崩溃。</translation>
     </message>
     <message>
         <source>Stop Test Run</source>
-        <translation type="unfinished"></translation>
+        <translation>停止测试运行</translation>
     </message>
     <message>
         <source>Filter Test Results</source>
-        <translation type="unfinished"></translation>
+        <translation>测试过滤结果</translation>
     </message>
     <message>
         <source>Switch Between Visual and Text Display</source>
-        <translation type="unfinished"></translation>
+        <translation>在视觉和文本显示间切换</translation>
     </message>
     <message>
         <source>Test Results</source>
-        <translation type="unfinished">测试结果</translation>
+        <translation>测试结果</translation>
     </message>
     <message>
         <source>Pass</source>
-        <translation type="unfinished">通过</translation>
+        <translation>通过</translation>
     </message>
     <message>
         <source>Fail</source>
-        <translation type="unfinished"></translation>
+        <translation>失败</translation>
     </message>
     <message>
         <source>Expected Fail</source>
-        <translation type="unfinished"></translation>
+        <translation>预期失败</translation>
     </message>
     <message>
         <source>Unexpected Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>非预期通过</translation>
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished">跳过</translation>
+        <translation>跳过</translation>
     </message>
     <message>
         <source>Benchmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试</translation>
     </message>
     <message>
         <source>Debug Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>调试信息</translation>
     </message>
     <message>
         <source>Warning Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>警告信息</translation>
     </message>
     <message>
         <source>Internal Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>内部信息</translation>
     </message>
     <message>
         <source>Check All Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>勾选所有过滤器</translation>
     </message>
     <message>
         <source>Uncheck All Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>取消勾选所有过滤器</translation>
     </message>
     <message>
         <source>Test summary</source>
-        <translation type="unfinished"></translation>
+        <translation>测试概要</translation>
     </message>
     <message>
         <source>passes</source>
-        <translation type="unfinished"></translation>
+        <translation>通过</translation>
     </message>
     <message>
         <source>fails</source>
-        <translation type="unfinished"></translation>
+        <translation>失败</translation>
     </message>
     <message>
         <source>unexpected passes</source>
-        <translation type="unfinished"></translation>
+        <translation>非预期通过</translation>
     </message>
     <message>
         <source>expected fails</source>
-        <translation type="unfinished"></translation>
+        <translation>预期失败</translation>
     </message>
     <message>
         <source>fatals</source>
-        <translation type="unfinished"></translation>
+        <translation>严重</translation>
     </message>
     <message>
         <source>blacklisted</source>
-        <translation type="unfinished"></translation>
+        <translation>黑名单</translation>
     </message>
     <message>
         <source>skipped</source>
-        <translation type="unfinished"></translation>
+        <translation>跳过</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">复制</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>复制所有</translation>
     </message>
     <message>
         <source>Save Output to File...</source>
-        <translation type="unfinished"></translation>
+        <translation>将输出保存到文件...</translation>
     </message>
     <message>
         <source>Run This Test Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略部署运行测试</translation>
     </message>
     <message>
         <source>Debug This Test Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略部署调试测试</translation>
     </message>
     <message>
         <source>Save Output To</source>
-        <translation type="unfinished"></translation>
+        <translation>保存输出到</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">错误</translation>
+        <translation>错误</translation>
     </message>
     <message>
         <source>Failed to write &quot;%1&quot;.
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>写入失败 “%1”。
+
+%2</translation>
     </message>
     <message>
         <source>AutoTest Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>自动测试调试</translation>
     </message>
     <message>
         <source>Test run canceled by user.</source>
-        <translation type="unfinished"></translation>
+        <translation>用户取消测试运行</translation>
     </message>
     <message>
         <source>
 Run configuration: deduced from &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>
+运行配置：从“%1”中推导</translation>
     </message>
     <message>
         <source>
 Run configuration: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>
+运行配置：“%1”</translation>
     </message>
     <message>
         <source>Omitted the following arguments specified on the run configuration page for &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>省略在“%1”运行配置页面中指定的以下参数：</translation>
     </message>
     <message>
         <source>Omitted the following environment variables for &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>对“%1”省略了以下环境变量：</translation>
     </message>
     <message>
         <source>Executable path is empty. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>可执行程序路径为空。（%1）</translation>
     </message>
     <message>
         <source>Current kit has changed. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>当前套件改变，取消测试运行。</translation>
     </message>
     <message>
         <source>Test case canceled due to timeout.
 Maybe raise the timeout?</source>
-        <translation type="unfinished"></translation>
+        <translation>超时导致测试用例取消。
+增加超时时间？</translation>
     </message>
     <message>
         <source>Failed to start test for project &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动项目“%1”的测试失败。</translation>
     </message>
     <message>
         <source>Test for project &quot;%1&quot; crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目“%1”的测试崩溃。</translation>
     </message>
     <message>
         <source>Test for project &quot;%1&quot; did not produce any expected output.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目“%1”的测试未产生任何预期输出。</translation>
     </message>
     <message>
         <source>No tests selected. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>未选择测试，取消测试运行。</translation>
     </message>
     <message>
         <source>Project is null. Canceling test run.
 Only desktop kits are supported. Make sure the currently active kit is a desktop kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目为空，取消测试运行。
+仅支持桌面套件。确保当前活跃套件为桌面套件。</translation>
     </message>
     <message>
         <source>Project is not configured. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目未配置。取消测试运行。</translation>
     </message>
     <message>
         <source>Project is null for &quot;%1&quot;. Removing from test run.
 Check the test environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”项目为空。从运行测试中移除。
+检测测试环境。</translation>
     </message>
     <message>
         <source>Project&apos;s run configuration was deduced for &quot;%1&quot;.
 This might cause trouble during execution.
 (deduced from &quot;%2&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>为“%1”推导出项目的运行配置。
+这可能导致执行中的一些问题。
+（从“%2”中推导）</translation>
     </message>
     <message>
         <source>Startup project has changed. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动项目已更改，取消测试运行。</translation>
     </message>
     <message>
         <source>No test cases left for execution. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有待执行的测试用例，取消测试运行。</translation>
     </message>
     <message>
         <source>Running Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试</translation>
     </message>
     <message>
         <source>Failed to get run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>获取运行配置失败。</translation>
     </message>
     <message>
         <source>Could not find command &quot;%1&quot;. (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>无法找到命令“%1”。（%2）</translation>
     </message>
     <message>
         <source>Unable to display test results when using CDB.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 CDB 时无法显示测试结果。</translation>
     </message>
     <message>
         <source>Build failed. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>构建失败。取消测试运行。</translation>
     </message>
     <message>
         <source>Select Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>选择运行配置</translation>
     </message>
     <message>
         <source>Could not determine which run configuration to choose for running tests</source>
-        <translation type="unfinished"></translation>
+        <translation>无法确定为运行的测试选择哪个运行配置</translation>
     </message>
     <message>
         <source>Remember choice. Cached choices can be reset by switching projects or using the option to clear the cache.</source>
-        <translation type="unfinished"></translation>
+        <translation>记住选择。缓存下来的选择可以通过切换项目或者使用选项来清除。</translation>
     </message>
     <message>
         <source>Run Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>运行配置：</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
+        <translation>执行档:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数:</translation>
     </message>
     <message>
         <source>Working Directory:</source>
-        <translation type="unfinished">工作目录:</translation>
+        <translation>工作目录:</translation>
     </message>
     <message>
         <source>Omit internal messages</source>
-        <translation type="unfinished"></translation>
+        <translation>省略内部信息</translation>
     </message>
     <message>
         <source>Hides internal messages by default. You can still enable them by using the test results filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>默认隐藏内部信息。你依然可以通过使用测试结果过滤器来启用它们。</translation>
     </message>
     <message>
         <source>Omit run configuration warnings</source>
-        <translation type="unfinished"></translation>
+        <translation>省略运行配置警告</translation>
     </message>
     <message>
         <source>Hides warnings related to a deduced run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>隐藏与推导出的运行配置相关的警告。</translation>
     </message>
     <message>
         <source>Limit result output</source>
-        <translation type="unfinished"></translation>
+        <translation>限制结果输出</translation>
     </message>
     <message>
         <source>Limits result output to 100000 characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>将输出结果限制为100000个字符。</translation>
     </message>
     <message>
         <source>Limit result description:</source>
-        <translation type="unfinished"></translation>
+        <translation>限制结果描述：</translation>
     </message>
     <message>
         <source>Limit number of lines shown in test result tooltip and description.</source>
-        <translation type="unfinished"></translation>
+        <translation>限制测试结果工具提示和描述中的显示行数。</translation>
     </message>
     <message>
         <source>Open results when tests start</source>
-        <translation type="unfinished"></translation>
+        <translation>测试开始时打开结果</translation>
     </message>
     <message>
         <source>Displays test results automatically when tests are started.</source>
-        <translation type="unfinished"></translation>
+        <translation>当测试开始时自动显示测试结果面板。</translation>
     </message>
     <message>
         <source>Open results when tests finish</source>
-        <translation type="unfinished"></translation>
+        <translation>测试结束时打开结果面板</translation>
     </message>
     <message>
         <source>Displays test results automatically when tests are finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>在测试结束时自动显示测试结果面板。</translation>
     </message>
     <message>
         <source>Only for unsuccessful test runs</source>
-        <translation type="unfinished"></translation>
+        <translation>仅适用于不成功的测试运行</translation>
     </message>
     <message>
         <source>Displays test results only if the test run contains failed, fatal or unexpectedly passed tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>仅在测试运行失败、严重问题或非预期通过时显示结果面板。</translation>
     </message>
     <message>
         <source>Automatically scroll results</source>
-        <translation type="unfinished"></translation>
+        <translation>自动滚动结果</translation>
     </message>
     <message>
         <source>Automatically scrolls down when new items are added and scrollbar is at bottom.</source>
-        <translation type="unfinished"></translation>
+        <translation>当新的项添加并且滚动条位于底部时自动向下滚动。</translation>
     </message>
     <message>
         <source>Group results by application</source>
-        <translation type="unfinished"></translation>
+        <translation>按照应用对结果分组</translation>
     </message>
     <message>
         <source>Process arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>处理参数</translation>
     </message>
     <message>
         <source>Allow passing arguments specified on the respective run configuration.
 Warning: this is an experimental feature and might lead to failing to execute the test executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>允许传递在相应运行配置上指定的参数。
+警告：这是个实验特性，并且可能导致测试执行失败。</translation>
     </message>
     <message>
         <source>Runs chosen tests automatically if a build succeeded.</source>
-        <translation type="unfinished"></translation>
+        <translation>构建成功后自动运行选择的测试。</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">超时时间:</translation>
+        <translation>超时时间:</translation>
     </message>
     <message>
         <source>Timeout used when executing each test case.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行每个测试用例的超时时间。</translation>
     </message>
     <message>
         <source> s</source>
-        <translation type="unfinished">秒</translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>Timeout used when executing test cases. This will apply for each test case on its own, not the whole project.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试用例时的超时时间。它单独应用在每个测试用例上，而不是整个项目。</translation>
     </message>
     <message>
         <source>Selects the test frameworks to be handled by the AutoTest plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择由 AutoTest 插件处理的测试框架。</translation>
     </message>
     <message>
         <source>Framework</source>
-        <translation type="unfinished">框架</translation>
+        <translation>框架</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>组</translation>
     </message>
     <message>
         <source>Enables grouping of test cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>为测试用例启用分组</translation>
     </message>
     <message>
         <source>Reset Cached Choices</source>
-        <translation type="unfinished"></translation>
+        <translation>重置缓存的选择</translation>
     </message>
     <message>
         <source>Clear all cached choices of run configurations for tests where the executable could not be deduced.</source>
-        <translation type="unfinished"></translation>
+        <translation>对于无法推导出可执行程序的测试，清除运行配置中所有缓存的选择。</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">概要</translation>
+        <translation>概要</translation>
     </message>
     <message>
         <source>Automatically run</source>
-        <translation type="unfinished"></translation>
+        <translation>自动运行</translation>
     </message>
     <message>
         <source>Active Test Frameworks</source>
-        <translation type="unfinished"></translation>
+        <translation>活跃的测试框架</translation>
     </message>
     <message>
         <source>Enable or disable test frameworks to be handled by the AutoTest plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用或禁用由 AutoTest 插件处理的测试框架</translation>
     </message>
     <message>
         <source>Enable or disable grouping of test cases by folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用或禁用按文件夹对测试用例分组。</translation>
     </message>
     <message>
         <source>No active test frameworks or tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>无活跃的测试框架或工具。</translation>
     </message>
     <message>
         <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
-        <translation type="unfinished"></translation>
+        <translation>在没有活跃的测试框架时无法使用 AutoTest 插件。</translation>
     </message>
     <message>
         <source>Mixing test frameworks and test tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>混合测试框架和测试工具。</translation>
     </message>
     <message>
         <source>Mixing test frameworks and test tools can lead to duplicating run information when using &quot;Run All Tests&quot;, for example.</source>
-        <translation type="unfinished"></translation>
+        <translation>例如，当使用“运行所有测试”时，混合测试框架和测试工具可能产生重复运行信息。</translation>
     </message>
     <message>
         <source>%1 (none)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1（无）</translation>
     </message>
 </context>
 <context>
     <name>AutotoolsProjectManager</name>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数:</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autogen step.</source>
-        <translation type="unfinished">配置未改变，跳过autogen步骤。</translation>
+        <translation>配置未改变，跳过autogen步骤。</translation>
     </message>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
-        <translation type="unfinished">Autogen</translation>
+        <translation>Autogen</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
-        <translation type="unfinished">配置未改变，跳过autoreconf步骤。</translation>
+        <translation>配置未改变，跳过autoreconf步骤。</translation>
     </message>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
-        <translation type="unfinished">Autoreconf</translation>
+        <translation>Autoreconf</translation>
     </message>
     <message>
         <source>Autotools Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Autotools 管理器</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping configure step.</source>
-        <translation type="unfinished">配置未改变，跳过configure步骤。</translation>
+        <translation>配置未改变，跳过configure步骤。</translation>
     </message>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
-        <translation type="unfinished">配置</translation>
+        <translation>配置</translation>
     </message>
     <message>
         <source>Parsing %1 in directory %2</source>
-        <translation type="unfinished">正在目录 %2中分析 %1</translation>
+        <translation>正在目录 %2中解析 %1</translation>
     </message>
     <message>
         <source>Parsing directory %1</source>
-        <translation type="unfinished">正在分析目录 %1</translation>
+        <translation>正在解析目录 %1</translation>
     </message>
 </context>
 <context>
