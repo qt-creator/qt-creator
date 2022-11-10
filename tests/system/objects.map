@@ -41,7 +41,6 @@
 :Cannot Open Project_QTextEdit	{type='QTextEdit' unnamed='1' visible='1' window=':Cannot Open Project_QMessageBox'}
 :Close Debugging Session.Yes_QPushButton	{text='Yes' type='QPushButton' unnamed='1' visible='1' window=':Close Debugging Session_Utils::CheckableMessageBox'}
 :Close Debugging Session_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Close Debugging Session'}
-:Core__Internal__GeneralSettings.User Interface_QGroupBox	{container=':qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget' name='interfaceBox' title='User Interface' type='QGroupBox' visible='1'}
 :CppCompiler:_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':CppCompiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :CppCompiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='C++:' type='QLabel' unnamed='1' visible='1'}
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='Behavior' type='QGroupBox' visible='1'}
@@ -194,7 +193,7 @@
 :Send to Codepaster_CodePaster::PasteView	{name='CodePaster.ViewDialog' type='QDialog' visible='1' windowTitle='Send to Codepaster'}
 :Session Manager_ProjectExplorer::Internal::SessionDialog	{name='ProjectExplorer.SessionDialog' type='ProjectExplorer::Internal::SessionDialog' visible='1' windowTitle='Session Manager'}
 :Startup.contextHelpComboBox_QComboBox	{container=':Form.Startup_QGroupBox' name='contextHelpComboBox' type='QComboBox' visible='1'}
-:User Interface.languageBox_QComboBox	{container=':Core__Internal__GeneralSettings.User Interface_QGroupBox' name='languageBox' type='QComboBox' visible='1'}
+:User Interface.languageBox_QComboBox	{name='languageBox' type='QComboBox' visible='1'}
 :Utils::FakeToolTip	{type='Utils::FakeToolTip' unnamed='1' visible='1'}
 :Widget Box_qdesigner_internal::WidgetBoxTreeWidget	{container=':*Qt Creator.Widget Box_QDockWidget' type='qdesigner_internal::WidgetBoxTreeWidget' unnamed='1' visible='1'}
 :Working Copy_Utils::BaseValidatingLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':New_ProjectExplorer::JsonWizard'}
@@ -208,7 +207,6 @@
 :projectComboBox_QComboBox	{buddy=':New Text File.Add to project:_QLabel' name='projectComboBox' type='QComboBox' visible='1'}
 :projectComboBox_Utils::TreeViewComboBox	{buddy=':New Text File.Add to project:_QLabel' name='projectComboBox' type='Utils::TreeViewComboBox' visible='1'}
 :qdesigner_internal::WidgetBoxCategoryListView	{container=':Widget Box_qdesigner_internal::WidgetBoxTreeWidget' occurrence='3' type='qdesigner_internal::WidgetBoxCategoryListView' unnamed='1' visible='1'}
-:qt_tabwidget_stackedwidget.Core__Internal__GeneralSettings_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Core__Internal__GeneralSettings' type='QWidget' visible='1'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget_QScrollArea	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QWidget' unnamed='1' visible='1'}
