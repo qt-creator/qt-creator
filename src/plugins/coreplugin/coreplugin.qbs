@@ -243,6 +243,7 @@ Project {
                 "progressbar.cpp", "progressbar.h",
                 "progressmanager.cpp", "progressmanager.h", "progressmanager_p.h",
                 "progressview.cpp", "progressview.h",
+                "taskprogress.cpp", "taskprogress.h",
             ]
         }
 

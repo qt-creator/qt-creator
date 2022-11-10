@@ -144,6 +144,7 @@ add_qtc_plugin(Core
     progressmanager/progressbar.cpp progressmanager/progressbar.h
     progressmanager/progressmanager.cpp progressmanager/progressmanager.h progressmanager/progressmanager_p.h
     progressmanager/progressview.cpp progressmanager/progressview.h
+    progressmanager/taskprogress.cpp progressmanager/taskprogress.h
     rightpane.cpp rightpane.h
     settingsdatabase.cpp settingsdatabase.h
     sidebar.cpp sidebar.h
