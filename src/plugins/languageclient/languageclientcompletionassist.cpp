@@ -411,9 +411,11 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     }
 
     QList<CompletionItem> items;
+    bool isComplete = false;
     if (std::holds_alternative<CompletionList>(*result)) {
         const auto &list = std::get<CompletionList>(*result);
         items = list.items().value_or(QList<CompletionItem>());
+        isComplete = !list.isIncomplete();
     } else if (std::holds_alternative<QList<CompletionItem>>(*result)) {
         items = std::get<QList<CompletionItem>>(*result);
     }
@@ -428,7 +430,12 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
                                                                                       model);
     proposal->m_document = m_assistInterface->textDocument();
     proposal->m_pos = m_pos;
-    proposal->setSupportsPrefix(false);
+    const QString completePrefix = Utils::Text::textAt(QTextCursor(m_document),
+                                                       m_basePos,
+                                                       m_pos - m_basePos);
+    proposal->setPrefixChecker([isComplete, completePrefix](const QString &candidate) {
+        return isComplete && candidate.startsWith(completePrefix);
+    });
     setAsyncProposalAvailable(proposal);
     m_client->removeAssistProcessor(this);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "

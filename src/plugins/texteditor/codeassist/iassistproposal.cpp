@@ -68,9 +68,9 @@ bool IAssistProposal::isFragile() const
     return m_isFragile;
 }
 
-bool IAssistProposal::supportsPrefix() const
+bool IAssistProposal::supportsPrefixFiltering(const QString &prefix) const
 {
-    return m_supportsPrefix;
+    return !m_prefixChecker || m_prefixChecker(prefix);
 }
 
 /*!
@@ -103,9 +103,9 @@ void IAssistProposal::setFragile(bool fragile)
     m_isFragile = fragile;
 }
 
-void IAssistProposal::setSupportsPrefix(bool supportsPrefix)
+void IAssistProposal::setPrefixChecker(const PrefixChecker checker)
 {
-    m_supportsPrefix = supportsPrefix;
+    m_prefixChecker = checker;
 }
 
 /*!

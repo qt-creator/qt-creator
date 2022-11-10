@@ -51,6 +51,7 @@ public:
     void displayProposal(IAssistProposal *newProposal, AssistReason reason);
     bool isDisplayingProposal() const;
     bool isWaitingForProposal() const;
+    QString proposalPrefix() const;
 
     void notifyChange();
     bool hasContext() const;
@@ -134,7 +135,7 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
     stopAutomaticProposalTimer();
 
     if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()
-        && m_proposal->supportsPrefix()) {
+        && m_proposal->supportsPrefixFiltering(proposalPrefix())) {
         m_proposalWidget->setReason(ExplicitlyInvoked);
         m_proposalWidget->updateProposal(m_editorWidget->textAt(
                         m_proposal->basePosition(),
@@ -426,6 +427,14 @@ bool CodeAssistantPrivate::isWaitingForProposal() const
     return m_requestRunner != nullptr || m_asyncProcessor != nullptr;
 }
 
+QString CodeAssistantPrivate::proposalPrefix() const
+{
+    if (!isDisplayingProposal())
+        return {};
+    return m_editorWidget->textAt(m_proposal->basePosition(),
+                                  m_editorWidget->position() - m_proposal->basePosition());
+}
+
 void CodeAssistantPrivate::invalidateCurrentRequestData()
 {
     m_asyncProcessor = nullptr;
@@ -468,14 +477,15 @@ void CodeAssistantPrivate::notifyChange()
         QTC_ASSERT(m_proposal, return);
         if (m_editorWidget->position() < m_proposal->basePosition()) {
             destroyContext();
-        } else if (m_proposal->supportsPrefix()) {
-            m_proposalWidget->updateProposal(
-                m_editorWidget->textAt(m_proposal->basePosition(),
-                                     m_editorWidget->position() - m_proposal->basePosition()));
-            if (!isDisplayingProposal())
-                requestActivationCharProposal();
         } else {
-            requestProposal(m_proposal->reason(), m_assistKind, m_requestProvider, true);
+            const QString prefix = proposalPrefix();
+            if (m_proposal->supportsPrefixFiltering(prefix)) {
+                m_proposalWidget->updateProposal(prefix);
+                if (!isDisplayingProposal())
+                    requestActivationCharProposal();
+            } else {
+                requestProposal(m_proposal->reason(), m_assistKind, m_requestProvider, true);
+            }
         }
     }
 }
