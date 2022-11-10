@@ -188,7 +188,7 @@ void Edit3DWidget::createContextMenu()
     });
 
     m_pasteAction = m_contextMenu->addAction(tr("Paste"), [&] {
-        QmlDesignerPlugin::instance()->currentDesignDocument()->paste();
+        QmlDesignerPlugin::instance()->currentDesignDocument()->pasteToPosition(m_contextMenuPos3d);
     });
 
     m_deleteAction = m_contextMenu->addAction(tr("Delete"), [&] {
