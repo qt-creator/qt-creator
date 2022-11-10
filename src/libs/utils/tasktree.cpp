@@ -84,12 +84,12 @@ public:
                   const TaskItem &task);
     ~TaskContainer();
     void start();
-    void selectChildren();
+    int selectChildren(); // returns the skipped child count
     void stop();
     bool isRunning() const;
     int taskCount() const;
     void childDone(bool success);
-    void invokeEndHandler(bool success);
+    void invokeEndHandler(bool success, bool propagateToParent = true);
     void resetSuccessBit();
     void updateSuccessBit(bool success);
 
@@ -135,11 +135,46 @@ public:
         : q(taskTree)
         , m_root(this, nullptr, root) {}
 
+    void start() {
+        m_progressValue = 0;
+        emitStartedAndProgress();
+        m_root.start();
+    }
+    void stop() {
+        if (!m_root.isRunning())
+            return;
+        // TODO: should we have canceled flag (passed to handler)?
+        // Just one done handler with result flag:
+        //   FinishedWithSuccess, FinishedWithError, Canceled, TimedOut.
+        // Canceled either directly by user, or by workflow policy - doesn't matter, in both
+        // cases canceled from outside.
+        m_root.stop();
+        emitError();
+    }
+    void advanceProgress(int byValue) {
+        if (byValue == 0)
+            return;
+        QTC_CHECK(byValue > 0);
+        QTC_CHECK(m_progressValue + byValue <= m_root.taskCount());
+        m_progressValue += byValue;
+        emitProgress();
+    }
+    void emitStartedAndProgress() {
+        GuardLocker locker(m_guard);
+        emit q->started();
+        emit q->progressValueChanged(m_progressValue);
+    }
+    void emitProgress() {
+        GuardLocker locker(m_guard);
+        emit q->progressValueChanged(m_progressValue);
+    }
     void emitDone() {
+        QTC_CHECK(m_progressValue == m_root.taskCount());
         GuardLocker locker(m_guard);
         emit q->done();
     }
     void emitError() {
+        QTC_CHECK(m_progressValue == m_root.taskCount());
         GuardLocker locker(m_guard);
         emit q->errorOccurred();
     }
@@ -147,6 +182,7 @@ public:
     TaskTree *q = nullptr;
     TaskNode m_root;
     Guard m_guard;
+    int m_progressValue = 0;
 };
 
 TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *parentContainer,
@@ -172,6 +208,7 @@ TaskContainer::~TaskContainer()
 
 void TaskContainer::start()
 {
+    m_currentIndex = 0;
     m_groupConfig = {};
     m_selectedChildren.clear();
 
@@ -187,11 +224,14 @@ void TaskContainer::start()
 
     if (m_groupConfig.action == GroupAction::StopWithDone || m_groupConfig.action == GroupAction::StopWithError) {
         const bool success = m_groupConfig.action == GroupAction::StopWithDone;
+        const int skippedTaskCount = taskCount();
+        m_taskTreePrivate->advanceProgress(skippedTaskCount);
         invokeEndHandler(success);
         return;
     }
 
-    selectChildren();
+    const int skippedTaskCount = selectChildren();
+    m_taskTreePrivate->advanceProgress(skippedTaskCount);
 
     if (m_selectedChildren.isEmpty()) {
         invokeEndHandler(true);
@@ -213,21 +253,35 @@ void TaskContainer::start()
     }
 }
 
-void TaskContainer::selectChildren()
+int TaskContainer::selectChildren()
 {
     if (m_groupConfig.action != GroupAction::ContinueSelected) {
         m_selectedChildren = m_children;
-        return;
+        return 0;
     }
     m_selectedChildren.clear();
+    int skippedTaskCount = 0;
     for (int i = 0; i < m_children.size(); ++i) {
         if (m_groupConfig.childrenToRun.contains(i))
             m_selectedChildren.append(m_children.at(i));
+        else
+            skippedTaskCount += m_children.at(i)->taskCount();
     }
+    return skippedTaskCount;
 }
 
 void TaskContainer::stop()
 {
+    if (!isRunning())
+        return;
+
+    if (m_executeMode == TaskItem::ExecuteMode::Sequential) {
+        int skippedTaskCount = 0;
+        for (int i = m_currentIndex + 1; i < m_selectedChildren.size(); ++i)
+            skippedTaskCount += m_selectedChildren.at(i)->taskCount();
+        m_taskTreePrivate->advanceProgress(skippedTaskCount);
+    }
+
     m_currentIndex = -1;
     for (TaskNode *child : std::as_const(m_selectedChildren))
         child->stop();
@@ -264,7 +318,7 @@ void TaskContainer::childDone(bool success)
         m_selectedChildren.at(m_currentIndex)->start();
 }
 
-void TaskContainer::invokeEndHandler(bool success)
+void TaskContainer::invokeEndHandler(bool success, bool propagateToParent)
 {
     m_currentIndex = -1;
     m_successBit = success;
@@ -275,6 +329,10 @@ void TaskContainer::invokeEndHandler(bool success)
         GuardLocker locker(m_taskTreePrivate->m_guard);
         m_groupHandler.m_errorHandler();
     }
+
+    if (!propagateToParent)
+        return;
+
     if (m_parentContainer) {
         m_parentContainer->childDone(success);
         return;
@@ -329,6 +387,7 @@ bool TaskNode::start()
             GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
             m_taskHandler.m_errorHandler(*m_task.get());
         }
+        m_container.m_taskTreePrivate->advanceProgress(1);
 
         m_task.release()->deleteLater();
 
@@ -342,8 +401,23 @@ bool TaskNode::start()
 
 void TaskNode::stop()
 {
+    if (!isRunning())
+        return;
+
+    if (!m_task) {
+        m_container.stop();
+        m_container.invokeEndHandler(false, false);
+        return;
+    }
+
+    // TODO: cancelHandler?
+    // TODO: call TaskInterface::stop() ?
+    if (m_taskHandler.m_errorHandler) {
+        GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
+        m_taskHandler.m_errorHandler(*m_task.get());
+    }
+    m_container.m_taskTreePrivate->advanceProgress(1);
     m_task.reset();
-    m_container.stop();
 }
 
 bool TaskNode::isRunning() const
@@ -422,14 +496,14 @@ void TaskTree::start()
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The start() is called from one of the"
                                                 "TaskTree handlers, ingoring..."); return);
-    d->m_root.start();
+    d->start();
 }
 
 void TaskTree::stop()
 {
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The stop() is called from one of the"
                                                 "TaskTree handlers, ingoring..."); return);
-    d->m_root.stop();
+    d->stop();
 }
 
 bool TaskTree::isRunning() const
@@ -440,6 +514,11 @@ bool TaskTree::isRunning() const
 int TaskTree::taskCount() const
 {
     return d->m_root.taskCount();
+}
+
+int TaskTree::progressValue() const
+{
+    return d->m_progressValue;
 }
 
 } // namespace Utils

@@ -246,10 +246,14 @@ public:
     void stop();
     bool isRunning() const;
     int taskCount() const;
+    int progressMaximum() const { return taskCount(); }
+    int progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
 
 signals:
+    void started();
     void done();
     void errorOccurred();
+    void progressValueChanged(int value); // updated whenever task finished / skipped / stopped
 
 private:
     TaskTreePrivate *d;

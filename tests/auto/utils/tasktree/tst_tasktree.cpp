@@ -470,6 +470,7 @@ void tst_TaskTree::processTree()
     eventLoop.exec();
 
     QVERIFY(!processTree.isRunning());
+    QCOMPARE(processTree.progressValue(), taskCount);
     QCOMPARE(m_log, expectedLog);
 
     const int expectedDoneCount = success ? 1 : 0;
