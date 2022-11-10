@@ -190,8 +190,8 @@ enum AndroidValidation {
     JavaPathExistsAndWritableRow,
     SdkPathExistsAndWritableRow,
     SdkToolsInstalledRow,
-    PlatformToolsInstalledRow,
     SdkManagerSuccessfulRow,
+    PlatformToolsInstalledRow,
     PlatformSdkInstalledRow,
     BuildToolsInstalledRow,
     AllEssentialsInstalledRow,
@@ -279,15 +279,15 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, &m_sdkManager, this);
 
     const QMap<int, QString> androidValidationPoints = {
-        { SdkPathExistsAndWritableRow, Tr::tr("Android SDK path exists and is writable.") },
         { JavaPathExistsAndWritableRow, Tr::tr("JDK path exists and is writable.") },
-        { SdkToolsInstalledRow, Tr::tr("SDK tools installed.") },
-        { SdkManagerSuccessfulRow, Tr::tr("SDK manager runs.") },
-        { PlatformToolsInstalledRow, Tr::tr("Platform tools installed.") },
+        { SdkPathExistsAndWritableRow, Tr::tr("Android SDK path exists and is writable.") },
+        { SdkToolsInstalledRow, Tr::tr("Android SDK Command-line Tools installed.") },
+        { SdkManagerSuccessfulRow, Tr::tr("Android SDK Command-line Tools run.") },
+        { PlatformToolsInstalledRow, Tr::tr("Android SDK Platform-Tools installed.") },
         { AllEssentialsInstalledRow,
             Tr::tr( "All essential packages installed for all installed Qt versions.") },
-        { BuildToolsInstalledRow, Tr::tr("Build tools installed.") },
-        { PlatformSdkInstalledRow, Tr::tr("Platform SDK installed.") }
+        { BuildToolsInstalledRow, Tr::tr("Android SDK Build-Tools installed.") },
+        { PlatformSdkInstalledRow, Tr::tr("Android Platform SDK (version) installed.") }
     };
 
     m_androidSummary = new SummaryWidget(androidValidationPoints, Tr::tr("Android settings are OK."),
