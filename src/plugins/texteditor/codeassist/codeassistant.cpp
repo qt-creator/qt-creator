@@ -59,7 +59,7 @@ public:
     QVariant userData() const;
     void setUserData(const QVariant &data);
 
-    CompletionAssistProvider *identifyActivationSequence();
+    QList<CompletionAssistProvider *> identifyActivationSequence();
 
     void stopAutomaticProposalTimer();
     void startAutomaticProposalTimer();
@@ -149,9 +149,10 @@ bool CodeAssistantPrivate::requestActivationCharProposal()
     if (m_editorWidget->multiTextCursor().hasMultipleCursors())
         return false;
     if (m_assistKind == Completion && m_settings.m_completionTrigger != ManualCompletion) {
-        if (CompletionAssistProvider *provider = identifyActivationSequence()) {
+        for (CompletionAssistProvider *provider : identifyActivationSequence()) {
             requestProposal(ActivationCharacter, Completion, provider);
-            return true;
+            if (isDisplayingProposal() || isWaitingForProposal())
+                return true;
         }
     }
     return false;
@@ -433,7 +434,7 @@ void CodeAssistantPrivate::invalidateCurrentRequestData()
     m_receivedContentWhileWaiting = false;
 }
 
-CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
+QList<CompletionAssistProvider *> CodeAssistantPrivate::identifyActivationSequence()
 {
     auto checkActivationSequence = [this](CompletionAssistProvider *provider) {
         if (!provider)
@@ -452,11 +453,11 @@ CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
         return provider->isActivationCharSequence(sequence);
     };
 
-    auto provider = {
+    QList<CompletionAssistProvider *> provider = {
         m_editorWidget->textDocument()->completionAssistProvider(),
         m_editorWidget->textDocument()->functionHintAssistProvider()
     };
-    return Utils::findOrDefault(provider, checkActivationSequence);
+    return Utils::filtered(provider, checkActivationSequence);
 }
 
 void CodeAssistantPrivate::notifyChange()
