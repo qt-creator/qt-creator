@@ -1,5 +1,5 @@
 add_qtc_executable(testapp
-  DEPENDS Utils
+  DEPENDS Utils app_version
   SOURCES main.cpp
   SKIP_INSTALL
   INTERNAL_ONLY
