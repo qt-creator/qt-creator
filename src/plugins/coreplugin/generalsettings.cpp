@@ -274,7 +274,7 @@ void GeneralSettings::setShowShortcutsInContextMenu(bool show)
     ICore::settings()->setValueWithDefault(settingsKeyShortcutsInContextMenu,
                                            show,
                                            m_defaultShowShortcutsInContextMenu);
-    QGuiApplication::styleHints()->setShowShortcutsInContextMenus(show);
+    QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus, !show);
 }
 
 GeneralSettings::GeneralSettings()
