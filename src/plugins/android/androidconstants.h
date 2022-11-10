@@ -8,13 +8,11 @@
 
 namespace Android {
 namespace Internal {
-
 #ifdef Q_OS_WIN32
 #define ANDROID_BAT_SUFFIX ".bat"
 #else
 #define ANDROID_BAT_SUFFIX ""
 #endif
-
 } // namespace Internal
 
 namespace Constants {

@@ -134,8 +134,6 @@ public:
     QString getProductModel(const QString &device) const;
     bool isConnected(const QString &serialNumber) const;
 
-    bool preCmdlineSdkToolsInstalled() const;
-
     bool sdkFullyConfigured() const { return m_sdkFullyConfigured; }
     void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; }
 

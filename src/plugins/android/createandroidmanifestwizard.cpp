@@ -20,6 +20,7 @@
 
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -289,8 +290,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 
         if (m_copyGradle) {
             FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
-            if (!gradlePath.exists())
-                gradlePath = AndroidConfigurations::currentConfig().sdkLocation() / "tools/templates/gradle/wrapper";
+            QTC_ASSERT(gradlePath.exists(), return);
             FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy);
         }
 

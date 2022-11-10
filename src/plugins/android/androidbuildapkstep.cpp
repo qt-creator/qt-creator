@@ -487,20 +487,7 @@ bool AndroidBuildApkStep::init()
         return false;
     }
 
-    const QVersionNumber sdkToolsVersion = AndroidConfigurations::currentConfig().sdkToolsVersion();
-    if (sdkToolsVersion >= QVersionNumber(25, 3, 0)
-            && AndroidConfigurations::currentConfig().preCmdlineSdkToolsInstalled()) {
-        if (!version->sourcePath().pathAppended("src/3rdparty/gradle").exists()) {
-            const QString error
-                    = Tr::tr("The installed SDK tools version (%1) does not include Gradle "
-                             "scripts. The minimum Qt version required for Gradle build to work "
-                             "is %2")
-                    .arg(sdkToolsVersion.toString())
-                    .arg("5.9.0/5.6.3");
-            reportWarningOrError(error, Task::Error);
-            return false;
-        }
-    } else if (version->qtVersion() < QVersionNumber(5, 4, 0)) {
+    if (version->qtVersion() < QVersionNumber(5, 4, 0)) {
         const QString error = Tr::tr("The minimum Qt version required for Gradle build to work is %1. "
                                      "It is recommended to install the latest Qt version.")
                 .arg("5.4.0");
