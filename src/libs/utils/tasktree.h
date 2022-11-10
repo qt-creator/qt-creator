@@ -245,6 +245,7 @@ public:
     void start();
     void stop();
     bool isRunning() const;
+    int taskCount() const;
 
 signals:
     void done();

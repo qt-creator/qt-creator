@@ -113,6 +113,7 @@ void tst_TaskTree::processTree_data()
     QTest::addColumn<Log>("expectedLog");
     QTest::addColumn<bool>("runningAfterStart");
     QTest::addColumn<bool>("success");
+    QTest::addColumn<int>("taskCount");
 
     const auto setupProcessHelper = [this](QtcProcess &process, const QStringList &args, int processId) {
         process.setCommand(CommandLine(m_testAppPath, args));
@@ -156,6 +157,7 @@ void tst_TaskTree::processTree_data()
         OnGroupDone(rootDone)
     };
     const Log emptyLog{{-1, Handler::GroupDone}};
+    QTest::newRow("Empty") << emptyRoot << emptyLog << false << true << 0;
 
     const Group nestedRoot {
         Group {
@@ -194,6 +196,7 @@ void tst_TaskTree::processTree_data()
                         {2, Handler::GroupDone},
                         {1, Handler::GroupDone},
                         {-1, Handler::GroupDone}};
+    QTest::newRow("Nested") << nestedRoot << nestedLog << true << true << 1;
 
     const Group parallelRoot {
         parallel,
@@ -215,6 +218,7 @@ void tst_TaskTree::processTree_data()
                           {-1, Handler::Done},
                           {-1, Handler::Done},
                           {-1, Handler::GroupDone}}; // Done handlers may come in different order
+    QTest::newRow("Parallel") << parallelRoot << parallelLog << true << true << 5;
 
     const Group sequentialRoot {
         Process(std::bind(setupProcess, _1, 1), readResult),
@@ -253,6 +257,9 @@ void tst_TaskTree::processTree_data()
                             {5, Handler::Setup},
                             {5, Handler::Done},
                             {-1, Handler::GroupDone}};
+    QTest::newRow("Sequential") << sequentialRoot << sequentialLog << true << true << 5;
+    QTest::newRow("SequentialEncapsulated") << sequentialEncapsulatedRoot << sequentialLog
+                                            << true << true << 5;
 
     const Group sequentialNestedRoot {
         Group {
@@ -293,6 +300,8 @@ void tst_TaskTree::processTree_data()
                                   {2, Handler::GroupDone},
                                   {1, Handler::GroupDone},
                                   {-1, Handler::GroupDone}};
+    QTest::newRow("SequentialNested") << sequentialNestedRoot << sequentialNestedLog
+                                      << true << true << 5;
 
     const Group sequentialErrorRoot {
         Process(std::bind(setupProcess, _1, 1), readResult),
@@ -310,14 +319,8 @@ void tst_TaskTree::processTree_data()
                                  {3, Handler::Setup},
                                  {3, Handler::Error},
                                  {-1, Handler::GroupError}};
-
-    const QList<TaskItem> simpleSequence {
-        Process(std::bind(setupProcess, _1, 1), readResult),
-        Process(std::bind(setupCrashProcess, _1, 2), readResult, readError),
-        Process(std::bind(setupProcess, _1, 3), readResult),
-        OnGroupDone(rootDone),
-        OnGroupError(rootError)
-    };
+    QTest::newRow("SequentialError") << sequentialErrorRoot << sequentialErrorLog
+                                     << true << false << 5;
 
     const auto constructSimpleSequence = [=](const WorkflowPolicy &policy) {
         return Group {
@@ -336,6 +339,7 @@ void tst_TaskTree::processTree_data()
                              {2, Handler::Setup},
                              {2, Handler::Error},
                              {-1, Handler::GroupError}};
+    QTest::newRow("StopOnError") << stopOnErrorRoot << stopOnErrorLog << true << false << 3;
 
     const Group continueOnErrorRoot = constructSimpleSequence(continueOnError);
     const Log continueOnErrorLog{{1, Handler::Setup},
@@ -345,11 +349,15 @@ void tst_TaskTree::processTree_data()
                                  {3, Handler::Setup},
                                  {3, Handler::Done},
                                  {-1, Handler::GroupError}};
+    QTest::newRow("ContinueOnError") << continueOnErrorRoot << continueOnErrorLog
+                                     << true << false << 3;
 
     const Group stopOnDoneRoot = constructSimpleSequence(stopOnDone);
     const Log stopOnDoneLog{{1, Handler::Setup},
                             {1, Handler::Done},
                             {-1, Handler::GroupDone}};
+    QTest::newRow("StopOnDone") << stopOnDoneRoot << stopOnDoneLog
+                                << true << true << 3;
 
     const Group continueOnDoneRoot = constructSimpleSequence(continueOnDone);
     const Log continueOnDoneLog{{1, Handler::Setup},
@@ -359,6 +367,7 @@ void tst_TaskTree::processTree_data()
                                 {3, Handler::Setup},
                                 {3, Handler::Done},
                                 {-1, Handler::GroupDone}};
+    QTest::newRow("ContinueOnDone") << continueOnDoneRoot << continueOnDoneLog << true << true << 3;
 
     const Group optionalRoot {
         optional,
@@ -372,6 +381,7 @@ void tst_TaskTree::processTree_data()
                           {2, Handler::Setup},
                           {2, Handler::Error},
                           {-1, Handler::GroupDone}};
+    QTest::newRow("Optional") << optionalRoot << optionalLog << true << true << 2;
 
     const auto stopWithDoneSetup = [] { return GroupConfig{GroupAction::StopWithDone}; };
     const auto stopWithErrorSetup = [] { return GroupConfig{GroupAction::StopWithError}; };
@@ -396,10 +406,16 @@ void tst_TaskTree::processTree_data()
     const Log dynamicSetupDoneLog{{1, Handler::Setup},
                                   {1, Handler::Done},
                                   {-1, Handler::GroupDone}};
+    QTest::newRow("DynamicSetupDone") << dynamicSetupDoneRoot << dynamicSetupDoneLog
+                                      << true << true << 4;
+
     const Group dynamicSetupErrorRoot = constructDynamicSetup({stopWithErrorSetup});
     const Log dynamicSetupErrorLog{{1, Handler::Setup},
                                   {1, Handler::Done},
                                   {-1, Handler::GroupError}};
+    QTest::newRow("DynamicSetupError") << dynamicSetupErrorRoot << dynamicSetupErrorLog
+                                       << true << false << 4;
+
     const Group dynamicSetupAllRoot = constructDynamicSetup({continueAllSetup});
     const Log dynamicSetupAllLog{{1, Handler::Setup},
                                  {1, Handler::Done},
@@ -410,6 +426,9 @@ void tst_TaskTree::processTree_data()
                                  {4, Handler::Setup},
                                  {4, Handler::Done},
                                  {-1, Handler::GroupDone}};
+    QTest::newRow("DynamicSetupAll") << dynamicSetupAllRoot << dynamicSetupAllLog
+                                     << true << true << 4;
+
     const Group dynamicSetupSelRoot = constructDynamicSetup({continueSelSetup});
     const Log dynamicSetupSelLog{{1, Handler::Setup},
                                  {1, Handler::Done},
@@ -418,23 +437,8 @@ void tst_TaskTree::processTree_data()
                                  {4, Handler::Setup},
                                  {4, Handler::Done},
                                  {-1, Handler::GroupDone}};
-
-    QTest::newRow("Empty") << emptyRoot << emptyLog << false << true;
-    QTest::newRow("Nested") << nestedRoot << nestedLog << true << true;
-    QTest::newRow("Parallel") << parallelRoot << parallelLog << true << true;
-    QTest::newRow("Sequential") << sequentialRoot << sequentialLog << true << true;
-    QTest::newRow("SequentialEncapsulated") << sequentialEncapsulatedRoot << sequentialLog << true << true;
-    QTest::newRow("SequentialNested") << sequentialNestedRoot << sequentialNestedLog << true << true;
-    QTest::newRow("SequentialError") << sequentialErrorRoot << sequentialErrorLog << true << false;
-    QTest::newRow("StopOnError") << stopOnErrorRoot << stopOnErrorLog << true << false;
-    QTest::newRow("ContinueOnError") << continueOnErrorRoot << continueOnErrorLog << true << false;
-    QTest::newRow("StopOnDone") << stopOnDoneRoot << stopOnDoneLog << true << true;
-    QTest::newRow("ContinueOnDone") << continueOnDoneRoot << continueOnDoneLog << true << true;
-    QTest::newRow("Optional") << optionalRoot << optionalLog << true << true;
-    QTest::newRow("DynamicSetupDone") << dynamicSetupDoneRoot << dynamicSetupDoneLog << true << true;
-    QTest::newRow("DynamicSetupError") << dynamicSetupErrorRoot << dynamicSetupErrorLog << true << false;
-    QTest::newRow("DynamicSetupAll") << dynamicSetupAllRoot << dynamicSetupAllLog << true << true;
-    QTest::newRow("DynamicSetupSelected") << dynamicSetupSelRoot << dynamicSetupSelLog << true << true;
+    QTest::newRow("DynamicSetupSelected") << dynamicSetupSelRoot << dynamicSetupSelLog
+                                          << true << true << 4;
 }
 
 void tst_TaskTree::processTree()
@@ -446,9 +450,11 @@ void tst_TaskTree::processTree()
     QFETCH(Log, expectedLog);
     QFETCH(bool, runningAfterStart);
     QFETCH(bool, success);
+    QFETCH(int, taskCount);
 
     QEventLoop eventLoop;
     TaskTree processTree(root);
+    QCOMPARE(processTree.taskCount(), taskCount);
     int doneCount = 0;
     int errorCount = 0;
     connect(&processTree, &TaskTree::done, this, [&doneCount, &eventLoop] { ++doneCount; eventLoop.quit(); });

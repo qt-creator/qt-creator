@@ -87,6 +87,7 @@ public:
     void selectChildren();
     void stop();
     bool isRunning() const;
+    int taskCount() const;
     void childDone(bool success);
     void invokeEndHandler(bool success);
     void resetSuccessBit();
@@ -97,6 +98,7 @@ public:
     const TaskItem::ExecuteMode m_executeMode = TaskItem::ExecuteMode::Parallel;
     TaskItem::WorkflowPolicy m_workflowPolicy = TaskItem::WorkflowPolicy::StopOnError;
     const TaskItem::GroupHandler m_groupHandler;
+    int m_taskCount = 0;
     GroupConfig m_groupConfig;
     QList<TaskNode *> m_children;
     QList<TaskNode *> m_selectedChildren;
@@ -116,7 +118,9 @@ public:
 
     bool start();
     void stop();
-    bool isRunning();
+    bool isRunning() const;
+    bool isTask() const;
+    int taskCount() const;
 
 private:
     const TaskItem::TaskHandler m_taskHandler;
@@ -154,8 +158,11 @@ TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *pa
     , m_groupHandler(task.groupHandler())
 {
     const QList<TaskItem> &children = task.children();
-    for (const TaskItem &child : children)
-        m_children.append(new TaskNode(m_taskTreePrivate, this, child));
+    for (const TaskItem &child : children) {
+        TaskNode *node = new TaskNode(m_taskTreePrivate, this, child);
+        m_children.append(node);
+        m_taskCount += node->taskCount();
+    }
 }
 
 TaskContainer::~TaskContainer()
@@ -231,6 +238,11 @@ bool TaskContainer::isRunning() const
     return m_currentIndex >= 0;
 }
 
+int TaskContainer::taskCount() const
+{
+    return m_taskCount;
+}
+
 void TaskContainer::childDone(bool success)
 {
     if ((m_workflowPolicy == TaskItem::WorkflowPolicy::StopOnDone && success)
@@ -300,7 +312,7 @@ void TaskContainer::updateSuccessBit(bool success)
 
 bool TaskNode::start()
 {
-    if (!m_taskHandler.m_createHandler || !m_taskHandler.m_setupHandler) {
+    if (!isTask()) {
         m_container.start();
         return true;
     }
@@ -334,9 +346,19 @@ void TaskNode::stop()
     m_container.stop();
 }
 
-bool TaskNode::isRunning()
+bool TaskNode::isRunning() const
 {
     return m_task || m_container.isRunning();
+}
+
+bool TaskNode::isTask() const
+{
+    return m_taskHandler.m_createHandler && m_taskHandler.m_setupHandler;
+}
+
+int TaskNode::taskCount() const
+{
+    return isTask() ? 1 : m_container.taskCount();
 }
 
 /*!
@@ -413,6 +435,11 @@ void TaskTree::stop()
 bool TaskTree::isRunning() const
 {
     return d->m_root.isRunning();
+}
+
+int TaskTree::taskCount() const
+{
+    return d->m_root.taskCount();
 }
 
 } // namespace Utils
