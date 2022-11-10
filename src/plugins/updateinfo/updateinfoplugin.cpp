@@ -11,8 +11,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -22,7 +21,6 @@
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMetaEnum>
-#include <QPointer>
 #include <QTimer>
 #include <QVersionNumber>
 
@@ -54,7 +52,7 @@ class UpdateInfoPluginPrivate
 public:
     FilePath m_maintenanceTool;
     std::unique_ptr<TaskTree> m_taskTree;
-    QPointer<FutureProgress> m_progress;
+    QPointer<TaskProgress> m_progress;
     QString m_updateOutput;
     QString m_packagesOutput;
     QTimer *m_checkUpdatesTimer = nullptr;
@@ -116,41 +114,17 @@ void UpdateInfoPlugin::startCheckForUpdates()
     if (d->m_taskTree)
         return; // do not trigger while update task is already running
 
-    QFutureInterface<void> fi;
-    FutureProgress *futureProgress = ProgressManager::addTimedTask(fi,
-                    tr("Checking for Updates"), Id("UpdateInfo.CheckingForUpdates"), 60);
-    futureProgress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
-    futureProgress->setSubtitleVisibleInStatusBar(true);
-    connect(futureProgress, &FutureProgress::canceled, this, [this, fi]() mutable {
-        fi.reportCanceled();
-        fi.reportFinished();
-        stopCheckForUpdates();
-    });
-
-    fi.reportStarted();
     emit checkForUpdatesRunningChanged(true);
 
     using namespace Tasking;
 
     const auto doSetup = [this](QtcProcess &process, const QStringList &args) {
         process.setCommand({d->m_maintenanceTool, args});
-        process.setTimeoutS(3 * 60); // 3 minutes
     };
     const auto doCleanup = [this] {
         d->m_taskTree.release()->deleteLater();
         checkForUpdatesStopped();
     };
-
-    const OnGroupDone onTreeDone([this, fi, doCleanup]() mutable {
-        fi.reportFinished();
-        checkForUpdatesFinished();
-        doCleanup();
-    });
-    const OnGroupError onTreeError([fi, doCleanup]() mutable {
-        fi.reportCanceled(); // is used to indicate error
-        fi.reportFinished();
-        doCleanup();
-    });
 
     const auto setupUpdate = [doSetup](QtcProcess &process) {
         doSetup(process, {"ch", "-g", "*=false,ifw.package.*=true"});
@@ -169,9 +143,17 @@ void UpdateInfoPlugin::startCheckForUpdates()
         };
         tasks << Process(setupPackages, packagesDone);
     }
-    tasks << onTreeDone << onTreeError;
 
     d->m_taskTree.reset(new TaskTree(Group{tasks}));
+    connect(d->m_taskTree.get(), &TaskTree::done, this, [this, doCleanup] {
+        checkForUpdatesFinished();
+        doCleanup();
+    });
+    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, doCleanup);
+    d->m_progress = new TaskProgress(d->m_taskTree.get());
+    d->m_progress->setDisplayName(tr("Checking for Updates"));
+    d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
+    d->m_progress->setSubtitleVisibleInStatusBar(true);
     d->m_taskTree->start();
 }
 
@@ -261,9 +243,6 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
     std::optional<QtPackage> qtToNag = qtToNagAbout(qtPackages, &d->m_lastMaxQtVersion);
 
     if (!updates.isEmpty() || qtToNag) {
-        // progress details are shown until user interaction for the "no updates" case,
-        // so we can show the "No updates found" text, but if we have updates we don't
-        // want to keep it around
         if (d->m_progress)
             d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
@@ -272,9 +251,9 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
         if (qtToNag)
             showQtUpdateInfo(*qtToNag, [this] { startPackageManager(); });
     } else {
-        emit newUpdatesAvailable(false);
         if (d->m_progress)
             d->m_progress->setSubtitle(tr("No updates found."));
+        emit newUpdatesAvailable(false);
     }
 }
 
