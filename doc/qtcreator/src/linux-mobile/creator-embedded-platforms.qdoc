@@ -13,7 +13,7 @@
     \list
         \li \l {Bare Metal}
         \li \l {Boot2Qt}
-        \li \l {Generic Remote Linux}
+        \li \l {Remote Linux}
         \li \l {Microcontroller Units (MCU)}
         \li \l QNX
     \endlist
@@ -31,7 +31,7 @@
     \section1 Bare Metal
 
     You can run and debug applications on small devices that are not supported
-    by the generic remote Linux device plugin by using GDB or a hardware
+    by the remote Linux device plugin by using GDB or a hardware
     debugger.
 
     For more information about developing applications for Bare Metal devices,
@@ -56,24 +56,24 @@
             {Boot2Qt: Installation Guides}
         \li \l{Connecting Boot2Qt Devices}
         \li \l{Specifying Run Settings for Boot2Qt Devices}
-        \li \l{Deploying Applications to Boot2Qt Devices}
+        \li \l{Deploying to Boot2Qt}
         \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
             {Qt Creator Plugin for Qt Application Manager}
     \endlist
 
-    \section1 Generic Remote Linux
+    \section1 Remote Linux
 
     You must have a tool chain for building applications for embedded Linux
     devices installed on the development PC.
 
     The following topics contain more information about developing applications
-    for generic remote Linux devices:
+    for remote Linux devices:
 
     \list
-        \li \l{Connecting Generic Remote Linux Devices}
-        \li \l{Deploying Applications to Generic Remote Linux Devices}
+        \li \l{Connecting Remote Linux Devices}
+        \li \l{Deploying to Remote Linux}
         \li \l{Specifying Run Settings for Linux-Based Devices}
-        \li \l{Running on Generic Remote Linux Devices}
+        \li \l{Running on Remote Linux Devices}
         \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
             {Qt Creator Plugin for Qt Application Manager}
     \endlist
@@ -105,7 +105,7 @@
 
     \list
         \li \l{Connecting QNX Devices}
-        \li \l{Deploying Applications to QNX Neutrino Devices}
+        \li \l{Deploying to QNX Neutrino}
         \li \l{Specifying Run Settings for QNX Devices}
         \li \l{Running on QNX Devices}
         \li \l{Qt for QNX}

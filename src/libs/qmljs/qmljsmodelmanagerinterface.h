@@ -52,6 +52,7 @@ public:
         PathsAndLanguages importPaths;
         QList<Utils::FilePath> activeResourceFiles;
         QList<Utils::FilePath> allResourceFiles;
+        QList<Utils::FilePath> generatedQrcFiles;
         QHash<Utils::FilePath, QString> resourceFileContents;
         QList<Utils::FilePath> applicationDirectories;
         QHash<QString, QString> moduleMappings; // E.g.: QtQuick.Controls -> MyProject.MyControls
@@ -167,8 +168,8 @@ public:
 
     void setDefaultVContext(const ViewerContext &vContext);
     virtual ProjectInfo defaultProjectInfo() const;
-    virtual ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project) const;
-
+    virtual ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project,
+                                                     const Utils::FilePaths &hiddenRccFolders) const;
 
     // Blocks until all parsing threads are done. Use for testing only!
     void test_joinAllThreads();

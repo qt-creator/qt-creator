@@ -1052,8 +1052,9 @@ void QbsBuildSystem::updateQmlJsCodeModel()
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     if (!modelManager)
         return;
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            modelManager->defaultProjectInfoForProject(project());
+    QmlJS::ModelManagerInterface::ProjectInfo projectInfo
+        = modelManager->defaultProjectInfoForProject(project(),
+                                                     project()->files(Project::HiddenRccFolders));
 
     const QJsonObject projectData = session()->projectData();
     if (projectData.isEmpty())
@@ -1068,7 +1069,7 @@ void QbsBuildSystem::updateQmlJsCodeModel()
     });
 
     project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID,
-                       !projectInfo.sourceFiles.isEmpty());
+                                  !projectInfo.sourceFiles.isEmpty());
     modelManager->updateProjectInfo(projectInfo, project());
 }
 

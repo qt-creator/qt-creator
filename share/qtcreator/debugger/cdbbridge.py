@@ -353,9 +353,6 @@ class Dumper(DumperBase):
         self.ptrSize = lambda: size
         return size
 
-    def put(self, stuff):
-        self.output += stuff
-
     def stripQintTypedefs(self, typeName):
         if typeName.startswith('qint'):
             prefix = ''
@@ -423,7 +420,7 @@ class Dumper(DumperBase):
 
         self.setVariableFetchingOptions(args)
 
-        self.output = ''
+        self.output = []
 
         self.currentIName = 'local'
         self.put('data=[')
@@ -445,10 +442,11 @@ class Dumper(DumperBase):
             self.qtNamespaceToReport = self.qtNamespace()
 
         if self.qtNamespaceToReport:
-            self.output += ',qtnamespace="%s"' % self.qtNamespaceToReport
+            self.put(',qtnamespace="%s"' % self.qtNamespaceToReport)
             self.qtNamespaceToReport = None
 
-        self.reportResult(self.output, args)
+        self.reportResult(''.join(self.output), args)
+        self.output = []
 
     def report(self, stuff):
         sys.stdout.write(stuff + "\n")

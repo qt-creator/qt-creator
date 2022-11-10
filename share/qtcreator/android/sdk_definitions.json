@@ -18,6 +18,11 @@
     "specific_qt_versions": [
         {
             "versions": ["default"],
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;25.1.8937393"],
+            "ndk_path": "ndk/25.1.8937393"
+        },
+        {
+            "versions": ["6.4"],
             "sdk_essential_packages": ["build-tools;31.0.0", "ndk;23.1.7779620"],
             "ndk_path": "ndk/23.1.7779620"
         },

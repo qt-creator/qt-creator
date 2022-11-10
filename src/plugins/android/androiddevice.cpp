@@ -512,7 +512,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         return;
     }
 
-    QTimer::singleShot(2000, parent, [adbSelector, &parent]() {
+    QTimer::singleShot(2000, parent, [adbSelector, parent]() {
         // Get device IP address
         QStringList args = adbSelector;
         args.append({"shell", "ip", "route"});

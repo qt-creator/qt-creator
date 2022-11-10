@@ -5,7 +5,7 @@
 /*!
     \previouspage creator-developing-mcu.html
     \page creator-developing-qnx.html
-    \nextpage creator-setup-webassembly.html
+    \nextpage creator-developing-generic-linux.html
 
     \title Connecting QNX Devices
 
@@ -19,7 +19,7 @@
     \section1 Adding a QNX Neutrino Device in \QC
 
     Adding a QNX Neutrino device is very similar to
-    \l{Connecting Generic Remote Linux Devices}, except that
+    \l{Connecting Remote Linux Devices}, except that
     you need to select \uicontrol {QNX Device} in the
     \uicontrol {Device Configuration} wizard.
 

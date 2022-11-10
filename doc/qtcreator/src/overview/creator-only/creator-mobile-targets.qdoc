@@ -9,7 +9,7 @@
 
 /*!
     \page creator-connecting-mobile.html
-    \previouspage creator-deployment-qnx.html
+    \previouspage creator-deployment-embedded-linux.html
     \nextpage creator-developing-android.html
 
     \title Connecting Devices
@@ -40,32 +40,21 @@
             Qt version targeting Android and the Android SDK and NDK to develop
             for Android devices.
 
-        \if defined(qtcreator)
         \li \l{Connecting Bare Metal Devices}
 
             You can connect bare metal devices to the development PC and use \QC
             to debug applications on them with GDB or a hardware debugger.
-        \endif
 
         \li \l{Connecting Boot2Qt Devices}
 
             You can connect \l{Boot2Qt} devices to the development PC to run,
             debug, and analyze applications built for them from \QC.
 
-        \if defined(qtcreator)
         \li \l {Adding Docker Devices}
 
             You can add Docker images as \e devices to run, debug, and analyze
             applications built for Docker containers from \QC.
-        \endif
 
-        \li \l{Connecting Generic Remote Linux Devices}
-
-            If you have a tool chain for building applications for embedded
-            Linux devices installed on the development
-            PC, you can add it and the device to \QC.
-
-        \if defined(qtcreator)
         \li \l{Connecting iOS Devices}
 
             You use the tools delivered with Xcode to connect devices to \QC.
@@ -83,11 +72,15 @@
             debug applications on them from within \QC. This is currently only
             supported for QNX Neutrino devices, and requires the QNX SDK to be
             installed on the development PC.
-        \endif
+
+        \li \l{Connecting Remote Linux Devices}
+
+            If you have a tool chain for building applications for embedded
+            Linux devices installed on the development
+            PC, you can add it and the device to \QC.
 
     \endlist
 
-    \if defined(qtcreator)
     \section1 Related Topics
 
     \list
@@ -106,5 +99,4 @@
             local Linux PC, remote generic SSH Linux targets, or
             \l{Boot2Qt}{Boot2Qt devices}.
     \endlist
-    \endif
 */

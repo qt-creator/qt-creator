@@ -88,6 +88,7 @@ const char DEVELOPMENT_TEAM_FLAG[] = "Ios:DevelopmentTeam:Flag";
 const char PROVISIONING_PROFILE_FLAG[] = "Ios:ProvisioningProfile:Flag";
 const char CMAKE_OSX_ARCHITECTURES_FLAG[] = "CMAKE_OSX_ARCHITECTURES:DefaultFlag";
 const char QT_QML_DEBUG_FLAG[] = "Qt:QML_DEBUG_FLAG";
+const char QT_QML_DEBUG_PARAM[] = "-DQT_QML_DEBUG";
 const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[]
     = "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=%{Qt:QT_INSTALL_PREFIX}/lib/cmake/Qt6/qt.toolchain.cmake";
 const char CMAKE_BUILD_TYPE[] = "CMake.Build.Type";
@@ -876,7 +877,7 @@ CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
                                       "CMAKE_CXX_FLAGS_RELWITHDEBINFO",
                                       "CMAKE_CXX_FLAGS_INIT"};
     const QByteArrayList cxxFlags{"CMAKE_CXX_FLAGS_INIT", "CMAKE_CXX_FLAGS"};
-    const QByteArray qmlDebug("-DQT_QML_DEBUG");
+    const QByteArray qmlDebug(QT_QML_DEBUG_PARAM);
 
     CMakeConfig changedConfig;
 
@@ -1446,8 +1447,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                       [this] {
                                           if (aspect<QtSupport::QmlDebuggingAspect>()->value()
                                               == TriState::Enabled) {
-                                              return QLatin1String(
-                                                  "-DQT_QML_DEBUG");
+                                              return QLatin1String(QT_QML_DEBUG_PARAM);
                                           }
                                           return QLatin1String();
                                       });
@@ -1665,7 +1665,7 @@ bool CMakeBuildConfiguration::hasQmlDebugging(const CMakeConfig &config)
     // such that in doubt we leave the QML Debugging setting at "Leave at default"
     const QString cxxFlagsInit = config.stringValueOf("CMAKE_CXX_FLAGS_INIT");
     const QString cxxFlags = config.stringValueOf("CMAKE_CXX_FLAGS");
-    return cxxFlagsInit.contains("-DQT_QML_DEBUG") && cxxFlags.contains("-DQT_QML_DEBUG");
+    return cxxFlagsInit.contains(QT_QML_DEBUG_PARAM) && cxxFlags.contains(QT_QML_DEBUG_PARAM);
 }
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)

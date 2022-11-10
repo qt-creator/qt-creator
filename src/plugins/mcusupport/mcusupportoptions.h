@@ -40,6 +40,7 @@ public:
     Targets mcuTargets;
     Packages packages;
 
+    static void updateQtDirMacro(const Utils::FilePath &qulDir);
     void expandVariablesAndWildcards();
     MacroExpanderPtr getMacroExpander(const McuTarget &target);
 

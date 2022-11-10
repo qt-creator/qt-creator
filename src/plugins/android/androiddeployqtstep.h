@@ -12,6 +12,7 @@
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
+#include <utils/futuresynchronizer.h>
 
 namespace Utils { class QtcProcess; }
 
@@ -91,6 +92,8 @@ private:
     Utils::FilePath m_workingDirectory;
     Utils::Environment m_environment;
     AndroidDeviceInfo m_deviceInfo;
+
+    Utils::FutureSynchronizer m_synchronizer;
 };
 
 }

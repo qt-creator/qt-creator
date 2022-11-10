@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "assetslibrarymodel.h"
-#include "assetslibrarydirsmodel.h"
-#include "assetslibraryfilesmodel.h"
+
+#include "assetslibrarydir.h"
+#include "modelnodeoperations.h"
 
 #include <designersettings.h>
 #include <documentmanager.h>
@@ -62,6 +63,13 @@ void AssetsLibraryModel::saveExpandedState(bool expanded, const QString &assetPa
 bool AssetsLibraryModel::loadExpandedState(const QString &assetPath)
 {
     return m_expandedStateHash.value(assetPath, true);
+}
+
+bool AssetsLibraryModel::isEffectQmlExist(const QString &effectName)
+{
+    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsDirectory();
+    Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
+    return qmlPath.exists();
 }
 
 AssetsLibraryModel::DirExpandState AssetsLibraryModel::getAllExpandedState() const

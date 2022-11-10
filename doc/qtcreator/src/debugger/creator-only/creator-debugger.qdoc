@@ -1504,8 +1504,12 @@
 
         \li Make sure you use at least \QC 3.0.1
 
-        \li Make sure the debugger is set up properly. For more information,
-            see \l{Setting Up Debugger}.
+        \li Select the \inlineimage icons/run_small.png
+            (\uicontrol Run) button to verify that the
+            \l {Running on Multiple Platforms}{build and run kit selector}
+            picked a runnable target and you can run the application.
+
+        \li Make sure the debugger is \l{Setting Up Debugger}{set up properly}.
 
         \li In the \uicontrol Debug mode, select \uicontrol View >
             \uicontrol Views > \uicontrol {Debugger Log} to open the
@@ -1515,6 +1519,8 @@
             mailing list (qt-creator@qt-project.org) or paste them to a
             \l{Pasting and Fetching Code Snippets}{code pasting service} before
             asking questions in the IRC (on the #qt-creator channel at Libera.Chat).
+
+            \note Error 135 usually means that a dependent DLL cannot be found.
 
     \endlist
 
@@ -1526,6 +1532,9 @@
     select \uicontrol {Dereference Pointers Automatically} in the context
     menu in the \uicontrol Locals and \uicontrol Expressions views.
 
+    If you cannot view variables at all, check that you selected a \e debug build
+    configuration.
+
     \section1 Structure Members Are Not Sorted According to Structure Layout
 
     By default, structure members are displayed in alphabetic order. To inspect
@@ -1536,7 +1545,9 @@
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 
     Slowness that is related to the loading of debug information is hard to
-    avoid.
+    avoid. The following sections describe some possible solutions.
+
+    \section2 Caching GDB Symbol Index
 
     When using GDB as backend, you can automatically save a copy of
     its symbol index in a cache on disk and retrieve it from there
@@ -1546,11 +1557,37 @@
 
     \image qtcreator-gdb-options.png "GDB preferences"
 
-    Some slowness stems from maintaining breakpoints inside
+    \section2 Minimizing Number of Breakpoints
+
+    Some debugging slowness stems from maintaining breakpoints inside
     the debugger (under some circumstances all breakpoints need to be inserted
     and removed again for each step) and the evaluation of expressions after
     each step. We recommend that you minimize the number of breakpoints and
     watched expressions.
+
+    \section2 Cleaning Builds
+
+    If out-of-date .pdb files make debugging slower, try a clean build.
+
+    \section2 Disabling Incremental Linking
+
+    Incremental linking can affect debugging. If the debugger log contains
+    the \e {Unable to verify checksum of module} message, disable incremental
+    linking.
+
+    When using CMake as the build system, add the following line to the project
+    CMakeLists.txt file:
+
+    \badcode
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /INCREMENTAL:NO" )
+    \endcode
+
+    When using qmake as the build system, add the following line to the project
+    .pro file:
+
+    \badcode
+    QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
+    \endcode
 
      \section1 Debugger Cannot Attach to Running Process on Linux
 

@@ -4,14 +4,14 @@
 /*!
 //! [running on embedded linux]
 
-    \section1 Running on Generic Remote Linux Devices
+    \section1 Running on Remote Linux Devices
 
     To build the application and run it on a device:
 
         \list 1
 
             \li Specify a connection to the device. For more information, see
-                \l{Connecting Generic Remote Linux Devices}.
+                \l{Connecting Remote Linux Devices}.
 
             \li Click the \uicontrol Run button.
 
@@ -25,12 +25,10 @@
     displayed on the device. Command-line output is visible in the \QC
     \uicontrol {Application Output} view.
 
-    Choose \uicontrol {Projects > Embedded Linux > Run} to view the settings for deploying
-    the application to the connected device.
-    \if defined(qtcreator)
-    For more information, see
+    In the \uicontrol {Projects} mode, select the remote Linux kit and then
+    select \uicontrol {Run} to view the settings for deploying the application
+    to the connected device. For more information, see
     \l{Specifying Run Settings for Linux-Based Devices}.
-    \endif
 
     Debugging works transparently if GDB server is installed on the device and
     it is compatible with the GDB on the host.

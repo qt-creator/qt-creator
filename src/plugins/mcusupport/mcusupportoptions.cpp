@@ -77,6 +77,15 @@ Macros *McuSdkRepository::globalMacros()
     return &macros;
 }
 
+void McuSdkRepository::updateQtDirMacro(const FilePath &qulDir)
+{
+    // register the Qt installation directory containing Qul dir
+    auto qtPath = (qulDir / "../..").cleanPath();
+    if (qtPath.exists()) {
+        globalMacros()->insert("QtDir", [qtPathString = qtPath.path()] { return qtPathString; });
+    }
+}
+
 void McuSdkRepository::expandVariablesAndWildcards()
 {
     for (const auto &target : std::as_const(mcuTargets)) {
@@ -198,13 +207,7 @@ bool McuSupportOptions::isLegacyVersion(const QVersionNumber &version)
 
 void McuSupportOptions::setQulDir(const FilePath &path)
 {
-    //register the Qt installation directory containing Qul dir
-    auto qtPath = (path / "../..").cleanPath();
-    if (qtPath.exists()) {
-        McuSdkRepository::globalMacros()->insert("QtDir", [qtPathString = qtPath.path()] {
-            return qtPathString;
-        });
-    }
+    McuSdkRepository::updateQtDirMacro(path);
     qtForMCUsSdkPackage->updateStatus();
     if (qtForMCUsSdkPackage->isValidStatus())
         sdkRepository = targetsAndPackages(qtForMCUsSdkPackage, settingsHandler);

@@ -1021,12 +1021,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("const pointer argument") << 491 << 26 << 491 << 27
         << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
-    QTest::newRow("non-const reference via member function call as output argument (object)")
-        << 580 << 29 << 580 << 30
-        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
-    QTest::newRow("non-const reference via member function call as output argument (function)")
-        << 580 << 31 << 580 << 37
-        << QList<int>{C_FUNCTION, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("value argument") << 501 << 57 << 501 << 58
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("non-const ref argument as second arg") << 501 << 61 << 501 << 62
@@ -1034,8 +1028,6 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("non-const ref argument from function parameter") << 506 << 31 << 506 << 40
         << QList<int>{C_PARAMETER, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("non-const pointer argument expression") << 513 << 30 << 513 << 31
-        << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
-    QTest::newRow("non-const ref argument from qualified member (object)") << 525 << 31 << 525 << 39
         << QList<int>{C_LOCAL, C_OUTPUT_ARGUMENT} << 0;
     QTest::newRow("non-const ref argument from qualified member (member)") << 525 << 40 << 525 << 46
         << QList<int>{C_FIELD, C_OUTPUT_ARGUMENT} << 0;
@@ -1402,14 +1394,6 @@ void ClangdTestHighlighting::test()
         for (const TextEditor::TextStyle s : result.textStyles.mixinStyles)
             actualStyles << s;
     }
-
-    QEXPECT_FAIL("non-const reference via member function call as output argument (object)",
-                 "See below", Continue);
-    QEXPECT_FAIL("non-const reference via member function call as output argument (function)",
-                 "Without punctuation and comment tokens from clangd, it's not possible "
-                 "to highlight entire expressions. But do we really want this? What about nested "
-                 "calls where the inner arguments are const?",
-                 Continue);
 
     QCOMPARE(actualStyles, expectedStyles);
     QCOMPARE(result.kind, expectedKind);

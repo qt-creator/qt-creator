@@ -10,6 +10,7 @@
 #include <QDataStream>
 #include <QDebug>
 #include <QHash>
+#include <QReadWriteLock>
 #include <QVariant>
 
 namespace Utils {
@@ -76,21 +77,31 @@ struct IdCache : public QHash<StringHolder, quintptr>
 #endif
 };
 
-
 static QHash<quintptr, StringHolder> stringFromId;
 static IdCache idFromString;
+static QReadWriteLock s_cacheMutex;
 
 static quintptr theId(const char *str, int n = 0)
 {
-    static quintptr firstUnusedId = 10 * 1000 * 1000;
     QTC_ASSERT(str && *str, return 0);
     StringHolder sh(str, n);
-    int res = idFromString.value(sh, 0);
+    int res = 0;
+    {
+        QReadLocker lock(&s_cacheMutex); // Try quick read locker first
+        res = idFromString.value(sh, 0);
+    }
     if (res == 0) {
-        res = firstUnusedId++;
-        sh.str = qstrdup(sh.str);
-        idFromString[sh] = res;
-        stringFromId[res] = sh;
+        QWriteLocker lock(&s_cacheMutex);
+        res = idFromString.value(sh, 0); // Some other thread could have added it to the cache
+                                         // in meantime, after read lock was released and before
+                                         // write lock was acquired. Re-read it again.
+        if (res == 0) {
+            static quintptr firstUnusedId = 10 * 1000 * 1000;
+            res = firstUnusedId++;
+            sh.str = qstrdup(sh.str);
+            idFromString[sh] = res;
+            stringFromId[res] = sh;
+        }
     }
     return res;
 }
@@ -127,6 +138,7 @@ Id::Id(const char *name)
 
 QByteArray Id::name() const
 {
+    QReadLocker lock(&s_cacheMutex);
     return stringFromId.value(m_id).str;
 }
 
@@ -142,6 +154,7 @@ QByteArray Id::name() const
 
 QString Id::toString() const
 {
+    QReadLocker lock(&s_cacheMutex);
     return QString::fromUtf8(stringFromId.value(m_id).str);
 }
 
@@ -188,6 +201,7 @@ Id Id::fromName(const QByteArray &name)
 
 QVariant Id::toSetting() const
 {
+    QReadLocker lock(&s_cacheMutex);
     return QVariant(QString::fromUtf8(stringFromId.value(m_id).str));
 }
 
@@ -278,6 +292,7 @@ Id Id::withPrefix(const char *prefix) const
 
 bool Id::operator==(const char *name) const
 {
+    QReadLocker lock(&s_cacheMutex);
     const char *string = stringFromId.value(m_id).str;
     if (string && name)
         return strcmp(string, name) == 0;
@@ -288,6 +303,7 @@ bool Id::operator==(const char *name) const
 // For debugging purposes
 QTCREATOR_UTILS_EXPORT const char *nameForId(quintptr id)
 {
+    QReadLocker lock(&s_cacheMutex);
     return stringFromId.value(id).str;
 }
 
