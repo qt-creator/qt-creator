@@ -258,9 +258,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     connect(ui->advancedSettingsButton, &QPushButton::clicked,
             this, &ItemLibraryAssetImportDialog::toggleAdvanced);
 
-    QTimer::singleShot(0, this, [this]() {
-        updateUi();
-    });
+    QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::updateUi);
 }
 
 ItemLibraryAssetImportDialog::~ItemLibraryAssetImportDialog()
