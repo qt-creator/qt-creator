@@ -240,9 +240,9 @@ bool DeviceShell::start()
 
 bool DeviceShell::checkCommand(const QByteArray &command)
 {
-    const QByteArray checkBase64Cmd = "(which base64 || echo '<missing>')\n";
+    const QByteArray checkCmd = "(which " + command + " || echo '<missing>')\n";
 
-    m_shellProcess->writeRaw(checkBase64Cmd);
+    m_shellProcess->writeRaw(checkCmd);
     if (!m_shellProcess->waitForReadyRead()) {
         qCWarning(deviceShellLog) << "Timeout while trying to check for" << command;
         return false;
@@ -265,9 +265,12 @@ bool DeviceShell::installShellScript()
         return false;
     }
 
-    if (!checkCommand("base64")) {
-        m_shellScriptState = State::NoScript;
-        return false;
+    static const QList<QByteArray> requiredCommands
+        = {"base64", "cat", "echo", "kill", "mkfifo", "mktemp", "rm"};
+
+    for (const QByteArray &command : requiredCommands) {
+        if (!checkCommand(command))
+            return false;
     }
 
     const static QByteArray shellScriptBase64 = FilePath(":/utils/scripts/deviceshell.sh")
