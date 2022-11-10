@@ -20,10 +20,8 @@ class CodeAssistant : public QObject
     Q_OBJECT
 
 public:
-    CodeAssistant();
+    CodeAssistant(TextEditorWidget *editorWidget);
     ~CodeAssistant() override;
-
-    void configure(TextEditorWidget *editorWidget);
 
     void process();
     void notifyChange();

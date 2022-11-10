@@ -34,10 +34,7 @@ namespace TextEditor {
 class CodeAssistantPrivate : public QObject
 {
 public:
-    CodeAssistantPrivate(CodeAssistant *assistant);
-
-    void configure(TextEditorWidget *editorWidget);
-    bool isConfigured() const;
+    CodeAssistantPrivate(CodeAssistant *assistant, TextEditorWidget *editorWidget);
 
     void invoke(AssistKind kind, IAssistProvider *provider = nullptr);
     void process();
@@ -99,8 +96,9 @@ private:
 // --------------------
 const QChar CodeAssistantPrivate::m_null;
 
-CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
+CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant, TextEditorWidget *editorWidget)
     : q(assistant)
+    , m_editorWidget(editorWidget)
 {
     m_automaticProposalTimer.setSingleShot(true);
     connect(&m_automaticProposalTimer, &QTimer::timeout,
@@ -112,24 +110,11 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &CodeAssistantPrivate::clearAbortedPosition);
-}
-
-void CodeAssistantPrivate::configure(TextEditorWidget *editorWidget)
-{
-    m_editorWidget = editorWidget;
     m_editorWidget->installEventFilter(this);
-}
-
-bool CodeAssistantPrivate::isConfigured() const
-{
-    return m_editorWidget != nullptr;
 }
 
 void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
 {
-    if (!isConfigured())
-        return;
-
     stopAutomaticProposalTimer();
 
     if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()
@@ -159,9 +144,6 @@ bool CodeAssistantPrivate::requestActivationCharProposal()
 
 void CodeAssistantPrivate::process()
 {
-    if (!isConfigured())
-        return;
-
     stopAutomaticProposalTimer();
 
     if (m_assistKind == TextEditor::Completion) {
@@ -552,7 +534,8 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
 // -------------
 // CodeAssistant
 // -------------
-CodeAssistant::CodeAssistant() : d(new CodeAssistantPrivate(this))
+CodeAssistant::CodeAssistant(TextEditorWidget *editorWidget)
+    : d(new CodeAssistantPrivate(this, editorWidget))
 {
 }
 
@@ -560,11 +543,6 @@ CodeAssistant::~CodeAssistant()
 {
     destroyContext();
     delete d;
-}
-
-void CodeAssistant::configure(TextEditorWidget *editorWidget)
-{
-    d->configure(editorWidget);
 }
 
 void CodeAssistant::process()

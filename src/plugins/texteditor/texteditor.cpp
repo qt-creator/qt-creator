@@ -904,6 +904,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_requestMarkEnabled(true)
     , m_lineSeparatorsAllowed(false)
     , m_maybeFakeTooltipEvent(false)
+    , m_codeAssistant(parent)
     , m_hoverHandlerRunner(parent, m_hoverHandlers)
     , m_clipboardAssistProvider(new ClipboardAssistProvider)
     , m_autoCompleter(new AutoCompleter)
@@ -8876,7 +8877,6 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     textEditorWidget->autoCompleter()->setTabSettings(document->tabSettings());
     textEditorWidget->d->m_hoverHandlers = m_hoverHandlers;
 
-    textEditorWidget->d->m_codeAssistant.configure(textEditorWidget);
     textEditorWidget->d->m_commentDefinition = m_commentDefinition;
 
     QObject::connect(textEditorWidget,
