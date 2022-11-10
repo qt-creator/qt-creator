@@ -579,6 +579,18 @@ void DesignDocument::cutSelected()
     deleteSelected();
 }
 
+void DesignDocument::duplicateSelected()
+{
+    DesignDocumentView view{m_externalDependencies};
+    currentModel()->attachView(&view);
+    const QList<ModelNode> selectedNodes = view.selectedModelNodes();
+    currentModel()->detachView(&view);
+
+    rewriterView()->executeInTransaction("DesignDocument::duplicateSelected", [this, selectedNodes]() {
+        moveNodesToPosition(selectedNodes, {});
+    });
+}
+
 void DesignDocument::paste()
 {
     pasteToPosition({});

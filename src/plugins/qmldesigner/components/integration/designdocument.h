@@ -98,6 +98,7 @@ public:
     void deleteSelected();
     void copySelected();
     void cutSelected();
+    void duplicateSelected();
     void paste();
     void pasteToPosition(const std::optional<QVector3D> &position);
     void selectAll();

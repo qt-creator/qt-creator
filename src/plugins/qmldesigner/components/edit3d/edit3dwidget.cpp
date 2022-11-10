@@ -183,6 +183,10 @@ void Edit3DWidget::createContextMenu()
 
     m_contextMenu->addSeparator();
 
+    m_duplicateAction = m_contextMenu->addAction(tr("Duplicate"), [&] {
+        QmlDesignerPlugin::instance()->currentDesignDocument()->duplicateSelected();
+    });
+
     m_copyAction = m_contextMenu->addAction(tr("Copy"), [&] {
         QmlDesignerPlugin::instance()->currentDesignDocument()->copySelected();
     });
@@ -374,6 +378,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
 
     m_editComponentAction->setEnabled(isSingleComponent);
     m_editMaterialAction->setEnabled(isModel);
+    m_duplicateAction->setEnabled(isNotRoot);
     m_copyAction->setEnabled(isNotRoot);
     m_pasteAction->setEnabled(isPasteAvailable());
     m_deleteAction->setEnabled(isNotRoot);

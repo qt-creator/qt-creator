@@ -64,6 +64,7 @@ private:
     QPointer<QMenu> m_contextMenu;
     QPointer<QAction> m_editComponentAction;
     QPointer<QAction> m_editMaterialAction;
+    QPointer<QAction> m_duplicateAction;
     QPointer<QAction> m_copyAction;
     QPointer<QAction> m_pasteAction;
     QPointer<QAction> m_deleteAction;
