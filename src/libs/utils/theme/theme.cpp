@@ -120,6 +120,10 @@ bool Theme::flag(Theme::Flag f) const
 
 QColor Theme::color(Theme::Color role) const
 {
+    const auto color = d->colors[role];
+    if (HostOsInfo::isMacHost() && !d->enforceAccentColorOnMacOS.isEmpty()
+        && color.second == d->enforceAccentColorOnMacOS)
+        return initialPalette().color(QPalette::Highlight);
     return d->colors[role].first;
 }
 
@@ -171,6 +175,7 @@ void Theme::readSettings(QSettings &settings)
         d->preferredStyles.removeAll(QString());
         d->defaultTextEditorColorScheme =
                 settings.value(QLatin1String("DefaultTextEditorColorScheme")).toString();
+        d->enforceAccentColorOnMacOS = settings.value("EnforceAccentColorOnMacOS").toString();
     }
     {
         settings.beginGroup(QLatin1String("Palette"));

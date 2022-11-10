@@ -22,6 +22,7 @@ public:
     QString displayName;
     QStringList preferredStyles;
     QString defaultTextEditorColorScheme;
+    QString enforceAccentColorOnMacOS;
     QVector<QPair<QColor, QString> > colors;
     QVector<QString> imageFiles;
     QVector<bool> flags;
