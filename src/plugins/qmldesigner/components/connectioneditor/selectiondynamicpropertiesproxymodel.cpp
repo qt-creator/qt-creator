@@ -33,7 +33,8 @@ using namespace QmlDesigner::Internal;
 SelectionDynamicPropertiesProxyModel::SelectionDynamicPropertiesProxyModel(QObject *parent)
     : DynamicPropertiesProxyModel(parent)
 {
-    initModel(ConnectionView::instance()->dynamicPropertiesModel());
+    if (ConnectionView::instance())
+        initModel(ConnectionView::instance()->dynamicPropertiesModel());
 }
 
 void SelectionDynamicPropertiesProxyModel::registerDeclarativeType()
