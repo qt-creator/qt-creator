@@ -221,7 +221,6 @@ Item {
                         leftPadding: 5
                         rightPadding: 5
                         bottomPadding: 5
-                        spacing: 5
                         columns: root.width / root.cellWidth
 
                         Repeater {

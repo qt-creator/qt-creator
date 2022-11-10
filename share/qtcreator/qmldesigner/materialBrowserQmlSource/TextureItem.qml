@@ -7,14 +7,16 @@ import QtQuickDesignerTheme
 import HelperWidgets
 import StudioTheme as StudioTheme
 
-Image {
+Rectangle {
     id: root
 
-    source: textureSource
-    sourceSize.width: root.width
-    sourceSize.height: root.height
     visible: textureVisible
-    cache: false
+
+    color: "transparent"
+    border.width: materialBrowserTexturesModel.selectedIndex === index ? 1 : 0
+    border.color: materialBrowserTexturesModel.selectedIndex === index
+                        ? StudioTheme.Values.themeControlOutlineInteraction
+                        : "transparent"
 
     signal showContextMenu()
 
@@ -25,10 +27,20 @@ Image {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
+            materialBrowserTexturesModel.selectTexture(index)
+
             if (mouse.button === Qt.LeftButton)
                 rootView.startDragTexture(index, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
+    }
+
+    Image {
+        source: textureSource
+        sourceSize.width: root.width - 10
+        sourceSize.height: root.height - 10
+        anchors.centerIn: parent
+        cache: false
     }
 }
