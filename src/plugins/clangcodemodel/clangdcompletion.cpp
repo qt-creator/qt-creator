@@ -152,7 +152,11 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
             if (contextAnalyzer.completionAction()
                     != ClangCompletionContextAnalyzer::CompleteIncludePath) {
                 class NoOpProcessor : public IAssistProcessor {
-                    IAssistProposal *perform(const AssistInterface *) override { return nullptr; }
+                    IAssistProposal *perform(const AssistInterface *interface) override
+                    {
+                        delete interface;
+                        return nullptr;
+                    }
                 };
                 return new NoOpProcessor;
             }
