@@ -54,7 +54,8 @@ namespace {
 
 bool isSupportedAttachedProperties(const QString &propertyName)
 {
-    return propertyName.startsWith(QLatin1String("Layout."));
+    return propertyName.startsWith(QLatin1String("Layout."))
+           || propertyName.startsWith(QLatin1String("InsightCategory."));
 }
 
 QStringList supportedVersionsList()

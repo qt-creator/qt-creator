@@ -81,6 +81,12 @@ inline constexpr AuxiliaryDataKeyDefaultValue areaFillColorProperty{AuxiliaryDat
 inline constexpr AuxiliaryDataKeyDefaultValue fillColorProperty{AuxiliaryDataType::Document,
                                                                 "fillColor",
                                                                 QColor{0, 0, 0, 0}};
+inline constexpr AuxiliaryDataKeyDefaultValue insightEnabledProperty{AuxiliaryDataType::Temporary,
+                                                                     "insightEnabled",
+                                                                     false};
+inline constexpr AuxiliaryDataKeyDefaultValue insightCategoriesProperty{AuxiliaryDataType::Temporary,
+                                                                        "insightCategories",
+                                                                        {}};
 inline constexpr AuxiliaryDataKeyView uuidProperty{AuxiliaryDataType::Document, "uuid"};
 inline constexpr AuxiliaryDataKeyView active3dSceneProperty{AuxiliaryDataType::Temporary,
                                                             "active3dScene"};

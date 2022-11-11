@@ -171,6 +171,17 @@ QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNod
 
     return QVariant();
 }
+
+QVariant properDefaultInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
+                                                const PropertyName &propertyName)
+{
+    const QVariant value = qmlObjectNode.modelValue("InsightCategory." + propertyName);
+
+    if (value.isValid())
+        return value;
+
+    return QString();
+}
 } // namespace
 
 void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
@@ -186,6 +197,16 @@ void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode
             createPropertyEditorValue(qmlObjectNode, "Layout." + propertyName, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName), propertyEditor);
         }
     }
+}
+
+void PropertyEditorQmlBackend::setupInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
+                                                              PropertyEditorView *propertyEditor)
+{
+    const PropertyName propertyName = "category";
+    createPropertyEditorValue(qmlObjectNode,
+                              "InsightCategory." + propertyName,
+                              properDefaultInsightAttachedProperties(qmlObjectNode, propertyName),
+                              propertyEditor);
 }
 
 void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
@@ -262,9 +283,9 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
 }
 
 void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
-                                             const PropertyName &name,
-                                             const QVariant &value,
-                                             PropertyEditorView *propertyEditor)
+                                                         const PropertyName &name,
+                                                         const QVariant &value,
+                                                         PropertyEditorView *propertyEditor)
 {
     PropertyName propertyName(name);
     propertyName.replace('.', '_');
@@ -397,6 +418,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
                                       propertyEditor);
         }
         setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
+        setupInsightAttachedProperties(qmlObjectNode, propertyEditor);
         setupAuxiliaryProperties(qmlObjectNode, propertyEditor);
 
         // model node
@@ -886,6 +908,14 @@ void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObje
         setValue(qmlObjectNode, "Layout.leftMargin", marginsValue);
         setValue(qmlObjectNode, "Layout.rightMargin", marginsValue);
     }
+}
+
+void PropertyEditorQmlBackend::setValueforInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
+                                                                    const PropertyName &name)
+{
+    PropertyName propertyName = name;
+    propertyName.replace("InsightCategory.", "");
+    setValue(qmlObjectNode, name, properDefaultInsightAttachedProperties(qmlObjectNode, propertyName));
 }
 
 void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
