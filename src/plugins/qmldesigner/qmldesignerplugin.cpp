@@ -85,12 +85,12 @@ namespace Internal {
 class EnterpriseFeatureProvider : public Core::IFeatureProvider
 {
 public:
-    QSet<Utils::Id> availableFeatures(Utils::Id id) const override
+    QSet<Utils::Id> availableFeatures(Utils::Id) const override
     {
         return {"QmlDesigner.Wizards.Enterprise"};
     }
     QSet<Utils::Id> availablePlatforms() const override { return {}; }
-    QString displayNameForPlatform(Utils::Id id) const override { return {}; }
+    QString displayNameForPlatform(Utils::Id) const override { return {}; }
 };
 
 QString normalizeIdentifier(const QString &string)
