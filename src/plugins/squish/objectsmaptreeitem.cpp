@@ -284,7 +284,14 @@ void ObjectsMapModel::addNewObject(ObjectsMapTreeItem *item)
     QTC_ASSERT(item, return );
     QTC_ASSERT(rootItem(), return );
 
-    rootItem()->appendChild(item);
+    auto parentItem = rootItem();
+    const QString parentName = item->parentName();
+    if (!parentName.isEmpty()) {
+        if (auto found = findItem(parentName))
+            parentItem = found;
+    }
+
+    parentItem->appendChild(item);
     emit modelChanged();
 }
 
