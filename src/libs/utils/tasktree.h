@@ -23,6 +23,27 @@ signals:
     void done(bool success);
 };
 
+enum class ExecuteMode {
+    Sequential, // default
+    Parallel
+};
+
+// 4 policies:
+// 1. When all children finished with done -> report done, otherwise:
+//    a) Report error on first error and stop executing other children (including their subtree)
+//    b) On first error - wait for all children to be finished and report error afterwards
+// 2. When all children finished with error -> report error, otherwise:
+//    a) Report done on first done and stop executing other children (including their subtree)
+//    b) On first done - wait for all children to be finished and report done afterwards
+
+enum class WorkflowPolicy {
+    StopOnError,     // 1a - Will report error on any child error, otherwise done (if all children were done)
+    ContinueOnError, // 1b - the same. When no children it reports done.
+    StopOnDone,      // 2a - Will report done on any child done, otherwise error (if all children were error)
+    ContinueOnDone,  // 2b - the same. When no children it reports done. (?)
+    Optional         // Returns always done after all children finished
+};
+
 enum class GroupAction
 {
     ContinueAll,
@@ -66,27 +87,6 @@ public:
         GroupSimpleHandler m_doneHandler = {};
         GroupSimpleHandler m_errorHandler = {};
         GroupSetupHandler m_dynamicSetupHandler = {};
-    };
-
-    enum class ExecuteMode {
-        Parallel, // default
-        Sequential
-    };
-
-    // 4 policies:
-    // 1. When all children finished with done -> report done, otherwise:
-    //    a) Report error on first error and stop executing other children (including their subtree)
-    //    b) On first error - wait for all children to be finished and report error afterwards
-    // 2. When all children finished with error -> report error, otherwise:
-    //    a) Report done on first done and stop executing other children (including their subtree)
-    //    b) On first done - wait for all children to be finished and report done afterwards
-
-    enum class WorkflowPolicy {
-        StopOnError,     // 1a - Will report error on any child error, otherwise done (if all children were done)
-        ContinueOnError, // 1b - the same. When no children it reports done.
-        StopOnDone,      // 2a - Will report done on any child done, otherwise error (if all children were error)
-        ContinueOnDone,  // 2b - the same. When no children it reports done. (?)
-        Optional         // Returns always done after all children finished
     };
 
     ExecuteMode executeMode() const { return m_executeMode; }
@@ -136,22 +136,16 @@ public:
     Group(std::initializer_list<TaskItem> children) { addChildren(children); }
 };
 
-class QTCREATOR_UTILS_EXPORT ExecuteInSequence : public TaskItem
+class QTCREATOR_UTILS_EXPORT Execute : public TaskItem
 {
 public:
-    ExecuteInSequence() : TaskItem(ExecuteMode::Sequential) {}
+    Execute(ExecuteMode mode) : TaskItem(mode) {}
 };
 
-class QTCREATOR_UTILS_EXPORT ExecuteInParallel : public TaskItem
+class QTCREATOR_UTILS_EXPORT Workflow : public TaskItem
 {
 public:
-    ExecuteInParallel() : TaskItem(ExecuteMode::Parallel) {}
-};
-
-class QTCREATOR_UTILS_EXPORT WorkflowPolicy : public TaskItem
-{
-public:
-    WorkflowPolicy(TaskItem::WorkflowPolicy policy) : TaskItem(policy) {}
+    Workflow(WorkflowPolicy policy) : TaskItem(policy) {}
 };
 
 class QTCREATOR_UTILS_EXPORT OnGroupSetup : public TaskItem
@@ -178,14 +172,13 @@ public:
     DynamicSetup(const GroupSetupHandler &handler) : TaskItem({{}, {}, {}, handler}) {}
 };
 
-
-QTCREATOR_UTILS_EXPORT extern ExecuteInSequence sequential;
-QTCREATOR_UTILS_EXPORT extern ExecuteInParallel parallel;
-QTCREATOR_UTILS_EXPORT extern WorkflowPolicy stopOnError;
-QTCREATOR_UTILS_EXPORT extern WorkflowPolicy continueOnError;
-QTCREATOR_UTILS_EXPORT extern WorkflowPolicy stopOnDone;
-QTCREATOR_UTILS_EXPORT extern WorkflowPolicy continueOnDone;
-QTCREATOR_UTILS_EXPORT extern WorkflowPolicy optional;
+QTCREATOR_UTILS_EXPORT extern Execute sequential;
+QTCREATOR_UTILS_EXPORT extern Execute parallel;
+QTCREATOR_UTILS_EXPORT extern Workflow stopOnError;
+QTCREATOR_UTILS_EXPORT extern Workflow continueOnError;
+QTCREATOR_UTILS_EXPORT extern Workflow stopOnDone;
+QTCREATOR_UTILS_EXPORT extern Workflow continueOnDone;
+QTCREATOR_UTILS_EXPORT extern Workflow optional;
 
 template <typename Task>
 class TaskAdapter : public TaskInterface

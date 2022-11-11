@@ -9,13 +9,13 @@
 namespace Utils {
 namespace Tasking {
 
-ExecuteInSequence sequential;
-ExecuteInParallel parallel;
-WorkflowPolicy stopOnError(TaskItem::WorkflowPolicy::StopOnError);
-WorkflowPolicy continueOnError(TaskItem::WorkflowPolicy::ContinueOnError);
-WorkflowPolicy stopOnDone(TaskItem::WorkflowPolicy::StopOnDone);
-WorkflowPolicy continueOnDone(TaskItem::WorkflowPolicy::ContinueOnDone);
-WorkflowPolicy optional(TaskItem::WorkflowPolicy::Optional);
+Execute sequential(ExecuteMode::Sequential);
+Execute parallel(ExecuteMode::Parallel);
+Workflow stopOnError(WorkflowPolicy::StopOnError);
+Workflow continueOnError(WorkflowPolicy::ContinueOnError);
+Workflow stopOnDone(WorkflowPolicy::StopOnDone);
+Workflow continueOnDone(WorkflowPolicy::ContinueOnDone);
+Workflow optional(WorkflowPolicy::Optional);
 
 void TaskItem::addChildren(const QList<TaskItem> &children)
 {
@@ -95,8 +95,8 @@ public:
 
     TaskTreePrivate *m_taskTreePrivate = nullptr;
     TaskContainer *m_parentContainer = nullptr;
-    const TaskItem::ExecuteMode m_executeMode = TaskItem::ExecuteMode::Parallel;
-    TaskItem::WorkflowPolicy m_workflowPolicy = TaskItem::WorkflowPolicy::StopOnError;
+    const ExecuteMode m_executeMode = ExecuteMode::Parallel;
+    WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     const TaskItem::GroupHandler m_groupHandler;
     int m_taskCount = 0;
     GroupConfig m_groupConfig;
@@ -241,7 +241,7 @@ void TaskContainer::start()
     m_currentIndex = 0;
     resetSuccessBit();
 
-    if (m_executeMode == TaskItem::ExecuteMode::Sequential) {
+    if (m_executeMode == ExecuteMode::Sequential) {
         m_selectedChildren.at(m_currentIndex)->start();
         return;
     }
@@ -275,7 +275,7 @@ void TaskContainer::stop()
     if (!isRunning())
         return;
 
-    if (m_executeMode == TaskItem::ExecuteMode::Sequential) {
+    if (m_executeMode == ExecuteMode::Sequential) {
         int skippedTaskCount = 0;
         for (int i = m_currentIndex + 1; i < m_selectedChildren.size(); ++i)
             skippedTaskCount += m_selectedChildren.at(i)->taskCount();
@@ -299,8 +299,8 @@ int TaskContainer::taskCount() const
 
 void TaskContainer::childDone(bool success)
 {
-    if ((m_workflowPolicy == TaskItem::WorkflowPolicy::StopOnDone && success)
-            || (m_workflowPolicy == TaskItem::WorkflowPolicy::StopOnError && !success)) {
+    if ((m_workflowPolicy == WorkflowPolicy::StopOnDone && success)
+            || (m_workflowPolicy == WorkflowPolicy::StopOnError && !success)) {
         stop();
         invokeEndHandler(success);
         return;
@@ -314,7 +314,7 @@ void TaskContainer::childDone(bool success)
         return;
     }
 
-    if (m_executeMode == TaskItem::ExecuteMode::Sequential)
+    if (m_executeMode == ExecuteMode::Sequential)
         m_selectedChildren.at(m_currentIndex)->start();
 }
 
@@ -348,8 +348,8 @@ void TaskContainer::resetSuccessBit()
     if (m_selectedChildren.isEmpty())
         m_successBit = true;
 
-    if (m_workflowPolicy == TaskItem::WorkflowPolicy::StopOnDone
-            || m_workflowPolicy == TaskItem::WorkflowPolicy::ContinueOnDone) {
+    if (m_workflowPolicy == WorkflowPolicy::StopOnDone
+            || m_workflowPolicy == WorkflowPolicy::ContinueOnDone) {
         m_successBit = false;
     } else {
         m_successBit = true;
@@ -358,10 +358,10 @@ void TaskContainer::resetSuccessBit()
 
 void TaskContainer::updateSuccessBit(bool success)
 {
-    if (m_workflowPolicy == TaskItem::WorkflowPolicy::Optional)
+    if (m_workflowPolicy == WorkflowPolicy::Optional)
         return;
-    if (m_workflowPolicy == TaskItem::WorkflowPolicy::StopOnDone
-            || m_workflowPolicy == TaskItem::WorkflowPolicy::ContinueOnDone) {
+    if (m_workflowPolicy == WorkflowPolicy::StopOnDone
+            || m_workflowPolicy == WorkflowPolicy::ContinueOnDone) {
         m_successBit = m_successBit || success;
     } else {
         m_successBit = m_successBit && success;

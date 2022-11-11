@@ -322,7 +322,7 @@ void tst_TaskTree::processTree_data()
     QTest::newRow("SequentialError") << sequentialErrorRoot << sequentialErrorLog
                                      << true << false << 5;
 
-    const auto constructSimpleSequence = [=](const WorkflowPolicy &policy) {
+    const auto constructSimpleSequence = [=](const Workflow &policy) {
         return Group {
             policy,
             Process(std::bind(setupProcess, _1, 1), readResult),
