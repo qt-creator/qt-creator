@@ -428,9 +428,9 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     model->loadContent(proposalItems);
     LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_basePos,
                                                                                       model);
-    proposal->m_document = m_assistInterface->textDocument();
+    proposal->m_document = document();
     proposal->m_pos = m_pos;
-    const QString completePrefix = Utils::Text::textAt(QTextCursor(m_document),
+    const QString completePrefix = Utils::Text::textAt(QTextCursor(document()),
                                                        m_basePos,
                                                        m_pos - m_basePos);
     proposal->setPrefixChecker([isComplete, completePrefix](const QString &candidate) {
