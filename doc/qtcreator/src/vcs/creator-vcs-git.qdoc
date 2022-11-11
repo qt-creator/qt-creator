@@ -113,14 +113,25 @@
 
     \section2 Viewing Annotations
 
-    To view annotations, select \uicontrol{Blame}. The view displays the lines
-    of the file prepended by the commit identifier they originate from. Clicking
-    on the commit identifier shows a detailed description of the change.
+    To view annotations, select \uicontrol {Blame}. The \uicontrol {Git Blame}
+    view displays the lines of the file prepended by the commit identifier they
+    originate from.
+
+    \image qtcreator-git-blame.webp "Git Blame view"
+
+    Click the commit identifier to show a detailed description of the change.
 
     To show the annotation of a previous version, right-click on the commit
     identifier and select \uicontrol {Blame Parent Revision}. This allows you
     to navigate through the history of the file and obtain previous versions
     of it.
+
+    To view moved or copied lines within a file or between files, select
+    \uicontrol {Detect Moves Within File}, \uicontrol {Detect Moves Between Files},
+    or \uicontrol {Detect Moves and Copies Between Files}.
+
+    To hide the date and time information in the view, select
+    \uicontrol {Omit Date}.
 
     The other actions in the context-menu enable you to apply actions to the
     commit, such as cherry-pick, checkout, or revert it.
