@@ -33,6 +33,7 @@ QT_BEGIN_NAMESPACE
 class QValidator;
 QT_END_NAMESPACE
 
+namespace Utils { class FilePath; }
 
 namespace Fossil {
 namespace Internal {
@@ -50,8 +51,8 @@ class FossilCommitWidget : public VcsBase::SubmitEditorWidget
 public:
     FossilCommitWidget();
 
-    void setFields(const QString &repoPath, const BranchInfo &newBranch, const QStringList &tags,
-                   const QString &userName);
+    void setFields(const Utils::FilePath &repoPath, const BranchInfo &newBranch,
+                   const QStringList &tags, const QString &userName);
 
     QString newBranch() const;
     QStringList tags() const;

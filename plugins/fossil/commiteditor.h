@@ -43,7 +43,7 @@ class CommitEditor : public VcsBase::VcsBaseSubmitEditor
 public:
     CommitEditor();
 
-    void setFields(const QString &repositoryRoot, const BranchInfo &branch,
+    void setFields(const Utils::FilePath &repositoryRoot, const BranchInfo &branch,
                    const QStringList &tags, const QString &userName,
                    const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus);
 

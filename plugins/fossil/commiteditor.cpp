@@ -47,7 +47,7 @@ FossilCommitWidget *CommitEditor::commitWidget()
     return static_cast<FossilCommitWidget *>(widget());
 }
 
-void CommitEditor::setFields(const QString &repositoryRoot, const BranchInfo &branch,
+void CommitEditor::setFields(const Utils::FilePath &repositoryRoot, const BranchInfo &branch,
                              const QStringList &tags, const QString &userName,
                              const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus)
 {

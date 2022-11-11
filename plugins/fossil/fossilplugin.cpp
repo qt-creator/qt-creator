@@ -728,7 +728,7 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::S
     QStringList tags = m_client.synchronousTagQuery(m_submitRepository, currentRevision.id);
     // Fossil includes branch name in tag list -- remove.
     tags.removeAll(currentBranch.name);
-    commitEditor->setFields(m_submitRepository.toString(), currentBranch, tags, currentUser, status);
+    commitEditor->setFields(m_submitRepository, currentBranch, tags, currentUser, status);
 
     connect(commitEditor, &VcsBase::VcsBaseSubmitEditor::diffSelectedFiles,
             this, &FossilPluginPrivate::diffFromEditorSelected);

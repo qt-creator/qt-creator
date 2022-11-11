@@ -31,6 +31,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/completingtextedit.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -95,10 +96,10 @@ FossilCommitWidget::FossilCommitWidget() : m_commitPanel(new QWidget)
             this, &FossilCommitWidget::branchChanged);
 }
 
-void FossilCommitWidget::setFields(const QString &repoPath, const BranchInfo &branch,
+void FossilCommitWidget::setFields(const Utils::FilePath &repoPath, const BranchInfo &branch,
                                    const QStringList &tags, const QString &userName)
 {
-    m_commitPanelUi.localRootLineEdit->setText(QDir::toNativeSeparators(repoPath));
+    m_commitPanelUi.localRootLineEdit->setText(repoPath.toUserOutput());
     m_commitPanelUi.currentBranchLineEdit->setText(branch.name);
     const QString tagsText = tags.join(", ");
     m_commitPanelUi.currentTagsLineEdit->setText(tagsText);
