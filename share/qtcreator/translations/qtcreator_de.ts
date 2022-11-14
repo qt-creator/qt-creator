@@ -12508,7 +12508,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Invalid path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Pfad &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot execute &quot;%1&quot;.</source>
@@ -12558,7 +12558,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Project name is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektname ist ungültig.</translation>
     </message>
     <message>
         <source>Name is empty.</source>
@@ -12606,11 +12606,11 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     <message>
         <source>The default behavior can be set in %1 &gt; Preferences &gt; Environment &gt; System.</source>
         <comment>macOS</comment>
-        <translation type="unfinished"></translation>
+        <translation>Das Standardverhalten kann in %1 &gt; Einstellungen &gt; Umgebung &gt; System eingestellt werden.</translation>
     </message>
     <message>
         <source>The default behavior can be set in Edit &gt; Preferences &gt; Environment &gt; System.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Standardverhalten kann in Bearbeiten &gt; Einstellungen &gt; Umgebung &gt; System eingestellt werden.</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -16588,43 +16588,43 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>The program &quot;%1&quot; does not exist or is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm &quot;%1&quot; existiert nicht oder ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Process Not Responding</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess antwortet nicht</translation>
     </message>
     <message>
         <source>The process is not responding.</source>
-        <translation type="unfinished">Der Prozess antwortet nicht.</translation>
+        <translation>Der Prozess antwortet nicht.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; is not responding.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; antwortet nicht.</translation>
+        <translation>Der Prozess &quot;%1&quot; antwortet nicht.</translation>
     </message>
     <message>
         <source>Terminate the process?</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess beenden?</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; finished successfully.</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; wurde beendet.</translation>
+        <translation>Das Kommando &quot;%1&quot; wurde beendet.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; terminated with exit code %2.</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; wurde beendet, Rückgabewert %2.</translation>
+        <translation>Das Kommando &quot;%1&quot; wurde beendet, Rückgabewert %2.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; terminated abnormally.</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; wurde unnormal beendet.</translation>
+        <translation>Das Kommando &quot;%1&quot; wurde unerwartet beendet.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; could not be started.</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; konnte nicht gestartet werden.</translation>
+        <translation>Das Kommando &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; did not respond within the timeout limit (%2 s).</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; konnte nicht innerhalb des Zeitlimits (%2 s) beendet werden.</translation>
+        <translation>Das Kommando &quot;%1&quot; hat nicht innerhalb des Zeitlimits (%2 s) geantwortet.</translation>
     </message>
     <message>
         <source>Invalid command</source>
@@ -16632,75 +16632,75 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Internal socket error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Socketfehler: %1</translation>
     </message>
     <message>
         <source>Cannot set up communication channel: %1</source>
-        <translation type="unfinished">Es konnte kein Kommunikationskanal hergestellt werden: %1</translation>
+        <translation>Es konnte kein Kommunikationskanal hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Press &lt;RETURN&gt; to close this window...</source>
-        <translation type="unfinished">Betätigen Sie die &lt;RETURN&gt; Taste, um das Fenster zu schließen...</translation>
+        <translation>Betätigen Sie die &lt;RETURN&gt; Taste, um das Fenster zu schließen...</translation>
     </message>
     <message>
         <source>Cannot create temporary file: %1</source>
-        <translation type="unfinished">Es konnte keine temporäre Datei erstellt werden: %1</translation>
+        <translation>Es konnte keine temporäre Datei erstellt werden: %1</translation>
     </message>
     <message>
         <source>Cannot write temporary file. Disk full?</source>
-        <translation type="unfinished">Es konnte keine temporäre Datei erstellt werden. Möglicherweise ist kein Speicherplatz mehr auf der Festplatte vorhanden?</translation>
+        <translation>Es konnte keine temporäre Datei erstellt werden. Möglicherweise ist kein Speicherplatz mehr auf der Festplatte vorhanden?</translation>
     </message>
     <message>
         <source>Cannot create temporary directory &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Das temporäre Verzeichnis &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
+        <translation>Das temporäre Verzeichnis &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Unexpected output from helper program (%1).</source>
-        <translation type="unfinished">Die Ausgabe des Hilfsprogrammes (%1) kann nicht ausgewertet werden.</translation>
+        <translation>Die Ausgabe des Hilfsprogrammes (%1) kann nicht ausgewertet werden.</translation>
     </message>
     <message>
         <source>Cannot change to working directory &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Es konnte nicht zum Arbeitsverzeichnis &quot;%1&quot; gewechselt werden: %2</translation>
+        <translation>Es konnte nicht zum Arbeitsverzeichnis &quot;%1&quot; gewechselt werden: %2</translation>
     </message>
     <message>
         <source>Cannot execute &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; konnte nicht ausgeführt werden: %2</translation>
+        <translation>Das Kommando &quot;%1&quot; konnte nicht ausgeführt werden: %2</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; could not be started: %2</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
+        <translation>Der Prozess &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>Quoting error in command.</source>
-        <translation type="unfinished">Falsch gesetzte Anführungszeichen im Kommando.</translation>
+        <translation>Falsch gesetzte Anführungszeichen im Kommando.</translation>
     </message>
     <message>
         <source>Debugging complex shell commands in a terminal is currently not supported.</source>
-        <translation type="unfinished">Das Debuggen komplexer Shell-Kommandos in einem Terminal wird gegenwärtig nicht unterstützt.</translation>
+        <translation>Das Debuggen komplexer Shell-Kommandos in einem Terminal wird gegenwärtig nicht unterstützt.</translation>
     </message>
     <message>
         <source>Quoting error in terminal command.</source>
-        <translation type="unfinished">Quotierungsfehler in Terminal-Kommando.</translation>
+        <translation>Falsch gesetzte Anführungszeichen im Terminal-Kommando.</translation>
     </message>
     <message>
         <source>Terminal command may not be a shell command.</source>
-        <translation type="unfinished">Shell-Kommandos sind als Terminal-Kommando nicht zulässig.</translation>
+        <translation>Shell-Kommandos sind als Terminal-Kommando nicht zulässig.</translation>
     </message>
     <message>
         <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences. (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Terminal-Emulator &quot;%1&quot; konnte nicht gestartet werden, ändern Sie den Wert in den Einstellungen zur Umgebung (%2)</translation>
     </message>
     <message>
         <source>Cannot create socket &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Der Socket &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
+        <translation>Der Socket &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Cannot obtain a handle to the inferior: %1</source>
-        <translation type="unfinished">Der zu debuggende Prozess konnte nicht angesprochen werden: %1</translation>
+        <translation>Der Handle für den Prozess konnte nicht erhalten werden: %1</translation>
     </message>
     <message>
         <source>Cannot obtain exit status from inferior: %1</source>
-        <translation type="unfinished">Der Rückgabewert des zu debuggenden Prozesses konnte nicht erhalten werden: %1</translation>
+        <translation>Der Rückgabewert des Prozesses konnte nicht erhalten werden: %1</translation>
     </message>
 </context>
 <context>
@@ -20240,7 +20240,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Cannot read %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann %1 nicht lesen</translation>
     </message>
     <message>
         <source>Cannot read %1: %2</source>
@@ -20285,12 +20285,12 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>%1 on %2</source>
         <comment>File on device</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1 auf %2</translation>
     </message>
     <message>
         <source>%1 %2 on %3</source>
         <comment>File and args on device</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 auf %3</translation>
     </message>
 </context>
 <context>
@@ -31703,15 +31703,15 @@ Möchten Sie es beenden?</translation>
     <name>Utils::FileWizardPage</name>
     <message>
         <source>Choose the Location</source>
-        <translation type="unfinished">Pfadangabe</translation>
+        <translation>Pfadangabe</translation>
     </message>
     <message>
         <source>File name:</source>
-        <translation type="unfinished">Dateiname:</translation>
+        <translation>Dateiname:</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">Pfad:</translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <source>Location</source>
@@ -39348,7 +39348,13 @@ To prepend to a variable, use VARIABLE=+VALUE.
 Existing variables can be referenced in a VALUE with ${OTHER}.
 To clear a variable, put its name on a line with nothing else on it.
 To disable a variable, prefix the line with &quot;#&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine Umgebungsvariable pro Zeile ein.
+Um eine Variable zu setzen oder zu ändern, benutzen Sie VARIABLE=WERT.
+Um einen Wert an eine Variable anzufügen, benutzen Sie VARIABLE+=WERT.
+Um einen Wert einer Variable voranzustellen, benutzen Sie VARIABLE=+WERT.
+Existierende Variablen können in einem WERT mit ${ANDERE} verwendet werden.
+Um eine Variable zu leeren, schreiben Sie nichts als ihren Namen in eine Zeile.
+Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</translation>
     </message>
 </context>
 <context>
@@ -41998,7 +42004,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Remove Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis löschen</translation>
     </message>
     <message>
         <source>File to remove:</source>
@@ -42006,7 +42012,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Folder to remove:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu löschendes Verzeichnis:</translation>
     </message>
     <message>
         <source>&amp;Delete file permanently</source>
@@ -52020,15 +52026,15 @@ the QML editor know about a likely URI.</source>
     <name>Utils::Archive</name>
     <message>
         <source>File format not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiformat wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>Could not find any unarchiving executable in PATH (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte kein Archivierungswerkzeug im PATH finden (%1).</translation>
     </message>
     <message>
         <source>Command failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando schlug fehl.</translation>
     </message>
     <message>
         <source>Running %1
@@ -52036,69 +52042,72 @@ in &quot;%2&quot;.
 
 </source>
         <comment>Running &lt;cmd&gt; in &lt;workingdirectory&gt;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Führe %1
+in &quot;%2&quot; aus.
+
+</translation>
     </message>
 </context>
 <context>
     <name>Utils::StringAspect</name>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Zurücksetzen</translation>
+        <translation>Zurücksetzen</translation>
     </message>
 </context>
 <context>
     <name>Utils::TriStateAspect</name>
     <message>
         <source>Enable</source>
-        <translation type="unfinished">Aktivieren</translation>
+        <translation>Aktivieren</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished">Deaktivieren</translation>
+        <translation>Deaktivieren</translation>
     </message>
     <message>
         <source>Leave at Default</source>
-        <translation type="unfinished">Vorgabe beibehalten</translation>
+        <translation>Vorgabe beibehalten</translation>
     </message>
 </context>
 <context>
     <name>Utils::BaseTreeView</name>
     <message>
         <source>Show %1 Column</source>
-        <translation type="unfinished">Spalte %1 anzeigen</translation>
+        <translation>Spalte %1 anzeigen</translation>
     </message>
 </context>
 <context>
     <name>Utils::FileSystemModel</name>
     <message>
         <source>My Computer</source>
-        <translation type="unfinished"></translation>
+        <translation>Mein Computer</translation>
     </message>
     <message>
         <source>Computer</source>
-        <translation type="unfinished">Computer</translation>
+        <translation>Computer</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Größe</translation>
+        <translation>Größe</translation>
     </message>
     <message>
         <source>Kind</source>
         <comment>Match OS X Finder</comment>
-        <translation type="unfinished"></translation>
+        <translation>Art</translation>
     </message>
     <message>
         <source>Type</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Date Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt geändert</translation>
     </message>
 </context>
 <context>
@@ -52118,83 +52127,83 @@ in &quot;%2&quot;.
     <name>Utils::LauncherSocket</name>
     <message>
         <source>Failed to start process launcher at &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess-Launcher &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>Process launcher closed unexpectedly: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess-Launcher wurde unerwartet beendet: %1</translation>
     </message>
     <message>
         <source>Socket error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Socketfehler: %1</translation>
     </message>
     <message>
         <source>Internal protocol error: invalid packet size %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Protokollfehler: Ungültige Paketgröße %1.</translation>
     </message>
     <message>
         <source>Internal protocol error: invalid packet type %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Protokollfehler: Ungültiger Pakettyp %1.</translation>
     </message>
     <message>
         <source>Launcher socket closed unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Launcher-Socket wurde unerwartet geschlossen.</translation>
     </message>
 </context>
 <context>
     <name>Utils::LauncherHandle</name>
     <message>
         <source>Process launcher socket error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess-Launcher Socketfehler.</translation>
     </message>
 </context>
 <context>
     <name>Utils::MinimizableInfoBars</name>
     <message>
         <source>Minimize</source>
-        <translation type="unfinished">Minimieren</translation>
+        <translation>Minimieren</translation>
     </message>
 </context>
 <context>
     <name>Utils::NameValuesDialog</name>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation>&amp;Abbrechen</translation>
     </message>
 </context>
 <context>
     <name>Utils::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
-        <translation type="unfinished">Variable einfügen</translation>
+        <translation>Variable einfügen</translation>
     </message>
     <message>
         <source>Current Value: %1</source>
-        <translation type="unfinished">Aktueller Wert: %1</translation>
+        <translation>Aktueller Wert: %1</translation>
     </message>
     <message>
         <source>Insert Unexpanded Value</source>
-        <translation type="unfinished">Nicht expandierten Wert einfügen</translation>
+        <translation>Nicht expandierten Wert einfügen</translation>
     </message>
     <message>
         <source>Insert &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; einfügen</translation>
+        <translation>&quot;%1&quot; einfügen</translation>
     </message>
     <message>
         <source>Insert Expanded Value</source>
-        <translation type="unfinished">Expandierten Wert einfügen</translation>
+        <translation>Expandierten Wert einfügen</translation>
     </message>
     <message>
         <source>Select a variable to insert.</source>
-        <translation type="unfinished">Wählen Sie eine Variable aus, die eingefügt werden soll.</translation>
+        <translation>Wählen Sie eine Variable aus, die eingefügt werden soll.</translation>
     </message>
     <message>
         <source>Variables</source>
-        <translation type="unfinished">Variablen</translation>
+        <translation>Variablen</translation>
     </message>
 </context>
 <context>
