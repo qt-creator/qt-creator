@@ -331,6 +331,8 @@ void doSemanticHighlighting(
             styles.mainStyle = C_MACRO;
         } else if (token.type == "type") {
             styles.mainStyle = C_TYPE;
+        } else if (token.type == "modifier") {
+            styles.mainStyle = C_KEYWORD;
         } else if (token.type == "typeParameter") {
             // clangd reports both type and non-type template parameters as type parameters,
             // but the latter can be distinguished by the readonly modifier.
@@ -578,7 +580,8 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
         insertResult(node, C_PRIMITIVE_TYPE);
         return;
     }
-    if (node.role() == "attribute" && (node.kind() == "Override" || node.kind() == "Final")) {
+    if (m_clangdVersion < 16 && node.role() == "attribute"
+            && (node.kind() == "Override" || node.kind() == "Final")) {
         insertResult(node, C_KEYWORD);
         return;
     }
