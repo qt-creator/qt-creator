@@ -19,7 +19,7 @@ public:
     ~LinuxProcessInterface();
 
 private:
-    void sendControlSignal(Utils::ControlSignal controlSignal) override;
+    void handleSendControlSignal(Utils::ControlSignal controlSignal) override;
 
     void handleStarted(qint64 processId) final;
     void handleDone(const Utils::ProcessResultData &resultData) final;

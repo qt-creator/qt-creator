@@ -496,6 +496,20 @@ qint64 SshProcessInterface::write(const QByteArray &data)
     return d->m_process.writeRaw(data);
 }
 
+void SshProcessInterface::sendControlSignal(Utils::ControlSignal controlSignal)
+{
+    if (d->m_process.usesTerminal()) {
+        switch (controlSignal) {
+        case Utils::ControlSignal::Terminate: d->m_process.terminate();      break;
+        case Utils::ControlSignal::Kill:      d->m_process.kill();           break;
+        case Utils::ControlSignal::Interrupt: d->m_process.interrupt();      break;
+        case Utils::ControlSignal::KickOff:   d->m_process.kickoffProcess(); break;
+        }
+        return;
+    }
+    handleSendControlSignal(controlSignal);
+}
+
 LinuxProcessInterface::LinuxProcessInterface(const LinuxDevice *linuxDevice)
     : SshProcessInterface(linuxDevice)
 {
@@ -506,7 +520,7 @@ LinuxProcessInterface::~LinuxProcessInterface()
     killIfRunning();
 }
 
-void LinuxProcessInterface::sendControlSignal(ControlSignal controlSignal)
+void LinuxProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
 {
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
     const qint64 pid = processId();

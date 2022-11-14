@@ -5,7 +5,6 @@
 
 #include "qdbutils.h"
 #include "qdbconstants.h"
-#include "qdbdevicedebugsupport.h"
 
 #include <coreplugin/icore.h>
 
@@ -18,6 +17,7 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/theme/theme.h>
 
 #include <QFormLayout>
 #include <QLabel>
@@ -39,7 +39,7 @@ public:
     ~QdbProcessImpl() { killIfRunning(); }
 
 private:
-    void sendControlSignal(ControlSignal controlSignal) final
+    void handleSendControlSignal(ControlSignal controlSignal) final
     {
         QTC_ASSERT(controlSignal != ControlSignal::Interrupt, return);
         QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
