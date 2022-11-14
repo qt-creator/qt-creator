@@ -1,5 +1,8 @@
 type: Group
 instructions:
+  - type: MakeDirectory
+    directory: "{{.AgentWorkingDir}}/build/qt_temp"
+
   - type: Group
     instructions:
       - type: ExecuteCommand
