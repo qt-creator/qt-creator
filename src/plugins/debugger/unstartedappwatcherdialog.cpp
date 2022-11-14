@@ -240,6 +240,8 @@ void UnstartedAppWatcherDialog::findProcess()
     ProcessInfo fallback;
     const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
     for (const ProcessInfo &processInfo : processInfoList) {
+        if (m_excluded.contains(processInfo.processId))
+            continue;
         if (Utils::FileUtils::normalizedPathName(processInfo.executable) == appName) {
             pidFound(processInfo);
             return;
@@ -318,13 +320,18 @@ void UnstartedAppWatcherDialog::setWaitingState(UnstartedAppWacherState state)
         m_kitChooser->setEnabled(true);
         break;
 
-    case WatchingState:
+    case WatchingState: {
         m_waitingLabel->setText(Tr::tr("Waiting for process to start..."));
         m_watchingPushButton->setEnabled(true);
         m_watchingPushButton->setChecked(true);
         m_pathChooser->setEnabled(false);
         m_kitChooser->setEnabled(false);
+        m_excluded.clear();
+        const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
+        for (const ProcessInfo &processInfo : processInfoList)
+            m_excluded.insert(processInfo.processId);
         break;
+    }
 
     case FoundState:
         m_waitingLabel->setText(Tr::tr("Attach"));

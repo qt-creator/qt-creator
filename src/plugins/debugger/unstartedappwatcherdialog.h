@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QSet>
 #include <QTimer>
 
 #include <utils/processinfo.h>
@@ -67,6 +68,7 @@ private:
     QCheckBox *m_continueOnAttachCheckBox;
     QPushButton *m_watchingPushButton;
     Utils::ProcessInfo m_process;
+    QSet<int> m_excluded;
     QTimer m_timer;
 };
 
