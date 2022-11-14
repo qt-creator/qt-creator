@@ -224,6 +224,8 @@ Project {
 
         QtcTestFiles {
             files: [
+                "codeassist/codeassist_test.cpp",
+                "codeassist/codeassist_test.h",
                 "texteditor_test.cpp",
             ]
         }
