@@ -1107,12 +1107,14 @@
 
     \image qtcreator-cdb-options.png "CDB preferences"
 
+    The following sections describe some of the widely-used Dumper classes and
+    members specified in \c qtcreator\share\qtcreator\debugger\dumper.py.
+
+
     \section3 Dumper Class
 
     The \c Dumper class contains generic bookkeeping, low-level, and convenience
-    functions.
-
-    The member functions of the \c Dumper class are the following:
+    functions:
 
     \list
         \li \c{putItem(self, value)} - The \e {master function} that handles
@@ -1134,9 +1136,10 @@
                 self.putType("bool")
             \endcode
 
-        \li \c{putCallItem(self, name, value, func, *args)} - Uses the native
-            debugger backend to place the function call \c func on the value
-            specified by \a {value} and output the resulting item.
+        \li \c{putCallItem(self, name, rettype, value, func, *args)} - Uses the
+            native debugger backend to place the function call \c func returning
+            \c rettype  on the value specified by \a {value} and to output the
+            resulting item.
 
             Native calls are extremely powerful and can leverage existing
             debugging or logging facilities in the debugged process, for
@@ -1289,7 +1292,7 @@
     classes, obliterating the need to use \e Debug builds of Qt for the purpose
     of object introspection.
 
-    The member functions of the \c{Dumper.Type} class are the following:
+    The \c{Dumper.Type} class has the following widely-used member functions:
 
     \list
 
@@ -1332,10 +1335,7 @@
     \section3 Dumper.Field Class
 
     The \c{Dumper.Field} class describes a base class or a data member of a type
-    object.
-
-    The member function and properties of the \c{Dumper.Field} class are the
-    following:
+    object:
 
     \list
 

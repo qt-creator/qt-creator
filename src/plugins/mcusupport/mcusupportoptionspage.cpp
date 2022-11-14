@@ -247,6 +247,15 @@ void McuSupportOptionsWidget::updateStatus()
     }
 }
 
+struct McuPackageSort {
+    bool operator()(McuPackagePtr a, McuPackagePtr b) const {
+        if (a->cmakeVariableName() != b->cmakeVariableName())
+            return a->cmakeVariableName() > b->cmakeVariableName();
+        else
+            return a->environmentVariableName() > b->environmentVariableName();
+    }
+};
+
 void McuSupportOptionsWidget::showMcuTargetPackages()
 {
     McuTargetPtr mcuTarget = currentMcuTarget();
@@ -257,9 +266,15 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
         m_packagesLayout->removeRow(0);
     }
 
+    std::set<McuPackagePtr, McuPackageSort> packages;
+
     for (const auto &package : mcuTarget->packages()) {
         if (package->label().isEmpty())
             continue;
+        packages.insert(package);
+    }
+
+    for (const auto &package : packages) {
         QWidget *packageWidget = package->widget();
         m_packagesLayout->addRow(package->label(), packageWidget);
         packageWidget->show();

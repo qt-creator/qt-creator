@@ -12,27 +12,23 @@
 
     \section1 Selecting the Build System
 
-    Most \QC project wizards enable you to choose the build system to use for
-    building the project: qmake, CMake, or Qbs. If you are not presented with a
-    choice, the project is set up to use qmake.
+    You can use several build systems to build your projects.
 
     \l{qmake Manual}{qmake} is a cross-platform system for build automation
     that helps simplify the build process for development projects across
     different platforms. qmake automates the generation of build configurations
-    so that only a few lines of information are needed to create each
-    configuration. qmake is installed and configured when you install Qt.
+    so that you need only a few lines of information to create each
+    configuration. Qt installers install and configure qmake.
     To use one of the other supported build systems, you need to set it up.
 
     \l {Build with CMake}{CMake} is an alternative to qmake for automating the
     generation of build configurations. For more information, see
     \l {Setting Up CMake}.
 
-    \l {https://mesonbuild.com/}{Meson} Meson is an open source build system meant
-    to be both extremely fast, and, even more importantly, as user friendly as
-    possible. The main design point of Meson is that every second a developer
-    spends writing or debugging build definitions is a second wasted. So is every
-    second spent waiting for the build system to actually start compiling code.
-    For more information, see \l {Setting Up Meson}.
+    \l {https://mesonbuild.com/}{Meson} Meson is a fast and user-friendly
+    open-source build system that aims to minimize the time developers spend
+    writing or debugging build definitions and waiting for the build system
+    to start compiling code. For more information, see \l {Setting Up Meson}.
 
     \l{Qbs Manual}{Qbs} is an all-in-one build tool that generates a build graph
     from a high-level project description (like qmake or CMake do) and executes
@@ -43,8 +39,8 @@
     for building and running projects, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General.
 
-    To specify build and run settings for different target platforms,
-    select \uicontrol Projects. For more information on the options you have,
+    Specify build and run settings for different target platforms, in the
+    \uicontrol Projects mode. For more information on the options you have,
     see \l{Specifying Build Settings}.
 
 //! [build systems]

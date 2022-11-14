@@ -44,9 +44,9 @@
 
         \li \l{Managing Sessions}
 
-            Items such as open files, breakpoints, and evaluated expressions
-            are stored in sessions. They are not considered to be part of
-            the information shared across platforms.
+            Sessions store items such as open files, breakpoints, and evaluated
+            expressions, which you do not typically want to share across
+            platforms.
 
     \endlist
 

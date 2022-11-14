@@ -15,32 +15,27 @@
     \title Configuring Projects
 
     When you install Qt for a target platform, such as Android or QNX, the
-    build and run settings for the development targets might be set up
-    automatically in \QC.
-
-    When you open a project for the first time, the
-    \uicontrol {Configure Projects} view is displayed to let you select a set of
-    \l{glossary-buildandrun-kit}{kits} that you want to use to build and run
-    your project. At least one kit must be active for you to be able to build
-    and run the project. For more information about selecting the initial kit,
-    see \l{Opening Projects}.
+    \l{https://www.qt.io/download-qt-installer}{Qt Online Installer}
+    creates \l{glossary-buildandrun-kit}{kits} for the development
+    targets. Select the kits to use in the \uicontrol {Configure Projects}
+    view when you open a project for the first time. At least one kit must be
+    active. For more information about selecting the initial kit, see
+    \l{Opening Projects}.
 
     To maintain the list of active kits for a currently open project, switch to
     the \uicontrol Projects mode by pressing \key Ctrl+5.
 
     \section1 Activating Kits for a Project
 
-    All kits compatible with your project are listed in the
-    \uicontrol {Build & Run} section of the sidebar. To activate one or more
-    disabled kits, click them.
+    The \uicontrol {Build & Run} section of the sidebar lists the kits that are
+    compatible with your project. To activate one or more kits, click them.
 
     \image qtcreator-project-kits.png
 
-    The list displays kits that are configured in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits. If the kit configuration is not
-    suitable for the project type, warning and error icons are displayed.
-    To view the warning and error messages, move the mouse pointer over
-    the kit name.
+    The list displays kits from \uicontrol Edit > \uicontrol Preferences >
+    \uicontrol Kits. Warning and error icons indicate that the kit configuration
+    is not suitable for the project type. To view the warning and error messages,
+    move the mouse pointer over the kit name.
 
     In the list of kits, you may see entries described as \e {Replacement for
     <kit-name>}. \QC generates them to save your project-specific settings,

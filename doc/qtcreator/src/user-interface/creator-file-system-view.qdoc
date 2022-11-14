@@ -28,7 +28,7 @@
     \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General.
 
     The file that is currently active in the editor determines which folder
-    is displayed in the \uicontrol {File System} view:
+    to display in the \uicontrol {File System} view:
 
     \list
         \li \uicontrol Projects if the file is located in a subdirectory of the
@@ -41,8 +41,8 @@
     \uicontrol {File System} view, delesect the \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize Root Directory with Editor}) button.
 
-    The path to the active file is displayed as bread crumbs. You can move to
-    any directory along the path by clicking it.
+    The view displays the path to the active file as bread crumbs. You can move
+    to any directory along the path by clicking it.
 
     \section1 File System Context Menu
 
@@ -94,13 +94,13 @@
     \list
         \li To hide the bread crumbs, deselect the
             \uicontrol {Show Bread Crumbs} check box.
-        \li By default, folders are separated from files and listed first in
-            the view. To list all items in alphabetic order, deselect the
+        \li By default, the view separates folders from files and lists them
+            first. To list all items in alphabetic order, deselect the
             \uicontrol {Show Folders on Top} check box.
         \li To also show hidden files, select \uicontrol {Show Hidden Files}.
     \endlist
 
-    To stop the synchronization with the file currently opened in the
+    To stop the synchronization with the file currently open in the
     editor, deselect \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
 */

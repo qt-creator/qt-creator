@@ -19,7 +19,7 @@
 
     \title Managing Sessions
 
-    When you exit \QC, a snapshot of your current workspace is stored as a
+    When you exit \QC, it stores a snapshot of your current workspace as a
     \e session. To restore the session automatically when you start \QC,
     select \uicontrol File > \uicontrol Sessions > \uicontrol Manage >
     \uicontrol {Restore last session on startup}.
@@ -79,8 +79,8 @@
     To switch between sessions, select \uicontrol {Open}.
 
     \if defined(qtcreator)
-    When you launch \QC, a list of existing sessions is displayed in the
-    \uicontrol Welcome mode. To open a session, select it or press
+    The \uicontrol Projects tab in the \uicontrol Welcome mode lists existing
+    sessions. To open a session, select it or press
     \key Ctrl+Alt+<number>, where \e <number> is the number of the session to
     open (available for the first nine sessions).
 
@@ -94,7 +94,7 @@
     to clone, rename, and delete sessions.
 
     When you start \QC from the command line, you can give the name of
-    a session as argument and \QC will start with this session.
+    a session as an argument and \QC will start with this session.
 
     For more information, see \l{Using Command Line Options}.
     \endif

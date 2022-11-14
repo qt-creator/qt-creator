@@ -29,17 +29,17 @@
     change the wizard id in the \c {wizard.json} file.
 
     You can create a subdirectory for the templates in the settings directory.
-    The standard wizards are organized into subdirectories by type, but you can
+    \QC organizes the standard wizards into subdirectories by type, but you can
     add your wizard directory to any directory you like. The folder hierarchy
-    does not affect the order in which the wizards are displayed.
+    does not affect the order in which \QC displays wizards.
 
     To share the wizard with other users, you can create an archive of the
     wizard directory and instruct the recipients to extract it into one of the
     directories \QC searches wizards from.
 
     \QC displays the wizards that it finds in the \uicontrol {New Project}
-    and \uicontrol {New File} dialogs. For each wizard, an icon (1), a
-    display name (2), and a description (3) are displayed.
+    and \uicontrol {New File} dialogs. For each wizard, it shows an icon (1), a
+    display name (2), and a description (3).
 
     \image qtcreator-custom-wizard.png
 
@@ -79,9 +79,9 @@
 
     \section2 Mapping Actions to Keyboard Shortcuts
 
-    \QC has some actions that can improve the wizard development process. These
-    are by default not bound to any keyboard shortcuts and can thus not be
-    triggered. To enable them, assign keyboard shortcuts in \uicontrol Edit >
+    \QC has some actions that can improve the wizard development process. They
+    don't have keyboard shortcuts by default, so you cannot trigger them. To
+    enable them, assign keyboard shortcuts in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard >
     \uicontrol Wizard.
 
@@ -112,8 +112,8 @@
     \section2 Verbose Output
 
     For wizard development, we recommend that you start \QC with the
-    \c {-customwizard-verbose} argument to receive confirmation that \QC was
-    able to find and parse the \c {wizard.json} file. The verbose mode displays
+    \c {-customwizard-verbose} argument to receive confirmation that \QC
+    finds and parses the \c {wizard.json} file. The verbose mode displays
     information about syntax errors, which are the most typical errors you might
     run into while editing wizards.
 
@@ -126,11 +126,12 @@
     * Configuration found and parsed.
     \endcode
 
-    The output includes the name of the directory that was checked for a
-    \c wizard.json file. If the file is not found, the message is not displayed.
+    The output includes the name of the directory that \QC checks for a
+    \c wizard.json file. If it does not find the file, it does not show
+    the message.
 
-    If the file contains errors, such as an invalid icon path, the following
-    types of messages are displayed:
+    If the file contains errors, such as an invalid icon path, you receive the
+    following types of messages:
 
     \code
     Checking "/home/jsmith/.config/QtProject/qtcreator/templates/wizards/mywizard"

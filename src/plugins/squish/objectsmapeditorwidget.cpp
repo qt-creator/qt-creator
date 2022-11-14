@@ -346,7 +346,7 @@ void ObjectsMapEditorWidget::onPropertiesContentModified(const QString &text)
 
     const QModelIndex &idx = m_objMapFilterModel->mapToSource(selected.first());
     if (auto item = static_cast<ObjectsMapTreeItem *>(m_document->model()->itemForIndex(idx)))
-        item->setPropertiesContent(text.toLocal8Bit().trimmed());
+        item->setPropertiesContent(text.toUtf8().trimmed());
 }
 
 void ObjectsMapEditorWidget::onJumpToSymbolicNameClicked()

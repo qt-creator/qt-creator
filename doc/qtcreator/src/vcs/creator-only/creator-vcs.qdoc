@@ -173,7 +173,7 @@
     Once you have finished making changes, submit them to the version control
     system by choosing \uicontrol{Commit} or \uicontrol{Submit}. \QC displays a
     commit page containing a text editor where you can enter your commit
-    message and a checkable list of modified files to be included.
+    message and a checkable list of modified files to include.
 
     \section2 Reverting Changes
 

@@ -50,7 +50,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc)
             edit->setText(fixedDir.toUserOutput());
 
         const FilePath newPath = FilePath::fromUserInput(edit->text());
-        const auto buildDevice = DeviceKitAspect::device(d->target->kit());
+        const auto buildDevice = BuildDeviceKitAspect::device(d->target->kit());
 
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !buildDevice->rootPath().ensureReachable(newPath)) {

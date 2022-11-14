@@ -12,7 +12,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
-#include <QDir>
+#include <QtCore5Compat/QTextCodec>
 
 namespace Squish {
 namespace Internal {
@@ -187,13 +187,13 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
     if (fileName.isEmpty())
         return OpenResult::CannotHandle;
 
-    QString text;
+    QByteArray text;
     if (realFileName.fileName() == "objects.map") {
         Utils::FileReader reader;
         if (!reader.fetch(realFileName, QIODevice::Text, error))
             return OpenResult::ReadError;
 
-        text = QString::fromLocal8Bit(reader.data());
+        text = reader.data();
     } else {
         const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath.filePath();
         if (base.isEmpty()) {
@@ -212,11 +212,12 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
         Utils::QtcProcess objectMapReader;
         objectMapReader.setCommand({exe, {"--scriptMap", "--mode", "read",
                                           "--scriptedObjectMapPath", realFileName.toUserOutput()}});
+        objectMapReader.setCodec(QTextCodec::codecForName("UTF-8"));
         objectMapReader.start();
         objectMapReader.waitForFinished();
-        text = objectMapReader.cleanedStdOut();
+        text = objectMapReader.cleanedStdOut().toUtf8();
     }
-    if (!setContents(text.toUtf8())) {
+    if (!setContents(text)) {
         if (error)
             error->append(Tr::tr("Failure while parsing objects.map content."));
         return OpenResult::ReadError;

@@ -22,7 +22,7 @@
     {mode} you are working in. Only views that are relevant to a mode are
     available in it.
 
-    The following views are related to managing projects and files:
+    Manage projects and files in the following views:
 
     \list
         \li \l Projects shows a list of projects open in the current
@@ -49,8 +49,8 @@
             tests in the project.
         \li \l{Viewing Type Hierarchy}{Type Hierarchy} shows the base
             classes of a class.
-        \li \l{Viewing Include Hierarchy}{Include Hierarchy} shows which
-            files are included in the current file and which files include
+        \li \l{Viewing Include Hierarchy}{Include Hierarchy} shows the
+            files that the current file includes and those that include
             the current file.
     \endlist
     \else
@@ -58,8 +58,7 @@
     files in the \uicontrol Design mode, see \l{Design Views}.
     \endif
 
-    The additional options in a particular view are described in the following
-    sections.
+    The following sections describe the additional options in a particular view.
 
     In some views, right-clicking opens a context menu that contains functions
     for managing the objects listed in the view.
@@ -109,21 +108,21 @@
 
     To navigate in the type hierarchy, double-click a class or select it,
     and then select \uicontrol {Open Type Hierarchy} in the context menu.
-    The previous class is highlighted in the view.
+    The view highlights the previous class.
 
-    The definition of the selected class is opened in the code editor. You
+    The definition of the selected class opens in the code editor. You
     can also select \uicontrol {Open in Editor} in the context menu to open
     it.
 
     \section1 Viewing Include Hierarchy
 
-    To view which files are included in the current file and which files include
+    To view the files that the current file includes and those that include
     the current file, right-click in the editor and select
     \uicontrol {Open Include Hierarchy} or press \key {Ctrl+Shift+I}.
 
     \image qtcreator-include-hierarchy-view.png "Include Hierarchy view"
 
-    To keep the view synchronized with the file currently opened in the editor,
+    To keep the view synchronized with the file currently open in the editor,
     select \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize with Editor}).
 */

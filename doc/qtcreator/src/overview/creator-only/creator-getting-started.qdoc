@@ -43,10 +43,11 @@
         \row
             \li \b {\l{Building and Running an Example}}
 
-                To check that \l{glossary-buildandrun-kit}{kits} for building and running were
-                successfully installed as part of the \QSDK installation, open
-                an example application and run it. If you have not done so
-                before, go to \l{Building and Running an Example}.
+                To check that the \l{https://www.qt.io/download-qt-installer}
+                {Qt Online Installer} created \l{glossary-buildandrun-kit}
+                {build and run kits}, open an example application and run it.
+                If you have not done so before, go to
+                \l{Building and Running an Example}.
             \li \b {\l{Tutorials}}
 
                 Now you are ready to start developing your own applications.

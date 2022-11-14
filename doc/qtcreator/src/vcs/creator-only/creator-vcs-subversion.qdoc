@@ -21,8 +21,8 @@
     \uicontrol Subversion > \uicontrol Describe to display commit log messages
     for a revision.
 
-    By default, you are prompted to confirm that you want to submit changes.
-    To suppress the prompt, select \uicontrol Edit > \uicontrol Preferences >
+    By default, you must confirm that you want to submit changes. To suppress the
+    confirmation prompt, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Version Control} > \uicontrol Subversion, and then deselect the
     \uicontrol {Prompt on submit} check box.
 

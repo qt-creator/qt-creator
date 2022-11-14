@@ -16,8 +16,8 @@
 
     This tutorial describes how to use \QC to create a small Qt application,
     Text Finder. It is a simplified version of the Qt UI Tools \l{Text Finder
-    Example}. The application user interface is constructed from Qt widgets by
-    using \QD. The application logic is written in C++ by using the code editor.
+    Example}. We use \QD to construct the application user interface from
+    Qt widgets and the code editor to write the application logic in C++.
 
     \image qtcreator-textfinder-screenshot.png
 
@@ -91,8 +91,8 @@
 
     \endlist
 
-    \note The project opens in the \uicontrol Edit mode, and these instructions are
-    hidden. To return to these instructions, open the \uicontrol Help mode.
+    \note The project opens in the \uicontrol Edit mode, which hides these
+    instructions. To return to these instructions, open the \uicontrol Help mode.
 
     The TextFinder project now contains the following files:
 
@@ -187,9 +187,9 @@
                 \li Select \uicontrol {Go to Slot} > \uicontrol {clicked()}, and
                     then select \uicontrol OK.
 
-                    A private slot, \c{on_findButton_clicked()}, is added to the
+                    This adds a private slot, \c{on_findButton_clicked()}, to the
                     header file, textfinder.h and a private function,
-                    \c{TextFinder::on_findButton_clicked()}, is added to the
+                    \c{TextFinder::on_findButton_clicked()}, to the
                     source file, textfinder.cpp.
 
             \endlist
@@ -214,8 +214,7 @@
             \c{textfinder.h} file to open it for editing.
 
         \li Add a private function to the \c{private} section, after the
-            \c{Ui::TextFinder} pointer, as illustrated by the following code
-            snippet:
+            \c{Ui::TextFinder} pointer:
 
             \snippet textfinder/textfinder.h 0
 
@@ -233,8 +232,7 @@
 
         \li Add code to load a text file using QFile, read it with QTextStream,
             and then display it on \c{textEdit} with
-            \l{QTextEdit::setPlainText()}.
-            This is illustrated by the following code snippet:
+            \l{QTextEdit::setPlainText()}:
 
             \snippet textfinder/textfinder.cpp 0
 
@@ -245,21 +243,18 @@
 
         \li For the \c{on_findButton_clicked()} slot, add code to extract the
             search string and use the \l{QTextEdit::find()} function
-            to look for the search string within the text file. This is
-            illustrated by the following code snippet:
+            to look for the search string within the text file:
 
             \snippet textfinder/textfinder.cpp 2
 
-        \li Once both of these functions are complete, add a line to call
-            \c{loadTextFile()} in the constructor, as illustrated by the
-            following code snippet:
+        \li Add a line to call \c{loadTextFile()} in the constructor:
 
             \snippet textfinder/textfinder.cpp 3
 
     \endlist
 
-    The \c{on_findButton_clicked()} slot is called automatically in
-    the uic generated ui_textfinder.h file by this line of code:
+    The following line of code automatically calls the \c{on_findButton_clicked()}
+    slot in the uic generated ui_textfinder.h file:
 
     \code
     QMetaObject::connectSlotsByName(TextFinder);

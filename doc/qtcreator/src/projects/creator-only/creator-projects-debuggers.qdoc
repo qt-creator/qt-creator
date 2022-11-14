@@ -66,14 +66,14 @@
             devices in the \uicontrol ABIs field.
 
         \li In the \uicontrol {Working directory} field, specify the working
-            directory of the application process. If the application is run
+            directory of the application process. If the application runs
             locally, the working directory defaults to the build directory. If
-            the application is run remotely on a device, the value depends on
+            the application runs remotely on a device, the value depends on
             the shell or the device. Usually, you can leave this field empty.
 
     \endlist
 
     To remove the selected manually added debugger, select \uicontrol Remove.
-    The debugger is removed from the list when you select \uicontrol Apply.
+    The debugger disappears from the list when you select \uicontrol Apply.
     Until then, you can cancel the deletion by clicking \uicontrol Restore.
 */
