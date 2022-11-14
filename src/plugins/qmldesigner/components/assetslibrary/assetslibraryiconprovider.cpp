@@ -36,6 +36,8 @@ QPixmap AssetsLibraryIconProvider::requestPixmap(const QString &id, QSize *size,
             type = "sound";
         else if (AssetsLibraryModel::supportedVideoSuffixes().contains(suffix))
             type = "video";
+        else if (AssetsLibraryModel::supportedEffectMakerSuffixes().contains(suffix))
+            type = "default";
 
         QString pathTemplate = QString(":/AssetsLibrary/images/asset_%1%2.png").arg(type);
         QString path = pathTemplate.arg('_' + QString::number(requestedSize.width()));
