@@ -46,6 +46,7 @@
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textmark.h>
 
@@ -1078,6 +1079,7 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
     setCodeFoldingSupported(true);
 
     addHoverHandler(new QmlJSHoverHandler);
+    addHoverHandler(new ColorPreviewHoverHandler);
     setCompletionAssistProvider(new QmlJSCompletionAssistProvider);
 
     setEditorActionHandlers(TextEditorActionHandler::Format
