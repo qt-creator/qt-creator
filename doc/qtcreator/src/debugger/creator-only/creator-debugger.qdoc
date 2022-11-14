@@ -417,7 +417,7 @@
     to manage the GDB process, see \l{Specifying GDB Settings} and
     \l{Specifying Extended GDB Settings}.
 
-    For more informaton about connecting with \c {target extended-remote} mode
+    For more information about connecting with \c {target extended-remote} mode
     in GDB, see \l{https://sourceware.org/gdb/onlinedocs/gdb/Connecting.html}
     {Debugging with GDB: Connecting to a Remote Target}.
 

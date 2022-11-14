@@ -81,7 +81,7 @@
             compilers from the various KEIL development environments.
             Currently supported architectures are \c 8051 and \c ARM.
 
-        \li \l{http://sdcc.sourceforge.net}{SDCC} is a retargetable, optimizing
+        \li \l{http://sdcc.sourceforge.net}{SDCC} is an optimizing
             C bare-metal compiler for various architectures.
             Currently supported architectures are \c 8051 and \c STM8.
 
@@ -90,7 +90,7 @@
     The emscripten compiler is tool chain for compiling to
     \l{Building Applications for the Web}{WebAssembly}.
 
-    \section1 Redetecting Compilers
+    \section1 Re-detecting Compilers
 
     When \QC finds an x86_64 GCC compiler, it sets up an instance for the native
     x86_64 target. If you plan to create also 32-bit x86 binaries without using

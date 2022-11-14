@@ -74,7 +74,7 @@
     \endlist
 
     You can group elements by surrounding them with a boundary. When you move
-    the boundary, all elements within it are moved together. Similary, drag
+    the boundary, all elements within it are moved together. Similarly, drag
     a swimlane to the diagram. When you move the swimlane, all elements right
     to the swimlane (for vertical swimlanes) or below it (for horizontal swimlanes)
     will be moved together. A vertical swimlane is created when you drop the

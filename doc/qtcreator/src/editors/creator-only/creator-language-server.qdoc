@@ -52,7 +52,7 @@
     file patterns to match language servers. If you do not set at least one MIME
     type or file pattern, no files will be sent to the language server. This is
     done to avoid unnecessary traffic and inaccurate information, as files are
-    only sent to the languge server if they are known to be handled by it. For
+    only sent to the language server if they are known to be handled by it. For
     more information about how \QC uses MIME types, see \l {Editing MIME Types}.
 
     \section1 Specifying Settings for Language Clients

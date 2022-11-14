@@ -169,7 +169,7 @@
 
     The 32-bit CDB version can only debug 32-bit executables, whereas the 64-bit
     version can debug both 64-bit and 32-bit executables. However, interrupting a
-    32-bit executable with a 64-bit debugger can result in a stacktrace of the
+    32-bit executable with a 64-bit debugger can result in a stack trace of the
     WOW64 emulator 32-bit emulation layer being displayed.
 
     \QC extends the command line debugger by loading the
@@ -187,7 +187,7 @@
 
     It is highly recommended that you add the Symbol Server provided
     by Microsoft to the symbol search path of the debugger. The
-    Symbol Server provides you with debugging informaton for the
+    Symbol Server provides you with debugging information for the
     operating system libraries for debugging Windows applications.
     For more information, see
     \l{Setting CDB Paths on Windows}.

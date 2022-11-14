@@ -399,7 +399,7 @@
 
     With Git, you can put your current set of changes onto a virtual shelf
     called a \e stash. Stashes are useful, for example, to put aside a set of
-    changes to work on higher priority tasks or to pull in new chages from
+    changes to work on higher priority tasks or to pull in new changes from
     another repository.
 
     To stash all local changes, select \uicontrol Stash > \uicontrol Stash. The
@@ -411,7 +411,7 @@
     display or delete them, select \uicontrol Stashes.
 
     To save a snapshot of your current work under a name for later reference,
-    select \uicontrol {Take Snapshot}. The working copy is unchanged. For
+    select \uicontrol {Take Snapshot}. The working copy is not changed. For
     example, if you want to try something and find out later that it does not
     work, you can discard the changes and return to the state of the snapshot.
 
@@ -455,7 +455,7 @@
     version control, select \uicontrol Tools > \uicontrol Git >
     \uicontrol {Create Repository}. \QC creates a new subdirectory named .git
     that contains all the necessary repository files. However, Git does not track
-    anyhing in the project yet, so you will need to create an initial commit to
+    anything in the project yet, so you will need to create an initial commit to
     start tracking the project files.
 
     \section1 Working with Remote Repositories

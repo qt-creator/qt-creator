@@ -38,7 +38,7 @@
     \endlist
 
     To stop the synchronization between the editor and the
-    \uicontrol {File System} view, delesect the \inlineimage icons/linkicon.png
+    \uicontrol {File System} view, deselect the \inlineimage icons/linkicon.png
     (\uicontrol {Synchronize Root Directory with Editor}) button.
 
     The view displays the path to the active file as bread crumbs. You can move
