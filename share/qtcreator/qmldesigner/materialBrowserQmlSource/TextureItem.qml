@@ -37,7 +37,7 @@ Rectangle {
     }
 
     Image {
-        source: textureSource
+        source: "image://materialBrowserTex/" + textureSource
         sourceSize.width: root.width - 10
         sourceSize.height: root.height - 10
         anchors.centerIn: parent

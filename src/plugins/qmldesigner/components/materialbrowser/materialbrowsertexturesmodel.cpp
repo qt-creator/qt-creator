@@ -35,7 +35,7 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
     QByteArray roleName = roleNames().value(role);
     if (roleName == "textureSource") {
         QString source = m_textureList.at(index.row()).variantProperty("source").value().toString();
-        return QUrl::fromLocalFile(DocumentManager::currentResourcePath().path() + '/' + source);
+        return QVariant(DocumentManager::currentResourcePath().path() + '/' + source);
     }
 
     if (roleName == "textureVisible")

@@ -18,6 +18,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/hdrimage.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -88,6 +89,33 @@ public:
     }
 };
 
+class TextureImageProvider : public QQuickImageProvider
+{
+public:
+    TextureImageProvider() : QQuickImageProvider(Pixmap) {}
+
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override
+    {
+        QPixmap pixmap;
+        const QString suffix = id.split('.').last().toLower();
+        if (suffix == "hdr")
+            pixmap = HdrImage{id}.toPixmap();
+        else
+            pixmap = Utils::StyleHelper::dpiSpecificImageFile(id);
+
+        if (pixmap.isNull())
+            pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/materialeditor/images/texture_default.png");
+
+        if (size)
+            *size = pixmap.size();
+
+        if (requestedSize.isValid())
+            return pixmap.scaled(requestedSize, Qt::KeepAspectRatio);
+
+        return pixmap;
+    }
+};
+
 bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusOut) {
@@ -119,8 +147,9 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                     QString iconPath = QLatin1String("%1/%2")
                                     .arg(DocumentManager::currentResourcePath().path(),
                                          m_textureToDrag.variantProperty("source").value().toString());
-
-                    model->startDrag(mimeData, QPixmap(iconPath).scaled({128, 128}));
+                    model->startDrag(mimeData,
+                                     m_textureImageProvider->requestPixmap(iconPath, nullptr,
+                                                                           {128, 128}));
                 }
                 m_materialToDrag = {};
                 m_textureToDrag = {};
@@ -140,6 +169,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(MaterialBrowserView *view)
     , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(this))
     , m_quickWidget(new QQuickWidget(this))
     , m_previewImageProvider(new PreviewImageProvider())
+    , m_textureImageProvider(new TextureImageProvider())
 {
     setWindowTitle(tr("Material Browser", "Title of material browser widget"));
     setMinimumWidth(120);
@@ -160,6 +190,8 @@ MaterialBrowserWidget::MaterialBrowserWidget(MaterialBrowserView *view)
     });
 
     m_quickWidget->engine()->addImageProvider("materialBrowser", m_previewImageProvider);
+    m_quickWidget->engine()->addImageProvider("materialBrowserTex", m_textureImageProvider);
+
     Theme::setupTheme(m_quickWidget->engine());
     m_quickWidget->installEventFilter(this);
 

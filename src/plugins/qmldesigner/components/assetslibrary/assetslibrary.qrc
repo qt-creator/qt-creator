@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/AssetsLibrary">
-        <file>images/asset_default.png</file>
-        <file>images/asset_default@2x.png</file>
         <file>images/asset_shader.png</file>
         <file>images/asset_shader@2x.png</file>
         <file>images/asset_shader_128.png</file>
@@ -12,5 +10,8 @@
         <file>images/asset_video@2x.png</file>
         <file>images/browse.png</file>
         <file>images/browse@2x.png</file>
+        <file>images/assets_default.png</file>
+        <file>images/assets_default@2x.png</file>
+        <file>images/assets_default_128.png</file>
     </qresource>
 </RCC>

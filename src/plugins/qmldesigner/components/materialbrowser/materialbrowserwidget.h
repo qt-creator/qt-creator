@@ -28,6 +28,7 @@ class MaterialBrowserView;
 class MaterialBrowserModel;
 class MaterialBrowserTexturesModel;
 class PreviewImageProvider;
+class TextureImageProvider;
 
 class MaterialBrowserWidget : public QFrame
 {
@@ -70,6 +71,7 @@ private:
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
     PreviewImageProvider *m_previewImageProvider = nullptr;
+    TextureImageProvider *m_textureImageProvider = nullptr;
     Core::IContext *m_context = nullptr;
 
     QString m_filterText;
