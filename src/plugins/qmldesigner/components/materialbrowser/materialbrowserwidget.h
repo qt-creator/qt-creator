@@ -54,6 +54,8 @@ public:
 
     QQuickWidget *quickWidget() const;
 
+    void clearPreviewCache();
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 

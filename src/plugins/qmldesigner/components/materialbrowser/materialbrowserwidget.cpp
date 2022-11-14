@@ -62,6 +62,11 @@ public:
         m_pixmaps.insert(node.internalId(), pixmap);
     }
 
+    void clearPixmapCache()
+    {
+        m_pixmaps.clear();
+    }
+
     QPixmap requestPixmap(const QString &id,
                           QSize *size,
                           [[maybe_unused]] const QSize &requestedSize) override
@@ -255,6 +260,11 @@ void MaterialBrowserWidget::updateSearch()
 QQuickWidget *MaterialBrowserWidget::quickWidget() const
 {
     return m_quickWidget.data();
+}
+
+void MaterialBrowserWidget::clearPreviewCache()
+{
+    m_previewImageProvider->clearPixmapCache();
 }
 
 QPointer<MaterialBrowserModel> MaterialBrowserWidget::materialBrowserModel() const

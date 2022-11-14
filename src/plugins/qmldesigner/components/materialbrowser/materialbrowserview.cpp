@@ -212,6 +212,7 @@ bool MaterialBrowserView::isTexture(const ModelNode &node) const
 void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 {
     m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
+    m_widget->clearPreviewCache();
 
     if (m_propertyGroupsLoaded) {
         m_propertyGroupsLoaded = false;
@@ -301,6 +302,7 @@ void MaterialBrowserView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     // removing the material editor node
     if (removedNode.id() == Constants::MATERIAL_LIB_ID) {
         m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
+        m_widget->clearPreviewCache();
         return;
     }
 
