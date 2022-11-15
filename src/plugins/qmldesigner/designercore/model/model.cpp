@@ -1765,6 +1765,7 @@ QUrl Model::fileUrl() const
   */
 void Model::setFileUrl(const QUrl &url)
 {
+    Q_ASSERT(url.isValid() && url.isLocalFile());
     Internal::WriteLocker locker(d.get());
     d->setFileUrl(url);
 }
