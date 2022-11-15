@@ -627,7 +627,6 @@ void Edit3DView::createEdit3DActions()
             m_particlesPlayAction->action()->setChecked(true);
         if (m_seeker)
             m_seeker->setEnabled(false);
-        setCurrentStateNode(rootModelNode());
         resetPuppet();
     };
 
@@ -638,7 +637,6 @@ void Edit3DView::createEdit3DActions()
         if (m_seeker)
             m_seeker->setEnabled(false);
         QmlDesignerPlugin::settings().insert("particleMode", particlemode);
-        setCurrentStateNode(rootModelNode());
         resetPuppet();
     };
 
