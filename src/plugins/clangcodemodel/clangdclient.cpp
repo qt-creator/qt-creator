@@ -295,6 +295,7 @@ public:
     QHash<TextDocument *, HighlightingData> highlightingData;
     QHash<Utils::FilePath, CppEditor::BaseEditorDocumentParser::Configuration> parserConfigs;
     QHash<Utils::FilePath, Tasks> issuePaneEntries;
+    QHash<Utils::FilePath, int> openedExtraFiles;
 
     VersionedDataCache<const TextDocument *, ClangdAstNode> astCache;
     VersionedDataCache<Utils::FilePath, ClangdAstNode> externalAstCache;
@@ -421,10 +422,11 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         }
     });
 
-    connect(this, &Client::initialized, this, [] {
+    connect(this, &Client::initialized, this, [this] {
         auto currentDocumentFilter = static_cast<ClangdCurrentDocumentFilter *>(
             CppEditor::CppModelManager::instance()->currentDocumentFilter());
         currentDocumentFilter->updateCurrentClient();
+        d->openedExtraFiles.clear();
     });
 
     start();
@@ -444,6 +446,13 @@ bool ClangdClient::isFullyIndexed() const
 
 void ClangdClient::openExtraFile(const Utils::FilePath &filePath, const QString &content)
 {
+    const auto it = d->openedExtraFiles.find(filePath);
+    if (it != d->openedExtraFiles.end()) {
+        QTC_CHECK(it.value() > 0);
+        ++it.value();
+        return;
+    }
+
     QFile cxxFile(filePath.toString());
     if (content.isEmpty() && !cxxFile.open(QIODevice::ReadOnly))
         return;
@@ -454,10 +463,18 @@ void ClangdClient::openExtraFile(const Utils::FilePath &filePath, const QString 
     item.setVersion(0);
     sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
                 SendDocUpdates::Ignore);
+
+    d->openedExtraFiles.insert(filePath, 1);
 }
 
 void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
 {
+    const auto it = d->openedExtraFiles.find(filePath);
+    QTC_ASSERT(it != d->openedExtraFiles.end(), return);
+    QTC_CHECK(it.value() > 0);
+    if (--it.value() > 0)
+        return;
+    d->openedExtraFiles.erase(it);
     sendMessage(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
             TextDocumentIdentifier{DocumentUri::fromFilePath(filePath)})),
                 SendDocUpdates::Ignore);
