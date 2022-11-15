@@ -69,8 +69,10 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
     auto doCreateQmlItemNodeFromImage = [=, &newQmlItemNode, &parentproperty]() {
         NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
         QList<QPair<PropertyName, QVariant> > propertyPairList;
-        propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
-        propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
+        if (const int intX = qRound(position.x()))
+            propertyPairList.append({PropertyName("x"), QVariant(intX)});
+        if (const int intY = qRound(position.y()))
+            propertyPairList.append({PropertyName("y"), QVariant(intY)});
 
         QString relativeImageName = imageName;
 
@@ -131,8 +133,10 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
     auto doCreateQmlItemNodeFromFont = [=, &newQmlItemNode, &parentproperty]() {
         NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Text");
         QList<QPair<PropertyName, QVariant>> propertyPairList;
-        propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
-        propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
+        if (const int intX = qRound(position.x()))
+            propertyPairList.append({PropertyName("x"), QVariant(intX)});
+        if (const int intY = qRound(position.y()))
+            propertyPairList.append({PropertyName("y"), QVariant(intY)});
         propertyPairList.append({PropertyName("font.family"), QVariant(fontFamily)});
         propertyPairList.append({PropertyName("font.pointSize"), 20});
         propertyPairList.append({PropertyName("text"), QVariant(fontFamily)});
