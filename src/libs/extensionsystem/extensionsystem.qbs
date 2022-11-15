@@ -29,7 +29,6 @@ Project {
             "pluginerroroverview.h",
             "pluginerrorview.cpp",
             "pluginerrorview.h",
-            "pluginerrorview.ui",
             "pluginmanager.cpp",
             "pluginmanager.h",
             "pluginmanager_p.h",

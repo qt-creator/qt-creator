@@ -2,10 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "pluginerrorview.h"
-#include "ui_pluginerrorview.h"
+
 #include "pluginspec.h"
 
-#include <QString>
+#include <utils/layoutbuilder.h>
+
+#include <QCoreApplication>
+#include <QLabel>
+#include <QTextEdit>
 
 /*!
     \class ExtensionSystem::PluginErrorView
@@ -23,22 +27,50 @@
 
 using namespace ExtensionSystem;
 
+namespace ExtensionSystem::Internal {
+
+class PluginErrorViewPrivate
+{
+public:
+    PluginErrorViewPrivate(PluginErrorView *view)
+        : q(view)
+        , state(new QLabel(q))
+        , errorString(new QTextEdit(q))
+    {
+        errorString->setTabChangesFocus(true);
+        errorString->setReadOnly(true);
+
+        using namespace Utils::Layouting;
+
+        Form {
+            QCoreApplication::translate("ExtensionSystem::Internal::PluginErrorView",
+                                        "State:"), state, br,
+            QCoreApplication::translate("ExtensionSystem::Internal::PluginErrorView",
+                                        "Error message:"), errorString
+        }.attachTo(q, WithoutMargins);
+    }
+
+    PluginErrorView *q = nullptr;
+    QLabel *state = nullptr;
+    QTextEdit *errorString = nullptr;
+};
+
+} // namespace ExtensionSystem::Internal
+
+using namespace Internal;
+
 /*!
     Constructs a new error view with given \a parent widget.
 */
 PluginErrorView::PluginErrorView(QWidget *parent)
     : QWidget(parent),
-      m_ui(new Internal::Ui::PluginErrorView())
+      d(new PluginErrorViewPrivate(this))
 {
-    m_ui->setupUi(this);
 }
 
-/*!
-    \internal
-*/
 PluginErrorView::~PluginErrorView()
 {
-    delete m_ui;
+    delete d;
 }
 
 /*!
@@ -84,7 +116,7 @@ void PluginErrorView::update(PluginSpec *spec)
         break;
     }
 
-    m_ui->state->setText(text);
-    m_ui->state->setToolTip(tooltip);
-    m_ui->errorString->setText(spec->errorString());
+    d->state->setText(text);
+    d->state->setToolTip(tooltip);
+    d->errorString->setText(spec->errorString());
 }

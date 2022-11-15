@@ -10,9 +10,7 @@
 namespace ExtensionSystem {
 
 class PluginSpec;
-namespace Internal {
-namespace Ui { class PluginErrorView; }
-} // namespace Internal
+namespace Internal { class PluginErrorViewPrivate; }
 
 class EXTENSIONSYSTEM_EXPORT PluginErrorView : public QWidget
 {
@@ -25,7 +23,7 @@ public:
     void update(PluginSpec *spec);
 
 private:
-    Internal::Ui::PluginErrorView *m_ui;
+    Internal::PluginErrorViewPrivate *d = nullptr;
 };
 
 } // namespace ExtensionSystem
