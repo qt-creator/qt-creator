@@ -27,7 +27,6 @@ Project {
             "plugindetailsview.h",
             "pluginerroroverview.cpp",
             "pluginerroroverview.h",
-            "pluginerroroverview.ui",
             "pluginerrorview.cpp",
             "pluginerrorview.h",
             "pluginerrorview.ui",
