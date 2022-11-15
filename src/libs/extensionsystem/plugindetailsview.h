@@ -11,10 +11,7 @@ namespace ExtensionSystem {
 
 class PluginSpec;
 
-namespace Internal {
-namespace Ui { class PluginDetailsView; }
-} // namespace Internal
-
+namespace Internal { class PluginDetailsViewPrivate; }
 
 class EXTENSIONSYSTEM_EXPORT PluginDetailsView : public QWidget
 {
@@ -27,7 +24,7 @@ public:
     void update(PluginSpec *spec);
 
 private:
-    Internal::Ui::PluginDetailsView *m_ui;
+    Internal::PluginDetailsViewPrivate *d = nullptr;
 };
 
 } // namespace ExtensionSystem

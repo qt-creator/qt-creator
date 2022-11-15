@@ -7,7 +7,7 @@ add_qtc_library(ExtensionSystem
     invoker.cpp invoker.h
     iplugin.cpp iplugin.h iplugin_p.h
     optionsparser.cpp optionsparser.h
-    plugindetailsview.cpp plugindetailsview.h plugindetailsview.ui
+    plugindetailsview.cpp plugindetailsview.h
     pluginerroroverview.cpp pluginerroroverview.h pluginerroroverview.ui
     pluginerrorview.cpp pluginerrorview.h pluginerrorview.ui
     pluginmanager.cpp pluginmanager.h pluginmanager_p.h

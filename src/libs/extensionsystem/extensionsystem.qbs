@@ -25,7 +25,6 @@ Project {
             "optionsparser.h",
             "plugindetailsview.cpp",
             "plugindetailsview.h",
-            "plugindetailsview.ui",
             "pluginerroroverview.cpp",
             "pluginerroroverview.h",
             "pluginerroroverview.ui",
