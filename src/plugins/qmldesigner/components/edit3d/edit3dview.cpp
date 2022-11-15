@@ -2,32 +2,47 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "edit3dview.h"
+
 #include "backgroundcolorselection.h"
+#include "bindingproperty.h"
+#include "designersettings.h"
+#include "designmodecontext.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dviewconfig.h"
 #include "edit3dwidget.h"
+#include "materialbrowserwidget.h"
 #include "metainfo.h"
 #include "nodehints.h"
+#include "nodeinstanceview.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignericons.h"
+#include "qmldesignerplugin.h"
 #include "seekerslider.h"
+#include "variantproperty.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-#include <designeractionmanager.h>
-#include <designersettings.h>
-#include <designmodecontext.h>
-#include <nodeinstanceview.h>
-#include <viewmanager.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignericons.h>
-#include <qmldesignerplugin.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QQuickView>
 #include <QToolButton>
 
 namespace QmlDesigner {
+
+static QString propertyEditorResourcesPath()
+{
+#ifdef SHARE_QML_PATH
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+}
 
 Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
@@ -261,6 +276,24 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
         resetPuppet();
 }
 
+bool Edit3DView::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Escape) {
+            if (obj == m_chooseMatPropsView)
+                m_chooseMatPropsView->close();
+        }
+    } else if (event->type() == QEvent::Close) {
+        if (obj == m_chooseMatPropsView) {
+            m_droppedModelNode = {};
+            m_chooseMatPropsView->deleteLater();
+        }
+    }
+
+    return AbstractView::eventFilter(obj, event);
+}
+
 /**
  * @brief Get node at position from puppet process
  *
@@ -278,15 +311,64 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
             setSelectedModelNode(modelNode);
         m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode, pos3d);
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MaterialDrop) {
-        const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-        if (m_droppedMaterial.isValid() && modelNode.isValid() && isModel) {
+        bool isModel = modelNode.metaInfo().isQtQuick3DModel();
+        if (m_droppedModelNode.isValid() && modelNode.isValid() && isModel) {
             executeInTransaction(__FUNCTION__, [&] {
-                assignMaterialTo3dModel(modelNode, m_droppedMaterial);
+                assignMaterialTo3dModel(modelNode, m_droppedModelNode);
             });
         }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {
         emitCustomNotification("drop_bundle_material", {modelNode}); // To ContentLibraryView
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::TextureDrop) {
+        if (m_droppedModelNode.isValid() && modelNode.isValid() && modelNode.metaInfo().isQtQuick3DModel()) {
+            // get model's material list
+            BindingProperty matsProp = modelNode.bindingProperty("materials");
+            QList<ModelNode> materials;
+            if (hasId(matsProp.expression()))
+                materials.append(modelNodeForId(matsProp.expression()));
+            else
+                materials = matsProp.resolveToModelNodeList();
+
+            if (materials.size() > 0) {
+                m_textureModels.clear();
+                QStringList materialsModel;
+                for (const ModelNode &mat : std::as_const(materials)) {
+                    QString matName = mat.variantProperty("objectName").value().toString();
+                    materialsModel.append(QLatin1String("%1 (%2)").arg(matName, mat.id()));
+                    QList<PropertyName> texProps;
+                    for (const PropertyMetaInfo &p : mat.metaInfo().properties()) {
+                        if (p.propertyType().isQtQuick3DTexture())
+                            texProps.append(p.name());
+                    }
+                    m_textureModels.insert(mat.id(), texProps);
+                }
+
+                QString path = MaterialBrowserWidget::qmlSourcesPath() + "/ChooseMaterialProperty.qml";
+
+                m_chooseMatPropsView = new QQuickView;
+                m_chooseMatPropsView->setTitle(tr("Select a material property"));
+                m_chooseMatPropsView->setResizeMode(QQuickView::SizeRootObjectToView);
+                m_chooseMatPropsView->setMinimumSize({150, 100});
+                m_chooseMatPropsView->setMaximumSize({600, 400});
+                m_chooseMatPropsView->setWidth(450);
+                m_chooseMatPropsView->setHeight(300);
+                m_chooseMatPropsView->setFlags(Qt::Widget);
+                m_chooseMatPropsView->setModality(Qt::ApplicationModal);
+                m_chooseMatPropsView->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+                m_chooseMatPropsView->rootContext()->setContextProperties({
+                    {"rootView", QVariant::fromValue(this)},
+                    {"materialsModel", QVariant::fromValue(materialsModel)},
+                    {"propertiesModel", QVariant::fromValue(m_textureModels.value(materials.at(0).id()))},
+                });
+                m_chooseMatPropsView->setSource(QUrl::fromLocalFile(path));
+                m_chooseMatPropsView->installEventFilter(this);
+                m_chooseMatPropsView->show();
+            }
+        }
     }
+
+    if (m_nodeAtPosReqType != NodeAtPosReqType::TextureDrop)
+        m_droppedModelNode = {};
     m_nodeAtPosReqType = NodeAtPosReqType::None;
 }
 
@@ -842,7 +924,7 @@ void Edit3DView::startContextMenu(const QPoint &pos)
 void Edit3DView::dropMaterial(const ModelNode &matNode, const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::MaterialDrop;
-    m_droppedMaterial = matNode;
+    m_droppedModelNode = matNode;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 
@@ -850,6 +932,39 @@ void Edit3DView::dropBundleMaterial(const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::BundleMaterialDrop;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
+}
+
+void Edit3DView::dropTexture(const ModelNode &textureNode, const QPointF &pos)
+{
+    m_nodeAtPosReqType = NodeAtPosReqType::TextureDrop;
+    m_droppedModelNode = textureNode;
+    emitView3DAction(View3DActionType::GetNodeAtPos, pos);
+}
+
+void Edit3DView::updatePropsModel(const QString &matId)
+{
+    m_chooseMatPropsView->rootContext()->setContextProperty("propertiesModel",
+                                                QVariant::fromValue(m_textureModels.value(matId)));
+}
+
+void Edit3DView::applyTextureToMaterial(const QString &matId, const QString &propName)
+{
+    QTC_ASSERT(m_droppedModelNode.isValid(), return);
+
+    ModelNode mat = modelNodeForId(matId);
+    QTC_ASSERT(mat.isValid(), return);
+
+    BindingProperty texProp = mat.bindingProperty(propName.toLatin1());
+    QTC_ASSERT(texProp.isValid(), return);
+
+    texProp.setExpression(m_droppedModelNode.id());
+
+    closeChooseMatPropsView();
+}
+
+void Edit3DView::closeChooseMatPropsView()
+{
+    m_chooseMatPropsView->close();
 }
 
 } // namespace QmlDesigner

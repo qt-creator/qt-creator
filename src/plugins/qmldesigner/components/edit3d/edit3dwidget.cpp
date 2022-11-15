@@ -427,7 +427,8 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
                                                      ->viewManager().designerActionManager();
     if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
         || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         dragEnterEvent->acceptProposedAction();
     }
 }
@@ -436,15 +437,23 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 {
     const QPointF pos = m_canvas->mapFrom(this, dropEvent->position());
 
-    // handle dropping materials
-    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
-        QByteArray data = dropEvent->mimeData()->data(Constants::MIME_TYPE_MATERIAL);
+    // handle dropping materials and textures
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
+        || dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+        bool isMaterial = dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL);
+        QByteArray data = dropEvent->mimeData()->data(isMaterial
+                                          ? QString::fromLatin1(Constants::MIME_TYPE_MATERIAL)
+                                          : QString::fromLatin1(Constants::MIME_TYPE_TEXTURE));
         QDataStream stream(data);
         qint32 internalId;
         stream >> internalId;
 
-        if (ModelNode matNode = m_view->modelNodeForInternalId(internalId))
-            m_view->dropMaterial(matNode, pos);
+        if (ModelNode dropNode = m_view->modelNodeForInternalId(internalId)) {
+            if (isMaterial)
+                m_view->dropMaterial(dropNode, pos);
+            else
+                m_view->dropTexture(dropNode, pos);
+        }
         return;
     }
 

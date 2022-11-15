@@ -1149,7 +1149,7 @@ bool MaterialEditorView::eventFilter(QObject *obj, QEvent *event)
         if (m_qmlBackEnd && m_qmlBackEnd->widget() == obj)
             QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(), "closeContextMenu");
     }
-    return QObject::eventFilter(obj, event);
+    return AbstractView::eventFilter(obj, event);
 }
 
 void MaterialEditorView::reloadQml()

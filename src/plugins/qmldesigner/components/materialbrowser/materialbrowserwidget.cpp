@@ -134,7 +134,7 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
                 QDataStream stream(&data, QIODevice::WriteOnly);
-                stream << m_materialToDrag.internalId();
+                stream << (isMaterial ? m_materialToDrag.internalId() : m_textureToDrag.internalId());
                 mimeData->setData(isMaterial ? QString::fromLatin1(Constants::MIME_TYPE_MATERIAL)
                                              : QString::fromLatin1(Constants::MIME_TYPE_TEXTURE),
                                   data);
