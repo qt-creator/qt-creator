@@ -459,8 +459,7 @@ private:
             m_handle->kill();
             break;
         case ControlSignal::Interrupt:
-            if (m_setup.m_useCtrlCStub) // bypass launcher and interrupt directly
-                ProcessHelper::interruptPid(m_handle->processId());
+            ProcessHelper::interruptPid(m_handle->processId());
             break;
         case ControlSignal::KickOff:
             QTC_CHECK(false);
