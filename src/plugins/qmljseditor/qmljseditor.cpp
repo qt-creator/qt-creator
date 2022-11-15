@@ -857,11 +857,11 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QMenu *refactoringMenu = new QMenu(Tr::tr("Refactoring"), menu);
 
     if (!m_qmlJsEditorDocument->isSemanticInfoOutdated()) {
-        AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
+        std::unique_ptr<AssistInterface> interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(
-                Internal::QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor(interface));
-            QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
+                Internal::QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor(interface.get()));
+            QScopedPointer<IAssistProposal> proposal(processor->start(std::move(interface)));
             if (!proposal.isNull()) {
                 GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
                 for (int index = 0; index < model->size(); ++index) {
@@ -999,15 +999,16 @@ bool QmlJSEditorWidget::hideContextPane()
     return b;
 }
 
-AssistInterface *QmlJSEditorWidget::createAssistInterface(
+std::unique_ptr<AssistInterface> QmlJSEditorWidget::createAssistInterface(
     AssistKind assistKind,
     AssistReason reason) const
 {
     if (assistKind == Completion) {
-        return new QmlJSCompletionAssistInterface(textCursor(), textDocument()->filePath(),
-                                                  reason, m_qmlJsEditorDocument->semanticInfo());
+        return std::make_unique<QmlJSCompletionAssistInterface>(
+            textCursor(), textDocument()->filePath(), reason, m_qmlJsEditorDocument->semanticInfo());
     } else if (assistKind == QuickFix) {
-        return new Internal::QmlJSQuickFixAssistInterface(const_cast<QmlJSEditorWidget *>(this), reason);
+        return std::make_unique<Internal::QmlJSQuickFixAssistInterface>(
+            const_cast<QmlJSEditorWidget *>(this), reason);
     }
     return nullptr;
 }

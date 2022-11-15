@@ -57,7 +57,7 @@ public:
     QmlJSCompletionAssistProcessor();
     ~QmlJSCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *performAsync(TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync() override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal() const;
@@ -73,7 +73,6 @@ private:
                           const QStringList &patterns = QStringList());
 
     int m_startPosition;
-    QScopedPointer<const QmlJSCompletionAssistInterface> m_interface;
     QList<TextEditor::AssistProposalItemInterface *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
 };

@@ -143,7 +143,8 @@ public:
 
     QSet<QString> identifiers() const;
 
-    AssistInterface *createAssistInterface(AssistKind assistKind, AssistReason reason) const override;
+    std::unique_ptr<AssistInterface> createAssistInterface(AssistKind assistKind,
+                                                           AssistReason reason) const override;
 
 private:
     void updateDocumentNow();
@@ -343,16 +344,17 @@ int languageVariant(const QString &type)
     return variant;
 }
 
-AssistInterface *GlslEditorWidget::createAssistInterface(
+std::unique_ptr<AssistInterface> GlslEditorWidget::createAssistInterface(
     AssistKind kind, AssistReason reason) const
 {
-    if (kind == Completion)
-        return new GlslCompletionAssistInterface(textCursor(),
-                                                 textDocument()->filePath(),
-                                                 reason,
-                                                 textDocument()->mimeType(),
-                                                 m_glslDocument);
-    return TextEditorWidget::createAssistInterface(kind, reason);
+    if (kind != Completion)
+        return TextEditorWidget::createAssistInterface(kind, reason);
+
+    return std::make_unique<GlslCompletionAssistInterface>(textCursor(),
+                                                           textDocument()->filePath(),
+                                                           reason,
+                                                           textDocument()->mimeType(),
+                                                           m_glslDocument);
 }
 
 

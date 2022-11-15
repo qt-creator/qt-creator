@@ -1045,14 +1045,14 @@ public:
         : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    IAssistProposal *performAsync(AssistInterface *interface) override
+    IAssistProposal *performAsync() override
     {
         const QString &needle = m_provider->needle();
 
-        const int basePosition = interface->position() - needle.size();
+        const int basePosition = interface()->position() - needle.size();
 
-        QTextCursor tc(interface->textDocument());
-        tc.setPosition(interface->position());
+        QTextCursor tc(interface()->textDocument());
+        tc.setPosition(interface()->position());
         tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
         QList<AssistProposalItemInterface *> items;
@@ -1078,7 +1078,6 @@ public:
         }
         //qDebug() << "COMPLETIONS" << completions->size();
 
-        delete interface;
         return new GenericProposal(basePosition,
                                    GenericProposalModelPtr(new FakeVimAssistProposalModel(items)));
     }

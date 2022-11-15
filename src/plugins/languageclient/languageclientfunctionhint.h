@@ -44,7 +44,7 @@ class LANGUAGECLIENT_EXPORT FunctionHintProcessor : public TextEditor::IAssistPr
 {
 public:
     explicit FunctionHintProcessor(Client *client);
-    TextEditor::IAssistProposal *perform(TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *perform() override;
     bool running() override { return m_currentRequest.has_value(); }
     bool needsRestart() const override { return true; }
     void cancel() override;

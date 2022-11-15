@@ -6,6 +6,7 @@
 #include <texteditor/texteditor_global.h>
 
 #include <functional>
+#include <memory>
 
 namespace TextEditor {
 
@@ -18,21 +19,30 @@ public:
     IAssistProcessor();
     virtual ~IAssistProcessor();
 
-    virtual IAssistProposal *perform(AssistInterface *interface) = 0; // takes ownership
-
-    void setAsyncProposalAvailable(IAssistProposal *proposal);
+    IAssistProposal *start(std::unique_ptr<AssistInterface> &&interface);
 
     // Internal, used by CodeAssist
     using AsyncCompletionsAvailableHandler
         = std::function<void (IAssistProposal *proposal)>;
     void setAsyncCompletionAvailableHandler(const AsyncCompletionsAvailableHandler &handler);
+    void setAsyncProposalAvailable(IAssistProposal *proposal);
 
-    virtual bool running() { return false; }
-    virtual bool needsRestart() const { return false; }
-    virtual void cancel() {}
+    virtual bool running();
+    virtual bool needsRestart() const;
+    virtual void cancel();
+
+#ifdef WITH_TESTS
+    void setupAssistInterface(std::unique_ptr<AssistInterface> &&interface);
+#endif
+
+protected:
+    virtual IAssistProposal *perform() = 0;
+    AssistInterface *interface();
+    const AssistInterface *interface() const;
 
 private:
     AsyncCompletionsAvailableHandler m_asyncCompletionsAvailableHandler;
+    std::unique_ptr<AssistInterface> m_interface;
 };
 
 } // TextEditor

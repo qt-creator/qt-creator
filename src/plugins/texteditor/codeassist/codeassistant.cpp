@@ -176,7 +176,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
             return;
     }
 
-    AssistInterface *assistInterface = m_editorWidget->createAssistInterface(kind, reason);
+    std::unique_ptr<AssistInterface> assistInterface =
+            m_editorWidget->createAssistInterface(kind, reason);
     if (!assistInterface)
         return;
 
@@ -185,8 +186,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     m_assistKind = kind;
     m_requestProvider = provider;
-    IAssistProcessor *processor = provider->createProcessor(assistInterface);
-
+    IAssistProcessor *processor = provider->createProcessor(assistInterface.get());
     processor->setAsyncCompletionAvailableHandler([this, reason, processor](
                                                   IAssistProposal *newProposal) {
         if (!processor->running()) {
@@ -211,7 +211,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         }
     });
 
-    if (IAssistProposal *newProposal = processor->perform(assistInterface))
+    if (IAssistProposal *newProposal = processor->start(std::move(assistInterface)))
         displayProposal(newProposal, reason);
     if (!processor->running()) {
         if (isUpdate)

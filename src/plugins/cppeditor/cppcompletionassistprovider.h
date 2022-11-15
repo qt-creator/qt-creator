@@ -33,7 +33,7 @@ public:
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;
 
-    virtual TextEditor::AssistInterface *createAssistInterface(
+    virtual std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
         const Utils::FilePath &filePath,
         const TextEditor::TextEditorWidget *textEditorWidget,
         const CPlusPlus::LanguageFeatures &languageFeatures,

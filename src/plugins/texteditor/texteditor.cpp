@@ -8534,11 +8534,11 @@ void TextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
     setOverwriteMode(previousMode);
 }
 
-AssistInterface *TextEditorWidget::createAssistInterface(AssistKind kind,
-                                                         AssistReason reason) const
+std::unique_ptr<AssistInterface> TextEditorWidget::createAssistInterface(AssistKind kind,
+                                                                         AssistReason reason) const
 {
     Q_UNUSED(kind)
-    return new AssistInterface(textCursor(), d->m_document->filePath(), reason);
+    return std::make_unique<AssistInterface>(textCursor(), d->m_document->filePath(), reason);
 }
 
 QString TextEditorWidget::foldReplacementText(const QTextBlock &) const

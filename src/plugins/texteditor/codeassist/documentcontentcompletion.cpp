@@ -29,7 +29,7 @@ public:
     DocumentContentCompletionProcessor(const QString &snippetGroupId);
     ~DocumentContentCompletionProcessor() final;
 
-    IAssistProposal *performAsync(AssistInterface *interface) override;
+    IAssistProposal *performAsync() override;
 
 private:
     QString m_snippetGroup;
@@ -53,23 +53,21 @@ DocumentContentCompletionProcessor::~DocumentContentCompletionProcessor()
     cancel();
 }
 
-IAssistProposal *DocumentContentCompletionProcessor::performAsync(AssistInterface *interface)
+IAssistProposal *DocumentContentCompletionProcessor::performAsync()
 {
-    QScopedPointer<AssistInterface> interfaceDeleter(interface);
-
-    int pos = interface->position();
+    int pos = interface()->position();
 
     QChar chr;
     // Skip to the start of a name
     do {
-        chr = interface->characterAt(--pos);
+        chr = interface()->characterAt(--pos);
     } while (chr.isLetterOrNumber() || chr == '_');
 
     ++pos;
-    int length = interface->position() - pos;
+    int length = interface()->position() - pos;
 
-    if (interface->reason() == IdleEditor) {
-        QChar characterUnderCursor = interface->characterAt(interface->position());
+    if (interface()->reason() == IdleEditor) {
+        QChar characterUnderCursor = interface()->characterAt(interface()->position());
         if (characterUnderCursor.isLetterOrNumber()
                 || length < TextEditorSettings::completionSettings().m_characterThreshold) {
             return nullptr;
@@ -80,8 +78,8 @@ IAssistProposal *DocumentContentCompletionProcessor::performAsync(AssistInterfac
                 m_snippetGroup, QIcon(":/texteditor/images/snippet.png"));
     QList<AssistProposalItemInterface *> items = snippetCollector.collect();
 
-    const QString wordUnderCursor = interface->textAt(pos, length);
-    const QString text = interface->textDocument()->toPlainText();
+    const QString wordUnderCursor = interface()->textAt(pos, length);
+    const QString text = interface()->textDocument()->toPlainText();
 
     const QRegularExpression wordRE("([\\p{L}_][\\p{L}0-9_]{2,})");
     QSet<QString> words;

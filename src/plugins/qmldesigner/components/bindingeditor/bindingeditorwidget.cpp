@@ -76,10 +76,10 @@ bool BindingEditorWidget::event(QEvent *event)
     return QmlJSEditor::QmlJSEditorWidget::event(event);
 }
 
-TextEditor::AssistInterface *BindingEditorWidget::createAssistInterface(
+std::unique_ptr<TextEditor::AssistInterface> BindingEditorWidget::createAssistInterface(
     [[maybe_unused]] TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
 {
-    return new QmlJSEditor::QmlJSCompletionAssistInterface(
+    return std::make_unique<QmlJSEditor::QmlJSCompletionAssistInterface>(
                 textCursor(), Utils::FilePath(),
                 assistReason, qmljsdocument->semanticInfo());
 }

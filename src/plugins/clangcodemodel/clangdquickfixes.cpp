@@ -47,15 +47,13 @@ public:
     }
 
 private:
-    IAssistProposal *perform(AssistInterface *interface) override
+    IAssistProposal *perform() override
     {
-        m_interface = interface;
-
         // Step 1: Collect clangd code actions asynchronously
-        LanguageClientQuickFixAssistProcessor::perform(interface);
+        LanguageClientQuickFixAssistProcessor::perform();
 
         // Step 2: Collect built-in quickfixes synchronously
-        m_builtinOps = CppEditor::quickFixOperations(interface);
+        m_builtinOps = CppEditor::quickFixOperations(interface());
 
         return nullptr;
     }
@@ -82,13 +80,12 @@ private:
                     ops << op;
                 }
             }
-            return GenericProposal::createProposal(m_interface, ops + m_builtinOps);
+            return GenericProposal::createProposal(interface(), ops + m_builtinOps);
         }
         return nullptr;
     }
 
     QuickFixOperations m_builtinOps;
-    const AssistInterface *m_interface = nullptr;
 };
 
 ClangdQuickFixProvider::ClangdQuickFixProvider(ClangdClient *client)

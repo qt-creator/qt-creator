@@ -43,7 +43,7 @@ public:
     QSharedPointer<Internal::FunctionDeclDefLink> declDefLink() const;
     void applyDeclDefLinkChanges(bool jumpToMatch);
 
-    TextEditor::AssistInterface *createAssistInterface(
+    std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
             TextEditor::AssistKind kind,
             TextEditor::AssistReason reason) const override;
 

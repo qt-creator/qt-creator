@@ -981,7 +981,7 @@ void CppEditorWidget::processKeyNormally(QKeyEvent *e)
     TextEditorWidget::keyPressEvent(e);
 }
 
-static void addRefactoringActions(QMenu *menu, AssistInterface *iface)
+static void addRefactoringActions(QMenu *menu, std::unique_ptr<AssistInterface> iface)
 {
     if (!iface || !menu)
         return;
@@ -990,8 +990,8 @@ static void addRefactoringActions(QMenu *menu, AssistInterface *iface)
     using Proposal = QScopedPointer<IAssistProposal>;
 
     const Processor processor(
-        CppEditorPlugin::instance()->quickFixProvider()->createProcessor(iface));
-    const Proposal proposal(processor->perform(iface)); // OK, perform() takes ownership of iface.
+        CppEditorPlugin::instance()->quickFixProvider()->createProcessor(iface.get()));
+    const Proposal proposal(processor->start(std::move(iface)));
     if (proposal) {
         auto model = proposal->model().staticCast<GenericProposalModel>();
         for (int index = 0; index < model->size(); ++index) {
@@ -1174,7 +1174,8 @@ bool CppEditorWidget::isOldStyleSignalOrSlot() const
            == CppEditor::SignalSlotType::OldStyleSignal;
 }
 
-AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistReason reason) const
+std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKind kind,
+                                                                        AssistReason reason) const
 {
     if (kind == Completion || kind == FunctionHint) {
         CppCompletionAssistProvider * const cap = kind == Completion
@@ -1190,10 +1191,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
         };
 
         if (cap)
-            return cap->createAssistInterface(textDocument()->filePath(),
-                                              this,
-                                              getFeatures(),
-                                              reason);
+            return cap->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
         else {
             if (isOldStyleSignalOrSlot())
                 return CppModelManager::instance()
@@ -1203,7 +1201,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
         }
     } else if (kind == QuickFix) {
         if (isSemanticInfoValid())
-            return new CppQuickFixInterface(const_cast<CppEditorWidget *>(this), reason);
+            return std::make_unique<CppQuickFixInterface>(const_cast<CppEditorWidget *>(this), reason);
     } else {
         return TextEditorWidget::createAssistInterface(kind, reason);
     }

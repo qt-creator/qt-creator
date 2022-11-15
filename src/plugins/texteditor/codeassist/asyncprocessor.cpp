@@ -17,14 +17,13 @@ AsyncProcessor::AsyncProcessor()
     });
 }
 
-IAssistProposal *AsyncProcessor::perform(AssistInterface *interface)
+IAssistProposal *AsyncProcessor::perform()
 {
-    IAssistProposal *result = immediateProposal(interface);
-    m_interface = interface;
-    m_interface->prepareForAsyncUse();
+    IAssistProposal *result = immediateProposal();
+    interface()->prepareForAsyncUse();
     m_watcher.setFuture(Utils::runAsync([this]() {
-        m_interface->recreateTextDocument();
-        return performAsync(m_interface);
+        interface()->recreateTextDocument();
+        return performAsync();
     }));
     return result;
 }
@@ -44,9 +43,8 @@ void AsyncProcessor::cancel()
     });
 }
 
-IAssistProposal *AsyncProcessor::immediateProposal(AssistInterface *interface)
+IAssistProposal *AsyncProcessor::immediateProposal()
 {
-    Q_UNUSED(interface)
     return nullptr;
 }
 

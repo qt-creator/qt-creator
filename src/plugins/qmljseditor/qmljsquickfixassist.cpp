@@ -48,9 +48,9 @@ QmlJSRefactoringFilePtr QmlJSQuickFixAssistInterface::currentFile() const
 // ---------------------------
 class QmlJSQuickFixAssistProcessor : public IAssistProcessor
 {
-    IAssistProposal *perform(AssistInterface *interface) override
+    IAssistProposal *perform() override
     {
-        return GenericProposal::createProposal(interface, findQmlJSQuickFixes(interface));
+        return GenericProposal::createProposal(interface(), findQmlJSQuickFixes(interface()));
     }
 };
 

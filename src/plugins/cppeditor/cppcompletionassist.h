@@ -61,7 +61,7 @@ class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 public:
     TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
 
-    TextEditor::AssistInterface *createAssistInterface(
+    std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
         const Utils::FilePath &filePath,
         const TextEditor::TextEditorWidget *textEditorWidget,
         const CPlusPlus::LanguageFeatures &languageFeatures,
@@ -74,7 +74,7 @@ public:
     InternalCppCompletionAssistProcessor();
     ~InternalCppCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *performAsync(TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync() override;
 
 private:
     TextEditor::IAssistProposal *createContentProposal();
@@ -135,6 +135,7 @@ private:
     };
 
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
+    const CppCompletionAssistInterface *cppInterface() const;
     CppAssistProposalModelPtr m_model;
 };
 

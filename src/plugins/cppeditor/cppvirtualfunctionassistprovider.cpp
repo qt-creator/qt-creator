@@ -87,7 +87,7 @@ public:
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(AssistInterface *) override
+    IAssistProposal *immediateProposal() override
     {
         QTC_ASSERT(m_params.function, return nullptr);
 
@@ -102,10 +102,8 @@ public:
         return new VirtualFunctionProposal(m_params.cursorPosition, items, m_params.openInNextSplit);
     }
 
-    IAssistProposal *performAsync(AssistInterface *assistInterface) override
+    IAssistProposal *performAsync() override
     {
-        delete assistInterface;
-
         QTC_ASSERT(m_params.function, return nullptr);
         QTC_ASSERT(m_params.staticClass, return nullptr);
         QTC_ASSERT(!m_params.snapshot.isEmpty(), return nullptr);

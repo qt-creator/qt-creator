@@ -24,7 +24,7 @@ class CMakeFileCompletionAssist : public KeywordsCompletionAssistProcessor
 public:
     CMakeFileCompletionAssist();
 
-    IAssistProposal *performAsync(AssistInterface *interface) final;
+    IAssistProposal *performAsync() final;
 };
 
 CMakeFileCompletionAssist::CMakeFileCompletionAssist() :
@@ -34,10 +34,10 @@ CMakeFileCompletionAssist::CMakeFileCompletionAssist() :
     setDynamicCompletionFunction(&TextEditor::pathComplete);
 }
 
-IAssistProposal *CMakeFileCompletionAssist::performAsync(AssistInterface *interface)
+IAssistProposal *CMakeFileCompletionAssist::performAsync()
 {
     Keywords kw;
-    const Utils::FilePath &filePath = interface->filePath();
+    const Utils::FilePath &filePath = interface()->filePath();
     if (!filePath.isEmpty() && filePath.toFileInfo().isFile()) {
         Project *p = SessionManager::projectForFile(filePath);
         if (p && p->activeTarget()) {
@@ -48,7 +48,7 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync(AssistInterface *interf
     }
 
     setKeywords(kw);
-    return KeywordsCompletionAssistProcessor::performAsync(interface);
+    return KeywordsCompletionAssistProcessor::performAsync();
 }
 
 IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor(const AssistInterface *) const

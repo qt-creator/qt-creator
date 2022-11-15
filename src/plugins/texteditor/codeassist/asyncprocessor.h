@@ -14,18 +14,17 @@ class TEXTEDITOR_EXPORT AsyncProcessor : public TextEditor::IAssistProcessor
 public:
     AsyncProcessor();
 
-    IAssistProposal *perform(AssistInterface *interface) final;
+    IAssistProposal *perform() final;
     bool running() override;
     void cancel() override;
 
-    virtual IAssistProposal *performAsync(AssistInterface *interface) = 0;
-    virtual IAssistProposal *immediateProposal(AssistInterface *interface);
+    virtual IAssistProposal *performAsync() = 0;
+    virtual IAssistProposal *immediateProposal();
 
 protected:
     bool isCanceled() const;
 
 private:
-    AssistInterface *m_interface = nullptr;
     QFutureWatcher<IAssistProposal *> m_watcher;
 };
 

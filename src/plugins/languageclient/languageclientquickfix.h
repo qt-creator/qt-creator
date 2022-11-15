@@ -63,7 +63,7 @@ class LANGUAGECLIENT_EXPORT LanguageClientQuickFixAssistProcessor
 public:
     explicit LanguageClientQuickFixAssistProcessor(Client *client) : m_client(client) {}
     bool running() override { return m_currentRequest.has_value(); }
-    TextEditor::IAssistProposal *perform(TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *perform() override;
     void cancel() override;
 
 protected:
@@ -76,7 +76,6 @@ private:
     virtual TextEditor::GenericProposal *handleCodeActionResult(
         const LanguageServerProtocol::CodeActionResult &result);
 
-    QSharedPointer<const TextEditor::AssistInterface> m_assistInterface;
     Client *m_client = nullptr; // not owned
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
 };

@@ -66,14 +66,13 @@ FunctionHintProcessor::FunctionHintProcessor(Client *client)
     : m_client(client)
 {}
 
-IAssistProposal *FunctionHintProcessor::perform(AssistInterface *interface)
+IAssistProposal *FunctionHintProcessor::perform()
 {
-    const QScopedPointer<const AssistInterface> deleter(interface);
     QTC_ASSERT(m_client, return nullptr);
-    m_pos = interface->position();
-    QTextCursor cursor(interface->textDocument());
+    m_pos = interface()->position();
+    QTextCursor cursor(interface()->textDocument());
     cursor.setPosition(m_pos);
-    auto uri = DocumentUri::fromFilePath(interface->filePath());
+    auto uri = DocumentUri::fromFilePath(interface()->filePath());
     SignatureHelpRequest request((TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(cursor))));
     request.setResponseCallback([this](auto response) { this->handleSignatureResponse(response); });
     m_client->addAssistProcessor(this);
@@ -118,7 +117,7 @@ FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
     , m_client(client)
 {}
 
-TextEditor::IAssistProcessor *FunctionHintAssistProvider::createProcessor(
+IAssistProcessor *FunctionHintAssistProvider::createProcessor(
     const AssistInterface *) const
 {
     return new FunctionHintProcessor(m_client);

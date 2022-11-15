@@ -17,7 +17,7 @@ public:
     DocumentContentCompletionProvider(
             const QString &snippetGroup = QString(Constants::TEXT_SNIPPET_GROUP_ID));
 
-    IAssistProcessor *createProcessor(const AssistInterface *) const override;
+    IAssistProcessor *createProcessor(const AssistInterface *interface) const override;
 
 private:
     QString m_snippetGroup;

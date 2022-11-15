@@ -72,14 +72,13 @@ class GlslCompletionAssistProcessor : public TextEditor::AsyncProcessor
 public:
     ~GlslCompletionAssistProcessor() override;
 
-    TextEditor::IAssistProposal *performAsync(TextEditor::AssistInterface *interface) override;
+    TextEditor::IAssistProposal *performAsync() override;
 
 private:
     TextEditor::IAssistProposal *createHintProposal(const QVector<GLSL::Function *> &symbols);
     bool acceptsIdleEditor() const;
 
     int m_startPosition = 0;
-    QScopedPointer<const GlslCompletionAssistInterface> m_interface;
 };
 
 class GlslCompletionAssistInterface : public TextEditor::AssistInterface

@@ -29,8 +29,8 @@ public:
 
     bool event(QEvent *event) override;
 
-    TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
-                                                       TextEditor::AssistReason assistReason) const override;
+    std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
+        TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const override;
 
 signals:
     void returnKeyClicked();

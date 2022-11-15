@@ -293,8 +293,7 @@ LanguageClientCompletionAssistProcessor::~LanguageClientCompletionAssistProcesso
 
 QTextDocument *LanguageClientCompletionAssistProcessor::document() const
 {
-    QTC_ASSERT(m_assistInterface, return nullptr);
-    return m_assistInterface->textDocument();
+    return interface()->textDocument();
 }
 
 QList<AssistProposalItemInterface *> LanguageClientCompletionAssistProcessor::generateCompletionItems(
@@ -314,26 +313,25 @@ static QString assistReasonString(AssistReason reason)
     return QString("unknown reason");
 }
 
-IAssistProposal *LanguageClientCompletionAssistProcessor::perform(AssistInterface *interface)
+IAssistProposal *LanguageClientCompletionAssistProcessor::perform()
 {
-    m_assistInterface.reset(interface);
     QTC_ASSERT(m_client, return nullptr);
-    m_pos = interface->position();
+    m_pos = interface()->position();
     m_basePos = m_pos;
     auto isIdentifierChar = [](const QChar &c) { return c.isLetterOrNumber() || c == '_'; };
-    while (m_basePos > 0 && isIdentifierChar(interface->characterAt(m_basePos - 1)))
+    while (m_basePos > 0 && isIdentifierChar(interface()->characterAt(m_basePos - 1)))
         --m_basePos;
-    if (interface->reason() == IdleEditor) {
+    if (interface()->reason() == IdleEditor) {
         // Trigger an automatic completion request only when we are on a word with at least n "identifier" characters
         if (m_pos - m_basePos < TextEditorSettings::completionSettings().m_characterThreshold)
             return nullptr;
-        if (m_client->documentUpdatePostponed(interface->filePath())) {
+        if (m_client->documentUpdatePostponed(interface()->filePath())) {
             m_postponedUpdateConnection
                 = QObject::connect(m_client,
                                    &Client::documentUpdated,
-                                   [this, interface](TextEditor::TextDocument *document) {
-                                       if (document->filePath() == interface->filePath())
-                                           perform(interface);
+                                   [this](TextEditor::TextDocument *document) {
+                                       if (document->filePath() == interface()->filePath())
+                                           perform();
                                    });
             return nullptr;
         }
@@ -341,9 +339,9 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(AssistInterfac
     if (m_postponedUpdateConnection)
         QObject::disconnect(m_postponedUpdateConnection);
     CompletionParams::CompletionContext context;
-    if (interface->reason() == ActivationCharacter) {
+    if (interface()->reason() == ActivationCharacter) {
         context.setTriggerKind(CompletionParams::TriggerCharacter);
-        QChar triggerCharacter = interface->characterAt(interface->position() - 1);
+        QChar triggerCharacter = interface()->characterAt(interface()->position() - 1);
         if (!triggerCharacter.isNull())
             context.setTriggerCharacter(triggerCharacter);
     } else {
@@ -352,13 +350,14 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(AssistInterfac
     CompletionParams params;
     int line;
     int column;
-    if (!Utils::Text::convertPosition(interface->textDocument(), m_pos, &line, &column))
+    if (!Utils::Text::convertPosition(interface()->textDocument(), m_pos, &line, &column))
         return nullptr;
     --line; // line is 0 based in the protocol
     --column; // column is 0 based in the protocol
     params.setPosition({line, column});
     params.setContext(context);
-    params.setTextDocument(TextDocumentIdentifier(DocumentUri::fromFilePath(interface->filePath())));
+    params.setTextDocument(
+        TextDocumentIdentifier(DocumentUri::fromFilePath(interface()->filePath())));
     if (const int limit = m_client->completionResultsLimit(); limit >= 0)
         params.setLimit(limit);
     CompletionRequest completionRequest(params);
@@ -368,10 +367,10 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(AssistInterfac
     m_client->sendMessage(completionRequest);
     m_client->addAssistProcessor(this);
     m_currentRequest = completionRequest.id();
-    m_filePath = interface->filePath();
+    m_filePath = interface()->filePath();
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime()
                               << " : request completions at " << m_pos
-                              << " by " << assistReasonString(interface->reason());
+                              << " by " << assistReasonString(interface()->reason());
     return nullptr;
 }
 

@@ -17,6 +17,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -119,14 +120,13 @@ public:
     {
         VirtualFunctionAssistProvider::configure(params);
 
-        AssistInterface *assistInterface
+        std::unique_ptr<AssistInterface> assistInterface
             = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
         const QScopedPointer<AsyncProcessor> processor(
-            dynamic_cast<AsyncProcessor *>(createProcessor(assistInterface)));
-        const QScopedPointer<IAssistProposal> immediateProposal(
-            processor->immediateProposal(assistInterface));
-        const QScopedPointer<IAssistProposal> finalProposal(
-            processor->performAsync(assistInterface));
+            dynamic_cast<AsyncProcessor *>(createProcessor(assistInterface.get())));
+        processor->setupAssistInterface(std::move(assistInterface));
+        const QScopedPointer<IAssistProposal> immediateProposal(processor->immediateProposal());
+        const QScopedPointer<IAssistProposal> finalProposal(processor->performAsync());
 
         VirtualFunctionAssistProvider::clearParams();
 

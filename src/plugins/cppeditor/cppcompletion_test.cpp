@@ -86,17 +86,19 @@ public:
         QTextCursor textCursor = m_editorWidget->textCursor();
         textCursor.setPosition(m_position);
         m_editorWidget->setTextCursor(textCursor);
-        CppCompletionAssistInterface *ai
-            = new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath(),
-                                               m_editorWidget,
-                                               ExplicitlyInvoked, m_snapshot,
-                                               ProjectExplorer::HeaderPaths(),
-                                               languageFeatures);
+        std::unique_ptr<CppCompletionAssistInterface> ai(
+            new CppCompletionAssistInterface(m_editorWidget->textDocument()->filePath(),
+                                             m_editorWidget,
+                                             ExplicitlyInvoked,
+                                             m_snapshot,
+                                             ProjectExplorer::HeaderPaths(),
+                                             languageFeatures));
         ai->prepareForAsyncUse();
         ai->recreateTextDocument();
         InternalCppCompletionAssistProcessor processor;
+        processor.setupAssistInterface(std::move(ai));
 
-        const QScopedPointer<IAssistProposal> proposal(processor.performAsync(ai));
+        const QScopedPointer<IAssistProposal> proposal(processor.performAsync());
         if (!proposal)
             return completions;
         ProposalModelPtr model = proposal->model();

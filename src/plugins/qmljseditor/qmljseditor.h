@@ -44,8 +44,8 @@ public:
     void updateOutlineIndexNow();
     bool isOutlineCursorChangesBlocked();
 
-    TextEditor::AssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
-                           TextEditor::AssistReason reason) const override;
+    std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
+        TextEditor::AssistKind assistKind, TextEditor::AssistReason reason) const override;
 
     void inspectElementUnderCursor() const;
 

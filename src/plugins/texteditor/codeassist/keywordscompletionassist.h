@@ -85,7 +85,7 @@ public:
     KeywordsCompletionAssistProcessor(const Keywords &keywords);
     ~KeywordsCompletionAssistProcessor() override = default;
 
-    IAssistProposal *performAsync(AssistInterface *interface) override;
+    IAssistProposal *performAsync() override;
 
     void setSnippetGroup(const QString &id);
 

@@ -63,12 +63,8 @@ private:
 class ClipboardAssistProcessor: public IAssistProcessor
 {
 public:
-    IAssistProposal *perform(AssistInterface *interface) override
+    IAssistProposal *perform() override
     {
-        if (!interface)
-            return nullptr;
-        const QScopedPointer<const AssistInterface> AssistInterface(interface);
-
         QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), Utils::Icons::PASTE.icon()).pixmap(16);
         CircularClipboard * clipboard = CircularClipboard::instance();
         QList<AssistProposalItemInterface *> items;
@@ -82,7 +78,7 @@ public:
             items.append(item);
         }
 
-        return new GenericProposal(interface->position(), items);
+        return new GenericProposal(interface()->position(), items);
     }
 };
 
