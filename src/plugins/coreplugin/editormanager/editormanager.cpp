@@ -2534,6 +2534,9 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     // re-think part of the editors design.
 
     if (success) {
+        // if document had been temporary before (scratch buffer) - remove the temporary flag
+        document->setTemporary(false);
+
         addDocumentToRecentFiles(document);
         emit m_instance->saved(document);
     }
