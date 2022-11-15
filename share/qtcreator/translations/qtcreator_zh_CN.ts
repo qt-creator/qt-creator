@@ -286,11 +286,11 @@
     </message>
     <message>
         <source>Name:</source>
-        <translation>名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>SD card size:</source>
-        <translation>SD卡容量:</translation>
+        <translation>SD卡容量：</translation>
     </message>
     <message>
         <source> MiB</source>
@@ -306,11 +306,11 @@
     </message>
     <message>
         <source>Password:</source>
-        <translation>密码:</translation>
+        <translation>密码：</translation>
     </message>
     <message>
         <source>Retype password:</source>
-        <translation>再次输入密码:</translation>
+        <translation>再次输入密码：</translation>
     </message>
     <message>
         <source>Show password</source>
@@ -322,15 +322,15 @@
     </message>
     <message>
         <source>Alias name:</source>
-        <translation>别名:</translation>
+        <translation>别名：</translation>
     </message>
     <message>
         <source>Keysize:</source>
-        <translation>密钥长度:</translation>
+        <translation>密钥长度：</translation>
     </message>
     <message>
         <source>Validity (days):</source>
-        <translation>有效期(天数):</translation>
+        <translation>有效期(天数)：</translation>
     </message>
     <message>
         <source>Certificate Distinguished Names</source>
@@ -347,19 +347,19 @@
     </message>
     <message>
         <source>Organization (e.g. KDE):</source>
-        <translation>组织(如KDE):</translation>
+        <translation>组织(如KDE)：</translation>
     </message>
     <message>
         <source>City or locality:</source>
-        <translation>城市或地点:</translation>
+        <translation>城市或地点：</translation>
     </message>
     <message>
         <source>State or province:</source>
-        <translation>州或省:</translation>
+        <translation>州或省：</translation>
     </message>
     <message>
         <source>Two-letter country code for this unit (e.g. RO):</source>
-        <translation>单位的两字母的国家代码(如RO):</translation>
+        <translation>单位的两字母的国家代码(如RO)：</translation>
     </message>
     <message>
         <source>Application</source>
@@ -383,11 +383,11 @@
     </message>
     <message>
         <source>Keystore:</source>
-        <translation>密钥存储库:</translation>
+        <translation>密钥存储库：</translation>
     </message>
     <message>
         <source>Certificate alias:</source>
-        <translation>证书别名:</translation>
+        <translation>证书别名：</translation>
     </message>
     <message>
         <source>Android Configuration</source>
@@ -395,7 +395,7 @@
     </message>
     <message>
         <source>Android SDK location:</source>
-        <translation>Android SDK的路径:</translation>
+        <translation>Android SDK的路径：</translation>
     </message>
     <message>
         <source>Keystore files (*.keystore *.jks)</source>
@@ -1128,7 +1128,7 @@ This cannot be undone.</source>
     </message>
     <message>
         <source>Package name:</source>
-        <translation>包名称:</translation>
+        <translation>包名称：</translation>
     </message>
     <message>
         <source>The package name is not valid.</source>
@@ -1140,7 +1140,7 @@ This cannot be undone.</source>
     </message>
     <message>
         <source>Version name:</source>
-        <translation>版本名称:</translation>
+        <translation>版本名称：</translation>
     </message>
     <message>
         <source>Sets the minimum required version on which this application can be run.</source>
@@ -3374,15 +3374,15 @@ This might cause trouble during execution.
     </message>
     <message>
         <source>Executable:</source>
-        <translation>执行档:</translation>
+        <translation>执行档：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Working Directory:</source>
-        <translation>工作目录:</translation>
+        <translation>工作目录：</translation>
     </message>
     <message>
         <source>Omit internal messages</source>
@@ -3468,7 +3468,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Timeout:</source>
-        <translation>超时时间:</translation>
+        <translation>超时时间：</translation>
     </message>
     <message>
         <source>Timeout used when executing each test case.</source>
@@ -3551,7 +3551,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     <name>AutotoolsProjectManager</name>
     <message>
         <source>Arguments:</source>
-        <translation>参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autogen step.</source>
@@ -3597,720 +3597,722 @@ Warning: this is an experimental feature and might lead to failing to execute th
     <name>BackgroundColorMenuActions</name>
     <message>
         <source>Background Color Actions</source>
-        <translation type="unfinished"></translation>
+        <translation>背景颜色菜单项</translation>
     </message>
 </context>
 <context>
     <name>BareMetal</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法调试：套件中没有设备。</translation>
     </message>
     <message>
         <source>No debug server provider found for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到 %1 的调试服务器提供方</translation>
     </message>
     <message>
         <source>Bare Metal</source>
-        <translation type="unfinished"></translation>
+        <translation>裸机</translation>
     </message>
     <message>
         <source>Bare Metal Device</source>
-        <translation type="unfinished"></translation>
+        <translation>裸机设备</translation>
     </message>
     <message>
         <source>Debug server provider:</source>
-        <translation type="unfinished"></translation>
+        <translation>调试服务器提供方：</translation>
     </message>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>新的裸机设备配置设置</translation>
     </message>
     <message>
         <source>Set up Debug Server or Hardware Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>设置调试服务器或硬件调试器</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Deploy to BareMetal Device</source>
-        <translation type="unfinished"></translation>
+        <translation>部署到裸机设备</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation>未知</translation>
     </message>
     <message>
         <source>Custom Executable</source>
-        <translation type="unfinished">自定义执行档</translation>
+        <translation>自定义执行档</translation>
     </message>
     <message>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>为了运行自定义远程运行配置，必须设置远程可执行程序。</translation>
     </message>
     <message>
         <source>Manage...</source>
-        <translation type="unfinished">管理...</translation>
+        <translation>管理...</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Not recognized</source>
-        <translation type="unfinished"></translation>
+        <translation>未识别</translation>
     </message>
     <message>
         <source>GDB</source>
-        <translation type="unfinished">GDB</translation>
+        <translation>GDB</translation>
     </message>
     <message>
         <source>UVSC</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC</translation>
     </message>
     <message>
         <source>GDB compatible provider engine
 (used together with the GDB debuggers).</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB 兼容提供者引擎
+(与 GDB 调试器一起使用)。</translation>
     </message>
     <message>
         <source>UVSC compatible provider engine
 (used together with the KEIL uVision).</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC 兼容提供者引擎
+(与 KEIL uVision 一起使用)。</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Engine</source>
-        <translation type="unfinished"></translation>
+        <translation>引擎</translation>
     </message>
     <message>
         <source>Duplicate Providers Detected</source>
-        <translation type="unfinished"></translation>
+        <translation>检测到重复提供者</translation>
     </message>
     <message>
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation type="unfinished"></translation>
+        <translation>以下提供者已经配置：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;它们不会再次配置。</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <source>Clone</source>
-        <translation type="unfinished">克隆</translation>
+        <translation>克隆</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">删除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <source>Debug Server Providers</source>
-        <translation type="unfinished"></translation>
+        <translation>调试服务器提供者</translation>
     </message>
     <message>
         <source>Clone of %1</source>
-        <translation type="unfinished">%1 的克隆</translation>
+        <translation>%1 的克隆</translation>
     </message>
     <message>
         <source>EBlink</source>
-        <translation type="unfinished"></translation>
+        <translation>EBlink</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished">主机:</translation>
+        <translation>主机：</translation>
     </message>
     <message>
         <source>Executable file:</source>
-        <translation type="unfinished"></translation>
+        <translation>可执行文件：</translation>
     </message>
     <message>
         <source>Script file:</source>
-        <translation type="unfinished"></translation>
+        <translation>脚本文件：</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0 to 7).</source>
-        <translation type="unfinished"></translation>
+        <translation>指定详细级别（0 到 7）。</translation>
     </message>
     <message>
         <source>Verbosity level:</source>
-        <translation type="unfinished"></translation>
+        <translation>详细级别：</translation>
     </message>
     <message>
         <source>Connect under reset (hotplug).</source>
-        <translation type="unfinished"></translation>
+        <translation>在重置（热插拔）下连接。</translation>
     </message>
     <message>
         <source>Connect under reset:</source>
-        <translation type="unfinished"></translation>
+        <translation>在重置下连接：</translation>
     </message>
     <message>
         <source>Interface type.</source>
-        <translation type="unfinished"></translation>
+        <translation>接口类型。</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">类型:</translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <source>Specify the speed of the interface (120 to 8000) in kilohertz (kHz).</source>
-        <translation type="unfinished"></translation>
+        <translation>以千赫（kHz）单位指定接口速度（120 到 8000）。</translation>
     </message>
     <message>
         <source>Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>速度：</translation>
     </message>
     <message>
         <source>Do not use EBlink flash cache.</source>
-        <translation type="unfinished"></translation>
+        <translation>不使用 EBlink 闪存缓存。</translation>
     </message>
     <message>
         <source>Disable cache:</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用缓存：</translation>
     </message>
     <message>
         <source>Shut down EBlink server after disconnect.</source>
-        <translation type="unfinished"></translation>
+        <translation>断开连接后关闭 EBlink 服务器。</translation>
     </message>
     <message>
         <source>Auto shutdown:</source>
-        <translation type="unfinished"></translation>
+        <translation>自动关机：</translation>
     </message>
     <message>
         <source>Init commands:</source>
-        <translation type="unfinished"></translation>
+        <translation>初始命令：</translation>
     </message>
     <message>
         <source>Reset commands:</source>
-        <translation type="unfinished"></translation>
+        <translation>重置命令：</translation>
     </message>
     <message>
         <source>SWD</source>
-        <translation type="unfinished"></translation>
+        <translation>SWD</translation>
     </message>
     <message>
         <source>JTAG</source>
-        <translation type="unfinished"></translation>
+        <translation>JTAG</translation>
     </message>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法调试：未设置本地可执行程序。</translation>
     </message>
     <message>
         <source>Cannot debug: Could not find executable for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法调试：无法找到“%1”的可执行程序。</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择所需的 GDB 服务器提供方的启动模式。</translation>
     </message>
     <message>
         <source>Startup mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>启动模式：</translation>
     </message>
     <message>
         <source>Peripheral description files (*.svd)</source>
-        <translation type="unfinished"></translation>
+        <translation>外设描述文件（*.svd）</translation>
     </message>
     <message>
         <source>Select Peripheral Description File</source>
-        <translation type="unfinished"></translation>
+        <translation>选择外设描述文件</translation>
     </message>
     <message>
         <source>Peripheral description file:</source>
-        <translation type="unfinished"></translation>
+        <translation>外设描述文件：</translation>
     </message>
     <message>
         <source>Startup in TCP/IP Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>在 TCP/IP 模式下启动</translation>
     </message>
     <message>
         <source>Startup in Pipe Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>在管道模式下启动</translation>
     </message>
     <message>
         <source>Enter GDB commands to reset the board and to write the nonvolatile memory.</source>
-        <translation type="unfinished"></translation>
+        <translation>输入 GDB 命令以重置面板，并写入非易失性存储器。</translation>
     </message>
     <message>
         <source>Enter GDB commands to reset the hardware. The MCU should be halted after these commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>输入 GDB 命令以重置硬件。MCU 应在这些命令后停止。</translation>
     </message>
     <message>
         <source>Generic</source>
-        <translation type="unfinished"></translation>
+        <translation>通用的</translation>
     </message>
     <message>
         <source>Use GDB target extended-remote</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 GDB 目标扩展远程</translation>
     </message>
     <message>
         <source>Extended mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>扩展模式：</translation>
     </message>
     <message>
         <source>JLink</source>
-        <translation type="unfinished"></translation>
+        <translation>JLink</translation>
     </message>
     <message>
         <source>JLink GDB Server (JLinkGDBServerCL.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>JLink GDB 服务器（JLinkGDBServerCL.exe）</translation>
     </message>
     <message>
         <source>JLink GDB Server (JLinkGDBServer)</source>
-        <translation type="unfinished"></translation>
+        <translation>JLink GDB 服务器（JLinkGDBServer）</translation>
     </message>
     <message>
         <source>IP Address</source>
-        <translation type="unfinished"></translation>
+        <translation>IP 地址</translation>
     </message>
     <message>
         <source>Host interface:</source>
-        <translation type="unfinished"></translation>
+        <translation>主机接口：</translation>
     </message>
     <message>
         <source>Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>速度</translation>
     </message>
     <message>
         <source>Target interface:</source>
-        <translation type="unfinished"></translation>
+        <translation>目标接口：</translation>
     </message>
     <message>
         <source>Device:</source>
-        <translation type="unfinished">设备:</translation>
+        <translation>设备：</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation type="unfinished">额外的参数:</translation>
+        <translation>额外的参数：</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <source>USB</source>
-        <translation type="unfinished"></translation>
+        <translation>USB</translation>
     </message>
     <message>
         <source>TCP/IP</source>
-        <translation type="unfinished"></translation>
+        <translation>TCP/IP</translation>
     </message>
     <message>
         <source>Compact JTAG</source>
-        <translation type="unfinished"></translation>
+        <translation>紧凑型 JTAG</translation>
     </message>
     <message>
         <source>Renesas RX FINE</source>
-        <translation type="unfinished"></translation>
+        <translation>Renesas RX FINE</translation>
     </message>
     <message>
         <source>ICSP</source>
-        <translation type="unfinished"></translation>
+        <translation>ICSP</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation type="unfinished"></translation>
+        <translation>自动</translation>
     </message>
     <message>
         <source>Adaptive</source>
-        <translation type="unfinished"></translation>
+        <translation>自适应</translation>
     </message>
     <message>
         <source>%1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 千赫兹</translation>
     </message>
     <message>
         <source>OpenOCD</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenOCD</translation>
     </message>
     <message>
         <source>Root scripts directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Root 脚本目录：</translation>
     </message>
     <message>
         <source>Configuration file:</source>
-        <translation type="unfinished"></translation>
+        <translation>配置文件：</translation>
     </message>
     <message>
         <source>ST-LINK Utility</source>
-        <translation type="unfinished"></translation>
+        <translation>ST-LINK 实用工具</translation>
     </message>
     <message>
         <source>Specify the verbosity level (0..99).</source>
-        <translation type="unfinished"></translation>
+        <translation>指定详细级别（0 到 99）。</translation>
     </message>
     <message>
         <source>Continue listening for connections after disconnect.</source>
-        <translation type="unfinished"></translation>
+        <translation>在断开连接后继续监听连接。</translation>
     </message>
     <message>
         <source>Reset board on connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>连接上时重置面板。</translation>
     </message>
     <message>
         <source>Reset on connection:</source>
-        <translation type="unfinished"></translation>
+        <translation>连接上时重置：</translation>
     </message>
     <message>
         <source>Transport layer type.</source>
-        <translation type="unfinished"></translation>
+        <translation>传输层类型。</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">版本:</translation>
+        <translation>版本：</translation>
     </message>
     <message>
         <source>ST-LINK/V1</source>
-        <translation type="unfinished"></translation>
+        <translation>ST-LINK/V1</translation>
     </message>
     <message>
         <source>ST-LINK/V2</source>
-        <translation type="unfinished"></translation>
+        <translation>ST-LINK/V2</translation>
     </message>
     <message>
         <source>Keep unspecified</source>
-        <translation type="unfinished"></translation>
+        <translation>保持未指定</translation>
     </message>
     <message>
         <source>uVision JLink</source>
-        <translation type="unfinished"></translation>
+        <translation>uVision JLink</translation>
     </message>
     <message>
         <source>Unable to create a uVision project options template.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建 uVision 项目选项模板。</translation>
     </message>
     <message>
         <source>Adapter options:</source>
-        <translation type="unfinished"></translation>
+        <translation>适配器选项：</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished">端口:</translation>
+        <translation>端口：</translation>
     </message>
     <message>
         <source>50MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>50MHz</translation>
     </message>
     <message>
         <source>33MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>33MHz</translation>
     </message>
     <message>
         <source>25MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>25MHz</translation>
     </message>
     <message>
         <source>20MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>20MHz</translation>
     </message>
     <message>
         <source>10MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>10MHz</translation>
     </message>
     <message>
         <source>5MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>5MHz</translation>
     </message>
     <message>
         <source>3MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>3MHz</translation>
     </message>
     <message>
         <source>2MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>2MHz</translation>
     </message>
     <message>
         <source>1MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>1MHz</translation>
     </message>
     <message>
         <source>500kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>500kHz</translation>
     </message>
     <message>
         <source>200kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>200kHz</translation>
     </message>
     <message>
         <source>100kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>100kHz</translation>
     </message>
     <message>
         <source>uVision Simulator</source>
-        <translation type="unfinished"></translation>
+        <translation>uVision 模拟器</translation>
     </message>
     <message>
         <source>Limit speed to real-time.</source>
-        <translation type="unfinished"></translation>
+        <translation>将速度限制为实时。</translation>
     </message>
     <message>
         <source>Limit speed to real-time:</source>
-        <translation type="unfinished"></translation>
+        <translation>将速度限制为实时：</translation>
     </message>
     <message>
         <source>uVision St-Link</source>
-        <translation type="unfinished"></translation>
+        <translation>uVision St-Link</translation>
     </message>
     <message>
         <source>9MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>9MHz</translation>
     </message>
     <message>
         <source>4.5MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>4.5MHz</translation>
     </message>
     <message>
         <source>2.25MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>2.25MHz</translation>
     </message>
     <message>
         <source>1.12MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>1.12MHz</translation>
     </message>
     <message>
         <source>560kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>560kHz</translation>
     </message>
     <message>
         <source>280kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>280kHz</translation>
     </message>
     <message>
         <source>140kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>140kHz</translation>
     </message>
     <message>
         <source>4MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>4MHz</translation>
     </message>
     <message>
         <source>1.8MHz</source>
-        <translation type="unfinished"></translation>
+        <translation>1.8MHz</translation>
     </message>
     <message>
         <source>950kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>950kHz</translation>
     </message>
     <message>
         <source>480kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>480kHz</translation>
     </message>
     <message>
         <source>240kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>240kHz</translation>
     </message>
     <message>
         <source>125kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>125kHz</translation>
     </message>
     <message>
         <source>50kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>50kHz</translation>
     </message>
     <message>
         <source>25kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>25kHz</translation>
     </message>
     <message>
         <source>15kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>15kHz</translation>
     </message>
     <message>
         <source>5kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>5kHz</translation>
     </message>
     <message>
         <source>Unable to create a uVision project template.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建 uVision 项目模板。</translation>
     </message>
     <message>
         <source>Choose Keil Toolset Configuration File</source>
-        <translation type="unfinished"></translation>
+        <translation>选择 Keil 工具集配置文件</translation>
     </message>
     <message>
         <source>Tools file path:</source>
-        <translation type="unfinished"></translation>
+        <translation>工具文件路径：</translation>
     </message>
     <message>
         <source>Target device:</source>
-        <translation type="unfinished"></translation>
+        <translation>目标设备：</translation>
     </message>
     <message>
         <source>Target driver:</source>
-        <translation type="unfinished"></translation>
+        <translation>目标驱动器：</translation>
     </message>
     <message>
         <source>Starting %1 ...</source>
-        <translation type="unfinished"></translation>
+        <translation>启动 %1...</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished">版本</translation>
+        <translation>版本</translation>
     </message>
     <message>
         <source>Vendor</source>
-        <translation type="unfinished">销售商</translation>
+        <translation>销售商</translation>
     </message>
     <message>
         <source>ID</source>
-        <translation type="unfinished">ID</translation>
+        <translation>ID</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>启动</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
     <message>
         <source>FLASH Start</source>
-        <translation type="unfinished"></translation>
+        <translation>闪存启动</translation>
     </message>
     <message>
         <source>FLASH Size</source>
-        <translation type="unfinished"></translation>
+        <translation>闪存大小</translation>
     </message>
     <message>
         <source>RAM Start</source>
-        <translation type="unfinished"></translation>
+        <translation>内存启动</translation>
     </message>
     <message>
         <source>RAM Size</source>
-        <translation type="unfinished"></translation>
+        <translation>内存大小</translation>
     </message>
     <message>
         <source>Algorithm path.</source>
-        <translation type="unfinished"></translation>
+        <translation>算法路径。</translation>
     </message>
     <message>
         <source>FLASH:</source>
-        <translation type="unfinished"></translation>
+        <translation>闪存：</translation>
     </message>
     <message>
         <source>Start address.</source>
-        <translation type="unfinished"></translation>
+        <translation>开始地址。</translation>
     </message>
     <message>
         <source>Size.</source>
-        <translation type="unfinished"></translation>
+        <translation>大小。</translation>
     </message>
     <message>
         <source>RAM:</source>
-        <translation type="unfinished"></translation>
+        <translation>内存：</translation>
     </message>
     <message>
         <source>Vendor:</source>
-        <translation type="unfinished">销售商:</translation>
+        <translation>销售商：</translation>
     </message>
     <message>
         <source>Package:</source>
-        <translation type="unfinished">包:</translation>
+        <translation>包：</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">说明:</translation>
+        <translation>说明：</translation>
     </message>
     <message>
         <source>Memory:</source>
-        <translation type="unfinished"></translation>
+        <translation>存储器：</translation>
     </message>
     <message>
         <source>Flash algorithm:</source>
-        <translation type="unfinished"></translation>
+        <translation>闪存算法：</translation>
     </message>
     <message>
         <source>Target device not selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>未选择目标设备。</translation>
     </message>
     <message>
         <source>Available Target Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>可用目标设备</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>路径</translation>
     </message>
     <message>
         <source>Debugger CPU library (depends on a CPU core).</source>
-        <translation type="unfinished"></translation>
+        <translation>调试器 CPU 库（取决于 CPU 内核）。</translation>
     </message>
     <message>
         <source>Debugger driver library.</source>
-        <translation type="unfinished"></translation>
+        <translation>调试器驱动程序库。</translation>
     </message>
     <message>
         <source>Driver library:</source>
-        <translation type="unfinished"></translation>
+        <translation>驱动程序库：</translation>
     </message>
     <message>
         <source>CPU library:</source>
-        <translation type="unfinished"></translation>
+        <translation>CPU 库：</translation>
     </message>
     <message>
         <source>Target driver not selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>未选择目标驱动器。</translation>
     </message>
     <message>
         <source>Available Target Drivers</source>
-        <translation type="unfinished"></translation>
+        <translation>可用目标设备</translation>
     </message>
     <message>
         <source>IAREW %1 (%2, %3)</source>
-        <translation type="unfinished"></translation>
+        <translation>IAREW %1 (%2, %3)</translation>
     </message>
     <message>
         <source>IAREW</source>
-        <translation type="unfinished"></translation>
+        <translation>IAREW</translation>
     </message>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation type="unfinished">编译器路径(&amp;C):</translation>
+        <translation>编译器路径(&amp;C)：</translation>
     </message>
     <message>
         <source>Platform codegen flags:</source>
-        <translation type="unfinished"></translation>
+        <translation>平台代码生成标志：</translation>
     </message>
     <message>
         <source>&amp;ABI:</source>
-        <translation type="unfinished">&amp;ABI:</translation>
+        <translation>&amp;ABI：</translation>
     </message>
     <message>
         <source>Enter the name of the debugger server provider.</source>
-        <translation type="unfinished"></translation>
+        <translation>输入调试器服务器提供者的名称。</translation>
     </message>
     <message>
         <source>Enter TCP/IP hostname of the debug server, like &quot;localhost&quot; or &quot;192.0.2.1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>输入调试服务器的 TCP/IP 主机名，例如“localhost”或者“192.0.2.1”。</translation>
     </message>
     <message>
         <source>Enter TCP/IP port which will be listened by the debug server.</source>
-        <translation type="unfinished"></translation>
+        <translation>输入调试服务器监听的 TCP/IP 端口。</translation>
     </message>
     <message>
         <source>KEIL %1 (%2, %3)</source>
-        <translation type="unfinished"></translation>
+        <translation>KEIL %1 (%2, %3)</translation>
     </message>
     <message>
         <source>KEIL</source>
-        <translation type="unfinished"></translation>
+        <translation>KEIL</translation>
     </message>
     <message>
         <source>SDCC %1 (%2, %3)</source>
-        <translation type="unfinished"></translation>
+        <translation>SDCC %1 (%2, %3)</translation>
     </message>
     <message>
         <source>SDCC</source>
-        <translation type="unfinished"></translation>
+        <translation>SDCC</translation>
     </message>
 </context>
 <context>
@@ -4324,11 +4326,11 @@ Warning: this is an experimental feature and might lead to failing to execute th
     <name>BaseMessage</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法解码包含“%1”的内容，回退到“%2”。</translation>
     </message>
     <message>
         <source>Expected an integer in &quot;%1&quot;, but got &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>期望“%1”中的整数，但得到“%2”。</translation>
     </message>
 </context>
 <context>
@@ -4339,7 +4341,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Branch:</source>
-        <translation>分支:</translation>
+        <translation>分支：</translation>
     </message>
     <message>
         <source>Local commit</source>
@@ -4351,15 +4353,15 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Author:</source>
-        <translation>作者:</translation>
+        <translation>作者：</translation>
     </message>
     <message>
         <source>Email:</source>
-        <translation>Email:</translation>
+        <translation>Email：</translation>
     </message>
     <message>
         <source>Fixed bugs:</source>
-        <translation>修复的bug:</translation>
+        <translation>修复的bug：</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -4367,7 +4369,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Command:</source>
-        <translation>命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>User</source>
@@ -4379,7 +4381,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Default username:</source>
-        <translation>默认用户名:</translation>
+        <translation>默认用户名：</translation>
     </message>
     <message>
         <source>Email to use by default on commit.</source>
@@ -4387,7 +4389,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Default email:</source>
-        <translation>默认电子邮件:</translation>
+        <translation>默认电子邮件：</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -4395,11 +4397,11 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Log count:</source>
-        <translation>日志数:</translation>
+        <translation>日志数：</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation>超时时间:</translation>
+        <translation>超时时间：</translation>
     </message>
     <message>
         <source>s</source>
@@ -4423,11 +4425,11 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Local filesystem:</source>
-        <translation>本地文件系统:</translation>
+        <translation>本地文件系统：</translation>
     </message>
     <message>
         <source>Specify URL:</source>
-        <translation>指定URL:</translation>
+        <translation>指定URL：</translation>
     </message>
     <message>
         <source>Options</source>
@@ -4451,7 +4453,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Revision:</source>
-        <translation>修订版本:</translation>
+        <translation>修订版本：</translation>
     </message>
     <message>
         <source>Local</source>
@@ -4649,410 +4651,414 @@ This flag will allow push to proceed.</source>
     </message>
     <message>
         <source>Ignore Whitespace</source>
-        <translation type="unfinished">忽略空白</translation>
+        <translation>忽略 Whitespace</translation>
     </message>
     <message>
         <source>Ignore Blank Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略空行</translation>
     </message>
     <message>
         <source>Show files changed in each revision.</source>
-        <translation type="unfinished"></translation>
+        <translation>显示每个修订版本中更改的文件。</translation>
     </message>
     <message>
         <source>Show from oldest to newest.</source>
-        <translation type="unfinished"></translation>
+        <translation>从最旧到最新显示。</translation>
     </message>
     <message>
         <source>Include Merges</source>
-        <translation type="unfinished"></translation>
+        <translation>包含合并</translation>
     </message>
     <message>
         <source>Show merged revisions.</source>
-        <translation type="unfinished"></translation>
+        <translation>显示合并的修订版本。</translation>
     </message>
     <message>
         <source>Moderately Short</source>
-        <translation type="unfinished"></translation>
+        <translation>适度简短</translation>
     </message>
     <message>
         <source>One Line</source>
-        <translation type="unfinished"></translation>
+        <translation>单行</translation>
     </message>
     <message>
         <source>GNU Change Log</source>
-        <translation type="unfinished"></translation>
+        <translation>GNU 变更日志</translation>
     </message>
     <message>
         <source>Format</source>
-        <translation type="unfinished">格式</translation>
+        <translation>格式</translation>
     </message>
     <message>
         <source>Performs a local commit in a bound branch.
 Local commits are not pushed to the master branch until a normal commit is performed.</source>
-        <translation type="unfinished"></translation>
+        <translation>在绑定分支中执行本地提交。
+在执行正常提交之前，本地提交不会推送到 master 分支。</translation>
     </message>
     <message>
         <source>&amp;Annotate %1</source>
-        <translation type="unfinished"></translation>
+        <translation>注释 %1（&amp;A）</translation>
     </message>
     <message>
         <source>Annotate &amp;parent revision %1</source>
-        <translation type="unfinished"></translation>
+        <translation>注释父修订 %1（&amp;p）</translation>
     </message>
     <message>
         <source>Uncommit</source>
-        <translation type="unfinished"></translation>
+        <translation>未提交</translation>
     </message>
     <message>
         <source>Keep tags that point to removed revisions</source>
-        <translation type="unfinished"></translation>
+        <translation>保留指向已删除修订的标签</translation>
     </message>
     <message>
         <source>Only remove the commits from the local branch when in a checkout</source>
-        <translation type="unfinished"></translation>
+        <translation>仅在检出时从本地分支中移除提交</translation>
     </message>
     <message>
         <source>If a revision is specified, uncommits revisions to leave the branch at the specified revision.
 For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果指定了修订版本，则取消提交修订版以将分支保留在指定的修订版本上。
+例如，“Revision: 15” 会将分支保持在修订记录 15 上。</translation>
     </message>
     <message>
         <source>Last committed</source>
-        <translation type="unfinished"></translation>
+        <translation>最后提交</translation>
     </message>
     <message>
         <source>Dry Run</source>
-        <translation type="unfinished"></translation>
+        <translation>空运行</translation>
     </message>
     <message>
         <source>Test the outcome of removing the last committed revision, without actually removing anything.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试删除最后提交的修订结果，不会实质删除任何内容。</translation>
     </message>
     <message>
         <source>Triggers a Bazaar version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>触发 Bazaar 版本控制操作。</translation>
     </message>
     <message>
         <source>Uncommit...</source>
-        <translation type="unfinished"></translation>
+        <translation>未提交...</translation>
     </message>
     <message>
         <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>例如：“https://[user[:pass]@]host[:port]/[path]”。</translation>
     </message>
     <message>
         <source>Ignores differences between branches and overwrites
 unconditionally.</source>
-        <translation type="unfinished"></translation>
+        <translation>无条件地忽略分支和覆盖之间的差。
+</translation>
     </message>
     <message>
         <source>Creates the path leading up to the branch if it does not already exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果路径尚不存在，则创建指向分支的路径。</translation>
     </message>
     <message>
         <source>Performs a local pull in a bound branch.
 Local pulls are not applied to the master branch.</source>
-        <translation type="unfinished"></translation>
+        <translation>在绑定分支中执行本地拉取。
+本地拉取不会应用到 master 分支。</translation>
     </message>
 </context>
 <context>
     <name>Beautifier</name>
     <message>
         <source>Bea&amp;utifier</source>
-        <translation type="unfinished"></translation>
+        <translation>美化器（&amp;u）</translation>
     </message>
     <message>
         <source>Beautifier</source>
-        <translation type="unfinished"></translation>
+        <translation>美化器</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal</name>
     <message>
         <source>Artistic Style</source>
-        <translation type="unfinished"></translation>
+        <translation>艺术风格</translation>
     </message>
     <message>
         <source>Uncrustify</source>
-        <translation type="unfinished"></translation>
+        <translation>去壳</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::AbstractSettings</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法保存风格。%1 不存在。</translation>
     </message>
     <message>
         <source>Cannot open file &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开“%1”文件：%2。</translation>
     </message>
     <message>
         <source>Cannot save file &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法保存“%1”文件：%2。</translation>
     </message>
     <message>
         <source>No documentation file specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>未指定文档。</translation>
     </message>
     <message>
         <source>Cannot open documentation file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开文档“%1”。</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; is not a valid documentation file.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”文件不是有效的文档文件。</translation>
     </message>
     <message>
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法读取“%1”文档：%2。</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::ArtisticStyle</name>
     <message>
         <source>&amp;Artistic Style</source>
-        <translation type="unfinished"></translation>
+        <translation>艺术风格（&amp;A）</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">选项</translation>
+        <translation>选项</translation>
     </message>
     <message>
         <source>Use file *.astylerc defined in project files</source>
-        <translation type="unfinished"></translation>
+        <translation>使用项目文件中定义的 *.astylerc 文件</translation>
     </message>
     <message>
         <source>Use specific config file:</source>
-        <translation type="unfinished"></translation>
+        <translation>使用指定配置文件：</translation>
     </message>
     <message>
         <source>AStyle (*.astylerc)</source>
-        <translation type="unfinished"></translation>
+        <translation>AStyle (*.astylerc)</translation>
     </message>
     <message>
         <source>Use file .astylerc or astylerc in HOME</source>
-        <translation type="unfinished"></translation>
+        <translation>使用家目录下的 .astylerc 或者 astylerc 文件</translation>
     </message>
     <message>
         <source>Use customized style:</source>
-        <translation type="unfinished"></translation>
+        <translation>使用自定义风格：</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">配置</translation>
+        <translation>配置</translation>
     </message>
     <message>
         <source>Artistic Style command:</source>
-        <translation type="unfinished"></translation>
+        <translation>艺术风格命令：</translation>
     </message>
     <message>
         <source>Restrict to MIME types:</source>
-        <translation type="unfinished"></translation>
+        <translation>限制为 MIME 类型：</translation>
     </message>
     <message>
         <source>Artistic Style</source>
-        <translation type="unfinished"></translation>
+        <translation>艺术风格</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Error in Beautifier: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>美化器错误：%1</translation>
     </message>
     <message>
         <source>Cannot get configuration file for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法获取 %1 的配置文件。</translation>
     </message>
     <message>
         <source>Format &amp;Current File</source>
         <extracomment>Menu entry</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>格式化当前文件（&amp;C）</translation>
     </message>
     <message>
         <source>Format &amp;Selected Text</source>
         <extracomment>Menu entry</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>格式化所选文本（&amp;S）</translation>
     </message>
     <message>
         <source>&amp;Format at Cursor</source>
         <extracomment>Menu entry</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>格式化光标处（&amp;F）</translation>
     </message>
     <message>
         <source>Format &amp;Line(s)</source>
         <extracomment>Menu entry</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>格式化行（&amp;L）</translation>
     </message>
     <message>
         <source>&amp;Disable Formatting for Selected Text</source>
         <extracomment>Menu entry</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>为所选文本禁用格式化（&amp;D）</translation>
     </message>
     <message>
         <source>%1 Command</source>
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 命令</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::ClangFormat</name>
     <message>
         <source>&amp;ClangFormat</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ClangFormat</translation>
     </message>
     <message>
         <source>ClangFormat</source>
-        <translation type="unfinished"></translation>
+        <translation>ClangFormat</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">选项</translation>
+        <translation>选项</translation>
     </message>
     <message>
         <source>Use customized style:</source>
-        <translation type="unfinished"></translation>
+        <translation>使用自定义风格：</translation>
     </message>
     <message>
         <source>Use predefined style:</source>
-        <translation type="unfinished"></translation>
+        <translation>使用预定义风格：</translation>
     </message>
     <message>
         <source>Fallback style:</source>
-        <translation type="unfinished"></translation>
+        <translation>后备风格：</translation>
     </message>
     <message>
         <source>Configuration</source>
-        <translation type="unfinished">配置</translation>
+        <translation>配置</translation>
     </message>
     <message>
         <source>Clang Format command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Clang Format 命令：</translation>
     </message>
     <message>
         <source>Restrict to MIME types:</source>
-        <translation type="unfinished"></translation>
+        <translation>限制为 MIME 类型：</translation>
     </message>
     <message>
         <source>Clang Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Clang Format</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
-        <translation type="unfinished"></translation>
+        <translation>使用项目文件中定义的 uncrustify.cfg 文件</translation>
     </message>
     <message>
         <source>Use file specific uncrustify.cfg</source>
-        <translation type="unfinished"></translation>
+        <translation>使用指定的 uncrustify.cfg 文件</translation>
     </message>
     <message>
         <source>Uncrustify file (*.cfg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uncrustify 文件（*.cfg）</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg in HOME</source>
-        <translation type="unfinished"></translation>
+        <translation>使用家目录下的 uncrustify.cfg 文件</translation>
     </message>
     <message>
         <source>Format entire file if no text was selected</source>
-        <translation type="unfinished"></translation>
+        <translation>如果未选择文本，格式化整个文件</translation>
     </message>
     <message>
         <source>For action Format Selected Text</source>
-        <translation type="unfinished"></translation>
+        <translation>对于操作格式化所选文本</translation>
     </message>
     <message>
         <source>Uncrustify command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Uncrustify 命令：</translation>
     </message>
     <message>
         <source>Uncrustify</source>
-        <translation type="unfinished"></translation>
+        <translation>Uncrustify</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::ClangFormatSettings</name>
     <message>
         <source>No description available.</source>
-        <translation type="unfinished"></translation>
+        <translation>无可用描述。</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
     <message>
         <source>Documentation</source>
-        <translation type="unfinished">文档</translation>
+        <translation>文档</translation>
     </message>
     <message>
         <source>Documentation for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” 的文档</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::ConfigurationPanel</name>
     <message>
         <source>Edit</source>
-        <translation type="unfinished">编辑</translation>
+        <translation>编辑</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">删除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <source>Add Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>添加配置</translation>
     </message>
     <message>
         <source>Edit Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑配置</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::GeneralOptionsPageWidget</name>
     <message>
         <source>Enable auto format on file save</source>
-        <translation type="unfinished"></translation>
+        <translation>启动文本保存时的自动格式化</translation>
     </message>
     <message>
         <source>Tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>工具：</translation>
     </message>
     <message>
         <source>Restrict to MIME types:</source>
-        <translation type="unfinished"></translation>
+        <translation>限制为 MIME 类型：</translation>
     </message>
     <message>
         <source>Restrict to files contained in the current project</source>
-        <translation type="unfinished"></translation>
+        <translation>限制为当前项目中包含的文件</translation>
     </message>
     <message>
         <source>Automatic Formatting on File Save</source>
-        <translation type="unfinished"></translation>
+        <translation>文件保存时自动格式化</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">概要</translation>
+        <translation>概要</translation>
     </message>
 </context>
 <context>
     <name>Beautifier::Internal::Uncrustify</name>
     <message>
         <source>&amp;Uncrustify</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Uncrustify</translation>
     </message>
 </context>
 <context>
@@ -5083,19 +5089,19 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="unfinished">十进制&amp;nbsp;无符号&amp;nbsp;数值:</translation>
+        <translation>十进制&amp;nbsp;无符号&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="unfinished">十进制&amp;nbsp;有符号&amp;nbsp;数值:</translation>
+        <translation>十进制&amp;nbsp;有符号&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="unfinished">上一个&amp;nbsp;十进制&amp;nbsp;无符号&amp;nbsp;数值:</translation>
+        <translation>上一个&amp;nbsp;十进制&amp;nbsp;无符号&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="unfinished">上一个&amp;nbsp;十进制&amp;nbsp;有符号&amp;nbsp;数值:</translation>
+        <translation>上一个&amp;nbsp;十进制&amp;nbsp;有符号&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
@@ -5111,35 +5117,35 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Binary&amp;nbsp;value:</source>
-        <translation type="unfinished">二进制&amp;nbsp;数值:</translation>
+        <translation>二进制&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Octal&amp;nbsp;value:</source>
-        <translation type="unfinished">八进制&amp;nbsp;数值:</translation>
+        <translation>八进制&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation type="unfinished">上一个&amp;nbsp;二进制&amp;nbsp;数值:</translation>
+        <translation>上一个&amp;nbsp;二进制&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation type="unfinished">上一个&amp;nbsp;八进制&amp;nbsp;数值:</translation>
+        <translation>上一个&amp;nbsp;八进制&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="unfinished">&lt;i&gt;双精度浮点数&lt;/i&gt;&amp;nbsp;数值:</translation>
+        <translation>&lt;i&gt;双精度浮点数&lt;/i&gt;&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="unfinished">上一个&lt;i&gt;双精度浮点数&lt;/i&gt;&amp;nbsp;数值:</translation>
+        <translation>上一个&lt;i&gt;双精度浮点数&lt;/i&gt;&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="unfinished">&lt;i&gt;浮点数&lt;/i&gt;&amp;nbsp;数值:</translation>
+        <translation>&lt;i&gt;浮点数&lt;/i&gt;&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="unfinished">上一个&lt;i&gt;浮点数&lt;/i&gt;&amp;nbsp;数值:</translation>
+        <translation>上一个&lt;i&gt;浮点数&lt;/i&gt;&amp;nbsp;数值：</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
@@ -5209,11 +5215,11 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Bookmark:</source>
-        <translation type="unfinished">书签:</translation>
+        <translation>书签：</translation>
     </message>
     <message>
         <source>Add in folder:</source>
-        <translation type="unfinished">添加到文件夹:</translation>
+        <translation>添加到文件夹：</translation>
     </message>
     <message>
         <source>Bookmarks</source>
@@ -5382,7 +5388,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Line number:</source>
-        <translation type="unfinished">行号:</translation>
+        <translation>行号：</translation>
     </message>
     <message>
         <source>Meta+Shift+M</source>
@@ -5516,7 +5522,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Generator:</source>
-        <translation>创建器:</translation>
+        <translation>创建器：</translation>
     </message>
     <message>
         <source>Run CMake</source>
@@ -5528,7 +5534,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
     <message>
         <source>Targets:</source>
-        <translation>目标:</translation>
+        <translation>目标：</translation>
     </message>
     <message>
         <source>Build CMake target</source>
@@ -6200,15 +6206,15 @@ Copy the path to the source files to the clipboard?</source>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">版本:</translation>
+        <translation>版本：</translation>
     </message>
     <message>
         <source>Help file:</source>
@@ -6336,7 +6342,7 @@ Copy the path to the source files to the clipboard?</source>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">类型:</translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <source>Select a file for %1</source>
@@ -6778,11 +6784,11 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
     <message>
         <source>CVS command:</source>
-        <translation type="unfinished">CVS 命令:</translation>
+        <translation>CVS 命令：</translation>
     </message>
     <message>
         <source>CVS root:</source>
-        <translation type="unfinished">CVS 路径:</translation>
+        <translation>CVS 路径：</translation>
     </message>
     <message>
         <source>Describe all files matching commit id</source>
@@ -6983,7 +6989,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     <name>ClangCodeModel::Internal::ClangdFindReferences</name>
     <message>
         <source>C++ Usages:</source>
-        <translation type="unfinished">C++ 使用:</translation>
+        <translation>C++ 使用：</translation>
     </message>
     <message numerus="yes">
         <source>Re&amp;name %n files</source>
@@ -7114,11 +7120,11 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">类型:</translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">说明:</translation>
+        <translation>说明：</translation>
     </message>
     <message>
         <source>Location:</source>
@@ -7141,7 +7147,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     <name>ClangTools::ExplainingStep</name>
     <message>
         <source>Message:</source>
-        <translation type="unfinished">消息:</translation>
+        <translation>消息：</translation>
     </message>
     <message>
         <source>Location:</source>
@@ -7838,7 +7844,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>&amp;Checkout comment:</source>
-        <translation>Checkout 命令(&amp;C):</translation>
+        <translation>Checkout 命令(&amp;C)：</translation>
     </message>
     <message>
         <source>&amp;Reserved</source>
@@ -7862,7 +7868,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>&amp;Command:</source>
-        <translation>命令(&amp;C):</translation>
+        <translation>命令(&amp;C)：</translation>
     </message>
     <message>
         <source>Diff</source>
@@ -7874,7 +7880,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Arg&amp;uments:</source>
-        <translation>参数(&amp;U):</translation>
+        <translation>参数(&amp;U)：</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -7882,11 +7888,11 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>&amp;History count:</source>
-        <translation>历史记录保存的个数(&amp;H):</translation>
+        <translation>历史记录保存的个数(&amp;H)：</translation>
     </message>
     <message>
         <source>&amp;Timeout:</source>
-        <translation>超时时间(&amp;T):</translation>
+        <translation>超时时间(&amp;T)：</translation>
     </message>
     <message>
         <source>s</source>
@@ -7910,7 +7916,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>&amp;Index only VOBs:</source>
-        <translation>仅对下列VOB索引(&amp;i):</translation>
+        <translation>仅对下列VOB索引(&amp;i)：</translation>
     </message>
     <message>
         <source>ClearCase</source>
@@ -7934,11 +7940,11 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Created by:</source>
-        <translation>创建人:</translation>
+        <translation>创建人：</translation>
     </message>
     <message>
         <source>Created on:</source>
-        <translation>创建于:</translation>
+        <translation>创建于：</translation>
     </message>
     <message>
         <source>Version after &amp;update</source>
@@ -7946,7 +7952,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Select &amp;activity:</source>
-        <translation>选择活动(&amp;A):</translation>
+        <translation>选择活动(&amp;A)：</translation>
     </message>
     <message>
         <source>Add</source>
@@ -8186,7 +8192,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Enter &amp;comment:</source>
-        <translation>输入注释(&amp;comment):</translation>
+        <translation>输入注释(&amp;comment)：</translation>
     </message>
     <message>
         <source>ClearCase Add File %1</source>
@@ -8363,7 +8369,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Enter URL:</source>
-        <translation>输入URL:</translation>
+        <translation>输入URL：</translation>
     </message>
     <message>
         <source>Empty snippet received for &quot;%1&quot;.</source>
@@ -8435,11 +8441,11 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>&amp;Path:</source>
-        <translation>路径(&amp;P):</translation>
+        <translation>路径(&amp;P)：</translation>
     </message>
     <message>
         <source>&amp;Display:</source>
-        <translation>显示(&amp;D):</translation>
+        <translation>显示(&amp;D)：</translation>
     </message>
     <message>
         <source>entries</source>
@@ -8447,11 +8453,11 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Protocol:</source>
-        <translation>协议:</translation>
+        <translation>协议：</translation>
     </message>
     <message>
         <source>Paste:</source>
-        <translation>粘贴:</translation>
+        <translation>粘贴：</translation>
     </message>
     <message>
         <source>Send to Codepaster</source>
@@ -8459,7 +8465,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation>用户名(&amp;U):</translation>
+        <translation>用户名(&amp;U)：</translation>
     </message>
     <message>
         <source>&lt;Username&gt;</source>
@@ -8467,7 +8473,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>&amp;Description:</source>
-        <translation>说明(&amp;D):</translation>
+        <translation>说明(&amp;D)：</translation>
     </message>
     <message>
         <source>&lt;Description&gt;</source>
@@ -8483,11 +8489,11 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Username:</source>
-        <translation>用户名:</translation>
+        <translation>用户名：</translation>
     </message>
     <message>
         <source>Default protocol:</source>
-        <translation>默认协议:</translation>
+        <translation>默认协议：</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -8576,7 +8582,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation type="unfinished">额外的参数:</translation>
+        <translation>额外的参数：</translation>
     </message>
     <message>
         <source>Run conan install</source>
@@ -9155,23 +9161,23 @@ Continue?</source>
     </message>
     <message>
         <source>Description:</source>
-        <translation>说明:</translation>
+        <translation>说明：</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation>执行档:</translation>
+        <translation>执行档：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation>工作目录:</translation>
+        <translation>工作目录：</translation>
     </message>
     <message>
         <source>Output:</source>
-        <translation>输出:</translation>
+        <translation>输出：</translation>
     </message>
     <message>
         <source>Ignore</source>
@@ -9183,7 +9189,7 @@ Continue?</source>
     </message>
     <message>
         <source>Error output:</source>
-        <translation>错误输出:</translation>
+        <translation>错误输出：</translation>
     </message>
     <message>
         <source>Text to pass to the executable via standard input. Leave empty if the executable should not receive any input.</source>
@@ -9191,7 +9197,7 @@ Continue?</source>
     </message>
     <message>
         <source>Input:</source>
-        <translation>输入:</translation>
+        <translation>输入：</translation>
     </message>
     <message>
         <source>If the tool modifies the current document, set this flag to ensure that the document is saved before running the tool and is reloaded after the tool finished.</source>
@@ -9280,7 +9286,7 @@ Continue?</source>
     </message>
     <message>
         <source>Environment:</source>
-        <translation type="unfinished">环境:</translation>
+        <translation>环境：</translation>
     </message>
     <message>
         <source>PATH=C:\dev\bin;${PATH}</source>
@@ -9329,11 +9335,11 @@ Continue?</source>
     <name>Core::FilePropertiesDialog</name>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>MIME type:</source>
@@ -9357,7 +9363,7 @@ Continue?</source>
     </message>
     <message>
         <source>Group:</source>
-        <translation type="unfinished">组:</translation>
+        <translation>组：</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -9381,7 +9387,7 @@ Continue?</source>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
+        <translation>执行档：</translation>
     </message>
     <message>
         <source>Symbolic link:</source>
@@ -9928,7 +9934,7 @@ You will likely experience further problems using this instance of %3.</source>
     <name>Core::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
@@ -9938,7 +9944,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Directories:</source>
-        <translation type="unfinished">目录:</translation>
+        <translation>目录：</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -10311,7 +10317,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Filter:</source>
-        <translation type="unfinished">过滤器:</translation>
+        <translation>过滤器：</translation>
     </message>
 </context>
 <context>
@@ -10342,7 +10348,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Sco&amp;pe:</source>
-        <translation type="unfinished">范围(&amp;P):</translation>
+        <translation>范围(&amp;P)：</translation>
     </message>
 </context>
 <context>
@@ -10459,11 +10465,11 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Find:</source>
-        <translation type="unfinished">查找:</translation>
+        <translation>查找：</translation>
     </message>
     <message>
         <source>Replace with:</source>
-        <translation type="unfinished">替换为:</translation>
+        <translation>替换为：</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -10494,11 +10500,11 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Color:</source>
-        <translation>颜色:</translation>
+        <translation>颜色：</translation>
     </message>
     <message>
         <source>Language:</source>
-        <translation>语言:</translation>
+        <translation>语言：</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -10616,7 +10622,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Refresh interval:</source>
-        <translation type="unfinished">更新间隔:</translation>
+        <translation>更新间隔：</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
@@ -10964,7 +10970,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">版本:</translation>
+        <translation>版本：</translation>
     </message>
     <message>
         <source>Change Log</source>
@@ -10998,7 +11004,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Value:</source>
-        <translation>值:</translation>
+        <translation>值：</translation>
     </message>
     <message>
         <source>String</source>
@@ -11014,7 +11020,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Priority:</source>
-        <translation>优先级:</translation>
+        <translation>优先级：</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -11062,7 +11068,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">类型:</translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <source>Mask:</source>
@@ -11103,7 +11109,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Patterns:</source>
-        <translation>模式:</translation>
+        <translation>模式：</translation>
     </message>
     <message>
         <source>Magic Header</source>
@@ -11180,7 +11186,7 @@ Do you want to kill it?</source>
     <name>Core::Internal::NewDialog</name>
     <message>
         <source>Choose a template:</source>
-        <translation>选择一个模板:</translation>
+        <translation>选择一个模板：</translation>
     </message>
     <message>
         <source>Projects</source>
@@ -11459,7 +11465,7 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>The following files have unsaved changes:</source>
-        <translation>以下文件有未保存的修改:</translation>
+        <translation>以下文件有未保存的修改：</translation>
     </message>
     <message>
         <source>Automatically save all files before building</source>
@@ -11587,7 +11593,7 @@ Do you want to kill it?</source>
     <name>Core::Internal::ShortcutInput</name>
     <message>
         <source>Key sequence:</source>
-        <translation type="unfinished">键位顺序:</translation>
+        <translation>键位顺序：</translation>
     </message>
     <message>
         <source>Use &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
@@ -11688,11 +11694,11 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
+        <translation>执行档：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Case sensitive:</source>
@@ -11819,23 +11825,23 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Environment:</source>
-        <translation type="unfinished">环境:</translation>
+        <translation>环境：</translation>
     </message>
     <message>
         <source>Terminal:</source>
-        <translation type="unfinished">终端:</translation>
+        <translation>终端：</translation>
     </message>
     <message>
         <source>External file browser:</source>
-        <translation type="unfinished">外部文件浏览器:</translation>
+        <translation>外部文件浏览器：</translation>
     </message>
     <message>
         <source>When files are externally modified:</source>
-        <translation type="unfinished">当文件被外部修改时:</translation>
+        <translation>当文件被外部修改时：</translation>
     </message>
     <message>
         <source>Interval:</source>
-        <translation type="unfinished">间隔:</translation>
+        <translation>间隔：</translation>
     </message>
     <message>
         <source>Maximum number of entries in &quot;Recent Files&quot;:</source>
@@ -11910,7 +11916,7 @@ provided they were unmodified before the refactoring.</source>
     <name>Core::Internal::UrlFilterOptions</name>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Add &quot;%1&quot; placeholder for the query string.
@@ -11991,7 +11997,7 @@ Double-click to edit item.</source>
     <name>Core::ListItemDelegate</name>
     <message>
         <source>Tags:</source>
-        <translation type="unfinished">标签:</translation>
+        <translation>标签：</translation>
     </message>
 </context>
 <context>
@@ -13271,7 +13277,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
     <message>
         <source>C++ Usages:</source>
-        <translation type="unfinished">C++ 使用:</translation>
+        <translation>C++ 使用：</translation>
     </message>
     <message>
         <source>Searching for Usages</source>
@@ -13290,7 +13296,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
     <message>
         <source>C++ Macro Usages:</source>
-        <translation type="unfinished">C++ 宏的使用:</translation>
+        <translation>C++ 宏的使用：</translation>
     </message>
 </context>
 <context>
@@ -13519,7 +13525,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
     <message>
         <source>C++ Symbols:</source>
-        <translation type="unfinished">C++符号:</translation>
+        <translation>C++符号：</translation>
     </message>
     <message>
         <source>Classes</source>
@@ -13558,7 +13564,7 @@ Flags: %3</source>
     <name>CppEditor::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
-        <translation type="unfinished">类型:</translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <source>Classes</source>
@@ -13917,7 +13923,7 @@ Flags: %3</source>
     </message>
     <message>
         <source>Types:</source>
-        <translation type="unfinished">类型:</translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <source>Separate the types by comma.</source>
@@ -14151,7 +14157,7 @@ e.g. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Ignored file patterns:</source>
-        <translation type="unfinished">被忽略的文件模式:</translation>
+        <translation>被忽略的文件模式：</translation>
     </message>
 </context>
 <context>
@@ -14452,7 +14458,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Use local core file:</source>
-        <translation>使用本地核心文件:</translation>
+        <translation>使用本地核心文件：</translation>
     </message>
     <message>
         <source>Select Executable</source>
@@ -14460,15 +14466,15 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Kit:</source>
-        <translation>构建套件(Kit):</translation>
+        <translation>构建套件(Kit)：</translation>
     </message>
     <message>
         <source>Core file:</source>
-        <translation>核心文件:</translation>
+        <translation>核心文件：</translation>
     </message>
     <message>
         <source>Override &amp;start script:</source>
-        <translation>覆盖启动脚本(&amp;S):</translation>
+        <translation>覆盖启动脚本(&amp;S)：</translation>
     </message>
     <message>
         <source>Select Remote Core File</source>
@@ -14488,15 +14494,15 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Marker File:</source>
-        <translation>标记文件:</translation>
+        <translation>标记文件：</translation>
     </message>
     <message>
         <source>Marker Line:</source>
-        <translation>标记行:</translation>
+        <translation>标记行：</translation>
     </message>
     <message>
         <source>Breakpoint Address:</source>
-        <translation>断点地址:</translation>
+        <translation>断点地址：</translation>
     </message>
     <message>
         <source>Property</source>
@@ -14504,7 +14510,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Breakpoint Type:</source>
-        <translation>断点类型:</translation>
+        <translation>断点类型：</translation>
     </message>
     <message>
         <source>Breakpoint</source>
@@ -14520,11 +14526,11 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>File Name:</source>
-        <translation>文件名:</translation>
+        <translation>文件名：</translation>
     </message>
     <message>
         <source>Function Name:</source>
-        <translation>函数名:</translation>
+        <translation>函数名：</translation>
     </message>
     <message>
         <source>Breakpoint on QML Signal Emit</source>
@@ -14548,27 +14554,27 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Line Number:</source>
-        <translation>行号:</translation>
+        <translation>行号：</translation>
     </message>
     <message>
         <source>Module:</source>
-        <translation>模块:</translation>
+        <translation>模块：</translation>
     </message>
     <message>
         <source>Message:</source>
-        <translation>消息:</translation>
+        <translation>消息：</translation>
     </message>
     <message>
         <source>Condition:</source>
-        <translation>条件:</translation>
+        <translation>条件：</translation>
     </message>
     <message>
         <source>Ignore Count:</source>
-        <translation>忽略次数:</translation>
+        <translation>忽略次数：</translation>
     </message>
     <message>
         <source>Thread Specification:</source>
-        <translation>线程信息:</translation>
+        <translation>线程信息：</translation>
     </message>
     <message>
         <source>Function</source>
@@ -14987,7 +14993,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>GDB timeout:</source>
-        <translation>Gdb超时时间:</translation>
+        <translation>Gdb超时时间：</translation>
     </message>
     <message>
         <source>sec</source>
@@ -15106,19 +15112,19 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Address:</source>
-        <translation>地址:</translation>
+        <translation>地址：</translation>
     </message>
     <message>
         <source>Function:</source>
-        <translation>函数:</translation>
+        <translation>函数：</translation>
     </message>
     <message>
         <source>File:</source>
-        <translation>文件:</translation>
+        <translation>文件：</translation>
     </message>
     <message>
         <source>Line:</source>
-        <translation>行号:</translation>
+        <translation>行号：</translation>
     </message>
     <message>
         <source>Note:</source>
@@ -15134,27 +15140,27 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Thread&amp;nbsp;id:</source>
-        <translation>线程&amp;nbsp;id:</translation>
+        <translation>线程&amp;nbsp;id：</translation>
     </message>
     <message>
         <source>Target&amp;nbsp;id:</source>
-        <translation>目标&amp;nbsp;id:</translation>
+        <translation>目标&amp;nbsp;id：</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>State:</source>
-        <translation>状态:</translation>
+        <translation>状态：</translation>
     </message>
     <message>
         <source>Core:</source>
-        <translation>核心:</translation>
+        <translation>核心：</translation>
     </message>
     <message>
         <source>Stopped&amp;nbsp;at:</source>
-        <translation>停止&amp;nbsp;于:</translation>
+        <translation>停止&amp;nbsp;于：</translation>
     </message>
     <message>
         <source>ID</source>
@@ -15182,11 +15188,11 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
+        <translation>执行档：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Threads</source>
@@ -15325,27 +15331,27 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Breakpoint &amp;type:</source>
-        <translation>断点类型(&amp;T):</translation>
+        <translation>断点类型(&amp;T)：</translation>
     </message>
     <message>
         <source>&amp;File name:</source>
-        <translation>文件名(&amp;F):</translation>
+        <translation>文件名(&amp;F)：</translation>
     </message>
     <message>
         <source>&amp;Line number:</source>
-        <translation>行号(&amp;L):</translation>
+        <translation>行号(&amp;L)：</translation>
     </message>
     <message>
         <source>&amp;Enabled:</source>
-        <translation>启用(&amp;E):</translation>
+        <translation>启用(&amp;E)：</translation>
     </message>
     <message>
         <source>&amp;Address:</source>
-        <translation>地址(&amp;A):</translation>
+        <translation>地址(&amp;A)：</translation>
     </message>
     <message>
         <source>Fun&amp;ction:</source>
-        <translation>函数(&amp;C):</translation>
+        <translation>函数(&amp;C)：</translation>
     </message>
     <message>
         <source>Advanced</source>
@@ -15353,7 +15359,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>T&amp;racepoint only:</source>
-        <translation>仅跟踪点(&amp;R):</translation>
+        <translation>仅跟踪点(&amp;R)：</translation>
     </message>
     <message>
         <source>&amp;One shot only:</source>
@@ -15361,11 +15367,11 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Pat&amp;h:</source>
-        <translation>路径(&amp;H):</translation>
+        <translation>路径(&amp;H)：</translation>
     </message>
     <message>
         <source>&amp;Module:</source>
-        <translation>模块(&amp;M):</translation>
+        <translation>模块(&amp;M)：</translation>
     </message>
     <message>
         <source>Use Engine Default</source>
@@ -15381,23 +15387,23 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&amp;Commands:</source>
-        <translation>命令(&amp;C):</translation>
+        <translation>命令(&amp;C)：</translation>
     </message>
     <message>
         <source>C&amp;ondition:</source>
-        <translation>条件(&amp;O):</translation>
+        <translation>条件(&amp;O)：</translation>
     </message>
     <message>
         <source>&amp;Ignore count:</source>
-        <translation>忽略次数(&amp;i):</translation>
+        <translation>忽略次数(&amp;i)：</translation>
     </message>
     <message>
         <source>&amp;Expression:</source>
-        <translation>表达式(&amp;E):</translation>
+        <translation>表达式(&amp;E)：</translation>
     </message>
     <message>
         <source>&amp;Message:</source>
-        <translation>消息(&amp;M):</translation>
+        <translation>消息(&amp;M)：</translation>
     </message>
     <message>
         <source>Debugger Error</source>
@@ -15429,7 +15435,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Path:</source>
-        <translation>路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>Already Exists</source>
@@ -15550,7 +15556,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Command:</source>
-        <translation>命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Log File</source>
@@ -15570,11 +15576,11 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>&amp;Condition:</source>
-        <translation>条件(&amp;C):</translation>
+        <translation>条件(&amp;C)：</translation>
     </message>
     <message>
         <source>&amp;Thread specification:</source>
-        <translation>线程信息(&amp;T):</translation>
+        <translation>线程信息(&amp;T)：</translation>
     </message>
     <message>
         <source>Start a CDB Remote Session</source>
@@ -15582,7 +15588,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>&amp;Connection:</source>
-        <translation>连接(&amp;C):</translation>
+        <translation>连接(&amp;C)：</translation>
     </message>
     <message>
         <source>Memory...</source>
@@ -15869,7 +15875,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>Threads:</source>
-        <translation>线程:</translation>
+        <translation>线程：</translation>
     </message>
     <message>
         <source>Symbol</source>
@@ -15925,11 +15931,11 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
     <message>
         <source>&amp;Source path:</source>
-        <translation>源路径(&amp;S):</translation>
+        <translation>源路径(&amp;S)：</translation>
     </message>
     <message>
         <source>&amp;Target path:</source>
-        <translation>目标路径(&amp;T):</translation>
+        <translation>目标路径(&amp;T)：</translation>
     </message>
     <message>
         <source>Qt Sources</source>
@@ -15975,11 +15981,11 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>From:</source>
-        <translation type="unfinished">从:</translation>
+        <translation>从：</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation type="unfinished">到:</translation>
+        <translation>到：</translation>
     </message>
     <message>
         <source>C++ exception</source>
@@ -15995,15 +16001,15 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Load module:</source>
-        <translation>载入模块:</translation>
+        <translation>载入模块：</translation>
     </message>
     <message>
         <source>Unload module:</source>
-        <translation>卸载模块:</translation>
+        <translation>卸载模块：</translation>
     </message>
     <message>
         <source>Output:</source>
-        <translation>输出:</translation>
+        <translation>输出：</translation>
     </message>
     <message>
         <source>Use alternating row colors in debug views</source>
@@ -16023,7 +16029,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Maximum stack depth:</source>
-        <translation>最大堆栈深度:</translation>
+        <translation>最大堆栈深度：</translation>
     </message>
     <message>
         <source>&lt;unlimited&gt;</source>
@@ -16083,7 +16089,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Server port:</source>
-        <translation>服务器端口:</translation>
+        <translation>服务器端口：</translation>
     </message>
     <message>
         <source>Select Working Directory</source>
@@ -16099,39 +16105,39 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>&amp;Kit:</source>
-        <translation>构建套件(&amp;Kit):</translation>
+        <translation>构建套件(&amp;Kit)：</translation>
     </message>
     <message>
         <source>Local &amp;executable:</source>
-        <translation>本地执行档(&amp;E):</translation>
+        <translation>本地执行档(&amp;E)：</translation>
     </message>
     <message>
         <source>Command line &amp;arguments:</source>
-        <translation>命令行的参数(&amp;A):</translation>
+        <translation>命令行的参数(&amp;A)：</translation>
     </message>
     <message>
         <source>&amp;Working directory:</source>
-        <translation>工作目录(&amp;W):</translation>
+        <translation>工作目录(&amp;W)：</translation>
     </message>
     <message>
         <source>Run in &amp;terminal:</source>
-        <translation>在终端中运行(&amp;T):</translation>
+        <translation>在终端中运行(&amp;T)：</translation>
     </message>
     <message>
         <source>Break at &quot;&amp;main&quot;:</source>
-        <translation>在&apos;main&apos;函数断点(&amp;M):</translation>
+        <translation>在&apos;main&apos;函数断点(&amp;M)：</translation>
     </message>
     <message>
         <source>Debug &amp;information:</source>
-        <translation>调试信息(&amp;i):</translation>
+        <translation>调试信息(&amp;i)：</translation>
     </message>
     <message>
         <source>&amp;Recent:</source>
-        <translation>最近历史(&amp;R):</translation>
+        <translation>最近历史(&amp;R)：</translation>
     </message>
     <message>
         <source>&amp;Port:</source>
-        <translation>端口(&amp;P):</translation>
+        <translation>端口(&amp;P)：</translation>
     </message>
     <message>
         <source>Start Remote Engine</source>
@@ -16139,23 +16145,23 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>&amp;Host:</source>
-        <translation>主机(&amp;H):</translation>
+        <translation>主机(&amp;H)：</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation>用户名(&amp;U):</translation>
+        <translation>用户名(&amp;U)：</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
-        <translation>密码(&amp;P):</translation>
+        <translation>密码(&amp;P)：</translation>
     </message>
     <message>
         <source>&amp;Engine path:</source>
-        <translation>引擎路径(&amp;E):</translation>
+        <translation>引擎路径(&amp;E)：</translation>
     </message>
     <message>
         <source>&amp;Inferior path:</source>
-        <translation>底层(&amp;Inferior)路径:</translation>
+        <translation>底层(&amp;Inferior)路径：</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -16543,7 +16549,7 @@ Stepping into the module or setting breakpoints by file and line will not work.<
     </message>
     <message>
         <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation>为名为&quot;%1&quot;的对象改变显示:</translation>
+        <translation>为名为&quot;%1&quot;的对象改变显示：</translation>
     </message>
     <message>
         <source>Use Format for Type (Currently %1)</source>
@@ -16551,7 +16557,7 @@ Stepping into the module or setting breakpoints by file and line will not work.<
     </message>
     <message>
         <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation>为类型&quot;%1&quot;改变显示:</translation>
+        <translation>为类型&quot;%1&quot;改变显示：</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -16672,7 +16678,7 @@ Stepping into the module or setting breakpoints by file and line will not work.<
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">工作目录:</translation>
+        <translation>工作目录：</translation>
     </message>
     <message>
         <source>File Name and Line Number</source>
@@ -16917,7 +16923,7 @@ Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance 
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation type="unfinished">额外的参数:</translation>
+        <translation>额外的参数：</translation>
     </message>
     <message>
         <source>Catches runtime error messages caused by assert(), for example.</source>
@@ -17430,7 +17436,7 @@ Examining symbols and setting breakpoints by file name and line number may fail.
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">类型:</translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <source>ABIs:</source>
@@ -17438,7 +17444,7 @@ Examining symbols and setting breakpoints by file name and line number may fail.
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">版本:</translation>
+        <translation>版本：</translation>
     </message>
     <message>
         <source>Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.</source>
@@ -19002,23 +19008,23 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>&amp;Class name:</source>
-        <translation type="unfinished">类名(&amp;C):</translation>
+        <translation>类名(&amp;C)：</translation>
     </message>
     <message>
         <source>&amp;Header file:</source>
-        <translation type="unfinished">头文件(&amp;H):</translation>
+        <translation>头文件(&amp;H)：</translation>
     </message>
     <message>
         <source>&amp;Source file:</source>
-        <translation type="unfinished">源文件(&amp;S):</translation>
+        <translation>源文件(&amp;S)：</translation>
     </message>
     <message>
         <source>&amp;Form file:</source>
-        <translation type="unfinished">界面文件(&amp;F):</translation>
+        <translation>界面文件(&amp;F)：</translation>
     </message>
     <message>
         <source>&amp;Path:</source>
-        <translation type="unfinished">路径(&amp;P):</translation>
+        <translation>路径(&amp;P)：</translation>
     </message>
     <message>
         <source>Invalid header file name: &quot;%1&quot;</source>
@@ -19455,7 +19461,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Repository:</source>
-        <translation type="unfinished">代码仓库:</translation>
+        <translation>代码仓库：</translation>
     </message>
     <message>
         <source>Tag:</source>
@@ -19571,7 +19577,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -19794,47 +19800,47 @@ Rebuilding the project might help.</source>
     <name>ExtensionSystem::Internal::PluginDetailsView</name>
     <message>
         <source>Name:</source>
-        <translation>名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation>版本:</translation>
+        <translation>版本：</translation>
     </message>
     <message>
         <source>Vendor:</source>
-        <translation>销售商:</translation>
+        <translation>销售商：</translation>
     </message>
     <message>
         <source>Location:</source>
-        <translation>位置:</translation>
+        <translation>位置：</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation>说明:</translation>
+        <translation>说明：</translation>
     </message>
     <message>
         <source>Copyright:</source>
-        <translation>版权:</translation>
+        <translation>版权：</translation>
     </message>
     <message>
         <source>License:</source>
-        <translation>许可:</translation>
+        <translation>许可：</translation>
     </message>
     <message>
         <source>Dependencies:</source>
-        <translation>依赖关系:</translation>
+        <translation>依赖关系：</translation>
     </message>
     <message>
         <source>Group:</source>
-        <translation>组:</translation>
+        <translation>组：</translation>
     </message>
     <message>
         <source>Compatibility version:</source>
-        <translation>兼容版本:</translation>
+        <translation>兼容版本：</translation>
     </message>
     <message>
         <source>URL:</source>
-        <translation>URL:</translation>
+        <translation>URL：</translation>
     </message>
     <message>
         <source>Platforms:</source>
@@ -19845,11 +19851,11 @@ Rebuilding the project might help.</source>
     <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
-        <translation>以下插件有错误，无法被载入:</translation>
+        <translation>以下插件有错误，无法被载入：</translation>
     </message>
     <message>
         <source>Details:</source>
-        <translation>详情:</translation>
+        <translation>详情：</translation>
     </message>
     <message>
         <source>Plugin Loader Messages</source>
@@ -19860,11 +19866,11 @@ Rebuilding the project might help.</source>
     <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
-        <translation>状态:</translation>
+        <translation>状态：</translation>
     </message>
     <message>
         <source>Error message:</source>
-        <translation>错误信息:</translation>
+        <translation>错误信息：</translation>
     </message>
 </context>
 <context>
@@ -20161,7 +20167,7 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Tabulator size:</source>
-        <translation type="unfinished">制表符大小:</translation>
+        <translation>制表符大小：</translation>
     </message>
     <message>
         <source>Smart tabulators</source>
@@ -20173,7 +20179,7 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Shift width:</source>
-        <translation type="unfinished">缩进宽度:</translation>
+        <translation>缩进宽度：</translation>
     </message>
     <message>
         <source>Expand tabulators</source>
@@ -20229,11 +20235,11 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Backspace:</source>
-        <translation type="unfinished">退格:</translation>
+        <translation>退格：</translation>
     </message>
     <message>
         <source>Keyword characters:</source>
-        <translation type="unfinished">关键词字符:</translation>
+        <translation>关键词字符：</translation>
     </message>
     <message>
         <source>Use Vim-style Editing</source>
@@ -20459,7 +20465,7 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Regular expression:</source>
-        <translation type="unfinished">正则表达式:</translation>
+        <translation>正则表达式：</translation>
     </message>
     <message>
         <source>Action</source>
@@ -20689,11 +20695,11 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
     <message>
         <source>Project name:</source>
-        <translation>项目名称:</translation>
+        <translation>项目名称：</translation>
     </message>
     <message>
         <source>Location:</source>
-        <translation>位置:</translation>
+        <translation>位置：</translation>
     </message>
     <message>
         <source>File Selection</source>
@@ -20759,7 +20765,7 @@ Partially checked - Do not change current state.</source>
     </message>
     <message>
         <source>To:</source>
-        <translation type="unfinished">到:</translation>
+        <translation>到：</translation>
     </message>
     <message>
         <source>Number of commits</source>
@@ -20818,11 +20824,11 @@ Partial names can be used if they are unambiguous.</source>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation>工作目录:</translation>
+        <translation>工作目录：</translation>
     </message>
     <message>
         <source>Change:</source>
-        <translation>更改:</translation>
+        <translation>更改：</translation>
     </message>
     <message>
         <source>Invalid revision</source>
@@ -20830,7 +20836,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
     <message>
         <source>Description:</source>
-        <translation>说明:</translation>
+        <translation>说明：</translation>
     </message>
     <message>
         <source>Stash Description</source>
@@ -21135,7 +21141,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>代码仓库:</translation>
+        <translation>代码仓库：</translation>
     </message>
     <message>
         <source>repository</source>
@@ -21151,11 +21157,11 @@ Partial names can be used if they are unambiguous.</source>
     </message>
     <message>
         <source>Author:</source>
-        <translation>作者:</translation>
+        <translation>作者：</translation>
     </message>
     <message>
         <source>Email:</source>
-        <translation>Email:</translation>
+        <translation>Email：</translation>
     </message>
     <message>
         <source>By&amp;pass hooks</source>
@@ -21191,7 +21197,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation>参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -21199,11 +21205,11 @@ Partial names can be used if they are unambiguous.</source>
     </message>
     <message>
         <source>Prepend to PATH:</source>
-        <translation>附加在系统PATH之前:</translation>
+        <translation>附加在系统PATH之前：</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation>命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Stashes</source>
@@ -21267,7 +21273,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Branch:</source>
-        <translation>Branch:</translation>
+        <translation>Branch：</translation>
     </message>
     <message>
         <source>Stash Restore</source>
@@ -21315,15 +21321,15 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Branch Name:</source>
-        <translation>分支名称:</translation>
+        <translation>分支名称：</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>URL:</source>
-        <translation>URL:</translation>
+        <translation>URL：</translation>
     </message>
     <message>
         <source>Remotes</source>
@@ -21379,7 +21385,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>&amp;Query:</source>
-        <translation>查询(&amp;Query):</translation>
+        <translation>查询(&amp;Query)：</translation>
     </message>
     <message>
         <source>Change #, SHA-1, tr:id, owner:email or reviewer:email</source>
@@ -21431,19 +21437,19 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>&amp;Host:</source>
-        <translation>主机(&amp;H):</translation>
+        <translation>主机(&amp;H)：</translation>
     </message>
     <message>
         <source>&amp;User:</source>
-        <translation>用户(&amp;U):</translation>
+        <translation>用户(&amp;U)：</translation>
     </message>
     <message>
         <source>&amp;ssh:</source>
-        <translation>&amp;ssh:</translation>
+        <translation>&amp;ssh：</translation>
     </message>
     <message>
         <source>P&amp;rotocol:</source>
-        <translation>协议(&amp;R):</translation>
+        <translation>协议(&amp;R)：</translation>
     </message>
     <message>
         <source>Determines the protocol used to form a URL in case
@@ -21474,7 +21480,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Reset to:</source>
-        <translation>重置为:</translation>
+        <translation>重置为：</translation>
     </message>
     <message>
         <source>Undo Changes to %1</source>
@@ -21740,11 +21746,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
     <message>
         <source>Server:</source>
-        <translation type="unfinished">服务器:</translation>
+        <translation>服务器：</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
-        <translation type="unfinished">密码(&amp;P):</translation>
+        <translation>密码(&amp;P)：</translation>
     </message>
     <message>
         <source>Anonymous</source>
@@ -22356,7 +22362,7 @@ Would you like to create the branch &quot;%1&quot; on the remote and set it as u
     </message>
     <message>
         <source>Filter:</source>
-        <translation type="unfinished">过滤器:</translation>
+        <translation>过滤器：</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
@@ -22968,11 +22974,11 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <name>GitLab::GitLabOptionsPage</name>
     <message>
         <source>Host:</source>
-        <translation type="unfinished">主机:</translation>
+        <translation>主机：</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation type="unfinished">说明:</translation>
+        <translation>说明：</translation>
     </message>
     <message>
         <source>Access token:</source>
@@ -22980,7 +22986,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished">端口:</translation>
+        <translation>端口：</translation>
     </message>
     <message>
         <source>HTTPS:</source>
@@ -22995,7 +23001,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <name>GitLab::GitLabOptionsWidget</name>
     <message>
         <source>Default:</source>
-        <translation type="unfinished">默认:</translation>
+        <translation>默认：</translation>
     </message>
     <message>
         <source>curl:</source>
@@ -23065,7 +23071,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <name>GitLab::GitLabProjectSettingsWidget</name>
     <message>
         <source>Host:</source>
-        <translation type="unfinished">主机:</translation>
+        <translation>主机：</translation>
     </message>
     <message>
         <source>Linked GitLab Configuration:</source>
@@ -23177,11 +23183,11 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>Invalid documentation file:</source>
-        <translation>无效的文档文件:</translation>
+        <translation>无效的文档文件：</translation>
     </message>
     <message>
         <source>Namespace already registered:</source>
-        <translation>命名空间已经注册:</translation>
+        <translation>命名空间已经注册：</translation>
     </message>
     <message>
         <source>Unable to register documentation.</source>
@@ -23365,15 +23371,15 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>Family:</source>
-        <translation>字型:</translation>
+        <translation>字型：</translation>
     </message>
     <message>
         <source>Style:</source>
-        <translation>风格:</translation>
+        <translation>风格：</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation>字号:</translation>
+        <translation>字号：</translation>
     </message>
     <message>
         <source>Startup</source>
@@ -23381,7 +23387,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>On context help:</source>
-        <translation>上下文相关帮助:</translation>
+        <translation>上下文相关帮助：</translation>
     </message>
     <message>
         <source>Show Side-by-Side if Possible</source>
@@ -23393,7 +23399,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>On help start:</source>
-        <translation>帮助开始时:</translation>
+        <translation>帮助开始时：</translation>
     </message>
     <message>
         <source>Show My Home Page</source>
@@ -23409,7 +23415,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>Home page:</source>
-        <translation>主页:</translation>
+        <translation>主页：</translation>
     </message>
     <message>
         <source>Use &amp;Current Page</source>
@@ -23473,7 +23479,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>Zoom:</source>
-        <translation type="unfinished">缩放:</translation>
+        <translation>缩放：</translation>
     </message>
     <message>
         <source>%</source>
@@ -23662,7 +23668,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>&amp;Look for:</source>
-        <translation type="unfinished">查找(&amp;L):</translation>
+        <translation>查找(&amp;L)：</translation>
     </message>
 </context>
 <context>
@@ -23919,7 +23925,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
     <message>
         <source>File:</source>
-        <translation type="unfinished">文件:</translation>
+        <translation>文件：</translation>
     </message>
     <message>
         <source>x</source>
@@ -24267,7 +24273,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Make arguments:</source>
-        <translation type="unfinished">Make 参数:</translation>
+        <translation>Make 参数：</translation>
     </message>
 </context>
 <context>
@@ -24362,7 +24368,7 @@ Id必须以小写字母开头。</translation>
     </message>
     <message>
         <source>Device type:</source>
-        <translation type="unfinished">设备类型:</translation>
+        <translation>设备类型：</translation>
     </message>
     <message>
         <source>OS version:</source>
@@ -24529,11 +24535,11 @@ Id必须以小写字母开头。</translation>
     <name>Ios::Internal::IosDsymBuildStep</name>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Reset to Default</source>
@@ -24674,7 +24680,7 @@ Id必须以小写字母开头。</translation>
     </message>
     <message>
         <source>Device type:</source>
-        <translation type="unfinished">设备类型:</translation>
+        <translation>设备类型：</translation>
     </message>
 </context>
 <context>
@@ -25087,11 +25093,11 @@ Error: %5</source>
     <name>LanguageClient::BaseSettingsWidget</name>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">语言:</translation>
+        <translation>语言：</translation>
     </message>
     <message>
         <source>Set MIME Types...</source>
@@ -25276,11 +25282,11 @@ Error: %5</source>
     <name>LanguageClient::StdIOSettingsWidget</name>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
+        <translation>执行档：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数：</translation>
     </message>
 </context>
 <context>
@@ -25449,7 +25455,7 @@ Error: %5</source>
     <name>LspCapabilitiesWidget</name>
     <message>
         <source>Capabilities:</source>
-        <translation type="unfinished">能力:</translation>
+        <translation>能力：</translation>
     </message>
     <message>
         <source>Dynamic Capabilities:</source>
@@ -25457,7 +25463,7 @@ Error: %5</source>
     </message>
     <message>
         <source>Method:</source>
-        <translation type="unfinished">方法:</translation>
+        <translation>方法：</translation>
     </message>
     <message>
         <source>Options:</source>
@@ -25548,7 +25554,7 @@ Error: %5</source>
     </message>
     <message>
         <source>Description:</source>
-        <translation>说明:</translation>
+        <translation>说明：</translation>
     </message>
     <message>
         <source>Macros</source>
@@ -25614,11 +25620,11 @@ Error: %5</source>
     </message>
     <message>
         <source>Name:</source>
-        <translation>名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation>说明:</translation>
+        <translation>说明：</translation>
     </message>
 </context>
 <context>
@@ -25994,11 +26000,11 @@ Error: %5</source>
     </message>
     <message>
         <source>Repository:</source>
-        <translation>代码仓库:</translation>
+        <translation>代码仓库：</translation>
     </message>
     <message>
         <source>Branch:</source>
-        <translation>分支:</translation>
+        <translation>分支：</translation>
     </message>
     <message>
         <source>Commit Information</source>
@@ -26006,11 +26012,11 @@ Error: %5</source>
     </message>
     <message>
         <source>Author:</source>
-        <translation>作者:</translation>
+        <translation>作者：</translation>
     </message>
     <message>
         <source>Email:</source>
-        <translation>电子邮件:</translation>
+        <translation>电子邮件：</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -26018,7 +26024,7 @@ Error: %5</source>
     </message>
     <message>
         <source>Command:</source>
-        <translation>命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>User</source>
@@ -26030,7 +26036,7 @@ Error: %5</source>
     </message>
     <message>
         <source>Default username:</source>
-        <translation>默认用户名:</translation>
+        <translation>默认用户名：</translation>
     </message>
     <message>
         <source>Email to use by default on commit.</source>
@@ -26046,7 +26052,7 @@ Error: %5</source>
     </message>
     <message>
         <source>Default email:</source>
-        <translation>默认电子邮件:</translation>
+        <translation>默认电子邮件：</translation>
     </message>
     <message>
         <source>Revert</source>
@@ -26058,11 +26064,11 @@ Error: %5</source>
     </message>
     <message>
         <source>Revision:</source>
-        <translation>修订版本:</translation>
+        <translation>修订版本：</translation>
     </message>
     <message>
         <source>Local filesystem:</source>
-        <translation>本地文件系统:</translation>
+        <translation>本地文件系统：</translation>
     </message>
     <message>
         <source>Default Location</source>
@@ -26070,7 +26076,7 @@ Error: %5</source>
     </message>
     <message>
         <source>Specify URL:</source>
-        <translation>指定URL:</translation>
+        <translation>指定URL：</translation>
     </message>
     <message>
         <source>Commit Editor</source>
@@ -26247,11 +26253,11 @@ Error: %5</source>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished">用户名:</translation>
+        <translation>用户名：</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished">密码:</translation>
+        <translation>密码：</translation>
     </message>
     <message>
         <source>Mercurial Diff</source>
@@ -26404,7 +26410,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Targets:</source>
-        <translation type="unfinished">目标:</translation>
+        <translation>目标：</translation>
     </message>
     <message>
         <source>Meson Build</source>
@@ -26448,11 +26454,11 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>Name</source>
@@ -26906,7 +26912,7 @@ Error:
     </message>
     <message>
         <source>Target:</source>
-        <translation type="unfinished">目标:</translation>
+        <translation>目标：</translation>
     </message>
     <message>
         <source>Default arguments:</source>
@@ -26918,7 +26924,7 @@ Error:
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Nim Compiler Build Step</source>
@@ -26926,7 +26932,7 @@ Error:
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">工作目录:</translation>
+        <translation>工作目录：</translation>
     </message>
     <message>
         <source>Build directory &quot;%1&quot; does not exist.</source>
@@ -26962,7 +26968,7 @@ Error:
     </message>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation type="unfinished">编译器路径(&amp;C):</translation>
+        <translation>编译器路径(&amp;C)：</translation>
     </message>
     <message>
         <source>&amp;Compiler version:</source>
@@ -26974,7 +26980,7 @@ Error:
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>Global</source>
@@ -27583,7 +27589,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation type="unfinished">额外的参数:</translation>
+        <translation>额外的参数：</translation>
     </message>
     <message>
         <source>sample collected</source>
@@ -27704,7 +27710,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Change Number:</source>
-        <translation>Change编号:</translation>
+        <translation>Change编号：</translation>
     </message>
 </context>
 <context>
@@ -28142,7 +28148,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation>超时时间:</translation>
+        <translation>超时时间：</translation>
     </message>
     <message>
         <source>s</source>
@@ -28150,23 +28156,23 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Log count:</source>
-        <translation>日志数:</translation>
+        <translation>日志数：</translation>
     </message>
     <message>
         <source>P4 command:</source>
-        <translation>P4 命令:</translation>
+        <translation>P4 命令：</translation>
     </message>
     <message>
         <source>P4 client:</source>
-        <translation>P4 客户端:</translation>
+        <translation>P4 客户端：</translation>
     </message>
     <message>
         <source>P4 user:</source>
-        <translation>P4 用户:</translation>
+        <translation>P4 用户：</translation>
     </message>
     <message>
         <source>P4 port:</source>
-        <translation>P4 端口:</translation>
+        <translation>P4 端口：</translation>
     </message>
     <message>
         <source>Environment Variables</source>
@@ -28197,15 +28203,15 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Change:</source>
-        <translation>更改:</translation>
+        <translation>更改：</translation>
     </message>
     <message>
         <source>Client:</source>
-        <translation>客户端:</translation>
+        <translation>客户端：</translation>
     </message>
     <message>
         <source>User:</source>
-        <translation>用户:</translation>
+        <translation>用户：</translation>
     </message>
 </context>
 <context>
@@ -28684,11 +28690,11 @@ The name of the build configuration created by default for a generic project.</e
     <name>ProjectExplorer::BuildDirectoryAspect</name>
     <message>
         <source>Build directory:</source>
-        <translation type="unfinished">构建目录:</translation>
+        <translation>构建目录：</translation>
     </message>
     <message>
         <source>Shadow build:</source>
-        <translation type="unfinished">Shadow build:</translation>
+        <translation>Shadow build：</translation>
     </message>
 </context>
 <context>
@@ -29010,7 +29016,7 @@ The name of the build configuration created by default for a generic project.</e
     <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
-        <translation>构建套件(Kit):</translation>
+        <translation>构建套件(Kit)：</translation>
     </message>
     <message>
         <source>List of Processes</source>
@@ -29030,7 +29036,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>&amp;Filter:</source>
-        <translation>过滤器(&amp;F):</translation>
+        <translation>过滤器(&amp;F)：</translation>
     </message>
     <message>
         <source>&amp;Attach to Process</source>
@@ -29095,7 +29101,7 @@ The name of the build configuration created by default for a generic project.</e
     <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
-        <translation type="unfinished">运行设置的基础环境:</translation>
+        <translation>运行设置的基础环境：</translation>
     </message>
 </context>
 <context>
@@ -29230,11 +29236,11 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
+        <translation>执行档：</translation>
     </message>
     <message>
         <source>Alternate executable on device:</source>
-        <translation type="unfinished">设备上的备用执行档:</translation>
+        <translation>设备上的备用执行档：</translation>
     </message>
     <message>
         <source>Use this command instead</source>
@@ -29335,7 +29341,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>All Projects:</source>
-        <translation>所有项目:</translation>
+        <translation>所有项目：</translation>
     </message>
     <message>
         <source>Filter: %1
@@ -29500,7 +29506,7 @@ Excluding: %2
     </message>
     <message>
         <source>Edit build configuration:</source>
-        <translation>编辑构建配置:</translation>
+        <translation>编辑构建配置：</translation>
     </message>
     <message>
         <source>Add</source>
@@ -29516,7 +29522,7 @@ Excluding: %2
     </message>
     <message>
         <source>New name for build configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>构建配置的新名称 &lt;b&gt;%1&lt;/b&gt;:</translation>
+        <translation>构建配置的新名称 &lt;b&gt;%1&lt;/b&gt;：</translation>
     </message>
     <message>
         <source>Clone Configuration</source>
@@ -29525,7 +29531,7 @@ Excluding: %2
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation>新配置名称:</translation>
+        <translation>新配置名称：</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
@@ -29624,11 +29630,11 @@ Excluding: %2
     <name>ProjectExplorer::Internal::ClangClToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
-        <translation type="unfinished">初始化:</translation>
+        <translation>初始化：</translation>
     </message>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation type="unfinished">编译器路径(&amp;C):</translation>
+        <translation>编译器路径(&amp;C)：</translation>
     </message>
 </context>
 <context>
@@ -29642,7 +29648,7 @@ Excluding: %2
     <name>ProjectExplorer::Internal::CodeStyleSettingsWidget</name>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">语言:</translation>
+        <translation>语言：</translation>
     </message>
 </context>
 <context>
@@ -29738,15 +29744,15 @@ Excluding: %2
     </message>
     <message>
         <source>&amp;File name:</source>
-        <translation type="unfinished">文件名(&amp;F):</translation>
+        <translation>文件名(&amp;F)：</translation>
     </message>
     <message>
         <source>&amp;Line number:</source>
-        <translation type="unfinished">行号(&amp;L):</translation>
+        <translation>行号(&amp;L)：</translation>
     </message>
     <message>
         <source>&amp;Message:</source>
-        <translation type="unfinished">消息(&amp;M):</translation>
+        <translation>消息(&amp;M)：</translation>
     </message>
     <message>
         <source>Standard output</source>
@@ -29782,15 +29788,15 @@ Excluding: %2
     </message>
     <message>
         <source>File name:</source>
-        <translation type="unfinished">文件名:</translation>
+        <translation>文件名：</translation>
     </message>
     <message>
         <source>Line number:</source>
-        <translation type="unfinished">行号:</translation>
+        <translation>行号：</translation>
     </message>
     <message>
         <source>Message:</source>
-        <translation type="unfinished">消息:</translation>
+        <translation>消息：</translation>
     </message>
     <message>
         <source>Error</source>
@@ -29892,7 +29898,7 @@ Excluding: %2
     </message>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation type="unfinished">编译器路径(&amp;C):</translation>
+        <translation>编译器路径(&amp;C)：</translation>
     </message>
     <message>
         <source>&amp;Make path:</source>
@@ -29900,7 +29906,7 @@ Excluding: %2
     </message>
     <message>
         <source>&amp;ABI:</source>
-        <translation type="unfinished">&amp;ABI:</translation>
+        <translation>&amp;ABI：</translation>
     </message>
     <message>
         <source>&amp;Predefined macros:</source>
@@ -29927,7 +29933,7 @@ Excluding: %2
     <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
-        <translation>路径:</translation>
+        <translation>路径：</translation>
     </message>
 </context>
 <context>
@@ -29968,7 +29974,7 @@ Excluding: %2
     </message>
     <message>
         <source>Files to deploy:</source>
-        <translation type="unfinished">部署文件:</translation>
+        <translation>部署文件：</translation>
     </message>
     <message>
         <source>Override deployment data from build system</source>
@@ -29986,7 +29992,7 @@ Excluding: %2
     <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Available device types:</source>
-        <translation>可用的设备类型:</translation>
+        <translation>可用的设备类型：</translation>
     </message>
     <message>
         <source>Start Wizard</source>
@@ -30004,7 +30010,7 @@ Excluding: %2
     <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>&amp;Device:</source>
-        <translation>设备(&amp;D):</translation>
+        <translation>设备(&amp;D)：</translation>
     </message>
     <message>
         <source>General</source>
@@ -30012,19 +30018,19 @@ Excluding: %2
     </message>
     <message>
         <source>&amp;Name:</source>
-        <translation>名称(&amp;N):</translation>
+        <translation>名称(&amp;N)：</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation>类型:</translation>
+        <translation>类型：</translation>
     </message>
     <message>
         <source>Auto-detected:</source>
-        <translation>自动检测:</translation>
+        <translation>自动检测：</translation>
     </message>
     <message>
         <source>Current state:</source>
-        <translation>当前状态:</translation>
+        <translation>当前状态：</translation>
     </message>
     <message>
         <source>Type Specific</source>
@@ -30090,7 +30096,7 @@ Excluding: %2
     </message>
     <message>
         <source>Display right &amp;margin at column:</source>
-        <translation type="unfinished">显示右边分界(&amp;M)在列:</translation>
+        <translation>显示右边分界(&amp;M)在列：</translation>
     </message>
     <message>
         <source>Use context-specific margin</source>
@@ -30215,11 +30221,11 @@ What should %1 do now?</source>
     <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation>编译器路径(&amp;C):</translation>
+        <translation>编译器路径(&amp;C)：</translation>
     </message>
     <message>
         <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
+        <translation>&amp;ABI：</translation>
     </message>
     <message>
         <source>Platform codegen flags:</source>
@@ -30271,7 +30277,7 @@ What should %1 do now?</source>
     <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
     <message>
         <source>Name:</source>
-        <translation>名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Kit name and icon.</source>
@@ -30409,7 +30415,7 @@ What should %1 do now?</source>
     <name>ProjectExplorer::Internal::MsvcBasedToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
-        <translation type="unfinished">初始化:</translation>
+        <translation>初始化：</translation>
     </message>
 </context>
 <context>
@@ -30428,7 +30434,7 @@ What should %1 do now?</source>
     <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
-        <translation>初始化:</translation>
+        <translation>初始化：</translation>
     </message>
     <message>
         <source>&lt;empty&gt;</source>
@@ -30440,7 +30446,7 @@ What should %1 do now?</source>
     </message>
     <message>
         <source>&amp;ABI:</source>
-        <translation type="unfinished">&amp;ABI:</translation>
+        <translation>&amp;ABI：</translation>
     </message>
 </context>
 <context>
@@ -30713,15 +30719,15 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Add as a subproject to project:</source>
-        <translation>作为子项目添加到项目中:</translation>
+        <translation>作为子项目添加到项目中：</translation>
     </message>
     <message>
         <source>Add to &amp;project:</source>
-        <translation>添加到项目(&amp;P):</translation>
+        <translation>添加到项目(&amp;P)：</translation>
     </message>
     <message>
         <source>Files to be added:</source>
-        <translation>要添加的文件:</translation>
+        <translation>要添加的文件：</translation>
     </message>
     <message>
         <source>Files to be added in</source>
@@ -30729,7 +30735,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Add to &amp;version control:</source>
-        <translation type="unfinished">添加到版本控制系统(&amp;V):</translation>
+        <translation>添加到版本控制系统(&amp;V)：</translation>
     </message>
     <message>
         <source>&lt;None&gt;</source>
@@ -30768,7 +30774,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Run configuration:</source>
-        <translation>运行配置:</translation>
+        <translation>运行配置：</translation>
     </message>
     <message>
         <source>Run Settings</source>
@@ -30780,7 +30786,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Method:</source>
-        <translation>方法:</translation>
+        <translation>方法：</translation>
     </message>
     <message>
         <source>Run</source>
@@ -30800,7 +30806,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>运行配置的新名称 &lt;b&gt;%1&lt;/b&gt;:</translation>
+        <translation>运行配置的新名称 &lt;b&gt;%1&lt;/b&gt;：</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
@@ -30832,7 +30838,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>部署配置的新名称 &lt;b&gt;%1&lt;/b&gt;:</translation>
+        <translation>部署配置的新名称 &lt;b&gt;%1&lt;/b&gt;：</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -30849,7 +30855,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>New configuration name:</source>
-        <translation type="unfinished">新配置名称:</translation>
+        <translation>新配置名称：</translation>
     </message>
 </context>
 <context>
@@ -30941,7 +30947,7 @@ to project &quot;%2&quot;.</source>
     <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
-        <translation>输入会话的名称:</translation>
+        <translation>输入会话的名称：</translation>
     </message>
 </context>
 <context>
@@ -30982,7 +30988,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Project name:</source>
-        <translation type="unfinished">项目名称:</translation>
+        <translation>项目名称：</translation>
     </message>
     <message>
         <source>Location:</source>
@@ -31700,11 +31706,11 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Error:</source>
-        <translation>错误:</translation>
+        <translation>错误：</translation>
     </message>
     <message>
         <source>Warning:</source>
-        <translation>警告:</translation>
+        <translation>警告：</translation>
     </message>
     <message>
         <source>Kit</source>
@@ -31798,7 +31804,7 @@ to project &quot;%2&quot;.</source>
     <name>ProjectExplorer::MakeStep</name>
     <message>
         <source>Make arguments:</source>
-        <translation type="unfinished">Make 参数:</translation>
+        <translation>Make 参数：</translation>
     </message>
     <message>
         <source>Parallel jobs:</source>
@@ -31822,15 +31828,15 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Targets:</source>
-        <translation type="unfinished">目标:</translation>
+        <translation>目标：</translation>
     </message>
     <message>
         <source>Make:</source>
-        <translation type="unfinished">Make:</translation>
+        <translation>Make：</translation>
     </message>
     <message>
         <source>Override %1:</source>
-        <translation type="unfinished">覆盖 %1:</translation>
+        <translation>覆盖 %1：</translation>
     </message>
     <message>
         <source>Make</source>
@@ -31885,15 +31891,15 @@ Please close all running instances of your application before starting a build.<
     <name>ProjectExplorer::ProcessStep</name>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">工作目录:</translation>
+        <translation>工作目录：</translation>
     </message>
     <message>
         <source>Custom Process Step</source>
@@ -32864,7 +32870,7 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>Hide files matching:</source>
-        <translation type="unfinished">隐藏符合条件的文件:</translation>
+        <translation>隐藏符合条件的文件：</translation>
     </message>
     <message>
         <source>Apply Filters</source>
@@ -33100,7 +33106,7 @@ These files are preserved.</source>
     <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>Name:</source>
-        <translation>名称:</translation>
+        <translation>名称：</translation>
     </message>
 </context>
 <context>
@@ -33195,7 +33201,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">工作目录:</translation>
+        <translation>工作目录：</translation>
     </message>
 </context>
 <context>
@@ -33561,7 +33567,7 @@ Expiration date: %3</source>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Executable</source>
@@ -33922,7 +33928,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Configuration name:</source>
-        <translation type="unfinished">配置名称:</translation>
+        <translation>配置名称：</translation>
     </message>
     <message>
         <source>The qbs project build root</source>
@@ -34419,7 +34425,7 @@ The affected files are:
     </message>
     <message>
         <source>Executable on device:</source>
-        <translation type="unfinished">设备上的执行档:</translation>
+        <translation>设备上的执行档：</translation>
     </message>
     <message>
         <source>Remote path not set</source>
@@ -34427,7 +34433,7 @@ The affected files are:
     </message>
     <message>
         <source>Executable on host:</source>
-        <translation type="unfinished">主机上的执行档:</translation>
+        <translation>主机上的执行档：</translation>
     </message>
     <message>
         <source>Run on Boot2Qt Device</source>
@@ -34523,11 +34529,11 @@ The affected files are:
     </message>
     <message>
         <source>Error:</source>
-        <translation>错误:</translation>
+        <translation>错误：</translation>
     </message>
     <message>
         <source>Warning:</source>
-        <translation>警告:</translation>
+        <translation>警告：</translation>
     </message>
     <message>
         <source>Run qmake</source>
@@ -34612,39 +34618,39 @@ The affected files are:
     </message>
     <message>
         <source>Widget librar&amp;y:</source>
-        <translation>控件库(&amp;Y):</translation>
+        <translation>控件库(&amp;Y)：</translation>
     </message>
     <message>
         <source>Widget project &amp;file:</source>
-        <translation>控件项目文件(&amp;F):</translation>
+        <translation>控件项目文件(&amp;F)：</translation>
     </message>
     <message>
         <source>Widget h&amp;eader file:</source>
-        <translation>控件头文件(&amp;E):</translation>
+        <translation>控件头文件(&amp;E)：</translation>
     </message>
     <message>
         <source>Widge&amp;t source file:</source>
-        <translation>控件源文件(&amp;T):</translation>
+        <translation>控件源文件(&amp;T)：</translation>
     </message>
     <message>
         <source>Widget &amp;base class:</source>
-        <translation>控件的基类(&amp;B):</translation>
+        <translation>控件的基类(&amp;B)：</translation>
     </message>
     <message>
         <source>Plugin class &amp;name:</source>
-        <translation>插件类名(&amp;N):</translation>
+        <translation>插件类名(&amp;N)：</translation>
     </message>
     <message>
         <source>Plugin &amp;header file:</source>
-        <translation>插件头文件(&amp;H):</translation>
+        <translation>插件头文件(&amp;H)：</translation>
     </message>
     <message>
         <source>Plugin sou&amp;rce file:</source>
-        <translation>插件源文件(&amp;R):</translation>
+        <translation>插件源文件(&amp;R)：</translation>
     </message>
     <message>
         <source>Icon file:</source>
-        <translation>图标文件:</translation>
+        <translation>图标文件：</translation>
     </message>
     <message>
         <source>&amp;Link library</source>
@@ -34664,15 +34670,15 @@ The affected files are:
     </message>
     <message>
         <source>G&amp;roup:</source>
-        <translation>组(&amp;R):</translation>
+        <translation>组(&amp;R)：</translation>
     </message>
     <message>
         <source>&amp;Tooltip:</source>
-        <translation>工具提示(&amp;T):</translation>
+        <translation>工具提示(&amp;T)：</translation>
     </message>
     <message>
         <source>W&amp;hat&apos;s this:</source>
-        <translation>这是什么(&amp;H):</translation>
+        <translation>这是什么(&amp;H)：</translation>
     </message>
     <message>
         <source>The widget is a &amp;container</source>
@@ -34684,7 +34690,7 @@ The affected files are:
     </message>
     <message>
         <source>dom&amp;XML:</source>
-        <translation>dom &amp;XML:</translation>
+        <translation>dom &amp;XML：</translation>
     </message>
     <message>
         <source>Select Icon</source>
@@ -34700,23 +34706,23 @@ The affected files are:
     </message>
     <message>
         <source>Collection class:</source>
-        <translation>集合类:</translation>
+        <translation>集合类：</translation>
     </message>
     <message>
         <source>Collection header file:</source>
-        <translation>集合类头文件:</translation>
+        <translation>集合类头文件：</translation>
     </message>
     <message>
         <source>Collection source file:</source>
-        <translation>集合类源文件:</translation>
+        <translation>集合类源文件：</translation>
     </message>
     <message>
         <source>Plugin name:</source>
-        <translation>插件名称:</translation>
+        <translation>插件名称：</translation>
     </message>
     <message>
         <source>Resource file:</source>
-        <translation>资源文件:</translation>
+        <translation>资源文件：</translation>
     </message>
     <message>
         <source>icons.qrc</source>
@@ -34724,7 +34730,7 @@ The affected files are:
     </message>
     <message>
         <source>Widget &amp;Classes:</source>
-        <translation>控件类(&amp;C):</translation>
+        <translation>控件类(&amp;C)：</translation>
     </message>
     <message>
         <source>Specify the list of custom widgets and their properties.</source>
@@ -34777,15 +34783,15 @@ The affected files are:
     </message>
     <message>
         <source>Library:</source>
-        <translation>库:</translation>
+        <translation>库：</translation>
     </message>
     <message>
         <source>Library file:</source>
-        <translation>库文件:</translation>
+        <translation>库文件：</translation>
     </message>
     <message>
         <source>Include path:</source>
-        <translation>包含路径:</translation>
+        <translation>包含路径：</translation>
     </message>
     <message>
         <source>Linux</source>
@@ -34801,7 +34807,7 @@ The affected files are:
     </message>
     <message>
         <source>Linkage:</source>
-        <translation>链接:</translation>
+        <translation>链接：</translation>
     </message>
     <message>
         <source>Dynamic</source>
@@ -34813,7 +34819,7 @@ The affected files are:
     </message>
     <message>
         <source>Mac:</source>
-        <translation>Mac:</translation>
+        <translation>Mac：</translation>
     </message>
     <message>
         <source>Library</source>
@@ -34825,7 +34831,7 @@ The affected files are:
     </message>
     <message>
         <source>Windows:</source>
-        <translation>Windows:</translation>
+        <translation>Windows：</translation>
     </message>
     <message>
         <source>Library inside &quot;debug&quot; or &quot;release&quot; subfolder</source>
@@ -34841,7 +34847,7 @@ The affected files are:
     </message>
     <message>
         <source>Package:</source>
-        <translation>包:</translation>
+        <translation>包：</translation>
     </message>
     <message>
         <source>Add Library</source>
@@ -35008,15 +35014,15 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>qmake build configuration:</source>
-        <translation>qmake 构建配置:</translation>
+        <translation>qmake 构建配置：</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation>额外的参数:</translation>
+        <translation>额外的参数：</translation>
     </message>
     <message>
         <source>Effective qmake call:</source>
-        <translation>有效的qmake调用:</translation>
+        <translation>有效的qmake调用：</translation>
     </message>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
@@ -35815,11 +35821,11 @@ The new project can be opened in Qt Creator using the main CMakeLists.txt file.<
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Create in:</source>
-        <translation type="unfinished">创建路径:</translation>
+        <translation>创建路径：</translation>
     </message>
     <message>
         <source>Name is empty.</source>
@@ -36834,7 +36840,7 @@ The following files or directories are missing:
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>Path to the QML emulation layer executable (qmlpuppet).</source>
@@ -37193,7 +37199,7 @@ The following files or directories are missing:
     </message>
     <message>
         <source>Property name:</source>
-        <translation type="unfinished">属性名称:</translation>
+        <translation>属性名称：</translation>
     </message>
     <message>
         <source>Change Property</source>
@@ -37997,7 +38003,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Duration:</source>
-        <translation type="unfinished">持续时间:</translation>
+        <translation>持续时间：</translation>
     </message>
     <message>
         <source>Last frame of the animation.</source>
@@ -38999,7 +39005,7 @@ Error: %2</source>
     </message>
     <message>
         <source>Errors while reading typeinfo files:</source>
-        <translation type="unfinished">读取typeinfo文件发生错误:</translation>
+        <translation>读取typeinfo文件发生错误：</translation>
     </message>
     <message>
         <source>Could not locate the helper application for dumping type information from C++ plugins.
@@ -39586,15 +39592,15 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
     <message>
         <source>Path:</source>
-        <translation>路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>Component name:</source>
-        <translation>组件名:</translation>
+        <translation>组件名：</translation>
     </message>
     <message>
         <source>QML/JS Usages:</source>
-        <translation>QML/JS 使用:</translation>
+        <translation>QML/JS 使用：</translation>
     </message>
     <message>
         <source>Show All Bindings</source>
@@ -39941,7 +39947,7 @@ the QML editor know about a likely URI.</source>
     </message>
     <message>
         <source>&amp;Port:</source>
-        <translation>端口(&amp;P):</translation>
+        <translation>端口(&amp;P)：</translation>
     </message>
     <message>
         <source>QML Profiler Options</source>
@@ -40882,7 +40888,7 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
     </message>
     <message>
         <source>Qt Version:</source>
-        <translation type="unfinished">Qt 版本:</translation>
+        <translation>Qt 版本：</translation>
     </message>
     <message>
         <source>Qt 6</source>
@@ -40954,7 +40960,7 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
     </message>
     <message>
         <source>Local executable:</source>
-        <translation type="unfinished">本地执行档:</translation>
+        <translation>本地执行档：</translation>
     </message>
     <message>
         <source>Remote QNX process %1</source>
@@ -41053,7 +41059,7 @@ Are you sure you want to continue?</source>
     </message>
     <message>
         <source>Executable on device:</source>
-        <translation type="unfinished">设备上的执行档:</translation>
+        <translation>设备上的执行档：</translation>
     </message>
     <message>
         <source>Remote path not set</source>
@@ -41061,7 +41067,7 @@ Are you sure you want to continue?</source>
     </message>
     <message>
         <source>Executable on host:</source>
-        <translation type="unfinished">主机上的执行档:</translation>
+        <translation>主机上的执行档：</translation>
     </message>
     <message>
         <source>Path to Qt libraries on device</source>
@@ -41085,19 +41091,19 @@ Are you sure you want to continue?</source>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">版本:</translation>
+        <translation>版本：</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished">主机:</translation>
+        <translation>主机：</translation>
     </message>
     <message>
         <source>Target:</source>
-        <translation type="unfinished">目标:</translation>
+        <translation>目标：</translation>
     </message>
     <message>
         <source>Select QNX Environment File</source>
@@ -41126,7 +41132,7 @@ Are you sure you want to continue?</source>
     </message>
     <message>
         <source>&amp;Compiler path:</source>
-        <translation type="unfinished">编译器路径(&amp;C):</translation>
+        <translation>编译器路径(&amp;C)：</translation>
     </message>
     <message>
         <source>SDP path:</source>
@@ -41135,7 +41141,7 @@ Are you sure you want to continue?</source>
     </message>
     <message>
         <source>&amp;ABI:</source>
-        <translation type="unfinished">&amp;ABI:</translation>
+        <translation>&amp;ABI：</translation>
     </message>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
@@ -41314,7 +41320,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>&amp;Location:</source>
-        <translation>路径(&amp;L):</translation>
+        <translation>路径(&amp;L)：</translation>
     </message>
     <message>
         <source>&amp;Copy Project and Open</source>
@@ -41374,7 +41380,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Invalid Qt version</source>
@@ -41382,27 +41388,27 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>ABI:</source>
-        <translation type="unfinished">ABI:</translation>
+        <translation>ABI：</translation>
     </message>
     <message>
         <source>Source:</source>
-        <translation type="unfinished">源:</translation>
+        <translation>源：</translation>
     </message>
     <message>
         <source>mkspec:</source>
-        <translation type="unfinished">mkspec:</translation>
+        <translation>mkspec：</translation>
     </message>
     <message>
         <source>qmake:</source>
-        <translation type="unfinished">qmake:</translation>
+        <translation>qmake：</translation>
     </message>
     <message>
         <source>Default:</source>
-        <translation type="unfinished">默认:</translation>
+        <translation>默认：</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">版本:</translation>
+        <translation>版本：</translation>
     </message>
     <message>
         <source>The version string of the current Qt version.</source>
@@ -41770,7 +41776,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">语言:</translation>
+        <translation>语言：</translation>
     </message>
     <message>
         <source>Translation file:</source>
@@ -41904,11 +41910,11 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Executable on host:</source>
-        <translation>主机上的执行档:</translation>
+        <translation>主机上的执行档：</translation>
     </message>
     <message>
         <source>Executable on device:</source>
-        <translation>设备上的执行档:</translation>
+        <translation>设备上的执行档：</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -41936,7 +41942,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Create tarball:</source>
-        <translation>创建tarball:</translation>
+        <translation>创建tarball：</translation>
     </message>
     <message>
         <source>No deployment action necessary. Skipping.</source>
@@ -41980,7 +41986,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Command line:</source>
-        <translation>命令行:</translation>
+        <translation>命令行：</translation>
     </message>
     <message>
         <source>Checking if specified ports are available...</source>
@@ -42044,11 +42050,11 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Authentication type:</source>
-        <translation>验证类型:</translation>
+        <translation>验证类型：</translation>
     </message>
     <message>
         <source>&amp;Host name:</source>
-        <translation>主机名称(&amp;H):</translation>
+        <translation>主机名称(&amp;H)：</translation>
     </message>
     <message>
         <source>IP or host name of the device</source>
@@ -42056,15 +42062,15 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>&amp;SSH port:</source>
-        <translation>SSH端口(&amp;S):</translation>
+        <translation>SSH端口(&amp;S)：</translation>
     </message>
     <message>
         <source>Free ports:</source>
-        <translation>空闲端口:</translation>
+        <translation>空闲端口：</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation>超时时间:</translation>
+        <translation>超时时间：</translation>
     </message>
     <message>
         <source>s</source>
@@ -42072,11 +42078,11 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation>用户名(&amp;U):</translation>
+        <translation>用户名(&amp;U)：</translation>
     </message>
     <message>
         <source>Private key file:</source>
-        <translation>私钥文件:</translation>
+        <translation>私钥文件：</translation>
     </message>
     <message>
         <source>Create New...</source>
@@ -42084,7 +42090,7 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>Machine type:</source>
-        <translation>机器类型:</translation>
+        <translation>机器类型：</translation>
     </message>
     <message>
         <source>Physical Device</source>
@@ -42104,11 +42110,11 @@ In addition, device connectivity will be tested.</source>
     </message>
     <message>
         <source>The name to identify this configuration:</source>
-        <translation>标识配置的名称:</translation>
+        <translation>标识配置的名称：</translation>
     </message>
     <message>
         <source>The device&apos;s host name or IP address:</source>
-        <translation>设备的域名或者IP地址:</translation>
+        <translation>设备的域名或者IP地址：</translation>
     </message>
     <message>
         <source>Deploy Public Key...</source>
@@ -42395,7 +42401,7 @@ Control process failed to start.</source>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished">命令:</translation>
+        <translation>命令：</translation>
     </message>
     <message>
         <source>Install root:</source>
@@ -42451,7 +42457,7 @@ Control process failed to start.</source>
     </message>
     <message>
         <source>Local executable:</source>
-        <translation type="unfinished">本地执行档:</translation>
+        <translation>本地执行档：</translation>
     </message>
     <message>
         <source>Custom Executable</source>
@@ -42556,15 +42562,15 @@ Control process failed to start.</source>
     </message>
     <message>
         <source>Key algorithm:</source>
-        <translation type="unfinished">密钥算法:</translation>
+        <translation>密钥算法：</translation>
     </message>
     <message>
         <source>Key &amp;size:</source>
-        <translation type="unfinished">密钥长度(&amp;S):</translation>
+        <translation>密钥长度(&amp;S)：</translation>
     </message>
     <message>
         <source>Public key file:</source>
-        <translation type="unfinished">公钥文件:</translation>
+        <translation>公钥文件：</translation>
     </message>
     <message>
         <source>The ssh-keygen tool was not found.</source>
@@ -42752,7 +42758,7 @@ Control process failed to start.</source>
     </message>
     <message>
         <source>Alias:</source>
-        <translation type="unfinished">别名:</translation>
+        <translation>别名：</translation>
     </message>
     <message>
         <source>Prefix:</source>
@@ -42760,7 +42766,7 @@ Control process failed to start.</source>
     </message>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">语言:</translation>
+        <translation>语言：</translation>
     </message>
     <message>
         <source>Properties</source>
@@ -43966,7 +43972,7 @@ Row: %4, Column: %5
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数：</translation>
     </message>
     <message>
         <source>Recording Settings</source>
@@ -44295,15 +44301,15 @@ Refusing to record test case &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished">主机:</translation>
+        <translation>主机：</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished">端口:</translation>
+        <translation>端口：</translation>
     </message>
     <message>
         <source>Add Attachable AUT</source>
@@ -44868,7 +44874,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
     <message>
         <source>Revision number:</source>
-        <translation>修订版本编号:</translation>
+        <translation>修订版本编号：</translation>
     </message>
     <message>
         <source>Triggers a Subversion version control operation.</source>
@@ -44887,15 +44893,15 @@ Failed to open file &quot;%1&quot;</source>
     </message>
     <message>
         <source>Subversion command:</source>
-        <translation type="unfinished">Subversion 命令:</translation>
+        <translation>Subversion 命令：</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished">用户名:</translation>
+        <translation>用户名：</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished">密码:</translation>
+        <translation>密码：</translation>
     </message>
     <message>
         <source>Ignore whitespace changes in annotation</source>
@@ -44907,7 +44913,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">超时时间:</translation>
+        <translation>超时时间：</translation>
     </message>
     <message>
         <source>s</source>
@@ -45415,7 +45421,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
     <message>
         <source>Backspace indentation:</source>
-        <translation>退格缩进:</translation>
+        <translation>退格缩进：</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -45461,7 +45467,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Tab key performs auto-indent:</source>
-        <translation>制表符(Tab键)提供自动缩进:</translation>
+        <translation>制表符(Tab键)提供自动缩进：</translation>
     </message>
     <message>
         <source>Never</source>
@@ -45509,7 +45515,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Default encoding:</source>
-        <translation>默认编码:</translation>
+        <translation>默认编码：</translation>
     </message>
     <message>
         <source>Add If Encoding Is UTF-8</source>
@@ -45525,7 +45531,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>UTF-8 BOM:</source>
-        <translation>UTF-8 BOM:</translation>
+        <translation>UTF-8 BOM：</translation>
     </message>
     <message>
         <source>Mouse and Keyboard</source>
@@ -45661,7 +45667,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Current settings:</source>
-        <translation type="unfinished">当前设置:</translation>
+        <translation>当前设置：</translation>
     </message>
     <message>
         <source>Copy Code Style</source>
@@ -45669,7 +45675,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Code style name:</source>
-        <translation>代码风格名称:</translation>
+        <translation>代码风格名称：</translation>
     </message>
     <message>
         <source>%1 (Copy)</source>
@@ -45740,7 +45746,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Display right &amp;margin at column:</source>
-        <translation type="unfinished">显示右边分界(&amp;M)在列:</translation>
+        <translation>显示右边分界(&amp;M)在列：</translation>
     </message>
     <message>
         <source>Highlight &amp;blocks</source>
@@ -45843,7 +45849,7 @@ Specifies how backspace interacts with indentation.
     <name>TextEditor::FindInFiles</name>
     <message>
         <source>Director&amp;y:</source>
-        <translation>目录(&amp;Y):</translation>
+        <translation>目录(&amp;Y)：</translation>
     </message>
     <message>
         <source>Files in File System</source>
@@ -45874,11 +45880,11 @@ Excluding: %3
     <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Family:</source>
-        <translation>字型:</translation>
+        <translation>字型：</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation>字号:</translation>
+        <translation>字号：</translation>
     </message>
     <message>
         <source>Font</source>
@@ -45902,7 +45908,7 @@ Excluding: %3
     </message>
     <message>
         <source>Zoom:</source>
-        <translation>缩放:</translation>
+        <translation>缩放：</translation>
     </message>
     <message>
         <source>A line spacing value other than 100% disables text wrapping.
@@ -45931,7 +45937,7 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Color scheme name:</source>
-        <translation type="unfinished">配色方案名称:</translation>
+        <translation>配色方案名称：</translation>
     </message>
     <message>
         <source>%1 (copy)</source>
@@ -46015,11 +46021,11 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Background:</source>
-        <translation>背景颜色:</translation>
+        <translation>背景颜色：</translation>
     </message>
     <message>
         <source>Foreground:</source>
-        <translation>前景颜色:</translation>
+        <translation>前景颜色：</translation>
     </message>
     <message>
         <source>Unset</source>
@@ -46063,7 +46069,7 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Color:</source>
-        <translation type="unfinished">颜色:</translation>
+        <translation>颜色：</translation>
     </message>
     <message>
         <source>No Underline</source>
@@ -46110,7 +46116,7 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>&amp;Case-sensitivity:</source>
-        <translation type="unfinished">大小写敏感(&amp;C):</translation>
+        <translation>大小写敏感(&amp;C)：</translation>
     </message>
     <message>
         <source>Manually</source>
@@ -46126,7 +46132,7 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
     </message>
     <message>
         <source>Activate completion:</source>
-        <translation type="unfinished">激活补全:</translation>
+        <translation>激活补全：</translation>
     </message>
     <message>
         <source>Timeout in ms:</source>
@@ -46284,7 +46290,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
     <message>
         <source>Open documents:</source>
-        <translation>打开文档:</translation>
+        <translation>打开文档：</translation>
     </message>
     <message>
         <source>Open Documents
@@ -46301,7 +46307,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
     <message>
         <source>Ignored file patterns:</source>
-        <translation>被忽略的文件模式:</translation>
+        <translation>被忽略的文件模式：</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;https://api.kde.org/frameworks/syntax-highlighting/html/index.html&quot;&gt;KSyntaxHighlighting&lt;/a&gt; engine.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -46436,7 +46442,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
     <message>
         <source>Group:</source>
-        <translation type="unfinished">组:</translation>
+        <translation>组：</translation>
     </message>
     <message>
         <source>Error While Saving Snippet Collection</source>
@@ -47100,15 +47106,15 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
     <message>
         <source>Ta&amp;b size:</source>
-        <translation type="unfinished">制表符尺寸(&amp;B):</translation>
+        <translation>制表符尺寸(&amp;B)：</translation>
     </message>
     <message>
         <source>&amp;Indent size:</source>
-        <translation type="unfinished">缩进尺寸(&amp;i):</translation>
+        <translation>缩进尺寸(&amp;i)：</translation>
     </message>
     <message>
         <source>Align continuation lines:</source>
-        <translation type="unfinished">对齐连续行:</translation>
+        <translation>对齐连续行：</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -47176,7 +47182,7 @@ Influences the indentation of continuation lines.
     </message>
     <message>
         <source>Tab policy:</source>
-        <translation type="unfinished">缩进策略:</translation>
+        <translation>缩进策略：</translation>
     </message>
     <message>
         <source>Spaces Only</source>
@@ -48189,7 +48195,7 @@ Will not be applied to whitespace in comments and strings.</source>
     <name>TopicChooser</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>为&lt;b&gt;%1&lt;/b&gt;选择一个标题:</translation>
+        <translation>为&lt;b&gt;%1&lt;/b&gt;选择一个标题：</translation>
     </message>
     <message>
         <source>Choose Topic</source>
@@ -48615,11 +48621,11 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>File extension %1 is required:</source>
-        <translation>需要文件扩展 %1 :</translation>
+        <translation>需要文件扩展 %1 ：</translation>
     </message>
     <message>
         <source>File extensions %1 are required:</source>
-        <translation>需要文件扩展 %1 :</translation>
+        <translation>需要文件扩展 %1 ：</translation>
     </message>
     <message>
         <source>Invalid character &quot;%1&quot;.</source>
@@ -48657,7 +48663,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Fi&amp;le pattern:</source>
-        <translation type="unfinished">文件模式(&amp;L):</translation>
+        <translation>文件模式(&amp;L)：</translation>
     </message>
     <message>
         <source>Excl&amp;usion pattern:</source>
@@ -48794,11 +48800,11 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>File name:</source>
-        <translation type="unfinished">文件名:</translation>
+        <translation>文件名：</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>Location</source>
@@ -48982,7 +48988,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Path:</source>
-        <translation>路径:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; expanded to an empty string.</source>
@@ -49048,11 +49054,11 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Name:</source>
-        <translation>名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Create in:</source>
-        <translation>创建路径:</translation>
+        <translation>创建路径：</translation>
     </message>
     <message>
         <source>Use as default project location</source>
@@ -49099,7 +49105,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Username:</source>
-        <translation type="unfinished">用户名:</translation>
+        <translation>用户名：</translation>
     </message>
     <message>
         <source>Username</source>
@@ -49107,7 +49113,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished">密码:</translation>
+        <translation>密码：</translation>
     </message>
     <message>
         <source>Password</source>
@@ -49331,7 +49337,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>New name for configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>配置的新名称 &lt;b&gt;%1&lt;/b&gt;:</translation>
+        <translation>配置的新名称 &lt;b&gt;%1&lt;/b&gt;：</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -49599,19 +49605,19 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     <name>Valgrind</name>
     <message>
         <source>Function:</source>
-        <translation>函数:</translation>
+        <translation>函数：</translation>
     </message>
     <message>
         <source>Location:</source>
-        <translation>位置:</translation>
+        <translation>位置：</translation>
     </message>
     <message>
         <source>Instruction pointer:</source>
-        <translation>指令指针:</translation>
+        <translation>指令指针：</translation>
     </message>
     <message>
         <source>Object:</source>
-        <translation>对象:</translation>
+        <translation>对象：</translation>
     </message>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
@@ -49691,11 +49697,11 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Suppression File:</source>
-        <translation>Suppression 文件:</translation>
+        <translation>Suppression 文件：</translation>
     </message>
     <message>
         <source>Suppression:</source>
-        <translation>Suppression:</translation>
+        <translation>Suppression：</translation>
     </message>
     <message>
         <source>Select Suppression File</source>
@@ -49707,7 +49713,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Valgrind executable:</source>
-        <translation>Valgrind 执行档:</translation>
+        <translation>Valgrind 执行档：</translation>
     </message>
     <message>
         <source>Valgrind Command</source>
@@ -49723,11 +49729,11 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Backtrace frame count:</source>
-        <translation>回溯(backtrace)帧数:</translation>
+        <translation>回溯(backtrace)帧数：</translation>
     </message>
     <message>
         <source>Suppression files:</source>
-        <translation>Suppression 文件:</translation>
+        <translation>Suppression 文件：</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -49747,7 +49753,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Result view: Minimum event cost:</source>
-        <translation>结果视图: 最小事件花费:</translation>
+        <translation>结果视图: 最小事件花费：</translation>
     </message>
     <message>
         <source>%</source>
@@ -49779,7 +49785,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Visualization: Minimum event cost:</source>
-        <translation>可视化: 最小事件花费:</translation>
+        <translation>可视化: 最小事件花费：</translation>
     </message>
     <message>
         <source>Profiling</source>
@@ -50004,11 +50010,11 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>File:</source>
-        <translation>文件:</translation>
+        <translation>文件：</translation>
     </message>
     <message>
         <source>Called:</source>
-        <translation>被调用:</translation>
+        <translation>被调用：</translation>
     </message>
     <message numerus="yes">
         <source>%n time(s)</source>
@@ -50118,11 +50124,11 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>Line:</source>
-        <translation>行号:</translation>
+        <translation>行号：</translation>
     </message>
     <message>
         <source>Position:</source>
-        <translation>位置:</translation>
+        <translation>位置：</translation>
     </message>
     <message>
         <source>Parsing Profile Data...</source>
@@ -50479,7 +50485,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>There were errors when cleaning the repository %1:</source>
-        <translation>清理代码仓库%1时发生错误:</translation>
+        <translation>清理代码仓库%1时发生错误：</translation>
     </message>
     <message>
         <source>Delete...</source>
@@ -50526,7 +50532,7 @@ With cache simulation, further event counters are enabled:
     <name>VcsBase::Internal::CommonVcsSettings</name>
     <message>
         <source>User/&amp;alias configuration file:</source>
-        <translation type="unfinished">用户/别名配置文件(&amp;A):</translation>
+        <translation>用户/别名配置文件(&amp;A)：</translation>
     </message>
     <message>
         <source>A file listing nicknames in a 4-column mailmap format:
@@ -50535,7 +50541,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>User &amp;fields configuration file:</source>
-        <translation type="unfinished">用户字段配置文件(&amp;F):</translation>
+        <translation>用户字段配置文件(&amp;F)：</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
@@ -50543,7 +50549,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>Submit message &amp;check script:</source>
-        <translation type="unfinished">提交信息检查脚本(&amp;C):</translation>
+        <translation>提交信息检查脚本(&amp;C)：</translation>
     </message>
     <message>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
@@ -50551,7 +50557,7 @@ With cache simulation, further event counters are enabled:
     </message>
     <message>
         <source>&amp;SSH prompt command:</source>
-        <translation type="unfinished">SSH 提示命令(&amp;S):</translation>
+        <translation>SSH 提示命令(&amp;S)：</translation>
     </message>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password,
@@ -50560,7 +50566,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Wrap submit message at:</source>
-        <translation type="unfinished">提交信息折行在:</translation>
+        <translation>提交信息折行在：</translation>
     </message>
     <message>
         <source> characters</source>
@@ -50878,7 +50884,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">超时时间:</translation>
+        <translation>超时时间：</translation>
     </message>
     <message>
         <source>s</source>
@@ -51732,7 +51738,7 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <source>Children:</source>
@@ -51908,7 +51914,7 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Color:</source>
-        <translation type="unfinished">颜色:</translation>
+        <translation>颜色：</translation>
     </message>
     <message>
         <source>Normal</source>
