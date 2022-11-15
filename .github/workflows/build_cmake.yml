@@ -7,7 +7,7 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.3.2
+  QT_VERSION: 6.4.1
   CLANG_VERSION: 15.0.0
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.21.1
