@@ -72,8 +72,13 @@
         \li Attracts particles towards a specific point.
     \row
         \li \inlineimage icons/emit-burst-16px.png
+        \li Dynamic Burst
+        \li Emits particles in dynamic bursts. Use dynamic burst for
+            emitters that are moving.
+    \row
+        \li \inlineimage icons/emit-burst-16px.png
         \li Emit Burst
-        \li Generates declarative emitter bursts.
+        \li Emits particles in bursts.
     \row
         \li \inlineimage icons/emitter-16px.png
         \li Emitter
@@ -83,6 +88,10 @@
         \li Gravity
         \li Accelerates particles to a vector of the specified magnitude in the
             specified direction.
+    \row
+        \li \inlineimage icons/line-particles-16px.png
+        \li Line Particle
+        \li Creates line-shaped sprite particles.
     \row
         \li \inlineimage icons/model-blend-particle-16px.png
         \li Model Blend Particle
@@ -110,6 +119,15 @@
         \li \inlineimage icons/point-rotator-16px.png
         \li Point Rotator
         \li Rotates particles around a pivot point.
+    \row
+        \li \inlineimage icons/repeller-16px.png
+        \li Repeller
+        \li Repels particles from its location.
+    \row
+        \li \inlineimage icons/scale-affector-16px.png
+        \li Scale Affector
+        \li Scales particles based on the particles' lifetime and other
+        parameters.
     \row
         \li \inlineimage icons/sprite-particle-16px.png
         \li Sprite Particle
@@ -399,19 +417,23 @@
     visualized, and some logical particles could lead to multiple visual
     particles being drawn on screen.
 
-    Two different logical particle components are supported:
-    \uicontrol {Sprite Particle} for \l{Textures}{2D texture} particles and
-    \uicontrol {Model Particle} for \l{3D Models}{3D model} particles. Model
-    particles use \l{Instanced Rendering}{instanced rendering} to enabled the
-    rendering of thousands of particles, with full \l{3D Materials}{materials}
-    and \l{Lights}{lights} support.
+    \QDS supports the following logical particle components:
 
-    The following components are available for adding logical particles and
-    for modifying their actions and appearance:
+    \list
+      \li \uicontrol {Sprite Particle} and \uicontrol{Line Particle} for
+      \l{Textures}{2D texture} particles.
+      \li \uicontrol {Model Particle} for \l{3D Models}{3D model} particles.
+      Model particles use \l{Instanced Rendering}{instanced rendering} to render
+      thousands of particles, with full \l{3D Materials}{materials} and
+      \l{Lights}{lights} support.
+    \endlist
+
+    You can use the following components to add and modify logical particles:
 
     \list
         \li \l{Sprite Particle}
         \li \l{Sprite Sequence}
+        \li \l{Line Particle}
         \li \l{Model Particle}
         \li \l{Model Blend Particle}
     \endlist
@@ -508,6 +530,48 @@
     When \uicontrol {Random start} is disabled, the frame set in
     \uicontrol {Frame index} is rendered. When it is enabled, each particle
     renders a random frame.
+
+    \section1 Line Particle
+
+    Specify properties for line particles in \uicontrol Properties >
+    \uicontrol {Line Particle}.
+
+    \image studio-3d-properties-line-particle.png
+
+    \uicontrol {Segments} defines the number of segments in each line.
+
+    \uicontrol {Alpha Fade} defines the alpha fade factor of the lines. The
+    value range is [0, 1]. When the value is greater than 0.0, the line fades
+    more the further the segment is from the first particle segment.
+
+    \uicontrol {Scale Multiplier} modifies the line size for the line segments.
+    The value range is [0, 2]. If the value is less than 1.0,
+    the line gets smaller the further a segment is from the first segment and
+    if the value is greater than 1.0 the line gets bigger.
+
+    \uicontrol {Texcoord Multipier} defines the texture coordinate multiplier of
+    the line. This value is factored to the texture coordinate values of the
+    line.
+
+    \uicontrol {Texcoord Mode} defines the texture coordinate mode of the line.
+
+    \uicontrol {Line Length} defines the length of the line. If the value is
+    set, the line length is limited to the value. In this case the minimum
+    delta of the line is the length divided by the segment count. If the value
+    is not set, the line length varies based on the particle speed, segment
+    count, and minimum delta.
+
+    \uicontrol {Line Length Variation} defines the length variation of the line.
+    This parameter is not used if \uicontrol {Line Length} has not been set.
+    When the length is set, this parameter can be used to vary the length of
+    each line.
+
+    \uicontrol {Minimum Segment Length} defines he minimum length between
+    segment points. This parameter is ignored if \uicontrol {Line Length} is set.
+
+    \uicontrol {Eol Fade Out Duration} defines the end-of-life fade-out duration
+    of the line. If set, each line remains in the place it was when the particle
+    reached the end of its lifetime, then fades out during this time period.
 
     \section1 Model Particle
 
@@ -678,6 +742,7 @@
         \li \l Emitter
         \li \l {Trail Emitter}
         \li \l {Emit Burst}
+        \li \l {Dynamic Burst}
         \li \l {Model Shape}
         \li \l {Particle Shape}
     \endlist
@@ -775,6 +840,30 @@
     instance, set \uicontrol Time to 2000, \uicontrol Amount to 50, and
     \uicontrol Duration to 200.
 
+    \section1 Dynamic Burst
+
+    Specify properties for emit bursts in \uicontrol Properties >
+    \uicontrol {Dynamic Burst}.
+
+    \image studio-3d-properties-particle-dynamic-burst.png
+
+    \uicontrol {Trigger Mode} defines when the burst is triggered:
+
+    \list
+      \li Select \uicontrol TriggerTime to emit the burst when the burst time
+      is due.
+      \li Select \uicontrol TriggerStart to emit the burst when the followed
+      particle is emitted.
+      \note This mode only works with trail emitters.
+      \note In this mode, \uicontrol Time and \uicontrol Duration don't have an
+      effect.
+      \li Select \uicontrol TriggerEnd to emit the burst when the followed
+      particle life span ends.
+    \endlist
+
+    \uicontrol {Amount Variation} defines the random variation in the number of
+    emitted particles.
+
     \section1 Particle Shape
 
     The \uicontrol {Particle Shape} component supports shapes, such as cube,
@@ -830,6 +919,9 @@
         \li \l Gravity accelerates particles to a vector of the specified
             magnitude in the specified direction.
         \li \l {Point Rotator} rotates particles around a pivot point.
+        \li \l Repeller repels particles from its location.
+        \li \l {Scale Affector} scales particles based on its lifetime and other
+            parameters.
         \li \l Wander applies random wave curves to particles.
     \endlist
 
@@ -909,19 +1001,56 @@
 
     \section1 Point Rotator
 
-    Specify settings for \uicontrol {Point Rotator} component instances in
-    \uicontrol Properties > \uicontrol {Point Rotator}.
-
-    \image studio-3d-properties-particle-point-rotator.png "Particle Point Rotator properties"
-
     The \uicontrol {Point Rotator} component rotates particles around the
     pivot point specified in \uicontrol {Pivot point} towards the direction
     specified in \uicontrol Direction. Direction \uicontrol X, \uicontrol Y, and
     \uicontrol Z values are automatically normalized to a unit vector.
 
+    Specify settings for \uicontrol {Point Rotator} component instances in
+    \uicontrol Properties > \uicontrol {Point Rotator}.
+
+    \image studio-3d-properties-particle-point-rotator.png "Particle Point Rotator properties"
+
     \uicontrol Magnitude defines the magnitude in particle position change in
     degrees per second. A negative value accelerates in the opposite way from
     the direction specified in \uicontrol Direction.
+
+    \section1 Repeller
+
+    The \uicontrol Repeller component repels particles from its location.
+
+    Specify settings for \uicontrol Repeller component instances in
+    \uicontrol Properties > \uicontrol {Particle Repeller}.
+
+    \image studio-3d-properties-particle-repeller.png
+
+    \uicontrol {Outer Radius} defines the outer radius of the repeller. The
+    particle is not affected until it enters this radius and the repel
+    strength grows smoothly until the particle reaches \uicontrol Radius.
+
+    \uicontrol Radius defines the inner radius of the repeller. Particles
+    located inside \uicontrol Radius are repelled at full strength.
+
+    \uicontrol Strength defines the strength of the repeller.
+
+    \section1 Scale Affector
+
+    \uicontrol {Scale Affector} scales particles based on their lifetime and
+    other parameters.
+
+    \image studio-3d-properties-particle-scale-affector.png
+
+    \uicontrol {Minimum Size} defines the minimum size that the affector can
+    scale particles to.
+
+    \uicontrol {Maximum Size} defines the maximum size that the affector can
+    scale particles to.
+
+    \uicontrol Duration defines the the duration of the scaling cycle in
+    milliseconds.
+
+    \uicontrol {Easing Curve} defines the
+    \l{Editing Easing Curves}{easing curve} for the scaling animation.
 
     \section1 Wander
 
