@@ -632,12 +632,10 @@ void ProcessArgs::addArgs(QString *args, const QStringList &inArgs)
 bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, ProcessArgs *outArgs,
                                  const Environment *env, const FilePath *pwd)
 {
-    FilePath executable = cmdLine.executable();
-    const QString arguments = cmdLine.arguments();
-    if (env && executable.isRelativePath())
-        executable = env->searchInPath(executable.toString());
+    const FilePath executable = cmdLine.executable();
     if (executable.isEmpty())
         return false;
+    const QString arguments = cmdLine.arguments();
     ProcessArgs::SplitError err;
     *outArgs = ProcessArgs::prepareArgs(arguments, &err, executable.osType(), env, pwd);
     if (err == ProcessArgs::SplitOk) {
