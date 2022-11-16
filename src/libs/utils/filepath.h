@@ -74,6 +74,7 @@ public:
 
     QStringView scheme() const;
     QStringView host() const;
+    QStringView pathView() const;
     QString path() const;
 
     void setParts(const QStringView scheme, const QStringView host, const QStringView path);

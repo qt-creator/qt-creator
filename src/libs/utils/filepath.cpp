@@ -242,9 +242,8 @@ QString FilePath::nativePath() const
 
 QString FilePath::fileName() const
 {
-    // FIXME: Performance
-    QString fp = path();
-    return fp.mid(fp.lastIndexOf('/') + 1);
+    const QStringView fp = pathView();
+    return fp.mid(fp.lastIndexOf('/') + 1).toString();
 }
 
 QString FilePath::fileNameWithPathComponents(int pathComponents) const
@@ -341,10 +340,15 @@ QStringView FilePath::host() const
     return QStringView{m_data}.mid(m_pathLen + m_schemeLen, m_hostLen);
 }
 
-QString FilePath::path() const
+QStringView FilePath::pathView() const
 {
     QTC_ASSERT(!m_data.startsWith(u"/./"), return m_data.mid(3, m_pathLen - 3));
     return m_data.left(m_pathLen);
+}
+
+QString FilePath::path() const
+{
+    return pathView().toString();
 }
 
 void FilePath::setParts(const QStringView scheme, const QStringView host, QStringView path)
@@ -913,21 +917,23 @@ bool FilePath::isChildOf(const FilePath &s) const
         return false;
     if (s.isEmpty())
         return false;
-    if (!path().startsWith(s.path(), caseSensitivity()))
+    const QStringView p = pathView();
+    const QStringView sp = s.pathView();
+    if (!p.startsWith(sp, caseSensitivity()))
         return false;
-    if (path().size() <= s.path().size())
+    if (p.size() <= sp.size())
         return false;
     // s is root, '/' was already tested in startsWith
-    if (s.path().endsWith(QLatin1Char('/')))
+    if (sp.endsWith(QLatin1Char('/')))
         return true;
     // s is a directory, next character should be '/' (/tmpdir is NOT a child of /tmp)
-    return s.path().isEmpty() || path().at(s.path().size()) == QLatin1Char('/');
+    return sp.isEmpty() || p.at(sp.size()) == QLatin1Char('/');
 }
 
 /// \returns whether path() startsWith \a s
 bool FilePath::startsWith(const QString &s) const
 {
-    return path().startsWith(s, caseSensitivity());
+    return pathView().startsWith(s, caseSensitivity());
 }
 
 /*!
@@ -936,7 +942,7 @@ bool FilePath::startsWith(const QString &s) const
 */
 bool FilePath::endsWith(const QString &s) const
 {
-    return path().endsWith(s, caseSensitivity());
+    return pathView().endsWith(s, caseSensitivity());
 }
 
 /*!
@@ -946,7 +952,8 @@ bool FilePath::endsWith(const QString &s) const
 */
 bool FilePath::startsWithDriveLetter() const
 {
-    return !needsDevice() && path().size() >= 2 && isWindowsDriveLetter(path()[0]) && path().at(1) == ':';
+    const QStringView p = pathView();
+    return !needsDevice() && p.size() >= 2 && isWindowsDriveLetter(p[0]) && p.at(1) == ':';
 }
 
 /*!
@@ -960,7 +967,7 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
 {
     FilePath res;
     if (isChildOf(parent)) {
-        QString p = path().mid(parent.path().size());
+        QStringView p = pathView().mid(parent.pathView().size());
         if (p.startsWith('/'))
             p = p.mid(1);
         res.setParts(scheme(), host(), p);
@@ -1462,11 +1469,12 @@ QString FilePath::shortNativePath() const
 */
 bool FilePath::isRelativePath() const
 {
-    if (path().startsWith('/'))
+    const QStringView p = pathView();
+    if (p.startsWith('/'))
         return false;
-    if (path().size() > 1 && isWindowsDriveLetter(path()[0]) && path().at(1) == ':')
+    if (p.size() > 1 && isWindowsDriveLetter(p[0]) && p.at(1) == ':')
         return false;
-    if (path().startsWith(":/")) // QRC
+    if (p.startsWith(u":/")) // QRC
         return false;
     return true;
 }
