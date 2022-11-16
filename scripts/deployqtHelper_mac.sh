@@ -74,12 +74,6 @@ if [ ! -f "$libexec_path/ios/qt.conf" ]; then
     cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$libexec_path/ios/qt.conf" || exit 1
 fi
 
-# copy qml2puppet's qt.conf
-if [ ! -f "$libexec_path/qmldesigner/qt.conf" ]; then
-    echo "- Copying libexec/qmldesigner/qt.conf"
-    cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmldesigner_qt.conf" "$libexec_path/qmldesigner/qt.conf" || exit 1
-fi
-
 # copy Qt translations
 # check for known existing translation to avoid copying multiple times
 if [ ! -f "$resource_path/translations/qt_de.qm" ]; then
@@ -114,10 +108,7 @@ fi
 
 if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
 
-    qml2puppetapp="$libexec_path/qmldesigner/qml2puppet"
-    if [ -f "$qml2puppetapp" ]; then
-        qml2puppetArgument="-executable=$qml2puppetapp"
-    fi
+    echo "- Running macdeployqt ($bin_src/macdeployqt)"
 
     qbsapp="$app_path/Contents/MacOS/qbs"
     if [ -f "$qbsapp" ]; then
@@ -131,7 +122,10 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
         "-executable=$libexec_path/qbs_processlauncher")
     fi
 
-    echo "- Running macdeployqt ($bin_src/macdeployqt)"
+    qml2puppetapp="$libexec_path/qml2puppet"
+    if [ -f "$qml2puppetapp" ]; then
+        qml2puppetArgument="-executable=$qml2puppetapp"
+    fi
 
     "$bin_src/macdeployqt" "$app_path" \
         "-executable=$app_path/Contents/MacOS/qtdiag" \
