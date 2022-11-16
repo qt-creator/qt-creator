@@ -255,6 +255,13 @@ private:
     TaskTreePrivate *d;
 };
 
+class QTCREATOR_UTILS_EXPORT TaskTreeAdapter : public Tasking::TaskAdapter<TaskTree>
+{
+public:
+    TaskTreeAdapter();
+    void start() final;
+};
+
 } // namespace Utils
 
 #define QTC_DECLARE_CUSTOM_TASK(CustomTaskName, TaskAdapterClass)\
@@ -266,3 +273,4 @@ template <typename ...Args>\
 using CustomTaskName = CustomTask<TaskAdapterClass<Args...>>;\
 } // namespace Utils::Tasking
 
+QTC_DECLARE_CUSTOM_TASK(Tree, Utils::TaskTreeAdapter);

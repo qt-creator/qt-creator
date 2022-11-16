@@ -535,4 +535,15 @@ int TaskTree::progressValue() const
     return d->m_progressValue;
 }
 
+TaskTreeAdapter::TaskTreeAdapter()
+{
+    connect(task(), &TaskTree::done, this, [this] { emit done(true); });
+    connect(task(), &TaskTree::errorOccurred, this, [this] { emit done(false); });
+}
+
+void TaskTreeAdapter::start()
+{
+    task()->start();
+}
+
 } // namespace Utils

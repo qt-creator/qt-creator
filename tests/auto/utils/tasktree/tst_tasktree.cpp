@@ -246,6 +246,20 @@ void tst_TaskTree::processTree_data()
         },
         OnGroupDone(rootDone)
     };
+    auto setupSubTree = [=](TaskTree &taskTree) {
+        const Group nestedRoot {
+            Process(std::bind(setupProcess, _1, 2), readResult),
+            Process(std::bind(setupProcess, _1, 3), readResult),
+            Process(std::bind(setupProcess, _1, 4), readResult),
+        };
+        taskTree.setupRoot(nestedRoot);
+    };
+    const Group sequentialSubTreeRoot {
+        Process(std::bind(setupProcess, _1, 1), readResult),
+        Tree(setupSubTree),
+        Process(std::bind(setupProcess, _1, 5), readResult),
+        OnGroupDone(rootDone)
+    };
     const Log sequentialLog{{1, Handler::Setup},
                             {1, Handler::Done},
                             {2, Handler::Setup},
@@ -260,6 +274,8 @@ void tst_TaskTree::processTree_data()
     QTest::newRow("Sequential") << sequentialRoot << sequentialLog << true << true << 5;
     QTest::newRow("SequentialEncapsulated") << sequentialEncapsulatedRoot << sequentialLog
                                             << true << true << 5;
+    QTest::newRow("SequentialSubTree") << sequentialSubTreeRoot << sequentialLog
+                                       << true << true << 3; // We don't inspect subtrees
 
     const Group sequentialNestedRoot {
         Group {
@@ -439,6 +455,7 @@ void tst_TaskTree::processTree_data()
                                  {-1, Handler::GroupDone}};
     QTest::newRow("DynamicSetupSelected") << dynamicSetupSelRoot << dynamicSetupSelLog
                                           << true << true << 4;
+
 }
 
 void tst_TaskTree::processTree()
