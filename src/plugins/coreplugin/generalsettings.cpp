@@ -77,6 +77,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     , m_themeChooser(new ThemeChooser)
     , m_resetWarningsButton(new QPushButton)
 {
+    m_languageBox->setObjectName("languageBox");
     m_languageBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_languageBox->setMinimumContentsLength(20);
 

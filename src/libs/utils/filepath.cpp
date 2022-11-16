@@ -343,14 +343,16 @@ QStringView FilePath::host() const
 
 QString FilePath::path() const
 {
-    if (m_data.startsWith("/./"))
-        return m_data.mid(3, m_pathLen - 3);
+    QTC_ASSERT(!m_data.startsWith(u"/./"), return m_data.mid(3, m_pathLen - 3));
     return m_data.left(m_pathLen);
 }
 
-void FilePath::setParts(const QStringView scheme, const QStringView host, const QStringView path)
+void FilePath::setParts(const QStringView scheme, const QStringView host, QStringView path)
 {
     QTC_CHECK(!scheme.contains('/'));
+
+    if (path.startsWith(u"/./"))
+        path = path.mid(3);
 
     m_data = path.toString() + scheme.toString() + host.toString();
     m_schemeLen = scheme.size();

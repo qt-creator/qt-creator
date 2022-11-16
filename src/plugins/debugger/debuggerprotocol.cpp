@@ -112,7 +112,7 @@ void GdbMi::parseResultOrValue(DebuggerOutputParser &parser)
 }
 
 // Reads one \ooo entity.
-static bool parseOctalEscapedHelper(DebuggerOutputParser &parser, QString &buffer)
+static bool parseOctalEscapedHelper(DebuggerOutputParser &parser, QByteArray &buffer)
 {
     if (parser.remainingChars() < 4)
         return false;
@@ -130,7 +130,7 @@ static bool parseOctalEscapedHelper(DebuggerOutputParser &parser, QString &buffe
     return true;
 }
 
-static bool parseHexEscapedHelper(DebuggerOutputParser &parser, QString &buffer)
+static bool parseHexEscapedHelper(DebuggerOutputParser &parser, QByteArray &buffer)
 {
     if (parser.remainingChars() < 4)
         return false;
@@ -178,16 +178,15 @@ static void parseSimpleEscape(DebuggerOutputParser &parser, QString &result)
 // *or* one escaped char, *or* one unescaped char.
 static void parseCharOrEscape(DebuggerOutputParser &parser, QString &result)
 {
-    const int oldSize = result.size();
-    while (parseOctalEscapedHelper(parser, result))
+    QByteArray buffer;
+    while (parseOctalEscapedHelper(parser, buffer))
         ;
-    while (parseHexEscapedHelper(parser, result))
+    while (parseHexEscapedHelper(parser, buffer))
         ;
 
-    if (result.size() != oldSize)
-        return;
-
-    if (parser.isCurrent('\\')) {
+    if (!buffer.isEmpty()) {
+        result.append(QString::fromUtf8(buffer));
+    } else if (parser.isCurrent('\\')) {
         parser.advance();
         parseSimpleEscape(parser, result);
     } else {

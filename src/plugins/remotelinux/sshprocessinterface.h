@@ -31,12 +31,13 @@ private:
     virtual void handleDone(const Utils::ProcessResultData &resultData);
     virtual void handleReadyReadStandardOutput(const QByteArray &outputData);
     virtual void handleReadyReadStandardError(const QByteArray &errorData);
+    virtual void handleSendControlSignal(Utils::ControlSignal controlSignal) = 0;
 
     virtual QString fullCommandLine(const Utils::CommandLine &commandLine) const = 0;
 
     void start() final;
     qint64 write(const QByteArray &data) final;
-    void sendControlSignal(Utils::ControlSignal controlSignal) override = 0;
+    void sendControlSignal(Utils::ControlSignal controlSignal) final;
 
     friend class SshProcessInterfacePrivate;
     SshProcessInterfacePrivate *d = nullptr;
