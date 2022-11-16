@@ -232,8 +232,11 @@ class QTCREATOR_UTILS_EXPORT TaskTree : public QObject
     Q_OBJECT
 
 public:
+    TaskTree();
     TaskTree(const Tasking::Group &root);
     ~TaskTree();
+
+    void setupRoot(const Tasking::Group &root);
 
     void start();
     void stop();

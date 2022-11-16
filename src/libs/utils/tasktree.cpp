@@ -131,31 +131,32 @@ private:
 class TaskTreePrivate
 {
 public:
-    TaskTreePrivate(TaskTree *taskTree, const Group &root)
-        : q(taskTree)
-        , m_root(this, nullptr, root) {}
+    TaskTreePrivate(TaskTree *taskTree)
+        : q(taskTree) {}
 
     void start() {
+        QTC_ASSERT(m_root, return);
         m_progressValue = 0;
         emitStartedAndProgress();
-        m_root.start();
+        m_root->start();
     }
     void stop() {
-        if (!m_root.isRunning())
+        QTC_ASSERT(m_root, return);
+        if (!m_root->isRunning())
             return;
         // TODO: should we have canceled flag (passed to handler)?
         // Just one done handler with result flag:
         //   FinishedWithSuccess, FinishedWithError, Canceled, TimedOut.
         // Canceled either directly by user, or by workflow policy - doesn't matter, in both
         // cases canceled from outside.
-        m_root.stop();
+        m_root->stop();
         emitError();
     }
     void advanceProgress(int byValue) {
         if (byValue == 0)
             return;
         QTC_CHECK(byValue > 0);
-        QTC_CHECK(m_progressValue + byValue <= m_root.taskCount());
+        QTC_CHECK(m_progressValue + byValue <= m_root->taskCount());
         m_progressValue += byValue;
         emitProgress();
     }
@@ -169,18 +170,18 @@ public:
         emit q->progressValueChanged(m_progressValue);
     }
     void emitDone() {
-        QTC_CHECK(m_progressValue == m_root.taskCount());
+        QTC_CHECK(m_progressValue == m_root->taskCount());
         GuardLocker locker(m_guard);
         emit q->done();
     }
     void emitError() {
-        QTC_CHECK(m_progressValue == m_root.taskCount());
+        QTC_CHECK(m_progressValue == m_root->taskCount());
         GuardLocker locker(m_guard);
         emit q->errorOccurred();
     }
 
     TaskTree *q = nullptr;
-    TaskNode m_root;
+    std::unique_ptr<TaskNode> m_root = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
 };
@@ -479,9 +480,14 @@ int TaskNode::taskCount() const
     is being executed, depending on results of children execution and Group's workflow policy.
 */
 
-TaskTree::TaskTree(const Group &root)
-    : d(new TaskTreePrivate(this, root))
+TaskTree::TaskTree()
+    : d(new TaskTreePrivate(this))
 {
+}
+
+TaskTree::TaskTree(const Group &root) : TaskTree()
+{
+    setupRoot(root);
 }
 
 TaskTree::~TaskTree()
@@ -489,6 +495,14 @@ TaskTree::~TaskTree()
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting TaskTree instance directly from "
                "one of its handlers will lead to crash!"));
     delete d;
+}
+
+void TaskTree::setupRoot(const Tasking::Group &root)
+{
+    QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
+    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The setupRoot() is called from one of the"
+                                                "TaskTree handlers, ingoring..."); return);
+    d->m_root.reset(new TaskNode(d, nullptr, root));
 }
 
 void TaskTree::start()
@@ -508,12 +522,12 @@ void TaskTree::stop()
 
 bool TaskTree::isRunning() const
 {
-    return d->m_root.isRunning();
+    return d->m_root && d->m_root->isRunning();
 }
 
 int TaskTree::taskCount() const
 {
-    return d->m_root.taskCount();
+    return d->m_root ? d->m_root->taskCount() : 0;
 }
 
 int TaskTree::progressValue() const
