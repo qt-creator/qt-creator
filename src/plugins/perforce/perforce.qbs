@@ -15,7 +15,6 @@ QtcPlugin {
         "annotationhighlighter.h",
         "changenumberdialog.cpp",
         "changenumberdialog.h",
-        "changenumberdialog.ui",
         "pendingchangesdialog.cpp",
         "pendingchangesdialog.h",
         "pendingchangesdialog.ui",

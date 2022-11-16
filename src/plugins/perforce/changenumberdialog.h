@@ -5,7 +5,9 @@
 
 #include <QDialog>
 
-#include "ui_changenumberdialog.h"
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
 
 namespace Perforce {
 namespace Internal {
@@ -19,8 +21,7 @@ public:
     int number() const;
 
 private:
-    Ui::ChangeNumberDialog m_ui;
-
+    QLineEdit *m_lineEdit = nullptr;
 };
 
 } // namespace Perforce

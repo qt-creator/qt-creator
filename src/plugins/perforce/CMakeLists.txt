@@ -2,7 +2,7 @@ add_qtc_plugin(Perforce
   PLUGIN_DEPENDS Core TextEditor VcsBase
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
-    changenumberdialog.cpp changenumberdialog.h changenumberdialog.ui
+    changenumberdialog.cpp changenumberdialog.h
     pendingchangesdialog.cpp pendingchangesdialog.h pendingchangesdialog.ui
     perforcechecker.cpp perforcechecker.h
     perforceeditor.cpp perforceeditor.h
