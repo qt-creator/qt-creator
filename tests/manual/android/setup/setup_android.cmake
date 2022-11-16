@@ -43,7 +43,7 @@ function(download_jdk)
 
   message("Downloading: ${jdk_url}")
   file(DOWNLOAD ${jdk_url} ./jdk.zip SHOW_PROGRESS)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf ./jdk.zip)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf ./jdk.zip COMMAND_ERROR_IS_FATAL ANY)
 endfunction()
 
 function(download_android_commandline)
@@ -61,7 +61,7 @@ function(download_android_commandline)
   file(DOWNLOAD ${android_cmdtools_url} ./android_commandline_tools.zip SHOW_PROGRESS)
   file(MAKE_DIRECTORY android-sdk)
   file(MAKE_DIRECTORY android-cmdlinetools)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf ../android_commandline_tools.zip WORKING_DIRECTORY android-cmdlinetools)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf ../android_commandline_tools.zip WORKING_DIRECTORY android-cmdlinetools COMMAND_ERROR_IS_FATAL ANY)
 endfunction()
 
 function(setup_android)
@@ -78,9 +78,11 @@ function(setup_android)
   file(WRITE ${CMAKE_CURRENT_LIST_DIR}/accept_license.txt "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n")
   execute_process(
     INPUT_FILE ${CMAKE_CURRENT_LIST_DIR}/accept_license.txt
-    COMMAND ${sdkmanager} --licenses --sdk_root=${CMAKE_CURRENT_LIST_DIR}/android-sdk)
+    COMMAND ${sdkmanager} --licenses --sdk_root=${CMAKE_CURRENT_LIST_DIR}/android-sdk
+    COMMAND_ERROR_IS_FATAL ANY)
    execute_process(
-     COMMAND ${sdkmanager} --update --sdk_root=${CMAKE_CURRENT_LIST_DIR}/android-sdk)
+     COMMAND ${sdkmanager} --update --sdk_root=${CMAKE_CURRENT_LIST_DIR}/android-sdk
+     COMMAND_ERROR_IS_FATAL ANY)
    execute_process(
      COMMAND ${sdkmanager}
         "platforms;${ANDROID_PLATFORM}"
@@ -90,13 +92,15 @@ function(setup_android)
         "cmdline-tools;latest"
         "tools"
         "emulator"
-        "ndk-bundle" --sdk_root=${CMAKE_CURRENT_LIST_DIR}/android-sdk)
+        "ndk-bundle" --sdk_root=${CMAKE_CURRENT_LIST_DIR}/android-sdk
+        COMMAND_ERROR_IS_FATAL ANY)
 
   if (WIN32)
     execute_process(
       COMMAND ${sdkmanager}
         "extras;google;usb_driver"
-        --sdk_root=${CMAKE_CURRENT_LIST_DIR}/android-sdk)
+        --sdk_root=${CMAKE_CURRENT_LIST_DIR}/android-sdk
+        COMMAND_ERROR_IS_FATAL ANY)
   endif()
 endfunction()
 
