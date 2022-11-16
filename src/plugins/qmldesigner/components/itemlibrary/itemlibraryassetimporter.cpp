@@ -5,6 +5,7 @@
 #include "qmldesignerplugin.h"
 #include "qmldesignerconstants.h"
 
+#include "documentmanager.h"
 #include "externaldependenciesinterface.h"
 #include "model.h"
 #include "puppetstarter.h"
@@ -704,8 +705,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                         if (result.isCanceled() || result.isFinished())
                             counter = 49; // skip to next step
                     } else if (counter == 50) {
-                        if (model && model->rewriterView())
-                            model->rewriterView()->resetPossibleImports();
+                        QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
                         model->rewriterView()->textModifier()->replace(0, 0, {});
                     } else if (counter < 100) {
                         try {

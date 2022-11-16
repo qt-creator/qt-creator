@@ -23,6 +23,7 @@
 #include <QPlainTextEdit>
 #include <QFileInfo>
 #include <QDir>
+#include <QRandomGenerator>
 
 namespace QmlDesigner {
 
@@ -156,21 +157,81 @@ bool QmlVisualNode::visibilityOverride() const
     return false;
 }
 
+void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int> &offset)
+{
+    if (!isValid())
+        return;
+
+    if (targetNode.metaInfo().isValid() && targetNode.metaInfo().isLayoutable())
+        return;
+
+    bool scatter = false;
+    const QList<ModelNode> targetDirectNodes = targetNode.directSubModelNodes();
+    for (const ModelNode &childNode : targetDirectNodes) {
+        if (childNode == modelNode())
+            continue;
+
+        if (isValidQmlVisualNode(childNode)) {
+            Position childPos = QmlVisualNode(childNode).position();
+            if (qFuzzyCompare(position().distanceToPoint(childPos), 0.f)) {
+                scatter = true;
+                break;
+            }
+        }
+    }
+
+    if (!scatter)
+        return;
+
+    if (offset.has_value()) { // offset
+        double offsetValue = offset.value();
+        this->translate(QVector3D(offsetValue, offsetValue, offsetValue));
+    } else { // scatter in range
+        const double scatterRange = 20.;
+        double x = QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
+        double y = QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
+        double z = (modelNode().metaInfo().isQtQuick3DNode())
+                ? QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2
+                : 0.;
+        this->translate(QVector3D(x, y, z));
+    }
+}
+
+void QmlVisualNode::translate(const QVector3D &vector)
+{
+    setPosition(position() + vector);
+}
+
 void QmlVisualNode::setDoubleProperty(const PropertyName &name, double value)
 {
     modelNode().variantProperty(name).setValue(value);
 }
 
-void QmlVisualNode::initializePosition(const QmlVisualNode::Position &position)
+void QmlVisualNode::setPosition(const QmlVisualNode::Position &position)
 {
-    if (!position.m_2dPos.isNull()) {
-        setDoubleProperty("x", qRound(position.m_2dPos.x()));
-        setDoubleProperty("y", qRound(position.m_2dPos.y()));
-    } else if (!position.m_3dPos.isNull()) {
-        setDoubleProperty("x", position.m_3dPos.x());
-        setDoubleProperty("y", position.m_3dPos.y());
-        setDoubleProperty("z", position.m_3dPos.z());
+    if (!isValid())
+        return;
+
+    setDoubleProperty("x", position.x());
+    setDoubleProperty("y", position.y());
+
+    if (position.is3D() && modelNode().metaInfo().isQtQuick3DNode())
+        setDoubleProperty("z", position.z());
+}
+
+QmlVisualNode::Position QmlVisualNode::position() const
+{
+    if (!isValid())
+        return {};
+
+    double x = modelNode().variantProperty("x").value().toDouble();
+    double y = modelNode().variantProperty("y").value().toDouble();
+
+    if (modelNode().metaInfo().isQtQuick3DModel()) {
+        double z = modelNode().variantProperty("z").value().toDouble();
+        return Position(QVector3D(x,y,z));
     }
+    return Position(QPointF(x,y));
 }
 
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
@@ -230,7 +291,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
         ModelNode rootModelNode = rewriterView->rootModelNode();
         inputModel->detachView(rewriterView.data());
-        QmlVisualNode(rootModelNode).initializePosition(position);
+        QmlVisualNode(rootModelNode).setPosition(position);
         ModelMerger merger(view);
         return merger.insertModel(rootModelNode);
     }
@@ -496,18 +557,20 @@ QmlModelState QmlModelStateGroup::state(const QString &name) const
     return QmlModelState();
 }
 
+bool QmlVisualNode::Position::is3D() const
+{
+    return m_is3D;
+}
+
 QList<QPair<PropertyName, QVariant> > QmlVisualNode::Position::propertyPairList() const
 {
     QList<QPair<PropertyName, QVariant> > propertyPairList;
 
-    if (!m_2dPos.isNull()) {
-        propertyPairList.append({"x", QVariant(qRound(m_2dPos.x()))});
-        propertyPairList.append({"y", QVariant(qRound(m_2dPos.y()))});
-    } else if (!m_3dPos.isNull()) {
-        propertyPairList.append({"x", QVariant(m_3dPos.x())});
-        propertyPairList.append({"y", QVariant(m_3dPos.y())});
-        propertyPairList.append({"z", QVariant(m_3dPos.z())});
-    }
+    propertyPairList.append({"x", QVariant(qRound(x()))});
+    propertyPairList.append({"y", QVariant(qRound(y()))});
+
+    if (m_is3D)
+        propertyPairList.append({"z", QVariant(z())});
 
     return propertyPairList;
 }

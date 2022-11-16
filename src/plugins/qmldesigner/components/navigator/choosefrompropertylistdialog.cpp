@@ -57,7 +57,10 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
         } else if (parentInfo.isQtQuick3DTextureInput()) {
             propertyList.append("texture");
         } else if (parentInfo.isQtQuick3DSceneEnvironment()) {
-            propertyList.append("lightProbe");
+            if (insertInfo.isQtQuick3DCubeMapTexture())
+                propertyList.append("skyBoxCubeMap");
+            else
+                propertyList.append("lightProbe");
         }
     } else if (insertInfo.isQtQuick3DEffect()) {
         if (parentInfo.isQtQuick3DSceneEnvironment())

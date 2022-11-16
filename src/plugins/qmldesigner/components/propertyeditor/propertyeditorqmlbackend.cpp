@@ -809,9 +809,6 @@ NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
     if (!node.isValid())
         return node.metaInfo();
 
-    if (auto metaInfo = node.metaInfo())
-        return metaInfo;
-
     AbstractView *view = node.view();
 
     if (view->selectedModelNodes().count() > 1) {

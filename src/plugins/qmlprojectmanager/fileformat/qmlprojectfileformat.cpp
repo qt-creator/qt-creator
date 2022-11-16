@@ -52,7 +52,8 @@ std::unique_ptr<QmlProjectManager::FileFilterBaseItem> setupFileFilterItem(
 
 namespace QmlProjectManager {
 
-QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fileName, QString *errorMessage)
+std::unique_ptr<QmlProjectItem> QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fileName,
+                                                                       QString *errorMessage)
 {
     QmlJS::SimpleReader simpleQmlJSReader;
 
@@ -67,7 +68,7 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
     }
 
     if (rootNode->name() == QLatin1String("Project")) {
-        auto projectItem = new QmlProjectItem;
+        auto projectItem = std::make_unique<QmlProjectItem>();
 
         const auto mainFileProperty = rootNode->property(QLatin1String("mainFile"));
         if (mainFileProperty.isValid())
@@ -137,8 +138,7 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
                     setupFileFilterItem(std::make_unique<FileFilterItem>("*.js"), childNode));
             } else if (childNode->name() == QLatin1String("ImageFiles")) {
                 projectItem->appendContent(
-                    setupFileFilterItem(std::make_unique<ImageFileFilterItem>(projectItem),
-                                        childNode));
+                    setupFileFilterItem(std::make_unique<ImageFileFilterItem>(), childNode));
             } else if (childNode->name() == QLatin1String("CssFiles")) {
                 projectItem->appendContent(
                     setupFileFilterItem(std::make_unique<FileFilterItem>("*.css"), childNode));

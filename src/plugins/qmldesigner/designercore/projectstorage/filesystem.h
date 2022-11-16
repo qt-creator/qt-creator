@@ -29,6 +29,7 @@ public:
     {}
 
     SourceIds directoryEntries(const QString &directoryPath) const override;
+    QStringList qmlFileNames(const QString &directoryPath) const override;
     long long lastModified(SourceId sourceId) const override;
     FileStatus fileStatus(SourceId sourceId) const override;
     QString contentAsQString(const QString &filePath) const override;

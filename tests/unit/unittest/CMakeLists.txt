@@ -155,8 +155,8 @@ extend_qtc_test(unittest
     "${QmlDesignerDir}/designercore"
     "${QmlDesignerDir}/designercore/include"
     "${QmlDesignerDir}/designercore/imagecache"
-    "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
-    "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/types"
+    "${QmlDesignerDir}/../../../src/libs/qmlpuppetcommunication/interfaces"
+    "${QmlDesignerDir}/../../../src/libs/qmlpuppetcommunication/types"
   DEFINES
     QMLDESIGNERCORE_STATIC_LIBRARY QMLDESIGNER_STATIC_LIBRARY
   SOURCES_PREFIX
@@ -167,7 +167,7 @@ extend_qtc_test(unittest
 extend_qtc_test(unittest
   SOURCES_PREFIX "${QmlDesignerDir}/designercore"
   SOURCES
-    ../../../../share/qtcreator/qml/qmlpuppet/interfaces/commondefines.h
+    ../../../../src/libs/qmlpuppetcommunication/interfaces/commondefines.h
     ../components/listmodeleditor/listmodeleditormodel.cpp
     ../components/listmodeleditor/listmodeleditormodel.h
     exceptions/exception.cpp

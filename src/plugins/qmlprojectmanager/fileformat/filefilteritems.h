@@ -20,9 +20,7 @@ class QmlProjectContentItem : public QObject
     Q_OBJECT
 
 public:
-    QmlProjectContentItem(QObject *parent = nullptr)
-        : QObject(parent)
-    {}
+    QmlProjectContentItem() {}
 };
 
 class FileFilterBaseItem : public QmlProjectContentItem {
@@ -35,7 +33,7 @@ class FileFilterBaseItem : public QmlProjectContentItem {
     Q_PROPERTY(QStringList files READ files NOTIFY filesChanged DESIGNABLE false)
 
 public:
-    FileFilterBaseItem(QObject *parent = nullptr);
+    FileFilterBaseItem();
 
     QString directory() const;
     void setDirectory(const QString &directoryPath);
@@ -99,12 +97,12 @@ private:
 
 class FileFilterItem : public FileFilterBaseItem {
 public:
-    FileFilterItem(const QString &fileFilter, QObject *parent = nullptr);
+    FileFilterItem(const QString &fileFilter);
 };
 
 class ImageFileFilterItem : public FileFilterBaseItem {
 public:
-    ImageFileFilterItem(QObject *parent = nullptr);
+    ImageFileFilterItem();
 };
 
 } // namespace QmlProjectManager

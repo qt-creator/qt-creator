@@ -49,6 +49,7 @@ class QMLDESIGNERCORE_EXPORT Model : public QObject
     friend AbstractView;
     friend Internal::ModelPrivate;
     friend Internal::WriteLocker;
+    friend ModelDeleter;
     friend class NodeMetaInfoPrivate;
 
     Q_OBJECT
@@ -65,12 +66,12 @@ public:
 
     ~Model();
 
-    static std::unique_ptr<Model> create(const TypeName &typeName,
-                                         int major = 1,
-                                         int minor = 1,
-                                         Model *metaInfoProxyModel = nullptr)
+    static ModelPointer create(const TypeName &typeName,
+                               int major = 1,
+                               int minor = 1,
+                               Model *metaInfoProxyModel = nullptr)
     {
-        return std::make_unique<Model>(typeName, major, minor, metaInfoProxyModel);
+        return ModelPointer(new Model(typeName, major, minor, metaInfoProxyModel));
     }
 
     QUrl fileUrl() const;
@@ -147,6 +148,8 @@ public:
     QString generateNewId(const QString &prefixName, const QString &fallbackPrefix = "element") const;
     QString generateIdFromName(const QString &name, const QString &fallbackId = "element") const;
 
+    void setActive3DSceneId(qint32 sceneId);
+
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
 
@@ -155,6 +158,7 @@ public:
 private:
     template<const auto &moduleName, const auto &typeName>
     NodeMetaInfo createNodeMetaInfo() const;
+    void detachAllViews();
 
 private:
     std::unique_ptr<Internal::ModelPrivate> d;

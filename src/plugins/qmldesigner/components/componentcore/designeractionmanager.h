@@ -24,20 +24,20 @@ namespace QmlDesigner {
 
 class DesignerActionManagerView;
 
-using AddResourceOperation = std::function<AddFilesResult (const QStringList &, const QString &)>;
-using ModelNodePreviewImageOperation = std::function<QVariant (const ModelNode &)>;
+using AddResourceOperation = std::function<AddFilesResult(const QStringList &, const QString &, bool)>;
+using ModelNodePreviewImageOperation = std::function<QVariant(const ModelNode &)>;
 
 struct AddResourceHandler
 {
 public:
-    AddResourceHandler( const QString &_category,
-                        const QString &_filter,
-                        AddResourceOperation _operation,
-                        int _priority = 0)
+    AddResourceHandler(const QString &_category,
+                       const QString &_filter,
+                       AddResourceOperation _operation,
+                       int _priority = 0)
         : category(_category)
-        ,filter(_filter)
-        ,operation(_operation)
-        ,piority(_priority)
+        , filter(_filter)
+        , operation(_operation)
+        , piority(_priority)
     {
     }
 

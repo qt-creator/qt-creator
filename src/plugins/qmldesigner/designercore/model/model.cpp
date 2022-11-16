@@ -6,9 +6,8 @@
 #include "model_p.h"
 #include <modelnode.h>
 
-
-
 #include "abstractview.h"
+#include "auxiliarydataproperties.h"
 #include "internalnodeabstractproperty.h"
 #include "internalnodelistproperty.h"
 #include "internalproperty.h"
@@ -88,10 +87,7 @@ ModelPrivate::ModelPrivate(
     m_currentTimelineNode = m_rootInternalNode;
 }
 
-ModelPrivate::~ModelPrivate()
-{
-    detachAllViews();
-}
+ModelPrivate::~ModelPrivate() = default;
 
 void ModelPrivate::detachAllViews()
 {
@@ -572,6 +568,11 @@ void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode, const QVect
 void ModelPrivate::notifyView3DAction(View3DActionType type, const QVariant &value)
 {
     notifyNormalViewsLast([&](AbstractView *view) { view->view3DAction(type, value); });
+}
+
+void ModelPrivate::notifyActive3DSceneIdChanged(qint32 sceneId)
+{
+    notifyInstanceChanges([&](AbstractView *view) { view->active3DSceneChanged(sceneId); });
 }
 
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
@@ -1585,6 +1586,16 @@ QString Model::generateIdFromName(const QString &name, const QString &fallbackId
     return newId;
 }
 
+void Model::setActive3DSceneId(qint32 sceneId)
+{
+    auto activeSceneAux = d->rootNode()->auxiliaryData(active3dSceneProperty);
+    if (activeSceneAux && activeSceneAux->toInt() == sceneId)
+        return;
+
+    d->rootNode()->setAuxiliaryData(active3dSceneProperty, sceneId);
+    d->notifyActive3DSceneIdChanged(sceneId);
+}
+
 void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
 {
     d->notifyDragStarted(mimeData);
@@ -1606,6 +1617,17 @@ void Model::endDrag()
 NotNullPointer<const ProjectStorage<Sqlite::Database>> Model::projectStorage() const
 {
     return d->projectStorage;
+}
+
+void ModelDeleter::operator()(class Model *model)
+{
+    model->detachAllViews();
+    delete model;
+}
+
+void Model::detachAllViews()
+{
+    d->detachAllViews();
 }
 
 bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion) const
@@ -1743,6 +1765,7 @@ QUrl Model::fileUrl() const
   */
 void Model::setFileUrl(const QUrl &url)
 {
+    Q_ASSERT(url.isValid() && url.isLocalFile());
     Internal::WriteLocker locker(d.get());
     d->setFileUrl(url);
 }

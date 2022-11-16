@@ -75,7 +75,9 @@ const char MATERIAL_LIB_ID[] = "__materialLibrary__";
 const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.itemlibraryinfo";
 const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";
 const char MIME_TYPE_MATERIAL[]          = "application/vnd.qtdesignstudio.material";
+const char MIME_TYPE_TEXTURE[]           = "application/vnd.qtdesignstudio.texture";
 const char MIME_TYPE_BUNDLE_MATERIAL[]   = "application/vnd.qtdesignstudio.bundlematerial";
+const char MIME_TYPE_BUNDLE_TEXTURE[]    = "application/vnd.qtdesignstudio.bundletexture";
 const char MIME_TYPE_ASSET_IMAGE[]       = "application/vnd.qtdesignstudio.asset.image";
 const char MIME_TYPE_ASSET_FONT[]        = "application/vnd.qtdesignstudio.asset.font";
 const char MIME_TYPE_ASSET_SHADER[]      = "application/vnd.qtdesignstudio.asset.shader";
@@ -119,7 +121,7 @@ const char EVENT_NAVIGATORVIEW_TIME[] = "navigatorView";
 const char EVENT_DESIGNMODE_TIME[] = "designMode";
 const char EVENT_MATERIALEDITOR_TIME[] = "materialEditor";
 const char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
-
+const char EVENT_INSIGHT_TIME[] = "insight";
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 

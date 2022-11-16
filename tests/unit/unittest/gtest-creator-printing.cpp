@@ -676,9 +676,12 @@ std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel)
 
 std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &package)
 {
-    return out << "(" << package.imports << ", " << package.types << ", "
-               << package.updatedSourceIds << ", " << package.fileStatuses << ", "
-               << package.updatedFileStatusSourceIds << ", " << package.projectDatas << ")";
+    return out << "(imports: " << package.imports << ", types: " << package.types
+               << ", updatedSourceIds: " << package.updatedSourceIds
+               << ", fileStatuses: " << package.fileStatuses
+               << ", updatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
+               << ", updatedProjectSourceIds: " << package.updatedProjectSourceIds
+               << ", projectDatas: " << package.projectDatas << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ProjectData &data)

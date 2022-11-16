@@ -3,19 +3,16 @@
 
 #include "qmlitemnode.h"
 #include <metainfo.h>
-#include "qmlchangeset.h"
 #include "nodelistproperty.h"
 #include "nodehints.h"
+#include "nodeproperty.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
 #include "qmlanchors.h"
-#include "invalidmodelnodeexception.h"
 #include "itemlibraryinfo.h"
 
-#include "plaintexteditmodifier.h"
-#include "rewriterview.h"
-#include "modelmerger.h"
-#include "rewritingexception.h"
+#include <model.h>
+#include <abstractview.h>
 
 #include <coreplugin/icore.h>
 
@@ -165,9 +162,9 @@ static bool useLayerEffect()
     return settings->value(layerEffectEntry, true).toBool();
 }
 
-QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
-                                                    const QmlItemNode &parentNode,
-                                                    const QString &effectName)
+void QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
+                                             const QmlItemNode &parentNode,
+                                             const QString &effectName)
 {
     QmlItemNode newQmlItemNode;
 
@@ -177,8 +174,8 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
     try {
         if (!view->model()->hasImport(import, true, true))
             view->model()->changeImports({import}, {});
-    } catch (const Exception &e) {
-        QTC_ASSERT(false, return QmlItemNode());
+    } catch (const Exception &) {
+        QTC_ASSERT(false, return);
     }
 
     TypeName type(effectName.toUtf8());
@@ -194,10 +191,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
     } else {
         parentNode.modelNode().variantProperty("layer.enabled").setValue(true);
     }
-
-    QTC_ASSERT(newQmlItemNode.isValid(), return QmlItemNode());
-
-    return  newQmlItemNode;
 }
 
 bool QmlItemNode::isValid() const

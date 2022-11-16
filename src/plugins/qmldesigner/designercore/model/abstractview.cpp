@@ -3,6 +3,7 @@
 
 #include "abstractview.h"
 
+#include "auxiliarydataproperties.h"
 #include "model.h"
 #include "model_p.h"
 #include "internalnode_p.h"
@@ -391,6 +392,8 @@ void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/, con
 }
 
 void AbstractView::view3DAction(View3DActionType, const QVariant &) {}
+
+void AbstractView::active3DSceneChanged(qint32 /*sceneId*/) {}
 
 void AbstractView::dragStarted(QMimeData * /*mimeData*/) {}
 void AbstractView::dragEnded() {}
@@ -841,6 +844,19 @@ void AbstractView::ensureMaterialLibraryNode()
 ModelNode AbstractView::materialLibraryNode()
 {
     return modelNodeForId(Constants::MATERIAL_LIB_ID);
+}
+
+ModelNode AbstractView::active3DSceneNode()
+{
+    auto activeSceneAux = rootModelNode().auxiliaryData(active3dSceneProperty);
+    if (activeSceneAux) {
+        int activeScene = activeSceneAux->toInt();
+
+        if (hasModelNodeForInternalId(activeScene))
+            return modelNodeForInternalId(activeScene);
+    }
+
+    return {};
 }
 
 // Assigns given material to a 3D model.

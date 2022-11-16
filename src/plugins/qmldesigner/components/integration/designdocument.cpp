@@ -147,7 +147,7 @@ const AbstractView *DesignDocument::view() const
     return viewManager().view();
 }
 
-std::unique_ptr<Model> DesignDocument::createInFileComponentModel()
+ModelPointer DesignDocument::createInFileComponentModel()
 {
     auto model = Model::create("QtQuick.Item", 1, 0);
     model->setFileUrl(m_documentModel->fileUrl());
@@ -189,6 +189,93 @@ bool DesignDocument::pasteSVG()
     });
 
     return true;
+}
+
+void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const std::optional<QVector3D> &position)
+{
+    if (!nodes.size())
+        return;
+
+    QList<ModelNode> movingNodes = nodes;
+    DesignDocumentView view{m_externalDependencies};
+    currentModel()->attachView(&view);
+
+    ModelNode targetNode; // the node that new nodes should be placed in
+    if (!view.selectedModelNodes().isEmpty())
+        targetNode = view.firstSelectedModelNode();
+
+    // in case we copy and paste a selection we paste in the parent item
+    if ((view.selectedModelNodes().count() == movingNodes.count())
+            && targetNode.hasParentProperty()) {
+        targetNode = targetNode.parentProperty().parentModelNode();
+    } else if (view.selectedModelNodes().isEmpty()) {
+        // if selection is empty and copied nodes are all 3D nodes, paste them under the active scene
+        bool all3DNodes = Utils::allOf(movingNodes, [](const ModelNode &node) {
+            return node.metaInfo().isQtQuick3DNode();
+        });
+
+        if (all3DNodes) {
+            auto data = rootModelNode().auxiliaryData(active3dSceneProperty);
+            if (data) {
+                if (int activeSceneId = data->toInt(); activeSceneId != -1) {
+                    NodeListProperty sceneNodeProperty = QmlVisualNode::findSceneNodeProperty(
+                                rootModelNode().view(), activeSceneId);
+                    targetNode = sceneNodeProperty.parentModelNode();
+                }
+            }
+        }
+    }
+
+    if (!targetNode.isValid())
+        targetNode = view.rootModelNode();
+
+    for (const ModelNode &node : std::as_const(movingNodes)) {
+        for (const ModelNode &node2 : std::as_const(movingNodes)) {
+            if (node.isAncestorOf(node2))
+                movingNodes.removeAll(node2);
+        }
+    }
+
+    bool isSingleNode = movingNodes.size() == 1;
+    if (isSingleNode) {
+        ModelNode singleNode = movingNodes.first();
+        if (targetNode.hasParentProperty()
+            && singleNode.simplifiedTypeName() == targetNode.simplifiedTypeName()
+            && singleNode.variantProperty("width").value() == targetNode.variantProperty("width").value()
+            && singleNode.variantProperty("height").value() == targetNode.variantProperty("height").value()) {
+            targetNode = targetNode.parentProperty().parentModelNode();
+        }
+    }
+
+    const PropertyName defaultPropertyName = targetNode.metaInfo().defaultPropertyName();
+    if (!targetNode.metaInfo().property(defaultPropertyName).isListProperty())
+        qWarning() << Q_FUNC_INFO << "Cannot reparent to" << targetNode;
+    NodeListProperty parentProperty = targetNode.nodeListProperty(defaultPropertyName);
+    QList<ModelNode> pastedNodeList;
+
+    const double scatterRange = 20.;
+    int offset = QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
+
+    std::optional<QmlVisualNode> firstVisualNode;
+    QVector3D translationVect;
+    for (const ModelNode &node : std::as_const(movingNodes)) {
+        ModelNode pastedNode(view.insertModel(node));
+        pastedNodeList.append(pastedNode);
+        parentProperty.reparentHere(pastedNode);
+
+        QmlVisualNode visualNode(pastedNode);
+        if (!firstVisualNode.has_value() && visualNode.isValid()){
+            firstVisualNode = visualNode;
+            translationVect = (position.has_value() && firstVisualNode.has_value())
+                    ? position.value() - firstVisualNode->position()
+                    : QVector3D();
+        }
+        visualNode.translate(translationVect);
+        visualNode.scatter(targetNode, offset);
+    }
+
+    view.setSelectedModelNodes(pastedNodeList);
+    view.model()->clearMetaInfoCache();
 }
 
 bool DesignDocument::inFileComponentModelActive() const
@@ -492,46 +579,24 @@ void DesignDocument::cutSelected()
     deleteSelected();
 }
 
-static void scatterItem(const ModelNode &pastedNode, const ModelNode &targetNode, int offset = -2000)
+void DesignDocument::duplicateSelected()
 {
-    if (targetNode.metaInfo().isValid() && targetNode.metaInfo().isLayoutable())
-        return;
+    DesignDocumentView view{m_externalDependencies};
+    currentModel()->attachView(&view);
+    const QList<ModelNode> selectedNodes = view.selectedModelNodes();
+    currentModel()->detachView(&view);
 
-    if (!(pastedNode.hasVariantProperty("x") && pastedNode.hasVariantProperty("y")))
-        return;
-
-    bool scatter = false;
-    for (const ModelNode &childNode : targetNode.directSubModelNodes()) {
-        if (childNode.variantProperty("x").value() == pastedNode.variantProperty("x").value() &&
-            childNode.variantProperty("y").value() == pastedNode.variantProperty("y").value()) {
-            scatter = true;
-            break;
-        }
-    }
-    if (!scatter)
-        return;
-
-    if (offset == -2000) { // scatter in range
-        double x = pastedNode.variantProperty("x").value().toDouble();
-        double y = pastedNode.variantProperty("y").value().toDouble();
-
-        const double scatterRange = 20.;
-        x += QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
-        y += QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
-
-        pastedNode.variantProperty("x").setValue(int(x));
-        pastedNode.variantProperty("y").setValue(int(y));
-    } else { // offset
-        int x = pastedNode.variantProperty("x").value().toInt();
-        int y = pastedNode.variantProperty("y").value().toInt();
-        x += offset;
-        y += offset;
-        pastedNode.variantProperty("x").setValue(x);
-        pastedNode.variantProperty("y").setValue(y);
-    }
+    rewriterView()->executeInTransaction("DesignDocument::duplicateSelected", [this, selectedNodes]() {
+        moveNodesToPosition(selectedNodes, {});
+    });
 }
 
 void DesignDocument::paste()
+{
+    pasteToPosition({});
+}
+
+void DesignDocument::pasteToPosition(const std::optional<QVector3D> &position)
 {
     if (pasteSVG())
         return;
@@ -547,116 +612,21 @@ void DesignDocument::paste()
     DesignDocumentView view{m_externalDependencies};
     pasteModel->attachView(&view);
     ModelNode rootNode(view.rootModelNode());
-    QList<ModelNode> selectedNodes = rootNode.directSubModelNodes();
-    pasteModel->detachView(&view);
 
     if (rootNode.type() == "empty")
         return;
 
-    if (rootNode.id() == "__multi__selection__") { // pasting multiple objects
-        currentModel()->attachView(&view);
+    QList<ModelNode> selectedNodes;
+    if (rootNode.id() == "__multi__selection__")
+        selectedNodes << rootNode.directSubModelNodes();
+    else
+        selectedNodes << rootNode;
 
-        ModelNode targetNode;
+    pasteModel->detachView(&view);
 
-        if (!view.selectedModelNodes().isEmpty())
-            targetNode = view.firstSelectedModelNode();
-
-        // in case we copy and paste a selection we paste in the parent item
-        if ((view.selectedModelNodes().count() == selectedNodes.count())
-            && targetNode.hasParentProperty()) {
-            targetNode = targetNode.parentProperty().parentModelNode();
-        } else if (view.selectedModelNodes().isEmpty()) {
-            // if selection is empty and copied nodes are all 3D nodes, paste them under the active scene
-            bool all3DNodes = std::find_if(selectedNodes.cbegin(),
-                                           selectedNodes.cend(),
-                                           [](const ModelNode &node) {
-                                               return !node.metaInfo().isQtQuick3DNode();
-                                           })
-                              == selectedNodes.cend();
-            if (all3DNodes) {
-                auto data = rootModelNode().auxiliaryData(active3dSceneProperty);
-                if (data) {
-                    if (int activeSceneId = data->toInt(); activeSceneId != -1) {
-                        NodeListProperty sceneNodeProperty = QmlVisualNode::findSceneNodeProperty(
-                            rootModelNode().view(), activeSceneId);
-                        targetNode = sceneNodeProperty.parentModelNode();
-                    }
-                }
-            }
-        }
-
-        if (!targetNode.isValid())
-            targetNode = view.rootModelNode();
-
-        for (const ModelNode &node : std::as_const(selectedNodes)) {
-            for (const ModelNode &node2 : std::as_const(selectedNodes)) {
-                if (node.isAncestorOf(node2))
-                    selectedNodes.removeAll(node2);
-            }
-        }
-
-        rewriterView()->executeInTransaction("DesignDocument::paste1", [&view, selectedNodes, targetNode]() {
-            QList<ModelNode> pastedNodeList;
-
-            const double scatterRange = 20.;
-            int offset = QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
-
-            const auto defaultPropertyName = targetNode.metaInfo().defaultPropertyName();
-            auto parentProperty = targetNode.nodeListProperty(defaultPropertyName);
-            for (const ModelNode &node : std::as_const(selectedNodes)) {
-                ModelNode pastedNode(view.insertModel(node));
-                pastedNodeList.append(pastedNode);
-                scatterItem(pastedNode, targetNode, offset);
-                parentProperty.reparentHere(pastedNode);
-            }
-
-            view.setSelectedModelNodes(pastedNodeList);
-        });
-
-    } else { // pasting single object
-        rewriterView()->executeInTransaction("DesignDocument::paste1", [this, &view, rootNode]() {
-            currentModel()->attachView(&view);
-            ModelNode pastedNode(view.insertModel(rootNode));
-            ModelNode targetNode;
-
-            if (!view.selectedModelNodes().isEmpty()) {
-                targetNode = view.firstSelectedModelNode();
-            } else {
-                // if selection is empty and this is a 3D Node, paste it under the active scene
-                if (pastedNode.metaInfo().isQtQuick3DNode()) {
-                    auto data = rootModelNode().auxiliaryData(active3dSceneProperty);
-                    if (data) {
-                        if (int activeSceneId = data->toInt(); activeSceneId != -1) {
-                            NodeListProperty sceneNodeProperty = QmlVisualNode::findSceneNodeProperty(
-                                rootModelNode().view(), activeSceneId);
-                            targetNode = sceneNodeProperty.parentModelNode();
-                        }
-                    }
-                }
-            }
-
-            if (!targetNode.isValid())
-                targetNode = view.rootModelNode();
-
-            if (targetNode.hasParentProperty() &&
-                pastedNode.simplifiedTypeName() == targetNode.simplifiedTypeName() &&
-                pastedNode.variantProperty("width").value() == targetNode.variantProperty("width").value() &&
-                pastedNode.variantProperty("height").value() == targetNode.variantProperty("height").value()) {
-                targetNode = targetNode.parentProperty().parentModelNode();
-            }
-
-            PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
-
-            scatterItem(pastedNode, targetNode);
-            if (targetNode.metaInfo().property(defaultProperty).isListProperty())
-                targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
-            else
-                qWarning() << "Cannot reparent to" << targetNode;
-
-            view.setSelectedModelNodes({pastedNode});
-        });
-        view.model()->clearMetaInfoCache();
-    }
+    rewriterView()->executeInTransaction("DesignDocument::pasteToPosition", [this, selectedNodes, position]() {
+        moveNodesToPosition(selectedNodes, position);
+    });
 }
 
 void DesignDocument::selectAll()

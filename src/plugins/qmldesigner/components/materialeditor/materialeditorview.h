@@ -98,7 +98,6 @@ private:
     void requestPreviewRender();
     void applyMaterialToSelectedModels(const ModelNode &material, bool add = false);
 
-    void delayedResetView();
     void setupQmlBackend();
 
     void commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value);

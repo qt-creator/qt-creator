@@ -12,6 +12,7 @@
 #include <theme.h>
 #include <utils/hdrimage.h>
 #include <qmldesignerplugin.h>
+#include <modelnodeoperations.h>
 
 #include <coreplugin/icore.h>
 

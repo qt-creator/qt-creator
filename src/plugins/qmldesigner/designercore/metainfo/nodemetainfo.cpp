@@ -1704,8 +1704,11 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo) const
     if constexpr (useProjectStorage()) {
         return m_projectStorage->isBasedOn(m_typeId, metaInfo.m_typeId);
     } else {
-        return isValid()
-               && isSubclassOf(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+        if (!isValid())
+            return false;
+        if (majorVersion() == -1 && minorVersion() == -1)
+            return isSubclassOf(metaInfo.typeName());
+        return isSubclassOf(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
     }
 }
 
@@ -1714,11 +1717,14 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &
     if constexpr (useProjectStorage()) {
         return m_projectStorage->isBasedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId);
     } else {
-        return isValid()
-               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
-                   || isSubclassOf(metaInfo2.typeName(),
-                                   metaInfo2.majorVersion(),
-                                   metaInfo2.minorVersion()));
+        if (!isValid())
+            return false;
+        if (majorVersion() == -1 && minorVersion() == -1)
+            return (isSubclassOf(metaInfo1.typeName()) || isSubclassOf(metaInfo2.typeName()));
+
+        return (
+            isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+            || isSubclassOf(metaInfo2.typeName(), metaInfo2.majorVersion(), metaInfo2.minorVersion()));
     }
 }
 
@@ -1732,14 +1738,16 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                                            metaInfo2.m_typeId,
                                            metaInfo3.m_typeId);
     } else {
-        return isValid()
-               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
-                   || isSubclassOf(metaInfo2.typeName(),
-                                   metaInfo2.majorVersion(),
-                                   metaInfo2.minorVersion())
-                   || isSubclassOf(metaInfo3.typeName(),
-                                   metaInfo3.majorVersion(),
-                                   metaInfo3.minorVersion()));
+        if (!isValid())
+            return false;
+        if (majorVersion() == -1 && minorVersion() == -1)
+            return (isSubclassOf(metaInfo1.typeName()) || isSubclassOf(metaInfo2.typeName())
+                    || isSubclassOf(metaInfo3.typeName()));
+
+        return (
+            isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+            || isSubclassOf(metaInfo2.typeName(), metaInfo2.majorVersion(), metaInfo2.minorVersion())
+            || isSubclassOf(metaInfo3.typeName(), metaInfo3.majorVersion(), metaInfo3.minorVersion()));
     }
 }
 
@@ -2765,6 +2773,17 @@ bool NodeMetaInfo::isQtQuick3DTextureInput() const
         return isBasedOnCommonType<QtQuick3D, TextureInput>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick3D.TextureInput");
+    }
+}
+
+bool NodeMetaInfo::isQtQuick3DCubeMapTexture() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick3D, CubeMapTexture>(m_projectStorage, m_typeId);
+    } else {
+        return isValid()
+               && (isSubclassOf("QtQuick3D.CubeMapTexture") || isSubclassOf("<cpp>.QQuick3DCubeMapTexture"));
     }
 }
 

@@ -136,6 +136,7 @@ private:
     void addOrRemoveFormEditorItem(const ModelNode &node);
     void checkRootModelNode();
     void setupFormEditor3DView();
+    void setupRootItemSize();
 
     QPointer<FormEditorWidget> m_formEditorWidget;
     QPointer<FormEditorScene> m_scene;

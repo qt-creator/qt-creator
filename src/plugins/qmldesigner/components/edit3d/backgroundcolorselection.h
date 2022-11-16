@@ -25,13 +25,15 @@ public:
     static void showBackgroundColorSelectionWidget(QWidget *parent,
                                                    const QByteArray &key,
                                                    AbstractView *view,
-                                                   View3DActionType actionType);
+                                                   View3DActionType actionType,
+                                                   const std::function<void()> &colorSelected = {});
 
 private:
     static QColorDialog *createColorDialog(QWidget *parent,
                                            const QByteArray &key,
                                            AbstractView *view,
-                                           View3DActionType actionType);
+                                           View3DActionType actionType,
+                                           const std::function<void ()> &colorSelected);
 
     inline static QColorDialog *m_dialog = nullptr;
 };

@@ -39,6 +39,8 @@ public:
 
     void removeEditors(const QList<Core::IEditor *> &editors);
 
+    void resetPossibleImports();
+
     static bool goIntoComponent(const ModelNode &modelNode);
     static void goIntoComponent(const QString &fileName);
 

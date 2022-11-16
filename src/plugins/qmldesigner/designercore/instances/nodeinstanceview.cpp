@@ -295,9 +295,9 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 void NodeInstanceView::handleCrash()
 {
     qint64 elaspsedTimeSinceLastCrash = m_lastCrashTime.restart();
-    qint64 forceRestartTime = 2000;
+    qint64 forceRestartTime = 5000;
 #ifdef QT_DEBUG
-    forceRestartTime = 4000;
+    forceRestartTime = 10000;
 #endif
     if (elaspsedTimeSinceLastCrash > forceRestartTime)
         restartProcess();
@@ -1028,10 +1028,15 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     QList<ModelNode> nodeList = allModelNodes();
     QList<NodeInstance> instanceList;
 
-    for (const ModelNode &node : std::as_const(nodeList)) {
-        NodeInstance instance = loadNode(node);
-        if (!isSkippedNode(node))
-            instanceList.append(instance);
+    std::optional oldNodeInstanceHash = m_nodeInstanceCache.take(model());
+    if (oldNodeInstanceHash && oldNodeInstanceHash->instances.value(rootModelNode()).isValid()) {
+        instanceList = loadInstancesFromCache(nodeList, oldNodeInstanceHash.value());
+    } else {
+        for (const ModelNode &node : std::as_const(nodeList)) {
+            NodeInstance instance = loadNode(node);
+            if (!isSkippedNode(node))
+                instanceList.append(instance);
+        }
     }
 
     clearErrors();
@@ -1475,11 +1480,21 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 
     QSet<ModelNode> renderImageChangeSet;
 
+    QVector<InformationContainer> containerVector;
+
     const QVector<ImageContainer> containers = command.images();
     for (const ImageContainer &container : containers) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
+                if (container.rect().isValid()) {
+                    InformationContainer rectContainer = InformationContainer(container.instanceId(),
+                                                                              BoundingRectPixmap,
+                                                                              container.rect(),
+                                                                              {},
+                                                                              {});
+                    containerVector.append(rectContainer);
+                }
                 instance.setRenderPixmap(container.image());
                 renderImageChangeSet.insert(instance.modelNode());
             }
@@ -1490,6 +1505,14 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 
     if (!renderImageChangeSet.isEmpty())
         emitInstancesRenderImageChanged(Utils::toList(renderImageChangeSet).toVector());
+
+    if (!containerVector.isEmpty()) {
+        QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(
+            containerVector);
+
+        if (!informationChangeHash.isEmpty())
+            emitInstanceInformationsChange(informationChangeHash);
+    }
 }
 
 QMultiHash<ModelNode, InformationName> NodeInstanceView::informationChanged(const QVector<InformationContainer> &containerVector)

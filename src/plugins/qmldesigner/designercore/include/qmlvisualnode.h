@@ -26,23 +26,24 @@ class QMLDESIGNERCORE_EXPORT QmlVisualNode : public QmlObjectNode
     friend class QmlAnchors;
 public:
 
-    class Position
+    class Position : public QVector3D
     {
         friend class QmlVisualNode;
     public:
         Position() {}
         Position(const QPointF &position) :
-            m_2dPos(position)
+            QVector3D(position)
         {}
         Position(const QVector3D &position) :
-            m_3dPos(position)
+            QVector3D(position),
+            m_is3D(true)
         {}
 
+        bool is3D() const;
         QList<QPair<PropertyName, QVariant>> propertyPairList() const;
 
     private:
-        QPointF m_2dPos;
-        QVector3D m_3dPos;
+        bool m_is3D = false;
     };
 
     QmlVisualNode() = default;
@@ -65,7 +66,10 @@ public:
     void setVisibilityOverride(bool visible);
     bool visibilityOverride() const;
 
-    void initializePosition(const Position &position);
+    void scatter(const ModelNode &targetNode, const std::optional<int> &offset);
+    void translate(const QVector3D &vector);
+    void setPosition(const Position &position);
+    Position position() const;
 
     static bool isItemOr3DNode(const ModelNode &modelNode);
 

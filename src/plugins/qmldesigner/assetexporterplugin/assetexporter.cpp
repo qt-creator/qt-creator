@@ -257,7 +257,7 @@ void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
 {
     // Load the QML file and assign UUIDs to items having none.
     // Meanwhile cache the Component UUIDs as well
-    std::unique_ptr<Model> model(Model::create("Item", 2, 7));
+    ModelPointer model(Model::create("Item", 2, 7));
     Utils::FileReader reader;
     if (!reader.fetch(path)) {
         ExportNotification::addError(tr("Cannot preprocess file: %1. Error %2")

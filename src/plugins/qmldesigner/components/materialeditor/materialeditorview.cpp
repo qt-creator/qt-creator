@@ -320,16 +320,6 @@ MaterialEditorView *MaterialEditorView::instance()
     return s_instance;
 }
 
-void MaterialEditorView::delayedResetView()
-{
-    // TODO: it seems the delayed reset is not needed. Leaving it commented out for now just in case it
-    // turned out to be needed. Otherwise will be removed after a small testing period.
-//    if (m_timerId)
-//        killTimer(m_timerId);
-//    m_timerId = startTimer(50);
-    resetView();
-}
-
 void MaterialEditorView::timerEvent(QTimerEvent *timerEvent)
 {
     if (m_timerId == timerEvent->timerId())
@@ -929,7 +919,7 @@ void MaterialEditorView::currentStateChanged(const ModelNode &node)
 {
     QmlModelState newQmlModelState(node);
     Q_ASSERT(newQmlModelState.isValid());
-    delayedResetView();
+    resetView();
 }
 
 void MaterialEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
@@ -964,7 +954,7 @@ void MaterialEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &
 {
      if (node == m_selectedMaterial) {
          m_qmlBackEnd->contextObject()->setCurrentType(QString::fromLatin1(typeName));
-         delayedResetView();
+         resetView();
      }
 }
 
@@ -972,7 +962,7 @@ void MaterialEditorView::rootNodeTypeChanged(const QString &type, int, int)
 {
     if (rootModelNode() == m_selectedMaterial) {
         m_qmlBackEnd->contextObject()->setCurrentType(type);
-        delayedResetView();
+        resetView();
     }
 }
 
@@ -997,6 +987,10 @@ void MaterialEditorView::importsChanged([[maybe_unused]] const QList<Import> &ad
 void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newName)
 {
     QTC_ASSERT(material.isValid(), return);
+
+    QVariant objName = material.variantProperty("objectName").value();
+    if (objName.isValid() && objName.toString() == newName)
+        return;
 
     executeInTransaction("MaterialEditorView:renameMaterial", [&] {
         material.setIdWithRefactoring(model()->generateIdFromName(newName, "material"));

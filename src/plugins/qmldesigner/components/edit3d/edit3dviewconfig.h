@@ -14,7 +14,7 @@ namespace QmlDesigner {
 class Edit3DViewConfig
 {
 public:
-    static QList<QColor> load(const char key[])
+    static QList<QColor> loadColor(const char key[])
     {
         QVariant var = QmlDesignerPlugin::settings().value(key);
 
@@ -28,20 +28,26 @@ public:
         });
     }
 
-    static void set(AbstractView *view, View3DActionType type, const QList<QColor> &colorConfig)
+    static void setColor(AbstractView *view, View3DActionType type, const QList<QColor> &colorConfig)
     {
         if (colorConfig.size() == 1)
-            set(view, type, colorConfig.at(0));
+            setColor(view, type, colorConfig.at(0));
         else
             setVariant(view, type, QVariant::fromValue(colorConfig));
     }
 
-    static void set(AbstractView *view, View3DActionType type, const QColor &color)
+    static void setColor(AbstractView *view, View3DActionType type, const QColor &color)
     {
         setVariant(view, type, QVariant::fromValue(color));
     }
 
-    static void save(const QByteArray &key, const QList<QColor> &colorConfig)
+    template <typename T>
+    static void set(AbstractView *view, View3DActionType type, const T &value)
+    {
+        setVariant(view, type, QVariant::fromValue(value));
+    }
+
+    static void saveColor(const QByteArray &key, const QList<QColor> &colorConfig)
     {
         QStringList colorNames = Utils::transform(colorConfig, [](const QColor &color) {
             return color.name();
@@ -50,12 +56,12 @@ public:
         saveVariant(key, QVariant::fromValue(colorNames));
     }
 
-    static void save(const QByteArray &key, const QColor &color)
+    static void saveColor(const QByteArray &key, const QColor &color)
     {
         saveVariant(key, QVariant::fromValue(color.name()));
     }
 
-    static bool isValid(const QList<QColor> &colorConfig) { return !colorConfig.isEmpty(); }
+    static bool isColorValid(const QList<QColor> &colorConfig) { return !colorConfig.isEmpty(); }
 
 private:
     static void setVariant(AbstractView *view, View3DActionType type, const QVariant &colorConfig)

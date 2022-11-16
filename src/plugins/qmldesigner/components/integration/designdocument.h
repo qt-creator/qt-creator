@@ -98,7 +98,9 @@ public:
     void deleteSelected();
     void copySelected();
     void cutSelected();
+    void duplicateSelected();
     void paste();
+    void pasteToPosition(const std::optional<QVector3D> &position);
     void selectAll();
     void undo();
     void redo();
@@ -125,13 +127,14 @@ private: // functions
 
     const AbstractView *view() const;
 
-    std::unique_ptr<Model> createInFileComponentModel();
+    ModelPointer createInFileComponentModel();
 
     bool pasteSVG();
+    void moveNodesToPosition(const QList<ModelNode> &nodes, const std::optional<QVector3D> &position);
 
 private: // variables
-    std::unique_ptr<Model> m_documentModel;
-    std::unique_ptr<Model> m_inFileComponentModel;
+    ModelPointer m_documentModel;
+    ModelPointer m_inFileComponentModel;
     QPointer<Core::IEditor> m_textEditor;
     QScopedPointer<BaseTextEditModifier> m_documentTextModifier;
     QScopedPointer<ComponentTextModifier> m_inFileComponentTextModifier;

@@ -4,13 +4,13 @@
 #pragma once
 
 #include "abstractview.h"
-#include "nodemetainfo.h"
 
 #include <QPointer>
+#include <QSet>
+#include <QTimer>
 
 namespace QmlDesigner {
 
-class BundleMaterial;
 class MaterialBrowserWidget;
 
 class MaterialBrowserView : public AbstractView
@@ -41,26 +41,25 @@ public:
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
+    void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
 private:
     void refreshModel(bool updateImages);
     bool isMaterial(const ModelNode &node) const;
+    bool isTexture(const ModelNode &node) const;
     void loadPropertyGroups();
-    void updateBundleMaterialsImportedState();
-    void updateBundleMaterialsQuick3DVersion();
-    void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const NodeMetaInfo &metaInfo = {});
-    ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
+    void requestPreviews();
 
     QPointer<MaterialBrowserWidget> m_widget;
-    QList<ModelNode> m_bundleMaterialTargets;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
-    BundleMaterial *m_draggedBundleMaterial = nullptr;
 
-    bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action
     bool m_puppetResetPending = false;
     bool m_propertyGroupsLoaded = false;
+
+    QTimer m_previewTimer;
+    QSet<ModelNode> m_previewRequests;
 };
 
 } // namespace QmlDesigner

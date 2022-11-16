@@ -14,6 +14,9 @@ TextInput {
     property bool drag: false
     property bool hover: mouseArea.containsMouse && textInput.enabled
 
+    property int devicePixelRatio: 1
+    property int pixelsPerUnit: 10
+
     z: 2
     font: myControl.font
     color: StudioTheme.Values.themeTextColor
@@ -75,38 +78,197 @@ TextInput {
         }
     }
 
-    TapHandler {
-        id: tapHandler
-        acceptedDevices: PointerDevice.Mouse
-        enabled: true
-        onTapped: {
-            textInput.forceActiveFocus()
-            textInput.deselect() // QTBUG-75862
+    Item {
+        id: dragModifierWorkaround
+        Keys.onPressed: function(event) {
+            event.accepted = true
+
+            if (event.modifiers & Qt.ControlModifier) {
+                mouseArea.stepSize = myControl.minStepSize
+                mouseArea.calcValue()
+            }
+
+            if (event.modifiers & Qt.ShiftModifier) {
+                mouseArea.stepSize = myControl.maxStepSize
+                mouseArea.calcValue()
+            }
         }
+        Keys.onReleased: function(event) {
+            event.accepted = true
+            mouseArea.stepSize = myControl.realStepSize
+            mouseArea.calcValue()
+        }
+    }
+
+    // Ensure that we get Up and Down key press events first
+    Keys.onShortcutOverride: function(event) {
+        event.accepted = (event.key === Qt.Key_Up || event.key === Qt.Key_Down)
     }
 
     MouseArea {
         id: mouseArea
+
+        property real stepSize: myControl.stepSize
+
+        // Properties to store the state of a drag operation
+        property bool dragging: false
+        property bool hasDragged: false
+        property bool potentialDragStart: false
+
+        property int initialValue: myControl.value // value on drag operation starts
+
+        property int pressStartX: 0
+        property int dragStartX: 0
+        property int translationX: 0
+
+        property int dragDirection: 0
+        property int totalUnits: 0 // total number of units dragged
+        property int units: 0
+
+        property real __pixelsPerUnit: textInput.devicePixelRatio * textInput.pixelsPerUnit
+
         anchors.fill: parent
         enabled: true
         hoverEnabled: true
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
-        onPressed: function(mouse) { mouse.accepted = false }
-        onWheel: function(wheel) {
-            if (!myControl.__wheelEnabled)
+        preventStealing: true
+
+        onPositionChanged: function(mouse) {
+            if (!mouseArea.dragging
+                    && !myControl.edit
+                    && Math.abs(mouseArea.pressStartX - mouse.x) > StudioTheme.Values.dragThreshold
+                    && mouse.buttons === Qt.LeftButton
+                    && mouseArea.potentialDragStart) {
+                mouseArea.dragging = true
+                mouseArea.potentialDragStart = false
+                mouseArea.initialValue = myControl.value
+                mouseArea.cursorShape = Qt.ClosedHandCursor
+                mouseArea.dragStartX = mouse.x
+
+                myControl.drag = true
+                myControl.dragStarted()
+                // Force focus on the non visible component to receive key events
+                dragModifierWorkaround.forceActiveFocus()
+                textInput.deselect()
+            }
+
+            if (!mouseArea.dragging)
                 return
+
+            mouse.accepted = true
+
+            var translationX = mouse.x - mouseArea.dragStartX
+
+            // Early return if mouse didn't move along x-axis
+            if (translationX === 0)
+                return
+
+            var currentDragDirection = Math.sign(translationX)
+
+            // Has drag direction changed
+            if (currentDragDirection !== mouseArea.dragDirection) {
+                mouseArea.translationX = 0
+                mouseArea.dragDirection = currentDragDirection
+                mouseArea.totalUnits = mouseArea.units
+            }
+
+            mouseArea.translationX += translationX
+            mouseArea.calcValue()
+            //myControl.realValueModified()
+        }
+
+        onClicked: function(mouse) {
+            if (textInput.edit)
+                mouse.accepted = false
+
+            if (mouseArea.hasDragged) {
+                mouseArea.hasDragged = false
+                return
+            }
+
+            textInput.forceActiveFocus()
+            textInput.deselect() // QTBUG-75862
+        }
+
+        onPressed: function(mouse) {
+            if (textInput.edit)
+                mouse.accepted = false
+
+            mouseArea.potentialDragStart = true
+            mouseArea.pressStartX = mouse.x
+        }
+
+        onReleased: function(mouse) {
+            if (textInput.edit)
+                mouse.accepted = false
+
+            mouseArea.endDrag()
+        }
+
+        function endDrag() {
+            if (!mouseArea.dragging)
+                return
+
+            mouseArea.dragging = false
+            mouseArea.hasDragged = true
+
+            if (myControl.compressedValueTimer.running) {
+                myControl.compressedValueTimer.stop()
+                mouseArea.calcValue()
+                myControl.compressedValueModified()
+            }
+            mouseArea.cursorShape = Qt.PointingHandCursor
+            myControl.drag = false
+            myControl.dragEnded()
+            // Avoid active focus on the component after dragging
+            dragModifierWorkaround.focus = false
+            textInput.focus = false
+            myControl.focus = false
+
+            mouseArea.translationX = 0
+            mouseArea.units = 0
+            mouseArea.totalUnits = 0
+        }
+
+        function calcValue() {
+            var minUnit = (myControl.from - mouseArea.initialValue) / mouseArea.stepSize
+            var maxUnit = (myControl.to - mouseArea.initialValue) / mouseArea.stepSize
+
+            var units = Math.trunc(mouseArea.translationX / mouseArea.__pixelsPerUnit)
+            mouseArea.units = Math.min(Math.max(mouseArea.totalUnits + units, minUnit), maxUnit)
+            myControl.value = mouseArea.initialValue + (mouseArea.units * mouseArea.stepSize)
+
+            if (mouseArea.dragging)
+                myControl.dragging()
+        }
+
+        onWheel: function(wheel) {
+            if (!myControl.__wheelEnabled) {
+                wheel.accepted = false
+                return
+            }
+
+            // Set stepSize according to used modifier key
+            if (wheel.modifiers & Qt.ControlModifier)
+                mouseArea.stepSize = myControl.minStepSize
+
+            if (wheel.modifiers & Qt.ShiftModifier)
+                mouseArea.stepSize = myControl.maxStepSize
 
             var val = myControl.valueFromText(textInput.text, myControl.locale)
             if (myControl.value !== val)
                 myControl.value = val
 
             var currValue = myControl.value
-            myControl.value += wheel.angleDelta.y / 120
+            myControl.value += (wheel.angleDelta.y / 120 * mouseArea.stepSize)
 
             if (currValue !== myControl.value)
                 myControl.valueModified()
+
+            // Reset stepSize
+            mouseArea.stepSize = myControl.stepSize
         }
     }
 
@@ -118,14 +280,6 @@ TextInput {
             PropertyChanges {
                 target: textInputBackground
                 color: StudioTheme.Values.themeControlBackground
-            }
-            PropertyChanges {
-                target: dragHandler
-                enabled: true
-            }
-            PropertyChanges {
-                target: tapHandler
-                enabled: true
             }
             PropertyChanges {
                 target: mouseArea
@@ -155,14 +309,6 @@ TextInput {
             PropertyChanges {
                 target: textInputBackground
                 color: StudioTheme.Values.themeControlBackgroundInteraction
-            }
-            PropertyChanges {
-                target: dragHandler
-                enabled: false
-            }
-            PropertyChanges {
-                target: tapHandler
-                enabled: false
             }
             PropertyChanges {
                 target: mouseArea

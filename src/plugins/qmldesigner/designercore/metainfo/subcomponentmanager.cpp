@@ -38,6 +38,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 static const QString s_qmlFilePattern = QStringLiteral("*.qml");
+constexpr const char AppFileName[] = "App.qml";
 
 SubComponentManager::SubComponentManager(Model *model,
                                          ExternalDependenciesInterface &externalDependencies)
@@ -232,11 +233,17 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
     QFileInfoList monitoredList = watchedFiles(canonicalDirPath);
     QFileInfoList newList;
     const QFileInfoList qmlFileList = dir.entryInfoList();
+    const QString appFilePath = m_filePathDir.absoluteFilePath(AppFileName);
+
     for (const QFileInfo &qmlFile : qmlFileList) {
         if (QFileInfo(m_filePath.toLocalFile()) == qmlFile) {
             // do not parse main file
             continue;
         }
+
+        if (qmlFile.absoluteFilePath() == appFilePath)
+            continue;
+
         if (!qmlFile.fileName().at(0).isUpper()) {
             // QML sub components must be upper case
             continue;

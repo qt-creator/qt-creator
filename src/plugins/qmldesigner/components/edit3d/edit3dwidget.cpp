@@ -2,15 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "edit3dwidget.h"
+#include "designdocumentview.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
 #include "edit3dvisibilitytogglesmenu.h"
 #include "metainfo.h"
 #include "modelnodeoperations.h"
+#include "nodeabstractproperty.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
+#include "timelineactions.h"
 #include "viewmanager.h"
 
 #include <auxiliarydataproperties.h>
@@ -168,10 +171,29 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 void Edit3DWidget::createContextMenu()
 {
     m_contextMenu = new QMenu(this);
+
+    m_editComponentAction = m_contextMenu->addAction(tr("Edit Component"), [&] {
+        DocumentManager::goIntoComponent(m_view->singleSelectedModelNode());
+    });
+
     m_editMaterialAction = m_contextMenu->addAction(tr("Edit Material"), [&] {
         SelectionContext selCtx(m_view);
         selCtx.setTargetNode(m_contextMenuTarget);
         ModelNodeOperations::editMaterial(selCtx);
+    });
+
+    m_contextMenu->addSeparator();
+
+    m_duplicateAction = m_contextMenu->addAction(tr("Duplicate"), [&] {
+        QmlDesignerPlugin::instance()->currentDesignDocument()->duplicateSelected();
+    });
+
+    m_copyAction = m_contextMenu->addAction(tr("Copy"), [&] {
+        QmlDesignerPlugin::instance()->currentDesignDocument()->copySelected();
+    });
+
+    m_pasteAction = m_contextMenu->addAction(tr("Paste"), [&] {
+        QmlDesignerPlugin::instance()->currentDesignDocument()->pasteToPosition(m_contextMenuPos3d);
     });
 
     m_deleteAction = m_contextMenu->addAction(tr("Delete"), [&] {
@@ -180,6 +202,67 @@ void Edit3DWidget::createContextMenu()
                 node.destroy();
         });
     });
+
+    m_contextMenu->addSeparator();
+
+    m_fitSelectedAction = m_contextMenu->addAction(tr("Fit Selected Items to View"), [&] {
+        view()->emitView3DAction(View3DActionType::FitToView, true);
+    });
+
+    m_alignCameraAction = m_contextMenu->addAction(tr("Align Camera to View"), [&] {
+        view()->emitView3DAction(View3DActionType::AlignCamerasToView, true);
+    });
+
+    m_alignViewAction = m_contextMenu->addAction(tr("Align View to Camera"), [&] {
+        view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
+    });
+
+    m_contextMenu->addSeparator();
+
+    m_selectParentAction = m_contextMenu->addAction(tr("Select Parent"), [&] {
+        ModelNode parentNode = ModelNode::lowestCommonAncestor(view()->selectedModelNodes());
+        if (!parentNode.isValid())
+            return;
+
+        if (!parentNode.isRootNode() && view()->isSelectedModelNode(parentNode))
+            parentNode = parentNode.parentProperty().parentModelNode();
+
+        view()->setSelectedModelNode(parentNode);
+    });
+
+    m_contextMenu->addSeparator();
+}
+
+bool Edit3DWidget::isPasteAvailable() const
+{
+    if (TimelineActions::clipboardContainsKeyframes())
+        return false;
+
+    auto pasteModel(DesignDocumentView::pasteToModel(view()->externalDependencies()));
+    if (!pasteModel)
+        return false;
+
+    DesignDocumentView docView{view()->externalDependencies()};
+    pasteModel->attachView(&docView);
+    auto rootNode = docView.rootModelNode();
+
+    if (rootNode.type() == "empty")
+        return false;
+
+    QList<ModelNode> allNodes;
+    if (rootNode.id() == "__multi__selection__")
+        allNodes << rootNode.directSubModelNodes();
+    else
+        allNodes << rootNode;
+
+    bool hasNon3DNode = std::any_of(allNodes.begin(), allNodes.end(), [](const ModelNode &node) {
+        return !node.metaInfo().isQtQuick3DNode();
+    });
+
+    if (hasNon3DNode)
+        return false;
+
+    return true;
 }
 
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
@@ -191,7 +274,7 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
 
     if (m_createSubMenu) {
         m_contextMenu->removeAction(m_createSubMenu->menuAction());
-        m_createSubMenu.clear();
+        m_createSubMenu->deleteLater();
     }
 
     m_nameToEntry.clear();
@@ -302,8 +385,21 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
 
     const bool isValid = modelNode.isValid();
     const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
+    const bool isCamera = isValid && modelNode.metaInfo().isQtQuick3DCamera();
+    const bool isSingleComponent = view()->hasSingleSelectedModelNode() && modelNode.isComponent();
+    const bool anyNodeSelected = view()->hasSelectedModelNodes();
+    const bool selectionExcludingRoot = anyNodeSelected && !view()->rootModelNode().isSelected();
+
+    m_editComponentAction->setEnabled(isSingleComponent);
     m_editMaterialAction->setEnabled(isModel);
-    m_deleteAction->setEnabled(isValid && !modelNode.isRootNode());
+    m_duplicateAction->setEnabled(selectionExcludingRoot);
+    m_copyAction->setEnabled(selectionExcludingRoot);
+    m_pasteAction->setEnabled(isPasteAvailable());
+    m_deleteAction->setEnabled(selectionExcludingRoot);
+    m_fitSelectedAction->setEnabled(anyNodeSelected);
+    m_alignCameraAction->setEnabled(isCamera);
+    m_alignViewAction->setEnabled(isCamera);
+    m_selectParentAction->setEnabled(selectionExcludingRoot);
 
     m_contextMenu->popup(mapToGlobal(pos));
 }

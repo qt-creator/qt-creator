@@ -276,7 +276,7 @@ QHash<QString, QStringList> DesignerActionManager::handleExternalAssetsDrop(cons
     for (const QString &category : categories) {
         AddResourceOperation operation = categoryOperation.value(category);
         QStringList files = categoryFiles.value(category);
-        AddFilesResult result = operation(files, {});
+        AddFilesResult result = operation(files, {}, true);
         if (result == AddFilesResult::Succeeded)
             addedCategoryFiles.insert(category, files);
     }

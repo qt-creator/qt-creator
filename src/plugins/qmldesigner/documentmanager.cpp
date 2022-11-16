@@ -253,6 +253,14 @@ void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
         m_designDocuments.erase(editor);
 }
 
+void DocumentManager::resetPossibleImports()
+{
+    for (const auto &[key, value] : m_designDocuments) {
+        if (RewriterView *view = value->rewriterView())
+            view->resetPossibleImports();
+    }
+}
+
 bool DocumentManager::goIntoComponent(const ModelNode &modelNode)
 {
     if (modelNode.isValid() && modelNode.isComponent() && designDocument()) {

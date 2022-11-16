@@ -164,6 +164,9 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
                     m_ui.askBeforeDeletingAssetCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::SMOOTH_RENDERING, m_ui.smoothRendering->isChecked());
 
+    settings.insert(DesignerSettingsKey::REFORMAT_UI_QML_FILES,
+                    m_ui.alwaysAutoFormatUICheckBox->isChecked());
+
     return settings;
 }
 
@@ -248,6 +251,9 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_ui.debugGroupBox->setVisible(showAdvancedFeatures);
     m_ui.featureTimelineEditorCheckBox->setVisible(standaloneMode);
     m_ui.smoothRendering->setChecked(settings.value(DesignerSettingsKey::SMOOTH_RENDERING).toBool());
+
+    m_ui.alwaysAutoFormatUICheckBox->setChecked(
+        settings.value(DesignerSettingsKey::REFORMAT_UI_QML_FILES).toBool());
 }
 
 void SettingsPageWidget::apply()

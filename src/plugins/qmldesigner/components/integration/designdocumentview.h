@@ -28,7 +28,7 @@ public:
     QString toText() const;
     void fromText(const QString &text);
 
-    static std::unique_ptr<Model> pasteToModel(ExternalDependenciesInterface &externalDependencies);
+    static ModelPointer pasteToModel(ExternalDependenciesInterface &externalDependencies);
     static void copyModelNodes(const QList<ModelNode> &nodesToCopy,
                                ExternalDependenciesInterface &externalDependencies);
 

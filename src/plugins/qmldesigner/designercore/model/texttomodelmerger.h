@@ -9,7 +9,6 @@
 #include "modelnode.h"
 
 #include <qmljs/qmljsscopechain.h>
-#include <qmljs/qmljsscopechain.h>
 
 #include <QStringList>
 #include <QTimer>
@@ -152,6 +151,7 @@ private:
     QmlJS::ViewerContext m_vContext;
     QSet<QPair<QString, QString> > m_qrcMapping;
     QSet<QmlJS::ImportKey> m_possibleImportKeys;
+    int m_previousPossibleImportsSize = -1;
     bool m_hasVersionlessImport = false;
 };
 

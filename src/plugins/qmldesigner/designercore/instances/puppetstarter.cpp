@@ -31,7 +31,7 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
                      puppetProcess.get(),
                      &QProcess::kill);
     QObject::connect(puppetProcess.get(),
-                     static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+                     &QProcess::finished,
                      processFinishCallback);
 
     if (forwardOutput == puppetMode || forwardOutput == "all") {

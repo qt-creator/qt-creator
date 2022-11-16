@@ -180,7 +180,7 @@
 
     Each state group has its own property changes and transitions.
 
-    By default, there is one root state group.
+    By default, there is one default state group.
 
     \section1 Extending States
 

@@ -114,7 +114,7 @@ QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
     navigationView.widget = nullptr;
 
     for (Core::INavigationWidgetFactory *factory : factories) {
-        if (factory->id() == "Projects") {
+        if (factory->id() == "Project") {
             navigationView = factory->createWidget();
             hideToolButtons(navigationView.dockToolBarWidgets);
         }

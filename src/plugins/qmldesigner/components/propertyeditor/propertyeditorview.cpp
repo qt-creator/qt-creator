@@ -593,10 +593,12 @@ void PropertyEditorView::modelAttached(Model *model)
     m_locked = true;
 
     if (!m_setupCompleted) {
-        QTimer::singleShot(50, this, [this]{
-            PropertyEditorView::setupPanes();
-            /* workaround for QTBUG-75847 */
-            reloadQml();
+        QTimer::singleShot(50, this, [this] {
+            if (isAttached()) {
+                PropertyEditorView::setupPanes();
+                /* workaround for QTBUG-75847 */
+                reloadQml();
+            }
         });
     }
 

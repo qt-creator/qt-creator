@@ -49,7 +49,7 @@ public:
     void write(const QString &text);
 
 private:
-    std::unique_ptr<Model> m_model;
+    ModelPointer m_model;
     std::unique_ptr<EventListView> m_eventView;
     Utils::FilePath m_path;
 };

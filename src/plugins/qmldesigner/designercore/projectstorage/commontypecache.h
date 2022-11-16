@@ -30,6 +30,7 @@ inline constexpr char Camera[] = "Camera";
 inline constexpr char Command[] = "Command";
 inline constexpr char Component[] = "Component";
 inline constexpr char Connections[] = "Connections";
+inline constexpr char CubeMapTexture[] = "CubeMapTexture";
 inline constexpr char DefaultMaterial[] = "DefaultMaterial";
 inline constexpr char Dialog[] = "Dialog";
 inline constexpr char DoubleType[] = "double";
@@ -185,6 +186,7 @@ class CommonTypeCache
                                    CacheType<QtQuick3D, Buffer>,
                                    CacheType<QtQuick3D, Camera>,
                                    CacheType<QtQuick3D, Command>,
+                                   CacheType<QtQuick3D, CubeMapTexture>,
                                    CacheType<QtQuick3D, DefaultMaterial>,
                                    CacheType<QtQuick3D, Effect>,
                                    CacheType<QtQuick3D, InstanceList>,

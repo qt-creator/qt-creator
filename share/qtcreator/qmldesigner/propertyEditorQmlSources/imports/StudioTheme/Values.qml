@@ -13,6 +13,7 @@ QtObject {
     property real mediumFont: 14
     property real bigFont: 16
     property real baseIconFont: 12
+    property real mediumIconFont: 18
     property real bigIconFont: 26
 
     property real scaleFactor: 1.0
@@ -24,6 +25,7 @@ QtObject {
     property real bigFontSize: Math.round(values.bigFont * values.scaleFactor)
     property real baseIconFontSize: Math.round(values.baseIconFont * values.scaleFactor)
     property real myIconFontSize: values.baseIconFontSize;  // TODO: rename all refs to myIconFontSize -> baseIconFontSize then remove myIconFontSize
+    property real mediumIconFontSize: Math.round(values.mediumIconFont * values.scaleFactor)
     property real bigIconFontSize: Math.round(values.bigIconFont * values.scaleFactor)
 
     property real squareComponentWidth: values.height

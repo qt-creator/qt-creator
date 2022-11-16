@@ -175,7 +175,7 @@ public:
 
 protected:
     MockFunction<ModelNode(const ModelNode &)> mockGoIntoComponent;
-    std::unique_ptr<QmlDesigner::Model> designerModel{QmlDesigner::Model::create("QtQuick.Item", 1, 1)};
+    QmlDesigner::ModelPointer designerModel{QmlDesigner::Model::create("QtQuick.Item", 1, 1)};
     NiceMock<MockListModelEditorView> mockView;
     QmlDesigner::ListModelEditorModel model{
         [&] { return mockView.createModelNode("QtQml.Models.ListModel", 2, 15); },
@@ -187,7 +187,7 @@ protected:
     ModelNode element1;
     ModelNode element2;
     ModelNode element3;
-    std::unique_ptr<QmlDesigner::Model> componentModel{
+    QmlDesigner::ModelPointer componentModel{
         QmlDesigner::Model::create("QtQml.Models.ListModel", 1, 1)};
     NiceMock<MockListModelEditorView> mockComponentView;
     ModelNode componentElement;

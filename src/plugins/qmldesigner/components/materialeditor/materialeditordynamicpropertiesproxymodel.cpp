@@ -34,7 +34,8 @@ using namespace QmlDesigner;
 MaterialEditorDynamicPropertiesProxyModel::MaterialEditorDynamicPropertiesProxyModel(QObject *parent)
     : DynamicPropertiesProxyModel(parent)
 {
-    initModel(MaterialEditorView::instance()->dynamicPropertiesModel());
+    if (MaterialEditorView::instance())
+        initModel(MaterialEditorView::instance()->dynamicPropertiesModel());
 }
 
 void MaterialEditorDynamicPropertiesProxyModel::registerDeclarativeType()

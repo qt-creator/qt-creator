@@ -177,6 +177,8 @@ public:
     void notifyNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d);
     void notifyView3DAction(View3DActionType type, const QVariant &value);
 
+    void notifyActive3DSceneIdChanged(qint32 sceneId);
+
     void notifyDragStarted(QMimeData *mimeData);
     void notifyDragEnded();
 

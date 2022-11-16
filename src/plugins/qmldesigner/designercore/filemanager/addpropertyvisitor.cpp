@@ -76,8 +76,16 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         endOfPreviousMember = insertAfter->member->lastSourceLocation();
 
         // Find out if the previous members ends with semicolon.
-        if (auto member = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding*>(insertAfter->member)) {
-            if (auto stmt = QmlJS::AST::cast<QmlJS::AST::ExpressionStatement *>(member->statement)) {
+        if (auto member = insertAfter->member) {
+            auto hasStatement = [member]() -> QmlJS::AST::ExpressionStatement * {
+                if (auto m = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding *>(member))
+                    return QmlJS::AST::cast<QmlJS::AST::ExpressionStatement *>(m->statement);
+                if (auto m = QmlJS::AST::cast<QmlJS::AST::UiPublicMember *>(member))
+                    return QmlJS::AST::cast<QmlJS::AST::ExpressionStatement *>(m->statement);
+                return nullptr;
+            };
+
+            if (auto stmt = hasStatement()) {
                 previousMemberSemicolon = stmt->semicolonToken.isValid()
                                           && stmt->semicolonToken.length > 0;
             } else {

@@ -28,10 +28,7 @@ double ExternalDependencies::formEditorDevicePixelRatio() const
 
 QString ExternalDependencies::defaultPuppetFallbackDirectory() const
 {
-    if (Utils::HostOsInfo::isMacHost())
-        return Core::ICore::libexecPath("qmldesigner").toString();
-    else
-        return Core::ICore::libexecPath().toString();
+    return Core::ICore::libexecPath().toString();
 }
 
 QString ExternalDependencies::qmlPuppetFallbackDirectory() const
@@ -65,12 +62,12 @@ QString ExternalDependencies::currentProjectDirPath() const
 
 QList<QColor> ExternalDependencies::designerSettingsEdit3DViewBackgroundColor() const
 {
-    return Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
+    return Edit3DViewConfig::loadColor(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
 }
 
 QColor ExternalDependencies::designerSettingsEdit3DViewGridColor() const
 {
-    QList<QColor> gridColorList = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
+    QList<QColor> gridColorList = Edit3DViewConfig::loadColor(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
     if (!gridColorList.isEmpty())
         return gridColorList.front();
 
@@ -137,13 +134,6 @@ bool ExternalDependencies::hasStartupTarget() const
 }
 
 namespace {
-Utils::FilePath defaultPuppetFallbackDirectory()
-{
-    if (Utils::HostOsInfo::isMacHost())
-        return Core::ICore::libexecPath("qmldesigner");
-
-    return Core::ICore::libexecPath();
-}
 
 Utils::FilePath qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
 {
@@ -156,7 +146,7 @@ Utils::FilePath qmlPuppetFallbackDirectory(const DesignerSettings &settings)
     auto puppetFallbackDirectory = Utils::FilePath::fromString(
         settings.value(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY).toString());
     if (puppetFallbackDirectory.isEmpty() || !puppetFallbackDirectory.exists())
-        return defaultPuppetFallbackDirectory();
+        return Core::ICore::libexecPath();
     return puppetFallbackDirectory;
 }
 

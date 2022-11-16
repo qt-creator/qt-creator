@@ -32,7 +32,7 @@ T.CheckBox {
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
 
-    spacing: StudioTheme.Values.checkBoxSpacing
+    spacing: checkBoxLabel.visible ? StudioTheme.Values.checkBoxSpacing : 0
     hoverEnabled: true
     activeFocusOnTab: false
 
@@ -85,7 +85,7 @@ T.CheckBox {
         text: myCheckBox.text
         font: myCheckBox.font
         color: StudioTheme.Values.themeTextColor
-        visible: text !== ""
+        visible: checkBoxLabel.text !== ""
     }
 
     states: [

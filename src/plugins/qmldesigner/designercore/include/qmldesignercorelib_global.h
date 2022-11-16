@@ -45,6 +45,13 @@ enum AnchorLineType {
     AnchorLineAllMask = AnchorLineVerticalMask | AnchorLineHorizontalMask
 };
 
+struct ModelDeleter
+{
+    QMLDESIGNERCORE_EXPORT void operator()(class Model *model);
+};
+
+using ModelPointer = std::unique_ptr<class Model, ModelDeleter>;
+
 constexpr bool useProjectStorage()
 {
 #ifdef QDS_USE_PROJECTSTORAGE

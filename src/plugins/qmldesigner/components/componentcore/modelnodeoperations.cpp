@@ -1038,9 +1038,9 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
 
 }
 
-AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
-    QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
+    QString directory = showDialog ? AddImagesDialog::getDirectory(fileNames, defaultDir) : defaultDir;
     if (directory.isEmpty())
         return AddFilesResult::Cancelled;
 
@@ -1109,29 +1109,29 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
     return adjustedDefaultDirectory;
 }
 
-AddFilesResult addFontToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addFontToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
-    return addFilesToProject(fileNames, getAssetDefaultDirectory("fonts", defaultDirectory));
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("fonts", defaultDir), showDialog);
 }
 
-AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
-    return addFilesToProject(fileNames, getAssetDefaultDirectory("sounds", defaultDirectory));
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("sounds", defaultDir), showDialog);
 }
 
-AddFilesResult addShaderToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addShaderToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
-    return addFilesToProject(fileNames, getAssetDefaultDirectory("shaders", defaultDirectory));
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("shaders", defaultDir), showDialog);
 }
 
-AddFilesResult addImageToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addImageToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
-    return addFilesToProject(fileNames, getAssetDefaultDirectory("images", defaultDirectory));
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("images", defaultDir), showDialog);
 }
 
-AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &defaultDirectory)
+AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
-    return addFilesToProject(fileNames, getAssetDefaultDirectory("videos", defaultDirectory));
+    return addFilesToProject(fileNames, getAssetDefaultDirectory("videos", defaultDir), showDialog);
 }
 
 void createFlowActionArea(const SelectionContext &selectionContext)

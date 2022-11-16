@@ -51,6 +51,8 @@ private:
     void linkActivated(const QString &link);
     void createContextMenu();
 
+    bool isPasteAvailable() const;
+
     QPointer<Edit3DView> m_edit3DView;
     QPointer<Edit3DView> m_view;
     QPointer<Edit3DCanvas> m_canvas;
@@ -60,8 +62,16 @@ private:
     QPointer<QMenu> m_visibilityTogglesMenu;
     QPointer<QMenu> m_backgroundColorMenu;
     QPointer<QMenu> m_contextMenu;
+    QPointer<QAction> m_editComponentAction;
     QPointer<QAction> m_editMaterialAction;
+    QPointer<QAction> m_duplicateAction;
+    QPointer<QAction> m_copyAction;
+    QPointer<QAction> m_pasteAction;
     QPointer<QAction> m_deleteAction;
+    QPointer<QAction> m_fitSelectedAction;
+    QPointer<QAction> m_alignCameraAction;
+    QPointer<QAction> m_alignViewAction;
+    QPointer<QAction> m_selectParentAction;
     QPointer<QMenu> m_createSubMenu;
     ModelNode m_contextMenuTarget;
     QVector3D m_contextMenuPos3d;

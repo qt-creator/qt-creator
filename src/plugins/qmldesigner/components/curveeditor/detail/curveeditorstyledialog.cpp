@@ -82,73 +82,66 @@ CurveEditorStyleDialog::CurveEditorStyleDialog(CurveEditorStyle &style, QWidget 
 
     connect(m_printButton, &QPushButton::released, this, &CurveEditorStyleDialog::printStyle);
 
-    auto intChanged = [this](int) { emitStyleChanged(); };
-    auto doubleChanged = [this](double) { emitStyleChanged(); };
-    auto colorChanged = [this]() { emitStyleChanged(); };
-
-    auto intSignal = static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged);
-    auto doubleSignal = static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged);
-
-    connect(m_background, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_backgroundAlternate, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_fontColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_gridColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_canvasMargin, doubleSignal, doubleChanged);
-    connect(m_zoomInWidth, intSignal, intChanged);
-    connect(m_zoomInHeight, intSignal, intChanged);
-    connect(m_timeAxisHeight, doubleSignal, doubleChanged);
-    connect(m_timeOffsetLeft, doubleSignal, doubleChanged);
-    connect(m_timeOffsetRight, doubleSignal, doubleChanged);
-    connect(m_rangeBarColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_rangeBarCapsColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_valueAxisWidth, doubleSignal, doubleChanged);
-    connect(m_valueOffsetTop, doubleSignal, doubleChanged);
-    connect(m_valueOffsetBottom, doubleSignal, doubleChanged);
-    connect(m_handleSize, doubleSignal, doubleChanged);
-    connect(m_handleLineWidth, doubleSignal, doubleChanged);
-    connect(m_handleColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_handleSelectionColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_keyframeSize, doubleSignal, doubleChanged);
-    connect(m_keyframeColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_keyframeSelectionColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_curveWidth, doubleSignal, doubleChanged);
-    connect(m_curveColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_curveSelectionColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
-    connect(m_treeMargins, doubleSignal, doubleChanged);
-    connect(m_playheadWidth, doubleSignal, doubleChanged);
-    connect(m_playheadRadius, doubleSignal, doubleChanged);
-    connect(m_playheadColor, &StyleEditor::ColorControl::valueChanged, colorChanged);
+    class WidgetAdder
+    {
+    public:
+        WidgetAdder(CurveEditorStyleDialog *dialog, QVBoxLayout *box)
+            : m_dialog(dialog), m_box(box) {}
+        void add(const QString &title, StyleEditor::ColorControl *widget) {
+            QObject::connect(widget, &StyleEditor::ColorControl::valueChanged,
+                             m_dialog, &CurveEditorStyleDialog::emitStyleChanged);
+            addToLayout(title, widget);
+        }
+        void add(const QString &title, QSpinBox *widget) {
+            QObject::connect(widget, &QSpinBox::valueChanged,
+                             m_dialog, &CurveEditorStyleDialog::emitStyleChanged);
+            addToLayout(title, widget);
+        }
+        void add(const QString &title, QDoubleSpinBox *widget) {
+            QObject::connect(widget, &QDoubleSpinBox::valueChanged,
+                             m_dialog, &CurveEditorStyleDialog::emitStyleChanged);
+            addToLayout(title, widget);
+        }
+    private:
+        void addToLayout(const QString &title, QWidget *widget){
+            m_box->addLayout(createRow(title, widget));
+        }
+        CurveEditorStyleDialog *m_dialog;
+        QVBoxLayout *m_box;
+    };
 
     auto *box = new QVBoxLayout;
-    box->addLayout(createRow("Background Color", m_background));
-    box->addLayout(createRow("Alternate Background Color", m_backgroundAlternate));
-    box->addLayout(createRow("Font Color", m_fontColor));
-    box->addLayout(createRow("Grid Color", m_gridColor));
-    box->addLayout(createRow("Canvas Margin", m_canvasMargin));
-    box->addLayout(createRow("Zoom In Width", m_zoomInWidth));
-    box->addLayout(createRow("Zoom In Height", m_zoomInHeight));
-    box->addLayout(createRow("Time Axis Height", m_timeAxisHeight));
-    box->addLayout(createRow("Time Axis Left Offset", m_timeOffsetLeft));
-    box->addLayout(createRow("Time Axis Right Offset", m_timeOffsetRight));
-    box->addLayout(createRow("Range Bar Color", m_rangeBarColor));
-    box->addLayout(createRow("Range Bar Caps Color", m_rangeBarCapsColor));
-    box->addLayout(createRow("Value Axis Width", m_valueAxisWidth));
-    box->addLayout(createRow("Value Axis Top Offset", m_valueOffsetTop));
-    box->addLayout(createRow("Value Axis Bottom Offset", m_valueOffsetBottom));
-    box->addLayout(createRow("Handle Size", m_handleSize));
-    box->addLayout(createRow("Handle Line Width", m_handleLineWidth));
-    box->addLayout(createRow("Handle Color", m_handleColor));
-    box->addLayout(createRow("Handle Selection Color", m_handleSelectionColor));
-    box->addLayout(createRow("Keyframe Size", m_keyframeSize));
-    box->addLayout(createRow("Keyframe Color", m_keyframeColor));
-    box->addLayout(createRow("Keyframe Selection Color", m_keyframeSelectionColor));
-    box->addLayout(createRow("Curve Width", m_curveWidth));
-    box->addLayout(createRow("Curve Color", m_curveColor));
-    box->addLayout(createRow("Curve Selection Color", m_curveSelectionColor));
-    box->addLayout(createRow("Treeview margins", m_treeMargins));
-    box->addLayout(createRow("Playhead width", m_playheadWidth));
-    box->addLayout(createRow("Playhead radius", m_playheadRadius));
-    box->addLayout(createRow("Playhead color", m_playheadColor));
+
+    WidgetAdder adder(this, box);
+    adder.add("Background Color", m_background);
+    adder.add("Alternate Background Color", m_backgroundAlternate);
+    adder.add("Font Color", m_fontColor);
+    adder.add("Grid Color", m_gridColor);
+    adder.add("Canvas Margin", m_canvasMargin);
+    adder.add("Zoom In Width", m_zoomInWidth);
+    adder.add("Zoom In Height", m_zoomInHeight);
+    adder.add("Time Axis Height", m_timeAxisHeight);
+    adder.add("Time Axis Left Offset", m_timeOffsetLeft);
+    adder.add("Time Axis Right Offset", m_timeOffsetRight);
+    adder.add("Range Bar Color", m_rangeBarColor);
+    adder.add("Range Bar Caps Color", m_rangeBarCapsColor);
+    adder.add("Value Axis Width", m_valueAxisWidth);
+    adder.add("Value Axis Top Offset", m_valueOffsetTop);
+    adder.add("Value Axis Bottom Offset", m_valueOffsetBottom);
+    adder.add("Handle Size", m_handleSize);
+    adder.add("Handle Line Width", m_handleLineWidth);
+    adder.add("Handle Color", m_handleColor);
+    adder.add("Handle Selection Color", m_handleSelectionColor);
+    adder.add("Keyframe Size", m_keyframeSize);
+    adder.add("Keyframe Color", m_keyframeColor);
+    adder.add("Keyframe Selection Color", m_keyframeSelectionColor);
+    adder.add("Curve Width", m_curveWidth);
+    adder.add("Curve Color", m_curveColor);
+    adder.add("Curve Selection Color", m_curveSelectionColor);
+    adder.add("Treeview margins", m_treeMargins);
+    adder.add("Playhead width", m_playheadWidth);
+    adder.add("Playhead radius", m_playheadRadius);
+    adder.add("Playhead color", m_playheadColor);
 
     box->addWidget(m_printButton);
     setLayout(box);

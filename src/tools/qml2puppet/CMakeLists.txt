@@ -1,136 +1,60 @@
-set(SRCDIR "${PROJECT_SOURCE_DIR}/share/qtcreator/qml/qmlpuppet")
+cmake_minimum_required(VERSION 3.16)
 
-set(DESTDIR "${IDE_LIBEXEC_PATH}")
-if (APPLE)
-  string(APPEND DESTDIR "/qmldesigner")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
+
+
+project(qml2puppet)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (NOT QT_CREATOR_API_DEFINED)
+  # standalone build
+  set(DESTINATION DESTINATION $ENV{QDS_PUPPET_DESTINATION})
+  include(QtCreatorIDEBranding)
+  include(QtCreatorAPI)
 endif()
 
-add_qtc_library(qml2puppet_static
-  STATIC
-  DEPENDS
-  Qt5::CorePrivate Qt5::Widgets
-  PUBLIC_INCLUDES "${SRCDIR}/interfaces"
-  SOURCES_PREFIX "${SRCDIR}/interfaces"
-  SOURCES
-    commondefines.h
-    nodeinstanceclientinterface.h
-    nodeinstanceglobal.h
-    nodeinstanceserverinterface.cpp nodeinstanceserverinterface.h
+find_package(Qt5
+  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml Core5Compat
+  REQUIRED
 )
 
-extend_qtc_library(qml2puppet_static
-  PUBLIC_INCLUDES "${SRCDIR}/types"
-  SOURCES "${SRCDIR}/types/enumeration.h"
-)
-
-extend_qtc_library(qml2puppet_static
-  PUBLIC_INCLUDES "${SRCDIR}/container"
-  SOURCES_PREFIX "${SRCDIR}/container"
-  SOURCES
-    addimportcontainer.cpp addimportcontainer.h
-    idcontainer.cpp idcontainer.h
-    imagecontainer.cpp imagecontainer.h
-    informationcontainer.cpp informationcontainer.h
-    instancecontainer.cpp instancecontainer.h
-    mockuptypecontainer.cpp mockuptypecontainer.h
-    propertyabstractcontainer.cpp propertyabstractcontainer.h
-    propertybindingcontainer.cpp propertybindingcontainer.h
-    propertyvaluecontainer.cpp propertyvaluecontainer.h
-    reparentcontainer.cpp reparentcontainer.h
-    sharedmemory.h
-)
-
-extend_qtc_library(qml2puppet_static
-  CONDITION UNIX
-  SOURCES_PREFIX "${SRCDIR}/container"
-  SOURCES
-    sharedmemory_unix.cpp
-)
-
-extend_qtc_library(qml2puppet_static
-  CONDITION NOT UNIX
-  SOURCES_PREFIX "${SRCDIR}/container"
-  SOURCES
-    sharedmemory_qt.cpp
-)
-
-extend_qtc_library(qml2puppet_static
-  PUBLIC_INCLUDES "${SRCDIR}/commands"
-  SOURCES_PREFIX "${SRCDIR}/commands"
-  SOURCES
-    changeauxiliarycommand.cpp changeauxiliarycommand.h
-    changebindingscommand.cpp changebindingscommand.h
-    changefileurlcommand.cpp changefileurlcommand.h
-    changeidscommand.cpp changeidscommand.h
-    changenodesourcecommand.cpp changenodesourcecommand.h
-    changestatecommand.cpp changestatecommand.h
-    changevaluescommand.cpp changevaluescommand.h
-    childrenchangedcommand.cpp childrenchangedcommand.h
-    clearscenecommand.cpp clearscenecommand.h
-    completecomponentcommand.cpp completecomponentcommand.h
-    componentcompletedcommand.cpp componentcompletedcommand.h
-    createinstancescommand.cpp createinstancescommand.h
-    createscenecommand.cpp createscenecommand.h
-    changepreviewimagesizecommand.cpp changepreviewimagesizecommand.h
-    changelanguagecommand.cpp changelanguagecommand.h
-    debugoutputcommand.cpp debugoutputcommand.h
-    endpuppetcommand.cpp endpuppetcommand.h
-    informationchangedcommand.cpp informationchangedcommand.h
-    nanotracecommand.cpp nanotracecommand.h
-    pixmapchangedcommand.cpp pixmapchangedcommand.h
-    puppetalivecommand.cpp puppetalivecommand.h
-    removeinstancescommand.cpp removeinstancescommand.h
-    removepropertiescommand.cpp removepropertiescommand.h
-    removesharedmemorycommand.cpp removesharedmemorycommand.h
-    reparentinstancescommand.cpp reparentinstancescommand.h
-    statepreviewimagechangedcommand.cpp statepreviewimagechangedcommand.h
-    synchronizecommand.h
-    tokencommand.cpp tokencommand.h
-    changeselectioncommand.cpp changeselectioncommand.h
-    update3dviewstatecommand.cpp update3dviewstatecommand.h
-    puppettocreatorcommand.cpp puppettocreatorcommand.h
-    inputeventcommand.cpp inputeventcommand.h
-    view3dactioncommand.cpp view3dactioncommand.h
-    requestmodelnodepreviewimagecommand.cpp requestmodelnodepreviewimagecommand.h
-    valueschangedcommand.cpp
-    captureddatacommand.h
-    scenecreatedcommand.h
-)
-
-extend_qtc_library(qml2puppet_static
-  PUBLIC_INCLUDES "${PROJECT_SOURCE_DIR}/src/libs"
-)
-extend_qtc_library(qml2puppet_static
-  CONDITION TARGET Nanotrace
-  DEPENDS Nanotrace
-)
+if (NOT TARGET QmlPuppetCommunication)
+include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
+endif()
 
 add_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::QuickPrivate
+  ${DESTINATION}
   DEPENDS
     Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
     Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
-    qml2puppet_static
+    QmlPuppetCommunication
   SOURCES
-    "${SRCDIR}/qml2puppet/qml2puppetmain.cpp"
-    "${SRCDIR}/qmlpuppet.qrc"
-  DESTINATION ${DESTDIR}
+    qml2puppet/qml2puppetmain.cpp
+    qmlpuppet.qrc
 )
 
-set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-${IDE_VERSION})
+if (NOT "$ENV{QDS_PUPPET_VERSION}" STREQUAL "")
+  set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-$ENV{QDS_PUPPET_VERSION})
+else()
+  set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-${IDE_VERSION})
+endif()
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
-  SOURCES_PREFIX "${SRCDIR}/"
   SOURCES
-    "editor3d_qt6.qrc"
+    editor3d_qt6.qrc
 )
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_LESS 6.0.0
-  SOURCES_PREFIX "${SRCDIR}/"
   SOURCES
-    "editor3d_qt5.qrc"
+    editor3d_qt5.qrc
 )
 
 extend_qtc_executable(qml2puppet
@@ -139,7 +63,7 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/instances"
+  SOURCES_PREFIX instances
   SOURCES
     nodeinstanceclientproxy.cpp nodeinstanceclientproxy.h
 )
@@ -151,7 +75,7 @@ extend_qtc_executable(qml2puppet
   DEPENDS Qt5::Quick3D Qt5::Quick3DPrivate
   DEFINES QUICK3D_MODULE
 
-  SOURCES_PREFIX "${SRCDIR}/qml2puppet/editor3d"
+  SOURCES_PREFIX qml2puppet/editor3d
   SOURCES
     generalhelper.cpp generalhelper.h
     mousearea3d.cpp mousearea3d.h
@@ -191,26 +115,25 @@ extend_qtc_executable(qml2puppet
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
-
-  SOURCES_PREFIX "${SRCDIR}/qml2puppet/editor3d/qt5compat"
+  SOURCES_PREFIX qml2puppet/editor3d/qt5compat
   SOURCES
     qquick3darealight.cpp qquick3darealight_p.h
 )
 
 extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/qml2puppet/iconrenderer"
+  SOURCES_PREFIX qml2puppet/iconrenderer
   SOURCES
     iconrenderer.cpp iconrenderer.h
 )
 
 extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/qml2puppet/import3d"
+  SOURCES_PREFIX qml2puppet/import3d
   SOURCES
     import3d.cpp import3d.h
 )
 
 extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/qml2puppet/instances"
+  SOURCES_PREFIX qml2puppet/instances
   SOURCES
     anchorchangesnodeinstance.cpp anchorchangesnodeinstance.h
     behaviornodeinstance.cpp behaviornodeinstance.h
@@ -248,13 +171,7 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/types"
-  SOURCES
-    enumeration.h
-)
-
-extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX "${SRCDIR}/qmlprivategate"
+  SOURCES_PREFIX qmlprivategate
   SOURCES
     qmlprivategate.cpp qmlprivategate.h
 )
@@ -270,7 +187,7 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-  PUBLIC_INCLUDES "${PROJECT_SOURCE_DIR}/src/libs"
+  PUBLIC_INCLUDES src/libs
 )
 
 extend_qtc_executable(qml2puppet
