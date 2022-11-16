@@ -55,16 +55,14 @@ bool CustomExecutableRunConfiguration::isEnabled() const
 
 Runnable CustomExecutableRunConfiguration::runnable() const
 {
-    const FilePath workingDirectory = aspect<WorkingDirectoryAspect>()->workingDirectory();
-
     Runnable r;
     r.command = commandLine();
     r.environment = aspect<EnvironmentAspect>()->environment();
-    r.workingDirectory = workingDirectory;
+    r.workingDirectory = aspect<WorkingDirectoryAspect>()->workingDirectory();
 
     if (!r.command.isEmpty()) {
         const FilePath expanded = macroExpander()->expand(r.command.executable());
-        r.command.setExecutable(r.environment.searchInPath(expanded.toString(), {workingDirectory}));
+        r.command.setExecutable(expanded);
     }
 
     return r;
