@@ -247,6 +247,17 @@ QTextStream &operator<<(QTextStream &stream, AuxiliaryDataType type)
 }
 } // namespace
 
+static QString rectFToString(const QRectF &rect)
+{
+    return QString::number(rect.x()) + " " + QString::number(rect.y()) + " "
+           + QString::number(rect.width()) + " " + QString::number(rect.height());
+}
+
+static QString sizeToString(const QSize &size)
+{
+    return QString::number(size.width()) + " " + QString::number(size.height());
+}
+
 void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*selectedNodeList*/,
                                      const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
@@ -264,6 +275,10 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
         for (const SignalHandlerProperty &property : selectedNode.signalProperties())
             message << property << lineBreak;
 
+        message << lineBreak;
+
+        message << lineBreak;
+        message << "metaInfo valid: " << selectedNode.metaInfo().isValid();
         message << lineBreak;
 
         if (selectedNode.metaInfo().isValid()) {
@@ -288,6 +303,42 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
             for (const PropertyName &name : selectedNode.metaInfo().slotNames())
                 message << name << " ";
 
+            message << lineBreak;
+            message << "Is QtQuickItem: "
+                    << selectedNode.metaInfo().isBasedOn(model()->qtQuickItemMetaInfo());
+        }
+
+        message << lineBreak;
+        message << "Is item or window: " << QmlItemNode::isItemOrWindow(selectedNode);
+        message << lineBreak;
+
+        message << lineBreak;
+        message << "Is graphical item: " << selectedNode.metaInfo().isGraphicalItem();
+        message << lineBreak;
+
+        message << lineBreak;
+        message << "Is valid object node: " << QmlItemNode::isValidQmlObjectNode(selectedNode);
+        message << lineBreak;
+
+        message << "version: "
+                << QString::number(selectedNode.metaInfo().majorVersion()) + "."
+                       + QString::number(selectedNode.metaInfo().minorVersion());
+
+        message << lineBreak;
+
+        QmlItemNode itemNode(selectedNode);
+        if (itemNode.isValid()) {
+            message << lineBreak;
+            message << "Item Node";
+            message << lineBreak;
+            message << "BR ";
+            message << rectFToString(itemNode.instanceBoundingRect());
+            message << lineBreak;
+            message << "BR content ";
+            message << rectFToString(itemNode.instanceContentItemBoundingRect());
+            message << lineBreak;
+            message << "PM ";
+            message << sizeToString(itemNode.instanceRenderPixmap().size());
             message << lineBreak;
         }
 
