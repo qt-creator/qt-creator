@@ -29,6 +29,7 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/processinfo.h>
@@ -122,7 +123,7 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     setStartMode(AttachToRemoteServer);
     setCloseMode(KillAtClose);
     setUseCtrlCStub(true);
-    setSolibSearchPath(searchPaths(k));
+    setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
     if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
         setSysRoot(qtVersion->qnxTarget());
         modifyDebuggerEnvironment(qtVersion->environment());
@@ -233,7 +234,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
     debugger->setAttachPid(pid);
 //    setRunControlName(Tr::tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
     debugger->setRunControlName(Tr::tr("Remote QNX process %1").arg(pid));
-    debugger->setSolibSearchPath(searchPaths(kit));
+    debugger->setSolibSearchPath(FileUtils::toFilePathList(searchPaths(kit)));
     if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit)))
         debugger->setSysRoot(qtVersion->qnxTarget());
     debugger->setUseContinueInsteadOfRun(true);

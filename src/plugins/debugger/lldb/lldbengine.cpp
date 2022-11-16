@@ -256,8 +256,8 @@ void LldbEngine::handleLldbStarted()
                     "settings append target.source-map " + it.key() + ' ' + expand(it.value()));
     }
 
-    for (const QString &path : rp.solibSearchPath)
-        executeDebuggerCommand("settings append target.exec-search-paths " + path);
+    for (const FilePath &path : rp.solibSearchPath)
+        executeDebuggerCommand("settings append target.exec-search-paths " + path.toString());
 
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", rp.inferior.command.executable().toString());

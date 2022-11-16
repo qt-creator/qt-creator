@@ -100,7 +100,7 @@ public:
     ProjectExplorer::Runnable inferior;
     QString displayName; // Used in the Snapshots view.
     Utils::ProcessHandle attachPID;
-    QStringList solibSearchPath;
+    Utils::FilePaths solibSearchPath;
 
     // Used by Qml debugging.
     QUrl qmlServer;

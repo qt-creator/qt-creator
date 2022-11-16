@@ -99,7 +99,7 @@ public:
     QString qtVersionString() const;
     QVersionNumber qtVersion() const;
 
-    QStringList qtSoPaths() const;
+    Utils::FilePaths qtSoPaths() const;
 
     bool hasExamples() const;
     bool hasDocs() const;

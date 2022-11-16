@@ -705,7 +705,7 @@ DebugServerPortsGatherer *DebuggerRunTool::portsGatherer() const
     return d->portsGatherer;
 }
 
-void DebuggerRunTool::setSolibSearchPath(const QStringList &list)
+void DebuggerRunTool::setSolibSearchPath(const Utils::FilePaths &list)
 {
     m_runParameters.solibSearchPath = list;
 }
@@ -941,7 +941,7 @@ void DebuggerRunTool::addSolibSearchDir(const QString &str)
 {
     QString path = str;
     path.replace("%{sysroot}", m_runParameters.sysRoot.toString());
-    m_runParameters.solibSearchPath.append(path);
+    m_runParameters.solibSearchPath.append(FilePath::fromString(path));
 }
 
 DebuggerRunTool::~DebuggerRunTool()

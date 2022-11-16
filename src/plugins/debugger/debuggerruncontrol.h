@@ -44,7 +44,7 @@ public:
     void setUsePortsGatherer(bool useCpp, bool useQml);
     DebugServerPortsGatherer *portsGatherer() const;
 
-    void setSolibSearchPath(const QStringList &list);
+    void setSolibSearchPath(const Utils::FilePaths &list);
     void addSolibSearchDir(const QString &str);
 
     static void setBreakOnMainNextTime();

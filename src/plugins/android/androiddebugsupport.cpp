@@ -18,6 +18,7 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QHostAddress>
@@ -35,47 +36,45 @@ using namespace Utils;
 namespace Android {
 namespace Internal {
 
-static QStringList uniquePaths(const QStringList &files)
-{
-    QSet<QString> paths;
-    for (const QString &file : files)
-        paths << QFileInfo(file).absolutePath();
-    return Utils::toList(paths);
-}
-
-static QStringList getSoLibSearchPath(const ProjectNode *node)
+static FilePaths getSoLibSearchPath(const ProjectNode *node)
 {
     if (!node)
         return {};
 
-    QStringList res;
+    FilePaths res;
     node->forEachProjectNode([&res](const ProjectNode *node) {
-         res.append(node->data(Constants::AndroidSoLibPath).toStringList());
+        const QStringList paths = node->data(Constants::AndroidSoLibPath).toStringList();
+        res.append(Utils::transform(paths, &FilePath::fromUserInput));
     });
 
-    const QString jsonFile = AndroidQtVersion::androidDeploymentSettings(
-                node->getProject()->activeTarget()).toString();
-    QFile deploymentSettings(jsonFile);
-    if (deploymentSettings.open(QIODevice::ReadOnly)) {
+    const FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(
+                node->getProject()->activeTarget());
+    FileReader reader;
+    if (reader.fetch(jsonFile)) {
         QJsonParseError error;
-        QJsonDocument doc = QJsonDocument::fromJson(deploymentSettings.readAll(), &error);
+        QJsonDocument doc = QJsonDocument::fromJson(reader.data(), &error);
         if (error.error == QJsonParseError::NoError) {
             auto rootObj = doc.object();
             auto it = rootObj.find("stdcpp-path");
             if (it != rootObj.constEnd())
-                res.append(QFileInfo(it.value().toString()).absolutePath());
+                res.append(FilePath::fromUserInput(it.value().toString()));
         }
     }
 
-    res.removeDuplicates();
+    FilePath::removeDuplicates(res);
     return res;
 }
 
-static QStringList getExtraLibs(const ProjectNode *node)
+static FilePaths getExtraLibs(const ProjectNode *node)
 {
     if (!node)
         return {};
-    return node->data(Android::Constants::AndroidExtraLibs).toStringList();
+
+    const QStringList paths = node->data(Constants::AndroidExtraLibs).toStringList();
+    FilePaths res = Utils::transform(paths, &FilePath::fromUserInput);
+
+    FilePath::removeDuplicates(res);
+    return res;
 }
 
 AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &intentName)
@@ -110,23 +109,22 @@ void AndroidDebugSupport::start()
     if (isCppDebugging()) {
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
         const ProjectNode *node = target->project()->findNodeForBuildKey(runControl()->buildKey());
-        QStringList solibSearchPath = getSoLibSearchPath(node);
-        QStringList extraLibs = getExtraLibs(node);
+        FilePaths solibSearchPath = getSoLibSearchPath(node);
         if (qtVersion)
             solibSearchPath.append(qtVersion->qtSoPaths());
-        solibSearchPath.append(uniquePaths(extraLibs));
+        const FilePaths extraLibs = getExtraLibs(node);
+        solibSearchPath.append(extraLibs);
 
         FilePath buildDir = AndroidManager::buildDirectory(target);
         const RunConfiguration *activeRunConfig = target->activeRunConfiguration();
         if (activeRunConfig)
-            solibSearchPath.append(activeRunConfig->buildTargetInfo().workingDirectory.toString());
-        solibSearchPath.append(buildDir.toString());
-        const auto androidLibsPath = AndroidManager::androidBuildDirectory(target)
+            solibSearchPath.append(activeRunConfig->buildTargetInfo().workingDirectory);
+        solibSearchPath.append(buildDir);
+        const FilePath androidLibsPath = AndroidManager::androidBuildDirectory(target)
                                          .pathAppended("libs")
-                                         .pathAppended(AndroidManager::apkDevicePreferredAbi(target))
-                                         .toString();
+                                         .pathAppended(AndroidManager::apkDevicePreferredAbi(target));
         solibSearchPath.append(androidLibsPath);
-        solibSearchPath.removeDuplicates();
+        FilePath::removeDuplicates(solibSearchPath);
         setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
         setSymbolFile(buildDir.pathAppended("app_process"));

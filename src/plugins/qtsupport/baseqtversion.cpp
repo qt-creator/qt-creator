@@ -1356,21 +1356,20 @@ FilePath QtVersion::examplesPath() const // QT_INSTALL_EXAMPLES
     return d->m_data.examplesPath;
 }
 
-QStringList QtVersion::qtSoPaths() const
+FilePaths QtVersion::qtSoPaths() const
 {
+    FilePaths paths;
     const FilePaths qtPaths = {libraryPath(), pluginPath(), qmlPath(), importsPath()};
-    QSet<QString> paths;
-    for (const FilePath &p : qtPaths) {
-        QString path = p.toString();
-        if (path.isEmpty())
+    for (const FilePath &qtPath : qtPaths) {
+        if (qtPath.isEmpty())
             continue;
-        QDirIterator it(path, QStringList("*.so"), QDir::Files, QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            it.next();
-            paths.insert(it.fileInfo().absolutePath());
-        }
+
+        const FilePaths soPaths =
+                qtPath.dirEntries({{"*.so"}, QDir::Files, QDirIterator::Subdirectories});
+        paths.append(soPaths);
     }
-    return Utils::toList(paths);
+    FilePath::removeDuplicates(paths);
+    return paths;
 }
 
 MacroExpander *QtVersion::macroExpander() const
