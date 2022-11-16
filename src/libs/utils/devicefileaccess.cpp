@@ -29,9 +29,12 @@ namespace Utils {
 
 DeviceFileAccess::~DeviceFileAccess() = default;
 
-QString DeviceFileAccess::mapToDevicePath(const FilePath &filePath) const
+// This takes a \a hostPath, typically the same as used with QFileInfo
+// and returns the path component of a universal FilePath. Host and scheme
+// of the latter are added by a higher level to form a FilePath.
+QString DeviceFileAccess::mapToDevicePath(const QString &hostPath) const
 {
-    return filePath.path();
+    return hostPath;
 }
 
 bool DeviceFileAccess::isExecutableFile(const FilePath &filePath) const

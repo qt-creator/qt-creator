@@ -122,7 +122,7 @@ public:
 
     RunResult runInShell(const CommandLine &cmdLine,
                          const QByteArray &stdInData) const override;
-    QString mapToDevicePath(const FilePath &filePath) const override;
+    QString mapToDevicePath(const QString &hostPath) const override;
     OsType osType(const FilePath &filePath) const override;
 
     DockerDevicePrivate *m_dev = nullptr;
@@ -354,17 +354,17 @@ RunResult DockerDeviceFileAccess::runInShell(const CommandLine &cmdLine,
     return m_dev->runInShell(cmdLine, stdInData);
 }
 
-QString DockerDeviceFileAccess::mapToDevicePath(const FilePath &filePath) const
+QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
 {
     // make sure to convert windows style paths to unix style paths with the file system case:
     // C:/dev/src -> /c/dev/src
-    const FilePath normalized = FilePath::fromString(filePath.path()).normalizedPathName();
-    QString path = normalized.path();
+    const FilePath normalized = FilePath::fromString(hostPath).normalizedPathName();
+    QString newPath = normalized.path();
     if (HostOsInfo::isWindowsHost() && normalized.startsWithDriveLetter()) {
-        const QChar lowerDriveLetter = path.at(0);
-        path = '/' + lowerDriveLetter + path.mid(2); // strip C:
+        const QChar lowerDriveLetter = newPath.at(0);
+        newPath = '/' + lowerDriveLetter + newPath.mid(2); // strip C:
     }
-    return path;
+    return newPath;
 }
 
 OsType DockerDeviceFileAccess::osType(const FilePath &filePath) const

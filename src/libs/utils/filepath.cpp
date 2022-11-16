@@ -551,11 +551,6 @@ FilePath FilePath::symLinkTarget() const
     return fileAccess()->symLinkTarget(*this);
 }
 
-QString FilePath::mapToDevicePath() const
-{
-    return fileAccess()->mapToDevicePath(*this);
-}
-
 FilePath FilePath::withExecutableSuffix() const
 {
     return withNewPath(OsSpecificAspects::withExecutableSuffix(osType(), path()));
@@ -1088,10 +1083,9 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
         return *this;
     // TODO: converting paths between different non local devices is still unsupported
     QTC_CHECK(!needsDevice());
-    FilePath res;
-    res.setParts(deviceTemplate.scheme(), deviceTemplate.host(), path());
-    res.setPath(res.mapToDevicePath());
-    return res;
+    return fromParts(deviceTemplate.scheme(),
+                     deviceTemplate.host(),
+                     deviceTemplate.fileAccess()->mapToDevicePath(path()));
 }
 
 /*!

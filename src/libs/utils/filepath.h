@@ -238,7 +238,6 @@ private:
     void setFromString(const QString &filepath);
     DeviceFileAccess *fileAccess() const;
 
-    [[nodiscard]] QString mapToDevicePath() const;
     [[nodiscard]] QString encodedHost() const;
 
     QString m_data; // Concatenated m_path, m_scheme, m_host

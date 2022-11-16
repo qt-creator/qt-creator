@@ -18,7 +18,7 @@ public:
 protected:
     friend class FilePath;
 
-    virtual QString mapToDevicePath(const FilePath &filePath) const;
+    virtual QString mapToDevicePath(const QString &hostPath) const;
 
     virtual bool isExecutableFile(const FilePath &filePath) const;
     virtual bool isReadableFile(const FilePath &filePath) const;
