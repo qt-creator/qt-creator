@@ -440,7 +440,7 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) c
         });
     }
 
-    if (sort & QDir::Reversed)
+    if (sort != QDir::NoSort && (sort & QDir::Reversed))
         std::reverse(result.begin(), result.end());
 
     return result;
