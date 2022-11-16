@@ -13,7 +13,7 @@ QtcTool {
         files: [
             "backtracecollector.cpp", "backtracecollector.h",
             "crashhandler.cpp", "crashhandler.h",
-            "crashhandlerdialog.cpp", "crashhandlerdialog.h", "crashhandlerdialog.ui",
+            "crashhandlerdialog.cpp", "crashhandlerdialog.h",
             "main.cpp",
             "utils.cpp", "utils.h"
         ]
