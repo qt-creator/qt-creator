@@ -1316,7 +1316,9 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
         // item image in case the instance changed from having content to not having content.
         if (instance.hasContent())
             renderImage = instance.renderImage();
-        imageVector.append(ImageContainer(instance.instanceId(), renderImage, instance.instanceId()));
+        auto container = ImageContainer(instance.instanceId(), renderImage, instance.instanceId());
+        container.setRect(instance.boundingRect());
+        imageVector.append(container);
     }
 
     return PixmapChangedCommand(imageVector);

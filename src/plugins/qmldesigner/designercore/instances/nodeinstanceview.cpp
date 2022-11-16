@@ -1480,11 +1480,21 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 
     QSet<ModelNode> renderImageChangeSet;
 
+    QVector<InformationContainer> containerVector;
+
     const QVector<ImageContainer> containers = command.images();
     for (const ImageContainer &container : containers) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
+                if (container.rect().isValid()) {
+                    InformationContainer rectContainer = InformationContainer(container.instanceId(),
+                                                                              BoundingRectPixmap,
+                                                                              container.rect(),
+                                                                              {},
+                                                                              {});
+                    containerVector.append(rectContainer);
+                }
                 instance.setRenderPixmap(container.image());
                 renderImageChangeSet.insert(instance.modelNode());
             }
@@ -1495,6 +1505,14 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 
     if (!renderImageChangeSet.isEmpty())
         emitInstancesRenderImageChanged(Utils::toList(renderImageChangeSet).toVector());
+
+    if (!containerVector.isEmpty()) {
+        QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(
+            containerVector);
+
+        if (!informationChangeHash.isEmpty())
+            emitInstanceInformationsChange(informationChangeHash);
+    }
 }
 
 QMultiHash<ModelNode, InformationName> NodeInstanceView::informationChanged(const QVector<InformationContainer> &containerVector)

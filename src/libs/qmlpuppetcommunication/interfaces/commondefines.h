@@ -8,13 +8,13 @@
 
 namespace QmlDesigner {
 
-enum InformationName
-{
+enum InformationName {
     NoName,
     NoInformationChange = NoName,
     AllStates,
     Size,
     BoundingRect,
+    BoundingRectPixmap,
     Transform,
     HasAnchor,
     Anchor,
@@ -37,5 +37,4 @@ enum InformationName
     ResizeView,
     HideView
 };
-
 }

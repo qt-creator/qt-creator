@@ -80,6 +80,7 @@ protected:
 
     InformationName setInformationSize(const QSizeF &size);
     InformationName setInformationBoundingRect(const QRectF &rectangle);
+    InformationName setInformationBoundingRectPixmap(const QRectF &rectangle);
     InformationName setInformationContentItemBoundingRect(const QRectF &rectangle);
     InformationName setInformationTransform(const QTransform &transform);
     InformationName setInformationContentTransform(const QTransform &contentTransform);

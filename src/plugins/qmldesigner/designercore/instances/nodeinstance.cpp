@@ -26,6 +26,7 @@ public:
     qint32 parentInstanceId{-1};
     ModelNode modelNode;
     QRectF boundingRect;
+    QRectF boundingRectPixmap;
     QRectF contentItemBoundingRect;
     QPointF position;
     QSizeF size;
@@ -166,9 +167,11 @@ void NodeInstance::makeInvalid()
 
 QRectF NodeInstance::boundingRect() const
 {
-    if (isValid())
+    if (isValid()) {
+        if (d->boundingRectPixmap.isValid())
+            return d->boundingRectPixmap;
         return d->boundingRect;
-    else
+    } else
         return QRectF();
 }
 
@@ -527,6 +530,16 @@ InformationName NodeInstance::setInformationBoundingRect(const QRectF &rectangle
     return NoInformationChange;
 }
 
+InformationName NodeInstance::setInformationBoundingRectPixmap(const QRectF &rectangle)
+{
+    if (d->boundingRectPixmap != rectangle) {
+        d->boundingRectPixmap = rectangle;
+        return BoundingRectPixmap;
+    }
+
+    return NoInformationChange;
+}
+
 InformationName NodeInstance::setInformationContentItemBoundingRect(const QRectF &rectangle)
 {
     if (d->contentItemBoundingRect != rectangle) {
@@ -713,7 +726,10 @@ InformationName NodeInstance::setInformation(InformationName name, const QVarian
 {
     switch (name) {
     case Size: return setInformationSize(information.toSizeF());
-    case BoundingRect: return setInformationBoundingRect(information.toRectF());
+    case BoundingRect:
+        return setInformationBoundingRect(information.toRectF());
+    case BoundingRectPixmap:
+        return setInformationBoundingRectPixmap(information.toRectF());
     case ContentItemBoundingRect: return setInformationContentItemBoundingRect(information.toRectF());
     case Transform: return setInformationTransform(information.value<QTransform>());
     case ContentTransform: return setInformationContentTransform(information.value<QTransform>());

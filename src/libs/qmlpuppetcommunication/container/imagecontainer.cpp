@@ -51,11 +51,21 @@ qint32 ImageContainer::keyNumber() const
     return m_keyNumber;
 }
 
+QRectF ImageContainer::rect() const
+{
+    return m_rect;
+}
+
 void ImageContainer::setImage(const QImage &image)
 {
     QTC_ASSERT(m_image.isNull(), /**/);
 
     m_image = image;
+}
+
+void ImageContainer::setRect(const QRectF &rectangle)
+{
+    m_rect = rectangle;
 }
 
 void ImageContainer::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
@@ -140,6 +150,7 @@ QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
 
     out << container.instanceId();
     out << container.keyNumber();
+    out << container.rect();
 
     const QImage image = container.image();
 
@@ -223,6 +234,7 @@ QDataStream &operator>>(QDataStream &in, ImageContainer &container)
 
     in >> container.m_instanceId;
     in >> container.m_keyNumber;
+    in >> container.m_rect;
     in >> sharedMemoryIsUsed;
 
     if (sharedMemoryIsUsed) {
