@@ -39,6 +39,8 @@ public:
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},
         {runConfigFactory.runConfigurationId()}
     };
+
+    PythonSettings settings;
 };
 
 PythonPlugin::PythonPlugin()
@@ -65,8 +67,6 @@ bool PythonPlugin::initialize(const QStringList &arguments, QString *errorMessag
     d = new PythonPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
-
-    PythonSettings::init();
 
     return true;
 }

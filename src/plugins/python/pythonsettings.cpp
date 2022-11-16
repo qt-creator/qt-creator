@@ -688,8 +688,10 @@ static QString idForPythonFromPath(const QList<Interpreter> &pythons)
 static PythonSettings *settingsInstance = nullptr;
 
 PythonSettings::PythonSettings()
-    : QObject(PythonPlugin::instance())
 {
+    QTC_ASSERT(!settingsInstance, return);
+    settingsInstance = this;
+
     setObjectName("PythonSettings");
     ExtensionSystem::PluginManager::addObject(this);
 
@@ -712,12 +714,6 @@ PythonSettings::~PythonSettings()
 {
     ExtensionSystem::PluginManager::removeObject(this);
     settingsInstance = nullptr;
-}
-
-void PythonSettings::init()
-{
-    QTC_ASSERT(!settingsInstance, return );
-    settingsInstance = new PythonSettings();
 }
 
 void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId)

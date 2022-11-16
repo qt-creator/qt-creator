@@ -14,9 +14,8 @@ class PythonSettings : public QObject
     Q_OBJECT
 
 public:
+    PythonSettings();
     ~PythonSettings();
-
-    static void init();
 
     using Interpreter = ProjectExplorer::Interpreter;
 
@@ -47,8 +46,6 @@ public slots:
     void listDetectedPython(const QString &detectionSource, QString *logMessage);
 
 private:
-    PythonSettings();
-
     void initFromSettings(QSettings *settings);
     void writeToSettings(QSettings *settings);
 
