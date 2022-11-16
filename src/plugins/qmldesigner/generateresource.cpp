@@ -3,12 +3,13 @@
 
 #include <generateresource.h>
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
@@ -549,6 +550,13 @@ void GenerateResource::generateMenuEntry(QObject *parent)
                 return;
             }
         }
+
+        Core::AsynchronousMessageBox::information(
+            QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                        "Success"),
+            QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                        "Successfully generated deployable package\n %1")
+                .arg(resourceFileName.toString()));
     });
     menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
     menu->addAction(cmd2, Core::Constants::G_FILE_EXPORT);
