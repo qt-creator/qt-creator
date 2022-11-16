@@ -3,7 +3,7 @@ add_qtc_plugin(Perforce
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
     changenumberdialog.cpp changenumberdialog.h
-    pendingchangesdialog.cpp pendingchangesdialog.h pendingchangesdialog.ui
+    pendingchangesdialog.cpp pendingchangesdialog.h
     perforcechecker.cpp perforcechecker.h
     perforceeditor.cpp perforceeditor.h
     perforceplugin.cpp perforceplugin.h

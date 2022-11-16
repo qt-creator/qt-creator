@@ -17,7 +17,6 @@ QtcPlugin {
         "changenumberdialog.h",
         "pendingchangesdialog.cpp",
         "pendingchangesdialog.h",
-        "pendingchangesdialog.ui",
         "perforcechecker.cpp",
         "perforcechecker.h",
         "perforceeditor.cpp",

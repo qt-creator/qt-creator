@@ -43,6 +43,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
@@ -1364,14 +1365,14 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
         VcsOutputWindow::appendCommand(workingDir, {m_settings.p4BinaryPath.filePath(), actualArgs});
 
     if (flags & ShowBusyCursor)
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     const PerforceResponse  response = (flags & RunFullySynchronous)  ?
         fullySynchronousProcess(workingDir, actualArgs, flags, stdInput, outputCodec) :
         synchronousProcess(workingDir, actualArgs, flags, stdInput, outputCodec);
 
     if (flags & ShowBusyCursor)
-        QApplication::restoreOverrideCursor();
+        QGuiApplication::restoreOverrideCursor();
 
     if (response.error && (flags & ErrorToWindow))
         VcsOutputWindow::appendError(response.message);
