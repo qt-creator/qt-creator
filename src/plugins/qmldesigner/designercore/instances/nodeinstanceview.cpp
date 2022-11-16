@@ -295,9 +295,9 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 void NodeInstanceView::handleCrash()
 {
     qint64 elaspsedTimeSinceLastCrash = m_lastCrashTime.restart();
-    qint64 forceRestartTime = 2000;
+    qint64 forceRestartTime = 5000;
 #ifdef QT_DEBUG
-    forceRestartTime = 4000;
+    forceRestartTime = 10000;
 #endif
     if (elaspsedTimeSinceLastCrash > forceRestartTime)
         restartProcess();
