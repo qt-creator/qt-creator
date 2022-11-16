@@ -85,10 +85,11 @@ Column {
                 CheckBox {
                     text: backendValues.indeterminate.valueToString
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                   + StudioTheme.Values.actionIndicatorWidt
+                                   + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.indeterminate
                     enabled: backendValue.isAvailable
                 }
+                ExpandingSpacer {}
             }
         }
     }
