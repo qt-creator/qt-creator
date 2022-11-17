@@ -1114,7 +1114,7 @@ void BreakpointItem::addToCommand(DebuggerCommand *cmd) const
     cmd->arg("function", requested.functionName);
     cmd->arg("oneshot", requested.oneShot);
     cmd->arg("enabled", requested.enabled);
-    cmd->arg("file", requested.fileName);
+    cmd->arg("file", requested.fileName.path());
     cmd->arg("line", requested.lineNumber);
     cmd->arg("address", requested.address);
     cmd->arg("expression", requested.expression);

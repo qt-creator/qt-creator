@@ -332,7 +332,7 @@ void LldbEngine::runEngine()
     showStatusMessage(Tr::tr("Running requested..."), 5000);
     DebuggerCommand cmd("runEngine");
     if (rp.startMode == AttachToCore)
-        cmd.arg("coreFile", rp.coreFile);
+        cmd.arg("coreFile", rp.coreFile.path());
     runCommand(cmd);
 }
 
@@ -413,7 +413,7 @@ void LldbEngine::executeRunToLine(const ContextData &data)
 {
     notifyInferiorRunRequested();
     DebuggerCommand cmd("executeRunToLocation");
-    cmd.arg("file", data.fileName);
+    cmd.arg("file", data.fileName.path());
     cmd.arg("line", data.lineNumber);
     cmd.arg("address", data.address);
     runCommand(cmd);
@@ -430,7 +430,7 @@ void LldbEngine::executeRunToFunction(const QString &functionName)
 void LldbEngine::executeJumpToLine(const ContextData &data)
 {
     DebuggerCommand cmd("executeJumpToLocation");
-    cmd.arg("file", data.fileName);
+    cmd.arg("file", data.fileName.path());
     cmd.arg("line", data.lineNumber);
     cmd.arg("address", data.address);
     runCommand(cmd);

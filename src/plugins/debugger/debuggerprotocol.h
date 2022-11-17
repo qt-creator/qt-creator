@@ -41,7 +41,6 @@ public:
     void arg(const char *name, const QList<int> &list);
     void arg(const char *name, const QStringList &list); // Note: Hex-encodes.
     void arg(const char *name, const QJsonValue &value);
-    void arg(const char *name, const Utils::FilePath &filePath);
 
     QString argsToPython() const;
     QString argsToString() const;

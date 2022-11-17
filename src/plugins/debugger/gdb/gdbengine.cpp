@@ -4369,8 +4369,8 @@ void GdbEngine::setupInferior()
     //        postCommand("set architecture " + remoteArch);
         if (!rp.solibSearchPath.isEmpty()) {
             DebuggerCommand cmd("appendSolibSearchPath");
-            for (const FilePath &path : rp.solibSearchPath)
-                cmd.arg("path", path);
+            for (const FilePath &filePath : rp.solibSearchPath)
+                cmd.arg("path", filePath.path());
             cmd.arg("separator", HostOsInfo::pathListSeparator());
             runCommand(cmd);
         }
