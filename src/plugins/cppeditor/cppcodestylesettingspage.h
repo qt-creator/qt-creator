@@ -4,7 +4,6 @@
 #pragma once
 
 #include "cppcodestylesettings.h"
-#include "cppcodeformatter.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <texteditor/icodestylepreferencesfactory.h>
@@ -42,7 +41,7 @@ signals:
 
 namespace Internal {
 
-namespace Ui { class CppCodeStyleSettingsPage; }
+class CppCodeStylePreferencesWidgetPrivate;
 
 class CppCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
@@ -70,9 +69,9 @@ private:
     CppCodeStyleSettings cppCodeStyleSettings() const;
 
     CppCodeStylePreferences *m_preferences = nullptr;
-    Ui::CppCodeStyleSettingsPage *m_ui;
-    QList<TextEditor::SnippetEditorWidget *> m_previews;
+    CppCodeStylePreferencesWidgetPrivate *d = nullptr;
     bool m_blockUpdates = false;
+    friend class CppCodeStylePreferencesWidgetPrivate;
 signals:
     void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);
     void tabSettingsChanged(const TextEditor::TabSettings &);

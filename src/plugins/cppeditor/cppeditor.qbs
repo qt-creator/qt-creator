@@ -78,7 +78,6 @@ QtcPlugin {
         "cppcodestylesettings.h",
         "cppcodestylesettingspage.cpp",
         "cppcodestylesettingspage.h",
-        "cppcodestylesettingspage.ui",
         "cppcodestylesnippets.h",
         "cppcompletionassist.cpp",
         "cppcompletionassist.h",

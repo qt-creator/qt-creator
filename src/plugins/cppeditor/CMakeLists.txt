@@ -28,7 +28,7 @@ add_qtc_plugin(CppEditor
     cppcodestylepreferences.cpp cppcodestylepreferences.h
     cppcodestylepreferencesfactory.cpp cppcodestylepreferencesfactory.h
     cppcodestylesettings.cpp cppcodestylesettings.h
-    cppcodestylesettingspage.cpp cppcodestylesettingspage.h cppcodestylesettingspage.ui
+    cppcodestylesettingspage.cpp cppcodestylesettingspage.h
     cppcodestylesnippets.h
     cppcompletionassist.cpp cppcompletionassist.h
     cppcompletionassistprocessor.cpp cppcompletionassistprocessor.h
