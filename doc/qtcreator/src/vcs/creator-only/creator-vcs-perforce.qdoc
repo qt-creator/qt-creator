@@ -54,7 +54,7 @@
     To group files for commit, select \uicontrol Tools > \uicontrol Perforce >
     \uicontrol {Pending Changes}.
 
-    To view information about changelists and the files in them, select
+    To view information about change lists and the files in them, select
     \uicontrol Tools > \uicontrol Perforce > \uicontrol Describe.
 
     By default, you must confirm that you want to submit changes. To suppress

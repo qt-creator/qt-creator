@@ -5,6 +5,7 @@
 
 #include "dockerconstants.h"
 #include "dockertr.h"
+#include "utils/hostosinfo.h"
 
 #include <coreplugin/icore.h>
 
@@ -22,10 +23,17 @@ DockerSettings::DockerSettings()
     setSettingsGroup(Constants::DOCKER);
     setAutoApply(false);
 
+    FilePaths additionalPaths;
+    if (HostOsInfo::isWindowsHost())
+        additionalPaths.append("C:/Program Files/Docker/Docker/resources/bin");
+    else
+        additionalPaths.append("/usr/local/bin");
+
     registerAspect(&dockerBinaryPath);
     dockerBinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
-    dockerBinaryPath.setDefaultFilePath(FilePath::fromString("docker").searchInPath({"/usr/local/bin"}));
+    dockerBinaryPath.setDefaultFilePath(
+        FilePath::fromString("docker").searchInPath(additionalPaths));
     dockerBinaryPath.setDisplayName(Tr::tr("Docker CLI"));
     dockerBinaryPath.setHistoryCompleter("Docker.Command.History");
     dockerBinaryPath.setLabelText(Tr::tr("Command:"));

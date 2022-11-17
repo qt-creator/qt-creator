@@ -33,7 +33,7 @@
         \li \l{Using Bookmarks}{Bookmarks} shows all bookmarks for the current
             session.
         \li \l{Working with Branches}{Git Branches} shows the local and remote
-            brances for the project in the Git version control system.
+            branches for the project in the Git version control system.
         \li \l{Viewing Defined Types and Symbols}{Outline} shows an overview of
             defined types and other symbols, as well as their properties and
             hierarchy in a source file.

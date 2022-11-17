@@ -621,7 +621,7 @@ FilePath ExecutableAspect::executable() const
             : m_executable.filePath();
 
     if (const IDevice::ConstPtr dev = executionDevice(m_target, m_selector))
-        exe = dev->filePath(exe.path());
+        exe = exe.onDevice(dev->rootPath());
 
     return exe;
 }

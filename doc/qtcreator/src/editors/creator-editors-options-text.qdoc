@@ -67,8 +67,8 @@
         \li In the \uicontrol Background field, select the background
             color for the code element or message.
 
-        The backgound of the \uicontrol Text element determines the background of the
-        code editor.
+        The background of the \uicontrol Text element determines the background
+        of the code editor.
 
         \li In \uicontrol Font, select \uicontrol Bold or \uicontrol Italic to
             format the text of the selected code element or message by making it
@@ -116,7 +116,7 @@
 
     To resolve the issue, use a file conversion tool to convert the file
     encoding to UTF-8 when developing Qt 5 applications. Otherwise, conversion
-    of string constants to QStrings might not work as expected.
+    of string constants to QString might not work as expected.
 
     If you develop only Qt 4 applications or other than Qt applications, you
     can set other encoding options as the default encoding. Select the

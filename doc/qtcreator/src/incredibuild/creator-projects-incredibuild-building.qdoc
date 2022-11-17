@@ -105,7 +105,7 @@
             is encountered. This is the default behavior in Visual Studio
             builds, but not for Make and Build tools or Dev Tools builds.
         \li \uicontrol {Additional Arguments} are concatenated to the final
-            buildconsole command line.
+            build console command line.
         \li \uicontrol {Open Build Monitor} opens an IncrediBuild Build Monitor
             that graphically displays the build's progress once the build
             starts.

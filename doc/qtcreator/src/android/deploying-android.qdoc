@@ -239,7 +239,7 @@
     To add OpenSSL libraries, select \uicontrol {Include prebuilt OpenSSL libraries}
     in the \uicontrol {Additional Libraries} group. This will add the OpenSSL
     include project defined in \l{Specifying Android Device Settings}{device settings}
-    in \uicontrol {Android OpenSSL} group. This can be used for QMake and CMake
+    in \uicontrol {Android OpenSSL} group. This can be used for qmake and CMake
     projects.
 
     Otherwise, you can manually add the paths to the required \c libssl.so and
@@ -248,7 +248,7 @@
     \section1 Editing Manifest Files
 
     You can use the configuration options to specify all the settings you need
-    for the \c androiddeployqt tool. You only need an Adroid manifest file
+    for the \c androiddeployqt tool. You only need an Android manifest file
     to specify Android-specific settings, such as the application icon.
     However, the manifest file is needed when you want to publish the package
     in the Play Store.
