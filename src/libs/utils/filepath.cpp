@@ -1219,7 +1219,7 @@ FilePath FilePath::stringAppended(const QString &str) const
 
 size_t FilePath::hash(uint seed) const
 {
-    if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+    if (caseSensitivity() == Qt::CaseInsensitive)
         return qHash(path().toCaseFolded(), seed);
     return qHash(path(), seed);
 }
