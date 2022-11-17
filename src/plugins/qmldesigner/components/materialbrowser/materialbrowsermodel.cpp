@@ -171,18 +171,18 @@ void MaterialBrowserModel::setHasModelSelection(bool b)
     emit hasModelSelectionChanged();
 }
 
-bool MaterialBrowserModel::hasMaterialRoot() const
+bool MaterialBrowserModel::hasMaterialLibrary() const
 {
-    return m_hasMaterialRoot;
+    return m_hasMaterialLibrary;
 }
 
-void MaterialBrowserModel::setHasMaterialRoot(bool b)
+void MaterialBrowserModel::setHasMaterialLibrary(bool b)
 {
-    if (m_hasMaterialRoot == b)
+    if (m_hasMaterialLibrary == b)
         return;
 
-    m_hasMaterialRoot = b;
-    emit hasMaterialRootChanged();
+    m_hasMaterialLibrary = b;
+    emit hasMaterialLibraryChanged();
 }
 
 QString MaterialBrowserModel::copiedMaterialType() const

@@ -61,6 +61,8 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
         if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
             && model()->rewriterView()->errors().isEmpty()) {
             ensureMaterialLibraryNode();
+            if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
+                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
             m_ensureMatLibTimer.stop();
         }
     });
@@ -534,7 +536,7 @@ void MaterialEditorView::setupQmlBackend()
     QString specificQmlData;
     QString currentTypeName;
 
-    if (m_selectedMaterial.isValid() && m_hasQuick3DImport) {
+    if (m_selectedMaterial.isValid() && m_hasQuick3DImport && (materialLibraryNode().isValid() || m_hasMaterialRoot)) {
         qmlPaneUrl = QUrl::fromLocalFile(materialEditorResourcesPath() + "/MaterialEditorPane.qml");
 
         TypeName diffClassName;
@@ -587,7 +589,7 @@ void MaterialEditorView::setupQmlBackend()
 
     currentQmlBackend->widget()->installEventFilter(this);
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
-    currentQmlBackend->contextObject()->setHasMaterialRoot(m_hasMaterialRoot);
+    currentQmlBackend->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     currentQmlBackend->contextObject()->setCurrentType(currentTypeName);
 
@@ -781,6 +783,7 @@ void MaterialEditorView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
     m_dynamicPropertiesModel->reset();
     m_qmlBackEnd->materialEditorTransaction()->end();
+    m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
 }
 
 void MaterialEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
@@ -1101,6 +1104,21 @@ void MaterialEditorView::customNotification([[maybe_unused]] const AbstractView 
     } else if (identifier == "duplicate_material") {
         duplicateMaterial(nodeList.first());
     }
+}
+
+void MaterialEditorView::nodeReparented(const ModelNode &node,
+                                        const NodeAbstractProperty &newPropertyParent,
+                                        const NodeAbstractProperty &oldPropertyParent,
+                                        PropertyChangeFlags propertyChange)
+{
+    if (node.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
+        m_qmlBackEnd->contextObject()->setHasMaterialLibrary(true);
+}
+
+void MaterialEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
+{
+    if (removedNode.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
+        m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
 }
 
 void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highlight)

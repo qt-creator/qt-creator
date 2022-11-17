@@ -164,8 +164,7 @@ void MaterialBrowserView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->clearSearchFilter();
-    m_widget->materialBrowserModel()->setHasMaterialRoot(
-        rootModelNode().metaInfo().isQtQuick3DMaterial());
+    m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
@@ -198,6 +197,7 @@ void MaterialBrowserView::refreshModel(bool updateImages)
     m_widget->clearSearchFilter();
     m_widget->materialBrowserModel()->setMaterials(materials, m_hasQuick3DImport);
     m_widget->materialBrowserTexturesModel()->setTextures(textures);
+    m_widget->materialBrowserModel()->setHasMaterialLibrary(matLib.isValid());
 
     if (updateImages) {
         for (const ModelNode &node : std::as_const(materials))
@@ -223,6 +223,7 @@ bool MaterialBrowserView::isTexture(const ModelNode &node) const
 void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 {
     m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
+    m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
     m_widget->clearPreviewCache();
 
     if (m_propertyGroupsLoaded) {
@@ -291,6 +292,9 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
 {
     Q_UNUSED(propertyChange)
 
+    if (node.id() == Constants::MATERIAL_LIB_ID)
+        m_widget->materialBrowserModel()->setHasMaterialLibrary(true);
+
     if (!isMaterial(node) && !isTexture(node))
         return;
 
@@ -323,6 +327,7 @@ void MaterialBrowserView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     // removing the material lib node
     if (removedNode.id() == Constants::MATERIAL_LIB_ID) {
         m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
+        m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
         m_widget->clearPreviewCache();
         return;
     }

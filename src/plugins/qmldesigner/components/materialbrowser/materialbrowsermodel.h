@@ -21,7 +21,7 @@ class MaterialBrowserModel : public QAbstractListModel
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
-    Q_PROPERTY(bool hasMaterialRoot READ hasMaterialRoot WRITE setHasMaterialRoot NOTIFY hasMaterialRootChanged)
+    Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary WRITE setHasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
     Q_PROPERTY(QString copiedMaterialType READ copiedMaterialType WRITE setCopiedMaterialType NOTIFY copiedMaterialTypeChanged)
     Q_PROPERTY(QStringList defaultMaterialSections MEMBER m_defaultMaterialSections NOTIFY materialSectionsChanged)
     Q_PROPERTY(QStringList principledMaterialSections MEMBER m_principledMaterialSections NOTIFY materialSectionsChanged)
@@ -44,8 +44,8 @@ public:
     bool hasModelSelection() const;
     void setHasModelSelection(bool b);
 
-    bool hasMaterialRoot() const;
-    void setHasMaterialRoot(bool b);
+    bool hasMaterialLibrary() const;
+    void setHasMaterialLibrary(bool b);
 
     QString copiedMaterialType() const;
     void setCopiedMaterialType(const QString &matType);
@@ -87,7 +87,7 @@ signals:
     void isEmptyChanged();
     void hasQuick3DImportChanged();
     void hasModelSelectionChanged();
-    void hasMaterialRootChanged();
+    void hasMaterialLibraryChanged();
     void copiedMaterialTypeChanged();
     void materialSectionsChanged();
     void selectedIndexChanged(int idx);
@@ -119,7 +119,7 @@ private:
     bool m_isEmpty = true;
     bool m_hasQuick3DImport = false;
     bool m_hasModelSelection = false;
-    bool m_hasMaterialRoot = false;
+    bool m_hasMaterialLibrary = false;
     bool m_allPropsCopied = true;
     QString m_copiedMaterialType;
 };

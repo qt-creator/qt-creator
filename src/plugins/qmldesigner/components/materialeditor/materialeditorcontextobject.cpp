@@ -227,18 +227,18 @@ void MaterialEditorContextObject::setHasQuick3DImport(bool b)
     emit hasQuick3DImportChanged();
 }
 
-bool MaterialEditorContextObject::hasMaterialRoot() const
+bool MaterialEditorContextObject::hasMaterialLibrary() const
 {
-    return m_hasMaterialRoot;
+    return m_hasMaterialLibrary;
 }
 
-void MaterialEditorContextObject::setHasMaterialRoot(bool b)
+void MaterialEditorContextObject::setHasMaterialLibrary(bool b)
 {
-    if (b == m_hasMaterialRoot)
+    if (b == m_hasMaterialLibrary)
         return;
 
-    m_hasMaterialRoot = b;
-    emit hasMaterialRootChanged();
+    m_hasMaterialLibrary = b;
+    emit hasMaterialLibraryChanged();
 }
 
 bool MaterialEditorContextObject::hasModelSelection() const

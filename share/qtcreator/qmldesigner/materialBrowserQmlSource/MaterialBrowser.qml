@@ -12,6 +12,8 @@ Item {
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 120
+    readonly property bool enableUiElements: materialBrowserModel.hasMaterialLibrary
+                                             && materialBrowserModel.hasQuick3DImport
 
     property var currMaterialItem: null
 
@@ -54,16 +56,14 @@ Item {
         acceptedButtons: Qt.RightButton
 
         onClicked: (mouse) => {
-            if (materialBrowserModel.hasMaterialRoot || !materialBrowserModel.hasQuick3DImport)
+            if (!root.enableUiElements)
                 return;
 
             var matsSecBottom = mapFromItem(materialsSection, 0, materialsSection.y).y
                                 + materialsSection.height;
 
-            if (!materialBrowserModel.hasMaterialRoot && materialBrowserModel.hasQuick3DImport
-                && mouse.y < matsSecBottom) {
+            if (mouse.y < matsSecBottom)
                 ctxMenu.popupMenu()
-            }
         }
     }
 
@@ -90,7 +90,7 @@ Item {
 
         Row {
             width: root.width
-            enabled: !materialBrowserModel.hasMaterialRoot && materialBrowserModel.hasQuick3DImport
+            enabled: root.enableUiElements
 
             StudioControls.SearchBox {
                 id: searchBox
@@ -105,10 +105,10 @@ Item {
 
         Text {
             text: {
-                if (materialBrowserModel.hasMaterialRoot)
-                    qsTr("<b>Material Browser</b> is disabled inside a material component.")
-                else if (!materialBrowserModel.hasQuick3DImport)
+                if (!materialBrowserModel.hasQuick3DImport)
                     qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.")
+                else if (!materialBrowserModel.hasMaterialLibrary)
+                    qsTr("<b>Material Browser</b> is disabled inside a non-visual component.")
                 else
                     ""
             }
@@ -129,7 +129,7 @@ Item {
             width: root.width
             height: root.height - searchBox.height
             clip: true
-            visible: materialBrowserModel.hasQuick3DImport && !materialBrowserModel.hasMaterialRoot
+            visible: root.enableUiElements
             interactive: !ctxMenu.opened
 
             Column {
@@ -187,7 +187,7 @@ Item {
                             color: StudioTheme.Values.themeTextColor
                             font.pixelSize: StudioTheme.Values.baseFontSize
                             leftPadding: 10
-                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
+                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && materialBrowserModel.hasMaterialLibrary
                         }
 
                         Text {
@@ -213,7 +213,7 @@ Item {
                         normalColor: "transparent"
                         buttonSize: StudioTheme.Values.sectionHeadHeight
                         onClicked: materialBrowserModel.addNewMaterial()
-                        enabled: materialBrowserModel.hasQuick3DImport
+                        enabled: root.enableUiElements
                     }
                 }
 
@@ -254,7 +254,7 @@ Item {
                             color: StudioTheme.Values.themeTextColor
                             font.pixelSize: StudioTheme.Values.baseFontSize
                             leftPadding: 10
-                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
+                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && materialBrowserModel.hasMaterialLibrary
                         }
 
                         Text {
@@ -280,7 +280,7 @@ Item {
                         normalColor: "transparent"
                         buttonSize: StudioTheme.Values.sectionHeadHeight
                         onClicked: materialBrowserTexturesModel.addNewTexture()
-                        enabled: materialBrowserModel.hasQuick3DImport
+                        enabled: root.enableUiElements
                     }
                 }
             }

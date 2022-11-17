@@ -806,8 +806,11 @@ void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, in
 void AbstractView::ensureMaterialLibraryNode()
 {
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-    if (matLib.isValid() || rootModelNode().metaInfo().isQtQuick3DMaterial())
+    if (matLib.isValid()
+            || (!rootModelNode().metaInfo().isQtQuick3DNode()
+                && !rootModelNode().metaInfo().isQtQuickItem())) {
         return;
+    }
 
     executeInTransaction(__FUNCTION__, [&] {
         // Create material library node
