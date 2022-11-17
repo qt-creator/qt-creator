@@ -7,7 +7,6 @@
 #include "annotationlist.h"
 
 #include <QLayout>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
 
 namespace QmlDesigner {

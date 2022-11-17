@@ -27,7 +27,6 @@
 #include <QAction>
 #include <QComboBox>
 #include <QDir>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QSpinBox>
 #include <QStackedWidget>

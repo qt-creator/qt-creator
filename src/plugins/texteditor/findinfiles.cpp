@@ -18,7 +18,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileDialog>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QSettings>

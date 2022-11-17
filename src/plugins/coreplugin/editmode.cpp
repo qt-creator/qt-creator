@@ -14,7 +14,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QLatin1String>
-#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QWidget>
 #include <QIcon>
 

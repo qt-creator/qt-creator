@@ -21,7 +21,6 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QRegularExpression>
 #include <QSet>

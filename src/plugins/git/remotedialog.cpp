@@ -18,7 +18,6 @@
 #include <QApplication>
 #include <QDialogButtonBox>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMessageBox>

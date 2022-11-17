@@ -14,7 +14,6 @@
 #include <QRegularExpression>
 #include <QTextEdit>
 #include <QTextStream>
-#include <QVBoxLayout>
 
 namespace ClearCase::Internal {
 

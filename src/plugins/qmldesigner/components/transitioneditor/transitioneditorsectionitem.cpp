@@ -29,7 +29,6 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QPainter>
 #include <QPainterPath>

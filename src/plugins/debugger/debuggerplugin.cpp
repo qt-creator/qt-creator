@@ -111,7 +111,6 @@
 #include <QDialogButtonBox>
 #include <QDockWidget>
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QMenu>

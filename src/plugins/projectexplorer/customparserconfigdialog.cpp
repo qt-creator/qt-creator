@@ -13,7 +13,6 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLineEdit>
@@ -22,7 +21,6 @@
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QTabWidget>
-#include <QVBoxLayout>
 
 namespace ProjectExplorer::Internal {
 

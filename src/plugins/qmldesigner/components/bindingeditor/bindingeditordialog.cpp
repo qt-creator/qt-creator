@@ -10,13 +10,12 @@
 #include <qmljseditor/qmljseditordocument.h>
 #include <texteditor/textdocument.h>
 
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QComboBox>
 #include <QCheckBox>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
 #include <QPlainTextEdit>
+#include <QPushButton>
 
 namespace QmlDesigner {
 

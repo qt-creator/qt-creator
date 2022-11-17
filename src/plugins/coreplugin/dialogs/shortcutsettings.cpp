@@ -22,7 +22,6 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>

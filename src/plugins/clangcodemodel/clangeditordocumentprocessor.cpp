@@ -28,7 +28,6 @@
 #include <utils/runextensions.h>
 
 #include <QTextBlock>
-#include <QVBoxLayout>
 #include <QWidget>
 
 namespace ClangCodeModel {

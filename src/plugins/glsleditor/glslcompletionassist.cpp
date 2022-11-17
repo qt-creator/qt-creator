@@ -29,7 +29,6 @@
 #include <QPainter>
 #include <QLabel>
 #include <QToolButton>
-#include <QHBoxLayout>
 #include <QApplication>
 #include <QDebug>
 

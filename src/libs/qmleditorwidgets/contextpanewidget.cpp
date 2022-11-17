@@ -9,8 +9,6 @@
 #include <QFontComboBox>
 #include <QComboBox>
 #include <QSpinBox>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QGridLayout>

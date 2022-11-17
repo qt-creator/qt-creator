@@ -9,7 +9,6 @@
 #include "detail/treeview.h"
 
 #include <QDoubleSpinBox>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QScrollArea>
 #include <QSplitter>

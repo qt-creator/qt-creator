@@ -64,7 +64,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLineEdit>
 #include <QMenu>
 #include <QSortFilterProxyModel>

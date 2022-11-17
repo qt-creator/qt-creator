@@ -19,7 +19,6 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDir>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -27,7 +26,6 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QSpacerItem>
-#include <QVBoxLayout>
 #include <QVariant>
 
 using namespace ProjectExplorer;

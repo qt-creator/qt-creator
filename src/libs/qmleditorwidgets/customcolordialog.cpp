@@ -7,7 +7,6 @@
 
 #include <utils/hostosinfo.h>
 
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
 #include <QDoubleSpinBox>

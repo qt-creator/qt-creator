@@ -16,7 +16,6 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QGridLayout>
-#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTreeView>

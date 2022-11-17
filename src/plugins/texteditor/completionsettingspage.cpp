@@ -17,11 +17,9 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QSpacerItem>
 #include <QSpinBox>
-#include <QVBoxLayout>
 #include <QWidget>
 
 using namespace CppEditor;

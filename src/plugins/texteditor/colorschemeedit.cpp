@@ -14,7 +14,6 @@
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QGridLayout>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QListView>
 #include <QPushButton>

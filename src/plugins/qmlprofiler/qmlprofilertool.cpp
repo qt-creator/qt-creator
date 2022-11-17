@@ -57,7 +57,6 @@
 #include <QDockWidget>
 #include <QElapsedTimer>
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>

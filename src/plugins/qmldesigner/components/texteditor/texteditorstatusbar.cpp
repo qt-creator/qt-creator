@@ -5,8 +5,6 @@
 
 #include <utils/theme/theme.h>
 
-#include <QVBoxLayout>
-
 namespace QmlDesigner {
 
 TextEditorStatusBar::TextEditorStatusBar(QWidget *parent) : QToolBar(parent), m_label(new QLabel(this))

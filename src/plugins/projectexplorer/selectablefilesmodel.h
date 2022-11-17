@@ -21,10 +21,6 @@ class FancyLineEdit;
 class PathChooser;
 }
 
-QT_BEGIN_NAMESPACE
-class QVBoxLayout;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 
 class Tree

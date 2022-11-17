@@ -39,7 +39,6 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 using namespace TextEditor::Internal;

@@ -35,7 +35,6 @@
 #include <utils/utilsicons.h>
 
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QMenu>
 #include <QMessageBox>
 

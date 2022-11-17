@@ -15,7 +15,6 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
-class QHBoxLayout;
 class QGridLayout;
 class QLabel;
 class QPushButton;

@@ -18,7 +18,6 @@ class QDomDocument;
 class QDomElement;
 class QComboBox;
 class QPushButton;
-class QHBoxLayout;
 class QLabel;
 class QLineEdit;
 class QListView;

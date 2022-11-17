@@ -21,14 +21,12 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QTreeWidget>
-#include <QVBoxLayout>
 #include <QWidget>
 
 namespace Autotest {

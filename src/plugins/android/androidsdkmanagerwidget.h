@@ -23,7 +23,6 @@ QT_END_NAMESPACE
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
-#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPlainTextEdit>
@@ -33,7 +32,6 @@ QT_END_NAMESPACE
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QTreeView>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 #include <utils/fancylineedit.h>
 

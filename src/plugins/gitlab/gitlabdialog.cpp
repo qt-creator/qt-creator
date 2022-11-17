@@ -30,7 +30,6 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -38,7 +37,6 @@
 #include <QSpacerItem>
 #include <QToolButton>
 #include <QTreeView>
-#include <QVBoxLayout>
 
 using namespace Utils;
 
