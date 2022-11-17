@@ -489,9 +489,8 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     if (searchTerm.isEmpty())
         return;
 
-    // Will fix QTCREATORBUG-27978 and QTCREATORBUG-28109 once enabled by default.
     if (replacement && versionNumber() >= QVersionNumber(16)
-            && Utils::qtcEnvironmentVariableIsSet("QTC_CLANGD_RENAMING")) {
+            && Utils::qtcEnvironmentVariable("QTC_CLANGD_RENAMING") != "0") {
         symbolSupport().renameSymbol(document, adjustedCursor, *replacement,
                                      CppEditor::preferLowerCaseFileNames());
         return;
