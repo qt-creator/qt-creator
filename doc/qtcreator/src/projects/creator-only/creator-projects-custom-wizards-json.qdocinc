@@ -36,7 +36,7 @@
     JavaScript expression and converts the resulting JavaScript value to a string.
     In the JavaScript expression you can refer to variables defined by the wizard with
     \c {value('<variableName>')}. The returned JavaScript object has the type that the value
-    of the variable has, which can be a string, list, dictionary or boolean.
+    of the variable has, which can be a string, list, dictionary, or boolean.
 
     In places where a boolean value is expected and a string is given,
     an empty string as well as the string \c {"false"} is treated as
@@ -471,7 +471,7 @@
             \endlist
 
         \li \c preferredFeatures with a list in the same format as
-            requiredFeatures. Any kit matching all features listed in
+            \c requiredFeatures. Any kit matching all features listed in
             \c preferredFeatures (in addition to \c requiredFeatures) will be
             pre-selected on this page.
     \endlist
@@ -524,7 +524,7 @@
     }
     \endcode
 
-    The page sets \c IsSubproject to an empty string if this is a toplevel
+    The page sets \c IsSubproject to an empty string if this is a top-level
     project and to \c yes otherwise. It sets \c VersionControl to the ID of the
     version control system in use.
 
@@ -621,7 +621,7 @@
         \li \c type specifies the type of the widget: \c CheckBox, \c ComboBox,
             \c Label, \c LineEdit, \c PathChooser, \c Spacer, and \c TextEdit.
 
-        \li \c trToolTip specifies a tool tip to show when hovering the field
+        \li \c trToolTip specifies a tooltip to show when hovering the field
             with the mouse.
 
         \li \c isComplete is evaluated for all fields to decide whether the

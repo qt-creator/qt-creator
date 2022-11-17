@@ -236,9 +236,10 @@ QVariant QnxConfiguration::createDebugger(const Target &target)
 {
     Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
+
     Debugger::DebuggerItem debugger;
     debugger.setCommand(target.m_debuggerPath);
-    debugger.reinitializeFromFile(sysEnv);
+    debugger.reinitializeFromFile(nullptr, &sysEnv);
     debugger.setAutoDetected(true);
     debugger.setUnexpandedDisplayName(Tr::tr("Debugger for %1 (%2)")
                 .arg(displayName())
@@ -416,10 +417,11 @@ void QnxConfiguration::assignDebuggersToTargets()
                 {{HostOsInfo::withExecutableSuffix("nto*-gdb")}, QDir::Files});
     Environment sysEnv = Environment::systemEnvironment();
     sysEnv.modify(qnxEnvironmentItems());
+
     for (const FilePath &debuggerPath : debuggerNames) {
         DebuggerItem item;
         item.setCommand(debuggerPath);
-        item.reinitializeFromFile(sysEnv);
+        item.reinitializeFromFile(nullptr, &sysEnv);
         bool found = false;
         for (const Abi &abi : item.abis()) {
             for (Target &target : m_targets) {

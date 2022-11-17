@@ -259,10 +259,13 @@ public:
                 ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
             if (cToolchain && cxxToolchain) {
-                configMap.insert("CMAKE_CXX_COMPILER",
-                                 cxxToolchain->compilerCommand().toString().toLatin1());
-                configMap.insert("CMAKE_C_COMPILER",
-                                 cToolchain->compilerCommand().toString().toLatin1());
+                if (!cxxToolchain->compilerCommand().isEmpty()
+                    && !cToolchain->compilerCommand().isEmpty()) {
+                    configMap.insert("CMAKE_CXX_COMPILER",
+                                     cxxToolchain->compilerCommand().toString().toLatin1());
+                    configMap.insert("CMAKE_C_COMPILER",
+                                     cToolchain->compilerCommand().toString().toLatin1());
+                }
             } else {
                 printMessage(Tr::tr("Warning for target %1: invalid toolchain path (%2). "
                                     "Update the toolchain in Edit > Preferences > Kits.")

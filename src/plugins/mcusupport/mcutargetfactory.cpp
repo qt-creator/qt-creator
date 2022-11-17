@@ -50,9 +50,14 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
 
 static void removeEmptyPackages(Packages &packages)
 {
-    for (const McuPackagePtr &pkg : packages) {
-        if (pkg->cmakeVariableName().isEmpty() && pkg->path().isEmpty())
-            packages.remove(pkg);
+    Packages::const_iterator it = packages.constBegin();
+    while (it != packages.constEnd()) {
+        const auto &pkg = *it;
+        if (pkg->cmakeVariableName().isEmpty() && pkg->path().isEmpty()) {
+            it = packages.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 

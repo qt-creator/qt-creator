@@ -1484,6 +1484,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
             cmd.addArg("-DCMAKE_TOOLCHAIN_FILE:FILEPATH="
                    + ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").path());
+            cmd.addArg("-DANDROID_USE_LEGACY_TOOLCHAIN_FILE:BOOL=OFF");
 
             auto androidAbis = bs->data(Android::Constants::AndroidMkSpecAbis).toStringList();
             QString preferredAbi;

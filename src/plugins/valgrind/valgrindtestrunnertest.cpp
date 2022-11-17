@@ -20,7 +20,7 @@
 #include <QDir>
 #include <QSignalSpy>
 
-#define HEADER_LENGTH 25
+#define HEADER_LENGTH 3
 
 using namespace ProjectExplorer;
 using namespace Valgrind::XmlProtocol;

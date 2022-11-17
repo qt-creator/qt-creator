@@ -36,6 +36,8 @@ public:
     Utils::Environment systemEnvironment() const override;
     Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
 
+    Utils::FilePath rootPath() const override;
+
 protected:
     DesktopDevice();
 

@@ -296,7 +296,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
         DebuggerItem item;
         item.setCommand(m_binaryChooser->filePath());
         errorMessage->clear();
-        item.reinitializeFromFile({}, errorMessage);
+        item.reinitializeFromFile(errorMessage);
         return errorMessage->isEmpty();
     });
     m_binaryChooser->setAllowPathFromDevice(true);

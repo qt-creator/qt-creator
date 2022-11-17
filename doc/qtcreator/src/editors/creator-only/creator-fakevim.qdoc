@@ -310,7 +310,7 @@
 
     \section1 Quitting FakeVim Mode
 
-    To quit the FakeVim mode, unselect \uicontrol Edit > \uicontrol Preferences >
+    To quit the FakeVim mode, deselect \uicontrol Edit > \uicontrol Preferences >
     \uicontrol FakeVim > \uicontrol {Use FakeVim} or press \key {Alt+V,Alt+V}.
 
     You can temporarily escape FakeVim mode to access the normal \QC keyboard

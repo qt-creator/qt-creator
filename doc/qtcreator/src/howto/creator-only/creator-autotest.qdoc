@@ -87,7 +87,7 @@
                 \li For a Qt Quick test, select the
                     \uicontrol {Generate setup code} check box to execute C++
                     code before any of the QML tests are run. The testing
-                    framework will call slots and invokable functions, as
+                    framework will call slots and invocable functions, as
                     described in \l{Executing C++ Before QML Tests}.
 
                     \image qtcreator-autotests-project-qtquick-test.png "Autotest project wizard - Qt Quick Test"

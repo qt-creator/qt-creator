@@ -262,6 +262,8 @@ void Theme::setHelpMenu(QMenu *menu)
 {
 #ifdef Q_OS_MACOS
     Internal::setMacOSHelpMenu(menu);
+#else
+    Q_UNUSED(menu)
 #endif
 }
 
