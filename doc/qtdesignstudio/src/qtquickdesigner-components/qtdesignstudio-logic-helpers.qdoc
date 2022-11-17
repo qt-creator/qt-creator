@@ -114,7 +114,7 @@
     \image studio-logic-helper-not.png "NOT operator properties"
 
     We then select the other check box instance and bind the value of its
-    \uicontrol Checked field to the value of of \uicontrol Output
+    \uicontrol Checked field to the value of \uicontrol Output
     field of the \uicontrol {Not Operator} component.
 
     \image studio-logic-helper-not-check-box.png "Check box checked property bound to NOT operator output"
