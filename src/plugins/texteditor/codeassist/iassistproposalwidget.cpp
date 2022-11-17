@@ -3,6 +3,8 @@
 
 #include "iassistproposalwidget.h"
 
+#include "assistinterface.h"
+
 using namespace TextEditor;
 
 /*!
@@ -29,6 +31,11 @@ using namespace TextEditor;
 IAssistProposalWidget::IAssistProposalWidget()
     : QFrame(nullptr, Qt::Popup)
 {}
+
+void IAssistProposalWidget::updateProposal(std::unique_ptr<AssistInterface> &&interface)
+{
+    filterProposal(interface->textAt(m_basePosition, interface->position() - m_basePosition));
+}
 
 IAssistProposalWidget::~IAssistProposalWidget() = default;
 

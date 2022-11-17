@@ -42,6 +42,7 @@ public:
             : TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR;
         if (Core::Command *command = Core::ActionManager::command(id))
             m_sequence = command->keySequence();
+        setFragile(true);
     }
 
 protected:
@@ -169,9 +170,7 @@ IAssistProcessor *VirtualFunctionAssistProvider::createProcessor(const AssistInt
 VirtualFunctionProposal::VirtualFunctionProposal(
         int cursorPos, const QList<AssistProposalItemInterface *> &items, bool openInSplit)
     : GenericProposal(cursorPos, items), m_openInSplit(openInSplit)
-{
-    setFragile(true);
-}
+{ }
 
 IAssistProposalWidget *VirtualFunctionProposal::createWidget() const
 {

@@ -11,6 +11,7 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/genericproposalwidget.h>
 #include <texteditor/snippets/snippet.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/textdocument.h>
@@ -224,6 +225,13 @@ public:
     bool supportsPrefixExpansion() const override { return false; }
 
     QList<AssistProposalItemInterface *> items() const { return m_currentItems; }
+
+    bool isComplete(const QString prefix)
+    { return m_completePrefix && prefix.startsWith(*m_completePrefix); }
+    void setCompletePrefix(const QString &completePrefix) { m_completePrefix = completePrefix; }
+
+private:
+    std::optional<QString> m_completePrefix;
 };
 
 bool LanguageClientCompletionModel::isSortable(const QString &) const
@@ -252,13 +260,85 @@ void LanguageClientCompletionModel::sort(const QString &prefix)
     });
 }
 
+class LanguageClientCompletionWidget : public GenericProposalWidget
+{
+public:
+    LanguageClientCompletionWidget(const IAssistProvider *provider)
+        : m_provider(provider)
+    {}
+
+    ~LanguageClientCompletionWidget() { deleteCurrentProcessor(); }
+
+    void deleteCurrentProcessor()
+    {
+        if (m_processor) {
+            m_processor->cancel();
+            delete m_processor;
+            m_processor = nullptr;
+        }
+    }
+
+    bool isComplete(const AssistInterface *interface)
+    {
+        const QString prefix = interface->textAt(basePosition(),
+                                                 interface->position() - basePosition());
+        return static_cast<LanguageClientCompletionModel *>(model().data())->isComplete(prefix);
+    }
+
+    void setProposal(IAssistProposal *proposal)
+    {
+        if (!proposal)
+            return;
+        updateModel(proposal->model());
+        delete proposal;
+    }
+
+    void updateProposal(std::unique_ptr<AssistInterface> &&interface) override
+    {
+        deleteCurrentProcessor();
+        if (!m_provider || isComplete(interface.get())) {
+            GenericProposalWidget::updateProposal(std::move(interface));
+            return;
+        }
+        auto processor = m_provider->createProcessor(interface.get());
+        QTC_ASSERT(processor, return);
+
+        processor->setAsyncCompletionAvailableHandler([this, processor](IAssistProposal *proposal) {
+            QTC_ASSERT(processor == m_processor, return);
+            if (!processor->running()) {
+                // do not delete this processor directly since this function is called from within the processor
+                QMetaObject::invokeMethod(
+                    QCoreApplication::instance(),
+                    [processor] { delete processor; },
+                    Qt::QueuedConnection);
+                m_processor = nullptr;
+            }
+            setProposal(proposal);
+        });
+
+        setProposal(processor->start(std::move(interface)));
+        if (processor->running())
+            m_processor = processor;
+        else
+            delete processor;
+    }
+
+private:
+    QPointer<const IAssistProvider> m_provider;
+    std::optional<MessageId> m_currentRequestId;
+    IAssistProcessor *m_processor = nullptr;
+};
+
 class LanguageClientCompletionProposal : public GenericProposal
 {
 public:
-    LanguageClientCompletionProposal(int cursorPos, LanguageClientCompletionModel *model)
+    LanguageClientCompletionProposal(const IAssistProvider *provider,
+                                     int cursorPos,
+                                     LanguageClientCompletionModel *model)
         : GenericProposal(cursorPos, GenericProposalModelPtr(model))
         , m_model(model)
-    { }
+        , m_provider(provider)
+    {}
 
     // IAssistProposal interface
     bool hasItemsToPropose(const QString &/*text*/, AssistReason reason) const override
@@ -274,15 +354,21 @@ public:
         });
     }
 
+    IAssistProposalWidget *createWidget() const override
+    {
+        return new LanguageClientCompletionWidget(m_provider);
+    }
+
     LanguageClientCompletionModel *m_model;
     QPointer<QTextDocument> m_document;
+    QPointer<const IAssistProvider> m_provider;
     int m_pos = -1;
 };
 
 LanguageClientCompletionAssistProcessor::LanguageClientCompletionAssistProcessor(
-    Client *client,
-    const QString &snippetsGroup)
+    Client *client, const IAssistProvider *provider, const QString &snippetsGroup)
     : m_client(client)
+    , m_provider(provider)
     , m_snippetsGroup(snippetsGroup)
 {}
 
@@ -409,32 +495,36 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
         return;
     }
 
+    const QString prefix = Utils::Text::textAt(QTextCursor(document()),
+                                               m_basePos,
+                                               m_pos - m_basePos);
+
     QList<CompletionItem> items;
-    bool isComplete = false;
+    bool isComplete = true;
     if (std::holds_alternative<CompletionList>(*result)) {
         const auto &list = std::get<CompletionList>(*result);
         items = list.items().value_or(QList<CompletionItem>());
-        isComplete = !list.isIncomplete();
+        if (list.isIncomplete())
+            isComplete = false;
     } else if (std::holds_alternative<QList<CompletionItem>>(*result)) {
         items = std::get<QList<CompletionItem>>(*result);
     }
     auto proposalItems = generateCompletionItems(items);
     if (!m_snippetsGroup.isEmpty()) {
-        proposalItems << TextEditor::SnippetAssistCollector(
-                             m_snippetsGroup, QIcon(":/texteditor/images/snippet.png")).collect();
+        proposalItems << TextEditor::SnippetAssistCollector(m_snippetsGroup,
+                                                            QIcon(
+                                                                ":/texteditor/images/snippet.png"))
+                             .collect();
     }
     auto model = new LanguageClientCompletionModel();
     model->loadContent(proposalItems);
-    LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_basePos,
+    if (isComplete)
+        model->setCompletePrefix(prefix);
+    LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_provider,
+                                                                                      m_basePos,
                                                                                       model);
     proposal->m_document = document();
     proposal->m_pos = m_pos;
-    const QString completePrefix = Utils::Text::textAt(QTextCursor(document()),
-                                                       m_basePos,
-                                                       m_pos - m_basePos);
-    proposal->setPrefixChecker([isComplete, completePrefix](const QString &candidate) {
-        return isComplete && candidate.startsWith(completePrefix);
-    });
     setAsyncProposalAvailable(proposal);
     m_client->removeAssistProcessor(this);
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : "
@@ -449,8 +539,7 @@ LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(C
 IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor(
     const AssistInterface *) const
 {
-    return new LanguageClientCompletionAssistProcessor(m_client,
-                                                       m_snippetsGroup);
+    return new LanguageClientCompletionAssistProcessor(m_client, this, m_snippetsGroup);
 }
 
 int LanguageClientCompletionAssistProvider::activationCharSequenceLength() const
@@ -460,7 +549,7 @@ int LanguageClientCompletionAssistProvider::activationCharSequenceLength() const
 
 bool LanguageClientCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
 {
-    return Utils::anyOf(m_triggerChars, [sequence](const QString &trigger){
+    return Utils::anyOf(m_triggerChars, [sequence](const QString &trigger) {
         return trigger.endsWith(sequence);
     });
 }

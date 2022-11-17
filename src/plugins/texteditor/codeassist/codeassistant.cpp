@@ -77,12 +77,10 @@ private:
 private:
     CodeAssistant *q = nullptr;
     TextEditorWidget *m_editorWidget = nullptr;
-    QMetaObject::Connection m_runnerConnection;
     IAssistProvider *m_requestProvider = nullptr;
     IAssistProcessor *m_processor = nullptr;
     AssistKind m_assistKind = TextEditor::Completion;
     IAssistProposalWidget *m_proposalWidget = nullptr;
-    QScopedPointer<IAssistProposal> m_proposal;
     bool m_receivedContentWhileWaiting = false;
     QTimer m_automaticProposalTimer;
     CompletionSettings m_settings;
@@ -117,12 +115,11 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
 {
     stopAutomaticProposalTimer();
 
-    if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()
-        && m_proposal->supportsPrefixFiltering(proposalPrefix())) {
+    if (isDisplayingProposal() && m_assistKind == kind && !m_proposalWidget->isFragile()) {
         m_proposalWidget->setReason(ExplicitlyInvoked);
-        m_proposalWidget->updateProposal(m_editorWidget->textAt(
-                        m_proposal->basePosition(),
-                        m_editorWidget->position() - m_proposal->basePosition()));
+        m_proposalWidget->filterProposal(m_editorWidget->textAt(
+                        m_proposalWidget->basePosition(),
+                        m_editorWidget->position() - m_proposalWidget->basePosition()));
     } else {
         requestProposal(ExplicitlyInvoked, kind, provider);
     }
@@ -239,14 +236,12 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         return;
 
     // TODO: The proposal should own the model until someone takes it explicitly away.
-    QScopedPointer<IAssistProposal> proposalCandidate(newProposal);
+    QScopedPointer<IAssistProposal> deleter(newProposal);
 
-    if (isDisplayingProposal() && !m_proposal->isFragile()
-        && !m_proposalWidget->supportsModelUpdate(proposalCandidate->id())) {
+    if (isDisplayingProposal() && !m_proposalWidget->isFragile())
         return;
-    }
 
-    int basePosition = proposalCandidate->basePosition();
+    int basePosition = newProposal->basePosition();
     if (m_editorWidget->position() < basePosition) {
         destroyContext();
         return;
@@ -266,28 +261,16 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         return;
     }
 
-    if (m_proposalWidget
-        && basePosition == proposalCandidate->basePosition()
-        && m_proposalWidget->supportsModelUpdate(proposalCandidate->id())) {
-        m_proposal.reset(proposalCandidate.take());
-        m_proposal->setReason(reason);
-        m_proposalWidget->updateModel(m_proposal->model());
-        m_proposalWidget->updateProposal(prefix);
-        return;
-    }
-
     destroyContext();
 
     clearAbortedPosition();
-    m_proposal.reset(proposalCandidate.take());
-    m_proposal->setReason(reason);
 
-    if (m_proposal->isCorrective(m_editorWidget))
-        m_proposal->makeCorrection(m_editorWidget);
+    if (newProposal->isCorrective(m_editorWidget))
+        newProposal->makeCorrection(m_editorWidget);
 
     m_editorWidget->keepAutoCompletionHighlight(true);
-    basePosition = m_proposal->basePosition();
-    m_proposalWidget = m_proposal->createWidget();
+    basePosition = newProposal->basePosition();
+    m_proposalWidget = newProposal->createWidget();
     connect(m_proposalWidget, &QObject::destroyed,
             this, &CodeAssistantPrivate::finalizeProposal);
     connect(m_proposalWidget, &IAssistProposalWidget::prefixExpanded,
@@ -301,7 +284,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     m_proposalWidget->setKind(m_assistKind);
     m_proposalWidget->setBasePosition(basePosition);
     m_proposalWidget->setUnderlyingWidget(m_editorWidget);
-    m_proposalWidget->setModel(m_proposal->model());
+    m_proposalWidget->setModel(newProposal->model());
     m_proposalWidget->setDisplayRect(m_editorWidget->cursorRect(basePosition));
     m_proposalWidget->setIsSynchronized(!m_receivedContentWhileWaiting);
     m_proposalWidget->showProposal(prefix);
@@ -309,9 +292,9 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
 
 void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *proposalItem)
 {
-    QTC_ASSERT(m_proposal, return);
+    QTC_ASSERT(m_proposalWidget, return);
     TextDocumentManipulator manipulator(m_editorWidget);
-    proposalItem->apply(manipulator, m_proposal->basePosition());
+    proposalItem->apply(manipulator, m_proposalWidget->basePosition());
     destroyContext();
     m_editorWidget->encourageApply();
     if (!proposalItem->isSnippet())
@@ -320,34 +303,33 @@ void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *prop
 
 void CodeAssistantPrivate::handlePrefixExpansion(const QString &newPrefix)
 {
-    QTC_ASSERT(m_proposal, return);
+    QTC_ASSERT(m_proposalWidget, return);
 
     QTextCursor cursor(m_editorWidget->document());
-    cursor.setPosition(m_proposal->basePosition());
+    cursor.setPosition(m_proposalWidget->basePosition());
     cursor.movePosition(QTextCursor::EndOfWord);
 
     int currentPosition = m_editorWidget->position();
     const QString textAfterCursor = m_editorWidget->textAt(currentPosition,
                                                        cursor.position() - currentPosition);
     if (!textAfterCursor.startsWith(newPrefix)) {
-        if (newPrefix.indexOf(textAfterCursor, currentPosition - m_proposal->basePosition()) >= 0)
+        if (newPrefix.indexOf(textAfterCursor, currentPosition - m_proposalWidget->basePosition()) >= 0)
             currentPosition = cursor.position();
         const QStringView prefixAddition = QStringView(newPrefix).mid(currentPosition
-                                                                      - m_proposal->basePosition());
+                                                                      - m_proposalWidget->basePosition());
         // If remaining string starts with the prefix addition
         if (textAfterCursor.startsWith(prefixAddition))
             currentPosition += prefixAddition.size();
     }
 
-    m_editorWidget->setCursorPosition(m_proposal->basePosition());
-    m_editorWidget->replace(currentPosition - m_proposal->basePosition(), newPrefix);
+    m_editorWidget->setCursorPosition(m_proposalWidget->basePosition());
+    m_editorWidget->replace(currentPosition - m_proposalWidget->basePosition(), newPrefix);
     notifyChange();
 }
 
 void CodeAssistantPrivate::finalizeProposal()
 {
     stopAutomaticProposalTimer();
-    m_proposal.reset();
     m_proposalWidget = nullptr;
     if (m_receivedContentWhileWaiting)
         m_receivedContentWhileWaiting = false;
@@ -367,8 +349,8 @@ QString CodeAssistantPrivate::proposalPrefix() const
 {
     if (!isDisplayingProposal())
         return {};
-    return m_editorWidget->textAt(m_proposal->basePosition(),
-                                  m_editorWidget->position() - m_proposal->basePosition());
+    return m_editorWidget->textAt(m_proposalWidget->basePosition(),
+                                  m_editorWidget->position() - m_proposalWidget->basePosition());
 }
 
 void CodeAssistantPrivate::invalidateCurrentRequestData()
@@ -409,18 +391,14 @@ void CodeAssistantPrivate::notifyChange()
     stopAutomaticProposalTimer();
 
     if (isDisplayingProposal()) {
-        QTC_ASSERT(m_proposal, return);
-        if (m_editorWidget->position() < m_proposal->basePosition()) {
+        QTC_ASSERT(m_proposalWidget, return);
+        if (m_editorWidget->position() < m_proposalWidget->basePosition()) {
             destroyContext();
         } else {
-            const QString prefix = proposalPrefix();
-            if (m_proposal->supportsPrefixFiltering(prefix)) {
-                m_proposalWidget->updateProposal(prefix);
-                if (!isDisplayingProposal())
-                    requestActivationCharProposal();
-            } else {
-                requestProposal(m_proposal->reason(), m_assistKind, m_requestProvider, true);
-            }
+            m_proposalWidget->updateProposal(
+                m_editorWidget->createAssistInterface(m_assistKind, m_proposalWidget->reason()));
+            if (!isDisplayingProposal())
+                requestActivationCharProposal();
         }
     }
 }
@@ -466,7 +444,7 @@ void CodeAssistantPrivate::automaticProposalTimeout()
 {
     if (isWaitingForProposal()
         || m_editorWidget->multiTextCursor().hasMultipleCursors()
-        || (isDisplayingProposal() && !m_proposal->isFragile())) {
+        || (isDisplayingProposal() && !m_proposalWidget->isFragile())) {
         return;
     }
 
@@ -488,8 +466,8 @@ void CodeAssistantPrivate::updateFromCompletionSettings(
 
 void CodeAssistantPrivate::explicitlyAborted()
 {
-    QTC_ASSERT(m_proposal, return);
-    m_abortedBasePosition = m_proposal->basePosition();
+    QTC_ASSERT(m_proposalWidget, return);
+    m_abortedBasePosition = m_proposalWidget->basePosition();
 }
 
 void CodeAssistantPrivate::clearAbortedPosition()

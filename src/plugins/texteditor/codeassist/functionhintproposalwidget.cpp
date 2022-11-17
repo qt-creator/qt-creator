@@ -138,6 +138,7 @@ FunctionHintProposalWidget::FunctionHintProposalWidget()
     });
 
     setFocusPolicy(Qt::NoFocus);
+    setFragile(true);
 }
 
 FunctionHintProposalWidget::~FunctionHintProposalWidget()
@@ -149,9 +150,6 @@ void FunctionHintProposalWidget::setAssistant(CodeAssistant *assistant)
 {
     d->m_assistant = assistant;
 }
-
-void FunctionHintProposalWidget::setReason(AssistReason)
-{}
 
 void FunctionHintProposalWidget::setKind(AssistKind)
 {}
@@ -190,7 +188,7 @@ void FunctionHintProposalWidget::showProposal(const QString &prefix)
     d->m_popupFrame->show();
 }
 
-void FunctionHintProposalWidget::updateProposal(const QString &prefix)
+void FunctionHintProposalWidget::filterProposal(const QString &prefix)
 {
     updateAndCheck(prefix);
 }

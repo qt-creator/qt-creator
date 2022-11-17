@@ -81,7 +81,9 @@ private:
 class ClangdCompletionAssistProcessor : public LanguageClientCompletionAssistProcessor
 {
 public:
-    ClangdCompletionAssistProcessor(ClangdClient *client, const QString &snippetsGroup);
+    ClangdCompletionAssistProcessor(ClangdClient *client,
+                                    const IAssistProvider *provider,
+                                    const QString &snippetsGroup);
     ~ClangdCompletionAssistProcessor();
 
 private:
@@ -164,7 +166,7 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
                                       : QString();
     qCDebug(clangdLogCompletion) << "creating proper completion processor"
                                  << (snippetsGroup.isEmpty() ? "without" : "with") << "snippets";
-    return new ClangdCompletionAssistProcessor(m_client, snippetsGroup);
+    return new ClangdCompletionAssistProcessor(m_client, this, snippetsGroup);
 }
 
 bool ClangdCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
@@ -554,8 +556,9 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeIncludePath(
 }
 
 ClangdCompletionAssistProcessor::ClangdCompletionAssistProcessor(ClangdClient *client,
+                                                                 const IAssistProvider *provider,
                                                                  const QString &snippetsGroup)
-    : LanguageClientCompletionAssistProcessor(client, snippetsGroup)
+    : LanguageClientCompletionAssistProcessor(client, provider, snippetsGroup)
     , m_client(client)
 {
     m_timer.start();

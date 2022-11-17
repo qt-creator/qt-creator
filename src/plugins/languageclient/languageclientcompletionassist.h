@@ -57,7 +57,9 @@ class LANGUAGECLIENT_EXPORT LanguageClientCompletionAssistProcessor
     : public TextEditor::IAssistProcessor
 {
 public:
-    LanguageClientCompletionAssistProcessor(Client *client, const QString &snippetsGroup);
+    LanguageClientCompletionAssistProcessor(Client *client,
+                                            const TextEditor::IAssistProvider *provider,
+                                            const QString &snippetsGroup);
     ~LanguageClientCompletionAssistProcessor() override;
     TextEditor::IAssistProposal *perform() override;
     bool running() override;
@@ -76,6 +78,7 @@ private:
 
     Utils::FilePath m_filePath;
     QPointer<Client> m_client;
+    QPointer<const TextEditor::IAssistProvider> m_provider;
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
     QMetaObject::Connection m_postponedUpdateConnection;
     const QString m_snippetsGroup;

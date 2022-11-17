@@ -63,16 +63,6 @@ int IAssistProposal::basePosition() const
     return m_basePosition;
 }
 
-bool IAssistProposal::isFragile() const
-{
-    return m_isFragile;
-}
-
-bool IAssistProposal::supportsPrefixFiltering(const QString &prefix) const
-{
-    return !m_prefixChecker || m_prefixChecker(prefix);
-}
-
 /*!
     \fn bool TextEditor::IAssistProposal::isCorrective() const
 
@@ -96,16 +86,6 @@ bool IAssistProposal::isCorrective(TextEditorWidget *editorWidget) const
 void IAssistProposal::makeCorrection(TextEditorWidget *editorWidget)
 {
     Q_UNUSED(editorWidget)
-}
-
-void IAssistProposal::setFragile(bool fragile)
-{
-    m_isFragile = fragile;
-}
-
-void IAssistProposal::setPrefixChecker(const PrefixChecker checker)
-{
-    m_prefixChecker = checker;
 }
 
 /*!

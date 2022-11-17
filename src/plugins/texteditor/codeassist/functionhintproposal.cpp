@@ -12,9 +12,7 @@ using namespace TextEditor;
 FunctionHintProposal::FunctionHintProposal(int cursorPos, FunctionHintProposalModelPtr model)
     : IAssistProposal(functionHintId, cursorPos)
     , m_model(model)
-{
-    setFragile(true);
-}
+{}
 
 FunctionHintProposal::~FunctionHintProposal() = default;
 
