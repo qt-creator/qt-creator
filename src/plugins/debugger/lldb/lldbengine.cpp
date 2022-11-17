@@ -260,16 +260,16 @@ void LldbEngine::handleLldbStarted()
         executeDebuggerCommand("settings append target.exec-search-paths " + path.toString());
 
     DebuggerCommand cmd2("setupInferior");
-    cmd2.arg("executable", rp.inferior.command.executable().toString());
+    cmd2.arg("executable", rp.inferior.command.executable().path());
     cmd2.arg("breakonmain", rp.breakOnMain);
     cmd2.arg("useterminal", bool(terminal()));
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
-    cmd2.arg("workingdirectory", rp.inferior.workingDirectory);
+    cmd2.arg("workingdirectory", rp.inferior.workingDirectory.path());
     cmd2.arg("environment", rp.inferior.environment.toStringList());
     cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments()).join(QChar(0))));
     cmd2.arg("platform", rp.platform);
-    cmd2.arg("symbolfile", rp.symbolFile);
+    cmd2.arg("symbolfile", rp.symbolFile.path());
 
     if (terminal()) {
         const qint64 attachedPID = terminal()->applicationPid();
