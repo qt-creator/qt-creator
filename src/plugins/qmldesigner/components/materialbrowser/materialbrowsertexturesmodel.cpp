@@ -180,6 +180,20 @@ ModelNode MaterialBrowserTexturesModel::textureAt(int idx) const
     return {};
 }
 
+bool MaterialBrowserTexturesModel::hasSingleModelSelection() const
+{
+    return m_hasSingleModelSelection;
+}
+
+void MaterialBrowserTexturesModel::setHasSingleModelSelection(bool b)
+{
+    if (b == m_hasSingleModelSelection)
+        return;
+
+    m_hasSingleModelSelection = b;
+    emit hasSingleModelSelectionChanged();
+}
+
 void MaterialBrowserTexturesModel::resetModel()
 {
     beginResetModel();

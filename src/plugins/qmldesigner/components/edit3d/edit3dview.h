@@ -65,6 +65,7 @@ public:
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
+    void applyTextureToModel3D(const ModelNode &model3D, const ModelNode &texture);
 
     Q_INVOKABLE void updatePropsModel(const QString &matId);
     Q_INVOKABLE void applyTextureToMaterial(const QString &matId, const QString &propName);

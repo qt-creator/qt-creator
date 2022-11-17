@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/materialeditor">
         <file>images/defaultmaterialpreview.png</file>
-        <file>images/texture_default.png</file>
-        <file>images/texture_default@2x.png</file>
     </qresource>
 </RCC>

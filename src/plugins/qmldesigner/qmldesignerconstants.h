@@ -113,6 +113,7 @@ const char EVENT_TRANSITIONEDITOR_TIME[] = "transitionEditor";
 const char EVENT_CURVEDITOR_TIME[] = "curveEditor";
 const char EVENT_STATESEDITOR_TIME[] = "statesEditor";
 const char EVENT_TEXTEDITOR_TIME[] = "textEditor";
+const char EVENT_TEXTUREEDITOR_TIME[] = "textureEditor";
 const char EVENT_PROPERTYEDITOR_TIME[] = "propertyEditor";
 const char EVENT_ASSETSLIBRARY_TIME[] = "assetsLibrary";
 const char EVENT_ITEMLIBRARY_TIME[] = "itemLibrary";

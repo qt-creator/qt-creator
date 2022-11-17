@@ -49,9 +49,9 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         auto matEditorContext = new Internal::MaterialBrowserContext(m_widget.data());
         Core::ICore::addContextObject(matEditorContext);
 
-        MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
 
         // custom notifications below are sent to the MaterialEditor
+        MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
 
         connect(matBrowserModel, &MaterialBrowserModel::selectedIndexChanged, this, [&] (int idx) {
             ModelNode matNode = m_widget->materialBrowserModel()->materialAt(idx);
@@ -138,6 +138,13 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                     }
                 }
             });
+        });
+
+        // custom notifications below are sent to the TextureEditor
+        MaterialBrowserTexturesModel *texturesModel = m_widget->materialBrowserTexturesModel().data();
+        connect(texturesModel, &MaterialBrowserTexturesModel::selectedIndexChanged, this, [&] (int idx) {
+            ModelNode texNode = m_widget->materialBrowserTexturesModel()->textureAt(idx);
+            emitCustomNotification("selected_texture_changed", {texNode}, {});
         });
     }
 
@@ -230,6 +237,7 @@ void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedN
     });
 
     m_widget->materialBrowserModel()->setHasModelSelection(!m_selectedModels.isEmpty());
+    m_widget->materialBrowserTexturesModel()->setHasSingleModelSelection(m_selectedModels.size() == 1);
 
     // the logic below selects the material of the first selected model if auto selection is on
     if (!m_autoSelectModelMaterial)
@@ -299,20 +307,21 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
 
 void MaterialBrowserView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    // removing the material editor node
+    // removing the material lib node
     if (removedNode.id() == Constants::MATERIAL_LIB_ID) {
         m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
         m_widget->clearPreviewCache();
         return;
     }
 
-    // not a material under the material editor
-    if (!isMaterial(removedNode)
-        || removedNode.parentProperty().parentModelNode().id() != Constants::MATERIAL_LIB_ID) {
+    // not under the material lib
+    if (removedNode.parentProperty().parentModelNode().id() != Constants::MATERIAL_LIB_ID)
         return;
-    }
 
-    m_widget->materialBrowserModel()->removeMaterial(removedNode);
+    if (isMaterial(removedNode))
+        m_widget->materialBrowserModel()->removeMaterial(removedNode);
+    else if (isTexture(removedNode))
+        m_widget->materialBrowserTexturesModel()->removeTexture(removedNode);
 }
 
 void MaterialBrowserView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
@@ -323,6 +332,7 @@ void MaterialBrowserView::nodeRemoved([[maybe_unused]] const ModelNode &removedN
         return;
 
     m_widget->materialBrowserModel()->updateSelectedMaterial();
+    m_widget->materialBrowserTexturesModel()->updateSelectedTexture();
 }
 
 void QmlDesigner::MaterialBrowserView::loadPropertyGroups()

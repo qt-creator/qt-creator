@@ -104,7 +104,7 @@ public:
             pixmap = Utils::StyleHelper::dpiSpecificImageFile(id);
 
         if (pixmap.isNull())
-            pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/materialeditor/images/texture_default.png");
+            pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png");
 
         if (size)
             *size = pixmap.size();

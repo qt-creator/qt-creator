@@ -825,6 +825,12 @@ void MaterialEditorView::variantPropertiesChanged(const QList<VariantProperty> &
             changed = true;
         }
 
+        if (!changed && node.metaInfo().isQtQuick3DTexture()
+            && m_selectedMaterial.bindingProperties().size() > 0) {
+            // update preview when editing texture properties if the material has binding properties
+            changed = true;
+        }
+
         dynamicPropertiesModel()->dispatchPropertyChanges(property);
     }
     if (changed)

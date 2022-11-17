@@ -27,6 +27,7 @@
 #include <stateseditornew/stateseditorview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
+#include <textureeditorview.h>
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
@@ -69,6 +70,7 @@ public:
         , propertyEditorView(imageCache, externalDependencies)
         , materialEditorView{externalDependencies}
         , materialBrowserView{externalDependencies}
+        , textureEditorView{externalDependencies}
         , statesEditorView{externalDependencies}
         , newStatesEditorView{externalDependencies}
     {}
@@ -90,6 +92,7 @@ public:
     PropertyEditorView propertyEditorView;
     MaterialEditorView materialEditorView;
     MaterialBrowserView materialBrowserView;
+    TextureEditorView textureEditorView;
     StatesEditorView statesEditorView;
     Experimental::StatesEditorView newStatesEditorView;
 
@@ -219,6 +222,7 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->contentLibraryView,
                                   &d->materialEditorView,
                                   &d->materialBrowserView,
+                                  &d->textureEditorView,
                                   &d->statesEditorView,
                                   &d->newStatesEditorView, // TODO
                                   &d->designerActionManagerView};
@@ -400,6 +404,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->contentLibraryView.widgetInfo());
     widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
+    widgetInfoList.append(d->textureEditorView.widgetInfo());
     if (useOldStatesEditor())
         widgetInfoList.append(d->statesEditorView.widgetInfo());
     else

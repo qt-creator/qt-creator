@@ -410,6 +410,7 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/itemlibrary
     ${CMAKE_CURRENT_LIST_DIR}/components/materialbrowser
     ${CMAKE_CURRENT_LIST_DIR}/components/materialeditor
+    ${CMAKE_CURRENT_LIST_DIR}/components/textureeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/navigator
     ${CMAKE_CURRENT_LIST_DIR}/components/propertyeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/stateseditor
@@ -812,6 +813,17 @@ extend_qtc_plugin(QmlDesigner
     materialeditortransaction.cpp materialeditortransaction.h
     materialeditorview.cpp materialeditorview.h
     materialeditor.qrc
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/textureeditor
+  SOURCES
+    textureeditorcontextobject.cpp textureeditorcontextobject.h
+    textureeditordynamicpropertiesproxymodel.cpp textureeditordynamicpropertiesproxymodel.h
+    textureeditorqmlbackend.cpp textureeditorqmlbackend.h
+    textureeditortransaction.cpp textureeditortransaction.h
+    textureeditorview.cpp textureeditorview.h
+    textureeditor.qrc
 )
 
 extend_qtc_plugin(QmlDesigner

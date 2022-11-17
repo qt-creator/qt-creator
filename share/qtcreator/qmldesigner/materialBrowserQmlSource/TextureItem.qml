@@ -42,5 +42,6 @@ Rectangle {
         sourceSize.height: root.height - 10
         anchors.centerIn: parent
         cache: false
+        smooth: true
     }
 }

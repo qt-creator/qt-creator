@@ -16,6 +16,8 @@ class MaterialBrowserTexturesModel : public QAbstractListModel
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
+    Q_PROPERTY(bool hasSingleModelSelection READ hasSingleModelSelection
+               WRITE setHasSingleModelSelection NOTIFY hasSingleModelSelectionChanged)
 
 public:
     MaterialBrowserTexturesModel(QObject *parent = nullptr);
@@ -35,6 +37,9 @@ public:
     int textureIndex(const ModelNode &material) const;
     ModelNode textureAt(int idx) const;
 
+    bool hasSingleModelSelection() const;
+    void setHasSingleModelSelection(bool b);
+
     void resetModel();
 
     Q_INVOKABLE void selectTexture(int idx, bool force = false);
@@ -43,6 +48,7 @@ public:
 
 signals:
     void isEmptyChanged();
+    void hasSingleModelSelectionChanged();
     void materialSectionsChanged();
     void selectedIndexChanged(int idx);
     void duplicateTextureTriggered(const QmlDesigner::ModelNode &material);
@@ -58,6 +64,7 @@ private:
 
     int m_selectedIndex = 0;
     bool m_isEmpty = true;
+    bool m_hasSingleModelSelection = false;
 };
 
 } // namespace QmlDesigner
