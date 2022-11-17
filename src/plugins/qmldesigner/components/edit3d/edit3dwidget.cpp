@@ -30,6 +30,8 @@
 #include <utils/utilsicons.h>
 
 #include <QActionGroup>
+#include <QApplication>
+#include <QClipboard>
 #include <QMimeData>
 #include <QVBoxLayout>
 
@@ -235,34 +237,7 @@ void Edit3DWidget::createContextMenu()
 
 bool Edit3DWidget::isPasteAvailable() const
 {
-    if (TimelineActions::clipboardContainsKeyframes())
-        return false;
-
-    auto pasteModel(DesignDocumentView::pasteToModel(view()->externalDependencies()));
-    if (!pasteModel)
-        return false;
-
-    DesignDocumentView docView{view()->externalDependencies()};
-    pasteModel->attachView(&docView);
-    auto rootNode = docView.rootModelNode();
-
-    if (rootNode.type() == "empty")
-        return false;
-
-    QList<ModelNode> allNodes;
-    if (rootNode.id() == "__multi__selection__")
-        allNodes << rootNode.directSubModelNodes();
-    else
-        allNodes << rootNode;
-
-    bool hasNon3DNode = std::any_of(allNodes.begin(), allNodes.end(), [](const ModelNode &node) {
-        return !node.metaInfo().isQtQuick3DNode();
-    });
-
-    if (hasNon3DNode)
-        return false;
-
-    return true;
+    return QApplication::clipboard()->text().startsWith(Constants::HEADER_3DPASTE_CONTENT);
 }
 
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.

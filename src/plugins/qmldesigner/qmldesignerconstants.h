@@ -125,6 +125,9 @@ const char EVENT_INSIGHT_TIME[] = "insight";
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 
+// Copy/Paste Headers
+const char HEADER_3DPASTE_CONTENT[] = "// __QmlDesigner.Editor3D.Paste__ \n";
+
 namespace Internal {
     enum { debug = 0 };
 }
