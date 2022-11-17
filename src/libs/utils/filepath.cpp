@@ -342,7 +342,7 @@ QStringView FilePath::host() const
 
 QStringView FilePath::pathView() const
 {
-    return m_data.left(m_pathLen);
+    return QStringView(m_data).first(m_pathLen);
 }
 
 QString FilePath::path() const
@@ -869,9 +869,8 @@ QVariant FilePath::toVariant() const
 
 bool FilePath::operator==(const FilePath &other) const
 {
-    return QString::compare(path(), other.path(), caseSensitivity()) == 0
-        && host() == other.host()
-        && scheme() == other.scheme();
+    return pathView().compare(other.pathView(), caseSensitivity()) == 0 && host() == other.host()
+           && scheme() == other.scheme();
 }
 
 bool FilePath::operator!=(const FilePath &other) const
@@ -881,7 +880,7 @@ bool FilePath::operator!=(const FilePath &other) const
 
 bool FilePath::operator<(const FilePath &other) const
 {
-    const int cmp = QString::compare(path(), other.path(), caseSensitivity());
+    const int cmp = pathView().compare(other.pathView(), caseSensitivity());
     if (cmp != 0)
         return cmp < 0;
     if (host() != other.host())
