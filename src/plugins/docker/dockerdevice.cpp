@@ -595,6 +595,9 @@ bool DockerDevicePrivate::createContainer()
     if (!m_data.keepEntryPoint)
         dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
 
+    if (m_data.enableLldbFlags)
+        dockerCreate.addArgs({"--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"});
+
     dockerCreate.addArg(m_data.repoAndTag());
 
     qCDebug(dockerDeviceLog).noquote() << "RUNNING: " << dockerCreate.toUserOutput();
@@ -674,6 +677,7 @@ const char DockerDeviceDataSizeKey[] = "DockerDeviceDataSize";
 const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
 const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
 const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
+const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
 
 void DockerDevice::fromMap(const QVariantMap &map)
 {
@@ -687,6 +691,7 @@ void DockerDevice::fromMap(const QVariantMap &map)
     data.useLocalUidGid = map.value(DockerDeviceUseOutsideUser, HostOsInfo::isLinuxHost()).toBool();
     data.mounts = map.value(DockerDeviceMappedPaths).toStringList();
     data.keepEntryPoint = map.value(DockerDeviceKeepEntryPoint).toBool();
+    data.enableLldbFlags = map.value(DockerDeviceEnableLldbFlags).toBool();
     d->setData(data);
 }
 
@@ -702,6 +707,7 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceUseOutsideUser, data.useLocalUidGid);
     map.insert(DockerDeviceMappedPaths, data.mounts);
     map.insert(DockerDeviceKeepEntryPoint, data.keepEntryPoint);
+    map.insert(DockerDeviceEnableLldbFlags, data.enableLldbFlags);
     return map;
 }
 

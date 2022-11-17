@@ -77,6 +77,18 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         dockerDevice->setData(m_data);
     });
 
+    m_enableLldbFlags = new QCheckBox(Tr::tr("Enable flags needed for LLDB"));
+    m_enableLldbFlags->setToolTip(Tr::tr("Adds the following flags to the container: "
+                                         "--cap-add=SYS_PTRACE --security-opt seccomp=unconfined, "
+                                         "this is necessary to allow lldb to run"));
+    m_enableLldbFlags->setChecked(m_data.enableLldbFlags);
+    m_enableLldbFlags->setEnabled(true);
+
+    connect(m_enableLldbFlags, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
+        m_data.enableLldbFlags = on;
+        dockerDevice->setData(m_data);
+    });
+
     m_runAsOutsideUser = new QCheckBox(Tr::tr("Run as outside user"));
     m_runAsOutsideUser->setToolTip(Tr::tr("Uses user ID and group ID of the user running Qt Creator "
                                           "in the docker container."));
@@ -172,6 +184,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     using namespace Layouting;
 
+    // clang-format off
     Form {
         repoLabel, m_repoLineEdit, br,
         tagLabel, m_tagLineEdit, br,
@@ -179,6 +192,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         daemonStateLabel, m_daemonReset, m_daemonState, br,
         m_runAsOutsideUser, br,
         m_keepEntryPoint, br,
+        m_enableLldbFlags, br,
         Column {
             pathListLabel,
             m_pathsListEdit,
@@ -200,6 +214,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             logView
         }
     }.attachTo(this, WithoutMargins);
+    // clang-format on
 
     searchDirsLineEdit->setVisible(false);
     auto updateDirectoriesLineEdit = [searchDirsLineEdit](int index) {
