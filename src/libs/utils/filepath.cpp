@@ -1083,6 +1083,7 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 */
 FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 {
+    isSameDevice(deviceTemplate);
     const bool sameDevice = scheme() == deviceTemplate.scheme() && host() == deviceTemplate.host();
     if (sameDevice)
         return *this;
