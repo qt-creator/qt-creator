@@ -22,7 +22,6 @@ add_qtc_library(AdvancedDockingSystem
     workspacedialog.cpp workspacedialog.h
     workspacemodel.cpp workspacemodel.h
     workspaceview.cpp workspaceview.h
-    workspacedialog.ui
 )
 
 extend_qtc_library(AdvancedDockingSystem

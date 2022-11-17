@@ -4,7 +4,6 @@
 #include "workspaceview.h"
 
 #include "dockmanager.h"
-#include "workspacedialog.h"
 
 #include <utils/algorithm.h>
 
@@ -39,17 +38,10 @@ void RemoveItemFocusDelegate::paint(QPainter *painter,
     QStyledItemDelegate::paint(painter, opt, index);
 }
 
-WorkspaceDialog *WorkspaceView::castToWorkspaceDialog(QWidget *widget)
-{
-    auto dialog = qobject_cast<WorkspaceDialog *>(widget);
-    Q_ASSERT(dialog);
-    return dialog;
-}
-
-WorkspaceView::WorkspaceView(QWidget *parent)
+WorkspaceView::WorkspaceView(DockManager *manager, QWidget *parent)
     : Utils::TreeView(parent)
-    , m_manager(WorkspaceView::castToWorkspaceDialog(parent)->dockManager())
-    , m_workspaceModel(m_manager)
+    , m_manager(manager)
+    , m_workspaceModel(manager)
 {
     setItemDelegate(new RemoveItemFocusDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectRows);

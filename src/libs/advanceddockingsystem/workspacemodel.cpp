@@ -10,7 +10,6 @@
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
-#include <QDir>
 #include <QFileInfo>
 
 namespace ADS {
