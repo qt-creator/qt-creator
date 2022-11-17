@@ -12,19 +12,34 @@
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
-#include <coreplugin/icore.h>
 #include <designmodecontext.h>
 #include <nodeinstanceview.h>
 #include <nodemetainfo.h>
 #include <nodelistproperty.h>
 #include <qmldesignerconstants.h>
-#include <utils/algorithm.h>
 
+#include <coreplugin/icore.h>
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+
+#include <QQmlContext>
+#include <QQmlEngine>
 #include <QQuickItem>
+#include <QQuickView>
 #include <QRegularExpression>
 #include <QTimer>
 
 namespace QmlDesigner {
+
+static QString propertyEditorResourcesPath()
+{
+#ifdef SHARE_QML_PATH
+    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+}
 
 MaterialBrowserView::MaterialBrowserView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
@@ -145,6 +160,25 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         connect(texturesModel, &MaterialBrowserTexturesModel::selectedIndexChanged, this, [&] (int idx) {
             ModelNode texNode = m_widget->materialBrowserTexturesModel()->textureAt(idx);
             emitCustomNotification("selected_texture_changed", {texNode}, {});
+        });
+        connect(texturesModel, &MaterialBrowserTexturesModel::duplicateTextureTriggered, this,
+                [&] (const ModelNode &texture) {
+            emitCustomNotification("duplicate_texture", {texture});
+        });
+
+        connect(texturesModel, &MaterialBrowserTexturesModel::applyToSelectedMaterialTriggered, this,
+                [&] (const ModelNode &texture) {
+            if (!m_widget)
+                return;
+            const ModelNode material = m_widget->materialBrowserModel()->selectedMaterial();
+            applyTextureToMaterial({material}, texture);
+        });
+
+        connect(texturesModel, &MaterialBrowserTexturesModel::applyToSelectedModelTriggered, this,
+                [&] (const ModelNode &texture) {
+            if (m_selectedModels.size() != 1)
+                return;
+            applyTextureToModel3D(m_selectedModels[0], texture);
         });
 
         connect(texturesModel, &MaterialBrowserTexturesModel::addNewTextureTriggered, this, [&] {
@@ -406,6 +440,10 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         });
     } else if (identifier == "delete_selected_material") {
         m_widget->materialBrowserModel()->deleteSelectedMaterial();
+    } else if (identifier == "apply_texture_to_model3D") {
+        applyTextureToModel3D(nodeList.at(0), nodeList.at(1));
+    } else if (identifier == "apply_texture_to_material") {
+        applyTextureToMaterial({nodeList.at(0)}, nodeList.at(1));
     }
 }
 
@@ -441,6 +479,107 @@ void MaterialBrowserView::instancePropertyChanged(const QList<QPair<ModelNode, P
         // of delay to reduce unnecessary rendering
         m_previewTimer.start(500);
     }
+}
+
+void MaterialBrowserView::applyTextureToModel3D(const ModelNode &model3D, const ModelNode &texture)
+{
+    if (!texture.isValid() || !model3D.isValid() || !model3D.metaInfo().isQtQuick3DModel())
+        return;
+
+    BindingProperty matsProp = model3D.bindingProperty("materials");
+    QList<ModelNode> materials;
+    if (hasId(matsProp.expression()))
+        materials.append(modelNodeForId(matsProp.expression()));
+    else
+        materials = matsProp.resolveToModelNodeList();
+
+    applyTextureToMaterial(materials, texture);
+}
+
+void MaterialBrowserView::applyTextureToMaterial(const QList<ModelNode> &materials,
+                                                 const ModelNode &texture)
+{
+    if (materials.size() > 0) {
+        m_appliedTextureId = texture.id();
+        m_textureModels.clear();
+        QStringList materialsModel;
+        for (const ModelNode &mat : std::as_const(materials)) {
+            QString matName = mat.variantProperty("objectName").value().toString();
+            materialsModel.append(QLatin1String("%1 (%2)").arg(matName, mat.id()));
+            QList<PropertyName> texProps;
+            for (const PropertyMetaInfo &p : mat.metaInfo().properties()) {
+                if (p.propertyType().isQtQuick3DTexture())
+                    texProps.append(p.name());
+            }
+            m_textureModels.insert(mat.id(), texProps);
+        }
+
+        QString path = MaterialBrowserWidget::qmlSourcesPath() + "/ChooseMaterialProperty.qml";
+
+        m_chooseMatPropsView = new QQuickView;
+        m_chooseMatPropsView->setTitle(tr("Select a material property"));
+        m_chooseMatPropsView->setResizeMode(QQuickView::SizeRootObjectToView);
+        m_chooseMatPropsView->setMinimumSize({150, 100});
+        m_chooseMatPropsView->setMaximumSize({600, 400});
+        m_chooseMatPropsView->setWidth(450);
+        m_chooseMatPropsView->setHeight(300);
+        m_chooseMatPropsView->setFlags(Qt::Widget);
+        m_chooseMatPropsView->setModality(Qt::ApplicationModal);
+        m_chooseMatPropsView->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+        m_chooseMatPropsView->rootContext()->setContextProperties({
+            {"rootView", QVariant::fromValue(this)},
+            {"materialsModel", QVariant::fromValue(materialsModel)},
+            {"propertiesModel", QVariant::fromValue(m_textureModels.value(materials.at(0).id()))},
+        });
+        m_chooseMatPropsView->setSource(QUrl::fromLocalFile(path));
+        m_chooseMatPropsView->installEventFilter(this);
+        m_chooseMatPropsView->show();
+    }
+}
+
+void MaterialBrowserView::updatePropsModel(const QString &matId)
+{
+    m_chooseMatPropsView->rootContext()->setContextProperty("propertiesModel",
+                                                QVariant::fromValue(m_textureModels.value(matId)));
+}
+
+void MaterialBrowserView::applyTextureToProperty(const QString &matId, const QString &propName)
+{
+    QTC_ASSERT(!m_appliedTextureId.isEmpty(), return);
+
+    ModelNode mat = modelNodeForId(matId);
+    QTC_ASSERT(mat.isValid(), return);
+
+    BindingProperty texProp = mat.bindingProperty(propName.toLatin1());
+    QTC_ASSERT(texProp.isValid(), return);
+
+    QmlObjectNode qmlObjNode(mat);
+    qmlObjNode.setBindingProperty(propName.toLatin1(), m_appliedTextureId);
+
+    closeChooseMatPropsView();
+}
+
+void MaterialBrowserView::closeChooseMatPropsView()
+{
+    m_chooseMatPropsView->close();
+}
+
+bool MaterialBrowserView::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Escape) {
+            if (obj == m_chooseMatPropsView)
+                m_chooseMatPropsView->close();
+        }
+    } else if (event->type() == QEvent::Close) {
+        if (obj == m_chooseMatPropsView) {
+            m_appliedTextureId.clear();
+            m_chooseMatPropsView->deleteLater();
+        }
+    }
+
+    return AbstractView::eventFilter(obj, event);
 }
 
 } // namespace QmlDesigner

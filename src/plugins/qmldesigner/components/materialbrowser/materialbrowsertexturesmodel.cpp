@@ -44,6 +44,9 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
     if (roleName == "hasDynamicProperties")
         return !m_textureList.at(index.row()).dynamicProperties().isEmpty();
 
+    if (roleName == "textureInternalId")
+        return m_textureList.at(index.row()).internalId();
+
     return {};
 }
 
@@ -67,7 +70,8 @@ QHash<int, QByteArray> MaterialBrowserTexturesModel::roleNames() const
     static const QHash<int, QByteArray> roles {
         {Qt::UserRole + 1, "textureSource"},
         {Qt::UserRole + 2, "textureVisible"},
-        {Qt::UserRole + 3, "hasDynamicProperties"}
+        {Qt::UserRole + 3, "hasDynamicProperties"},
+        {Qt::UserRole + 4, "textureInternalId"}
     };
     return roles;
 }
@@ -239,6 +243,24 @@ void MaterialBrowserTexturesModel::deleteTexture(int idx)
         ModelNode node = m_textureList[idx];
         if (node.isValid())
             QmlObjectNode(node).destroy();
+    }
+}
+
+void MaterialBrowserTexturesModel::applyToSelectedMaterial(qint64 internalId)
+{
+    int idx = m_textureIndexHash.value(internalId);
+    if (idx != -1) {
+        ModelNode tex = m_textureList.at(idx);
+        emit applyToSelectedMaterialTriggered(tex);
+    }
+}
+
+void MaterialBrowserTexturesModel::applyToSelectedModel(qint64 internalId)
+{
+    int idx = m_textureIndexHash.value(internalId);
+    if (idx != -1) {
+        ModelNode tex = m_textureList.at(idx);
+        emit applyToSelectedModelTriggered(tex);
     }
 }
 

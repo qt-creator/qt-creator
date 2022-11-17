@@ -787,7 +787,7 @@ void TextureEditorView::customNotification([[maybe_unused]] const AbstractView *
             m_dynamicPropertiesModel->setSelectedNode(m_selectedTexture);
             QTimer::singleShot(0, this, &TextureEditorView::resetView);
         }
-    } else if (identifier == "apply_texture_to_selected_triggered") {
+    } else if (identifier == "apply_texture_to_selected_model") {
         applyTextureToSelectedModel(nodeList.first());
     } else if (identifier == "add_new_texture") {
         handleToolBarAction(TextureEditorContextObject::AddNewTexture);

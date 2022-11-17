@@ -9,6 +9,10 @@
 #include <QSet>
 #include <QTimer>
 
+QT_BEGIN_NAMESPACE
+class QQuickView;
+QT_END_NAMESPACE
+
 namespace QmlDesigner {
 
 class MaterialBrowserWidget;
@@ -43,6 +47,16 @@ public:
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
+    void applyTextureToModel3D(const ModelNode &model3D, const ModelNode &texture);
+    void applyTextureToMaterial(const QList<ModelNode> &materials, const ModelNode &texture);
+
+    Q_INVOKABLE void updatePropsModel(const QString &matId);
+    Q_INVOKABLE void applyTextureToProperty(const QString &matId, const QString &propName);
+    Q_INVOKABLE void closeChooseMatPropsView();
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private:
     void refreshModel(bool updateImages);
     bool isMaterial(const ModelNode &node) const;
@@ -60,6 +74,9 @@ private:
 
     QTimer m_previewTimer;
     QSet<ModelNode> m_previewRequests;
+    QPointer<QQuickView> m_chooseMatPropsView;
+    QHash<QString, QList<PropertyName>> m_textureModels;
+    QString m_appliedTextureId;
 };
 
 } // namespace QmlDesigner

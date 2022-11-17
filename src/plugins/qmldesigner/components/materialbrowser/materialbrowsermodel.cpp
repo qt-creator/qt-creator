@@ -315,6 +315,13 @@ ModelNode MaterialBrowserModel::materialAt(int idx) const
     return {};
 }
 
+ModelNode MaterialBrowserModel::selectedMaterial() const
+{
+    if (isValidIndex(m_selectedIndex))
+        return m_materialList[m_selectedIndex];
+    return {};
+}
+
 void MaterialBrowserModel::resetModel()
 {
     beginResetModel();

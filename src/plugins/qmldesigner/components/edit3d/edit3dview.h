@@ -17,7 +17,6 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QInputEvent;
-class QQuickView;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -65,14 +64,6 @@ public:
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
-    void applyTextureToModel3D(const ModelNode &model3D, const ModelNode &texture);
-
-    Q_INVOKABLE void updatePropsModel(const QString &matId);
-    Q_INVOKABLE void applyTextureToMaterial(const QString &matId, const QString &propName);
-    Q_INVOKABLE void closeChooseMatPropsView();
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private slots:
     void onEntriesChanged();
@@ -89,6 +80,7 @@ private:
     void createEdit3DWidget();
     void checkImports();
     void handleEntriesChanged();
+    void showMaterialPropertiesView();
 
     Edit3DAction *createSelectBackgroundColorAction(QAction *syncBackgroundColorAction);
     Edit3DAction *createGridColorSelectionAction();
@@ -128,8 +120,6 @@ private:
     NodeAtPosReqType m_nodeAtPosReqType;
     QPoint m_contextMenuPos;
     QTimer m_compressionTimer;
-    QPointer<QQuickView> m_chooseMatPropsView;
-    QHash<QString, QList<PropertyName>> m_textureModels;
 };
 
 } // namespace QmlDesigner

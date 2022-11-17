@@ -145,7 +145,7 @@ Rectangle {
                     let matId = materialsListView.currentItem.id()
                     let prop = propertiesListView.currentItem.propName()
 
-                    rootView.applyTextureToMaterial(matId, prop)
+                    rootView.applyTextureToProperty(matId, prop)
                 }
             }
         }

@@ -47,13 +47,16 @@ public:
     Q_INVOKABLE void addNewTexture();
     Q_INVOKABLE void duplicateTexture(int idx);
     Q_INVOKABLE void deleteTexture(int idx);
+    Q_INVOKABLE void applyToSelectedMaterial(qint64 internalId);
+    Q_INVOKABLE void applyToSelectedModel(qint64 internalId);
 
 signals:
     void isEmptyChanged();
     void hasSingleModelSelectionChanged();
-    void materialSectionsChanged();
     void selectedIndexChanged(int idx);
-    void duplicateTextureTriggered(const QmlDesigner::ModelNode &material);
+    void duplicateTextureTriggered(const QmlDesigner::ModelNode &texture);
+    void applyToSelectedMaterialTriggered(const QmlDesigner::ModelNode &texture);
+    void applyToSelectedModelTriggered(const QmlDesigner::ModelNode &texture);
     void addNewTextureTriggered();
 
 private:

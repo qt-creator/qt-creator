@@ -21,6 +21,7 @@ Item {
     function closeContextMenu()
     {
         ctxMenu.close()
+        ctxMenuTextures.close()
     }
 
     // Called from C++ to refresh a preview material after it changes
@@ -64,6 +65,8 @@ Item {
 
             if (mouse.y < matsSecBottom)
                 ctxMenu.popupMenu()
+            else
+                ctxMenuTextures.popupMenu()
         }
     }
 
@@ -81,6 +84,10 @@ Item {
 
     MaterialBrowserContextMenu {
         id: ctxMenu
+    }
+
+    TextureBrowserContextMenu {
+        id: ctxMenuTextures
     }
 
     Column {
@@ -130,7 +137,7 @@ Item {
             height: root.height - searchBox.height
             clip: true
             visible: root.enableUiElements
-            interactive: !ctxMenu.opened
+            interactive: !ctxMenu.opened && !ctxMenuTextures.opened
 
             Column {
                 Item {
@@ -243,7 +250,7 @@ Item {
                                     height: root.cellWidth
 
                                     onShowContextMenu: {
-    //                                    ctxMenuTexture.popupMenu(this, model) // TODO: implement textures context menu
+                                        ctxMenuTextures.popupMenu(model)
                                     }
                                 }
                             }

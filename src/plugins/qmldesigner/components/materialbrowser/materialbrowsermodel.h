@@ -58,6 +58,7 @@ public:
     void updateSelectedMaterial();
     int materialIndex(const ModelNode &material) const;
     ModelNode materialAt(int idx) const;
+    ModelNode selectedMaterial() const;
     bool loadPropertyGroups(const QString &path);
     void unloadPropertyGroups();
 
@@ -115,7 +116,7 @@ private:
     QHash<qint32, int> m_materialIndexHash; // internalId -> index
     QJsonObject m_propertyGroupsObj;
 
-    int m_selectedIndex = 0;
+    int m_selectedIndex = -1;
     bool m_isEmpty = true;
     bool m_hasQuick3DImport = false;
     bool m_hasModelSelection = false;
