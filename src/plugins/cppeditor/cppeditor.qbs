@@ -108,7 +108,6 @@ QtcPlugin {
         "cppfileiterationorder.h",
         "cppfilesettingspage.cpp",
         "cppfilesettingspage.h",
-        "cppfilesettingspage.ui",
         "cppfindreferences.cpp",
         "cppfindreferences.h",
         "cppfollowsymbolundercursor.cpp",

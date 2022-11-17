@@ -46,7 +46,7 @@ add_qtc_plugin(CppEditor
     cppeditorwidget.cpp cppeditorwidget.h
     cppelementevaluator.cpp cppelementevaluator.h
     cppfileiterationorder.cpp cppfileiterationorder.h
-    cppfilesettingspage.cpp cppfilesettingspage.h cppfilesettingspage.ui
+    cppfilesettingspage.cpp cppfilesettingspage.h
     cppfindreferences.cpp cppfindreferences.h
     cppfollowsymbolundercursor.cpp cppfollowsymbolundercursor.h
     cppfunctiondecldeflink.cpp cppfunctiondecldeflink.h

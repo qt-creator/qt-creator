@@ -4,28 +4,25 @@
 #include "cppfilesettingspage.h"
 
 #include "cppeditorplugin.h"
-#include <ui_cppfilesettingspage.h>
 
 #include <app/app_version.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <cppeditor/cppeditorconstants.h>
 
-#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
-#include <utils/stringutils.h>
+#include <utils/pathchooser.h>
 
+#include <QCheckBox>
+#include <QComboBox>
 #include <QCoreApplication>
-#include <QDate>
-#include <QDebug>
 #include <QFile>
-#include <QFileDialog>
+#include <QLineEdit>
 #include <QLocale>
 #include <QSettings>
-#include <QTextCodec>
 #include <QTextStream>
 
 using namespace Utils;
@@ -51,7 +48,6 @@ const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("CppEditor::Internal::Cp
 
 void CppFileSettings::toSettings(QSettings *s) const
 {
-    using Utils::QtcSettings;
     const CppFileSettings def;
     s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
     QtcSettings::setValueWithDefault(s, headerPrefixesKeyC, headerPrefixes, def.headerPrefixes);
@@ -238,13 +234,12 @@ QString CppFileSettings::licenseTemplate()
 
 class CppFileSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::CppFileSettingsWidget)
+    Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::CppFileSettingsPage)
 
 public:
     explicit CppFileSettingsWidget(CppFileSettings *settings);
 
     void apply() final;
-
     void setSettings(const CppFileSettings &s);
 
 private:
@@ -252,43 +247,106 @@ private:
     FilePath licenseTemplatePath() const;
     void setLicenseTemplatePath(const FilePath &);
 
-    Ui::CppFileSettingsPage m_ui;
     CppFileSettings *m_settings = nullptr;
+
+    QComboBox *m_headerSuffixComboBox = nullptr;
+    QLineEdit *m_headerSearchPathsEdit = nullptr;
+    QLineEdit *m_headerPrefixesEdit = nullptr;
+    QCheckBox *m_headerPragmaOnceCheckBox = nullptr;
+    QComboBox *m_sourceSuffixComboBox = nullptr;
+    QLineEdit *m_sourceSearchPathsEdit = nullptr;
+    QLineEdit *m_sourcePrefixesEdit = nullptr;
+    QCheckBox *m_lowerCaseFileNamesCheckBox = nullptr;
+    PathChooser *m_licenseTemplatePathChooser = nullptr;
 };
 
 CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     : m_settings(settings)
+    , m_headerSuffixComboBox(new QComboBox)
+    , m_headerSearchPathsEdit(new QLineEdit)
+    , m_headerPrefixesEdit(new QLineEdit)
+    , m_headerPragmaOnceCheckBox(new QCheckBox(tr("Use \"#pragma once\" instead of \"#ifndef\" guards")))
+    , m_sourceSuffixComboBox(new QComboBox)
+    , m_sourceSearchPathsEdit(new QLineEdit)
+    , m_sourcePrefixesEdit(new QLineEdit)
+    , m_lowerCaseFileNamesCheckBox(new QCheckBox(tr("&Lower case file names")))
+    , m_licenseTemplatePathChooser(new PathChooser)
 {
-    m_ui.setupUi(this);
+    m_headerSearchPathsEdit->setToolTip(tr("Comma-separated list of header paths.\n"
+        "\n"
+        "Paths can be absolute or relative to the directory of the current open document.\n"
+        "\n"
+        "These paths are used in addition to current directory on Switch Header/Source."));
+    m_headerPrefixesEdit->setToolTip(tr("Comma-separated list of header prefixes.\n"
+        "\n"
+        "These prefixes are used in addition to current file name on Switch Header/Source."));
+    m_headerPragmaOnceCheckBox->setToolTip(
+        tr("Uses \"#pragma once\" instead of \"#ifndef\" include guards."));
+    m_sourceSearchPathsEdit->setToolTip(tr("Comma-separated list of source paths.\n"
+        "\n"
+        "Paths can be absolute or relative to the directory of the current open document.\n"
+        "\n"
+        "These paths are used in addition to current directory on Switch Header/Source."));
+    m_sourcePrefixesEdit->setToolTip(tr("Comma-separated list of source prefixes.\n"
+        "\n"
+        "These prefixes are used in addition to current file name on Switch Header/Source."));
+
+    using namespace Layouting;
+
+    Column {
+        Group {
+            title("Headers"),
+            Form {
+                tr("&Suffix:"), m_headerSuffixComboBox, st, br,
+                tr("S&earch paths:"), m_headerSearchPathsEdit, br,
+                tr("&Prefixes:"), m_headerPrefixesEdit, br,
+                tr("Include guards"), m_headerPragmaOnceCheckBox
+            }
+        },
+        Group {
+            title("Sources"),
+            Form {
+                tr("S&uffix:"), m_sourceSuffixComboBox, st, br,
+                tr("Se&arch paths:"), m_sourceSearchPathsEdit, br,
+                tr("P&refixes:"), m_sourcePrefixesEdit
+            }
+        },
+        m_lowerCaseFileNamesCheckBox,
+        Form {
+            tr("License &template:"), m_licenseTemplatePathChooser
+        },
+        st
+    }.attachTo(this);
+
     // populate suffix combos
-    const Utils::MimeType sourceMt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
+    const MimeType sourceMt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
     if (sourceMt.isValid()) {
         const QStringList suffixes = sourceMt.suffixes();
         for (const QString &suffix : suffixes)
-            m_ui.sourceSuffixComboBox->addItem(suffix);
+            m_sourceSuffixComboBox->addItem(suffix);
     }
 
-    const Utils::MimeType headerMt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
+    const MimeType headerMt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
     if (headerMt.isValid()) {
         const QStringList suffixes = headerMt.suffixes();
         for (const QString &suffix : suffixes)
-            m_ui.headerSuffixComboBox->addItem(suffix);
+            m_headerSuffixComboBox->addItem(suffix);
     }
-    m_ui.licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);
-    m_ui.licenseTemplatePathChooser->setHistoryCompleter(QLatin1String("Cpp.LicenseTemplate.History"));
-    m_ui.licenseTemplatePathChooser->addButton(tr("Edit..."), this, [this] { slotEdit(); });
+    m_licenseTemplatePathChooser->setExpectedKind(PathChooser::File);
+    m_licenseTemplatePathChooser->setHistoryCompleter(QLatin1String("Cpp.LicenseTemplate.History"));
+    m_licenseTemplatePathChooser->addButton(tr("Edit..."), this, [this] { slotEdit(); });
 
     setSettings(*m_settings);
 }
 
 FilePath CppFileSettingsWidget::licenseTemplatePath() const
 {
-    return m_ui.licenseTemplatePathChooser->filePath();
+    return m_licenseTemplatePathChooser->filePath();
 }
 
 void CppFileSettingsWidget::setLicenseTemplatePath(const FilePath &lp)
 {
-    m_ui.licenseTemplatePathChooser->setFilePath(lp);
+    m_licenseTemplatePathChooser->setFilePath(lp);
 }
 
 static QStringList trimmedPaths(const QString &paths)
@@ -302,14 +360,14 @@ static QStringList trimmedPaths(const QString &paths)
 void CppFileSettingsWidget::apply()
 {
     CppFileSettings rc;
-    rc.lowerCaseFiles = m_ui.lowerCaseFileNamesCheckBox->isChecked();
-    rc.headerPragmaOnce = m_ui.headerPragmaOnceCheckBox->isChecked();
-    rc.headerPrefixes = trimmedPaths(m_ui.headerPrefixesEdit->text());
-    rc.sourcePrefixes = trimmedPaths(m_ui.sourcePrefixesEdit->text());
-    rc.headerSuffix = m_ui.headerSuffixComboBox->currentText();
-    rc.sourceSuffix = m_ui.sourceSuffixComboBox->currentText();
-    rc.headerSearchPaths = trimmedPaths(m_ui.headerSearchPathsEdit->text());
-    rc.sourceSearchPaths = trimmedPaths(m_ui.sourceSearchPathsEdit->text());
+    rc.lowerCaseFiles = m_lowerCaseFileNamesCheckBox->isChecked();
+    rc.headerPragmaOnce = m_headerPragmaOnceCheckBox->isChecked();
+    rc.headerPrefixes = trimmedPaths(m_headerPrefixesEdit->text());
+    rc.sourcePrefixes = trimmedPaths(m_sourcePrefixesEdit->text());
+    rc.headerSuffix = m_headerSuffixComboBox->currentText();
+    rc.sourceSuffix = m_sourceSuffixComboBox->currentText();
+    rc.headerSearchPaths = trimmedPaths(m_headerSearchPathsEdit->text());
+    rc.sourceSearchPaths = trimmedPaths(m_sourceSearchPathsEdit->text());
     rc.licenseTemplatePath = licenseTemplatePath().toString();
 
     if (rc == *m_settings)
@@ -330,14 +388,14 @@ static inline void setComboText(QComboBox *cb, const QString &text, int defaultI
 void CppFileSettingsWidget::setSettings(const CppFileSettings &s)
 {
     const QChar comma = QLatin1Char(',');
-    m_ui.lowerCaseFileNamesCheckBox->setChecked(s.lowerCaseFiles);
-    m_ui.headerPragmaOnceCheckBox->setChecked(s.headerPragmaOnce);
-    m_ui.headerPrefixesEdit->setText(s.headerPrefixes.join(comma));
-    m_ui.sourcePrefixesEdit->setText(s.sourcePrefixes.join(comma));
-    setComboText(m_ui.headerSuffixComboBox, s.headerSuffix);
-    setComboText(m_ui.sourceSuffixComboBox, s.sourceSuffix);
-    m_ui.headerSearchPathsEdit->setText(s.headerSearchPaths.join(comma));
-    m_ui.sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(comma));
+    m_lowerCaseFileNamesCheckBox->setChecked(s.lowerCaseFiles);
+    m_headerPragmaOnceCheckBox->setChecked(s.headerPragmaOnce);
+    m_headerPrefixesEdit->setText(s.headerPrefixes.join(comma));
+    m_sourcePrefixesEdit->setText(s.sourcePrefixes.join(comma));
+    setComboText(m_headerSuffixComboBox, s.headerSuffix);
+    setComboText(m_sourceSuffixComboBox, s.sourceSuffix);
+    m_headerSearchPathsEdit->setText(s.headerSearchPaths.join(comma));
+    m_sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(comma));
     setLicenseTemplatePath(FilePath::fromString(s.licenseTemplatePath));
 }
 
