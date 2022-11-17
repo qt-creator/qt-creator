@@ -6,7 +6,6 @@
 #include "buildconfiguration.h"
 #include "gnumakeparser.h"
 #include "kitinformation.h"
-#include "project.h"
 #include "processparameters.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -23,7 +22,6 @@
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
-#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QThread>

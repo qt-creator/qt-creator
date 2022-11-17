@@ -11,7 +11,6 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectmacro.h"
-#include "toolchainmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>

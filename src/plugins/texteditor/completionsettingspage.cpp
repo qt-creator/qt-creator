@@ -15,7 +15,6 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>

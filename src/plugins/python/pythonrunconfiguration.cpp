@@ -37,7 +37,6 @@
 
 #include <QBoxLayout>
 #include <QComboBox>
-#include <QFormLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
 

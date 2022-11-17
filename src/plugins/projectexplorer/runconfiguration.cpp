@@ -33,7 +33,6 @@
 #include <utils/variablechooser.h>
 
 #include <QDir>
-#include <QFormLayout>
 #include <QHash>
 #include <QPushButton>
 #include <QTimer>

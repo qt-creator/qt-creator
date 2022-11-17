@@ -25,7 +25,6 @@
 
 #include <QDirIterator>
 #include <QFileInfo>
-#include <QFormLayout>
 #include <QSet>
 #include <QTemporaryDir>
 

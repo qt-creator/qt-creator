@@ -15,7 +15,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
-#include <QFormLayout>
 #include <QFrame>
 #include <QLabel>
 #include <QSpacerItem>

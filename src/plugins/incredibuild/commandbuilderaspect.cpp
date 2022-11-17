@@ -16,7 +16,6 @@
 #include <utils/pathchooser.h>
 
 #include <QComboBox>
-#include <QFormLayout>
 #include <QLabel>
 #include <QLineEdit>
 

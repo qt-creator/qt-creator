@@ -8,7 +8,6 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QLineEdit>
-#include <QFormLayout>
 #include <QLayout>
 #include <QListWidget>
 #include <QMenuBar>

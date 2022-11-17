@@ -39,7 +39,6 @@
 #include <coreplugin/icore.h>
 
 #include <QDir>
-#include <QFormLayout>
 #include <QHash>
 #include <QLoggingCategory>
 #include <QPushButton>

@@ -10,9 +10,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QFormLayout>
-#include <QWidget>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 

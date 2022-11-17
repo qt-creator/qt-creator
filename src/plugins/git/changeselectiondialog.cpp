@@ -17,7 +17,6 @@
 
 #include <QCompleter>
 #include <QFileDialog>
-#include <QFormLayout>
 #include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
