@@ -85,7 +85,6 @@ QtcPlugin {
             "gerritserver.h",
             "gerritpushdialog.cpp",
             "gerritpushdialog.h",
-            "gerritpushdialog.ui",
         ]
     }
 }

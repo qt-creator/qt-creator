@@ -15,7 +15,7 @@ add_qtc_plugin(Git
     gerrit/gerritoptionspage.cpp gerrit/gerritoptionspage.h
     gerrit/gerritparameters.cpp gerrit/gerritparameters.h
     gerrit/gerritplugin.cpp gerrit/gerritplugin.h
-    gerrit/gerritpushdialog.cpp gerrit/gerritpushdialog.h gerrit/gerritpushdialog.ui
+    gerrit/gerritpushdialog.cpp gerrit/gerritpushdialog.h
     gerrit/gerritremotechooser.cpp gerrit/gerritremotechooser.h
     gerrit/gerritserver.cpp gerrit/gerritserver.h
     git.qrc
