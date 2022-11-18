@@ -3,6 +3,7 @@
 
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
+#include "modelnodeoperations.h"
 
 #include <theme.h>
 #include <utils/hdrimage.h>
@@ -37,7 +38,7 @@ QPixmap AssetsLibraryIconProvider::requestPixmap(const QString &id, QSize *size,
         else if (AssetsLibraryModel::supportedVideoSuffixes().contains(suffix))
             type = "video";
         else if (AssetsLibraryModel::supportedEffectMakerSuffixes().contains(suffix))
-            type = "default";
+            type = QmlDesigner::ModelNodeOperations::getEffectIcon(id);
 
         QString pathTemplate = QString(":/AssetsLibrary/images/asset_%1%2.png").arg(type);
         QString path = pathTemplate.arg('_' + QString::number(requestedSize.width()));

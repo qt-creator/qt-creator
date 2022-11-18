@@ -185,8 +185,16 @@ void QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
     TypeName type(effectName.toUtf8());
     newQmlItemNode = QmlItemNode(view->createModelNode(type, 1, 0));
     NodeAbstractProperty parentProperty = layerEffect
-                                              ? parentNode.nodeAbstractProperty("layer.effect")
-                                              : parentNode.defaultNodeAbstractProperty();
+            ? parentNode.nodeAbstractProperty("layer.effect")
+            : parentNode.defaultNodeAbstractProperty();
+
+    if (layerEffect) {
+        if (!parentProperty .isEmpty()) { //already contains a node
+            ModelNode oldEffect = parentProperty.toNodeProperty().modelNode();
+            QmlObjectNode(oldEffect).destroy();
+        }
+    }
+
     parentProperty.reparentHere(newQmlItemNode);
 
     if (!layerEffect) {

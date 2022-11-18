@@ -1651,7 +1651,7 @@ void openEffectMaker(const QString &filePath)
         Utils::FilePath effectPath = Utils::FilePath::fromString(filePath);
         QStringList arguments;
         arguments << filePath;
-        if (effectPath.fileContents())
+        if (effectPath.fileContents()->isEmpty())
             arguments << "--create";
         arguments << "--exportpath" << effectResPath.toString();
 
@@ -1682,6 +1682,22 @@ Utils::FilePath getEffectsDirectory()
     }
 
     return effectsPath;
+}
+
+QString getEffectIcon(const QString &effectPath)
+{
+    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
+    if (!target) {
+        qWarning() << __FUNCTION__ << "No project open";
+        return QString();
+    }
+
+    Utils::FilePath projectPath = target->project()->projectDirectory();
+    QString effectName = QFileInfo(effectPath).baseName();
+    QString effectResDir = "asset_imports/Effects/" + effectName;
+    Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir + "/" + effectName + ".qml");
+
+    return effectResPath.exists() ? QString("effectExported") : QString("effectClass");
 }
 
 } // namespace ModelNodeOperations
