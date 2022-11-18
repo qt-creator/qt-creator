@@ -5,7 +5,6 @@
 
 #include <QApplication>
 #include <QFormLayout>
-#include <QLayout>
 #include <QMessageBox>
 #include <QSettings>
 

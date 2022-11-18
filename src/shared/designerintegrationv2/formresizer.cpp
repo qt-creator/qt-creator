@@ -9,10 +9,10 @@
 
 #include <QDesignerFormWindowInterface>
 
-#include <QResizeEvent>
-#include <QPalette>
-#include <QLayout>
 #include <QFrame>
+#include <QPalette>
+#include <QResizeEvent>
+#include <QVBoxLayout>
 
 enum { debugFormResizer = 0 };
 

@@ -19,8 +19,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
-#include <QLayout>
-
 using namespace Utils;
 
 namespace ProjectExplorer {

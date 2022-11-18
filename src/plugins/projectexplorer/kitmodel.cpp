@@ -13,7 +13,7 @@
 #include <utils/utilsicons.h>
 
 #include <QApplication>
-#include <QLayout>
+#include <QBoxLayout>
 
 using namespace Utils;
 

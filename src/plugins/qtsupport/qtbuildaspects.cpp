@@ -16,7 +16,6 @@
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>
-#include <QLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;

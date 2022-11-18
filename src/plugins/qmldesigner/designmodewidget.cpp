@@ -7,8 +7,6 @@
 
 #include "qmldesignerplugin.h"
 #include "crumblebar.h"
-#include "documentwarningwidget.h"
-#include "edit3dview.h"
 
 #include <texteditor/textdocument.h>
 #include <nodeinstanceview.h>
@@ -43,7 +41,6 @@
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QDir>
-#include <QLayout>
 #include <QSettings>
 #include <QToolBar>
 

@@ -18,7 +18,6 @@
 #include <QCompleter>
 #include <QFileDialog>
 #include <QLabel>
-#include <QLayout>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QPushButton>

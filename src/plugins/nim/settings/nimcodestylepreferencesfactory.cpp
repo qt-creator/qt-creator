@@ -13,7 +13,6 @@
 #include <texteditor/simplecodestylepreferences.h>
 
 #include <QWidget>
-#include <QLayout>
 
 using namespace TextEditor;
 

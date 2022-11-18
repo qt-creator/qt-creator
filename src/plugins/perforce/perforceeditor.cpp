@@ -17,7 +17,6 @@
 
 #include <QAction>
 #include <QKeyEvent>
-#include <QLayout>
 #include <QMenu>
 #include <QTextCursor>
 #include <QTextEdit>

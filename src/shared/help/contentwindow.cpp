@@ -9,9 +9,9 @@
 
 #include <utils/navigationtreeview.h>
 
-#include <QLayout>
 #include <QFocusEvent>
 #include <QMenu>
+#include <QVBoxLayout>
 
 #include <QHelpEngine>
 #include <QHelpContentModel>

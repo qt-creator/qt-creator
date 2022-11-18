@@ -8,11 +8,10 @@
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowCursorInterface>
 
-#include <QPalette>
-#include <QLayout>
-#include <QFrame>
-#include <QResizeEvent>
 #include <QDebug>
+#include <QFrame>
+#include <QPalette>
+#include <QResizeEvent>
 
 using namespace SharedTools;
 

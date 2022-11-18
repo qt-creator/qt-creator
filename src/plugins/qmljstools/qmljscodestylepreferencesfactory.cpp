@@ -8,10 +8,7 @@
 #include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
 
-
 #include <qmljseditor/qmljseditorconstants.h>
-
-#include <QLayout>
 
 using namespace QmlJSTools;
 

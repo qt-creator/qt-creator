@@ -6,10 +6,10 @@
 #include "scxmleditortr.h"
 #include "tableview.h"
 
-#include <QLayout>
 #include <QFile>
 #include <QFileDialog>
 #include <QHeaderView>
+#include <QLayout>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QTextStream>

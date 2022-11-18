@@ -12,8 +12,8 @@
 #include <QEasingCurve>
 #include <QFontDatabase>
 #include <QHeaderView>
+#include <QHBoxLayout>
 #include <QHoverEvent>
-#include <QLayout>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmapCache>
