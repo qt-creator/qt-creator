@@ -342,7 +342,6 @@ QStringView FilePath::host() const
 
 QStringView FilePath::pathView() const
 {
-    QTC_ASSERT(!m_data.startsWith(u"/./"), return m_data.mid(3, m_pathLen - 3));
     return m_data.left(m_pathLen);
 }
 
@@ -1342,7 +1341,7 @@ bool FilePath::isNewerThan(const QDateTime &timeStamp) const
  */
 Qt::CaseSensitivity FilePath::caseSensitivity() const
 {
-    if (scheme().isEmpty())
+    if (m_schemeLen == 0)
         return HostOsInfo::fileNameCaseSensitivity();
 
     // FIXME: This could or possibly should the target device's file name case sensitivity
