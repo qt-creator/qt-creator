@@ -6,13 +6,11 @@
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
 #include "codestylepool.h"
-#include "tabsettings.h"
 
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QApplication>
-#include <QBoxLayout>
 #include <QComboBox>
 #include <QDebug>
 #include <QDialog>

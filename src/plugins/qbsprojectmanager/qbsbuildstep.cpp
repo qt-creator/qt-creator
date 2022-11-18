@@ -32,7 +32,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
 
-#include <QBoxLayout>
 #include <QCheckBox>
 #include <QJsonArray>
 #include <QJsonObject>

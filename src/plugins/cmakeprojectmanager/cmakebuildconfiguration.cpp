@@ -62,7 +62,6 @@
 #include <utils/stringutils.h>
 #include <utils/variablechooser.h>
 
-#include <QBoxLayout>
 #include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>

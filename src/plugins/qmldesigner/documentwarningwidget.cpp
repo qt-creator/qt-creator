@@ -5,17 +5,14 @@
 
 #include <qmldesignerplugin.h>
 
-
-#include <utils/theme/theme.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QEvent>
 #include <QLabel>
 #include <QPushButton>
-#include <QCheckBox>
-#include <QBoxLayout>
-#include <QEvent>
-
-#include <QDebug>
 
 namespace QmlDesigner {
 

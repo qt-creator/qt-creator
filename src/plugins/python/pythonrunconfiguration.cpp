@@ -35,7 +35,6 @@
 #include <utils/outputformatter.h>
 #include <utils/theme/theme.h>
 
-#include <QBoxLayout>
 #include <QComboBox>
 #include <QPlainTextEdit>
 #include <QPushButton>

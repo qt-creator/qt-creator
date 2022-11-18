@@ -24,7 +24,6 @@
 
 #include <QFileInfo>
 #include <QShortcut>
-#include <QBoxLayout>
 #include <QKeySequence>
 
 #include <QQmlContext>

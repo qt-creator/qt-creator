@@ -20,7 +20,6 @@
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
-#include <QBoxLayout>
 #include <QCheckBox>
 #include <QFormLayout>
 #include <QHeaderView>

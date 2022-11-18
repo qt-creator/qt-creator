@@ -29,7 +29,6 @@
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 
-#include <QBoxLayout>
 #include <QListWidget>
 #include <QRegularExpression>
 #include <QTreeView>
