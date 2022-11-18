@@ -14,6 +14,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLayout;
+class QTabWidget;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -125,6 +126,12 @@ public:
         explicit Stretch(int stretch = 1);
     };
 
+    class QTCREATOR_UTILS_EXPORT Tab : public LayoutItem
+    {
+    public:
+        Tab(const QString &tabName, const LayoutBuilder &item);
+    };
+
     class QTCREATOR_UTILS_EXPORT Break : public LayoutItem
     {
     public:
@@ -161,6 +168,10 @@ private:
 
 namespace Layouting {
 
+using Space = LayoutBuilder::Space;
+using Span = LayoutBuilder::Span;
+using Tab = LayoutBuilder::Tab;
+
 QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter title(const QString &title,
                                                    BoolAspect *checker = nullptr);
 
@@ -180,6 +191,13 @@ class QTCREATOR_UTILS_EXPORT PushButton : public LayoutBuilder::LayoutItem
 {
 public:
     PushButton(std::initializer_list<LayoutItem> items);
+};
+
+class QTCREATOR_UTILS_EXPORT TabWidget : public LayoutBuilder::LayoutItem
+{
+public:
+    TabWidget(std::initializer_list<Tab> tabs);
+    TabWidget(QTabWidget *tabWidget, std::initializer_list<Tab> tabs);
 };
 
 class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder
@@ -223,9 +241,6 @@ public:
     Splitter() : LayoutBuilder(StackLayout) {}
     Splitter(std::initializer_list<LayoutItem> items) : LayoutBuilder(StackLayout, items) {}
 };
-
-using Space = LayoutBuilder::Space;
-using Span = LayoutBuilder::Span;
 
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Break br;
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Stretch st;

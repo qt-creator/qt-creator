@@ -12,6 +12,7 @@
 #include <QPushButton>
 #include <QStackedLayout>
 #include <QStyle>
+#include <QTabWidget>
 #include <QWidget>
 
 namespace Utils {
@@ -452,6 +453,13 @@ LayoutBuilder::Span::Span(int span_, const LayoutItem &item)
     span = span_;
 }
 
+LayoutBuilder::Tab::Tab(const QString &tabName, const LayoutBuilder &item)
+{
+    text = tabName;
+    widget = new QWidget;
+    item.attachTo(widget);
+}
+
 LayoutBuilder::HorizontalRule::HorizontalRule()
 {
     specialType = SpecialType::HorizontalRule;
@@ -476,16 +484,26 @@ static void applyItems(QWidget *widget, const QList<LayoutBuilder::LayoutItem> &
     }
 }
 
-Group::Group(std::initializer_list<LayoutBuilder::LayoutItem> items)
+Group::Group(std::initializer_list<LayoutItem> items)
 {
     widget = new QGroupBox;
     applyItems(widget, items);
 }
 
-PushButton::PushButton(std::initializer_list<LayoutBuilder::LayoutItem> items)
+PushButton::PushButton(std::initializer_list<LayoutItem> items)
 {
     widget = new QPushButton;
     applyItems(widget, items);
+}
+
+TabWidget::TabWidget(std::initializer_list<Tab> tabs)
+    : TabWidget(new QTabWidget, tabs) {}
+
+TabWidget::TabWidget(QTabWidget *tabWidget, std::initializer_list<Tab> tabs)
+{
+    widget = tabWidget;
+    for (const Tab &tab : tabs)
+        tabWidget->addTab(tab.widget, tab.text);
 }
 
 // "Properties"
