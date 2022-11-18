@@ -342,7 +342,7 @@ QStringView FilePath::host() const
 
 QStringView FilePath::pathView() const
 {
-    return QStringView(m_data).first(m_pathLen);
+    return QStringView(m_data).left(m_pathLen);
 }
 
 QString FilePath::path() const
