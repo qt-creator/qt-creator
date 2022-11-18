@@ -1346,7 +1346,7 @@ bool FilePath::isNewerThan(const QDateTime &timeStamp) const
  */
 Qt::CaseSensitivity FilePath::caseSensitivity() const
 {
-    if (scheme().isEmpty())
+    if (m_schemeLen == 0)
         return HostOsInfo::fileNameCaseSensitivity();
 
     // FIXME: This could or possibly should the target device's file name case sensitivity
