@@ -177,19 +177,7 @@ public:
 
         using namespace Utils::Layouting;
 
-        QWidget *generalTab = new QWidget;
-        Row {
-            Column {
-                m_tabSettingsWidget,
-                st
-            },
-            createPreview(0)
-        }.attachTo(generalTab);
-        m_categoryTab->addTab(generalTab, Tr::tr("General"));
-        m_controllers.append(m_tabSettingsWidget);
-
-        QWidget *contentTab = new QWidget;
-        Group contentGroup {
+        const Group contentGroup {
             title(Tr::tr("Indent")),
             Column {
                 m_indentAccessSpecifiers,
@@ -200,15 +188,8 @@ public:
                 st
             }
         };
-        Row {
-            contentGroup,
-            createPreview(1)
-        }.attachTo(contentTab);
-        m_categoryTab->addTab(contentTab, Tr::tr("Content"));
-        m_controllers.append(contentGroup.widget);
 
-        QWidget *bracesTab = new QWidget;
-        Group bracesGroup {
+        const Group bracesGroup {
             title(Tr::tr("Indent Braces")),
             Column {
                 m_indentClassBraces,
@@ -219,15 +200,8 @@ public:
                 st
             }
         };
-        Row {
-            bracesGroup,
-            createPreview(2)
-        }.attachTo(bracesTab);
-        m_categoryTab->addTab(bracesTab, Tr::tr("Braces"));
-        m_controllers.append(bracesGroup.widget);
 
-        QWidget *switchTab = new QWidget;
-        Group switchGroup {
+        const Group switchGroup {
             title(Tr::tr("Indent within \"switch\"")),
             Column {
                 m_indentSwitchLabels,
@@ -237,15 +211,8 @@ public:
                 st
             }
         };
-        Row {
-            switchGroup,
-            createPreview(3)
-        }.attachTo(switchTab);
-        m_categoryTab->addTab(switchTab, Tr::tr("\"switch\""));
-        m_controllers.append(switchGroup.widget);
 
-        QWidget *alignmentTab = new QWidget;
-        Group alignmentGroup {
+        const Group alignmentGroup {
             title(Tr::tr("Align")),
             Column {
                 m_alignAssignments,
@@ -253,15 +220,8 @@ public:
                 st
             }
         };
-        Row {
-            alignmentGroup,
-            createPreview(4)
-        }.attachTo(alignmentTab);
-        m_categoryTab->addTab(alignmentTab, Tr::tr("Alignment"));
-        m_controllers.append(alignmentGroup.widget);
 
-        QWidget *typesTab = new QWidget;
-        Group typesGroup {
+        const Group typesGroup {
             title(Tr::tr("Bind '*' and '&&' in types/declarations to")),
             Column {
                 m_bindStarToIdentifier,
@@ -271,14 +231,26 @@ public:
                 st
             }
         };
-        Row {
-            typesGroup,
-            createPreview(5)
-        }.attachTo(typesTab);
-        m_categoryTab->addTab(typesTab, Tr::tr("Pointers and References"));
-        m_controllers.append(typesGroup.widget);
 
-        Row { m_categoryTab }.attachTo(q);
+        Row {
+            TabWidget { m_categoryTab, {
+                Tab { Tr::tr("General"),
+                    Row { Column { m_tabSettingsWidget, st }, createPreview(0) }
+                },
+                Tab { Tr::tr("Content"), Row { contentGroup, createPreview(1) } },
+                Tab { Tr::tr("Braces"), Row { bracesGroup, createPreview(2) } },
+                Tab { Tr::tr("\"switch\""), Row { switchGroup, createPreview(3) } },
+                Tab { Tr::tr("Alignment"), Row { alignmentGroup, createPreview(4) } },
+                Tab { Tr::tr("Pointers and References"), Row { typesGroup, createPreview(5) } }
+            } }
+        }.attachTo(q);
+
+        m_controllers.append(m_tabSettingsWidget);
+        m_controllers.append(contentGroup.widget);
+        m_controllers.append(bracesGroup.widget);
+        m_controllers.append(switchGroup.widget);
+        m_controllers.append(alignmentGroup.widget);
+        m_controllers.append(typesGroup.widget);
     }
 
     QCheckBox *createCheckBox(const QString &text, const QString &toolTip = {})
