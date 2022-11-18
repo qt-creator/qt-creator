@@ -341,6 +341,11 @@ QStringView FilePath::host() const
     return QStringView{m_data}.mid(m_pathLen + m_schemeLen, m_hostLen);
 }
 
+QStringView FilePath::pathView() const
+{
+    return QStringView{m_data}.left(m_pathLen);
+}
+
 QString FilePath::path() const
 {
     if (m_data.startsWith("/./"))
@@ -869,7 +874,7 @@ QVariant FilePath::toVariant() const
 
 bool FilePath::operator==(const FilePath &other) const
 {
-    return QString::compare(path(), other.path(), caseSensitivity()) == 0
+    return pathView().compare(other.pathView(), caseSensitivity()) == 0
         && host() == other.host()
         && scheme() == other.scheme();
 }
@@ -881,7 +886,7 @@ bool FilePath::operator!=(const FilePath &other) const
 
 bool FilePath::operator<(const FilePath &other) const
 {
-    const int cmp = QString::compare(path(), other.path(), caseSensitivity());
+    const int cmp = pathView().compare(other.pathView(), caseSensitivity());
     if (cmp != 0)
         return cmp < 0;
     if (host() != other.host())
@@ -930,7 +935,7 @@ bool FilePath::isChildOf(const FilePath &s) const
 /// \returns whether path() startsWith \a s
 bool FilePath::startsWith(const QString &s) const
 {
-    return path().startsWith(s, caseSensitivity());
+    return pathView().startsWith(s, caseSensitivity());
 }
 
 /*!
@@ -939,7 +944,7 @@ bool FilePath::startsWith(const QString &s) const
 */
 bool FilePath::endsWith(const QString &s) const
 {
-    return path().endsWith(s, caseSensitivity());
+    return pathView().endsWith(s, caseSensitivity());
 }
 
 /*!
