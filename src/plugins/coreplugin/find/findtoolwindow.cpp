@@ -17,9 +17,9 @@
 #include <QComboBox>
 #include <QCompleter>
 #include <QCoreApplication>
-#include <QGridLayout>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QLayout>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>

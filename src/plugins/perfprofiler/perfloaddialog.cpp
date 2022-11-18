@@ -15,7 +15,6 @@
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>
-#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>

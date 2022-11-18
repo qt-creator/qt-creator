@@ -13,7 +13,6 @@
 #include <QColorDialog>
 #include <QComboBox>
 #include <QDoubleSpinBox>
-#include <QGridLayout>
 #include <QLabel>
 #include <QListView>
 #include <QPushButton>

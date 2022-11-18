@@ -9,7 +9,6 @@
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;
-class QGridLayout;
 class QLineEdit;
 class QLabel;
 QT_END_NAMESPACE

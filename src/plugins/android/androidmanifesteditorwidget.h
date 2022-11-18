@@ -7,7 +7,6 @@
 
 #include <QAbstractListModel>
 #include <QGroupBox>
-#include <QGridLayout>
 #include <QTabWidget>
 #include <QStackedWidget>
 #include <QTimer>

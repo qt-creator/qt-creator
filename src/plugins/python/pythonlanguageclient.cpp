@@ -37,7 +37,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QFutureWatcher>
-#include <QGridLayout>
 #include <QGroupBox>
 #include <QJsonDocument>
 #include <QPushButton>

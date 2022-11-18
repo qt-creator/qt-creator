@@ -16,6 +16,7 @@
 #include <utils/utilsicons.h>
 
 #include <QDialogButtonBox>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>

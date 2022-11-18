@@ -9,7 +9,6 @@
 #include <QAction>
 #include <QComboBox>
 #include <QDebug>
-#include <QGridLayout>
 #include <QStringList>
 
 using namespace Utils;

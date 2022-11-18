@@ -15,7 +15,6 @@
 #include <QDate>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QPushButton>

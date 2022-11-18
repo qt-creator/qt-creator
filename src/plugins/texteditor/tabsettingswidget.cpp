@@ -7,7 +7,6 @@
 
 #include <QApplication>
 #include <QComboBox>
-#include <QGridLayout>
 #include <QLabel>
 #include <QSpinBox>
 #include <QTextStream>
