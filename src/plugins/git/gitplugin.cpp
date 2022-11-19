@@ -236,7 +236,7 @@ public:
     }
 };
 
-static BlameMark *m_blameMark = nullptr;
+static std::unique_ptr<BlameMark> m_blameMark;
 
 // GitPlugin
 
@@ -1440,8 +1440,7 @@ void GitPluginPrivate::setupInstantBlame()
 
         if (!GitClient::instance()->settings().instantBlame.value()) {
             m_lastVisitedEditorLine = -1;
-            delete m_blameMark;
-            m_blameMark = nullptr;
+            m_blameMark.reset();
             return;
         }
 
@@ -1473,12 +1472,10 @@ void GitPluginPrivate::setupInstantBlame()
 
     connect(&GitClient::instance()->settings().instantBlame,
             &BoolAspect::valueChanged, this, [setupBlameForEditor](bool enabled) {
-        if (enabled) {
+        if (enabled)
             setupBlameForEditor(EditorManager::currentEditor());
-        } else {
-            delete m_blameMark;
-            m_blameMark = nullptr;
-        }
+        else
+            m_blameMark.reset();
     });
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
@@ -1530,16 +1527,14 @@ void GitPluginPrivate::instantBlameOnce()
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
                 this, [editorChangedConn] {
             disconnect(*editorChangedConn);
-            delete m_blameMark;
-            m_blameMark = nullptr;
+            m_blameMark.reset();
         });
 
         auto cursorPosConn = std::make_shared<QMetaObject::Connection>();
         *cursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged,
                                  this, [cursorPosConn] {
             disconnect(*cursorPosConn);
-            delete m_blameMark;
-            m_blameMark = nullptr;
+            m_blameMark.reset();
         });
 
         const Utils::FilePath workingDirectory = GitPlugin::currentState().topLevel();
@@ -1561,8 +1556,7 @@ void GitPluginPrivate::instantBlame()
     const int lines = widget->document()->lineCount();
 
     if (line >= lines) {
-        delete m_blameMark;
-        m_blameMark = nullptr;
+        m_blameMark.reset();
         return;
     }
 
@@ -1581,8 +1575,7 @@ void GitPluginPrivate::instantBlame()
     connect(command, &VcsCommand::done, this, [command, filePath, line, this]() {
         const QString output = command->cleanedStdOut();
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
-        delete m_blameMark;
-        m_blameMark = new BlameMark(filePath, line, info);
+        m_blameMark.reset(new BlameMark(filePath, line, info));
     });
 }
 
