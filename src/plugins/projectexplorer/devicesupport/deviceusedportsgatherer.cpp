@@ -98,7 +98,7 @@ void DeviceUsedPortsGatherer::setupUsedPorts()
 void DeviceUsedPortsGatherer::emitError(const QString &errorString)
 {
     d->m_errorString = errorString;
-    emitError(errorString);
+    emit error(errorString);
 }
 
 void DeviceUsedPortsGatherer::handleProcessDone()
