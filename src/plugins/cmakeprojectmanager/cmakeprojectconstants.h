@@ -18,6 +18,11 @@ const char BUILD_FILE[] = "CMakeProject.BuildFile";
 const char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
 const char QML_DEBUG_SETTING[] = "CMakeProject.EnableQmlDebugging";
 
+const char CMAKEFORMATTER_SETTINGS_GROUP[] = "CMakeFormatter";
+const char CMAKEFORMATTER_GENERAL_GROUP[] = "General";
+const char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
+const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
+
 // Project
 const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
@@ -29,6 +34,7 @@ const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 namespace Settings {
 const char GENERAL_ID[] = "CMakeSpecifcSettings";
 const char TOOLS_ID[] = "K.CMake.Tools";
+const char FORMATTER_ID[] = "K.CMake.Formatter";
 const char CATEGORY[] = "K.CMake";
 } // namespace Settings
 
