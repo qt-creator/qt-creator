@@ -117,6 +117,9 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
             if (child.m_groupHandler.m_dynamicSetupHandler)
                 m_groupHandler.m_dynamicSetupHandler = child.m_groupHandler.m_dynamicSetupHandler;
             break;
+        case Type::Storage:
+            m_storageList.append(child.m_storageList);
+            break;
         }
     }
 }
@@ -144,17 +147,40 @@ public:
     void resetSuccessBit();
     void updateSuccessBit(bool success);
 
+    void createStorages();
+    void deleteStorages();
+    void activateStorages();
+    void deactivateStorages();
+
     TaskTreePrivate *m_taskTreePrivate = nullptr;
     TaskContainer *m_parentContainer = nullptr;
     const ExecuteMode m_executeMode = ExecuteMode::Parallel;
     WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     const TaskItem::GroupHandler m_groupHandler;
+    QList<TreeStorageBase> m_storageList;
+    QList<int> m_storageIdList;
     int m_taskCount = 0;
     GroupConfig m_groupConfig;
     QList<TaskNode *> m_children;
     QList<TaskNode *> m_selectedChildren;
     int m_currentIndex = -1;
     bool m_successBit = true;
+};
+
+class StorageActivator
+{
+public:
+    StorageActivator(TaskContainer &container)
+        : m_container(container)
+    {
+        m_container.activateStorages();
+    }
+    ~StorageActivator()
+    {
+        m_container.deactivateStorages();
+    }
+private:
+    TaskContainer &m_container;
 };
 
 class TaskNode : public QObject
@@ -244,6 +270,7 @@ TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *pa
     , m_executeMode(task.executeMode())
     , m_workflowPolicy(task.workflowPolicy())
     , m_groupHandler(task.groupHandler())
+    , m_storageList(task.storageList())
 {
     const QList<TaskItem> &children = task.children();
     for (const TaskItem &child : children) {
@@ -264,14 +291,18 @@ void TaskContainer::start()
     m_groupConfig = {};
     m_selectedChildren.clear();
 
-    if (m_groupHandler.m_setupHandler) {
-        GuardLocker locker(m_taskTreePrivate->m_guard);
-        m_groupHandler.m_setupHandler();
-    }
+    createStorages();
+    {
+        StorageActivator activator(*this);
+        if (m_groupHandler.m_setupHandler) {
+            GuardLocker locker(m_taskTreePrivate->m_guard);
+            m_groupHandler.m_setupHandler();
+        }
 
-    if (m_groupHandler.m_dynamicSetupHandler) {
-        GuardLocker locker(m_taskTreePrivate->m_guard);
-        m_groupConfig = m_groupHandler.m_dynamicSetupHandler();
+        if (m_groupHandler.m_dynamicSetupHandler) {
+            GuardLocker locker(m_taskTreePrivate->m_guard);
+            m_groupConfig = m_groupHandler.m_dynamicSetupHandler();
+        }
     }
 
     if (m_groupConfig.action == GroupAction::StopWithDone || m_groupConfig.action == GroupAction::StopWithError) {
@@ -374,13 +405,17 @@ void TaskContainer::invokeEndHandler(bool success, bool propagateToParent)
 {
     m_currentIndex = -1;
     m_successBit = success;
-    if (success && m_groupHandler.m_doneHandler) {
-        GuardLocker locker(m_taskTreePrivate->m_guard);
-        m_groupHandler.m_doneHandler();
-    } else if (!success && m_groupHandler.m_errorHandler) {
-        GuardLocker locker(m_taskTreePrivate->m_guard);
-        m_groupHandler.m_errorHandler();
+    {
+        StorageActivator activator(*this);
+        if (success && m_groupHandler.m_doneHandler) {
+            GuardLocker locker(m_taskTreePrivate->m_guard);
+            m_groupHandler.m_doneHandler();
+        } else if (!success && m_groupHandler.m_errorHandler) {
+            GuardLocker locker(m_taskTreePrivate->m_guard);
+            m_groupHandler.m_errorHandler();
+        }
     }
+    deleteStorages();
 
     if (!propagateToParent)
         return;
@@ -420,6 +455,46 @@ void TaskContainer::updateSuccessBit(bool success)
     }
 }
 
+void TaskContainer::createStorages()
+{
+    // TODO: Don't create new storage for already created storages with the same shared pointer.
+
+    for (int i = 0; i < m_storageList.size(); ++i)
+        m_storageIdList << m_storageList[i].createStorage();
+}
+
+void TaskContainer::deleteStorages()
+{
+    // TODO: Do the opposite
+
+    for (int i = 0; i < m_storageList.size(); ++i) // iterate in reverse order?
+        m_storageList[i].deleteStorage(m_storageIdList.value(i));
+
+    m_storageIdList.clear();
+}
+
+void TaskContainer::activateStorages()
+{
+    // TODO: check if the same shared storage was already activated. Don't activate recursively.
+
+    if (m_parentContainer)
+        m_parentContainer->activateStorages();
+
+    for (int i = 0; i < m_storageList.size(); ++i)
+        m_storageList[i].activateStorage(m_storageIdList.value(i));
+}
+
+void TaskContainer::deactivateStorages()
+{
+    // TODO: Do the opposite
+
+    for (int i = 0; i < m_storageList.size(); ++i) // iterate in reverse order?
+        m_storageList[i].activateStorage(0);
+
+    if (m_parentContainer)
+        m_parentContainer->deactivateStorages();
+}
+
 bool TaskNode::start()
 {
     if (!isTask()) {
@@ -428,16 +503,20 @@ bool TaskNode::start()
     }
     m_task.reset(m_taskHandler.m_createHandler());
     {
+        StorageActivator activator(m_container);
         GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
         m_taskHandler.m_setupHandler(*m_task.get());
     }
     connect(m_task.get(), &TaskInterface::done, this, [this](bool success) {
-        if (success && m_taskHandler.m_doneHandler) {
-            GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
-            m_taskHandler.m_doneHandler(*m_task.get());
-        } else if (!success && m_taskHandler.m_errorHandler) {
-            GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
-            m_taskHandler.m_errorHandler(*m_task.get());
+        {
+            StorageActivator activator(m_container);
+            if (success && m_taskHandler.m_doneHandler) {
+                GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
+                m_taskHandler.m_doneHandler(*m_task.get());
+            } else if (!success && m_taskHandler.m_errorHandler) {
+                GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
+                m_taskHandler.m_errorHandler(*m_task.get());
+            }
         }
         m_container.m_taskTreePrivate->advanceProgress(1);
 
@@ -465,6 +544,7 @@ void TaskNode::stop()
     // TODO: cancelHandler?
     // TODO: call TaskInterface::stop() ?
     if (m_taskHandler.m_errorHandler) {
+        StorageActivator activator(m_container);
         GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
         m_taskHandler.m_errorHandler(*m_task.get());
     }

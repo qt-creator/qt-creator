@@ -496,46 +496,72 @@ void tst_TaskTree::processTree()
     QCOMPARE(errorCount, expectedErrorCount);
 }
 
+struct CustomStorage
+{
+    CustomStorage() { ++s_count; }
+    ~CustomStorage() { --s_count; }
+    Log m_log;
+    static int instanceCount() { return s_count; }
+private:
+    static int s_count;
+};
+
+int CustomStorage::s_count = 0;
+static Log s_log;
+
 void tst_TaskTree::storage_data()
 {
     using namespace Tasking;
     using namespace std::placeholders;
 
     QTest::addColumn<Group>("root");
-    QTest::addColumn<std::shared_ptr<Log>>("storageLog");
+    QTest::addColumn<TreeStorage<CustomStorage>>("storageLog");
     QTest::addColumn<Log>("expectedLog");
     QTest::addColumn<bool>("runningAfterStart");
     QTest::addColumn<bool>("success");
 
-    // TODO: Much better approach would be that the TaskTree, when started, creates a
-    //       storage dynamically (then Group should be a template with storage type as a
-    //       template parameter) and a pointer (or reference) to the storage is being passed
-    //       into handlers (? how ?).
-    std::shared_ptr<Log> log(new Log);
+    TreeStorage<CustomStorage> storageLog;
 
-    const auto setupProcessHelper = [this, log](QtcProcess &process, const QStringList &args, int processId) {
-        process.setCommand(CommandLine(m_testAppPath, args));
+    const auto setupProcessHelper = [storageLog, testAppPath = m_testAppPath]
+            (QtcProcess &process, const QStringList &args, int processId) {
+        process.setCommand(CommandLine(testAppPath, args));
         process.setProperty(s_processIdProperty, processId);
-        log->append({processId, Handler::Setup});
+        storageLog->m_log.append({processId, Handler::Setup});
     };
     const auto setupProcess = [setupProcessHelper](QtcProcess &process, int processId) {
         setupProcessHelper(process, {"-return", "0"}, processId);
     };
-    const auto readResult = [log](const QtcProcess &process) {
+    const auto readResult = [storageLog](const QtcProcess &process) {
         const int processId = process.property(s_processIdProperty).toInt();
-        log->append({processId, Handler::Done});
+        storageLog->m_log.append({processId, Handler::Done});
     };
-    const auto groupSetup = [log](int processId) {
-        log->append({processId, Handler::GroupSetup});
+    const auto groupSetup = [storageLog](int processId) {
+        storageLog->m_log.append({processId, Handler::GroupSetup});
     };
-    const auto groupDone = [log](int processId) {
-        log->append({processId, Handler::GroupDone});
+    const auto groupDone = [storageLog](int processId) {
+        storageLog->m_log.append({processId, Handler::GroupDone});
     };
-    const auto rootDone = [log] {
-        log->append({-1, Handler::GroupDone});
+    const auto rootDone = [storageLog] {
+        storageLog->m_log.append({-1, Handler::GroupDone});
+        s_log = storageLog->m_log;
     };
 
-    const Group nestedRoot {
+    const Log expectedLog{{1, Handler::GroupSetup},
+                          {2, Handler::GroupSetup},
+                          {3, Handler::GroupSetup},
+                          {4, Handler::GroupSetup},
+                          {5, Handler::GroupSetup},
+                          {5, Handler::Setup},
+                          {5, Handler::Done},
+                          {5, Handler::GroupDone},
+                          {4, Handler::GroupDone},
+                          {3, Handler::GroupDone},
+                          {2, Handler::GroupDone},
+                          {1, Handler::GroupDone},
+                          {-1, Handler::GroupDone}};
+
+    const Group root {
+        Storage(storageLog),
         Group {
             Group {
                 Group {
@@ -560,20 +586,7 @@ void tst_TaskTree::storage_data()
         OnGroupDone(rootDone)
     };
 
-    const Log nestedLog{{1, Handler::GroupSetup},
-                        {2, Handler::GroupSetup},
-                        {3, Handler::GroupSetup},
-                        {4, Handler::GroupSetup},
-                        {5, Handler::GroupSetup},
-                        {5, Handler::Setup},
-                        {5, Handler::Done},
-                        {5, Handler::GroupDone},
-                        {4, Handler::GroupDone},
-                        {3, Handler::GroupDone},
-                        {2, Handler::GroupDone},
-                        {1, Handler::GroupDone},
-                        {-1, Handler::GroupDone}};
-    QTest::newRow("Nested") << nestedRoot << log << nestedLog << true << true;
+    QTest::newRow("Storage") << root << storageLog << expectedLog << true << true;
 }
 
 void tst_TaskTree::storage()
@@ -581,10 +594,15 @@ void tst_TaskTree::storage()
     using namespace Tasking;
 
     QFETCH(Group, root);
-    QFETCH(std::shared_ptr<Log>, storageLog);
+    QFETCH(TreeStorage<CustomStorage>, storageLog);
     QFETCH(Log, expectedLog);
     QFETCH(bool, runningAfterStart);
     QFETCH(bool, success);
+
+    s_log.clear();
+
+    QVERIFY(storageLog.isValid());
+    QCOMPARE(CustomStorage::instanceCount(), 0);
 
     QEventLoop eventLoop;
     TaskTree processTree(root);
@@ -593,6 +611,7 @@ void tst_TaskTree::storage()
     connect(&processTree, &TaskTree::done, this, [&doneCount, &eventLoop] { ++doneCount; eventLoop.quit(); });
     connect(&processTree, &TaskTree::errorOccurred, this, [&errorCount, &eventLoop] { ++errorCount; eventLoop.quit(); });
     processTree.start();
+    QCOMPARE(CustomStorage::instanceCount(), 1);
     QCOMPARE(processTree.isRunning(), runningAfterStart);
 
     QTimer timer;
@@ -603,7 +622,8 @@ void tst_TaskTree::storage()
     eventLoop.exec();
 
     QVERIFY(!processTree.isRunning());
-    QCOMPARE(*storageLog, expectedLog);
+    QCOMPARE(s_log, expectedLog);
+    QCOMPARE(CustomStorage::instanceCount(), 0);
 
     const int expectedDoneCount = success ? 1 : 0;
     const int expectedErrorCount = success ? 0 : 1;

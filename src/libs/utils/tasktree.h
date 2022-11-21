@@ -143,15 +143,16 @@ public:
     TaskHandler taskHandler() const { return m_taskHandler; }
     GroupHandler groupHandler() const { return m_groupHandler; }
     QList<TaskItem> children() const { return m_children; }
+    QList<TreeStorageBase> storageList() const { return m_storageList; }
 
 protected:
     enum class Type {
         Group,
+        Storage,
         Mode,
         Policy,
         TaskHandler,
         GroupHandler
-        // TODO: Add Cond type (with CondHandler and True and False branches)?
     };
 
     TaskItem() = default;
@@ -167,6 +168,9 @@ protected:
     TaskItem(const GroupHandler &handler)
         : m_type(Type::GroupHandler)
         , m_groupHandler(handler) {}
+    TaskItem(const TreeStorageBase &storage)
+        : m_type(Type::Storage)
+        , m_storageList{storage} {}
     void addChildren(const QList<TaskItem> &children);
 
 private:
@@ -175,6 +179,7 @@ private:
     WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     TaskHandler m_taskHandler;
     GroupHandler m_groupHandler;
+    QList<TreeStorageBase> m_storageList;
     QList<TaskItem> m_children;
 };
 
@@ -183,6 +188,12 @@ class QTCREATOR_UTILS_EXPORT Group : public TaskItem
 public:
     Group(const QList<TaskItem> &children) { addChildren(children); }
     Group(std::initializer_list<TaskItem> children) { addChildren(children); }
+};
+
+class QTCREATOR_UTILS_EXPORT Storage : public TaskItem
+{
+public:
+    Storage(const TreeStorageBase &storage) : TaskItem(storage) { }
 };
 
 class QTCREATOR_UTILS_EXPORT Execute : public TaskItem
