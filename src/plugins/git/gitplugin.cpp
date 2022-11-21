@@ -236,8 +236,6 @@ public:
     }
 };
 
-static std::unique_ptr<BlameMark> m_blameMark;
-
 // GitPlugin
 
 class GitPluginPrivate final : public VcsBasePluginPrivate
@@ -393,8 +391,9 @@ public:
     void setupInstantBlame();
     void instantBlameOnce();
     void instantBlame();
+    void stopInstantBlame();
 
-    void onApplySettings();;
+    void onApplySettings();
 
     CommandLocator *m_commandLocator = nullptr;
 
@@ -430,6 +429,7 @@ public:
     Author m_author;
     int m_lastVisitedEditorLine = -1;
     QTimer *m_cursorPositionChangedTimer = nullptr;
+    std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
 
     GitSettingsPage settingPage{&m_settings};
@@ -1436,12 +1436,14 @@ void GitPluginPrivate::setupInstantBlame()
     connect(m_cursorPositionChangedTimer, &QTimer::timeout, this, &GitPluginPrivate::instantBlame);
 
     auto setupBlameForEditor = [this](Core::IEditor *editor) {
-        if (!editor)
+        if (!editor) {
+            stopInstantBlame();
             return;
+        }
 
         if (!GitClient::instance()->settings().instantBlame.value()) {
             m_lastVisitedEditorLine = -1;
-            m_blameMark.reset();
+            stopInstantBlame();
             return;
         }
 
@@ -1471,11 +1473,11 @@ void GitPluginPrivate::setupInstantBlame()
     };
 
     connect(&GitClient::instance()->settings().instantBlame,
-            &BoolAspect::valueChanged, this, [setupBlameForEditor](bool enabled) {
+            &BoolAspect::valueChanged, this, [this, setupBlameForEditor](bool enabled) {
         if (enabled)
             setupBlameForEditor(EditorManager::currentEditor());
         else
-            m_blameMark.reset();
+            stopInstantBlame();
     });
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
@@ -1523,19 +1525,11 @@ void GitPluginPrivate::instantBlameOnce()
         const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
         if (!widget)
             return;
-        auto editorChangedConn = std::make_shared<QMetaObject::Connection>();
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-                this, [editorChangedConn] {
-            disconnect(*editorChangedConn);
-            m_blameMark.reset();
-        });
+                this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
-        auto cursorPosConn = std::make_shared<QMetaObject::Connection>();
-        *cursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged,
-                                 this, [cursorPosConn] {
-            disconnect(*cursorPosConn);
-            m_blameMark.reset();
-        });
+        connect(widget, &QPlainTextEdit::cursorPositionChanged,
+                this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
         const Utils::FilePath workingDirectory = GitPlugin::currentState().topLevel();
         if (workingDirectory.isEmpty())
@@ -1550,6 +1544,8 @@ void GitPluginPrivate::instantBlameOnce()
 void GitPluginPrivate::instantBlame()
 {
     const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
+        return;
     const QTextCursor cursor = widget->textCursor();
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
@@ -1582,6 +1578,13 @@ void GitPluginPrivate::instantBlame()
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
     });
+}
+
+void GitPluginPrivate::stopInstantBlame()
+{
+    m_blameMark.reset();
+    m_cursorPositionChangedTimer->stop();
+    disconnect(m_blameCursorPosConn);
 }
 
 IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const CommitData &cd)
