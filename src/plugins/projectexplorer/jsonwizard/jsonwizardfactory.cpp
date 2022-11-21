@@ -505,10 +505,15 @@ static QStringList environmentTemplatesPaths()
 
 FilePaths &JsonWizardFactory::searchPaths()
 {
-    static FilePaths m_searchPaths = {Core::ICore::userResourcePath(WIZARD_PATH),
-                                      Core::ICore::resourcePath(WIZARD_PATH)};
-    for (const QString &environmentTemplateDirName : environmentTemplatesPaths())
-        m_searchPaths << FilePath::fromString(environmentTemplateDirName);
+    static FilePaths m_searchPaths;
+    static bool searchPathsInitialized = false;
+    if (!searchPathsInitialized) {
+        searchPathsInitialized = true;
+        m_searchPaths = {Core::ICore::userResourcePath(WIZARD_PATH),
+                         Core::ICore::resourcePath(WIZARD_PATH)};
+        for (const QString &environmentTemplateDirName : environmentTemplatesPaths())
+            m_searchPaths << FilePath::fromString(environmentTemplateDirName);
+    }
 
     return m_searchPaths;
 }

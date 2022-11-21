@@ -115,6 +115,8 @@ public:
                 reportFailure(msg);
                 return;
             }
+            if (!m_process->cleanedStdErr().isEmpty())
+                appendMessage(m_process->cleanedStdErr(), Utils::StdErrFormat);
             reportStopped();
         });
 
@@ -124,6 +126,8 @@ public:
         cmd.addCommandLineAsArgs(runControl()->commandLine(), CommandLine::Raw);
 
         m_process->setCommand(cmd);
+        m_process->setWorkingDirectory(runControl()->workingDirectory());
+        appendMessage("Starting Perf: " + cmd.toUserOutput(), Utils::NormalMessageFormat);
         m_process->start();
     }
 

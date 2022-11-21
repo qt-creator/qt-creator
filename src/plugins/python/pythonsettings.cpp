@@ -80,8 +80,9 @@ class InterpreterDetailsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    InterpreterDetailsWidget()
-        : m_name(new QLineEdit)
+    InterpreterDetailsWidget(QWidget *parent)
+        : QWidget(parent)
+        , m_name(new QLineEdit)
         , m_executable(new PathChooser())
     {
         m_executable->setExpectedKind(PathChooser::ExistingCommand);
@@ -131,7 +132,7 @@ public:
     QList<Interpreter> interpreterFrom(const QString &detectionSource) const;
 
 private:
-    QTreeView m_view;
+    QTreeView *m_view = nullptr;
     ListModel<Interpreter> m_model;
     InterpreterDetailsWidget *m_detailsWidget = nullptr;
     QPushButton *m_deleteButton = nullptr;
@@ -149,7 +150,7 @@ private:
 };
 
 InterpreterOptionsWidget::InterpreterOptionsWidget()
-    : m_detailsWidget(new InterpreterDetailsWidget())
+    : m_detailsWidget(new InterpreterDetailsWidget(this))
     , m_defaultId(PythonSettings::defaultInterpreter().id)
 {
     m_model.setDataAccessor([this](const Interpreter &interpreter, int column, int role) -> QVariant {
@@ -180,23 +181,17 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
     });
     m_model.setAllData(PythonSettings::interpreters());
 
-    m_view.setModel(&m_model);
-    m_view.setHeaderHidden(true);
-    m_view.setSelectionMode(QAbstractItemView::SingleSelection);
-    m_view.setSelectionBehavior(QAbstractItemView::SelectItems);
-    auto addButton = new QPushButton(Tr::tr("&Add"));
+    auto addButton = new QPushButton(Tr::tr("&Add"), this);
 
-    m_deleteButton = new QPushButton(Tr::tr("&Delete"));
+    m_deleteButton = new QPushButton(Tr::tr("&Delete"), this);
     m_deleteButton->setEnabled(false);
     m_makeDefaultButton = new QPushButton(Tr::tr("&Make Default"));
     m_makeDefaultButton->setEnabled(false);
 
-    m_cleanButton = new QPushButton(Tr::tr("&Clean Up"));
+    m_cleanButton = new QPushButton(Tr::tr("&Clean Up"), this);
     m_cleanButton->setToolTip(Tr::tr("Remove all Python interpreters without a valid executable."));
 
-    updateCleanButton();
-
-    m_detailsWidget->hide();
+    m_view = new QTreeView(this);
 
     Column buttons {
         addButton,
@@ -207,9 +202,18 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
     };
 
     Column {
-        Row { &m_view, buttons },
+        Row { m_view, buttons },
         m_detailsWidget
     }.attachTo(this);
+
+    updateCleanButton();
+
+    m_detailsWidget->hide();
+
+    m_view->setModel(&m_model);
+    m_view->setHeaderHidden(true);
+    m_view->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_view->setSelectionBehavior(QAbstractItemView::SelectItems);
 
     connect(addButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::addItem);
     connect(m_deleteButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::deleteItem);
@@ -218,7 +222,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
 
     connect(m_detailsWidget, &InterpreterDetailsWidget::changed,
             this, &InterpreterOptionsWidget::detailsChanged);
-    connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
+    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &InterpreterOptionsWidget::currentChanged);
 }
 
@@ -268,7 +272,7 @@ void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QM
 
 void InterpreterOptionsWidget::detailsChanged()
 {
-    const QModelIndex &index = m_view.currentIndex();
+    const QModelIndex &index = m_view->currentIndex();
     if (index.isValid()) {
         m_model.itemAt(index.row())->itemData = m_detailsWidget->toInterpreter();
         emit m_model.dataChanged(index, index);
@@ -288,13 +292,13 @@ void InterpreterOptionsWidget::addItem()
     const QModelIndex &index = m_model.indexForItem(
         m_model.appendItem({QUuid::createUuid().toString(), QString("Python"), FilePath(), false}));
     QTC_ASSERT(index.isValid(), return);
-    m_view.setCurrentIndex(index);
+    m_view->setCurrentIndex(index);
     updateCleanButton();
 }
 
 void InterpreterOptionsWidget::deleteItem()
 {
-    const QModelIndex &index = m_view.currentIndex();
+    const QModelIndex &index = m_view->currentIndex();
     if (index.isValid())
         m_model.destroyItem(m_model.itemAt(index.row()));
     updateCleanButton();
@@ -411,18 +415,10 @@ public:
         mainGroupLayout->addWidget(m_advancedLabel);
         mainGroupLayout->addWidget(m_editor->editorWidget(), 1);
 
-        setAdvanced(false);
-
         mainGroupLayout->addStretch();
 
         auto advanced = new QCheckBox(Tr::tr("Advanced"));
         advanced->setChecked(false);
-
-        connect(advanced,
-                &QCheckBox::toggled,
-                this,
-                &PyLSConfigureWidget::setAdvanced);
-
         mainGroupLayout->addWidget(advanced);
 
         m_mainGroup->setLayout(mainGroupLayout);
@@ -434,6 +430,14 @@ public:
         m_editor->textDocument()->setPlainText(PythonSettings::pylsConfiguration());
         m_mainGroup->setChecked(PythonSettings::pylsEnabled());
         updateCheckboxes();
+
+        setAdvanced(false);
+
+        connect(advanced,
+                &QCheckBox::toggled,
+                this,
+                &PyLSConfigureWidget::setAdvanced);
+
     }
 
     void apply() override
@@ -518,7 +522,7 @@ static PyLSOptionsPage &pylspOptionsPage()
 
 void InterpreterOptionsWidget::makeDefault()
 {
-    const QModelIndex &index = m_view.currentIndex();
+    const QModelIndex &index = m_view->currentIndex();
     if (index.isValid()) {
         QModelIndex defaultIndex = m_model.findIndex([this](const Interpreter &interpreter) {
             return interpreter.id == m_defaultId;

@@ -1832,11 +1832,13 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     QList<Breakpoint> v8Breakpoints;
 
                     const QVariantList v8BreakpointIdList = breakData.value("breakpoints").toList();
-                    // skip debug break if no breakpoint and we have not done a single step as last
-                    // action - likely stopped in another file with same naming
-                    if (v8BreakpointIdList.isEmpty() && previousStepAction == Continue) {
-                        inferiorStop = false;
-                        continueDebugging(Continue);
+                    if (engine->state() != InferiorStopRequested) {
+                        // skip debug break if no breakpoint and we have not done a single step as
+                        // last action - likely stopped in another file with same naming
+                        if (v8BreakpointIdList.isEmpty() && previousStepAction == Continue) {
+                            inferiorStop = false;
+                            continueDebugging(Continue);
+                        }
                     }
 
                     for (const QVariant &breakpointId : v8BreakpointIdList) {
