@@ -430,6 +430,7 @@ public:
     Author m_author;
     int m_lastVisitedEditorLine = -1;
     QTimer *m_cursorPositionChangedTimer = nullptr;
+    QMetaObject::Connection m_blameCursorPosConn;
 
     GitSettingsPage settingPage{&m_settings};
 
@@ -1456,11 +1457,10 @@ void GitPluginPrivate::setupInstantBlame()
         if (qobject_cast<const VcsBaseEditorWidget *>(widget))
             return; // Skip in VCS editors like log or blame
 
-        auto cursorPosConn = std::make_shared<QMetaObject::Connection>();
-        *cursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
-                                 [this, cursorPosConn] {
+        m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
+                                [this] {
             if (!GitClient::instance()->settings().instantBlame.value()) {
-                disconnect(*cursorPosConn);
+                disconnect(m_blameCursorPosConn);
                 return;
             }
             m_cursorPositionChangedTimer->start(500);
@@ -1571,8 +1571,13 @@ void GitPluginPrivate::instantBlame()
     const QString lineString = QString("%1,%1").arg(line);
     const VcsCommand *command = GitClient::instance()->vcsExec(
                 workingDirectory, {"blame", "-p", "-L", lineString, "--", filePath.toString()},
-                nullptr, false, RunFlags::SuppressCommandLogging | RunFlags::ProgressiveOutput);
+                nullptr, false, RunFlags::NoOutput);
     connect(command, &VcsCommand::done, this, [command, filePath, line, this]() {
+        if (command->result() == ProcessResult::FinishedWithError &&
+                command->cleanedStdErr().contains("no such path")) {
+            disconnect(m_blameCursorPosConn);
+            return;
+        }
         const QString output = command->cleanedStdOut();
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
