@@ -37,32 +37,28 @@ static std::pair<int, QString> lineNumberInfo(const QStyleOptionViewItem &option
 }
 
 // Aligns text by appending spaces
-static QPair<QString, QString> align(QString text, const QString& containingFunction) {
+static QString align(QString text)
+{
     constexpr int minimumTextSize = 80;
     constexpr int textSizeIncrement = 20;
 
     int textSize = ((text.size() / textSizeIncrement) + 1) * textSizeIncrement;
     textSize = std::max(minimumTextSize, textSize);
     text.resize(textSize, ' ');
-    return QPair<QString, QString>{std::move(text), containingFunction};
+    return text;
 }
 
 static QPair<QString, QString> itemText(const QModelIndex &index)
 {
     QString text = index.data(Qt::DisplayRole).toString();
     // show number of subresults in displayString
-    QString containingFunction;
-    const auto contFnName = index.data(ItemDataRoles::ContainingFunctionNameRole).toString();
-    if (contFnName.length())
-        containingFunction = QLatin1String("[in ") + contFnName + QLatin1String("]");
+    if (index.model()->hasChildren(index))
+        text += " (" + QString::number(index.model()->rowCount(index)) + ')';
 
-    if (index.model()->hasChildren(index)) {
-        QString textAndCount{text + QLatin1String(" (")
-                             + QString::number(index.model()->rowCount(index)) + QLatin1Char(')')};
-
-        return align(std::move(textAndCount), containingFunction);
-    }
-    return align(std::move(text), containingFunction);
+    const auto functionName = index.data(ItemDataRoles::ContainingFunctionNameRole).toString();
+    if (!functionName.isEmpty())
+        return {align(std::move(text)), "[in " + functionName + "]"};
+    return {text, {}};
 }
 
 LayoutInfo SearchResultTreeItemDelegate::getLayoutInfo(const QStyleOptionViewItem &option,
