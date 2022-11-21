@@ -28,7 +28,7 @@ TextureEditorContextObject::TextureEditorContextObject(QQmlContext *context, QOb
     : QObject(parent)
     , m_qmlContext(context)
 {
-    qmlRegisterUncreatableType<TextureEditorContextObject>("ToolBarAction", 1, 0, "ToolBarAction", "Enum type");
+    qmlRegisterUncreatableType<TextureEditorContextObject>("TextureToolBarAction", 1, 0, "ToolBarAction", "Enum type");
 }
 
 QQmlComponent *TextureEditorContextObject::specificQmlComponent()

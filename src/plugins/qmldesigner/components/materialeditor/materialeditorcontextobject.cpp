@@ -30,7 +30,7 @@ MaterialEditorContextObject::MaterialEditorContextObject(QQmlContext *context, Q
     : QObject(parent)
     , m_qmlContext(context)
 {
-    qmlRegisterUncreatableType<MaterialEditorContextObject>("ToolBarAction", 1, 0, "ToolBarAction", "Enum type");
+    qmlRegisterUncreatableType<MaterialEditorContextObject>("MaterialToolBarAction", 1, 0, "ToolBarAction", "Enum type");
 }
 
 QQmlComponent *MaterialEditorContextObject::specificQmlComponent()
