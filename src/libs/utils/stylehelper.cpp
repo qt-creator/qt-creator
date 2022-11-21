@@ -306,7 +306,9 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
             static const QCommonStyle* const style = qobject_cast<QCommonStyle*>(QApplication::style());
             if (!style)
                 return;
-            tweakedOption.palette.setColor(QPalette::ButtonText, color.rgb());
+            QPalette pal = tweakedOption.palette;
+            pal.setColor(QPalette::ButtonText, color.rgb());
+            tweakedOption.palette = pal; // Workaround for QTCREATORBUG-28470
             tweakedOption.rect = rect;
             painter.setOpacity(color.alphaF());
             style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);

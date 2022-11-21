@@ -445,8 +445,14 @@ Utils::FilePath QmlProjectPlugin::projectFilePath()
 {
     auto project = ProjectExplorer::SessionManager::startupProject();
     const QmlProjectManager::QmlProject *qmlProject = qobject_cast<const QmlProjectManager::QmlProject*>(project);
-    if (qmlProject)
+    if (qmlProject) {
         return qmlProject->projectFilePath();
+    } else if (project) {
+        auto projectFolder = project->rootProjectDirectory();
+        auto qmlProjectFile = findQmlProject(projectFolder);
+        if (qmlProjectFile.exists())
+            return qmlProjectFile;
+    }
 
     return {};
 }
