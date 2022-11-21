@@ -373,22 +373,33 @@ void SymbolSupport::renameSymbol(TextEditor::TextDocument *document, const QText
         const QString error = tr("Renaming is not supported with %1").arg(m_client->name());
         createSearch(params, placeholder, {}, {})->finishSearch(true, error);
     } else  if (prepareSupported) {
-        requestPrepareRename(generateDocPosParams(document, cursor), placeholder, oldSymbolName,
+        requestPrepareRename(document,
+                             generateDocPosParams(document, cursor),
+                             placeholder,
+                             oldSymbolName,
                              preferLowerCaseFileNames);
     } else {
-        startRenameSymbol(generateDocPosParams(document, cursor), placeholder, oldSymbolName,
+        startRenameSymbol(generateDocPosParams(document, cursor),
+                          placeholder,
+                          oldSymbolName,
                           preferLowerCaseFileNames);
     }
 }
 
 void SymbolSupport::requestPrepareRename(
+        TextEditor::TextDocument *document,
         const TextDocumentPositionParams &params,
         const QString &placeholder,
         const QString &oldSymbolName,
         bool preferLowerCaseFileNames)
 {
     PrepareRenameRequest request(params);
-    request.setResponseCallback([this, params, placeholder, oldSymbolName, preferLowerCaseFileNames](
+    request.setResponseCallback([this,
+                                 params,
+                                 placeholder,
+                                 oldSymbolName,
+                                 preferLowerCaseFileNames,
+                                 document = QPointer<TextEditor::TextDocument>(document)](
                                     const PrepareRenameRequest::Response &response) {
         const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
         if (error.has_value()) {
@@ -404,7 +415,23 @@ void SymbolSupport::requestPrepareRename(
                                   preferLowerCaseFileNames);
             } else if (std::holds_alternative<Range>(*result)) {
                 auto range = std::get<Range>(*result);
-                startRenameSymbol(params, placeholder, oldSymbolName, preferLowerCaseFileNames);
+                if (document) {
+                    const int start = range.start().toPositionInDocument(document->document());
+                    const int end = range.end().toPositionInDocument(document->document());
+                    const QString reportedSymbolName = document->textAt(start, end - start);
+                    const QString newPlaceholder = m_defaultSymbolMapper
+                                                       ? m_defaultSymbolMapper(reportedSymbolName)
+                                                       : reportedSymbolName;
+                    startRenameSymbol(params,
+                                      newPlaceholder,
+                                      reportedSymbolName,
+                                      preferLowerCaseFileNames);
+                } else {
+                    startRenameSymbol(params,
+                                      placeholder,
+                                      oldSymbolName,
+                                      preferLowerCaseFileNames);
+                }
             }
         }
     });

@@ -59,8 +59,10 @@ private:
         const QString &wordUnderCursor,
         const ResultHandler &handler);
 
-    void requestPrepareRename(const LanguageServerProtocol::TextDocumentPositionParams &params,
-                              const QString &placeholder, const QString &oldSymbolName,
+    void requestPrepareRename(TextEditor::TextDocument *document,
+                              const LanguageServerProtocol::TextDocumentPositionParams &params,
+                              const QString &placeholder,
+                              const QString &oldSymbolName,
                               bool preferLowerCaseFileNames);
     void requestRename(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
                        const QString &newName, Core::SearchResult *search);
