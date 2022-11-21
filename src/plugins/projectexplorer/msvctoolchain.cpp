@@ -1154,17 +1154,18 @@ void MsvcToolchain::addToEnvironment(Utils::Environment &env) const
     env = m_resultEnvironment;
 }
 
-static QString wrappedMakeCommand(const QString &command)
+static FilePath wrappedMakeCommand(const FilePath &command)
 {
-    const QString wrapperPath = QDir::currentPath() + "/msvc_make.bat";
-    QFile wrapper(wrapperPath);
-    if (!wrapper.open(QIODevice::WriteOnly))
-        return command;
-    QTextStream stream(&wrapper);
-    stream << "chcp 65001\n";
-    stream << "\"" << QDir::toNativeSeparators(command) << "\" %*";
+    const FilePath wrapperPath = FilePath::currentWorkingPath() / "msvc_make.bat";
 
-    return wrapperPath;
+    const QByteArray contents =
+            "chcp 65001\r\n"
+            "\"" + command.nativePath().toLocal8Bit() + "\" %*";
+
+    if (wrapperPath.writeFileContents(contents))
+        return wrapperPath;
+
+    return command;
 }
 
 FilePath MsvcToolchain::makeCommand(const Environment &environment) const
@@ -1193,7 +1194,7 @@ FilePath MsvcToolchain::makeCommand(const Environment &environment) const
         command = FilePath::fromString(useJom ? jom : nmake);
 
     if (environment.hasKey("VSLANG"))
-        return FilePath::fromString(wrappedMakeCommand(command.toString()));
+        return wrappedMakeCommand(command);
 
     return command;
 }
