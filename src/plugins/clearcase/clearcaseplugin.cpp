@@ -344,7 +344,7 @@ private:
     friend class ClearCasePlugin;
 #ifdef WITH_TESTS
     bool m_fakeClearTool = false;
-    QString m_tempFile;
+    FilePath m_tempFile;
 #endif
 };
 
@@ -2501,15 +2501,15 @@ void ClearCasePlugin::testLogResolving()
 
 void ClearCasePlugin::initTestCase()
 {
-    dd->m_tempFile = QDir::currentPath() + QLatin1String("/cc_file.cpp");
-    FileSaver srcSaver(FilePath::fromString(dd->m_tempFile));
+    dd->m_tempFile = FilePath::currentWorkingPath() / "cc_file.cpp";
+    FileSaver srcSaver(dd->m_tempFile);
     srcSaver.write(QByteArray());
     srcSaver.finalize();
 }
 
 void ClearCasePlugin::cleanupTestCase()
 {
-    QVERIFY(QFile::remove(dd->m_tempFile));
+    QVERIFY(dd->m_tempFile.removeFile());
 }
 
 void ClearCasePlugin::testFileStatusParsing_data()
@@ -2518,25 +2518,27 @@ void ClearCasePlugin::testFileStatusParsing_data()
     QTest::addColumn<QString>("cleartoolLsLine");
     QTest::addColumn<int>("status");
 
+    const QString filename = dd->m_tempFile.path();
+
     QTest::newRow("CheckedOut")
-            << dd->m_tempFile
-            << QString(dd->m_tempFile + QLatin1String("@@/main/branch1/CHECKEDOUT from /main/branch1/0  Rule: CHECKEDOUT"))
+            << filename
+            << QString(filename + QLatin1String("@@/main/branch1/CHECKEDOUT from /main/branch1/0  Rule: CHECKEDOUT"))
             << static_cast<int>(FileStatus::CheckedOut);
 
     QTest::newRow("CheckedIn")
-            << dd->m_tempFile
-            << QString(dd->m_tempFile + QLatin1String("@@/main/9  Rule: MY_LABEL_1.6.4 [-mkbranch branch1]"))
+            << filename
+            << QString(filename + QLatin1String("@@/main/9  Rule: MY_LABEL_1.6.4 [-mkbranch branch1]"))
             << static_cast<int>(FileStatus::CheckedIn);
 
     QTest::newRow("Hijacked")
-            << dd->m_tempFile
-            << QString(dd->m_tempFile + QLatin1String("@@/main/9 [hijacked]        Rule: MY_LABEL_1.5.33 [-mkbranch myview1]"))
+            << filename
+            << QString(filename + QLatin1String("@@/main/9 [hijacked]        Rule: MY_LABEL_1.5.33 [-mkbranch myview1]"))
             << static_cast<int>(FileStatus::Hijacked);
 
 
     QTest::newRow("Missing")
-            << dd->m_tempFile
-            << QString(dd->m_tempFile + QLatin1String("@@/main/9 [loaded but missing]              Rule: MY_LABEL_1.5.33 [-mkbranch myview1]"))
+            << filename
+            << QString(filename + QLatin1String("@@/main/9 [loaded but missing]              Rule: MY_LABEL_1.5.33 [-mkbranch myview1]"))
             << static_cast<int>(FileStatus::Missing);
 }
 
