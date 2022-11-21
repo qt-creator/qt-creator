@@ -7,8 +7,12 @@
 
 #include <QObject>
 #include <QSet>
+#include <QSharedPointer>
 
 namespace Utils {
+
+class TaskContainer;
+
 namespace Tasking {
 
 class QTCREATOR_UTILS_EXPORT TaskInterface : public QObject
@@ -21,6 +25,51 @@ public:
 
 signals:
     void done(bool success);
+};
+
+class QTCREATOR_UTILS_EXPORT TreeStorageBase
+{
+public:
+    bool isValid() const;
+
+protected:
+    using StorageConstructor = std::function<void *(void)>;
+    using StorageDestructor = std::function<void(void *)>;
+
+    TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor);
+    void *activeStorageVoid() const;
+
+private:
+    int createStorage();
+    void deleteStorage(int id);
+    void activateStorage(int id);
+
+    struct StorageData {
+        StorageConstructor m_constructor = {};
+        StorageDestructor m_destructor = {};
+        QHash<int, void *> m_storageHash = {};
+        int m_activeStorage = 0; // 0 means no active storage
+        int m_storageCounter = 0;
+    };
+    QSharedPointer<StorageData> m_storageData;
+    friend TaskContainer;
+};
+
+template <typename StorageStruct>
+class TreeStorage : public TreeStorageBase
+{
+public:
+    TreeStorage() : TreeStorageBase(TreeStorage::ctor(), TreeStorage::dtor()) {}
+    StorageStruct *operator->() const noexcept { return activeStorage(); }
+
+private:
+    StorageStruct *activeStorage() const {
+        return static_cast<StorageStruct *>(activeStorageVoid());
+    }
+    static StorageConstructor ctor() { return [] { return new StorageStruct; }; }
+    static StorageDestructor dtor() {
+        return [](void *storage) { delete static_cast<StorageStruct *>(storage); };
+    }
 };
 
 enum class ExecuteMode {

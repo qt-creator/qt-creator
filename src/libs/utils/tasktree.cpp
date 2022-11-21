@@ -9,6 +9,57 @@
 namespace Utils {
 namespace Tasking {
 
+bool TreeStorageBase::isValid() const
+{
+    return m_storageData && m_storageData->m_constructor && m_storageData->m_destructor;
+}
+
+TreeStorageBase::TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor)
+    : m_storageData(new StorageData{ctor, dtor}) { }
+
+void *TreeStorageBase::activeStorageVoid() const
+{
+    QTC_ASSERT(m_storageData->m_activeStorage, return nullptr);
+    const auto it = m_storageData->m_storageHash.constFind(m_storageData->m_activeStorage);
+    QTC_ASSERT(it != m_storageData->m_storageHash.constEnd(), return nullptr);
+    return it.value();
+}
+
+int TreeStorageBase::createStorage()
+{
+    QTC_ASSERT(m_storageData->m_constructor, return 0); // TODO: add isValid()?
+    QTC_ASSERT(m_storageData->m_destructor, return 0);
+    QTC_ASSERT(m_storageData->m_activeStorage == 0, return 0); // TODO: should be allowed?
+    const int newId = ++m_storageData->m_storageCounter;
+    m_storageData->m_storageHash.insert(newId, m_storageData->m_constructor());
+    return newId;
+}
+
+void TreeStorageBase::deleteStorage(int id)
+{
+    QTC_ASSERT(m_storageData->m_constructor, return); // TODO: add isValid()?
+    QTC_ASSERT(m_storageData->m_destructor, return);
+    QTC_ASSERT(m_storageData->m_activeStorage == 0, return); // TODO: should be allowed?
+    const auto it = m_storageData->m_storageHash.find(id);
+    QTC_ASSERT(it != m_storageData->m_storageHash.end(), return);
+    m_storageData->m_destructor(it.value());
+    m_storageData->m_storageHash.erase(it);
+}
+
+// passing 0 deactivates currently active storage
+void TreeStorageBase::activateStorage(int id)
+{
+    if (id == 0) {
+        QTC_ASSERT(m_storageData->m_activeStorage, return);
+        m_storageData->m_activeStorage = 0;
+        return;
+    }
+    QTC_ASSERT(m_storageData->m_activeStorage == 0, return);
+    const auto it = m_storageData->m_storageHash.find(id);
+    QTC_ASSERT(it != m_storageData->m_storageHash.end(), return);
+    m_storageData->m_activeStorage = id;
+}
+
 Execute sequential(ExecuteMode::Sequential);
 Execute parallel(ExecuteMode::Parallel);
 Workflow stopOnError(WorkflowPolicy::StopOnError);
