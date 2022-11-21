@@ -65,18 +65,13 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
         path.append("/opt/local/bin");
     }
 
-    const QStringList execs = env.appendExeExtensions(QLatin1String("cmake"));
-
     FilePaths suspects;
     for (const FilePath &base : std::as_const(path)) {
         if (base.isEmpty())
             continue;
-
-        for (const QString &exec : execs) {
-            const FilePath suspect = base.resolvePath(exec);
-            if (suspect.isExecutableFile())
-                suspects << suspect;
-        }
+        const FilePath suspect = base / "cmake";
+        if (suspect.refersToExecutableFile(FilePath::WithAnySuffix))
+            suspects << suspect;
     }
 
     std::vector<std::unique_ptr<CMakeTool>> found;
