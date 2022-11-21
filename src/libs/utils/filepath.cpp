@@ -548,6 +548,42 @@ bool FilePath::isSameFile(const FilePath &other) const
     return false;
 }
 
+static FilePaths appendExeExtensions(const Environment &env, const FilePath &executable)
+{
+    FilePaths execs = {executable};
+    if (executable.osType() == OsTypeWindows) {
+        // Check all the executable extensions on windows:
+        // PATHEXT is only used if the executable has no extension
+        if (executable.suffix().isEmpty()) {
+            const QStringList extensions = env.expandedValueForKey("PATHEXT").split(';');
+
+            for (const QString &ext : extensions)
+                execs << executable + ext.toLower();
+        }
+    }
+    return execs;
+}
+
+bool FilePath::isSameExecutable(const FilePath &other) const
+{
+    if (*this == other)
+        return true;
+
+    if (!isSameDevice(other))
+        return false;
+
+    const Environment env = other.deviceEnvironment();
+    const FilePaths exe1List = appendExeExtensions(env, *this);
+    const FilePaths exe2List = appendExeExtensions(env, other);
+    for (const FilePath &f1 : exe1List) {
+        for (const FilePath &f2 : exe2List) {
+            if (f1.isSameFile(f2))
+                return true;
+        }
+    }
+    return false;
+}
+
 /// \returns an empty FilePath if this is not a symbolic linl
 FilePath FilePath::symLinkTarget() const
 {

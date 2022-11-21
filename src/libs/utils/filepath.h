@@ -210,6 +210,7 @@ public:
 
     bool isSameDevice(const FilePath &other) const;
     bool isSameFile(const FilePath &other) const;
+    bool isSameExecutable(const FilePath &other) const; // with potentially different suffixes
 
     [[nodiscard]] QFileInfo toFileInfo() const;
     [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info);
