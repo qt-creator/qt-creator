@@ -28,6 +28,7 @@ namespace ClangFormat {
 namespace Ui { class ClangFormatChecksWidget; }
 
 class ClangFormatFile;
+class ClangFormatChecks;
 
 class ClangFormatConfigWidget : public CppEditor::CppCodeStyleWidget
 {
@@ -62,7 +63,6 @@ private:
     QScrollArea *m_checksScrollArea;
     TextEditor::SnippetEditorWidget *m_preview;
     std::unique_ptr<ClangFormatFile> m_config;
-    std::unique_ptr<Ui::ClangFormatChecksWidget> m_checks;
     clang::format::FormatStyle m_style;
 
     Utils::Guard m_ignoreChanges;
