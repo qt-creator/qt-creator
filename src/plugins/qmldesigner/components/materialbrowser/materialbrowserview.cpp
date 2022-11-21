@@ -279,6 +279,8 @@ void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> 
 
         if (isMaterial(node) && property.name() == "objectName")
             m_widget->materialBrowserModel()->updateMaterialName(node);
+        else if (isTexture(node) && property.name() == "source")
+            m_widget->materialBrowserTexturesModel()->updateTextureSource(node);
     }
 }
 

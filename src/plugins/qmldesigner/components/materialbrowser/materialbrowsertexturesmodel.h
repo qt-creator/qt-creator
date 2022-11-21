@@ -34,6 +34,7 @@ public:
     void removeTexture(const ModelNode &texture);
     void deleteSelectedTexture();
     void updateSelectedTexture();
+    void updateTextureSource(const ModelNode &texture);
     int textureIndex(const ModelNode &material) const;
     ModelNode textureAt(int idx) const;
 

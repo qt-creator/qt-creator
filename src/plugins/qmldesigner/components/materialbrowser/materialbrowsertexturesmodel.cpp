@@ -164,6 +164,13 @@ void MaterialBrowserTexturesModel::deleteSelectedTexture()
     deleteTexture(m_selectedIndex);
 }
 
+void MaterialBrowserTexturesModel::updateTextureSource(const ModelNode &texture)
+{
+    int idx = textureIndex(texture);
+    if (idx != -1)
+        emit dataChanged(index(idx, 0), index(idx, 0), {roleNames().key("textureSource")});
+}
+
 void MaterialBrowserTexturesModel::updateSelectedTexture()
 {
     selectTexture(m_selectedIndex, true);
