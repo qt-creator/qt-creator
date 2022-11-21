@@ -981,13 +981,7 @@ IDocument *MainWindow::openFiles(const FilePaths &filePaths,
     const FilePath workingDirBase =
             workingDirectory.isEmpty() ? FilePath::currentWorkingPath() : workingDirectory;
     for (const FilePath &filePath : filePaths) {
-        FilePath absoluteFilePath;
-        if (filePath.isAbsolutePath()) {
-            absoluteFilePath = filePath;
-        } else {
-            QTC_CHECK(!filePath.needsDevice());
-            absoluteFilePath = workingDirBase.resolvePath(filePath.path());
-        }
+        const FilePath absoluteFilePath = workingDirBase.resolvePath(filePath);
         if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath)) {
             IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
