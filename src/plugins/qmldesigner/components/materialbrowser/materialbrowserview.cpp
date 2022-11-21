@@ -146,6 +146,10 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             ModelNode texNode = m_widget->materialBrowserTexturesModel()->textureAt(idx);
             emitCustomNotification("selected_texture_changed", {texNode}, {});
         });
+
+        connect(texturesModel, &MaterialBrowserTexturesModel::addNewTextureTriggered, this, [&] {
+            emitCustomNotification("add_new_texture");
+        });
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -290,18 +294,25 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
 
     ModelNode newParentNode = newPropertyParent.parentModelNode();
     ModelNode oldParentNode = oldPropertyParent.parentModelNode();
-    bool matAdded = newParentNode.id() == Constants::MATERIAL_LIB_ID;
-    bool matRemoved = oldParentNode.id() == Constants::MATERIAL_LIB_ID;
+    bool added = newParentNode.id() == Constants::MATERIAL_LIB_ID;
+    bool removed = oldParentNode.id() == Constants::MATERIAL_LIB_ID;
 
-    if (matAdded || matRemoved) {
-        if (matAdded && !m_puppetResetPending) {
+    if (!added && !removed)
+        return;
+
+    refreshModel(removed);
+
+    if (isMaterial(node)) {
+        if (added && !m_puppetResetPending) {
             // Workaround to fix various material issues all likely caused by QTBUG-103316
             resetPuppet();
             m_puppetResetPending = true;
         }
-        refreshModel(!matAdded);
         int idx = m_widget->materialBrowserModel()->materialIndex(node);
         m_widget->materialBrowserModel()->selectMaterial(idx);
+    } else { // is texture
+        int idx = m_widget->materialBrowserTexturesModel()->textureIndex(node);
+        m_widget->materialBrowserTexturesModel()->selectTexture(idx);
     }
 }
 

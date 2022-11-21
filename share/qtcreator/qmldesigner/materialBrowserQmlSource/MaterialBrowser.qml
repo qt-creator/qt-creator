@@ -95,23 +95,11 @@ Item {
             StudioControls.SearchBox {
                 id: searchBox
 
-                width: root.width - addMaterialButton.width
+                width: root.width
 
                 onSearchChanged: (searchText) => {
                     rootView.handleSearchFilterChanged(searchText)
                 }
-            }
-
-            IconButton {
-                id: addMaterialButton
-
-                tooltip: qsTr("Add a material.")
-
-                icon: StudioTheme.Constants.plus
-                anchors.verticalCenter: parent.verticalCenter
-                buttonSize: searchBox.height
-                onClicked: materialBrowserModel.addNewMaterial()
-                enabled: materialBrowserModel.hasQuick3DImport
             }
         }
 
@@ -145,116 +133,154 @@ Item {
             interactive: !ctxMenu.opened
 
             Column {
-                Section {
-                    id: materialsSection
-
+                Item {
                     width: root.width
-                    caption: qsTr("Materials")
-                    dropEnabled: true
+                    height: materialsSection.height
 
-                    onDropEnter: (drag) => {
-                        drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.bundlematerial"
-                        materialsSection.highlight = drag.accepted
-                    }
+                    Section {
+                        id: materialsSection
 
-                    onDropExit: {
-                        materialsSection.highlight = false
-                    }
+                        width: root.width
+                        caption: qsTr("Materials")
+                        dropEnabled: true
 
-                    onDrop: {
-                        materialsSection.highlight = false
-                        rootView.acceptBundleMaterialDrop()
-                    }
+                        onDropEnter: (drag) => {
+                            drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.bundlematerial"
+                            materialsSection.highlight = drag.accepted
+                        }
 
-                    Grid {
-                        id: grid
+                        onDropExit: {
+                            materialsSection.highlight = false
+                        }
 
-                        width: scrollView.width
-                        leftPadding: 5
-                        rightPadding: 5
-                        bottomPadding: 5
-                        columns: root.width / root.cellWidth
+                        onDrop: {
+                            materialsSection.highlight = false
+                            rootView.acceptBundleMaterialDrop()
+                        }
 
-                        Repeater {
-                            id: materialRepeater
+                        Grid {
+                            id: grid
 
-                            model: materialBrowserModel
-                            delegate: MaterialItem {
-                                width: root.cellWidth
-                                height: root.cellHeight
+                            width: scrollView.width
+                            leftPadding: 5
+                            rightPadding: 5
+                            bottomPadding: 5
+                            columns: root.width / root.cellWidth
 
-                                onShowContextMenu: {
-                                    ctxMenu.popupMenu(this, model)
+                            Repeater {
+                                id: materialRepeater
+
+                                model: materialBrowserModel
+                                delegate: MaterialItem {
+                                    width: root.cellWidth
+                                    height: root.cellHeight
+
+                                    onShowContextMenu: {
+                                        ctxMenu.popupMenu(this, model)
+                                    }
                                 }
                             }
                         }
+
+                        Text {
+                            text: qsTr("No match found.");
+                            color: StudioTheme.Values.themeTextColor
+                            font.pixelSize: StudioTheme.Values.baseFontSize
+                            leftPadding: 10
+                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
+                        }
+
+                        Text {
+                            text:qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
+                            visible: materialBrowserModel.isEmpty && searchBox.isEmpty()
+                            textFormat: Text.RichText
+                            color: StudioTheme.Values.themeTextColor
+                            font.pixelSize: StudioTheme.Values.mediumFontSize
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                            width: root.width
+                        }
                     }
 
-                    Text {
-                        text: qsTr("No match found.");
-                        color: StudioTheme.Values.themeTextColor
-                        font.pixelSize: StudioTheme.Values.baseFontSize
-                        leftPadding: 10
-                        visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
-                    }
+                    IconButton {
+                        id: addMaterialButton
 
-                    Text {
-                        text:qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
-                        visible: materialBrowserModel.isEmpty && searchBox.isEmpty()
-                        textFormat: Text.RichText
-                        color: StudioTheme.Values.themeTextColor
-                        font.pixelSize: StudioTheme.Values.mediumFontSize
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.WordWrap
-                        width: root.width
+                        tooltip: qsTr("Add a material.")
+
+                        anchors.right: parent.right
+                        anchors.rightMargin: scrollView.verticalScrollBarVisible ? 10 : 0
+                        icon: StudioTheme.Constants.plus
+                        normalColor: "transparent"
+                        buttonSize: StudioTheme.Values.sectionHeadHeight
+                        onClicked: materialBrowserModel.addNewMaterial()
+                        enabled: materialBrowserModel.hasQuick3DImport
                     }
                 }
 
-                Section {
-                    id: texturesSection
-
+                Item {
                     width: root.width
-                    caption: qsTr("Textures")
+                    height: texturesSection.height
 
-                    Grid {
-                        width: scrollView.width
-                        leftPadding: 5
-                        rightPadding: 5
-                        bottomPadding: 5
-                        columns: root.width / root.cellWidth
+                    Section {
+                        id: texturesSection
 
-                        Repeater {
-                            id: texturesRepeater
+                        width: root.width
+                        caption: qsTr("Textures")
 
-                            model: materialBrowserTexturesModel
-                            delegate: TextureItem {
-                                width: root.cellWidth
-                                height: root.cellWidth
+                        Grid {
+                            width: scrollView.width
+                            leftPadding: 5
+                            rightPadding: 5
+                            bottomPadding: 5
+                            columns: root.width / root.cellWidth
 
-                                onShowContextMenu: {
-//                                    ctxMenuTexture.popupMenu(this, model) // TODO: implement textures context menu
+                            Repeater {
+                                id: texturesRepeater
+
+                                model: materialBrowserTexturesModel
+                                delegate: TextureItem {
+                                    width: root.cellWidth
+                                    height: root.cellWidth
+
+                                    onShowContextMenu: {
+    //                                    ctxMenuTexture.popupMenu(this, model) // TODO: implement textures context menu
+                                    }
                                 }
                             }
                         }
+
+                        Text {
+                            text: qsTr("No match found.");
+                            color: StudioTheme.Values.themeTextColor
+                            font.pixelSize: StudioTheme.Values.baseFontSize
+                            leftPadding: 10
+                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
+                        }
+
+                        Text {
+                            text:qsTr("There are no texture in this project.")
+                            visible: materialBrowserTexturesModel.isEmpty && searchBox.isEmpty()
+                            textFormat: Text.RichText
+                            color: StudioTheme.Values.themeTextColor
+                            font.pixelSize: StudioTheme.Values.mediumFontSize
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                            width: root.width
+                        }
                     }
 
-                    Text {
-                        text: qsTr("No match found.");
-                        color: StudioTheme.Values.themeTextColor
-                        font.pixelSize: StudioTheme.Values.baseFontSize
-                        leftPadding: 10
-                        visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
-                    }
+                    IconButton {
+                        id: addTextureButton
 
-                    Text {
-                        text:qsTr("There are no texture in this project.")
-                        visible: materialBrowserTexturesModel.isEmpty && searchBox.isEmpty()
-                        textFormat: Text.RichText
-                        color: StudioTheme.Values.themeTextColor
-                        font.pixelSize: StudioTheme.Values.mediumFontSize
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.WordWrap
-                        width: root.width
+                        tooltip: qsTr("Add a texture.")
+
+                        anchors.right: parent.right
+                        anchors.rightMargin: scrollView.verticalScrollBarVisible ? 10 : 0
+                        icon: StudioTheme.Constants.plus
+                        normalColor: "transparent"
+                        buttonSize: StudioTheme.Values.sectionHeadHeight
+                        onClicked: materialBrowserTexturesModel.addNewTexture()
+                        enabled: materialBrowserModel.hasQuick3DImport
                     }
                 }
             }

@@ -43,6 +43,7 @@ public:
     void resetModel();
 
     Q_INVOKABLE void selectTexture(int idx, bool force = false);
+    Q_INVOKABLE void addNewTexture();
     Q_INVOKABLE void duplicateTexture(int idx);
     Q_INVOKABLE void deleteTexture(int idx);
 
@@ -52,6 +53,7 @@ signals:
     void materialSectionsChanged();
     void selectedIndexChanged(int idx);
     void duplicateTextureTriggered(const QmlDesigner::ModelNode &material);
+    void addNewTextureTriggered();
 
 private:
     bool isTextureVisible(int idx) const;

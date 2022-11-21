@@ -154,6 +154,11 @@ void MaterialBrowserTexturesModel::removeTexture(const ModelNode &texture)
     }
 }
 
+void MaterialBrowserTexturesModel::addNewTexture()
+{
+    emit addNewTextureTriggered();
+}
+
 void MaterialBrowserTexturesModel::deleteSelectedTexture()
 {
     deleteTexture(m_selectedIndex);
