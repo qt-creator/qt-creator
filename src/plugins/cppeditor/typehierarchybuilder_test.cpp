@@ -16,6 +16,8 @@
 #include <QtTest>
 
 using namespace CPlusPlus;
+using namespace Utils;
+
 using CppEditor::Internal::Tests::CppTestDocument;
 
 Q_DECLARE_METATYPE(QList<CppTestDocument>)
@@ -82,7 +84,7 @@ public:
         QList<CppTestDocument> documents_ = documents;
 
         // Write files
-        QSet<QString> filePaths;
+        QSet<FilePath> filePaths;
         for (auto &document : documents_) {
             document.setBaseDirectory(temporaryDir.path());
             QVERIFY(document.writeToDisk());

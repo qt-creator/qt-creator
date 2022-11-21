@@ -251,13 +251,12 @@ InsertionPointLocator::InsertionPointLocator(const CppRefactoringChanges &refact
 }
 
 InsertionLocation InsertionPointLocator::methodDeclarationInClass(
-    const QString &fileName,
+    const Utils::FilePath &filePath,
     const Class *clazz,
     AccessSpec xsSpec,
     ForceAccessSpec forceAccessSpec) const
 {
-    const Document::Ptr doc = m_refactoringChanges.file(Utils::FilePath::fromString(fileName))
-                                  ->cppDocument();
+    const Document::Ptr doc = m_refactoringChanges.file(filePath)->cppDocument();
     if (doc) {
         FindInClass find(doc->translationUnit(), clazz);
         ClassSpecifierAST *classAST = find();

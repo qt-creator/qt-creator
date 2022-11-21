@@ -161,7 +161,7 @@ void TestCodeParser::onDocumentUpdated(const Utils::FilePath &fileName, bool isQ
 
 void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document)
 {
-    onDocumentUpdated(Utils::FilePath::fromString(document->fileName()));
+    onDocumentUpdated(document->filePath());
 }
 
 void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)

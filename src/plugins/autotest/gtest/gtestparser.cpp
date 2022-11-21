@@ -13,6 +13,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -45,14 +47,12 @@ static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    for (const QString &include : snapshot.allIncludesForDocument(doc->fileName())) {
+    for (const QString &include : snapshot.allIncludesForDocument(doc->filePath().toString())) {
         if (include.endsWith(gtestH))
             return true;
     }
 
-    return CppParser::precompiledHeaderContains(snapshot,
-                                                Utils::FilePath::fromString(doc->fileName()),
-                                                gtestH);
+    return CppParser::precompiledHeaderContains(snapshot, doc->filePath(), gtestH);
 }
 
 static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
@@ -84,7 +84,7 @@ bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureIn
             return false;
     }
 
-    const QString &filePath = doc->fileName();
+    const FilePath filePath = doc->filePath();
     const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
     document->check();

@@ -71,7 +71,7 @@ public:
     void process(const CPlusPlus::Document::Ptr document)
     {
         using namespace CPlusPlus;
-        const QString fileName = document->fileName();
+        const QString fileName = document->filePath().toString();
 
         const QList<Document::DiagnosticMessage> messages = document->diagnosticMessages();
         for (const Document::DiagnosticMessage &message : messages) {
@@ -272,7 +272,7 @@ public:
                 future.waitForResume();
             if (future.isCanceled())
                 break;
-            if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->fileName())) {
+            if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->filePath().path())) {
                 QVector<Core::SearchResultItem> resultItems;
                 auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
                     if (matcher.match(info->symbolName()).hasMatch()) {

@@ -52,7 +52,7 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
     QString files;
     for (const Document::Ptr &doc : docList) {
         files += '\n';
-        files += QDir::toNativeSeparators(doc->fileName());
+        files += doc->filePath().toUserOutput();
     }
     return Designer::Tr::tr(
         "The class containing \"%1\" could not be found in %2.\n"
@@ -241,7 +241,7 @@ static void addDeclaration(const Snapshot &snapshot,
     CppEditor::CppRefactoringChanges refactoring(snapshot);
     CppEditor::InsertionPointLocator find(refactoring);
     const CppEditor::InsertionLocation loc = find.methodDeclarationInClass(
-                fileName, cl, CppEditor::InsertionPointLocator::PrivateSlot);
+                FilePath::fromString(fileName), cl, CppEditor::InsertionPointLocator::PrivateSlot);
 
     //
     //! \todo change this to use the Refactoring changes.
@@ -339,7 +339,7 @@ static ClassDocumentPtrPair
     const Document::Ptr doc = context.thisDocument();
     const Snapshot docTable = context.snapshot();
     if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << doc->fileName() << className << maxIncludeDepth;
+        qDebug() << Q_FUNC_INFO << doc->filePath() << className << maxIncludeDepth;
     // Check document
     if (const Class *cl = findClass(doc->globalNamespace(), context, className))
         return ClassDocumentPtrPair(cl, doc);
@@ -455,8 +455,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
     DocumentMap docMap;
     for (const Document::Ptr &d : docList) {
-        const QFileInfo docFi(d->fileName());
-        docMap.insert(qAbs(docFi.absolutePath().compare(uiFolder, Qt::CaseInsensitive)), d);
+        docMap.insert(qAbs(d->filePath().absolutePath().toString()
+                           .compare(uiFolder, Qt::CaseInsensitive)), d);
     }
 
     if (Designer::Constants::Internal::debug)
@@ -501,14 +501,14 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const QString functionNameWithParameterNames = addParameterNames(functionName, parameterNames);
 
     if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << "Found " << uiClass << declDoc->fileName() << " checking " << functionName  << functionNameWithParameterNames;
+        qDebug() << Q_FUNC_INFO << "Found " << uiClass << declDoc->filePath() << " checking " << functionName  << functionNameWithParameterNames;
 
     Function *fun = findDeclaration(cl, functionName);
     QString declFilePath;
     if (!fun) {
         // add function declaration to cl
         CppEditor::WorkingCopy workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
-        declFilePath = declDoc->fileName();
+        declFilePath = declDoc->filePath().toString();
         getParsedDocument(declFilePath, workingCopy, docTable);
         addDeclaration(docTable, declFilePath, cl, functionNameWithParameterNames);
 

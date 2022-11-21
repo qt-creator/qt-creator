@@ -33,6 +33,7 @@
     QCOMPARE(document->revision(), expectedRevision);
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 using CPlusPlus::Document;
 
@@ -66,6 +67,11 @@ public:
 
     QString fileFromSourcesDir(const QString &fileName) const
     { return directory(_("sources")) + QLatin1Char('/') + fileName; }
+
+    FilePath filePath(const QString &p) const
+    {
+        return FilePath::fromString(TestDataDir::file(p));
+    }
 };
 
 QStringList toAbsolutePaths(const QStringList &relativePathList,
@@ -113,7 +119,7 @@ public:
 class FileChangerAndRestorer
 {
 public:
-    explicit FileChangerAndRestorer(const QString &filePath)
+    explicit FileChangerAndRestorer(const Utils::FilePath &filePath)
         : m_filePath(filePath)
     {
     }
@@ -127,7 +133,7 @@ public:
     bool readContents(QByteArray *contents)
     {
         Utils::FileReader fileReader;
-        const bool isFetchOk = fileReader.fetch(Utils::FilePath::fromString(m_filePath));
+        const bool isFetchOk = fileReader.fetch(m_filePath);
         if (isFetchOk) {
             m_originalFileContents = fileReader.data();
             if (contents)
@@ -148,7 +154,7 @@ private:
     }
 
     QByteArray m_originalFileContents;
-    const QString &m_filePath;
+    const Utils::FilePath m_filePath;
 };
 
 ProjectPart::ConstPtr projectPartOfEditorDocument(const QString &filePath)
@@ -216,7 +222,7 @@ void ModelManagerTest::testFrameworkHeaders()
     QCoreApplication::processEvents();
 
     QVERIFY(mm->snapshot().contains(source));
-    Document::Ptr doc = mm->document(source);
+    Document::Ptr doc = mm->document(Utils::FilePath::fromString(source));
     QVERIFY(!doc.isNull());
     CPlusPlus::Namespace *ns = doc->globalNamespace();
     QVERIFY(ns);
@@ -482,7 +488,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
 
     // Modify the file
     QTest::qSleep(1000); // Make sure the timestamp is different
-    FileChangerAndRestorer fileChangerAndRestorer(fileToChange);
+    FileChangerAndRestorer fileChangerAndRestorer(FilePath::fromString(fileToChange));
     QByteArray originalContents;
     QVERIFY(fileChangerAndRestorer.readContents(&originalContents));
     const QByteArray newFileContentes = originalContents + "\nint addedOtherGlobal;";
@@ -762,16 +768,15 @@ void ModelManagerTest::testDefinesPerProject()
 
     for (auto &i : d) {
         const QString firstDeclarationName = i.firstDeclarationName;
-        const QString fileName = i.fileName;
+        const Utils::FilePath filePath = Utils::FilePath::fromString(i.fileName);
 
-        Core::IEditor *editor = Core::EditorManager::openEditor(
-            Utils::FilePath::fromString(fileName));
+        Core::IEditor *editor = Core::EditorManager::openEditor(filePath);
         EditorCloser closer(editor);
         QVERIFY(editor);
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        Document::Ptr doc = mm->document(fileName);
+        Document::Ptr doc = mm->document(filePath);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }
 }
@@ -845,7 +850,7 @@ void ModelManagerTest::testPrecompiledHeaders()
                         Utils::Language::Cxx, false});
 
         // Check if defines from pch are considered
-        Document::Ptr document = mm->document(fileName);
+        Document::Ptr document = mm->document(Utils::FilePath::fromString(fileName));
         QCOMPARE(nameOfFirstDeclaration(document), firstDeclarationName);
 
         // Check if declarations from pch are considered
@@ -919,7 +924,7 @@ void ModelManagerTest::testDefinesPerEditor()
         parser->update({CppModelManager::instance()->workingCopy(), nullptr,
                         Utils::Language::Cxx, false});
 
-        Document::Ptr doc = mm->document(main1File);
+        Document::Ptr doc = mm->document(FilePath::fromString(main1File));
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }
 }
@@ -1154,9 +1159,9 @@ void ModelManagerTest::testDocumentsAndRevisions()
 
     // Index two files
     const MyTestDataDir testDir(_("testdata_project1"));
-    const QString filePath1 = testDir.file(QLatin1String("foo.h"));
-    const QString filePath2 = testDir.file(QLatin1String("foo.cpp"));
-    const QSet<QString> filesToIndex = {filePath1,filePath2};
+    const FilePath filePath1 = testDir.filePath(QLatin1String("foo.h"));
+    const FilePath filePath2 = testDir.filePath(QLatin1String("foo.cpp"));
+    const QSet<FilePath> filesToIndex = {filePath1,filePath2};
     QVERIFY(TestCase::parseFiles(filesToIndex));
 
     CppModelManager *modelManager = CppModelManager::instance();
@@ -1167,7 +1172,7 @@ void ModelManagerTest::testDocumentsAndRevisions()
     TextEditor::BaseTextEditor *editor1;
     QVERIFY(helper.openCppEditor(filePath1, &editor1));
     helper.closeEditorAtEndOfTestCase(editor1);
-    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath1));
+    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath1.toString()));
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 2U);
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 1U);
 
@@ -1180,7 +1185,7 @@ void ModelManagerTest::testDocumentsAndRevisions()
     TextEditor::BaseTextEditor *editor2;
     QVERIFY(helper.openCppEditor(filePath2, &editor2));
     helper.closeEditorAtEndOfTestCase(editor2);
-    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath2));
+    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath2.toString()));
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 3U);
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 3U);
 

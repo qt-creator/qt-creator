@@ -496,7 +496,7 @@ void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QStr
     const Utils::Id category = Utils::Id::fromString(kind);
 
     for (const auto &diagnostic : mm()->diagnosticMessages()) {
-        if (FilePath::fromString(diagnostic.fileName()) == filePath()) {
+        if (diagnostic.filePath() == filePath()) {
             auto it = std::find_if(std::begin(removedMarks),
                                    std::end(removedMarks),
                                    [&category, &diagnostic](TextMark *existing) {

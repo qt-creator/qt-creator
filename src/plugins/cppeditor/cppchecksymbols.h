@@ -170,7 +170,7 @@ private:
     CPlusPlus::Document::Ptr _doc;
     CPlusPlus::LookupContext _context;
     CPlusPlus::TypeOfExpression typeOfExpression;
-    QString _fileName;
+    Utils::FilePath _filePath;
     QSet<QByteArray> _potentialTypes;
     QSet<QByteArray> _potentialFields;
     QSet<QByteArray> _potentialFunctions;

@@ -275,7 +275,7 @@ void Manager::initialize()
         if (doc.data() == nullptr)
             return;
 
-        d->m_awaitingDocuments.insert(FilePath::fromString(doc->fileName()));
+        d->m_awaitingDocuments.insert(doc->filePath());
         d->m_timer.start(400); // Accumulate multiple requests into one, restarts the timer
     });
 

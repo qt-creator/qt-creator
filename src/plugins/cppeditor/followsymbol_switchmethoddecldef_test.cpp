@@ -62,6 +62,7 @@ using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 class OverrideItem
 {
@@ -256,7 +257,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QVERIFY(testFile->baseDirectory().isEmpty());
         testFile->setBaseDirectory(temporaryDir.path());
         QVERIFY(testFile->writeToDisk());
-        projectFileContent += QString::fromLatin1("\"%1\",").arg(testFile->filePath());
+        projectFileContent += QString::fromLatin1("\"%1\",")
+                .arg(testFile->filePath().toString());
     }
     projectFileContent += "]}\n";
 
@@ -272,9 +274,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
         CppTestDocument projectFile("project.qbs", projectFileContent.toUtf8());
         projectFile.setBaseDirectory(temporaryDir.path());
         QVERIFY(projectFile.writeToDisk());
-        const auto openProjectResult =
-                ProjectExplorerPlugin::openProject(
-                    Utils::FilePath::fromString(projectFile.filePath()));
+        const auto openProjectResult = ProjectExplorerPlugin::openProject(projectFile.filePath());
         QVERIFY2(openProjectResult && openProjectResult.project(),
                  qPrintable(openProjectResult.errorMessage()));
         projectCloser.setProject(openProjectResult.project());
@@ -286,7 +286,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     }
 
     // Update Code Model
-    QSet<QString> filePaths;
+    QSet<FilePath> filePaths;
    for (const TestDocumentPtr &testFile : testFiles)
         filePaths << testFile->filePath();
     QVERIFY(parseFiles(filePaths));
@@ -302,7 +302,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         // The file is "Full Checked" since it is in the working copy now,
         // that is the function bodies are processed.
         forever {
-            const Document::Ptr document = waitForFileInGlobalSnapshot(testFile->filePath());
+            const Document::Ptr document =
+                    waitForFileInGlobalSnapshot(testFile->filePath().toString());
             QVERIFY(document);
             if (document->checkMode() == Document::FullCheck) {
                 if (!document->diagnosticMessages().isEmpty())
@@ -405,7 +406,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     BaseTextEditor *currentTextEditor = dynamic_cast<BaseTextEditor*>(currentEditor);
     QVERIFY(currentTextEditor);
 
-    QCOMPARE(currentTextEditor->document()->filePath().toString(), targetTestFile->filePath());
+    QCOMPARE(currentTextEditor->document()->filePath(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
     if (useClangd && expectedVirtualFunctionProposal.size() == 1) {
         expectedLine = expectedVirtualFunctionProposal.first().line;

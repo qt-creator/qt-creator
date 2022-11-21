@@ -137,15 +137,15 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         // Remove changed files from the snapshot
         QSet<Utils::FilePath> toRemove;
         for (const Document::Ptr &doc : std::as_const(state.snapshot)) {
-            const Utils::FilePath fileName = Utils::FilePath::fromString(doc->fileName());
-            if (workingCopy.contains(fileName)) {
-                if (workingCopy.get(fileName).second != doc->editorRevision())
-                    addFileAndDependencies(&state.snapshot, &toRemove, fileName);
+            const Utils::FilePath filePath = doc->filePath();
+            if (workingCopy.contains(filePath)) {
+                if (workingCopy.get(filePath).second != doc->editorRevision())
+                    addFileAndDependencies(&state.snapshot, &toRemove, filePath);
                 continue;
             }
-            Document::Ptr otherDoc = globalSnapshot.document(fileName);
+            Document::Ptr otherDoc = globalSnapshot.document(filePath);
             if (!otherDoc.isNull() && otherDoc->revision() != doc->revision())
-                addFileAndDependencies(&state.snapshot, &toRemove, fileName);
+                addFileAndDependencies(&state.snapshot, &toRemove, filePath);
         }
 
         if (!toRemove.isEmpty()) {
@@ -165,9 +165,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         state.snapshot.remove(filePath());
 
         Internal::CppSourceProcessor sourceProcessor(state.snapshot, [&](const Document::Ptr &doc) {
-            const QString fileName = doc->fileName();
-            const bool isInEditor = fileName == filePath();
-            Document::Ptr otherDoc = modelManager->document(fileName);
+            const bool isInEditor = doc->filePath().toString() == filePath();
+            Document::Ptr otherDoc = modelManager->document(doc->filePath());
             unsigned newRev = otherDoc.isNull() ? 1U : otherDoc->revision() + 1;
             if (isInEditor)
                 newRev = qMax(rev + 1, newRev);

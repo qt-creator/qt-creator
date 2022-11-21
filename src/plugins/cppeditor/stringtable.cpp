@@ -56,6 +56,11 @@ StringTablePrivate::StringTablePrivate()
     connect(&m_gcCountDown, &QTimer::timeout, this, &StringTablePrivate::startGC);
 }
 
+QString StringTable::insert(const Utils::FilePath &path)
+{
+    return m_instance->insert(path.path());
+}
+
 QString StringTable::insert(const QString &string)
 {
     return m_instance->insert(string);

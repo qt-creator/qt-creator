@@ -215,7 +215,7 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
     if (doc.isNull())
         return ParserTreeItem::ConstPtr();
 
-    const FilePath fileName = FilePath::fromString(doc->fileName());
+    const FilePath fileName = doc->filePath();
 
     ParserTreeItem::ConstPtr itemPtr = ParserTreeItem::parseDocument(doc);
 
@@ -235,8 +235,7 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
     if (doc.isNull())
         return ParserTreeItem::ConstPtr();
 
-    const QString &fileName = doc->fileName();
-    const auto it = d->m_documentCache.constFind(FilePath::fromString(fileName));
+    const auto it = d->m_documentCache.constFind(doc->filePath());
     if (it != d->m_documentCache.constEnd() && !it.value().tree.isNull()
             && it.value().treeRevision == doc->revision()) {
         return it.value().tree;

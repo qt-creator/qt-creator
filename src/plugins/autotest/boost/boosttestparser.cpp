@@ -57,14 +57,12 @@ static bool includesBoostTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    for (const QString &include : snapshot.allIncludesForDocument(doc->fileName())) {
+    for (const QString &include : snapshot.allIncludesForDocument(doc->filePath().toString())) {
         if (boostTestHpp.match(include).hasMatch())
             return true;
     }
 
-    return CppParser::precompiledHeaderContains(snapshot,
-                                                Utils::FilePath::fromString(doc->fileName()),
-                                                boostTestHpp);
+    return CppParser::precompiledHeaderContains(snapshot, doc->filePath(), boostTestHpp);
 }
 
 static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)

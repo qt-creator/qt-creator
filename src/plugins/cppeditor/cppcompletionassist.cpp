@@ -1480,7 +1480,7 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
 
     addKeywords();
     addMacros(CppModelManager::configurationFileName(), context.snapshot());
-    addMacros(context.thisDocument()->fileName(), context.snapshot());
+    addMacros(context.thisDocument()->filePath().toString(), context.snapshot());
     addSnippets();
     return !m_completions.isEmpty();
 }
@@ -1860,10 +1860,10 @@ void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snap
 {
     Document::Ptr doc = snapshot.document(fileName);
 
-    if (!doc || processed->contains(doc->fileName()))
+    if (!doc || processed->contains(doc->filePath().path()))
         return;
 
-    processed->insert(doc->fileName());
+    processed->insert(doc->filePath().path());
 
     const QList<Document::Include> includes = doc->resolvedIncludes();
     for (const Document::Include &i : includes)

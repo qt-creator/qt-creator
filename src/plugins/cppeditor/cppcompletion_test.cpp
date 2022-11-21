@@ -26,9 +26,11 @@
 /*!
     Tests for code completion.
  */
+
+using namespace Core;
 using namespace CPlusPlus;
 using namespace TextEditor;
-using namespace Core;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 namespace {
@@ -53,11 +55,11 @@ public:
         m_temporaryDir.reset(new CppEditor::Tests::TemporaryDir());
         QVERIFY(m_temporaryDir->isValid());
         const QByteArray fileExt = isObjC ? "mm" : "h";
-        const QString fileName = m_temporaryDir->createFile("file." + fileExt, m_source);
-        QVERIFY(!fileName.isEmpty());
+        const FilePath filePath = m_temporaryDir->createFile("file." + fileExt, m_source);
+        QVERIFY(!filePath.isEmpty());
 
         // Open in editor
-        m_editor = EditorManager::openEditor(Utils::FilePath::fromString(fileName));
+        m_editor = EditorManager::openEditor(filePath);
         QVERIFY(m_editor);
         closeEditorAtEndOfTestCase(m_editor);
         m_editorWidget = TextEditorWidget::fromEditor(m_editor);
@@ -66,7 +68,7 @@ public:
         m_textDocument = m_editorWidget->document();
 
         // Get Document
-        const Document::Ptr document = waitForFileInGlobalSnapshot(fileName);
+        const Document::Ptr document = waitForFileInGlobalSnapshot(filePath.toString());
         QVERIFY(document);
         QVERIFY(document->diagnosticMessages().isEmpty());
 

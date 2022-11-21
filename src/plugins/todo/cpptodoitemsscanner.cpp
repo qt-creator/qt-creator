@@ -46,7 +46,7 @@ void CppTodoItemsScanner::scannerParamsChanged()
 void CppTodoItemsScanner::documentUpdated(CPlusPlus::Document::Ptr doc)
 {
     CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
-    if (!modelManager->projectPart(doc->fileName()).isEmpty())
+    if (!modelManager->projectPart(doc->filePath()).isEmpty())
         processDocument(doc);
 }
 
@@ -84,13 +84,13 @@ void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
             const int length = end - start + 1;
             if (length > 0) {
                 QString commentLine = QString::fromUtf8(start, length);
-                processCommentLine(doc->fileName(), commentLine, lineNumber, itemList);
+                processCommentLine(doc->filePath().toString(), commentLine, lineNumber, itemList);
             }
 
             from = to + 1;
         }
     }
-    emit itemsFetched(doc->fileName(), itemList);
+    emit itemsFetched(doc->filePath().toString(), itemList);
 }
 
 }

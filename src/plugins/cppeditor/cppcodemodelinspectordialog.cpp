@@ -33,6 +33,8 @@
 #include <numeric>
 
 using namespace CPlusPlus;
+using namespace Utils;
+
 namespace CMI = CppEditor::CppCodeModelInspector;
 
 namespace {
@@ -48,11 +50,11 @@ TextEditor::BaseTextEditor *currentEditor()
     return qobject_cast<TextEditor::BaseTextEditor*>(Core::EditorManager::currentEditor());
 }
 
-QString fileInCurrentEditor()
+Utils::FilePath fileInCurrentEditor()
 {
     if (TextEditor::BaseTextEditor *editor = currentEditor())
-        return editor->document()->filePath().toString();
-    return QString();
+        return editor->document()->filePath();
+    return {};
 }
 
 QSizePolicy sizePolicyWithStretchFactor(int stretchFactor)
@@ -435,7 +437,7 @@ public:
     void configure(const Snapshot &snapshot);
     void setGlobalSnapshot(const Snapshot &snapshot);
 
-    QModelIndex indexForDocument(const QString &filePath);
+    QModelIndex indexForDocument(const Utils::FilePath &filePath);
 
     enum Columns { SymbolCountColumn, SharedColumn, FilePathColumn, ColumnCount };
 
@@ -465,11 +467,11 @@ void SnapshotModel::setGlobalSnapshot(const Snapshot &snapshot)
     m_globalSnapshot = snapshot;
 }
 
-QModelIndex SnapshotModel::indexForDocument(const QString &filePath)
+QModelIndex SnapshotModel::indexForDocument(const FilePath &filePath)
 {
     for (int i = 0, total = m_documents.size(); i < total; ++i) {
         const Document::Ptr document = m_documents.at(i);
-        if (document->fileName() == filePath)
+        if (document->filePath() == filePath)
             return index(i, FilePathColumn);
     }
     return {};
@@ -493,12 +495,12 @@ QVariant SnapshotModel::data(const QModelIndex &index, int role) const
         if (column == SymbolCountColumn) {
             return document->control()->symbolCount();
         } else if (column == SharedColumn) {
-            Document::Ptr globalDocument = m_globalSnapshot.document(document->fileName());
+            Document::Ptr globalDocument = m_globalSnapshot.document(document->filePath());
             const bool isShared
                 = globalDocument && globalDocument->fingerprint() == document->fingerprint();
             return CMI::Utils::toString(isShared);
         } else if (column == FilePathColumn) {
-            return QDir::toNativeSeparators(document->fileName());
+            return document->filePath().toUserOutput();
         }
     }
     return QVariant();
@@ -1200,7 +1202,7 @@ public:
     WorkingCopyModel(QObject *parent);
 
     void configure(const WorkingCopy &workingCopy);
-    QModelIndex indexForFile(const QString &filePath);
+    QModelIndex indexForFile(const Utils::FilePath &filePath);
 
     enum Columns { RevisionColumn, FilePathColumn, ColumnCount };
 
@@ -1211,11 +1213,11 @@ public:
 
 private:
     struct WorkingCopyEntry {
-        WorkingCopyEntry(const QString &filePath, const QByteArray &source, unsigned revision)
+        WorkingCopyEntry(const Utils::FilePath &filePath, const QByteArray &source, unsigned revision)
             : filePath(filePath), source(source), revision(revision)
         {}
 
-        QString filePath;
+        Utils::FilePath filePath;
         QByteArray source;
         unsigned revision;
     };
@@ -1232,14 +1234,13 @@ void WorkingCopyModel::configure(const WorkingCopy &workingCopy)
     emit layoutAboutToBeChanged();
     m_workingCopyList.clear();
     const WorkingCopy::Table &elements = workingCopy.elements();
-    for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
-        m_workingCopyList << WorkingCopyEntry(it.key().toString(), it.value().first,
-                                              it.value().second);
-    }
+    for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it)
+        m_workingCopyList << WorkingCopyEntry(it.key(), it.value().first, it.value().second);
+
     emit layoutChanged();
 }
 
-QModelIndex WorkingCopyModel::indexForFile(const QString &filePath)
+QModelIndex WorkingCopyModel::indexForFile(const Utils::FilePath &filePath)
 {
     for (int i = 0, total = m_workingCopyList.size(); i < total; ++i) {
         const WorkingCopyEntry entry = m_workingCopyList.at(i);
@@ -1267,7 +1268,7 @@ QVariant WorkingCopyModel::data(const QModelIndex &index, int role) const
         if (column == RevisionColumn)
             return m_workingCopyList.at(row).revision;
         else if (column == FilePathColumn)
-            return m_workingCopyList.at(row).filePath;
+            return m_workingCopyList.at(row).filePath.toString();
     } else if (role == Qt::UserRole) {
         return m_workingCopyList.at(row).source;
     }
@@ -1659,14 +1660,14 @@ void CppCodeModelInspectorDialog::updateDocumentData(const Document::Ptr &docume
 
     // General
     const KeyValueModel::Table table = {
-        {QString::fromLatin1("File Path"), QDir::toNativeSeparators(document->fileName())},
+        {QString::fromLatin1("File Path"), document->filePath().toUserOutput()},
         {QString::fromLatin1("Last Modified"), CMI::Utils::toString(document->lastModified())},
         {QString::fromLatin1("Revision"), CMI::Utils::toString(document->revision())},
         {QString::fromLatin1("Editor Revision"), CMI::Utils::toString(document->editorRevision())},
         {QString::fromLatin1("Check Mode"), CMI::Utils::toString(document->checkMode())},
         {QString::fromLatin1("Tokenized"), CMI::Utils::toString(document->isTokenized())},
         {QString::fromLatin1("Parsed"), CMI::Utils::toString(document->isParsed())},
-        {QString::fromLatin1("Project Parts"), CMI::Utils::partsForFile(document->fileName())}
+        {QString::fromLatin1("Project Parts"), CMI::Utils::partsForFile(document->filePath())}
     };
     m_docGenericInfoModel->configure(table);
     resizeColumns<KeyValueModel>(m_ui->docGeneralView);

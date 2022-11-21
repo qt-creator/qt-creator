@@ -45,7 +45,8 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
     Environment env;
     Preprocessor preprocess(nullptr, &env);
     const QByteArray preprocessedSource
-        = preprocess.run(QLatin1String("<no-file>"), textDocument->toPlainText().toUtf8());
+        = preprocess.run(Utils::FilePath::fromParts({}, {}, u"<no-file>"),
+                         textDocument->toPlainText().toUtf8());
 
     Document::Ptr cppDocument = Document::create(QLatin1String("<no-file>"));
     cppDocument->setUtf8Source(preprocessedSource);

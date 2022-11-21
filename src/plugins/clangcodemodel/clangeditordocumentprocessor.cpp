@@ -41,7 +41,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocum
     connect(static_cast<CppEditor::BuiltinEditorDocumentParser *>(parser().data()),
             &CppEditor::BuiltinEditorDocumentParser::finished,
             this, [this] {
-        emit parserConfigChanged(Utils::FilePath::fromString(filePath()), parserConfig());
+        emit parserConfigChanged(filePath(), parserConfig());
     });
     setSemanticHighlightingChecker([this] {
         return !ClangModelManagerSupport::clientForFile(m_document.filePath());
@@ -84,7 +84,7 @@ void ClangEditorDocumentProcessor::setParserConfig(
         const CppEditor::BaseEditorDocumentParser::Configuration &config)
 {
     CppEditor::BuiltinEditorDocumentProcessor::setParserConfig(config);
-    emit parserConfigChanged(Utils::FilePath::fromString(filePath()), config);
+    emit parserConfigChanged(filePath(), config);
 }
 
 CppEditor::BaseEditorDocumentParser::Configuration ClangEditorDocumentProcessor::parserConfig()

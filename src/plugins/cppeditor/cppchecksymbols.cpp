@@ -312,7 +312,7 @@ void CheckSymbols::run()
 {
     CollectSymbols collectTypes(_doc, _context.snapshot());
 
-    _fileName = _doc->fileName();
+    _filePath = _doc->filePath();
     _potentialTypes = collectTypes.types();
     _potentialFields = collectTypes.fields();
     _potentialFunctions = collectTypes.functions();
@@ -334,7 +334,7 @@ void CheckSymbols::run()
 
 bool CheckSymbols::warning(unsigned line, unsigned column, const QString &text, unsigned length)
 {
-    Document::DiagnosticMessage m(Document::DiagnosticMessage::Warning, _fileName, line, column, text, length);
+    Document::DiagnosticMessage m(Document::DiagnosticMessage::Warning, _filePath, line, column, text, length);
     _diagMsgs.append(m);
     return false;
 }

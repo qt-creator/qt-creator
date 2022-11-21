@@ -51,6 +51,7 @@
 using namespace Core;
 using namespace CPlusPlus;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor::Internal::Tests {
 
@@ -158,7 +159,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         QCOMPARE(DocumentModel::openedDocuments().size(), 0);
         BaseTextEditor *editor;
         CppEditorWidget *editorWidget;
-        QVERIFY(openCppEditor(filePath, &editor, &editorWidget));
+        QVERIFY(openCppEditor(FilePath::fromString(filePath), &editor, &editorWidget));
 
         QCOMPARE(DocumentModel::openedDocuments().size(), 1);
         QVERIFY(m_modelManager->isCppEditor(editor));

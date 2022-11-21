@@ -22,7 +22,7 @@ namespace CppEditor {
 */
 
 BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(QTextDocument *textDocument,
-                                                         const QString &filePath)
+                                                         const Utils::FilePath &filePath)
     : m_filePath(filePath),
       m_textDocument(textDocument)
 {

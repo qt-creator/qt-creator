@@ -263,10 +263,10 @@ QSet<QString> CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr>
         const QDateTime lastModified = doc->lastModified();
 
         if (!lastModified.isNull()) {
-            QFileInfo fileInfo(doc->fileName());
+            const FilePath filePath = doc->filePath();
 
-            if (fileInfo.exists() && fileInfo.lastModified() != lastModified)
-                sourceFiles.insert(doc->fileName());
+            if (filePath.exists() && filePath.lastModified() != lastModified)
+                sourceFiles.insert(filePath.toString());
         }
     }
 
@@ -286,7 +286,7 @@ CppSourceProcessor *CppModelManager::createSourceProcessor()
 {
     CppModelManager *that = instance();
     return new CppSourceProcessor(that->snapshot(), [that](const Document::Ptr &doc) {
-        const Document::Ptr previousDocument = that->document(doc->fileName());
+        const Document::Ptr previousDocument = that->document(doc->filePath());
         const unsigned newRevision = previousDocument.isNull()
                 ? 1U
                 : previousDocument->revision() + 1;
@@ -816,10 +816,10 @@ Snapshot CppModelManager::snapshot() const
     return d->m_snapshot;
 }
 
-Document::Ptr CppModelManager::document(const QString &fileName) const
+Document::Ptr CppModelManager::document(const FilePath &filePath) const
 {
     QMutexLocker locker(&d->m_snapshotMutex);
-    return d->m_snapshot.document(fileName);
+    return d->m_snapshot.document(filePath);
 }
 
 /// Replace the document in the snapshot.
@@ -829,7 +829,7 @@ bool CppModelManager::replaceDocument(Document::Ptr newDoc)
 {
     QMutexLocker locker(&d->m_snapshotMutex);
 
-    Document::Ptr previous = d->m_snapshot.document(newDoc->fileName());
+    Document::Ptr previous = d->m_snapshot.document(newDoc->filePath());
     if (previous && (newDoc->revision() != 0 && newDoc->revision() < previous->revision()))
         // the new document is outdated
         return false;
@@ -1617,7 +1617,7 @@ void CppModelManager::renameIncludes(const Utils::FilePath &oldFilePath,
     const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
         isUiFile ? oldFileName : oldFilePath.toString());
     for (const Snapshot::IncludeLocation &loc : locations) {
-        const auto filePath = FilePath::fromString(loc.first->fileName());
+        const FilePath filePath = loc.first->filePath();
 
         // Larger projects can easily have more than one ui file with the same name.
         // Replace only if ui file and including source file belong to the same product.

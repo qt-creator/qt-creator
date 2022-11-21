@@ -248,7 +248,7 @@ protected:
             translationUnit()->getTokenStartPosition(nameExp->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
-                        _doc->fileName(),
+                        _doc->filePath(),
                         line, column,
                         QmlJS::FindExportedCppTypes::tr(
                             "The type will only be available in the QML editors when the type name is a string literal."));
@@ -309,7 +309,7 @@ protected:
             translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
-                        _doc->fileName(),
+                        _doc->filePath(),
                         line, column,
                         QmlJS::FindExportedCppTypes::tr(
                             "The module URI cannot be determined by static analysis. The type will not be available\n"
@@ -491,7 +491,7 @@ protected:
             translationUnit()->getTokenStartPosition(ast->expression_list->value->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
-                        _doc->fileName(),
+                        _doc->filePath(),
                         line, column,
                         QmlJS::FindExportedCppTypes::tr(
                             "must be a string literal to be available in the QML editor"));
@@ -840,7 +840,7 @@ QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &doc
     FindExportsVisitor finder(document);
     finder();
     static const QString kindKey = QLatin1String("QmlJSTools.ExportedQmlTypesDiagnostic");
-    CppModelManagerBase::trySetExtraDiagnostics(document->fileName(), kindKey,
+    CppModelManagerBase::trySetExtraDiagnostics(document->filePath().toString(), kindKey,
                                                 finder.messages());
 
     // if nothing was found, done
@@ -852,7 +852,8 @@ QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &doc
     // context properties need lookup inside function scope, and thus require a full check
     CPlusPlus::Document::Ptr localDoc = document;
     if (document->checkMode() != CPlusPlus::Document::FullCheck && !contextPropertyDescriptions.isEmpty()) {
-        localDoc = m_snapshot.documentFromSource(document->utf8Source(), document->fileName());
+        localDoc = m_snapshot.documentFromSource(document->utf8Source(),
+                                                 document->filePath().toString());
         localDoc->check();
     }
 

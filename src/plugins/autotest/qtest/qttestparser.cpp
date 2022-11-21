@@ -12,6 +12,8 @@
 
 #include <QRegularExpressionMatchIterator>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -51,7 +53,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
         }
     }
 
-    const QSet<QString> allIncludes = snapshot.allIncludesForDocument(doc->fileName());
+    const QSet<QString> allIncludes = snapshot.allIncludesForDocument(doc->filePath().toString());
     for (const QString &include : allIncludes) {
         for (const QString &prefix : expectedHeaderPrefixes) {
         if (include.endsWith(QString("%1/qtest.h").arg(prefix)))
@@ -61,7 +63,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
 
     for (const QString &prefix : expectedHeaderPrefixes) {
         if (CppParser::precompiledHeaderContains(snapshot,
-                                                 Utils::FilePath::fromString(doc->fileName()),
+                                                 doc->filePath(),
                                                  QString("%1/qtest.h").arg(prefix))) {
             return true;
         }
@@ -82,10 +84,10 @@ static bool qtTestLibDefined(const Utils::FilePath &fileName)
 }
 
 TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager,
-                                  const Utils::FilePath &fileName) const
+                                  const Utils::FilePath &filePath) const
 {
-    const QByteArray &fileContent = getFileContent(fileName);
-    CPlusPlus::Document::Ptr document = modelManager->document(fileName.toString());
+    const QByteArray &fileContent = getFileContent(filePath);
+    CPlusPlus::Document::Ptr document = modelManager->document(filePath);
     if (document.isNull())
         return {};
 
@@ -101,7 +103,7 @@ TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager
         }
     }
     // check if one has used a self-defined macro or QTest::qExec() directly
-    document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
+    document = m_cppSnapshot.preprocessedDocument(fileContent, filePath);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     TestAstVisitor astVisitor(document, m_cppSnapshot);
@@ -288,7 +290,7 @@ static QtTestCodeLocationList tagLocationsFor(const QtTestParseResult *func,
 
 static bool isQObject(const CPlusPlus::Document::Ptr &declaringDoc)
 {
-    const QString file = declaringDoc->fileName();
+    const FilePath file = declaringDoc->filePath();
     return (Utils::HostOsInfo::isMacHost() && file.endsWith("QtCore.framework/Headers/qobject.h"))
             || file.endsWith("QtCore/qobject.h")  || file.endsWith("kernel/qobject.h");
 }
@@ -337,8 +339,7 @@ std::optional<bool> QtTestParser::fillTestCaseData(
         const QString &testCaseName, const CPlusPlus::Document::Ptr &doc,
         TestCaseData &data) const
 {
-    const Utils::FilePath filePath = Utils::FilePath::fromString(doc->fileName());
-    const Utils::FilePaths &alternativeFiles = m_alternativeFiles.values(filePath);
+    const FilePaths &alternativeFiles = m_alternativeFiles.values(doc->filePath());
     CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, m_cppSnapshot, testCaseName,
                                                               alternativeFiles,
                                                               &(data.line), &(data.column));
@@ -364,7 +365,7 @@ std::optional<bool> QtTestParser::fillTestCaseData(
     for (const Utils::FilePath &file : files)
         Utils::addToHash(&(data.dataTags), checkForDataTags(file));
 
-    data.fileName = Utils::FilePath::fromString(declaringDoc->fileName());
+    data.fileName = declaringDoc->filePath();
     data.valid = true;
     return std::optional<bool>();
 }

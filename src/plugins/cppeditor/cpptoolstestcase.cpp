@@ -84,15 +84,15 @@ TestDocumentPtr CppTestDocument::create(const QByteArray &fileName, const QByteA
     return doc;
 }
 
-QString CppTestDocument::filePath() const
+FilePath CppTestDocument::filePath() const
 {
     if (!m_baseDirectory.isEmpty())
-        return QDir::cleanPath(m_baseDirectory + QLatin1Char('/') + m_fileName);
+        return FilePath::fromString(QDir::cleanPath(m_baseDirectory + '/' + m_fileName));
 
     if (!QFileInfo(m_fileName).isAbsolute())
-        return Utils::TemporaryDirectory::masterDirectoryPath() + '/' + m_fileName;
+        return FilePath::fromString(TemporaryDirectory::masterDirectoryPath() + '/' + m_fileName);
 
-    return m_fileName;
+    return FilePath::fromString(m_fileName);
 }
 
 bool CppTestDocument::writeToDisk() const
@@ -212,11 +212,11 @@ bool TestCase::succeededSoFar() const
     return m_succeededSoFar;
 }
 
-bool TestCase::openCppEditor(const QString &fileName, TextEditor::BaseTextEditor **editor,
+bool TestCase::openCppEditor(const FilePath &filePath, TextEditor::BaseTextEditor **editor,
                              CppEditorWidget **editorWidget)
 {
     if (const auto e = dynamic_cast<TextEditor::BaseTextEditor *>(
-            Core::EditorManager::openEditor(FilePath::fromString(fileName)))) {
+            Core::EditorManager::openEditor(filePath))) {
         if (editor) {
             *editor = e;
             TextEditor::StorageSettings s = e->textDocument()->storageSettings();
@@ -281,16 +281,17 @@ CPlusPlus::Document::Ptr TestCase::waitForRehighlightedSemanticDocument(CppEdito
     return editorWidget->semanticInfo().doc;
 }
 
-bool TestCase::parseFiles(const QSet<QString> &filePaths)
+bool TestCase::parseFiles(const QSet<FilePath> &filePaths)
 {
-    CppModelManager::instance()->updateSourceFiles(filePaths).waitForFinished();
+    QSet<QString> filePaths_ = transform(filePaths, &FilePath::toString);
+    CppModelManager::instance()->updateSourceFiles(filePaths_).waitForFinished();
     QCoreApplication::processEvents();
     const CPlusPlus::Snapshot snapshot = globalSnapshot();
     if (snapshot.isEmpty()) {
         qWarning("After parsing: snapshot is empty.");
         return false;
     }
-    if (!snapshotContains(snapshot, filePaths)) {
+    if (!snapshotContains(snapshot, filePaths_)) {
         qWarning("After parsing: snapshot does not contain all expected files.");
         return false;
     }
@@ -299,7 +300,7 @@ bool TestCase::parseFiles(const QSet<QString> &filePaths)
 
 bool TestCase::parseFiles(const QString &filePath)
 {
-    return parseFiles(QSet<QString>{filePath});
+    return parseFiles({FilePath::fromString(filePath)});
 }
 
 void TestCase::closeEditorAtEndOfTestCase(Core::IEditor *editor)
@@ -355,11 +356,11 @@ bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
         timeOutInMs);
 }
 
-bool TestCase::writeFile(const QString &filePath, const QByteArray &contents)
+bool TestCase::writeFile(const FilePath &filePath, const QByteArray &contents)
 {
-    Utils::FileSaver saver(Utils::FilePath::fromString(filePath));
+    Utils::FileSaver saver(filePath);
     if (!saver.write(contents) || !saver.finalize()) {
-        qWarning() << "Failed to write file to disk:" << qPrintable(filePath);
+        qWarning() << "Failed to write file to disk:" << qPrintable(filePath.toUserOutput());
         return false;
     }
     return true;
@@ -419,15 +420,15 @@ TemporaryDir::TemporaryDir()
 {
 }
 
-QString TemporaryDir::createFile(const QByteArray &relativePath, const QByteArray &contents)
+FilePath TemporaryDir::createFile(const QByteArray &relativePath, const QByteArray &contents)
 {
     const QString relativePathString = QString::fromUtf8(relativePath);
     if (relativePathString.isEmpty() || QFileInfo(relativePathString).isAbsolute())
-        return QString();
+        return {};
 
-    const QString filePath = m_temporaryDir.filePath(relativePathString).path();
+    const FilePath filePath = m_temporaryDir.filePath(relativePathString);
     if (!TestCase::writeFile(filePath, contents))
-        return QString();
+        return {};
     return filePath;
 }
 

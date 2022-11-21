@@ -9,6 +9,8 @@
 #include <cplusplus/TranslationUnit.h>
 #include <cplusplus/pp-engine.h>
 
+#include <utils/filepath.h>
+
 #include <QtTest>
 #include <QDebug>
 

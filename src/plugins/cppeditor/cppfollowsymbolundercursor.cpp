@@ -182,8 +182,8 @@ Class *VirtualFunctionHelper::staticClassOfFunctionCallExpression_internal() con
 Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snapshot &snapshot,
                           QSet<QString> *processed)
 {
-    if (doc && !name.startsWith('<') && !processed->contains(doc->fileName())) {
-        processed->insert(doc->fileName());
+    if (doc && !name.startsWith('<') && !processed->contains(doc->filePath().path())) {
+        processed->insert(doc->filePath().path());
 
         for (const Macro &macro : doc->definedMacros()) {
             if (macro.name() == name) {

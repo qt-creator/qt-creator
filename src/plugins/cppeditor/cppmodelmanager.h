@@ -118,7 +118,7 @@ public:
     ProjectPart::ConstPtr fallbackProjectPart();
 
     CPlusPlus::Snapshot snapshot() const override;
-    Document::Ptr document(const QString &fileName) const;
+    Document::Ptr document(const Utils::FilePath &filePath) const;
     bool replaceDocument(Document::Ptr newDoc);
 
     void emitDocumentUpdated(Document::Ptr doc);

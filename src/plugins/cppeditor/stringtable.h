@@ -3,13 +3,14 @@
 
 #pragma once
 
-#include <QString>
+#include <utils/filepath.h>
 
 namespace CppEditor::Internal {
 
 class StringTable
 {
 public:
+    static QString insert(const Utils::FilePath &string);
     static QString insert(const QString &string);
     static void scheduleGC();
 

@@ -20,6 +20,7 @@
 #include <utils/qtcassert.h>
 
 using namespace QmlJS;
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -59,7 +60,7 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
         }
     }
 
-    for (const QString &include : snapshot.allIncludesForDocument(doc->fileName())) {
+    for (const QString &include : snapshot.allIncludesForDocument(doc->filePath().toString())) {
         for (const QString &prefix : expectedHeaderPrefixes) {
             if (include.endsWith(QString("%1/quicktest.h").arg(prefix)))
                 return true;
@@ -68,7 +69,7 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
 
     for (const QString &prefix : expectedHeaderPrefixes) {
         if (CppParser::precompiledHeaderContains(snapshot,
-                                                 Utils::FilePath::fromString(doc->fileName()),
+                                                 doc->filePath(),
                                                  QString("%1/quicktest.h").arg(prefix))) {
             return true;
         }
@@ -101,7 +102,7 @@ static QString quickTestSrcDir(const CppEditor::CppModelManager *cppMM,
 QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) const
 {
     const QList<CPlusPlus::Document::MacroUse> macros = doc->macroUses();
-    const Utils::FilePath filePath = Utils::FilePath::fromString(doc->fileName());
+    const Utils::FilePath filePath = doc->filePath();
 
     for (const CPlusPlus::Document::MacroUse &macro : macros) {
         if (!macro.isFunctionLike() || macro.arguments().isEmpty())
@@ -253,11 +254,11 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> &fu
     if (quickTestName(document).isEmpty())
         return false;
 
-    QList<CppEditor::ProjectPart::ConstPtr> ppList = modelManager->projectPart(document->fileName());
+    QList<CppEditor::ProjectPart::ConstPtr> ppList = modelManager->projectPart(document->filePath());
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
-    const Utils::FilePath cppFileName = Utils::FilePath::fromString(document->fileName());
-    const Utils::FilePath proFile = Utils::FilePath::fromString(ppList.at(0)->projectFile);
+    const FilePath cppFileName = document->filePath();
+    const FilePath proFile = Utils::FilePath::fromString(ppList.at(0)->projectFile);
     m_mainCppFiles.insert(cppFileName, proFile);
     const Utils::FilePath srcDir = Utils::FilePath::fromString(
         quickTestSrcDir(modelManager, cppFileName));

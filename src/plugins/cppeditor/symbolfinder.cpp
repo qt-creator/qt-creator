@@ -444,7 +444,7 @@ QStringList SymbolFinder::fileIterationOrder(const QString &referenceFile, const
         checkCacheConsistency(referenceFile, snapshot);
     } else {
         for (Document::Ptr doc : snapshot)
-            insertCache(referenceFile, doc->fileName());
+            insertCache(referenceFile, doc->filePath().path());
     }
 
     QStringList files = m_filePriorityCache.value(referenceFile).toStringList();
@@ -468,8 +468,8 @@ void SymbolFinder::checkCacheConsistency(const QString &referenceFile, const Sna
     // corresponding document and notices it's now null.
     const QSet<QString> &meta = m_fileMetaCache.value(referenceFile);
     for (const Document::Ptr &doc : snapshot) {
-        if (!meta.contains(doc->fileName()))
-            insertCache(referenceFile, doc->fileName());
+        if (!meta.contains(doc->filePath().path()))
+            insertCache(referenceFile, doc->filePath().path());
     }
 }
 

@@ -37,7 +37,7 @@ void SearchSymbols::setSymbolsToSearchFor(const SymbolTypes &types)
 
 IndexItem::Ptr SearchSymbols::operator()(Document::Ptr doc, const QString &scope)
 {
-    IndexItem::Ptr root = IndexItem::create(Internal::StringTable::insert(doc->fileName()), 100);
+    IndexItem::Ptr root = IndexItem::create(Internal::StringTable::insert(doc->filePath()), 100);
 
     { // RAII scope
         ScopedIndexItemPtr parentRaii(_parent, root);
@@ -46,7 +46,7 @@ IndexItem::Ptr SearchSymbols::operator()(Document::Ptr doc, const QString &scope
 
         QTC_ASSERT(_parent, return IndexItem::Ptr());
         QTC_ASSERT(root, return IndexItem::Ptr());
-        QTC_ASSERT(_parent->fileName() == Internal::StringTable::insert(doc->fileName()),
+        QTC_ASSERT(_parent->fileName() == Internal::StringTable::insert(doc->filePath()),
                    return IndexItem::Ptr());
 
         for (int i = 0, ei = doc->globalSymbolCount(); i != ei; ++i)

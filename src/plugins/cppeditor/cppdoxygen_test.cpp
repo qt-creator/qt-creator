@@ -21,6 +21,8 @@ using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::TestCase;
 using CppEditor::Internal::Tests::VerifyCleanCppModelManager;
 
+using namespace Utils;
+
 namespace CppEditor {
 namespace Internal {
 namespace Tests {
@@ -425,7 +427,7 @@ void DoxygenTest::runTest(const QByteArray &original,
     }
 
     // Update Code Model
-    QVERIFY(TestCase::parseFiles(testDocument.filePath()));
+    QVERIFY(TestCase::parseFiles(testDocument.filePath().toString()));
 
     // Open Editor
     QVERIFY(TestCase::openCppEditor(testDocument.filePath(), &testDocument.m_editor,

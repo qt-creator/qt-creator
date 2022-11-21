@@ -31,6 +31,7 @@
 #include <cplusplus/cppassert.h>
 
 #include <utils/executeondestruction.h>
+#include <utils/filepath.h>
 #include <utils/scopedswap.h>
 
 #include <QDebug>
@@ -235,7 +236,6 @@ struct Value
 };
 
 } // namespace Internal
-} // namespace CPlusPlus
 
 using namespace CPlusPlus;
 using namespace CPlusPlus::Internal;
@@ -251,7 +251,7 @@ Macro *macroDefinition(const ByteArrayRef &name,
                        unsigned bytesOffset,
                        unsigned utf16charsOffset,
                        unsigned line,
-                       Environment *env,
+                       CPlusPlus::Environment *env,
                        Client *client)
 {
     Macro *m = env->resolve(name);
@@ -320,7 +320,7 @@ class ExpressionEvaluator
     void operator = (const ExpressionEvaluator &other);
 
 public:
-    ExpressionEvaluator(Client *client, Environment *env)
+    ExpressionEvaluator(Client *client, CPlusPlus::Environment *env)
         : client(client), env(env), _lex(nullptr)
     { }
 
@@ -724,6 +724,14 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
     , m_expandFunctionlikeMacros(true)
     , m_keepComments(false)
 {
+}
+
+QByteArray Preprocessor::run(const Utils::FilePath &filePath,
+                             const QByteArray &source,
+                             bool noLines,
+                             bool markGeneratedTokens)
+{
+    return run(filePath.toString(), source, noLines, markGeneratedTokens);
 }
 
 QByteArray Preprocessor::run(const QString &fileName,
@@ -2158,3 +2166,5 @@ void Preprocessor::maybeStartOutputLine()
     if (*ch == '\\')
         buffer.append('\n');
 }
+
+} // namespace CPlusPlus

@@ -205,7 +205,7 @@ public:
 
         const QString fileName = QString::fromUtf8(fileId->chars(), fileId->size());
 
-        if (fileName != doc->fileName())
+        if (fileName != doc->filePath().pathView())
             return;
 
         const QString message = QString::vasprintf(format, ap);
@@ -220,7 +220,7 @@ public:
         }
 #endif // DO_NOT_DUMP_ALL_PARSER_ERRORS
 
-        Document::DiagnosticMessage m(convertLevel(level), doc->fileName(),
+        Document::DiagnosticMessage m(convertLevel(level), doc->filePath(),
                                       line, column, message);
         messages->append(m);
     }
@@ -244,7 +244,7 @@ private:
 
 
 Document::Document(const QString &fileName)
-    : _fileName(QDir::cleanPath(fileName)),
+    : _filePath(Utils::FilePath::fromUserInput(QDir::cleanPath(fileName))),
       _globalNamespace(nullptr),
       _revision(0),
       _editorRevision(0),
@@ -652,7 +652,7 @@ bool Document::DiagnosticMessage::operator==(const Document::DiagnosticMessage &
             _column == other._column &&
             _length == other._length &&
             _level == other._level &&
-            _fileName == other._fileName &&
+            _filePath == other._filePath &&
             _text == other._text;
 }
 
@@ -697,7 +697,7 @@ bool Snapshot::contains(const Utils::FilePath &fileName) const
 void Snapshot::insert(Document::Ptr doc)
 {
     if (doc) {
-        _documents.insert(Utils::FilePath::fromString(doc->fileName()), doc);
+        _documents.insert(doc->filePath(), doc);
         m_deps.files.clear(); // Will trigger re-build when accessed.
     }
 }
@@ -848,7 +848,7 @@ Snapshot Snapshot::simplified(Document::Ptr doc) const
 
     if (doc) {
         snapshot.insert(doc);
-        const QSet<QString> fileNames = allIncludesForDocument(doc->fileName());
+        const QSet<QString> fileNames = allIncludesForDocument(doc->filePath().toString());
         for (const QString &fileName : fileNames)
             if (Document::Ptr inc = document(fileName))
                 snapshot.insert(inc);

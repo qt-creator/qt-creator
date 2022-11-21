@@ -21,7 +21,8 @@
 #include <QtTest>
 
 using namespace CPlusPlus;
-using ProjectExplorer::HeaderPathType;
+using namespace ProjectExplorer;
+using namespace Utils;
 
 using Include = Document::Include;
 using CppEditor::Tests::TestCase;
@@ -46,7 +47,7 @@ public:
                                          TestIncludePaths::directoryOfTestFile())});
         sourceProcessor->run(filePath);
 
-        Document::Ptr document = m_cmm->document(filePath);
+        Document::Ptr document = m_cmm->document(Utils::FilePath::fromString(filePath));
         return document;
     }
 
@@ -96,7 +97,8 @@ void SourceProcessorTest::testIncludesCyclic()
 {
     const QString fileName1 = TestIncludePaths::testFilePath(QLatin1String("cyclic1.h"));
     const QString fileName2 = TestIncludePaths::testFilePath(QLatin1String("cyclic2.h"));
-    const QSet<QString> sourceFiles = {fileName1, fileName2};
+    const QSet<FilePath> sourceFiles = {FilePath::fromString(fileName1),
+                                        FilePath::fromString(fileName2)};
 
     // Create global snapshot (needed in BuiltinEditorDocumentParser)
     TestCase testCase;
@@ -104,7 +106,7 @@ void SourceProcessorTest::testIncludesCyclic()
 
     // Open editor
     TextEditor::BaseTextEditor *editor;
-    QVERIFY(testCase.openCppEditor(fileName1, &editor));
+    QVERIFY(testCase.openCppEditor(FilePath::fromString(fileName1), &editor));
     testCase.closeEditorAtEndOfTestCase(editor);
 
     // Check editor snapshot
@@ -165,7 +167,7 @@ void SourceProcessorTest::testMacroUses()
 
 static bool isMacroDefinedInDocument(const QByteArray &macroName, const Document::Ptr &document)
 {
-    for (const Macro &macro : document->definedMacros()) {
+    for (const CPlusPlus::Macro &macro : document->definedMacros()) {
         if (macro.name() == macroName)
             return true;
     }

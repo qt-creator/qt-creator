@@ -8,6 +8,7 @@
 
 #include <QDir>
 
+using namespace Utils;
 using namespace CPlusPlus;
 
 FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
@@ -23,12 +24,12 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
     std::swap(newDoc, _currentDoc);
     _addIncludesToCurrentDoc = _currentDoc->resolvedIncludes().isEmpty()
             && _currentDoc->unresolvedIncludes().isEmpty();
-    const QString fileName = _currentDoc->fileName();
+    const FilePath filePath = _currentDoc->filePath();
     _preproc.setExpandFunctionlikeMacros(false);
     _preproc.setKeepComments(true);
 
-    if (Document::Ptr doc = _snapshot.document(fileName)) {
-        _merged.insert(fileName);
+    if (Document::Ptr doc = _snapshot.document(filePath)) {
+        _merged.insert(filePath.toString());
 
         for (Snapshot::const_iterator i = _snapshot.begin(), ei = _snapshot.end(); i != ei; ++i) {
             if (isInjectedFile(i.key().toString()))
@@ -43,7 +44,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
             _env.addMacros(_currentDoc->definedMacros());
     }
 
-    const QByteArray preprocessed = _preproc.run(fileName, source);
+    const QByteArray preprocessed = _preproc.run(filePath, source);
 //    qDebug("FastPreprocessor::run for %s produced [[%s]]", fileName.toUtf8().constData(), preprocessed.constData());
     std::swap(newDoc, _currentDoc);
     return preprocessed;

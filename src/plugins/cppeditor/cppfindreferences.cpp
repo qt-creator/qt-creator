@@ -239,7 +239,7 @@ public:
           categorize(categorize)
     { }
 
-    QList<CPlusPlus::Usage> operator()(const Utils::FilePath &fileName)
+    QList<CPlusPlus::Usage> operator()(const Utils::FilePath &filePath)
     {
         QList<CPlusPlus::Usage> usages;
         if (future->isPaused())
@@ -248,18 +248,18 @@ public:
             return usages;
         const CPlusPlus::Identifier *symbolId = symbol->identifier();
 
-        if (CPlusPlus::Document::Ptr previousDoc = snapshot.document(fileName)) {
+        if (CPlusPlus::Document::Ptr previousDoc = snapshot.document(filePath)) {
             CPlusPlus::Control *control = previousDoc->control();
             if (!control->findIdentifier(symbolId->chars(), symbolId->size()))
                 return usages; // skip this document, it's not using symbolId.
         }
         CPlusPlus::Document::Ptr doc;
-        const QByteArray unpreprocessedSource = getSource(fileName, workingCopy);
+        const QByteArray unpreprocessedSource = getSource(filePath, workingCopy);
 
-        if (symbolDocument && fileName == Utils::FilePath::fromString(symbolDocument->fileName())) {
+        if (symbolDocument && filePath == symbolDocument->filePath()) {
             doc = symbolDocument;
         } else {
-            doc = snapshot.preprocessedDocument(unpreprocessedSource, fileName);
+            doc = snapshot.preprocessedDocument(unpreprocessedSource, filePath);
             doc->tokenize();
         }
 
@@ -541,10 +541,9 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
 
     CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
-    QByteArray source = getSource(Utils::FilePath::fromString(newSymbolDocument->fileName()),
-                                  m_modelManager->workingCopy());
+    QByteArray source = getSource(newSymbolDocument->filePath(), m_modelManager->workingCopy());
     CPlusPlus::Document::Ptr doc =
-            snapshot.preprocessedDocument(source, FilePath::fromString(newSymbolDocument->fileName()));
+            snapshot.preprocessedDocument(source, newSymbolDocument->filePath());
     doc->check();
 
     // find matching symbol in new document and return the new parameters

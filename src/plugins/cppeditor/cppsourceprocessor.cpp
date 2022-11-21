@@ -66,7 +66,7 @@ inline Message messageNoSuchFile(Document::Ptr &document, const QString &fileNam
 {
     const QString text = QCoreApplication::translate(
         "CppSourceProcessor", "%1: No such file or directory").arg(fileName);
-    return Message(Message::Warning, document->fileName(), line, /*column =*/ 0, text);
+    return Message(Message::Warning, document->filePath(), line, /*column =*/ 0, text);
 }
 
 inline Message messageNoFileContents(Document::Ptr &document, const QString &fileName,
@@ -74,7 +74,7 @@ inline Message messageNoFileContents(Document::Ptr &document, const QString &fil
 {
     const QString text = QCoreApplication::translate(
         "CppSourceProcessor", "%1: Could not get file contents").arg(fileName);
-    return Message(Message::Warning, document->fileName(), line, /*column =*/ 0, text);
+    return Message(Message::Warning, document->filePath(), line, /*column =*/ 0, text);
 }
 
 inline const CPlusPlus::Macro revision(const WorkingCopy &workingCopy,
@@ -244,7 +244,7 @@ QString CppSourceProcessor::resolveFile(const QString &fileName, IncludeType typ
 
     if (m_currentDoc) {
         if (type == IncludeLocal) {
-            const QFileInfo currentFileInfo(m_currentDoc->fileName());
+            const QFileInfo currentFileInfo = m_currentDoc->filePath().toFileInfo();
             const QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
             if (checkFile(path))
                 return path;
@@ -252,7 +252,7 @@ QString CppSourceProcessor::resolveFile(const QString &fileName, IncludeType typ
             // searching as if this would be a global include.
 
         } else if (type == IncludeNext) {
-            const QFileInfo currentFileInfo(m_currentDoc->fileName());
+            const QFileInfo currentFileInfo = m_currentDoc->filePath().toFileInfo();
             const QString currentDirPath = cleanPath(currentFileInfo.dir().path());
             auto headerPathsEnd = m_headerPaths.end();
             auto headerPathsIt = m_headerPaths.begin();
@@ -372,7 +372,7 @@ void CppSourceProcessor::mergeEnvironment(Document::Ptr doc)
     if (!doc)
         return;
 
-    const QString fn = doc->fileName();
+    const QString fn = doc->filePath().path();
 
     if (m_processed.contains(fn))
         return;
@@ -457,7 +457,8 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
         document->setLastModified(info.lastModified());
 
     const Document::Ptr previousDocument = switchCurrentDocument(document);
-    const QByteArray preprocessedCode = m_preprocess.run(absoluteFileName, contents);
+    const QByteArray preprocessedCode =
+            m_preprocess.run(Utils::FilePath::fromString(absoluteFileName), contents);
 //    {
 //        QByteArray b(preprocessedCode); b.replace("\n", "<<<\n");
 //        qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData());
@@ -478,7 +479,7 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
     document->setUtf8Source(preprocessedCode);
     document->keepSourceAndAST();
     document->tokenize();
-    document->check(m_workingCopy.contains(document->fileName()) ? Document::FullCheck
+    document->check(m_workingCopy.contains(document->filePath()) ? Document::FullCheck
                                                                  : Document::FastCheck);
 
     m_documentFinished(document);

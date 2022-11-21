@@ -518,7 +518,7 @@ static QList<Include> includesForSource(const QString &filePath)
                                      TestIncludePaths::globalIncludePath())});
     sourceProcessor->run(filePath);
 
-    Document::Ptr document = cmm->document(filePath);
+    Document::Ptr document = cmm->document(FilePath::fromString(filePath));
     return document->resolvedIncludes();
 }
 

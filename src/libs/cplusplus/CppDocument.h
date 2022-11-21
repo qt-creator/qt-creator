@@ -49,7 +49,7 @@ public:
     const QDateTime &lastModified() const { return _lastModified; }
     void setLastModified(const QDateTime &lastModified);
 
-    const QString &fileName() const { return _fileName; }
+    const Utils::FilePath &filePath() const { return _filePath; }
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro,
@@ -125,13 +125,13 @@ public:
         };
 
     public:
-        DiagnosticMessage(int level, const QString &fileName,
+        DiagnosticMessage(int level, const Utils::FilePath &filePath,
                           int line, int column,
                           const QString &text,
                           int length = 0)
             : _level(level),
               _line(line),
-              _fileName(fileName),
+              _filePath(filePath),
               _column(column),
               _length(length),
               _text(text)
@@ -149,8 +149,8 @@ public:
         bool isFatal() const
         { return _level == Fatal; }
 
-        const QString &fileName() const
-        { return _fileName; }
+        const Utils::FilePath &filePath() const
+        { return _filePath; }
 
         int line() const
         { return _line; }
@@ -170,7 +170,7 @@ public:
     private:
         int _level;
         int _line;
-        QString _fileName;
+        Utils::FilePath _filePath;
         int _column;
         int _length;
         QString _text;
@@ -334,7 +334,7 @@ public:
     { return static_cast<CheckMode>(_checkMode); }
 
 private:
-    QString _fileName;
+    Utils::FilePath _filePath;
     Control *_control;
     TranslationUnit *_translationUnit;
     Namespace *_globalNamespace;

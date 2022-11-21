@@ -136,7 +136,7 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 } // anonymous namespace
 
 BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document)
-    : BaseEditorDocumentProcessor(document->document(), document->filePath().toString())
+    : BaseEditorDocumentProcessor(document->document(), document->filePath())
     , m_parser(new BuiltinEditorDocumentParser(document->filePath().toString(),
                                                indexerFileSizeLimitInMb()))
     , m_codeWarningsUpdated(false)
@@ -241,13 +241,13 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
     if (document.isNull())
         return;
 
-    if (document->fileName() != filePath())
+    if (document->filePath() != filePath())
         return; // some other document got updated
 
     if (document->editorRevision() != revision())
         return; // outdated content, wait for a new document to be parsed
 
-    qCDebug(log) << "document parsed" << document->fileName() << document->editorRevision();
+    qCDebug(log) << "document parsed" << document->filePath() << document->editorRevision();
 
     // Emit ifdefed out blocks
     const auto ifdefoutBlocks = toTextEditorBlocks(document->skippedBlocks());
@@ -261,14 +261,14 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
 
     m_documentSnapshot = snapshot;
     const auto source = createSemanticInfoSource(false);
-    QTC_CHECK(source.snapshot.contains(document->fileName()));
+    QTC_CHECK(source.snapshot.contains(document->filePath()));
     m_semanticInfoUpdater.updateDetached(source);
 }
 
 void BuiltinEditorDocumentProcessor::onSemanticInfoUpdated(const SemanticInfo semanticInfo)
 {
     qCDebug(log) << "semantic info updated"
-                 << semanticInfo.doc->fileName() << semanticInfo.revision << semanticInfo.complete;
+                 << semanticInfo.doc->filePath() << semanticInfo.revision << semanticInfo.complete;
 
     emit semanticInfoUpdated(semanticInfo);
 
@@ -283,7 +283,7 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
     if (document.isNull())
         return;
 
-    if (document->fileName() != filePath())
+    if (document->filePath() != filePath())
         return; // some other document got updated
 
     if (document->editorRevision() != revision())
@@ -302,10 +302,9 @@ void BuiltinEditorDocumentProcessor::onCodeWarningsUpdated(
 SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bool force) const
 {
     const WorkingCopy workingCopy = CppModelManager::instance()->workingCopy();
-    const QString path = filePath();
-    return SemanticInfo::Source(path,
-                                workingCopy.source(path),
-                                workingCopy.revision(path),
+    return SemanticInfo::Source(filePath().toString(),
+                                workingCopy.source(filePath()),
+                                workingCopy.revision(filePath()),
                                 m_documentSnapshot,
                                 force);
 }

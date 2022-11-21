@@ -13,6 +13,8 @@
 
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -59,7 +61,7 @@ static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
         }
     }
 
-    for (const QString &include : snapshot.allIncludesForDocument(doc->fileName())) {
+    for (const QString &include : snapshot.allIncludesForDocument(doc->filePath().toString())) {
         for (const QString &catchHeader : catchHeaders) {
             if (include.endsWith(catchHeader))
                 return true;
@@ -67,9 +69,7 @@ static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
     }
 
     for (const QString &catchHeader : catchHeaders) {
-        if (CppParser::precompiledHeaderContains(snapshot,
-                                                 Utils::FilePath::fromString(doc->fileName()),
-                                                 catchHeader))
+        if (CppParser::precompiledHeaderContains(snapshot, doc->filePath(), catchHeader))
             return true;
     }
     return false;
@@ -99,7 +99,7 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
         return false;
 
     const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
-    const QString &filePath = doc->fileName();
+    const QString &filePath = doc->filePath().toString();
     const QByteArray &fileContent = getFileContent(fileName);
 
     if (!hasCatchNames(doc)) {

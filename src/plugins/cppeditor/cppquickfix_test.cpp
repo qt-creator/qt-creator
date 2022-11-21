@@ -25,6 +25,7 @@
 using namespace Core;
 using namespace CPlusPlus;
 using namespace TextEditor;
+using namespace Utils;
 
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::Internal::TestIncludePaths;
@@ -92,7 +93,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
     }
 
     // Update Code Model
-    QSet<QString> filePaths;
+    QSet<FilePath> filePaths;
     for (const TestDocumentPtr &document : std::as_const(m_testDocuments))
         filePaths << document->filePath();
     QVERIFY(parseFiles(filePaths));
@@ -150,7 +151,7 @@ BaseQuickFixTestCase::~BaseQuickFixTestCase()
 
     // Remove created files from file system
     for (const TestDocumentPtr &testDocument : std::as_const(m_testDocuments))
-        QVERIFY(QFile::remove(testDocument->filePath()));
+        QVERIFY(testDocument->filePath().removeFile());
 }
 
 /// Leading whitespace is not removed, so we can check if the indetation ranges

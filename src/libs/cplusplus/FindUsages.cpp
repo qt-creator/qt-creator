@@ -118,7 +118,7 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
         lineText = matchingLine(tk);
     const int len = tk.utf16chars();
 
-    const Usage u(Utils::FilePath::fromString(_doc->fileName()), lineText,
+    const Usage u(_doc->filePath(), lineText,
                   getContainingFunction(line, col), getTags(line, col, tokenIndex),
                   line, col - 1, len);
     _usages.append(u);

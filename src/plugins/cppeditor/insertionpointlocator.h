@@ -80,8 +80,7 @@ public:
 public:
     explicit InsertionPointLocator(const CppRefactoringChanges &refactoringChanges);
 
-    InsertionLocation methodDeclarationInClass(
-            const QString &fileName,
+    InsertionLocation methodDeclarationInClass(const Utils::FilePath &fileName,
             const CPlusPlus::Class *clazz,
             AccessSpec xsSpec,
             ForceAccessSpec forceAccessSpec = ForceAccessSpec::No

@@ -198,8 +198,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
 
     // find the start/end offsets
     CppRefactoringChanges refactoringChanges(snapshot);
-    CppRefactoringFilePtr sourceFile = refactoringChanges.file(
-        Utils::FilePath::fromString(doc->fileName()));
+    CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->filePath());
     sourceFile->setCppDocument(doc);
     int start, end;
     declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);

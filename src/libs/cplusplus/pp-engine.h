@@ -36,6 +36,8 @@
 
 #include <functional>
 
+namespace Utils { class FilePath; }
+
 namespace CPlusPlus {
 
 class Environment;
@@ -57,6 +59,8 @@ public:
 public:
     Preprocessor(Client *client, Environment *env);
 
+    QByteArray run(const Utils::FilePath &filePath, const QByteArray &source,
+                   bool noLines = false, bool markGeneratedTokens = true);
     QByteArray run(const QString &filename, const QByteArray &source,
                    bool noLines = false, bool markGeneratedTokens = true);
 

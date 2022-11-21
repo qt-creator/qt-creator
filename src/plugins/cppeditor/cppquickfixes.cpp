@@ -80,7 +80,7 @@
 
 using namespace CPlusPlus;
 using namespace TextEditor;
-using Utils::ChangeSet;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -2056,7 +2056,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
 
     QString className;
     QList<Core::LocatorFilterEntry> matches;
-    const QString currentDocumentFilePath = interface.semanticInfo().doc->fileName();
+    const QString currentDocumentFilePath = interface.semanticInfo().doc->filePath().toString();
     const ProjectExplorer::HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
     QList<Utils::FilePath> headers;
 
@@ -2530,7 +2530,7 @@ public:
                         const QString &targetFileName, const Class *targetSymbol,
                         InsertionPointLocator::AccessSpec xsSpec, const QString &decl, int priority)
         : CppQuickFixOperation(interface, priority)
-        , m_targetFileName(targetFileName)
+        , m_targetFileName(FilePath::fromString(targetFileName))
         , m_targetSymbol(targetSymbol)
         , m_xsSpec(xsSpec)
         , m_decl(decl)
@@ -2549,8 +2549,7 @@ public:
                     m_targetFileName, m_targetSymbol, m_xsSpec);
         QTC_ASSERT(loc.isValid(), return);
 
-        CppRefactoringFilePtr targetFile = refactoring.file(
-            Utils::FilePath::fromString(m_targetFileName));
+        CppRefactoringFilePtr targetFile = refactoring.file(m_targetFileName);
         int targetPosition1 = targetFile->position(loc.line(), loc.column());
         int targetPosition2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
 
@@ -2565,7 +2564,7 @@ public:
     static QString generateDeclaration(const Function *function);
 
 private:
-    QString m_targetFileName;
+    FilePath m_targetFileName;
     const Class *m_targetSymbol;
     InsertionPointLocator::AccessSpec m_xsSpec;
     QString m_decl;
@@ -2985,12 +2984,12 @@ private:
 
         const CppRefactoringChanges refactoring(snapshot());
         const InsertionPointLocator locator(refactoring);
-        const QString filePath = QString::fromUtf8(m_class->fileName());
+        const FilePath filePath = FilePath::fromUtf8(m_class->fileName());
         const InsertionLocation loc = locator.methodDeclarationInClass(
                     filePath, m_class, InsertionPointLocator::Private);
         QTC_ASSERT(loc.isValid(), return);
 
-        CppRefactoringFilePtr targetFile = refactoring.file(Utils::FilePath::fromString(filePath));
+        CppRefactoringFilePtr targetFile = refactoring.file(filePath);
         const int targetPosition1 = targetFile->position(loc.line(), loc.column());
         const int targetPosition2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
         ChangeSet target;
@@ -3633,7 +3632,7 @@ protected:
         if (insertionPoint != m_headerInsertionPoints.end())
             return *insertionPoint;
         const InsertionLocation loc = m_locator.methodDeclarationInClass(
-                    m_headerFile->filePath().toString(), m_class, spec,
+                    m_headerFile->filePath(), m_class, spec,
                     InsertionPointLocator::ForceAccessSpec::Yes);
         m_headerInsertionPoints.insert(spec, loc);
         return loc;
@@ -4943,10 +4942,10 @@ public:
         // Write declaration, if necessary.
         if (matchingClass) {
             InsertionPointLocator locator(refactoring);
-            const QString fileName = QLatin1String(matchingClass->fileName());
+            const FilePath filePath = FilePath::fromUtf8(matchingClass->fileName());
             const InsertionLocation &location =
-                    locator.methodDeclarationInClass(fileName, matchingClass, options.access);
-            CppRefactoringFilePtr declFile = refactoring.file(Utils::FilePath::fromString(fileName));
+                    locator.methodDeclarationInClass(filePath, matchingClass, options.access);
+            CppRefactoringFilePtr declFile = refactoring.file(filePath);
             change.clear();
             position = declFile->position(location.line(), location.column());
             change.insert(position, location.prefix() + funcDecl + location.suffix());
@@ -8081,8 +8080,7 @@ private:
         while (!nodesWithProcessedParents.empty()) {
             Node &node = nodesWithProcessedParents.back();
             nodesWithProcessedParents.pop_back();
-            CppRefactoringFilePtr file = refactoring.file(
-                Utils::FilePath::fromString(node.document->fileName()));
+            CppRefactoringFilePtr file = refactoring.file(node.document->filePath());
             const bool parentHasUsing = Utils::anyOf(node.includes, &Node::hasGlobalUsingDirective);
             const int startPos = parentHasUsing
                                      ? 0
@@ -8154,14 +8152,13 @@ private:
             if (m_processed.contains(loc.first))
                 continue;
 
-            CppRefactoringFilePtr file = refactoring.file(
-                Utils::FilePath::fromString(loc.first->fileName()));
+            CppRefactoringFilePtr file = refactoring.file(loc.first->filePath());
             const bool noGlobalUsing = refactorFile(file,
                                                     refactoring.snapshot(),
                                                     file->position(loc.second, 1));
             m_processed.insert(loc.first);
             if (noGlobalUsing)
-                processIncludes(refactoring, loc.first->fileName());
+                processIncludes(refactoring, loc.first->filePath().toString());
         }
     }
 

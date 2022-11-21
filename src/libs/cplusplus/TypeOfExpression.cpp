@@ -13,7 +13,7 @@
 
 #include <QSet>
 
-using namespace CPlusPlus;
+namespace CPlusPlus {
 
 TypeOfExpression::TypeOfExpression():
     m_ast(nullptr),
@@ -132,8 +132,8 @@ ExpressionAST *TypeOfExpression::expressionAST() const
 void TypeOfExpression::processEnvironment(Document::Ptr doc, Environment *env,
                                           QSet<QString> *processed) const
 {
-    if (doc && ! processed->contains(doc->fileName())) {
-        processed->insert(doc->fileName());
+    if (doc && ! processed->contains(doc->filePath().path())) {
+        processed->insert(doc->filePath().path());
 
         const QList<Document::Include> includes = doc->resolvedIncludes();
         for (const Document::Include &incl : includes)
@@ -158,10 +158,8 @@ QByteArray TypeOfExpression::preprocessedExpression(const QByteArray &utf8code) 
     }
 
     Preprocessor preproc(nullptr, m_environment.data());
-    return preproc.run(QLatin1String("<expression>"), utf8code);
+    return preproc.run(Utils::FilePath::fromParts({}, {}, u"<expression>"), utf8code);
 }
-
-namespace CPlusPlus {
 
 ExpressionAST *extractExpressionAST(Document::Ptr doc)
 {

@@ -20,8 +20,8 @@ void SnapshotSymbolVisitor::accept(Document::Ptr doc)
 
 void SnapshotSymbolVisitor::accept(Document::Ptr doc, QSet<QString> *processed)
 {
-    if (doc && doc->globalNamespace() && ! processed->contains(doc->fileName())) {
-        processed->insert(doc->fileName());
+    if (doc && doc->globalNamespace() && ! processed->contains(doc->filePath().path())) {
+        processed->insert(doc->filePath().path());
 
         const QList<Document::Include> includes = doc->resolvedIncludes();
         for (const Document::Include &i : includes) {

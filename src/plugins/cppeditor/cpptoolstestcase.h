@@ -60,7 +60,7 @@ public:
     QString baseDirectory() const { return m_baseDirectory; }
     void setBaseDirectory(const QString &baseDirectory) { m_baseDirectory = baseDirectory; }
 
-    QString filePath() const;
+    Utils::FilePath filePath() const;
     bool writeToDisk() const;
 
     bool hasCursorMarker() const { return m_cursorPosition != -1; }
@@ -123,14 +123,14 @@ public:
     ~TestCase();
 
     bool succeededSoFar() const;
-    static bool openCppEditor(const QString &fileName, TextEditor::BaseTextEditor **editor,
+    static bool openCppEditor(const Utils::FilePath &filePath, TextEditor::BaseTextEditor **editor,
                               CppEditorWidget **editorWidget = nullptr);
     void closeEditorAtEndOfTestCase(Core::IEditor *editor);
 
     static bool closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *editor);
 
     static bool parseFiles(const QString &filePath);
-    static bool parseFiles(const QSet<QString> &filePaths);
+    static bool parseFiles(const QSet<Utils::FilePath> &filePaths);
 
     static CPlusPlus::Snapshot globalSnapshot();
     static bool garbageCollectGlobalSnapshot();
@@ -149,7 +149,7 @@ public:
             const QStringList &filePaths,
             int timeOutInMs = defaultTimeOutInMs);
 
-    static bool writeFile(const QString &filePath, const QByteArray &contents);
+    static bool writeFile(const Utils::FilePath &filePath, const QByteArray &contents);
 
 protected:
     CppModelManager *m_modelManager;
@@ -184,8 +184,9 @@ public:
 
     bool isValid() const { return m_isValid; }
     QString path() const { return m_temporaryDir.path().path(); }
+    Utils::FilePath filePath() const { return m_temporaryDir.path(); }
 
-    QString createFile(const QByteArray &relativePath, const QByteArray &contents);
+    Utils::FilePath createFile(const QByteArray &relativePath, const QByteArray &contents);
 
 protected:
     Utils::TemporaryDirectory m_temporaryDir;

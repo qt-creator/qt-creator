@@ -1350,10 +1350,10 @@ void ModelManagerInterface::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document
 
 void ModelManagerInterface::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan)
 {
-    QPair<CPlusPlus::Document::Ptr, bool> prev = m_queuedCppDocuments.value(doc->fileName());
+    QPair<CPlusPlus::Document::Ptr, bool> prev = m_queuedCppDocuments.value(doc->filePath().path());
     if (prev.first && prev.second)
         prev.first->releaseSourceAndAST();
-    m_queuedCppDocuments.insert(doc->fileName(), {doc, scan});
+    m_queuedCppDocuments.insert(doc->filePath().path(), {doc, scan});
     m_updateCppQmlTypesTimer->start();
 }
 
@@ -1439,13 +1439,13 @@ void ModelManagerInterface::updateCppQmlTypes(
 
         CPlusPlus::Document::Ptr doc = pair.first;
         const bool scan = pair.second;
-        const QString fileName = doc->fileName();
+        const FilePath filePath = doc->filePath();
         if (!scan) {
-            hasNewInfo = newData.remove(fileName) || hasNewInfo;
-            const auto savedDocs = newDeclarations.value(fileName);
+            hasNewInfo = newData.remove(filePath.path()) || hasNewInfo;
+            const auto savedDocs = newDeclarations.value(filePath.path());
             for (const CPlusPlus::Document::Ptr &savedDoc : savedDocs) {
                 finder(savedDoc);
-                hasNewInfo = rescanExports(savedDoc->fileName(), finder, newData) || hasNewInfo;
+                hasNewInfo = rescanExports(savedDoc->filePath().path(), finder, newData) || hasNewInfo;
             }
             continue;
         }
@@ -1453,7 +1453,7 @@ void ModelManagerInterface::updateCppQmlTypes(
         for (auto it = newDeclarations.begin(), end = newDeclarations.end(); it != end;) {
             for (auto docIt = it->begin(), endDocIt = it->end(); docIt != endDocIt;) {
                 const CPlusPlus::Document::Ptr &savedDoc = *docIt;
-                if (savedDoc->fileName() == fileName) {
+                if (savedDoc->filePath() == filePath) {
                     savedDoc->releaseSourceAndAST();
                     it->erase(docIt);
                     break;
@@ -1472,7 +1472,7 @@ void ModelManagerInterface::updateCppQmlTypes(
             doc->keepSourceAndAST(); // keep for later reparsing when dependent doc changes
         }
 
-        hasNewInfo = rescanExports(fileName, finder, newData) || hasNewInfo;
+        hasNewInfo = rescanExports(filePath.path(), finder, newData) || hasNewInfo;
         doc->releaseSourceAndAST();
     }
 
