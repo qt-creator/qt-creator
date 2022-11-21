@@ -94,8 +94,8 @@ Item {
                 searchBox: searchBox
 
                 onUnimport: (bundleMat) => {
-                    unimportBundleMaterialDialog.targetBundleMaterial = bundleMat
-                    unimportBundleMaterialDialog.open()
+                    confirmUnimportDialog.targetBundleMaterial = bundleMat
+                    confirmUnimportDialog.open()
                 }
             }
 
