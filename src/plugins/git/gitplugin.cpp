@@ -1447,7 +1447,7 @@ void GitPluginPrivate::setupInstantBlame()
             return;
         }
 
-        const Utils::FilePath workingDirectory = GitPlugin::currentState().topLevel();
+        const Utils::FilePath workingDirectory = GitPlugin::currentState().currentFileTopLevel();
         if (workingDirectory.isEmpty())
             return;
         m_author = GitClient::instance()->getAuthor(workingDirectory);
