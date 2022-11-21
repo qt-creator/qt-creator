@@ -82,8 +82,6 @@ Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
 
 namespace Docker::Internal {
 
-const QString s_pidMarker = "__qtc$$qtc__";
-
 class ContainerShell : public Utils::DeviceShell
 {
 public:
@@ -156,7 +154,10 @@ public:
 
     Environment environment();
 
-    CommandLine withDockerExecCmd(const CommandLine &cmd, bool interactive = false);
+    CommandLine withDockerExecCmd(const CommandLine &cmd,
+                                  Environment *env = nullptr,
+                                  FilePath *workDir = nullptr,
+                                  bool interactive = false);
 
     bool prepareForBuild(const Target *target);
     Tasks validateMounts() const;
@@ -203,9 +204,6 @@ private:
     void sendControlSignal(ControlSignal controlSignal) override;
 
 private:
-    CommandLine fullLocalCommandLine(bool interactive);
-
-private:
     DockerDevicePrivate *m_devicePrivate = nullptr;
     // Store the IDevice::ConstPtr in order to extend the lifetime of device for as long
     // as this object is alive.
@@ -215,29 +213,6 @@ private:
     qint64 m_remotePID = 0;
     bool m_hasReceivedFirstOutput = false;
 };
-
-CommandLine DockerProcessImpl::fullLocalCommandLine(bool interactive)
-{
-    QStringList args;
-
-    if (!m_setup.m_workingDirectory.isEmpty()) {
-        QTC_CHECK(DeviceManager::deviceForPath(m_setup.m_workingDirectory) == m_device);
-        args.append({"cd", m_setup.m_workingDirectory.path()});
-        args.append("&&");
-    }
-
-    args.append({"echo", s_pidMarker, "&&"});
-
-    const Environment &env = m_setup.m_environment;
-    for (auto it = env.constBegin(); it != env.constEnd(); ++it)
-        args.append(env.key(it) + "='" + env.expandedValueForKey(env.key(it)) + '\'');
-
-    args.append("exec");
-    args.append({m_setup.m_commandLine.executable().path(), m_setup.m_commandLine.arguments()});
-
-    CommandLine shCmd("/bin/sh", {"-c", args.join(" ")});
-    return m_devicePrivate->withDockerExecCmd(shCmd, interactive);
-}
 
 DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate)
     : m_devicePrivate(devicePrivate)
@@ -304,7 +279,14 @@ void DockerProcessImpl::start()
     if (m_setup.m_lowPriority)
         m_process.setLowPriority();
 
-    m_process.setCommand(fullLocalCommandLine(m_setup.m_processMode == ProcessMode::Writer));
+    const bool interactive = m_setup.m_processMode == ProcessMode::Writer;
+    const CommandLine fullCommandLine = m_devicePrivate
+                                            ->withDockerExecCmd(m_setup.m_commandLine,
+                                                                &m_setup.m_environment,
+                                                                &m_setup.m_workingDirectory,
+                                                                interactive);
+
+    m_process.setCommand(fullCommandLine);
     m_process.start();
 }
 
@@ -445,23 +427,44 @@ void DockerDevice::updateContainerAccess() const
     d->updateContainerAccess();
 }
 
-CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd, bool interactive)
+CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
+                                                   Environment *env,
+                                                   FilePath *workDir,
+                                                   bool interactive)
 {
     if (!m_settings)
         return {};
 
     updateContainerAccess();
 
-    QStringList args;
+    CommandLine dockerCmd{m_settings->dockerBinaryPath.filePath(), {"exec"}};
 
-    args << "exec";
     if (interactive)
-        args << "-i";
-    args << m_container;
+        dockerCmd.addArg("-i");
 
-    CommandLine dcmd{m_settings->dockerBinaryPath.filePath(), args};
-    dcmd.addCommandLineAsArgs(cmd, CommandLine::Raw);
-    return dcmd;
+    if (env) {
+        for (auto it = env->constBegin(); it != env->constEnd(); ++it) {
+            dockerCmd.addArg("-e");
+            dockerCmd.addArg(env->key(it) + "=" + env->expandedValueForKey(env->key(it)));
+        }
+    }
+
+    if (workDir && !workDir->isEmpty())
+        dockerCmd.addArgs({"-w", workDir->path()});
+
+    dockerCmd.addArg(m_container);
+    dockerCmd.addArgs({"/bin/sh", "-c"});
+
+    CommandLine exec("exec");
+    exec.addCommandLineAsArgs(cmd);
+
+    CommandLine echo("echo");
+    echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
+    echo.addCommandLineWithAnd(exec);
+
+    dockerCmd.addCommandLineAsSingleArg(echo);
+
+    return dockerCmd;
 }
 
 void DockerDevicePrivate::stopCurrentContainer()
