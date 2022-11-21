@@ -306,9 +306,14 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
             static const QCommonStyle* const style = qobject_cast<QCommonStyle*>(QApplication::style());
             if (!style)
                 return;
+
+            // Workaround for QTCREATORBUG-28470
             QPalette pal = tweakedOption.palette;
+            pal.setBrush(QPalette::Base, pal.text()); // Base and Text differ, causing a detachment.
+                                                      // Inspired by tst_QPalette::cacheKey()
             pal.setColor(QPalette::ButtonText, color.rgb());
-            tweakedOption.palette = pal; // Workaround for QTCREATORBUG-28470
+
+            tweakedOption.palette = pal;
             tweakedOption.rect = rect;
             painter.setOpacity(color.alphaF());
             style->QCommonStyle::drawPrimitive(element, &tweakedOption, &painter);
