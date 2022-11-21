@@ -151,15 +151,15 @@ static FilePath searchInDirectory(const QStringList &execs,
     return FilePath();
 }
 
-QStringList Environment::appendExeExtensions(const QString &executable) const
+static QStringList appendExeExtensions(const Environment &env, const QString &executable)
 {
     QStringList execs(executable);
-    const QFileInfo fi(executable);
-    if (osType() == OsTypeWindows) {
+    if (env.osType() == OsTypeWindows) {
+        const QFileInfo fi(executable);
         // Check all the executable extensions on windows:
         // PATHEXT is only used if the executable has no extension
         if (fi.suffix().isEmpty()) {
-            const QStringList extensions = expandedValueForKey("PATHEXT").split(';');
+            const QStringList extensions = env.expandedValueForKey("PATHEXT").split(';');
 
             for (const QString &ext : extensions)
                 execs << executable + ext.toLower();
@@ -170,8 +170,8 @@ QStringList Environment::appendExeExtensions(const QString &executable) const
 
 bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) const
 {
-    const QStringList exe1List = appendExeExtensions(exe1);
-    const QStringList exe2List = appendExeExtensions(exe2);
+    const QStringList exe1List = appendExeExtensions(*this, exe1);
+    const QStringList exe2List = appendExeExtensions(*this, exe2);
     for (const QString &i1 : exe1List) {
         for (const QString &i2 : exe2List) {
             const FilePath f1 = FilePath::fromString(i1);
@@ -200,7 +200,7 @@ static FilePath searchInDirectoriesHelper(const Environment &env,
     const QString exec = QDir::cleanPath(env.expandVariables(executable));
     const QFileInfo fi(exec);
 
-    const QStringList execs = env.appendExeExtensions(exec);
+    const QStringList execs = appendExeExtensions(env, exec);
 
     if (fi.isAbsolute()) {
         for (const QString &path : execs) {
@@ -254,7 +254,7 @@ FilePaths Environment::findAllInPath(const QString &executable,
     const QString exec = QDir::cleanPath(expandVariables(executable));
     const QFileInfo fi(exec);
 
-    const QStringList execs = appendExeExtensions(exec);
+    const QStringList execs = appendExeExtensions(*this, exec);
 
     if (fi.isAbsolute()) {
         for (const QString &path : execs) {

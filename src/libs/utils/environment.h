@@ -64,7 +64,6 @@ public:
 
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;
-    QStringList appendExeExtensions(const QString &executable) const;
 
     bool isSameExecutable(const QString &exe1, const QString &exe2) const;
 
