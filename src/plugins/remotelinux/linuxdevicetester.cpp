@@ -21,6 +21,11 @@ using namespace Utils::Tasking;
 namespace RemoteLinux {
 namespace Internal {
 
+struct TransferStorage
+{
+    bool sftpWorks = false;
+};
+
 class GenericLinuxDeviceTesterPrivate
 {
 public:
@@ -29,15 +34,15 @@ public:
     TaskItem echoTask() const;
     TaskItem unameTask() const;
     TaskItem gathererTask() const;
-    TaskItem transferTask(FileTransferMethod method);
-    TaskItem transferTasks();
+    TaskItem transferTask(FileTransferMethod method,
+                          const TreeStorage<TransferStorage> &storage) const;
+    TaskItem transferTasks() const;
     TaskItem commandTask(const QString &commandName) const;
     TaskItem commandTasks() const;
 
     GenericLinuxDeviceTester *q = nullptr;
     IDevice::Ptr m_device;
     std::unique_ptr<TaskTree> m_taskTree;
-    bool m_sftpWorks = false;
 };
 
 const QStringList s_commandsToTest = {"base64",
@@ -142,7 +147,8 @@ TaskItem GenericLinuxDeviceTesterPrivate::gathererTask() const
     return PortGatherer(setup, done, error);
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method)
+TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method,
+                                          const TreeStorage<TransferStorage> &storage) const
 {
     const auto setup = [this, method](FileTransfer &transfer) {
         emit q->progressMessage(Tr::tr("Checking whether \"%1\" works...")
@@ -150,15 +156,15 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
         transfer.setTransferMethod(method);
         transfer.setTestDevice(m_device);
     };
-    const auto done = [this, method](const FileTransfer &) {
+    const auto done = [this, method, storage](const FileTransfer &) {
         const QString methodName = FileTransfer::transferMethodName(method);
         emit q->progressMessage(Tr::tr("\"%1\" is functional.\n").arg(methodName));
         if (method == FileTransferMethod::Rsync)
             m_device->setExtraData(Constants::SupportsRSync, true);
         else
-            m_sftpWorks = true;
+            storage->sftpWorks = true;
     };
-    const auto error = [this, method](const FileTransfer &transfer) {
+    const auto error = [this, method, storage](const FileTransfer &transfer) {
         const QString methodName = FileTransfer::transferMethodName(method);
         const ProcessResultData resultData = transfer.resultData();
         QString error;
@@ -173,7 +179,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
         emit q->errorMessage(error);
         if (method == FileTransferMethod::Rsync) {
             m_device->setExtraData(Constants::SupportsRSync, false);
-            if (!m_sftpWorks)
+            if (!storage->sftpWorks)
                 return;
             const QString sftp = FileTransfer::transferMethodName(FileTransferMethod::Sftp);
             const QString rsync = methodName;
@@ -184,12 +190,14 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
     return TransferTest(setup, done, error);
 }
 
-TaskItem GenericLinuxDeviceTesterPrivate::transferTasks()
+TaskItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 {
+    TreeStorage<TransferStorage> storage;
     return Tasking::Group {
         continueOnDone,
-        transferTask(FileTransferMethod::Sftp),
-        transferTask(FileTransferMethod::Rsync),
+        Storage(storage),
+        transferTask(FileTransferMethod::Sftp, storage),
+        transferTask(FileTransferMethod::Rsync, storage),
         OnGroupError([this] { emit q->errorMessage(Tr::tr("Deployment to this device will not "
                                                           "work out of the box.\n"));
         })
@@ -243,7 +251,6 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
 {
     QTC_ASSERT(!d->m_taskTree, return);
 
-    d->m_sftpWorks = false;
     d->m_device = deviceConfiguration;
 
     auto allFinished = [this](DeviceTester::TestResult testResult) {
