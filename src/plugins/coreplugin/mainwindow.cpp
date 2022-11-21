@@ -973,20 +973,20 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
  */
 IDocument *MainWindow::openFiles(const FilePaths &filePaths,
                                  ICore::OpenFilesFlags flags,
-                                 const QString &workingDirectory)
+                                 const FilePath &workingDirectory)
 {
     const QList<IDocumentFactory*> documentFactories = IDocumentFactory::allDocumentFactories();
     IDocument *res = nullptr;
 
-    const QString workingDirBase = workingDirectory.isEmpty() ? QDir::currentPath() : workingDirectory;
+    const FilePath workingDirBase =
+            workingDirectory.isEmpty() ? FilePath::currentWorkingPath() : workingDirectory;
     for (const FilePath &filePath : filePaths) {
-        const FilePath workingDir = filePath.withNewPath(workingDirBase);
         FilePath absoluteFilePath;
         if (filePath.isAbsolutePath()) {
             absoluteFilePath = filePath;
         } else {
             QTC_CHECK(!filePath.needsDevice());
-            absoluteFilePath = FilePath::fromString(workingDirBase).resolvePath(filePath.path());
+            absoluteFilePath = workingDirBase.resolvePath(filePath.path());
         }
         if (IDocumentFactory *documentFactory = findDocumentFactory(documentFactories, filePath)) {
             IDocument *document = documentFactory->open(absoluteFilePath);

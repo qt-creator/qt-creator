@@ -70,7 +70,7 @@ public:
 
     static IDocument *openFiles(const Utils::FilePaths &filePaths,
                                 ICore::OpenFilesFlags flags,
-                                const QString &workingDirectory = QString());
+                                const Utils::FilePath &workingDirectory = {});
 
     inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;

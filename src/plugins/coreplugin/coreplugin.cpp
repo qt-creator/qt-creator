@@ -309,7 +309,7 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
     IDocument *res = MainWindow::openFiles(
                 filePaths,
                 ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineAndColumnNumbers | ICore::SwitchSplitIfAlreadyVisible),
-                workingDirectory);
+                FilePath::fromString(workingDirectory));
     m_mainWindow->raiseWindow();
     return res;
 }
