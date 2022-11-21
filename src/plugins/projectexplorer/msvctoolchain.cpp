@@ -1598,7 +1598,6 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
         return res;
     }
 
-    Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
     const Abi targetAbi = toolChain->targetAbi();
     const QString name = QString("%1LLVM %2 bit based on %3")
                              .arg(QLatin1String(isDefault ? "Default " : ""))
@@ -1613,8 +1612,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
                     return false;
                 if (tc->language() != language)
                     return false;
-                return systemEnvironment.isSameExecutable(tc->compilerCommand().toString(),
-                                                          clangClPath.toString());
+                return tc->compilerCommand().isSameExecutable(clangClPath);
             }));
         if (tc) {
             res << tc;

@@ -168,21 +168,6 @@ static QStringList appendExeExtensions(const Environment &env, const QString &ex
     return execs;
 }
 
-bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) const
-{
-    const QStringList exe1List = appendExeExtensions(*this, exe1);
-    const QStringList exe2List = appendExeExtensions(*this, exe2);
-    for (const QString &i1 : exe1List) {
-        for (const QString &i2 : exe2List) {
-            const FilePath f1 = FilePath::fromString(i1);
-            const FilePath f2 = FilePath::fromString(i2);
-            if (f1.isSameFile(f2))
-                return true;
-        }
-    }
-    return false;
-}
-
 QString Environment::expandedValueForKey(const QString &key) const
 {
     return expandVariables(m_dict.value(key));

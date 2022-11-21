@@ -421,8 +421,7 @@ static void findSystemQt()
         if (BuildableHelperLibrary::isQtChooser(qmakePath))
             continue;
         const auto isSameQmake = [qmakePath](const QtVersion *version) {
-            return Environment::systemEnvironment().
-                    isSameExecutable(qmakePath.toString(), version->qmakeFilePath().toString());
+            return qmakePath.isSameExecutable(version->qmakeFilePath());
         };
         if (contains(m_versions, isSameQmake))
             continue;

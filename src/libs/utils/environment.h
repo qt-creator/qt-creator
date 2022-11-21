@@ -65,8 +65,6 @@ public:
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;
 
-    bool isSameExecutable(const QString &exe1, const QString &exe2) const;
-
     QString expandedValueForKey(const QString &key) const;
     QString expandVariables(const QString &input) const;
     FilePath expandVariables(const FilePath &input) const;

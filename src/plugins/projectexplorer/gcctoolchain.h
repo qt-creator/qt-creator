@@ -190,9 +190,7 @@ public:
     explicit ClangToolChain(Utils::Id typeId);
     ~ClangToolChain() override;
 
-    bool matchesCompilerCommand(
-        const Utils::FilePath &command,
-        const Utils::Environment &env = Utils::Environment::systemEnvironment()) const override;
+    bool matchesCompilerCommand(const Utils::FilePath &command) const override;
 
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 

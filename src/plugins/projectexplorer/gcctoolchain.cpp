@@ -1189,9 +1189,7 @@ Toolchains GccToolChainFactory::autoDetectToolchains(
                     || compilerPath.toString().contains("ccache")) {
                 existingTcMatches = existingCommand == compilerPath;
             } else {
-                existingTcMatches = Environment::systemEnvironment()
-                                        .isSameExecutable(existingCommand.toString(),
-                                                          compilerPath.toString());
+                existingTcMatches = existingCommand.isSameExecutable(compilerPath);
                 if (!existingTcMatches
                         && HostOsInfo::isWindowsHost()
                         && !existingCommand.needsDevice()
@@ -1560,8 +1558,7 @@ ClangToolChain::~ClangToolChain()
     QObject::disconnect(m_mingwToolchainAddedConnection);
 }
 
-bool ClangToolChain::matchesCompilerCommand(const Utils::FilePath &command,
-                                            const Utils::Environment &env) const
+bool ClangToolChain::matchesCompilerCommand(const FilePath &command) const
 {
     if (!m_resolvedCompilerCommand) {
         m_resolvedCompilerCommand = FilePath();
@@ -1576,9 +1573,9 @@ bool ClangToolChain::matchesCompilerCommand(const Utils::FilePath &command,
         }
     }
     if (!m_resolvedCompilerCommand->isEmpty()
-        && env.isSameExecutable(m_resolvedCompilerCommand->toString(), command.toString()))
+        && m_resolvedCompilerCommand->isSameExecutable(command))
         return true;
-    return GccToolChain::matchesCompilerCommand(command, env);
+    return GccToolChain::matchesCompilerCommand(command);
 }
 
 static FilePath mingwAwareMakeCommand(const Environment &environment)
