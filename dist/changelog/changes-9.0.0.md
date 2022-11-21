@@ -42,6 +42,7 @@ Editing
 * Fixed saving files with non-breaking spaces (QTCREATORBUG-17875)
 * Fixed `Rewrap Paragraph` for Doxygen comments (QTCREATORBUG-9739)
 * Fixed MIME type matching for generic highlighting with MIME type aliases
+* Fixed annotation painting when scrolling horizontally (QTCREATORBUG-28411)
 
 ### C++
 
@@ -55,6 +56,7 @@ Editing
   action (QTCREATORBUG-28099)
 * Fixed that selection was not considered for refactoring actions
   (QTCREATORBUG-27886)
+* Fixed generation of function definitions with `unsigned` (QTCREATORBUG-28378)
 * Fixed code style preview editor size (QTCREATORBUG-27267)
 * Clangd
     * Added option for using single Clangd instance for the whole session
@@ -62,6 +64,7 @@ Editing
     * Added option for indexing priority (`--background-index-priority`)
     * Added option for maximum number of completion results (default 100)
       (QTCREATORBUG-27152)
+    * Added `"`, `<` and `/` to auto-completion triggers (QTCREATORBUG-28203)
     * Added option for document specific preprocessor directives
       (QTCREATORBUG-20423)
     * Fixed semantic highlighting for `__func__`
@@ -109,6 +112,7 @@ Projects
   directory to build directory
 * Fixed that local environment was used when inspecting GCC toolchain on remote
 * Fixed stopping terminal process (QTCREATORBUG-28365)
+* Fixed automatic popup of `Issues` (QTCREATORBUG-28330)
 
 ### CMake
 
@@ -141,11 +145,17 @@ Projects
 Debugging
 ---------
 
+### C++
+
+* Improved type name lookup performance for heavily templated code
+* Improved display performance for large array-like data (QTCREATORBUG-28111)
 * Added warning for missing QML debugging functionality for mobile and embedded
   devices
 * Fixed display of strings with characters more than 2 bytes long
-* Improved type name lookup performance for heavily templated code
-* Improved display performance for large array-like data (QTCREATORBUG-28111)
+
+### QML
+
+* Fixed interrupting
 
 Analyzer
 --------
@@ -155,8 +165,14 @@ Analyzer
 * Fixed error when analyzing non-desktop targets (QTCREATORBUG-25615)
 * Fixed wrong failure count display (QTCREATORBUG-27330)
 
+### Perf
+
+* Fixed wrong working directory (QTCREATORBUG-28462)
+
 Version Control Systems
 -----------------------
+
+* Fixed that `--password` argument was shown in plain text (QTCREATORBUG-28413)
 
 ### Git
 
@@ -208,6 +224,7 @@ Platforms
 * Fixed emulator operations when the deprecated `SDK Tools` is installed in
   addition to `SDK Command-line Tools` (QTCREATORBUG-28196)
 * Fixed debugging over WiFi (QTCREATORBUG-28342)
+* Worked around QML debugging not being enabled by default with NDK 24 and 25
 
 ### iOS
 
@@ -223,6 +240,7 @@ Platforms
 ### Boot to Qt
 
 * Fixed that `rsync` was not available for deployment (QTCREATORBUG-24731)
+* Fixed default deployment method
 
 ### Docker
 
