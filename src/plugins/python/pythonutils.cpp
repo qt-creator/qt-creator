@@ -94,7 +94,7 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
         if (file.isEmpty()) {
             if (Project *project = SessionManager::startupProject())
                 return project->projectDirectory();
-            return FilePath::fromString(QDir::currentPath());
+            return FilePath::currentWorkingPath();
         }
         return file.absolutePath();
     };
