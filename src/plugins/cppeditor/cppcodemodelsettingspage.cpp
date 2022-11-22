@@ -217,6 +217,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     d->useClangdCheckBox.setChecked(settings.useClangd());
     d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
     d->clangdChooser.setFilePath(settings.clangdFilePath());
+    d->clangdChooser.setAllowPathFromDevice(true);
     d->clangdChooser.setEnabled(d->useClangdCheckBox.isChecked());
     using Priority = ClangdSettings::IndexingPriority;
     for (Priority prio : {Priority::Off, Priority::Background, Priority::Low, Priority::Normal}) {
