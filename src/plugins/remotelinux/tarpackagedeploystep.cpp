@@ -177,7 +177,7 @@ void TarPackageDeployService::setFinished()
 {
     m_state = Inactive;
     m_uploader.stop();
-    disconnect(&m_installer, nullptr, this, nullptr);
+    m_installer.close();
     handleDeploymentDone();
 }
 
