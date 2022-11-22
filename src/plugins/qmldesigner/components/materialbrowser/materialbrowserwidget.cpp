@@ -131,19 +131,17 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
                 bool isMaterial = m_materialToDrag.isValid();
-                QByteArray data;
                 QMimeData *mimeData = new QMimeData;
-                QDataStream stream(&data, QIODevice::WriteOnly);
-                stream << (isMaterial ? m_materialToDrag.internalId() : m_textureToDrag.internalId());
-                mimeData->setData(isMaterial ? QString::fromLatin1(Constants::MIME_TYPE_MATERIAL)
-                                             : QString::fromLatin1(Constants::MIME_TYPE_TEXTURE),
-                                  data);
-                mimeData->removeFormat("text/plain");
+                QByteArray internalId;
 
                 if (isMaterial) {
+                    internalId.setNum(m_materialToDrag.internalId());
+                    mimeData->setData(Constants::MIME_TYPE_MATERIAL, internalId);
                     model->startDrag(mimeData, m_previewImageProvider->requestPixmap(
                                      QString::number(m_materialToDrag.internalId()), nullptr, {128, 128}));
                 } else {
+                    internalId.setNum(m_textureToDrag.internalId());
+                    mimeData->setData(Constants::MIME_TYPE_TEXTURE, internalId);
                     QString iconPath = QLatin1String("%1/%2")
                                     .arg(DocumentManager::currentResourcePath().path(),
                                          m_textureToDrag.variantProperty("source").value().toString());

@@ -59,10 +59,10 @@ StudioControls.ComboBox {
 
         anchors.fill: parent
 
-        property string assetPath: ""
+        property string dropData: ""
 
         onEntered: (drag) => {
-            dropArea.assetPath = drag.getDataAsString(drag.keys[0]).split(",")[0]
+            dropArea.dropData = drag.getDataAsString(drag.keys[0]).split(",")[0]
             drag.accepted = comboBox.backendValue !== undefined && comboBox.backendValue.hasActiveDrag
             comboBox.hasActiveHoverDrag = drag.accepted
         }
@@ -70,7 +70,7 @@ StudioControls.ComboBox {
         onExited: comboBox.hasActiveHoverDrag = false
 
         onDropped: {
-            comboBox.backendValue.commitDrop(dropArea.assetPath)
+            comboBox.backendValue.commitDrop(dropArea.dropData)
             comboBox.hasActiveHoverDrag = false
         }
 

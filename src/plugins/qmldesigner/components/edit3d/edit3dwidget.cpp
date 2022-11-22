@@ -419,11 +419,7 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
         QByteArray data = dropEvent->mimeData()->data(isMaterial
                                           ? QString::fromLatin1(Constants::MIME_TYPE_MATERIAL)
                                           : QString::fromLatin1(Constants::MIME_TYPE_TEXTURE));
-        QDataStream stream(data);
-        qint32 internalId;
-        stream >> internalId;
-
-        if (ModelNode dropNode = m_view->modelNodeForInternalId(internalId)) {
+        if (ModelNode dropNode = m_view->modelNodeForInternalId(data.toInt())) {
             if (isMaterial)
                 m_view->dropMaterial(dropNode, pos);
             else

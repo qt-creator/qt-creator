@@ -1142,16 +1142,17 @@ void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highligh
 
 void MaterialEditorView::dragStarted(QMimeData *mimeData)
 {
-    if (!mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
-        return;
+    if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
+        const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',')[0];
+        QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
 
-    const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',')[0];
-    QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
+        if (assetType != Constants::MIME_TYPE_ASSET_IMAGE) // currently only image assets have dnd-supported properties
+            return;
 
-    if (assetType != Constants::MIME_TYPE_ASSET_IMAGE) // currently only image assets have dnd-supported properties
-        return;
-
-    highlightSupportedProperties();
+        highlightSupportedProperties();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+        highlightSupportedProperties();
+    }
 }
 
 void MaterialEditorView::dragEnded()
