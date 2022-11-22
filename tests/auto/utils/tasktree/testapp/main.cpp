@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include <app/app_version.h>
+
 #include <QString>
+#include <QThread>
 
 #ifdef Q_OS_WIN
 #include <crtdbg.h>
@@ -11,6 +13,7 @@
 
 const char CRASH_OPTION[] = "-crash";
 const char RETURN_OPTION[] = "-return";
+const char SLEEP_OPTION[] = "-sleep";
 
 int main(int argc, char **argv)
 {
@@ -33,6 +36,21 @@ int main(int argc, char **argv)
                 const int retVal = retString.toInt(&ok);
                 if (ok)
                     return retVal;
+                // not an int return value
+                return 1;
+            }
+            // lacking return value
+            return 1;
+        }
+        if (arg == SLEEP_OPTION) {
+            if (argc > 2) {
+                const auto secondsString = QString::fromLocal8Bit(argv[2]);
+                bool ok = false;
+                const int secondsVal = secondsString.toInt(&ok);
+                if (ok) {
+                    QThread::sleep(secondsVal);
+                    return 0;
+                }
                 // not an int return value
                 return 1;
             }

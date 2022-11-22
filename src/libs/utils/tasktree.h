@@ -45,6 +45,7 @@ private:
     void activateStorage(int id);
 
     struct StorageData {
+        ~StorageData();
         StorageConstructor m_constructor = {};
         StorageDestructor m_destructor = {};
         QHash<int, void *> m_storageHash = {};

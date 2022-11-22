@@ -38,6 +38,7 @@ private slots:
     void processTree();
     void storage_data();
     void storage();
+    void storageDestructor();
 
     void cleanupTestCase();
 
@@ -629,6 +630,28 @@ void tst_TaskTree::storage()
     const int expectedErrorCount = success ? 0 : 1;
     QCOMPARE(doneCount, expectedDoneCount);
     QCOMPARE(errorCount, expectedErrorCount);
+}
+
+void tst_TaskTree::storageDestructor()
+{
+    using namespace Tasking;
+
+    QCOMPARE(CustomStorage::instanceCount(), 0);
+    {
+        const auto setupProcess = [this](QtcProcess &process) {
+            process.setCommand(CommandLine(m_testAppPath, {"-sleep", "1"}));
+        };
+        const Group root {
+            Storage(TreeStorage<CustomStorage>()),
+            Process(setupProcess)
+        };
+
+        TaskTree processTree(root);
+        QCOMPARE(CustomStorage::instanceCount(), 0);
+        processTree.start();
+        QCOMPARE(CustomStorage::instanceCount(), 1);
+    }
+    QCOMPARE(CustomStorage::instanceCount(), 0);
 }
 
 QTEST_GUILESS_MAIN(tst_TaskTree)

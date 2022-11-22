@@ -17,6 +17,13 @@ bool TreeStorageBase::isValid() const
 TreeStorageBase::TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor)
     : m_storageData(new StorageData{ctor, dtor}) { }
 
+TreeStorageBase::StorageData::~StorageData()
+{
+    QTC_CHECK(m_storageHash.isEmpty());
+    for (void *ptr : m_storageHash)
+        m_destructor(ptr);
+}
+
 void *TreeStorageBase::activeStorageVoid() const
 {
     QTC_ASSERT(m_storageData->m_activeStorage, return nullptr);
@@ -283,6 +290,7 @@ TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *pa
 TaskContainer::~TaskContainer()
 {
     qDeleteAll(m_children);
+    deleteStorages();
 }
 
 void TaskContainer::start()
@@ -458,6 +466,7 @@ void TaskContainer::updateSuccessBit(bool success)
 void TaskContainer::createStorages()
 {
     // TODO: Don't create new storage for already created storages with the same shared pointer.
+    QTC_CHECK(m_storageIdList.isEmpty());
 
     for (int i = 0; i < m_storageList.size(); ++i)
         m_storageIdList << m_storageList[i].createStorage();
@@ -467,7 +476,7 @@ void TaskContainer::deleteStorages()
 {
     // TODO: Do the opposite
 
-    for (int i = 0; i < m_storageList.size(); ++i) // iterate in reverse order?
+    for (int i = 0; i < m_storageIdList.size(); ++i) // iterate in reverse order?
         m_storageList[i].deleteStorage(m_storageIdList.value(i));
 
     m_storageIdList.clear();
