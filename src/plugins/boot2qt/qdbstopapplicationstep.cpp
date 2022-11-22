@@ -28,8 +28,7 @@ class QdbStopApplicationService : public RemoteLinux::AbstractRemoteLinuxDeployS
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbStopApplicationService)
 
 public:
-    QdbStopApplicationService() {}
-    ~QdbStopApplicationService() { cleanup(); }
+    QdbStopApplicationService() = default;
 
 private:
     void handleProcessDone();
@@ -38,8 +37,6 @@ private:
 
     void doDeploy() final;
     void stopDeployment() final;
-
-    void cleanup();
 
     QtcProcess m_process;
     QString m_errorOutput;
@@ -94,15 +91,9 @@ void QdbStopApplicationService::doDeploy()
 
 void QdbStopApplicationService::stopDeployment()
 {
-    cleanup();
+    m_process.close();
     handleDeploymentDone();
 }
-
-void QdbStopApplicationService::cleanup()
-{
-    m_process.close();
-}
-
 
 // QdbStopApplicationStep
 
