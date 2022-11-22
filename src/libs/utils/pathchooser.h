@@ -91,6 +91,7 @@ public:
     static FilePath homePath();
 
     void addButton(const QString &text, QObject *context, const std::function<void()> &callback);
+    void insertButton(int index, QAbstractButton *button);
     void insertButton(int index, const QString &text, QObject *context, const std::function<void()> &callback);
     QAbstractButton *buttonAtIndex(int index) const;
 
@@ -157,7 +158,7 @@ private:
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
-    void slotBrowse();
+    void slotBrowse(bool remote);
     void contextMenuRequested(const QPoint &pos);
 
     PathChooserPrivate *d = nullptr;

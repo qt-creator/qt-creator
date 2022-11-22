@@ -90,26 +90,31 @@ public:
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);
 
+    static bool hasNativeFileDialog();
+
     static FilePath getOpenFilePath(QWidget *parent,
                                     const QString &caption,
                                     const FilePath &dir = {},
                                     const QString &filter = {},
                                     QString *selectedFilter = nullptr,
                                     QFileDialog::Options options = {},
-                                    bool fromDeviceIfShiftIsPressed = false);
+                                    bool fromDeviceIfShiftIsPressed = false,
+                                    bool forceNonNativeDialog = false);
 
     static FilePath getSaveFilePath(QWidget *parent,
                                     const QString &caption,
                                     const FilePath &dir = {},
                                     const QString &filter = {},
                                     QString *selectedFilter = nullptr,
-                                    QFileDialog::Options options = {});
+                                    QFileDialog::Options options = {},
+                                    bool forceNonNativeDialog = false);
 
     static FilePath getExistingDirectory(QWidget *parent,
                                          const QString &caption,
                                          const FilePath &dir = {},
                                          QFileDialog::Options options = QFileDialog::ShowDirsOnly,
-                                         bool fromDeviceIfShiftIsPressed = false);
+                                         bool fromDeviceIfShiftIsPressed = false,
+                                         bool forceNonNativeDialog = false);
 
     static FilePaths getOpenFilePaths(QWidget *parent,
                                       const QString &caption,

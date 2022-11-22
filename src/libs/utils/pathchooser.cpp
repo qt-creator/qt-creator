@@ -8,11 +8,13 @@
 #include "fileutils.h"
 #include "hostosinfo.h"
 #include "macroexpander.h"
+#include "optionpushbutton.h"
 #include "qtcassert.h"
 #include "qtcprocess.h"
+#include "utilstr.h"
 
-#include <QGuiApplication>
 #include <QFileDialog>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QPushButton>
@@ -174,6 +176,9 @@ public:
     const MacroExpander *m_macroExpander = globalMacroExpander();
     std::function<void()> m_openTerminal;
     bool m_allowPathFromDevice = false;
+
+    QMenu *m_contextMenu = nullptr;
+    OptionPushButton *m_browseButton = nullptr;
 };
 
 PathChooserPrivate::PathChooserPrivate()
@@ -254,7 +259,15 @@ PathChooser::PathChooser(QWidget *parent) :
     d->m_hLayout->addWidget(d->m_lineEdit);
     d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    addButton(browseButtonLabel(), this, [this] { slotBrowse(); });
+    d->m_contextMenu = new QMenu(d->m_browseButton);
+    d->m_contextMenu->addAction(Tr::tr("Local"), this, [this] { slotBrowse(false); });
+    d->m_contextMenu->addAction(Tr::tr("Remote"), this, [this] { slotBrowse(true); });
+
+    d->m_browseButton = new OptionPushButton();
+    d->m_browseButton->setText(browseButtonLabel());
+    connect(d->m_browseButton, &OptionPushButton::clicked, this, [this] { slotBrowse(false); });
+
+    insertButton(d->m_buttons.count(), d->m_browseButton);
 
     setLayout(d->m_hLayout);
     setFocusProxy(d->m_lineEdit);
@@ -277,13 +290,18 @@ void PathChooser::addButton(const QString &text, QObject *context, const std::fu
     insertButton(d->m_buttons.count(), text, context, callback);
 }
 
+void PathChooser::insertButton(int index, QAbstractButton *button)
+{
+    d->m_hLayout->insertWidget(index + 1 /*line edit*/, button);
+    d->m_buttons.insert(index, button);
+}
+
 void PathChooser::insertButton(int index, const QString &text, QObject *context, const std::function<void ()> &callback)
 {
     auto button = new QPushButton;
     button->setText(text);
     connect(button, &QAbstractButton::clicked, context, callback);
-    d->m_hLayout->insertWidget(index + 1/*line edit*/, button);
-    d->m_buttons.insert(index, button);
+    insertButton(index, button);
 }
 
 QString PathChooser::browseButtonLabel()
@@ -371,7 +389,7 @@ void PathChooser::setReadOnly(bool b)
         button->setEnabled(!b);
 }
 
-void PathChooser::slotBrowse()
+void PathChooser::slotBrowse(bool remote)
 {
     emit beforeBrowsing();
 
@@ -387,6 +405,8 @@ void PathChooser::slotBrowse()
             predefined.clear();
     }
 
+    remote = remote || filePath().needsDevice();
+
     // Prompt for a file/dir
     FilePath newPath;
     switch (d->m_acceptingKind) {
@@ -394,7 +414,10 @@ void PathChooser::slotBrowse()
     case PathChooser::ExistingDirectory:
         newPath = FileUtils::getExistingDirectory(this,
                                                   makeDialogTitle(tr("Choose Directory")),
-                                                  predefined, {}, d->m_allowPathFromDevice);
+                                                  predefined,
+                                                  {},
+                                                  d->m_allowPathFromDevice,
+                                                  remote);
         break;
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
@@ -404,7 +427,8 @@ void PathChooser::slotBrowse()
                                              d->m_dialogFilter,
                                              nullptr,
                                              {},
-                                             d->m_allowPathFromDevice);
+                                             d->m_allowPathFromDevice,
+                                             remote);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::File: // fall through
@@ -414,14 +438,18 @@ void PathChooser::slotBrowse()
                                              d->m_dialogFilter,
                                              nullptr,
                                              {},
-                                             d->m_allowPathFromDevice);
+                                             d->m_allowPathFromDevice,
+                                             remote);
         newPath = appBundleExpandedPath(newPath);
         break;
     case PathChooser::SaveFile:
         newPath = FileUtils::getSaveFilePath(this,
                                              makeDialogTitle(tr("Choose File")),
                                              predefined,
-                                             d->m_dialogFilter);
+                                             d->m_dialogFilter,
+                                             nullptr,
+                                             {},
+                                             remote);
         break;
     case PathChooser::Any: {
         newPath = FileUtils::getOpenFilePath(this,
@@ -430,7 +458,8 @@ void PathChooser::slotBrowse()
                                              d->m_dialogFilter,
                                              nullptr,
                                              {},
-                                             d->m_allowPathFromDevice);
+                                             d->m_allowPathFromDevice,
+                                             remote);
         break;
     }
     default:
@@ -740,6 +769,11 @@ void PathChooser::setCommandVersionArguments(const QStringList &arguments)
 void PathChooser::setAllowPathFromDevice(bool allow)
 {
     d->m_allowPathFromDevice = allow;
+
+    if (allow && FileUtils::hasNativeFileDialog())
+        d->m_browseButton->setOptionalMenu(d->m_contextMenu);
+    else
+        d->m_browseButton->setOptionalMenu(nullptr);
 }
 
 bool PathChooser::allowPathFromDevice() const

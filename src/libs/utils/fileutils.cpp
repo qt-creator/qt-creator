@@ -481,15 +481,29 @@ FilePath firstOrEmpty(const FilePaths &filePaths)
     return filePaths.isEmpty() ? FilePath() : filePaths.first();
 }
 
+bool FileUtils::hasNativeFileDialog()
+{
+    static std::optional<bool> hasNative;
+    if (!hasNative.has_value()) {
+        // Checking QFileDialog::itemDelegate() seems to be the only way to determine
+        // whether the dialog is native or not.
+        QFileDialog dialog;
+        hasNative = dialog.itemDelegate() == nullptr;
+    }
+
+    return *hasNative;
+}
+
 FilePath FileUtils::getOpenFilePath(QWidget *parent,
                                     const QString &caption,
                                     const FilePath &dir,
                                     const QString &filter,
                                     QString *selectedFilter,
                                     QFileDialog::Options options,
-                                    bool fromDeviceIfShiftIsPressed)
+                                    bool fromDeviceIfShiftIsPressed,
+                                    bool forceNonNativeDialog)
 {
-    bool forceNonNativeDialog = dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
 #ifdef QT_GUI_LIB
     if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
         forceNonNativeDialog = true;
@@ -514,9 +528,10 @@ FilePath FileUtils::getSaveFilePath(QWidget *parent,
                                     const FilePath &dir,
                                     const QString &filter,
                                     QString *selectedFilter,
-                                    QFileDialog::Options options)
+                                    QFileDialog::Options options,
+                                    bool forceNonNativeDialog)
 {
-    bool forceNonNativeDialog = dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
 
     const QStringList schemes = QStringList(QStringLiteral("file"));
     return firstOrEmpty(getFilePaths(dialogParent(parent),
@@ -535,9 +550,10 @@ FilePath FileUtils::getExistingDirectory(QWidget *parent,
                                          const QString &caption,
                                          const FilePath &dir,
                                          QFileDialog::Options options,
-                                         bool fromDeviceIfShiftIsPressed)
+                                         bool fromDeviceIfShiftIsPressed,
+                                         bool forceNonNativeDialog)
 {
-    bool forceNonNativeDialog = dir.needsDevice();
+    forceNonNativeDialog = forceNonNativeDialog || dir.needsDevice();
 
 #ifdef QT_GUI_LIB
     if (fromDeviceIfShiftIsPressed && qApp->queryKeyboardModifiers() & Qt::ShiftModifier) {
