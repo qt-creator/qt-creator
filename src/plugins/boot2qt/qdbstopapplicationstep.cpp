@@ -58,16 +58,9 @@ void QdbStopApplicationService::handleProcessDone()
 
     if (m_process.exitStatus() == QProcess::CrashExit) {
         emit errorMessage(failureMessage);
-        stopDeployment();
-        return;
-    }
-
-    if (m_process.result() != ProcessResult::FinishedWithSuccess) {
+    } else if (m_process.result() != ProcessResult::FinishedWithSuccess) {
         emit stdErrData(m_process.errorString());
-        return;
-    }
-
-    if (m_errorOutput.contains("Could not connect: Connection refused")) {
+    } else if (m_errorOutput.contains("Could not connect: Connection refused")) {
         emit progressMessage(tr("Checked that there is no running application."));
     } else if (!m_errorOutput.isEmpty()) {
         emit stdErrData(m_errorOutput);
