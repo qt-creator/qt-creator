@@ -52,6 +52,7 @@ public:
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(int index, const QPointF &mousePos);
     Q_INVOKABLE void acceptBundleMaterialDrop();
+    Q_INVOKABLE void acceptBundleTextureDrop();
 
     QQuickWidget *quickWidget() const;
 

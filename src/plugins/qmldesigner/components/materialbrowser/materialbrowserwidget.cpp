@@ -257,6 +257,11 @@ void MaterialBrowserWidget::acceptBundleMaterialDrop()
     m_materialBrowserView->emitCustomNotification("drop_bundle_material", {}, {}); // To ContentLibraryView
 }
 
+void MaterialBrowserWidget::acceptBundleTextureDrop()
+{
+    m_materialBrowserView->emitCustomNotification("drop_bundle_texture", {}, {}); // To ContentLibraryView
+}
+
 QString MaterialBrowserWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH

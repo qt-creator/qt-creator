@@ -58,11 +58,6 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_MATERIAL, data);
                 mimeData->removeFormat("text/plain");
 
-                if (!m_draggedMaterial) {
-                    m_draggedMaterial = m_materialToDrag;
-                    emit draggedMaterialChanged();
-                }
-
                 emit bundleMaterialDragStarted(m_materialToDrag);
                 model->startDrag(mimeData, m_materialToDrag->icon().toLocalFile());
                 m_materialToDrag = nullptr;
@@ -77,6 +72,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, data);
                 mimeData->removeFormat("text/plain");
 
+                emit bundleTextureDragStarted(m_textureToDrag);
                 model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
                 m_textureToDrag = nullptr;
             }
@@ -84,11 +80,6 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = nullptr;
         m_textureToDrag = nullptr;
-
-        if (m_draggedMaterial) {
-            m_draggedMaterial = nullptr;
-            emit draggedMaterialChanged();
-        }
     }
 
     return QObject::eventFilter(obj, event);

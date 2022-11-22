@@ -12,6 +12,7 @@
 namespace QmlDesigner {
 
 class ContentLibraryMaterial;
+class ContentLibraryTexture;
 class ContentLibraryWidget;
 class Model;
 
@@ -47,6 +48,7 @@ private:
     QList<ModelNode> m_bundleMaterialTargets;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
+    ContentLibraryTexture *m_draggedBundleTexture = nullptr;
     ModelNode m_activeSceneEnv;
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;

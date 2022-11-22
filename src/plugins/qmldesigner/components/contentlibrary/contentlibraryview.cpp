@@ -8,6 +8,7 @@
 #include "contentlibrarywidget.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
+#include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
 #include "modelnodeoperations.h"
 #include "nodelistproperty.h"
@@ -48,6 +49,10 @@ WidgetInfo ContentLibraryView::widgetInfo()
         connect(m_widget, &ContentLibraryWidget::bundleMaterialDragStarted, this,
                 [&] (QmlDesigner::ContentLibraryMaterial *mat) {
             m_draggedBundleMaterial = mat;
+        });
+        connect(m_widget, &ContentLibraryWidget::bundleTextureDragStarted, this,
+                [&] (QmlDesigner::ContentLibraryTexture *tex) {
+            m_draggedBundleTexture = tex;
         });
         connect(m_widget, &ContentLibraryWidget::addTextureRequested, this,
                 [&] (const QString texPath, ContentLibraryWidget::AddTextureMode mode) {
@@ -237,6 +242,14 @@ void ContentLibraryView::customNotification(const AbstractView *view, const QStr
         }
 
         m_draggedBundleMaterial = nullptr;
+    } else  if (identifier == "drop_bundle_texture") {
+        ModelNode matLib = materialLibraryNode();
+        if (!matLib.isValid())
+            return;
+
+        m_widget->addTexture(m_draggedBundleTexture);
+
+        m_draggedBundleTexture = nullptr;
     }
 }
 

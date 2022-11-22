@@ -49,7 +49,7 @@ public:
 
 signals:
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
-    void draggedMaterialChanged();
+    void bundleTextureDragStarted(QmlDesigner::ContentLibraryTexture *bundleTex);
     void addTextureRequested(const QString texPath, QmlDesigner::ContentLibraryWidget::AddTextureMode mode);
 
 protected:
@@ -70,7 +70,6 @@ private:
     QString m_filterText;
 
     ContentLibraryMaterial *m_materialToDrag = nullptr;
-    ContentLibraryMaterial *m_draggedMaterial = nullptr;
     ContentLibraryTexture *m_textureToDrag = nullptr;
     QPoint m_dragStartPoint;
 };

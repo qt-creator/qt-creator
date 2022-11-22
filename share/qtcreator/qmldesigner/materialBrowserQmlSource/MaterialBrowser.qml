@@ -234,6 +234,22 @@ Item {
                         width: root.width
                         caption: qsTr("Textures")
 
+                        dropEnabled: true
+
+                        onDropEnter: (drag) => {
+                            drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture"
+                            highlight = drag.accepted
+                        }
+
+                        onDropExit: {
+                            highlight = false
+                        }
+
+                        onDrop: {
+                            highlight = false
+                            rootView.acceptBundleTextureDrop()
+                        }
+
                         Grid {
                             width: scrollView.width
                             leftPadding: 5
@@ -289,6 +305,21 @@ Item {
                         onClicked: materialBrowserTexturesModel.addNewTexture()
                         enabled: root.enableUiElements
                     }
+                }
+
+                DropArea {
+                    id: masterDropArea
+
+                    property int emptyHeight: scrollView.height - materialsSection.height - texturesSection.height
+
+                    width: root.width
+                    height: emptyHeight > 0 ? emptyHeight : 0
+
+                    enabled: true
+
+                    onEntered: (drag) => texturesSection.dropEnter(drag)
+                    onDropped: (drag) => texturesSection.drop(drag)
+                    onExited: texturesSection.dropExit()
                 }
             }
         }
