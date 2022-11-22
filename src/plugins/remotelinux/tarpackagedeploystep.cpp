@@ -20,80 +20,36 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
 class TarPackageDeployService : public AbstractRemoteLinuxDeployService
 {
 public:
-    TarPackageDeployService();
     void setPackageFilePath(const FilePath &filePath);
 
 private:
-    enum State { Inactive, Uploading, Installing };
-
-    void handleUploadFinished(const ProcessResultData &resultData);
-    void handleInstallationFinished(const QString &errorMsg);
-
-    QString uploadDir() const; // Defaults to remote user's home directory.
+    QString remoteFilePath() const;
 
     bool isDeploymentNecessary() const override;
     void doDeploy() override;
     void stopDeployment() override;
+    TaskItem uploadTask();
+    TaskItem installTask();
 
-    void setFinished();
-
-    void installPackage(const IDeviceConstPtr &deviceConfig, const QString &packageFilePath);
-
-    State m_state = Inactive;
-    FileTransfer m_uploader;
     FilePath m_packageFilePath;
-
-    IDevice::ConstPtr m_device;
-    QtcProcess m_installer;
+    std::unique_ptr<TaskTree> m_taskTree;
 };
-
-TarPackageDeployService::TarPackageDeployService()
-{
-    connect(&m_uploader, &FileTransfer::done, this,
-            &TarPackageDeployService::handleUploadFinished);
-    connect(&m_uploader, &FileTransfer::progress, this,
-            &TarPackageDeployService::progressMessage);
-
-    connect(&m_installer, &QtcProcess::readyReadStandardOutput, this, [this] {
-        emit stdOutData(QString::fromUtf8(m_installer.readAllStandardOutput()));
-    });
-    connect(&m_installer, &QtcProcess::readyReadStandardError, this, [this] {
-        emit stdErrData(QString::fromUtf8(m_installer.readAllStandardError()));
-    });
-    connect(&m_installer, &QtcProcess::done, this, [this] {
-        const QString errorMessage = m_installer.result() == ProcessResult::FinishedWithSuccess
-                ? QString() : Tr::tr("Installing package failed.") + m_installer.errorString();
-        handleInstallationFinished(errorMessage);
-    });
-}
-
-void TarPackageDeployService::installPackage(const IDevice::ConstPtr &deviceConfig,
-                                             const QString &packageFilePath)
-{
-    QTC_ASSERT(m_installer.state() == QProcess::NotRunning, return);
-
-    m_device = deviceConfig;
-
-    const QString cmdLine = QLatin1String("cd / && tar xvf ") + packageFilePath
-            + " && (rm " + packageFilePath + " || :)";
-    m_installer.setCommand({m_device->filePath("/bin/sh"), {"-c", cmdLine}});
-    m_installer.start();
-}
 
 void TarPackageDeployService::setPackageFilePath(const FilePath &filePath)
 {
     m_packageFilePath = filePath;
 }
 
-QString TarPackageDeployService::uploadDir() const
+QString TarPackageDeployService::remoteFilePath() const
 {
-    return QLatin1String("/tmp");
+    return QLatin1String("/tmp/") + m_packageFilePath.fileName();
 }
 
 bool TarPackageDeployService::isDeploymentNecessary() const
@@ -101,61 +57,72 @@ bool TarPackageDeployService::isDeploymentNecessary() const
     return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
 }
 
+TaskItem TarPackageDeployService::uploadTask()
+{
+    auto setupHandler = [this](FileTransfer &transfer) {
+        const FilesToTransfer files {{m_packageFilePath,
+                        deviceConfiguration()->filePath(remoteFilePath())}};
+        transfer.setFilesToTransfer(files);
+        connect(&transfer, &FileTransfer::progress,
+                this, &TarPackageDeployService::progressMessage);
+        emit progressMessage(Tr::tr("Uploading package to device..."));
+    };
+    auto doneHandler = [this](const FileTransfer &) {
+        emit progressMessage(Tr::tr("Successfully uploaded package file."));
+    };
+    auto errorHandler = [this](const FileTransfer &transfer) {
+        const ProcessResultData result = transfer.resultData();
+        emit errorMessage(result.m_errorString);
+    };
+    return Transfer(setupHandler, doneHandler, errorHandler);
+}
+
+TaskItem TarPackageDeployService::installTask()
+{
+    auto setupHandler = [this](QtcProcess &process) {
+        const QString cmdLine = QLatin1String("cd / && tar xvf ") + remoteFilePath()
+                + " && (rm " + remoteFilePath() + " || :)";
+        process.setCommand({deviceConfiguration()->filePath("/bin/sh"), {"-c", cmdLine}});
+        QtcProcess *proc = &process;
+        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
+            emit stdOutData(QString::fromUtf8(proc->readAllStandardOutput()));
+        });
+        connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
+            emit stdErrData(QString::fromUtf8(proc->readAllStandardError()));
+        });
+        emit progressMessage(Tr::tr("Installing package to device..."));
+    };
+    auto doneHandler = [this](const QtcProcess &) {
+        saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
+        emit progressMessage(Tr::tr("Successfully installed package file."));
+    };
+    auto errorHandler = [this](const QtcProcess &process) {
+        emit errorMessage(Tr::tr("Installing package failed.") + process.errorString());
+    };
+    return Process(setupHandler, doneHandler, errorHandler);
+}
+
 void TarPackageDeployService::doDeploy()
 {
-    QTC_ASSERT(m_state == Inactive, return);
+    QTC_ASSERT(!m_taskTree, return);
 
-    m_state = Uploading;
-
-    const QString remoteFilePath = uploadDir() + QLatin1Char('/') + m_packageFilePath.fileName();
-    const FilesToTransfer files {{m_packageFilePath,
-                    deviceConfiguration()->filePath(remoteFilePath)}};
-    m_uploader.setFilesToTransfer(files);
-    m_uploader.start();
+    auto finishHandler = [this] {
+        m_taskTree.release()->deleteLater();
+        stopDeployment();
+    };
+    Group root {
+        uploadTask(),
+        installTask(),
+        OnGroupDone(finishHandler),
+        OnGroupError(finishHandler),
+    };
+    m_taskTree.reset(new TaskTree(root));
+    m_taskTree->start();
 }
 
 void TarPackageDeployService::stopDeployment()
 {
-    QTC_ASSERT(m_state != Inactive, return);
-    setFinished();
-}
-
-void TarPackageDeployService::handleUploadFinished(const ProcessResultData &resultData)
-{
-    QTC_ASSERT(m_state == Uploading, return);
-
-    if (resultData.m_error != QProcess::UnknownError) {
-        emit errorMessage(resultData.m_errorString);
-        setFinished();
-        return;
-    }
-
-    emit progressMessage(Tr::tr("Successfully uploaded package file."));
-    const QString remoteFilePath = uploadDir() + '/' + m_packageFilePath.fileName();
-    m_state = Installing;
-    emit progressMessage(Tr::tr("Installing package to device..."));
-
-    installPackage(deviceConfiguration(), remoteFilePath);
-}
-
-void TarPackageDeployService::handleInstallationFinished(const QString &errorMsg)
-{
-    QTC_ASSERT(m_state == Installing, return);
-
-    if (errorMsg.isEmpty()) {
-        saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
-        emit progressMessage(Tr::tr("Package installed."));
-    } else {
-        emit errorMessage(errorMsg);
-    }
-    setFinished();
-}
-
-void TarPackageDeployService::setFinished()
-{
-    m_state = Inactive;
-    m_uploader.stop();
-    m_installer.close();
+    m_taskTree.reset();
     handleDeploymentDone();
 }
 
