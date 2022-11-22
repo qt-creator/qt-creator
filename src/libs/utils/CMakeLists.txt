@@ -127,7 +127,6 @@ add_qtc_library(Utils
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h
-    proxycredentialsdialog.cpp proxycredentialsdialog.h proxycredentialsdialog.ui
     qrcparser.cpp qrcparser.h
     qtcassert.cpp qtcassert.h
     qtcolorbutton.cpp qtcolorbutton.h
