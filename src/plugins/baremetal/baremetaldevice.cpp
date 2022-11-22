@@ -86,11 +86,6 @@ QVariantMap BareMetalDevice::toMap() const
     return map;
 }
 
-DeviceProcessSignalOperation::Ptr BareMetalDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr();
-}
-
 IDeviceWidget *BareMetalDevice::createWidget()
 {
     return new BareMetalDeviceConfigurationWidget(sharedFromThis());

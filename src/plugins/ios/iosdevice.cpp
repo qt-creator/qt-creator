@@ -123,11 +123,6 @@ IDeviceWidget *IosDevice::createWidget()
     return new IosDeviceInfoWidget(sharedFromThis());
 }
 
-DeviceProcessSignalOperation::Ptr IosDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr();
-}
-
 void IosDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);

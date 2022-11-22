@@ -756,16 +756,6 @@ DeviceTester *DockerDevice::createDeviceTester() const
     return nullptr;
 }
 
-DeviceProcessSignalOperation::Ptr DockerDevice::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr();
-}
-
-DeviceEnvironmentFetcher::Ptr DockerDevice::environmentFetcher() const
-{
-    return DeviceEnvironmentFetcher::Ptr();
-}
-
 bool DockerDevice::usableAsBuildDevice() const
 {
     return true;

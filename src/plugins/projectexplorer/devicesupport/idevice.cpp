@@ -396,9 +396,14 @@ OsType IDevice::osType() const
     return d->osType;
 }
 
+DeviceProcessSignalOperation::Ptr IDevice::signalOperation() const
+{
+    return {};
+}
+
 DeviceEnvironmentFetcher::Ptr IDevice::environmentFetcher() const
 {
-    return DeviceEnvironmentFetcher::Ptr();
+    return {};
 }
 
 IDevice::DeviceState IDevice::deviceState() const

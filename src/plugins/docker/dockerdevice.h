@@ -76,8 +76,6 @@ public:
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
     bool hasDeviceTester() const override { return false; }
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     bool usableAsBuildDevice() const override;
 
     Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;

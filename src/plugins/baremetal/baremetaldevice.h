@@ -26,8 +26,6 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
 
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const final;
-
     QString debugServerProviderId() const;
     void setDebugServerProviderId(const QString &id);
     void unregisterDebugServerProvider(IDebugServerProvider *provider);

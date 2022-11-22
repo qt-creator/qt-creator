@@ -47,11 +47,6 @@ IDeviceWidget *IosSimulator::createWidget()
     return nullptr;
 }
 
-DeviceProcessSignalOperation::Ptr IosSimulator::signalOperation() const
-{
-    return DeviceProcessSignalOperation::Ptr();
-}
-
 Utils::Port IosSimulator::nextPort() const
 {
     for (int i = 0; i < 100; ++i) {

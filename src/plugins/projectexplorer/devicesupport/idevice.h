@@ -162,7 +162,7 @@ public:
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
 
-    virtual DeviceProcessSignalOperation::Ptr signalOperation() const = 0;
+    virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
     virtual DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };

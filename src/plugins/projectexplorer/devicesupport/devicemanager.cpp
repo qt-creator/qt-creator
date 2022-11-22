@@ -522,10 +522,6 @@ public:
     static Utils::Id testTypeId() { return "TestType"; }
 private:
     IDeviceWidget *createWidget() override { return nullptr; }
-    DeviceProcessSignalOperation::Ptr signalOperation() const override
-    {
-        return DeviceProcessSignalOperation::Ptr();
-    }
 };
 
 class TestDeviceFactory final : public IDeviceFactory

@@ -50,7 +50,6 @@ public:
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
 
