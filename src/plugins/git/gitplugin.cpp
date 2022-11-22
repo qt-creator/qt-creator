@@ -1546,6 +1546,13 @@ void GitPluginPrivate::instantBlame()
     const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
     if (!widget)
         return;
+
+    if (widget->textDocument()->isModified()) {
+        m_blameMark.reset();
+        m_lastVisitedEditorLine = -1;
+        return;
+    }
+
     const QTextCursor cursor = widget->textCursor();
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
