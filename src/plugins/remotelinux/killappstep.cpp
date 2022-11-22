@@ -23,8 +23,6 @@ namespace RemoteLinux::Internal {
 class KillAppService : public AbstractRemoteLinuxDeployService
 {
 public:
-    ~KillAppService() override;
-
     void setRemoteExecutable(const FilePath &filePath);
 
 private:
@@ -43,11 +41,6 @@ private:
     FilePath m_remoteExecutable;
     DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
-
-KillAppService::~KillAppService()
-{
-    cleanup();
-}
 
 void KillAppService::setRemoteExecutable(const FilePath &filePath)
 {
