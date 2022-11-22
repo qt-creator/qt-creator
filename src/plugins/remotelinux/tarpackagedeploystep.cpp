@@ -43,9 +43,7 @@ private:
 
     void setFinished();
 
-    void installPackage(const IDeviceConstPtr &deviceConfig,
-                        const QString &packageFilePath,
-                        bool removePackageFile);
+    void installPackage(const IDeviceConstPtr &deviceConfig, const QString &packageFilePath);
     void cancelInstallation();
 
     State m_state = Inactive;
@@ -78,15 +76,14 @@ TarPackageDeployService::TarPackageDeployService()
 }
 
 void TarPackageDeployService::installPackage(const IDevice::ConstPtr &deviceConfig,
-    const QString &packageFilePath, bool removePackageFile)
+                                             const QString &packageFilePath)
 {
     QTC_ASSERT(m_installer.state() == QProcess::NotRunning, return);
 
     m_device = deviceConfig;
 
-    QString cmdLine = QLatin1String("cd / && tar xvf ") + packageFilePath;
-    if (removePackageFile)
-        cmdLine += QLatin1String(" && (rm ") + packageFilePath + QLatin1String(" || :)");
+    const QString cmdLine = QLatin1String("cd / && tar xvf ") + packageFilePath
+            + " && (rm " + packageFilePath + " || :)";
     m_installer.setCommand({m_device->filePath("/bin/sh"), {"-c", cmdLine}});
     m_installer.start();
 }
@@ -160,7 +157,7 @@ void TarPackageDeployService::handleUploadFinished(const ProcessResultData &resu
     m_state = Installing;
     emit progressMessage(Tr::tr("Installing package to device..."));
 
-    installPackage(deviceConfiguration(), remoteFilePath, true);
+    installPackage(deviceConfiguration(), remoteFilePath);
 }
 
 void TarPackageDeployService::handleInstallationFinished(const QString &errorMsg)
