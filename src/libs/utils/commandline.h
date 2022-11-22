@@ -132,6 +132,9 @@ public:
     void addCommandLineAsArgs(const CommandLine &cmd);
     void addCommandLineAsArgs(const CommandLine &cmd, RawType);
 
+    void addCommandLineAsSingleArg(const CommandLine &cmd);
+    void addCommandLineWithAnd(const CommandLine &cmd);
+
     QString toUserOutput() const;
     QString displayName() const;
 

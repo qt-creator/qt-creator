@@ -1473,6 +1473,26 @@ void CommandLine::addCommandLineAsArgs(const CommandLine &cmd, RawType)
     addArgs(cmd.arguments(), Raw);
 }
 
+void CommandLine::addCommandLineAsSingleArg(const CommandLine &cmd)
+{
+    QString combined;
+    ProcessArgs::addArg(&combined, cmd.executable().path());
+    ProcessArgs::addArgs(&combined, cmd.arguments());
+
+    addArg(combined);
+}
+
+void CommandLine::addCommandLineWithAnd(const CommandLine &cmd)
+{
+    if (m_executable.isEmpty()) {
+        *this = cmd;
+        return;
+    }
+
+    addArgs("&&", Raw);
+    addCommandLineAsArgs(cmd);
+}
+
 void CommandLine::addArgs(const QString &inArgs, RawType)
 {
     ProcessArgs::addArgs(&m_arguments, inArgs);

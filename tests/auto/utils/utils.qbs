@@ -5,6 +5,7 @@ Project {
     references: [
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
         "asynctask/asynctask.qbs",
+        "commandline/commandline.qbs",
         "deviceshell/deviceshell.qbs",
         "fileutils/fileutils.qbs",
         "fsengine/fsengine.qbs",
