@@ -19,11 +19,7 @@
 namespace QmlJSEditor {
 namespace Internal {
 
-SemanticInfoUpdater::SemanticInfoUpdater(QObject *parent)
-        : QThread(parent)
-        , m_wasCancelled(false)
-{
-}
+SemanticInfoUpdater::SemanticInfoUpdater() = default;
 
 SemanticInfoUpdater::~SemanticInfoUpdater() = default;
 

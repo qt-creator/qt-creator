@@ -19,7 +19,7 @@ class SemanticInfoUpdater: public QThread
     Q_OBJECT
 
 public:
-    SemanticInfoUpdater(QObject *parent = nullptr);
+    SemanticInfoUpdater();
     ~SemanticInfoUpdater() override;
 
     void abort();
@@ -39,7 +39,7 @@ private:
 private:
     QMutex m_mutex;
     QWaitCondition m_condition;
-    bool m_wasCancelled;
+    bool m_wasCancelled = false;
     QmlJS::Document::Ptr m_sourceDocument;
     QmlJS::Snapshot m_sourceSnapshot;
     QmlJSTools::SemanticInfo m_lastSemanticInfo;
