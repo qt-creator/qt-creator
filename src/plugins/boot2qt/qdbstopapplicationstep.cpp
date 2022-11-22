@@ -28,7 +28,17 @@ class QdbStopApplicationService : public RemoteLinux::AbstractRemoteLinuxDeployS
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbStopApplicationService)
 
 public:
-    QdbStopApplicationService() = default;
+    QdbStopApplicationService()
+    {
+        connect(&m_process, &QtcProcess::done,
+                this, &QdbStopApplicationService::handleProcessDone);
+        connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
+            m_errorOutput.append(QString::fromUtf8(m_process.readAllStandardError()));
+        });
+        connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
+            emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
+        });
+    }
 
 private:
     void handleProcessDone();
@@ -73,16 +83,6 @@ void QdbStopApplicationService::doDeploy()
 {
     auto device = DeviceKitAspect::device(target()->kit());
     QTC_ASSERT(device, return);
-
-    connect(&m_process, &QtcProcess::done,
-            this, &QdbStopApplicationService::handleProcessDone);
-
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-        m_errorOutput.append(QString::fromUtf8(m_process.readAllStandardError()));
-    });
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-        emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
-    });
 
     m_process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
     m_process.setWorkingDirectory("/usr/bin");
