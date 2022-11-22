@@ -146,12 +146,6 @@ void AbstractRemoteLinuxDeployService::importDeployTimes(const QVariantMap &map)
 void AbstractRemoteLinuxDeployService::handleDeploymentDone()
 {
     QTC_ASSERT(d->state == Deploying, return);
-
-    setFinished();
-}
-
-void AbstractRemoteLinuxDeployService::setFinished()
-{
     d->state = Inactive;
     d->stopRequested = false;
     emit finished();

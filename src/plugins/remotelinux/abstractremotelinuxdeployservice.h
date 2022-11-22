@@ -76,8 +76,6 @@ protected:
 
     void handleDeploymentDone();
 
-    void setFinished();
-
 private:
     virtual bool isDeploymentNecessary() const = 0;
     virtual void doDeploy() = 0;
