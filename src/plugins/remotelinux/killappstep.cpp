@@ -26,17 +26,12 @@ public:
     void setRemoteExecutable(const FilePath &filePath);
 
 private:
-    void handleStdErr();
-    void handleProcessFinished();
-
     bool isDeploymentNecessary() const override;
 
     void doDeploy() override;
     void stopDeployment() override;
 
     void handleSignalOpFinished(const QString &errorMessage);
-    void cleanup();
-    void finishDeployment();
 
     FilePath m_remoteExecutable;
     DeviceProcessSignalOperation::Ptr m_signalOperation;
@@ -66,23 +61,13 @@ void KillAppService::doDeploy()
     m_signalOperation->killProcess(m_remoteExecutable.path());
 }
 
-void KillAppService::cleanup()
+void KillAppService::stopDeployment()
 {
     if (m_signalOperation) {
         disconnect(m_signalOperation.data(), nullptr, this, nullptr);
         m_signalOperation.clear();
     }
-}
-
-void KillAppService::finishDeployment()
-{
-    cleanup();
     handleDeploymentDone();
-}
-
-void KillAppService::stopDeployment()
-{
-    finishDeployment();
 }
 
 void KillAppService::handleSignalOpFinished(const QString &errorMessage)
@@ -91,7 +76,7 @@ void KillAppService::handleSignalOpFinished(const QString &errorMessage)
         emit progressMessage(Tr::tr("Remote application killed."));
     else
         emit progressMessage(Tr::tr("Failed to kill remote application. Assuming it was not running."));
-    finishDeployment();
+    stopDeployment();
 }
 
 class KillAppStep : public AbstractRemoteLinuxDeployStep
