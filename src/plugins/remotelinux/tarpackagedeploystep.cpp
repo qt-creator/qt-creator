@@ -44,7 +44,6 @@ private:
     void setFinished();
 
     void installPackage(const IDeviceConstPtr &deviceConfig, const QString &packageFilePath);
-    void cancelInstallation();
 
     State m_state = Inactive;
     FileTransfer m_uploader;
@@ -52,7 +51,6 @@ private:
 
     IDevice::ConstPtr m_device;
     QtcProcess m_installer;
-    QtcProcess m_killer;
 };
 
 TarPackageDeployService::TarPackageDeployService()
@@ -88,15 +86,6 @@ void TarPackageDeployService::installPackage(const IDevice::ConstPtr &deviceConf
     m_installer.start();
 }
 
-void TarPackageDeployService::cancelInstallation()
-{
-    QTC_ASSERT(m_installer.state() != QProcess::NotRunning, return);
-
-    m_killer.setCommand({m_device->filePath("/bin/sh"), {"-c", "pkill tar"}});
-    m_killer.start();
-    m_installer.close();
-}
-
 void TarPackageDeployService::setPackageFilePath(const FilePath &filePath)
 {
     m_packageFilePath = filePath;
@@ -127,19 +116,8 @@ void TarPackageDeployService::doDeploy()
 
 void TarPackageDeployService::stopDeployment()
 {
-    switch (m_state) {
-    case Inactive:
-        qWarning("%s: Unexpected state 'Inactive'.", Q_FUNC_INFO);
-        break;
-    case Uploading:
-        m_uploader.stop();
-        setFinished();
-        break;
-    case Installing:
-        cancelInstallation();
-        setFinished();
-        break;
-    }
+    QTC_ASSERT(m_state != Inactive, return);
+    setFinished();
 }
 
 void TarPackageDeployService::handleUploadFinished(const ProcessResultData &resultData)
