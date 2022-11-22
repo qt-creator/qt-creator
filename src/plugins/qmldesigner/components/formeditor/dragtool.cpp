@@ -269,7 +269,6 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
                 QmlItemNode::createQmlItemNodeForEffect(view(), parentQmlItemNode, effectName);
 
                 view()->setSelectedModelNodes({parentQmlItemNode});
-                view()->resetPuppet();
 
                 commitTransaction();
             }

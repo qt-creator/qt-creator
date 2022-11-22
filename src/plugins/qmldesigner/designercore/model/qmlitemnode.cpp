@@ -172,37 +172,39 @@ void QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
 {
     QmlItemNode newQmlItemNode;
 
-    const bool layerEffect = useLayerEffect();
+    view->executeInTransaction("QmlItemNode::createQmlItemNodeForEffect", [=, &newQmlItemNode, &parentNode]() {
+        const bool layerEffect = useLayerEffect();
 
-    QmlDesigner::Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
-    try {
-        if (!view->model()->hasImport(import, true, true))
-            view->model()->changeImports({import}, {});
-    } catch (const Exception &) {
-        QTC_ASSERT(false, return);
-    }
-
-    TypeName type(effectName.toUtf8());
-    newQmlItemNode = QmlItemNode(view->createModelNode(type, 1, 0));
-    NodeAbstractProperty parentProperty = layerEffect
-            ? parentNode.nodeAbstractProperty("layer.effect")
-            : parentNode.defaultNodeAbstractProperty();
-
-    if (layerEffect) {
-        if (!parentProperty .isEmpty()) { //already contains a node
-            ModelNode oldEffect = parentProperty.toNodeProperty().modelNode();
-            QmlObjectNode(oldEffect).destroy();
+        QmlDesigner::Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
+        try {
+            if (!view->model()->hasImport(import, true, true))
+                view->model()->changeImports({import}, {});
+        } catch (const Exception &) {
+            QTC_ASSERT(false, return);
         }
-    }
 
-    parentProperty.reparentHere(newQmlItemNode);
+        TypeName type(effectName.toUtf8());
+        newQmlItemNode = QmlItemNode(view->createModelNode(type, -1, -1));
+        NodeAbstractProperty parentProperty = layerEffect
+                ? parentNode.nodeAbstractProperty("layer.effect")
+                : parentNode.defaultNodeAbstractProperty();
 
-    if (!layerEffect) {
-        newQmlItemNode.modelNode().bindingProperty("source").setExpression("parent");
-        newQmlItemNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
-    } else {
-        parentNode.modelNode().variantProperty("layer.enabled").setValue(true);
-    }
+        if (layerEffect) {
+            if (!parentProperty .isEmpty()) { //already contains a node
+                ModelNode oldEffect = parentProperty.toNodeProperty().modelNode();
+                QmlObjectNode(oldEffect).destroy();
+            }
+        }
+
+        parentProperty.reparentHere(newQmlItemNode);
+
+        if (!layerEffect) {
+            newQmlItemNode.modelNode().bindingProperty("source").setExpression("parent");
+            newQmlItemNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
+        } else {
+            parentNode.modelNode().variantProperty("layer.enabled").setValue(true);
+        }
+    });
 }
 
 bool QmlItemNode::isValid() const
