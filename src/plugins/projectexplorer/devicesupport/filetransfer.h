@@ -50,9 +50,16 @@ class PROJECTEXPLORER_EXPORT FileTransferAdapter : public Utils::Tasking::TaskAd
 {
 public:
     FileTransferAdapter();
+    void start() override { task()->start(); }
+};
+
+class PROJECTEXPLORER_EXPORT FileTransferTestAdapter : public FileTransferAdapter
+{
+public:
     void start() final { task()->test(); }
 };
 
 } // namespace ProjectExplorer
 
 QTC_DECLARE_CUSTOM_TASK(Transfer, ProjectExplorer::FileTransferAdapter);
+QTC_DECLARE_CUSTOM_TASK(TransferTest, ProjectExplorer::FileTransferTestAdapter);

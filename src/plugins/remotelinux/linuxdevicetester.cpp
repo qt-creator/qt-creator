@@ -181,7 +181,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method
                                            "is not available.\n").arg(sftp, rsync));
         }
     };
-    return Transfer(setup, done, error);
+    return TransferTest(setup, done, error);
 }
 
 TaskItem GenericLinuxDeviceTesterPrivate::transferTasks()

@@ -23,65 +23,28 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Tasking;
 
 namespace RemoteLinux {
 
 class RsyncDeployService : public AbstractRemoteLinuxDeployService
 {
 public:
-    RsyncDeployService()
-    {
-        connect(&m_mkdir, &QtcProcess::done, this, [this] {
-            if (m_mkdir.result() != ProcessResult::FinishedWithSuccess) {
-                QString finalMessage = m_mkdir.errorString();
-                const QString stdErr = m_mkdir.cleanedStdErr();
-                if (!stdErr.isEmpty()) {
-                    if (!finalMessage.isEmpty())
-                        finalMessage += '\n';
-                    finalMessage += stdErr;
-                }
-                emit errorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
-                                  + '\n' + finalMessage);
-                stopDeployment();
-                return;
-            }
-            deployFiles();
-        });
-        connect(&m_mkdir, &QtcProcess::readyReadStandardError, this, [this] {
-            emit stdErrData(QString::fromLocal8Bit(m_mkdir.readAllStandardError()));
-        });
-        connect(&m_fileTransfer, &FileTransfer::progress,
-                this, &AbstractRemoteLinuxDeployService::stdOutData);
-        connect(&m_fileTransfer, &FileTransfer::done, this, [this](const ProcessResultData &result) {
-            if (result.m_error == QProcess::FailedToStart)
-                emit errorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
-            else if (result.m_exitStatus == QProcess::CrashExit)
-                emit errorMessage(Tr::tr("rsync crashed."));
-            else if (result.m_exitCode != 0)
-                emit errorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode));
-
-            stopDeployment();
-        });
-    }
-
     void setDeployableFiles(const QList<DeployableFile> &files);
     void setIgnoreMissingFiles(bool ignore) { m_ignoreMissingFiles = ignore; }
     void setFlags(const QString &flags) { m_flags = flags; }
 
 private:
     bool isDeploymentNecessary() const override;
-
     void doDeploy() override;
     void stopDeployment() override;
-
-    void createRemoteDirectories();
-    void deployFiles();
+    TaskItem mkdirTask();
+    TaskItem transferTask();
 
     mutable FilesToTransfer m_files;
     bool m_ignoreMissingFiles = false;
     QString m_flags;
-    QtcProcess m_mkdir;
-    FileTransfer m_fileTransfer;
+    std::unique_ptr<TaskTree> m_taskTree;
 };
 
 void RsyncDeployService::setDeployableFiles(const QList<DeployableFile> &files)
@@ -98,35 +61,76 @@ bool RsyncDeployService::isDeploymentNecessary() const
     return !m_files.empty();
 }
 
+TaskItem RsyncDeployService::mkdirTask()
+{
+    auto setupHandler = [this](QtcProcess &process) {
+        QStringList remoteDirs;
+        for (const FileToTransfer &file : std::as_const(m_files))
+            remoteDirs << file.m_target.parentDir().path();
+        remoteDirs.sort();
+        remoteDirs.removeDuplicates();
+        process.setCommand({deviceConfiguration()->filePath("mkdir"),
+                            QStringList("-p") + remoteDirs});
+        connect(&process, &QtcProcess::readyReadStandardError, this, [this, proc = &process] {
+            emit stdErrData(QString::fromLocal8Bit(proc->readAllStandardError()));
+        });
+    };
+    auto errorHandler = [this](const QtcProcess &process) {
+        QString finalMessage = process.errorString();
+        const QString stdErr = process.cleanedStdErr();
+        if (!stdErr.isEmpty()) {
+            if (!finalMessage.isEmpty())
+                finalMessage += '\n';
+            finalMessage += stdErr;
+        }
+        emit errorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
+                          + '\n' + finalMessage);
+    };
+    return Process(setupHandler, {}, errorHandler);
+}
+
+TaskItem RsyncDeployService::transferTask()
+{
+    auto setupHandler = [this](FileTransfer &transfer) {
+        transfer.setTransferMethod(FileTransferMethod::Rsync);
+        transfer.setRsyncFlags(m_flags);
+        transfer.setFilesToTransfer(m_files);
+        connect(&transfer, &FileTransfer::progress,
+                this, &AbstractRemoteLinuxDeployService::stdOutData);
+    };
+    auto errorHandler = [this](const FileTransfer &transfer) {
+        const ProcessResultData result = transfer.resultData();
+        if (result.m_error == QProcess::FailedToStart)
+            emit errorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
+        else if (result.m_exitStatus == QProcess::CrashExit)
+            emit errorMessage(Tr::tr("rsync crashed."));
+        else if (result.m_exitCode != 0)
+            emit errorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode));
+    };
+    return Transfer(setupHandler, {}, errorHandler);
+}
+
 void RsyncDeployService::doDeploy()
 {
-    createRemoteDirectories();
-}
+    auto finishHandler = [this] {
+        m_taskTree.release()->deleteLater();
+        stopDeployment();
+    };
 
-void RsyncDeployService::createRemoteDirectories()
-{
-    QStringList remoteDirs;
-    for (const FileToTransfer &file : std::as_const(m_files))
-        remoteDirs << file.m_target.parentDir().path();
-    remoteDirs.sort();
-    remoteDirs.removeDuplicates();
+    Group root {
+        mkdirTask(),
+        transferTask(),
+        OnGroupDone(finishHandler),
+        OnGroupError(finishHandler),
+    };
 
-    m_mkdir.setCommand({deviceConfiguration()->filePath("mkdir"), QStringList("-p") + remoteDirs});
-    m_mkdir.start();
-}
-
-void RsyncDeployService::deployFiles()
-{
-    m_fileTransfer.setTransferMethod(FileTransferMethod::Rsync);
-    m_fileTransfer.setRsyncFlags(m_flags);
-    m_fileTransfer.setFilesToTransfer(m_files);
-    m_fileTransfer.start();
+    m_taskTree.reset(new TaskTree(root));
+    m_taskTree->start();
 }
 
 void RsyncDeployService::stopDeployment()
 {
-    m_mkdir.close();
-    m_fileTransfer.stop();
+    m_taskTree.reset();
     handleDeploymentDone();
 }
 
