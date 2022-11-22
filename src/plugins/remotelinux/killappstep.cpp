@@ -60,7 +60,7 @@ void KillAppService::doDeploy()
         return;
     }
     connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
-            this, &KillAppService::handleSignalOpFinished);
+            this, &KillAppService::handleSignalOpFinished, Qt::QueuedConnection);
     emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
                             .arg(m_remoteExecutable.path()));
     m_signalOperation->killProcess(m_remoteExecutable.path());
