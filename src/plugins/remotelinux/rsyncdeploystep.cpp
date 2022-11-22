@@ -42,7 +42,7 @@ public:
                 }
                 emit errorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
                                   + '\n' + finalMessage);
-                setFinished();
+                stopDeployment();
                 return;
             }
             deployFiles();
@@ -53,18 +53,14 @@ public:
         connect(&m_fileTransfer, &FileTransfer::progress,
                 this, &AbstractRemoteLinuxDeployService::stdOutData);
         connect(&m_fileTransfer, &FileTransfer::done, this, [this](const ProcessResultData &result) {
-            auto notifyError = [this](const QString &message) {
-                emit errorMessage(message);
-                setFinished();
-            };
             if (result.m_error == QProcess::FailedToStart)
-                notifyError(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
+                emit errorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
             else if (result.m_exitStatus == QProcess::CrashExit)
-                notifyError(Tr::tr("rsync crashed."));
+                emit errorMessage(Tr::tr("rsync crashed."));
             else if (result.m_exitCode != 0)
-                notifyError(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode));
-            else
-                setFinished();
+                emit errorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode));
+
+            stopDeployment();
         });
     }
 
@@ -76,11 +72,10 @@ private:
     bool isDeploymentNecessary() const override;
 
     void doDeploy() override;
-    void stopDeployment() override { setFinished(); };
+    void stopDeployment() override;
 
     void createRemoteDirectories();
     void deployFiles();
-    void setFinished();
 
     mutable FilesToTransfer m_files;
     bool m_ignoreMissingFiles = false;
@@ -128,7 +123,7 @@ void RsyncDeployService::deployFiles()
     m_fileTransfer.start();
 }
 
-void RsyncDeployService::setFinished()
+void RsyncDeployService::stopDeployment()
 {
     m_mkdir.close();
     m_fileTransfer.stop();
