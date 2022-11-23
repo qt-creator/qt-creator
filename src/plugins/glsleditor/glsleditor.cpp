@@ -264,7 +264,8 @@ void GlslEditorWidget::updateDocumentNow()
         QList<QTextEdit::ExtraSelection> sels;
         QSet<int> errors;
 
-        foreach (const DiagnosticMessage &m, doc->_engine->diagnosticMessages()) {
+        const QList<DiagnosticMessage> messages = doc->_engine->diagnosticMessages();
+        for (const DiagnosticMessage &m : messages) {
             if (! m.line())
                 continue;
             else if (errors.contains(m.line()))

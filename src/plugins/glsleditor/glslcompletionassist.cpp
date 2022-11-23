@@ -45,7 +45,7 @@ Document::~Document()
 
 GLSL::Scope *Document::scopeAt(int position) const
 {
-    foreach (const Range &c, _cursors) {
+    for (const Range &c : _cursors) {
         if (position >= c.cursor.selectionStart() && position <= c.cursor.selectionEnd())
             return c.scope;
     }
@@ -445,7 +445,7 @@ IAssistProposal *GlslCompletionAssistProcessor::performAsync()
   //      m_completions += m_keywordCompletions;
     }
 
-    foreach (GLSL::Symbol *s, members) {
+    for (GLSL::Symbol *s : std::as_const(members)) {
         QIcon icon;
         GLSL::Variable *var = s->asVariable();
         if (var) {
