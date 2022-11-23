@@ -46,7 +46,7 @@ IndexItem::Ptr SearchSymbols::operator()(Document::Ptr doc, const QString &scope
 
         QTC_ASSERT(_parent, return IndexItem::Ptr());
         QTC_ASSERT(root, return IndexItem::Ptr());
-        QTC_ASSERT(_parent->fileName() == Internal::StringTable::insert(doc->filePath()),
+        QTC_ASSERT(_parent->filePath().toString() == Internal::StringTable::insert(doc->filePath()),
                    return IndexItem::Ptr());
 
         for (int i = 0, ei = doc->globalSymbolCount(); i != ei; ++i)

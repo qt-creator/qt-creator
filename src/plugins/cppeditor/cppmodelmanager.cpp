@@ -570,15 +570,11 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
                 continue;
             }
             Link link;
-            if (entry.internalData.canConvert<Link>()) {
+            if (entry.internalData.canConvert<Link>())
                 link = qvariant_cast<Link>(entry.internalData);
-            } else {
-                const auto item = qvariant_cast<IndexItem::Ptr>(entry.internalData);
-                if (item) {
-                    link = Link(FilePath::fromString(item->fileName()), item->line(),
-                                item->column());
-                }
-            }
+            else if (const auto item = qvariant_cast<IndexItem::Ptr>(entry.internalData))
+                link = Link(item->filePath(), item->line(), item->column());
+
             if (link.hasValidTarget() && link.targetFilePath.isReadableFile()
                     && (folder.isEmpty() || link.targetFilePath.isChildOf(folder))
                     && SessionManager::projectForFile(link.targetFilePath)) {

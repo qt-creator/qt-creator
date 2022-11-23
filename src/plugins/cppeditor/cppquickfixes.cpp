@@ -2071,17 +2071,17 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
             indexItems << info;
 
             Snapshot localForwardHeaders = forwardHeaders;
-            localForwardHeaders.insert(interface.snapshot().document(info->fileName()));
-            Utils::FilePaths headerAndItsForwardingHeaders;
-            headerAndItsForwardingHeaders << Utils::FilePath::fromString(info->fileName());
-            headerAndItsForwardingHeaders += localForwardHeaders.filesDependingOn(info->fileName());
+            localForwardHeaders.insert(interface.snapshot().document(info->filePath()));
+            FilePaths headerAndItsForwardingHeaders;
+            headerAndItsForwardingHeaders << info->filePath();
+            headerAndItsForwardingHeaders += localForwardHeaders.filesDependingOn(info->filePath());
 
-            for (const Utils::FilePath &header : std::as_const(headerAndItsForwardingHeaders)) {
+            for (const FilePath &header : std::as_const(headerAndItsForwardingHeaders)) {
                 const QString include = findShortestInclude(currentDocumentFilePath,
                                                             header.toString(),
                                                             headerPaths);
                 if (include.size() > 2) {
-                    const QString headerFileName = Utils::FilePath::fromString(info->fileName()).fileName();
+                    const QString headerFileName = info->filePath().fileName();
                     QTC_ASSERT(!headerFileName.isEmpty(), break);
 
                     int priority = 0;

@@ -120,9 +120,7 @@ void CppLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    Core::EditorManager::openEditorAt({Utils::FilePath::fromString(info->fileName()),
-                                       info->line(),
-                                       info->column()},
+    Core::EditorManager::openEditorAt({info->filePath(), info->line(), info->column()},
                                       {},
                                       Core::EditorManager::AllowExternalEditor);
 }
@@ -145,7 +143,7 @@ Core::LocatorFilterEntry CppClassesFilter::filterEntryFromIndexItem(IndexItem::P
     filterEntry.extraInfo = info->symbolScope().isEmpty()
         ? info->shortNativeFilePath()
         : info->symbolScope();
-    filterEntry.filePath = Utils::FilePath::fromString(info->fileName());
+    filterEntry.filePath = info->filePath();
     return filterEntry;
 }
 
@@ -170,7 +168,7 @@ Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem:
     if (extraInfo.isEmpty()) {
         extraInfo = info->shortNativeFilePath();
     } else {
-        extraInfo.append(" (" + Utils::FilePath::fromString(info->fileName()).fileName() + ')');
+        extraInfo.append(" (" + info->filePath().fileName() + ')');
     }
 
     Core::LocatorFilterEntry filterEntry(this, name + info->symbolType(), id, info->icon());

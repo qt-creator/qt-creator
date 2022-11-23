@@ -409,8 +409,7 @@ public:
     QList<IncludeLocation> includeLocationsOfDocument(const QString &fileNameOrPath) const;
 
     Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
-    Utils::FilePaths filesDependingOn(const QString &fileName) const
-    { return filesDependingOn(Utils::FilePath::fromString(fileName)); }
+
     void updateDependencyTable() const;
     void updateDependencyTable(QFutureInterfaceBase &futureInterface) const;
 

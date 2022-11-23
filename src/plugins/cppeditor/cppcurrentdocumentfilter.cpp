@@ -112,8 +112,7 @@ void CppCurrentDocumentFilter::accept(const Core::LocatorFilterEntry &selection,
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(selection.internalData);
-    Core::EditorManager::openEditorAt(
-        {Utils::FilePath::fromString(info->fileName()), info->line(), info->column()});
+    Core::EditorManager::openEditorAt({info->filePath(), info->line(), info->column()});
 }
 
 void CppCurrentDocumentFilter::onDocumentUpdated(Document::Ptr doc)

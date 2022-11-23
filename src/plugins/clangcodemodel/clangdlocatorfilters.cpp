@@ -19,6 +19,7 @@
 #include <tuple>
 
 using namespace LanguageServerProtocol;
+using namespace Utils;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -157,9 +158,7 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
         for (const auto &entry : std::as_const(matches)) {
             const CppEditor::IndexItem::Ptr item
                     = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
-            locations.insert(std::make_tuple(Utils::FilePath::fromString(item->fileName()),
-                                             item->line(),
-                                             item->column()));
+            locations.insert(std::make_tuple(item->filePath(), item->line(), item->column()));
         }
         for (const auto &entry : lspMatches) {
             if (!entry.internalData.canConvert<Utils::Link>())

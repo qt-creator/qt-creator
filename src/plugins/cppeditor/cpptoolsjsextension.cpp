@@ -134,15 +134,14 @@ bool CppToolsJsExtension::hasQObjectParent(const QString &klassName) const
     // Find class in AST.
     const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
     const WorkingCopy workingCopy = CppModelManager::instance()->workingCopy();
-    QByteArray source = workingCopy.source(item->fileName());
+    QByteArray source = workingCopy.source(item->filePath());
     if (source.isEmpty()) {
-        QFile file(item->fileName());
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        std::optional<QByteArray> contents = item->filePath().fileContents();
+        if (!contents)
             return false;
-        source = file.readAll();
+        source = *contents;
     }
-    const auto doc = snapshot.preprocessedDocument(source,
-                                                   Utils::FilePath::fromString(item->fileName()));
+    const auto doc = snapshot.preprocessedDocument(source, item->filePath());
     if (!doc)
         return false;
     doc->check();

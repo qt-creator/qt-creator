@@ -136,7 +136,7 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
             if (info->scopedSymbolName() != qualifiedClassName)
                 continue;
             if (Core::EditorManager::instance()->openEditorAt(
-                    {Utils::FilePath::fromString(info->fileName()), info->line(), info->column()})) {
+                    {info->filePath(), info->line(), info->column()})) {
                 return;
             }
         }
