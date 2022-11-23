@@ -248,10 +248,15 @@ QString FilePath::nativePath() const
     return data;
 }
 
-QString FilePath::fileName() const
+QStringView FilePath::fileNameView() const
 {
     const QStringView fp = pathView();
-    return fp.mid(fp.lastIndexOf('/') + 1).toString();
+    return fp.mid(fp.lastIndexOf('/') + 1);
+}
+
+QString FilePath::fileName() const
+{
+    return fileNameView().toString();
 }
 
 QString FilePath::fileNameWithPathComponents(int pathComponents) const
@@ -313,15 +318,20 @@ QString FilePath::completeBaseName() const
 /// (but not including) the last '.'. In case of ".ui.qml" it will
 /// be treated as one suffix.
 
-QString FilePath::suffix() const
+QStringView FilePath::suffixView() const
 {
-    const QString &name = fileName();
-    if (name.endsWith(".ui.qml"))
-        return "ui.qml";
+    const QStringView name = fileNameView();
+    if (name.endsWith(u".ui.qml"))
+        return u"ui.qml";
     const int index = name.lastIndexOf('.');
     if (index >= 0)
         return name.mid(index + 1);
     return {};
+}
+
+QString FilePath::suffix() const
+{
+    return suffixView().toString();
 }
 
 /// \returns the complete suffix (extension) of the file.
@@ -572,7 +582,7 @@ static FilePaths appendExeExtensions(const Environment &env, const FilePath &exe
     if (executable.osType() == OsTypeWindows) {
         // Check all the executable extensions on windows:
         // PATHEXT is only used if the executable has no extension
-        if (executable.suffix().isEmpty()) {
+        if (executable.suffixView().isEmpty()) {
             const QStringList extensions = env.expandedValueForKey("PATHEXT").split(';');
 
             for (const QString &ext : extensions)

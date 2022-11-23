@@ -81,11 +81,13 @@ public:
     void setParts(const QStringView scheme, const QStringView host, const QStringView path);
 
     QString fileName() const;
+    QStringView fileNameView() const;
     QString fileNameWithPathComponents(int pathComponents) const;
 
     QString baseName() const;
     QString completeBaseName() const;
     QString suffix() const;
+    QStringView suffixView() const;
     QString completeSuffix() const;
 
     [[nodiscard]] FilePath pathAppended(const QString &str) const;
