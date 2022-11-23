@@ -223,16 +223,16 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
     return nullptr;
 }
 
-static inline BaseTextEditor *editorAt(const QString &fileName, int line, int column)
+static BaseTextEditor *editorAt(const FilePath &filePath, int line, int column)
 {
     return qobject_cast<BaseTextEditor *>(
-        Core::EditorManager::openEditorAt({FilePath::fromString(fileName), line, column},
+        Core::EditorManager::openEditorAt({filePath, line, column},
                                           Utils::Id(),
                                           Core::EditorManager::DoNotMakeVisible));
 }
 
 static void addDeclaration(const Snapshot &snapshot,
-                           const QString &fileName,
+                           const FilePath &filePath,
                            const Class *cl,
                            const QString &functionName)
 {
@@ -241,13 +241,13 @@ static void addDeclaration(const Snapshot &snapshot,
     CppEditor::CppRefactoringChanges refactoring(snapshot);
     CppEditor::InsertionPointLocator find(refactoring);
     const CppEditor::InsertionLocation loc = find.methodDeclarationInClass(
-                FilePath::fromString(fileName), cl, CppEditor::InsertionPointLocator::PrivateSlot);
+                filePath, cl, CppEditor::InsertionPointLocator::PrivateSlot);
 
     //
     //! \todo change this to use the Refactoring changes.
     //
 
-    if (BaseTextEditor *editor = editorAt(fileName, loc.line(), loc.column() - 1)) {
+    if (BaseTextEditor *editor = editorAt(filePath, loc.line(), loc.column() - 1)) {
         QTextCursor tc = editor->textCursor();
         int pos = tc.position();
         tc.beginEditBlock();
@@ -383,20 +383,20 @@ static inline const QStringList uiClassNames(QString formObjectName)
     return {formObjectName, alt};
 }
 
-static Document::Ptr getParsedDocument(const QString &fileName,
+static Document::Ptr getParsedDocument(const FilePath &filePath,
                                        CppEditor::WorkingCopy &workingCopy,
                                        Snapshot &snapshot)
 {
     QByteArray src;
-    if (workingCopy.contains(fileName)) {
-        src = workingCopy.source(fileName);
+    if (workingCopy.contains(filePath)) {
+        src = workingCopy.source(filePath);
     } else {
         Utils::FileReader reader;
-        if (reader.fetch(Utils::FilePath::fromString(fileName))) // ### FIXME error reporting
+        if (reader.fetch(filePath)) // ### FIXME error reporting
             src = QString::fromLocal8Bit(reader.data()).toUtf8();
     }
 
-    Document::Ptr doc = snapshot.preprocessedDocument(src, FilePath::fromString(fileName));
+    Document::Ptr doc = snapshot.preprocessedDocument(src, filePath);
     doc->check();
     snapshot.insert(doc);
     return doc;
@@ -503,11 +503,11 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         qDebug() << Q_FUNC_INFO << "Found " << uiClass << declDoc->filePath() << " checking " << functionName  << functionNameWithParameterNames;
 
     Function *fun = findDeclaration(cl, functionName);
-    QString declFilePath;
+    FilePath declFilePath;
     if (!fun) {
         // add function declaration to cl
         CppEditor::WorkingCopy workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
-        declFilePath = declDoc->filePath().toString();
+        declFilePath = declDoc->filePath();
         getParsedDocument(declFilePath, workingCopy, docTable);
         addDeclaration(docTable, declFilePath, cl, functionNameWithParameterNames);
 
@@ -532,7 +532,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         QTC_ASSERT(cl, return false);
         fun = findDeclaration(cl, functionName);
     } else {
-        declFilePath = QLatin1String(fun->fileName());
+        declFilePath = FilePath::fromString(QLatin1String(fun->fileName()));
     }
     QTC_ASSERT(fun, return false);
 
@@ -543,11 +543,12 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
             {FilePath::fromString(QString::fromUtf8(funImpl->fileName())), funImpl->line() + 2});
         return true;
     }
-    const QString implFilePath = CppEditor::correspondingHeaderOrSource(declFilePath);
+    const QString implFilePath = CppEditor::correspondingHeaderOrSource(declFilePath.toString());
     const CppEditor::InsertionLocation location = CppEditor::insertLocationForMethodDefinition
             (fun, false, CppEditor::NamespaceHandling::CreateMissing, refactoring, implFilePath);
 
-    if (BaseTextEditor *editor = editorAt(location.fileName(), location.line(), location.column())) {
+    if (BaseTextEditor *editor = editorAt(FilePath::fromString(location.fileName()),
+                                          location.line(), location.column())) {
         Overview o;
         const QString className = o.prettyName(cl->name());
         const QString definition = location.prefix() + "void " + className + "::"

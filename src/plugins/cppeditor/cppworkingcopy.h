@@ -30,14 +30,8 @@ public:
     bool contains(const Utils::FilePath &fileName) const
     { return _elements.contains(fileName); }
 
-    QByteArray source(const QString &fileName) const
-    { return source(Utils::FilePath::fromString(fileName)); }
-
     QByteArray source(const Utils::FilePath &fileName) const
     { return _elements.value(fileName).first; }
-
-    unsigned revision(const QString &fileName) const
-    { return revision(Utils::FilePath::fromString(fileName)); }
 
     unsigned revision(const Utils::FilePath &fileName) const
     { return _elements.value(fileName).second; }
