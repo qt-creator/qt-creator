@@ -498,8 +498,6 @@ public:
                 qDebug() << Q_FUNC_INFO;
                 qDebug() << astTypeNode->name.toString() << typeName;
                 qDebug() << metaInfo.isValid() << metaInfo.typeName();
-                if (metaInfo.isValid())
-                    qDebug() << metaInfo.superClasses().front().typeName();
             }
 
             typeName = QString::fromUtf8(metaInfo.typeName());
