@@ -86,22 +86,20 @@ ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
     // Use existing target files, where possible. Otherwise run the compiler.
     QDateTime sourceTime = d->source.lastModified();
     for (const FilePath &target : targets) {
-        QFileInfo targetFileInfo(target.toFileInfo());
-        if (!targetFileInfo.exists()) {
+        if (!target.exists()) {
             d->dirty = true;
             continue;
         }
 
-        QDateTime lastModified = targetFileInfo.lastModified();
+        QDateTime lastModified = target.lastModified();
         if (lastModified < sourceTime)
             d->dirty = true;
 
         if (!d->compileTime.isValid() || d->compileTime > lastModified)
             d->compileTime = lastModified;
 
-        QFile file(target.toString());
-        if (file.open(QFile::ReadOnly | QFile::Text))
-            setContent(target, file.readAll());
+        if (const std::optional<QByteArray> contents = target.fileContents())
+            setContent(target, *contents);
     }
 }
 
@@ -171,10 +169,9 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
             if (d->compileTime >= generateTime)
                 return;
 
-            QFile file(target.toString());
-            if (file.open(QFile::ReadOnly | QFile::Text)) {
+            if (const std::optional<QByteArray> contents = target.fileContents()) {
                 d->compileTime = generateTime;
-                setContent(target, file.readAll());
+                setContent(target, *contents);
             }
         }
     });
