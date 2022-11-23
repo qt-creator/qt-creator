@@ -23,7 +23,10 @@ private slots:
 
         cmd.addCommandLineWithAnd(cmd2);
 
-        QCOMPARE(cmd.toUserOutput(), QString("echo foo && echo bar blizz"));
+        const QString actual = cmd.toUserOutput();
+        const QString wanted = "echo foo && echo bar blizz";
+
+        QCOMPARE(actual, wanted);
     }
 
     void testAndComplex()
@@ -33,9 +36,12 @@ private slots:
 
         cmd.addCommandLineWithAnd(cmd2);
 
-        QCOMPARE(cmd.toUserOutput(),
-                 QString("/tmp/space path/\"echo foo 'long with space' && '/tmp/space \"path/echo' "
-                         "'bar\"' 'blizz is '\\''great'"));
+        const QString actual = cmd.toUserOutput();
+        const QString wanted =
+                "/tmp/space path/\"echo foo 'long with space' && '/tmp/space \"path/echo' "
+                "'bar\"' 'blizz is '\\''great'";
+
+        QCOMPARE(actual, wanted);
     }
 
     void testAndAdd()
@@ -47,10 +53,13 @@ private slots:
         CommandLine shell("bash", {"-c"});
         shell.addCommandLineAsSingleArg(cmd);
 
-        QCOMPARE(shell.toUserOutput(),
+        const QString actual = shell.toUserOutput();
+        const QString wanted =
                  "bash -c ''\\''/tmp/space path/\"echo'\\'' foo '\\''long with space'\\'' && "
                  "'\\''/tmp/space \"path/echo'\\'' '\\''bar\"'\\'' '\\''blizz is "
-                 "'\\''\\'\\'''\\''great'\\'''");
+                 "'\\''\\'\\'''\\''great'\\'''";
+
+        QCOMPARE(actual, wanted);
     }
 };
 
