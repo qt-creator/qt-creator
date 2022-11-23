@@ -16,7 +16,7 @@ Item {
     property var dropComplexExtFiles: []
 
     readonly property int qtVersionAtLeast6_4: rootView.qtVersionIsAtLeast6_4()
-    property bool _searchBoxEmpty: true
+    property bool __searchBoxEmpty: true
 
     AssetsContextMenu {
         id: contextMenu
@@ -136,10 +136,10 @@ Item {
                     rootView.handleSearchFilterChanged(searchBox.text)
                     assetsView.expandAll()
 
-                    if (root._searchBoxEmpty && searchBox.text)
-                        root._searchBoxEmpty = false
-                    else if (!root._searchBoxEmpty && !searchBox.text)
-                        root._searchBoxEmpty = true
+                    if (root.__searchBoxEmpty && searchBox.text)
+                        root.__searchBoxEmpty = false
+                    else if (!root.__searchBoxEmpty && !searchBox.text)
+                        root.__searchBoxEmpty = true
                 }
             }
 
@@ -159,13 +159,13 @@ Item {
             leftPadding: 10
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: 12
-            visible: !assetsModel.haveFiles && !root._searchBoxEmpty
+            visible: !assetsModel.haveFiles && !root.__searchBoxEmpty
         }
 
         Item { // placeholder when the assets library is empty
             width: parent.width
             height: parent.height - searchRow.height
-            visible: !assetsModel.haveFiles && root._searchBoxEmpty
+            visible: !assetsModel.haveFiles && root.__searchBoxEmpty
             clip: true
 
             DropArea { // handles external drop (goes into default folder based on suffix)

@@ -18,17 +18,17 @@ TreeViewDelegate {
     readonly property bool isEffect: root.suffix === ".qep"
     property bool currFileSelected: false
     property int initialDepth: -1
-    property bool _isDirectory: assetsModel.isDirectory(model.filePath)
-    property int _currentRow: model.index
-    property string _itemPath: model.filePath
+    property bool __isDirectory: assetsModel.isDirectory(model.filePath)
+    property int __currentRow: model.index
+    property string __itemPath: model.filePath
 
-    readonly property int _fileItemHeight: thumbnailImage.height
-    readonly property int _dirItemHeight: 21
+    readonly property int __fileItemHeight: thumbnailImage.height
+    readonly property int __dirItemHeight: 21
 
-    implicitHeight: root._isDirectory ? root._dirItemHeight : root._fileItemHeight
+    implicitHeight: root.__isDirectory ? root.__dirItemHeight : root.__fileItemHeight
     implicitWidth: root.assetsView.width > 0 ? root.assetsView.width : 10
 
-    leftMargin: root._isDirectory ? 0 : thumbnailImage.width
+    leftMargin: root.__isDirectory ? 0 : thumbnailImage.width
 
     Component.onCompleted: {
         // the depth of the root path will become available before we get to the actual
@@ -36,7 +36,7 @@ TreeViewDelegate {
         // tree items (below the root) will have the indentation (basically, depth) adjusted.
         if (model.filePath === assetsModel.rootPath()) {
             root.assetsView.rootPathDepth = root.depth
-            root.assetsView.rootPathRow = root._currentRow
+            root.assetsView.rootPathRow = root.__currentRow
         } else if (model.filePath.includes(assetsModel.rootPath())) {
             root.depth -= root.assetsView.rootPathDepth
             root.initialDepth = root.depth
@@ -45,7 +45,7 @@ TreeViewDelegate {
 
     // workaround for a bug -- might be fixed by https://codereview.qt-project.org/c/qt/qtdeclarative/+/442721
     onYChanged: {
-        if (root._currentRow === root.assetsView.firstRow) {
+        if (root.__currentRow === root.assetsView.firstRow) {
             if (root.y > root.assetsView.contentY) {
                 let item = root.assetsView.itemAtCell(0, root.assetsView.rootPathRow)
                 if (!item)
@@ -74,16 +74,16 @@ TreeViewDelegate {
         id: bg
 
         color: {
-            if (root._isDirectory && (root.isHoveringDrop || root.hasChildWithDropHover))
+            if (root.__isDirectory && (root.isHoveringDrop || root.hasChildWithDropHover))
                 return StudioTheme.Values.themeInteraction
 
-            if (!root._isDirectory && root.assetsView.selectedAssets[root._itemPath])
+            if (!root.__isDirectory && root.assetsView.selectedAssets[root.__itemPath])
                 return StudioTheme.Values.themeInteraction
 
             if (mouseArea.containsMouse)
                 return StudioTheme.Values.themeSectionHeadBackground
 
-            return root._isDirectory
+            return root.__isDirectory
                     ? StudioTheme.Values.themeSectionHeadBackground
                     : "transparent"
         }
@@ -104,15 +104,15 @@ TreeViewDelegate {
 
     contentItem: Text {
         id: assetLabel
-        text: assetLabel._computeText()
+        text: assetLabel.__computeText()
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: 14
         anchors.verticalCenter: parent.verticalCenter
         verticalAlignment: Qt.AlignVCenter
 
-        function _computeText()
+        function __computeText()
         {
-            return root._isDirectory
+            return root.__isDirectory
                     ? (root.hasChildren
                        ? model.display.toUpperCase()
                        : model.display.toUpperCase() + qsTr(" (empty)"))
@@ -130,14 +130,14 @@ TreeViewDelegate {
             root.assetsRoot.updateDropExtFiles(drag)
             root.isHoveringDrop = drag.accepted && root.assetsRoot.dropSimpleExtFiles.length > 0
             if (root.isHoveringDrop)
-                root.assetsView.startDropHoverOver(root._currentRow)
+                root.assetsView.startDropHoverOver(root.__currentRow)
         }
 
         onDropped: (drag) => {
             root.isHoveringDrop = false
-            root.assetsView.endDropHover(root._currentRow)
+            root.assetsView.endDropHover(root.__currentRow)
 
-            let dirPath = root._isDirectory
+            let dirPath = root.__isDirectory
                        ? model.filePath
                        : assetsModel.parentDirPath(model.filePath);
 
@@ -149,7 +149,7 @@ TreeViewDelegate {
         onExited: {
             if (root.isHoveringDrop) {
                 root.isHoveringDrop = false
-                root.assetsView.endDropHover(root._currentRow)
+                root.assetsView.endDropHover(root.__currentRow)
             }
         }
     }
@@ -178,25 +178,25 @@ TreeViewDelegate {
             mouseArea.allowTooltip = false
             tooltipBackend.hideTooltip()
 
-            if (root._isDirectory)
+            if (root.__isDirectory)
                 return
 
             var ctrlDown = mouse.modifiers & Qt.ControlModifier
             if (mouse.button === Qt.LeftButton) {
-               if (!root.assetsView.isAssetSelected(root._itemPath) && !ctrlDown)
+               if (!root.assetsView.isAssetSelected(root.__itemPath) && !ctrlDown)
                    root.assetsView.clearSelectedAssets()
-               root.currFileSelected = ctrlDown ? !root.assetsView.isAssetSelected(root._itemPath) : true
-               root.assetsView.setAssetSelected(root._itemPath, root.currFileSelected)
+               root.currFileSelected = ctrlDown ? !root.assetsView.isAssetSelected(root.__itemPath) : true
+               root.assetsView.setAssetSelected(root.__itemPath, root.currFileSelected)
 
                if (root.currFileSelected) {
                    let selectedPaths = root.assetsView.selectedPathsAsList()
                    rootView.startDragAsset(selectedPaths, mapToGlobal(mouse.x, mouse.y))
                }
             } else {
-               if (!root.assetsView.isAssetSelected(root._itemPath) && !ctrlDown)
+               if (!root.assetsView.isAssetSelected(root.__itemPath) && !ctrlDown)
                    root.assetsView.clearSelectedAssets()
-               root.currFileSelected = root.assetsView.isAssetSelected(root._itemPath) || !ctrlDown
-               root.assetsView.setAssetSelected(root._itemPath, root.currFileSelected)
+               root.currFileSelected = root.assetsView.isAssetSelected(root.__itemPath) || !ctrlDown
+               root.assetsView.setAssetSelected(root.__itemPath, root.currFileSelected)
             }
         }
 
@@ -206,7 +206,7 @@ TreeViewDelegate {
             if (mouse.button === Qt.LeftButton) {
                 if (!(mouse.modifiers & Qt.ControlModifier))
                     root.assetsView.selectedAssets = {}
-                root.assetsView.selectedAssets[root._itemPath] = root.currFileSelected
+                root.assetsView.selectedAssets[root.__itemPath] = root.currFileSelected
                 root.assetsView.selectedAssetsChanged()
             }
         }
@@ -239,27 +239,27 @@ TreeViewDelegate {
 
         onClicked: (mouse) => {
             if (mouse.button === Qt.LeftButton)
-                root._toggleExpandCurrentRow()
+                root.__toggleExpandCurrentRow()
             else
-                root._openContextMenuForCurrentRow()
+                root.__openContextMenuForCurrentRow()
 
 
         }
     } // MouseArea
 
-    function _openContextMenuForCurrentRow()
+    function __openContextMenuForCurrentRow()
     {
         let modelIndex = assetsModel.indexForPath(model.filePath)
 
-        if (root._isDirectory) {
+        function onFolderCreated(path) {
+            root.assetsView.addCreatedFolder(path)
+        }
+
+        if (root.__isDirectory) {
             var row = root.assetsView.rowAtIndex(modelIndex)
             var expanded = root.assetsView.isExpanded(row)
 
             var allExpandedState = root.assetsView.computeAllExpandedState()
-
-            function onFolderCreated(path) {
-                root.assetsView.addCreatedFolder(path)
-            }
 
             function onFolderRenamed() {
                 if (expanded)
@@ -272,40 +272,40 @@ TreeViewDelegate {
             let parentDirIndex = assetsModel.parentDirIndex(model.filePath)
             let selectedPaths = root.assetsView.selectedPathsAsList()
             root.assetsView.contextMenu.openContextMenuForFile(modelIndex, parentDirIndex,
-                                                               selectedPaths)
+                                                               selectedPaths, onFolderCreated)
        }
     }
 
-    function _toggleExpandCurrentRow()
+    function __toggleExpandCurrentRow()
     {
-        if (!root._isDirectory)
+        if (!root.__isDirectory)
            return
 
-        let index = root.assetsView._modelIndex(root._currentRow, 0)
+        let index = root.assetsView.__modelIndex(root.__currentRow)
         // if the user manually clicked on a directory, then this is definitely not a
         // an automatic request to expand all.
         root.assetsView.requestedExpandAll = false
 
-        if (root.assetsView.isExpanded(root._currentRow)) {
+        if (root.assetsView.isExpanded(root.__currentRow)) {
             root.assetsView.requestedExpandAll = false
-            root.assetsView.collapse(root._currentRow)
+            root.assetsView.collapse(root.__currentRow)
         } else {
-            root.assetsView.expand(root._currentRow)
+            root.assetsView.expand(root.__currentRow)
         }
     }
 
     function reloadImage()
     {
-        if (root._isDirectory)
+        if (root.__isDirectory)
             return
 
         thumbnailImage.source = ""
-        thumbnailImage.source = thumbnailImage._computeSource()
+        thumbnailImage.source = thumbnailImage.__computeSource()
     }
 
     Image {
         id: thumbnailImage
-        visible: !root._isDirectory
+        visible: !root.__isDirectory
         x: root.depth * root.indentation
         width: 48
         height: 48
@@ -314,11 +314,11 @@ TreeViewDelegate {
         sourceSize.height: 48
         asynchronous: true
         fillMode: Image.PreserveAspectFit
-        source: thumbnailImage._computeSource()
+        source: thumbnailImage.__computeSource()
 
-        function _computeSource()
+        function __computeSource()
         {
-            return root._isDirectory
+            return root.__isDirectory
                     ? ""
                     : "image://qmldesigner_assets/" + model.filePath
         }

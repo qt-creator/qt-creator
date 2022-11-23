@@ -30,7 +30,7 @@ TreeView {
     // i.e. first child of the root path
     readonly property int firstRow: root.rootPathRow + 1
     property int rowToExpand: -1
-    property var _createdDirectories: []
+    property var __createdDirectories: []
 
     rowHeightProvider: (row) => {
         if (row <= root.rootPathRow)
@@ -70,7 +70,7 @@ TreeView {
 
         function onDirectoryCreated(path)
         {
-            root._createdDirectories.push(path)
+            root.__createdDirectories.push(path)
 
             updateRowsTimer.restart()
         }
@@ -120,7 +120,7 @@ TreeView {
 
     function addCreatedFolder(path)
     {
-        root._createdDirectories.push(path)
+        root.__createdDirectories.push(path)
     }
 
     function selectedPathsAsList()
@@ -140,8 +140,8 @@ TreeView {
         if (root.rows <= 0)
             return
 
-        while (root._createdDirectories.length > 0) {
-            let dirPath = root._createdDirectories.pop()
+        while (root.__createdDirectories.length > 0) {
+            let dirPath = root.__createdDirectories.pop()
             let index = assetsModel.indexForPath(dirPath)
             let row = root.rowAtIndex(index)
 
@@ -168,7 +168,7 @@ TreeView {
 
         if (expanding) {
             if (root.requestedExpandAll)
-                root._doExpandAll()
+                root.__doExpandAll()
         } else {
             if (root.rowToExpand > 0) {
                 root.expand(root.rowToExpand)
@@ -182,11 +182,11 @@ TreeView {
         root.lastRowCount = root.rows
     }
 
-    function _doExpandAll()
+    function __doExpandAll()
     {
         let expandedAny = false
         for (let nRow = 0; nRow < root.rows; ++nRow) {
-            let index = root._modelIndex(nRow, 0)
+            let index = root.__modelIndex(nRow)
             if (assetsModel.isDirectory(index) && !root.isExpanded(nRow)) {
                 root.expand(nRow);
                 expandedAny = true
@@ -199,10 +199,10 @@ TreeView {
 
     function expandAll()
     {
-        // In order for _doExpandAll() to be called repeatedly (every time a new node is
+        // In order for __doExpandAll() to be called repeatedly (every time a new node is
         // loaded, and then, expanded), we need to set requestedExpandAll to true.
         root.requestedExpandAll = true
-        root._doExpandAll()
+        root.__doExpandAll()
     }
 
     function collapseAll()
@@ -211,7 +211,7 @@ TreeView {
 
         // collapse all, except for the root path - from the last item (leaves) up to the root
         for (let nRow = root.rows - 1; nRow >= 0; --nRow) {
-            let index = root._modelIndex(nRow, 0)
+            let index = root.__modelIndex(nRow)
             // we don't want to collapse the root path, because doing so will hide the contents
             // of the tree.
             if (assetsModel.filePath(index) === assetsModel.rootPath())
@@ -233,7 +233,7 @@ TreeView {
     function computeAllExpandedState()
     {
         var dirsWithChildren = [...Array(root.rows).keys()].filter(row => {
-            let index = root._modelIndex(row, 0)
+            let index = root.__modelIndex(row)
             return assetsModel.isDirectory(index) && assetsModel.hasChildren(index)
         })
 
@@ -249,22 +249,24 @@ TreeView {
 
     function startDropHoverOver(row)
     {
-        let index = root._modelIndex(row, 0)
+        let index = root.__modelIndex(row)
         if (assetsModel.isDirectory(index))
             return
 
-        let parentItem = root._getDelegateParentForIndex(index)
-        parentItem.hasChildWithDropHover = true
+        let parentItem = root.__getDelegateParentForIndex(index)
+        if (parentItem)
+            parentItem.hasChildWithDropHover = true
     }
 
     function endDropHover(row)
     {
-        let index = root._modelIndex(row, 0)
+        let index = root.__modelIndex(row)
         if (assetsModel.isDirectory(index))
             return
 
-        let parentItem = root._getDelegateParentForIndex(index)
-        parentItem.hasChildWithDropHover = false
+        let parentItem = root.__getDelegateParentForIndex(index)
+        if (parentItem)
+            parentItem.hasChildWithDropHover = false
     }
 
     function isAssetSelected(itemPath)
@@ -283,14 +285,14 @@ TreeView {
         root.selectedAssetsChanged()
     }
 
-    function _getDelegateParentForIndex(index)
+    function __getDelegateParentForIndex(index)
     {
         let parentIndex = assetsModel.parentDirIndex(index)
         let parentCell = root.cellAtIndex(parentIndex)
         return root.itemAtCell(parentCell)
     }
 
-    function _modelIndex(row)
+    function __modelIndex(row)
     {
         // The modelIndex() function exists since 6.3. In Qt 6.3, this modelIndex() function was a
         // member of the TreeView, while in Qt6.4 it was moved to TableView. In Qt6.4, the order of

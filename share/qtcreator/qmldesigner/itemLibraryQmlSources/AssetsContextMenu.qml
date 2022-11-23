@@ -11,84 +11,85 @@ StudioControls.Menu {
 
     required property Item assetsView
 
-    property bool _isDirectory: false
-    property var _fileIndex: null
-    property string _dirPath: ""
-    property string _dirName: ""
-    property var _onFolderCreated: null
-    property var _onFolderRenamed: null
-    property var _dirIndex: null
-    property string _allExpandedState: ""
-    property var _selectedAssetPathsList: null
+    property bool __isDirectory: false
+    property var __fileIndex: null
+    property string __dirPath: ""
+    property string __dirName: ""
+    property var __onFolderCreated: null
+    property var __onFolderRenamed: null
+    property var __dirIndex: null
+    property string __allExpandedState: ""
+    property var __selectedAssetPathsList: null
 
     closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
 
     function openContextMenuForRoot(rootModelIndex, dirPath, dirName, onFolderCreated)
     {
-        root._onFolderCreated = onFolderCreated
-        root._fileIndex = ""
-        root._dirPath = dirPath
-        root._dirName = dirName
-        root._dirIndex = rootModelIndex
-        root._isDirectory = false
+        root.__onFolderCreated = onFolderCreated
+        root.__fileIndex = ""
+        root.__dirPath = dirPath
+        root.__dirName = dirName
+        root.__dirIndex = rootModelIndex
+        root.__isDirectory = false
         root.popup()
     }
 
     function openContextMenuForDir(dirModelIndex, dirPath, dirName, allExpandedState,
                                    onFolderCreated, onFolderRenamed)
     {
-        root._onFolderCreated = onFolderCreated
-        root._onFolderRenamed = onFolderRenamed
-        root._dirPath = dirPath
-        root._dirName = dirName
-        root._fileIndex = ""
-        root._dirIndex = dirModelIndex
-        root._isDirectory = true
-        root._allExpandedState = allExpandedState
+        root.__onFolderCreated = onFolderCreated
+        root.__onFolderRenamed = onFolderRenamed
+        root.__dirPath = dirPath
+        root.__dirName = dirName
+        root.__fileIndex = ""
+        root.__dirIndex = dirModelIndex
+        root.__isDirectory = true
+        root.__allExpandedState = allExpandedState
         root.popup()
     }
 
-    function openContextMenuForFile(fileIndex, dirModelIndex, selectedAssetPathsList)
+    function openContextMenuForFile(fileIndex, dirModelIndex, selectedAssetPathsList, onFolderCreated)
     {
         var numSelected = selectedAssetPathsList.filter(p => p).length
         deleteFileItem.text = numSelected > 1 ? qsTr("Delete Files") : qsTr("Delete File")
 
-        root._selectedAssetPathsList = selectedAssetPathsList
-        root._fileIndex = fileIndex
-        root._dirIndex = dirModelIndex
-        root._dirPath = assetsModel.filePath(dirModelIndex)
-        root._isDirectory = false
+        root.__onFolderCreated = onFolderCreated
+        root.__selectedAssetPathsList = selectedAssetPathsList
+        root.__fileIndex = fileIndex
+        root.__dirIndex = dirModelIndex
+        root.__dirPath = assetsModel.filePath(dirModelIndex)
+        root.__isDirectory = false
         root.popup()
     }
 
     StudioControls.MenuItem {
         text: qsTr("Expand All")
-        enabled: root._allExpandedState !== "all_expanded"
-        visible: root._isDirectory
+        enabled: root.__allExpandedState !== "all_expanded"
+        visible: root.__isDirectory
         height: visible ? implicitHeight : 0
         onTriggered: root.assetsView.expandAll()
     }
 
     StudioControls.MenuItem {
         text: qsTr("Collapse All")
-        enabled: root._allExpandedState !== "all_collapsed"
-        visible: root._isDirectory
+        enabled: root.__allExpandedState !== "all_collapsed"
+        visible: root.__isDirectory
         height: visible ? implicitHeight : 0
         onTriggered: root.assetsView.collapseAll()
     }
 
     StudioControls.MenuSeparator {
-        visible: root._isDirectory
+        visible: root.__isDirectory
         height: visible ? StudioTheme.Values.border : 0
     }
 
     StudioControls.MenuItem {
         id: deleteFileItem
         text: qsTr("Delete File")
-        visible: root._fileIndex
+        visible: root.__fileIndex
         height: deleteFileItem.visible ? deleteFileItem.implicitHeight : 0
         onTriggered: {
-            let deleted = assetsModel.requestDeleteFiles(root._selectedAssetPathsList)
+            let deleted = assetsModel.requestDeleteFiles(root.__selectedAssetPathsList)
             if (!deleted)
                 confirmDeleteFiles.open()
         }
@@ -96,30 +97,30 @@ StudioControls.Menu {
         ConfirmDeleteFilesDialog {
             id: confirmDeleteFiles
             parent: root.assetsView
-            files: root._selectedAssetPathsList
+            files: root.__selectedAssetPathsList
 
             onAccepted: root.assetsView.selectedAssets = {}
         }
     }
 
     StudioControls.MenuSeparator {
-        visible: root._fileIndex
+        visible: root.__fileIndex
         height: visible ? StudioTheme.Values.border : 0
     }
 
     StudioControls.MenuItem {
         text: qsTr("Rename Folder")
-        visible: root._isDirectory
+        visible: root.__isDirectory
         height: visible ? implicitHeight : 0
         onTriggered: renameFolderDialog.open()
 
         RenameFolderDialog {
             id: renameFolderDialog
             parent: root.assetsView
-            dirPath: root._dirPath
-            dirName: root._dirName
+            dirPath: root.__dirPath
+            dirName: root.__dirName
 
-            onAccepted: root._onFolderRenamed()
+            onAccepted: root.__onFolderRenamed()
         }
     }
 
@@ -129,9 +130,9 @@ StudioControls.Menu {
         NewFolderDialog {
             id: newFolderDialog
             parent: root.assetsView
-            dirPath: root._dirPath
+            dirPath: root.__dirPath
 
-            onAccepted: root._onFolderCreated(newFolderDialog.createdDirPath)
+            onAccepted: root.__onFolderCreated(newFolderDialog.createdDirPath)
         }
 
         onTriggered: newFolderDialog.open()
@@ -139,22 +140,22 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Delete Folder")
-        visible: root._isDirectory
+        visible: root.__isDirectory
         height: visible ? implicitHeight : 0
 
         ConfirmDeleteFolderDialog {
             id: confirmDeleteFolderDialog
             parent: root.assetsView
-            dirName: root._dirName
-            dirIndex: root._dirIndex
+            dirName: root.__dirName
+            dirIndex: root.__dirIndex
         }
 
         onTriggered: {
-            if (!assetsModel.hasChildren(root._dirIndex)) {
+            if (!assetsModel.hasChildren(root.__dirIndex)) {
                 // NOTE: the folder may still not be empty -- it doesn't have files visible to the
                 // user, but that doesn't mean that there are no other files (e.g. files of unknown
                 // types) on disk in this directory.
-                assetsModel.deleteFolderRecursively(root._dirIndex)
+                assetsModel.deleteFolderRecursively(root.__dirIndex)
             } else {
                 confirmDeleteFolderDialog.open()
             }

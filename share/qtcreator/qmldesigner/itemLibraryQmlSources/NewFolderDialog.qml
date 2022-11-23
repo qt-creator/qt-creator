@@ -17,7 +17,7 @@ Dialog {
 
     required property string dirPath
     property string createdDirPath: ""
-    readonly property int _maxPath: 260
+    readonly property int __maxPath: 260
 
     HelperWidgets.RegExpValidator {
         id: folderNameValidator
@@ -67,7 +67,7 @@ Dialog {
             text: qsTr("Folder path is too long.")
             color: "#ff0000"
             anchors.right: parent.right
-            visible: root.createdDirPath.length > root._maxPath
+            visible: root.createdDirPath.length > root.__maxPath
         }
 
         Item { // spacer
@@ -82,7 +82,7 @@ Dialog {
                 id: btnCreate
 
                 text: qsTr("Create")
-                enabled: folderName.text !== "" && root.createdDirPath.length <= root._maxPath
+                enabled: folderName.text !== "" && root.createdDirPath.length <= root.__maxPath
                 onClicked: {
                     root.createdDirPath = root.dirPath + '/' + folderName.text
                     if (assetsModel.addNewFolder(root.createdDirPath))
