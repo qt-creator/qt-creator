@@ -274,7 +274,7 @@ PropertiesView::MView::~MView()
 {
 }
 
-void PropertiesView::MView::update(QList<MElement *> &modelElements)
+void PropertiesView::MView::update(const QList<MElement *> &modelElements)
 {
     QMT_ASSERT(modelElements.size() > 0, return);
 
@@ -284,7 +284,7 @@ void PropertiesView::MView::update(QList<MElement *> &modelElements)
     modelElements.at(0)->accept(this);
 }
 
-void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram *diagram)
+void PropertiesView::MView::update(const QList<DElement *> &diagramElements, MDiagram *diagram)
 {
     QMT_ASSERT(diagramElements.size() > 0, return);
     QMT_ASSERT(diagram, return);
@@ -292,7 +292,7 @@ void PropertiesView::MView::update(QList<DElement *> &diagramElements, MDiagram 
     m_diagramElements = diagramElements;
     m_diagram = diagram;
     m_modelElements.clear();
-    foreach (DElement *delement, diagramElements) {
+    for (DElement *delement : diagramElements) {
         bool appendedMelement = false;
         if (delement->modelUid().isValid()) {
             MElement *melement = m_propertiesView->modelController()->findElement(delement->modelUid());
@@ -1181,11 +1181,11 @@ void PropertiesView::MView::onParseClassMembers()
     m_classMembersEdit->reparse();
 }
 
-void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMembers)
+void PropertiesView::MView::onClassMembersChanged(const QList<MClassMember> &classMembers)
 {
     QSet<Uid> showMembers;
     if (!classMembers.isEmpty()) {
-        foreach (MElement *element, m_modelElements) {
+        for (MElement *element : std::as_const(m_modelElements)) {
             MClass *klass = dynamic_cast<MClass *>(element);
             if (klass && klass->members().isEmpty())
                 showMembers.insert(klass->uid());
@@ -1193,7 +1193,7 @@ void PropertiesView::MView::onClassMembersChanged(QList<MClassMember> &classMemb
     }
     assignModelElement<MClass, QList<MClassMember>>(m_modelElements, SelectionSingle, classMembers,
                                                      &MClass::members, &MClass::setMembers);
-    foreach (DElement *element, m_diagramElements) {
+    for (DElement *element : std::as_const(m_diagramElements)) {
         if (showMembers.contains(element->modelUid())) {
             assignModelElement<DClass, bool>(QList<DElement *>({element}), SelectionSingle, true,
                                              &DClass::showAllMembers, &DClass::setShowAllMembers);
@@ -1571,7 +1571,8 @@ void PropertiesView::MView::setEndBName(const QString &endBName)
 QList<QString> PropertiesView::MView::splitTemplateParameters(const QString &templateParameters)
 {
     QList<QString> templateParametersList;
-    foreach (const QString &parameter, templateParameters.split(QLatin1Char(','))) {
+    const QStringList parameters = templateParameters.split(QLatin1Char(','));
+    for (const QString &parameter : parameters) {
         const QString &p = parameter.trimmed();
         if (!p.isEmpty())
             templateParametersList.append(p);
@@ -1583,7 +1584,7 @@ QString PropertiesView::MView::formatTemplateParameters(const QList<QString> &te
 {
     QString templateParamters;
     bool first = true;
-    foreach (const QString &parameter, templateParametersList) {
+    for (const QString &parameter : templateParametersList) {
         if (!first)
             templateParamters += ", ";
         templateParamters += parameter;
@@ -1596,7 +1597,7 @@ template<class T, class V>
 QList<T *> PropertiesView::MView::filter(const QList<V *> &elements)
 {
     QList<T *> filtered;
-    foreach (V *element, elements) {
+    for (V *element : elements) {
         auto t = dynamic_cast<T *>(element);
         if (t)
             filtered.append(t);
@@ -1607,11 +1608,11 @@ QList<T *> PropertiesView::MView::filter(const QList<V *> &elements)
 template<class T, class V, class BASE>
 bool PropertiesView::MView::haveSameValue(const QList<BASE *> &baseElements, V (T::*getter)() const, V *value)
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     QMT_CHECK(!elements.isEmpty());
     V candidate = V(); // avoid warning of reading uninitialized variable
     bool haveCandidate = false;
-    foreach (T *element, elements) {
+    for (T *element : elements) {
         if (!haveCandidate) {
             candidate = ((*element).*getter)();
             haveCandidate = true;
@@ -1632,9 +1633,9 @@ template<class T, class V, class BASE>
 void PropertiesView::MView::assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
                                                const V &value, V (T::*getter)() const, void (T::*setter)(const V &))
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
-        foreach (T *element, elements) {
+        for (T *element : elements) {
             if (value != ((*element).*getter)()) {
                 m_propertiesView->beginUpdate(element);
                 ((*element).*setter)(value);
@@ -1648,9 +1649,9 @@ template<class T, class V, class BASE>
 void PropertiesView::MView::assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
                                                const V &value, V (T::*getter)() const, void (T::*setter)(V))
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
-        foreach (T *element, elements) {
+        for (T *element : elements) {
             if (value != ((*element).*getter)()) {
                 m_propertiesView->beginUpdate(element);
                 ((*element).*setter)(value);
@@ -1666,9 +1667,9 @@ void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &base
                                                        void (T::*setter)(const E &),
                                                        V (E::*vGetter)() const, void (E::*vSetter)(const V &))
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
-        foreach (T *element, elements) {
+        for (T *element : elements) {
             E embedded = ((*element).*getter)();
             if (value != (embedded.*vGetter)()) {
                 m_propertiesView->beginUpdate(element);
@@ -1686,9 +1687,9 @@ void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &base
                                                        void (T::*setter)(const E &),
                                                        V (E::*vGetter)() const, void (E::*vSetter)(V))
 {
-    QList<T *> elements = filter<T>(baseElements);
+    const QList<T *> elements = filter<T>(baseElements);
     if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
-        foreach (T *element, elements) {
+        for (T *element : elements) {
             E embedded = ((*element).*getter)();
             if (value != (embedded.*vGetter)()) {
                 m_propertiesView->beginUpdate(element);

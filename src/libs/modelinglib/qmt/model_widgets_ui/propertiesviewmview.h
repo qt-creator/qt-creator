@@ -74,8 +74,8 @@ public:
     void visitDBoundary(const DBoundary *boundary) override;
     void visitDSwimlane(const DSwimlane *swimlane) override;
 
-    void update(QList<MElement *> &modelElements);
-    void update(QList<DElement *> &diagramElements, MDiagram *diagram);
+    void update(const QList<MElement *> &modelElements);
+    void update(const QList<DElement *> &diagramElements, MDiagram *diagram);
     void edit();
 
 protected:
@@ -85,7 +85,7 @@ protected:
     void onTemplateParametersChanged(const QString &templateParameters);
     void onClassMembersStatusChanged(bool valid);
     void onParseClassMembers();
-    void onClassMembersChanged(QList<MClassMember> &classMembers);
+    void onClassMembersChanged(const QList<MClassMember> &classMembers);
     void onItemVarietyChanged(const QString &variety);
     void onRelationNameChanged(const QString &name);
     void onDependencyDirectionChanged(int directionIndex);
