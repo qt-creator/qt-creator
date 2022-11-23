@@ -629,12 +629,12 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
         return false;
     }
 
-    if (AndroidManager::checkKeystorePassword(m_keystorePath.toString(), m_keystorePasswd))
+    if (AndroidManager::checkKeystorePassword(m_keystorePath, m_keystorePasswd))
         return true;
 
     bool success = false;
     auto verifyCallback = std::bind(&AndroidManager::checkKeystorePassword,
-                                    m_keystorePath.toString(), std::placeholders::_1);
+                                    m_keystorePath, std::placeholders::_1);
     m_keystorePasswd = PasswordInputDialog::getPassword(PasswordInputDialog::KeystorePassword,
                                                         verifyCallback, "", &success);
     return success;
@@ -642,21 +642,21 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
 
 bool AndroidBuildApkStep::verifyCertificatePassword()
 {
-    if (!AndroidManager::checkCertificateExists(m_keystorePath.toString(), m_keystorePasswd,
-                                                 m_certificateAlias)) {
+    if (!AndroidManager::checkCertificateExists(m_keystorePath, m_keystorePasswd,
+                                                m_certificateAlias)) {
         reportWarningOrError(Tr::tr("Cannot sign the package. Certificate alias %1 does not exist.")
                              .arg(m_certificateAlias), Task::Error);
         return false;
     }
 
-    if (AndroidManager::checkCertificatePassword(m_keystorePath.toString(), m_keystorePasswd,
+    if (AndroidManager::checkCertificatePassword(m_keystorePath, m_keystorePasswd,
                                                  m_certificateAlias, m_certificatePasswd)) {
         return true;
     }
 
     bool success = false;
     auto verifyCallback = std::bind(&AndroidManager::checkCertificatePassword,
-                                    m_keystorePath.toString(), m_keystorePasswd,
+                                    m_keystorePath, m_keystorePasswd,
                                     m_certificateAlias, std::placeholders::_1);
 
     m_certificatePasswd = PasswordInputDialog::getPassword(PasswordInputDialog::CertificatePassword,
@@ -867,7 +867,7 @@ QVariantMap AndroidBuildApkStep::toMap() const
     return map;
 }
 
-Utils::FilePath AndroidBuildApkStep::keystorePath()
+Utils::FilePath AndroidBuildApkStep::keystorePath() const
 {
     return m_keystorePath;
 }

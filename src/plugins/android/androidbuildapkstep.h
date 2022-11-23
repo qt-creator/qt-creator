@@ -26,7 +26,7 @@ public:
     QVariantMap toMap() const override;
 
     // signing
-    Utils::FilePath keystorePath();
+    Utils::FilePath keystorePath() const;
     void setKeystorePath(const Utils::FilePath &path);
     void setKeystorePassword(const QString &pwd);
     void setCertificateAlias(const QString &alias);

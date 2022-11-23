@@ -570,12 +570,14 @@ void AndroidManager::installQASIPackage(Target *target, const FilePath &packageP
             Tr::tr("Android package installation failed.\n%1").arg(error));
 }
 
-bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd)
+bool AndroidManager::checkKeystorePassword(const FilePath &keystorePath,
+                                           const QString &keystorePasswd)
 {
     if (keystorePasswd.isEmpty())
         return false;
     const CommandLine cmd(AndroidConfigurations::currentConfig().keytoolPath(),
-                          {"-list", "-keystore", keystorePath, "--storepass", keystorePasswd});
+                          {"-list", "-keystore", keystorePath.toUserOutput(),
+                           "--storepass", keystorePasswd});
     QtcProcess proc;
     proc.setTimeoutS(10);
     proc.setCommand(cmd);
@@ -583,10 +585,13 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd)
+bool AndroidManager::checkCertificatePassword(const FilePath &keystorePath,
+                                              const QString &keystorePasswd,
+                                              const QString &alias,
+                                              const QString &certificatePasswd)
 {
     // assumes that the keystore password is correct
-    QStringList arguments = {"-certreq", "-keystore", keystorePath,
+    QStringList arguments = {"-certreq", "-keystore", keystorePath.toUserOutput(),
                              "--storepass", keystorePasswd, "-alias", alias, "-keypass"};
     if (certificatePasswd.isEmpty())
         arguments << keystorePasswd;
@@ -600,11 +605,11 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-bool AndroidManager::checkCertificateExists(const QString &keystorePath,
+bool AndroidManager::checkCertificateExists(const FilePath &keystorePath,
                                             const QString &keystorePasswd, const QString &alias)
 {
     // assumes that the keystore password is correct
-    QStringList arguments = { "-list", "-keystore", keystorePath,
+    QStringList arguments = { "-list", "-keystore", keystorePath.toUserOutput(),
                               "--storepass", keystorePasswd, "-alias", alias };
 
     QtcProcess proc;
