@@ -5,7 +5,7 @@
 
 #include "cppeditor_global.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QHash>
 #include <QString>
@@ -36,9 +36,6 @@ public:
     unsigned revision(const Utils::FilePath &fileName) const
     { return _elements.value(fileName).second; }
 
-    QPair<QByteArray, unsigned> get(const QString &fileName) const
-    { return get(Utils::FilePath::fromString(fileName)); }
-
     QPair<QByteArray, unsigned> get(const Utils::FilePath &fileName) const
     { return _elements.value(fileName); }
 
@@ -53,4 +50,4 @@ private:
     Table _elements;
 };
 
-} // namespace CppEditor
+} // CppEditor

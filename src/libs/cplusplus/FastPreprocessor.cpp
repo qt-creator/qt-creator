@@ -87,7 +87,7 @@ void FastPreprocessor::macroAdded(const Macro &macro)
 
 static const Macro revision(const Snapshot &s, const Macro &m)
 {
-    if (Document::Ptr d = s.document(m.fileName())) {
+    if (Document::Ptr d = s.document(m.filePath())) {
         Macro newMacro(m);
         newMacro.setFileRevision(d->revision());
         return newMacro;

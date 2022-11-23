@@ -59,7 +59,7 @@ private:
 
     CPlusPlus::Document::Ptr switchCurrentDocument(CPlusPlus::Document::Ptr doc);
 
-    bool getFileContents(const QString &absoluteFilePath, QByteArray *contents,
+    bool getFileContents(const Utils::FilePath &absoluteFilePath, QByteArray *contents,
                          unsigned *revision) const;
     bool checkFile(const QString &absoluteFilePath) const;
     QString resolveFile(const QString &fileName, IncludeType type);

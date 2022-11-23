@@ -706,8 +706,8 @@ static void findMacroUses_helper(QFutureInterface<CPlusPlus::Usage> &future,
                                  const CPlusPlus::Snapshot snapshot,
                                  const CPlusPlus::Macro macro)
 {
-    const Utils::FilePath sourceFile = Utils::FilePath::fromString(macro.fileName());
-    Utils::FilePaths files{sourceFile};
+    const FilePath sourceFile = macro.filePath();
+    FilePaths files{sourceFile};
     files = Utils::filteredUnique(files + snapshot.filesDependingOn(sourceFile));
 
     future.setProgressRange(0, files.size());

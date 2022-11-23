@@ -31,6 +31,7 @@
  */
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 using Message = Document::DiagnosticMessage;
 
@@ -81,7 +82,7 @@ inline const CPlusPlus::Macro revision(const WorkingCopy &workingCopy,
                                        const CPlusPlus::Macro &macro)
 {
     CPlusPlus::Macro newMacro(macro);
-    newMacro.setFileRevision(workingCopy.get(macro.fileName()).second);
+    newMacro.setFileRevision(workingCopy.get(macro.filePath()).second);
     return newMacro;
 }
 
@@ -181,7 +182,7 @@ void CppSourceProcessor::resetEnvironment()
     m_included.clear();
 }
 
-bool CppSourceProcessor::getFileContents(const QString &absoluteFilePath,
+bool CppSourceProcessor::getFileContents(const FilePath &absoluteFilePath,
                                          QByteArray *contents,
                                          unsigned *revision) const
 {
@@ -199,12 +200,12 @@ bool CppSourceProcessor::getFileContents(const QString &absoluteFilePath,
     // Get from file
     *revision = 0;
     QString error;
-    if (Utils::TextFileFormat::readFileUTF8(Utils::FilePath::fromString(absoluteFilePath),
+    if (Utils::TextFileFormat::readFileUTF8(absoluteFilePath,
                                             m_defaultCodec,
                                             contents,
                                             &error)
         != Utils::TextFileFormat::ReadSuccess) {
-        qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath),
+        qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath.toString()),
                  qPrintable(error));
         return false;
     }
@@ -410,8 +411,9 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
     if (fileName.isEmpty())
         return;
 
-    QString absoluteFileName = resolveFile(fileName, type);
-    absoluteFileName = QDir::cleanPath(absoluteFileName);
+    const QString absoluteFileName = QDir::cleanPath(resolveFile(fileName, type));
+    const FilePath absoluteFilePath = FilePath::fromString(absoluteFileName);
+
     if (m_currentDoc) {
         m_currentDoc->addIncludeFile(Document::Include(fileName, absoluteFileName, line, type));
         if (absoluteFileName.isEmpty()) {
@@ -437,15 +439,15 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
     // Otherwise get file contents
     unsigned editorRevision = 0;
     QByteArray contents;
-    const bool gotFileContents = getFileContents(absoluteFileName, &contents, &editorRevision);
+    const bool gotFileContents = getFileContents(absoluteFilePath, &contents, &editorRevision);
     if (m_currentDoc && !gotFileContents) {
         m_currentDoc->addDiagnosticMessage(messageNoFileContents(m_currentDoc, fileName, line));
         return;
     }
 
-    qCDebug(log) << "Parsing:" << absoluteFileName << "contents:" << contents.size() << "bytes";
+    qCDebug(log) << "Parsing:" << absoluteFilePath.toString() << "contents:" << contents.size() << "bytes";
 
-    Document::Ptr document = Document::create(Utils::FilePath::fromString(absoluteFileName));
+    Document::Ptr document = Document::create(absoluteFilePath);
     document->setEditorRevision(editorRevision);
     document->setLanguageFeatures(m_languageFeatures);
     for (const QString &include : initialIncludes) {
@@ -457,8 +459,7 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
         document->setLastModified(info.lastModified());
 
     const Document::Ptr previousDocument = switchCurrentDocument(document);
-    const QByteArray preprocessedCode =
-            m_preprocess.run(Utils::FilePath::fromString(absoluteFileName), contents);
+    const QByteArray preprocessedCode = m_preprocess.run(absoluteFilePath, contents);
 //    {
 //        QByteArray b(preprocessedCode); b.replace("\n", "<<<\n");
 //        qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData());
@@ -466,7 +467,7 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
     document->setFingerprint(generateFingerPrint(document->definedMacros(), preprocessedCode));
 
     // Re-use document from global snapshot if possible
-    Document::Ptr globalDocument = m_globalSnapshot.document(absoluteFileName);
+    Document::Ptr globalDocument = m_globalSnapshot.document(absoluteFilePath);
     if (globalDocument && globalDocument->fingerprint() == document->fingerprint()) {
         switchCurrentDocument(previousDocument);
         mergeEnvironment(globalDocument);

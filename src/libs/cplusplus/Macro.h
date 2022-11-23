@@ -27,6 +27,8 @@
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
+#include <utils/filepath.h>
+
 #include <QByteArray>
 #include <QVector>
 #include <QString>
@@ -68,6 +70,9 @@ public:
 
     const QString &fileName() const
     { return _fileName; }
+
+    Utils::FilePath filePath() const
+    { return Utils::FilePath::fromString(_fileName); }
 
     void setFileName(const QString &fileName)
     { _fileName = fileName; }

@@ -270,7 +270,7 @@ bool handleMacroCase(const Document::Ptr document,
     const int length = macro->nameToQString().size();
 
     // Macro definition
-    if (macro->fileName() == document->filePath().pathView())
+    if (macro->filePath() == document->filePath())
         ranges->append(toRange(textCursor, macro->utf16CharOffset(), length));
 
     // Other macro uses

@@ -86,7 +86,7 @@ public:
         const QString macroName = QString::fromUtf8(macro.name(), macro.name().size());
         helpIdCandidates = QStringList(macroName);
         helpMark = macroName;
-        link = Utils::Link(Utils::FilePath::fromString(macro.fileName()), macro.line());
+        link = Utils::Link(macro.filePath(), macro.line());
         tooltip = macro.toStringWithLineBreaks();
     }
 };
