@@ -984,6 +984,9 @@ static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QSt
 
 void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
 {
+    if (!m_rewriterView->possibleImportsEnabled())
+        return;
+
     static QUrl lastProjectUrl;
     auto &externalDependencies = m_rewriterView->externalDependencies();
     auto projectUrl = externalDependencies.projectUrl();

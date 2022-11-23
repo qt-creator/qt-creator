@@ -693,6 +693,16 @@ void RewriterView::resetPossibleImports()
     m_textToModelMerger->clearPossibleImportKeys();
 }
 
+bool RewriterView::possibleImportsEnabled() const
+{
+    return m_possibleImportsEnabled;
+}
+
+void RewriterView::setPossibleImportsEnabled(bool b)
+{
+    m_possibleImportsEnabled = b;
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.data();
