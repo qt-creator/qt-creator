@@ -8,6 +8,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 #include "taskhub.h"
 
 #include <coreplugin/icore.h>
@@ -776,9 +777,19 @@ void MsvcToolChain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
     QObject::connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt, [&]() {
         const GenerateEnvResult &result = m_envModWatcher.result();
         if (result.error) {
-            const QString &errorMessage = *result.error;
-            if (!errorMessage.isEmpty())
-                TaskHub::addTask(CompileTask(Task::Error, errorMessage));
+            QString errorMessage = *result.error;
+            if (!errorMessage.isEmpty()) {
+                Task::TaskType severity;
+                if (m_environmentModifications.isEmpty()) {
+                    severity = Task::Error;
+                } else {
+                    severity = Task::Warning;
+                    errorMessage.prepend(
+                        Tr::tr("Falling back to use the cached environment for \"%1\" after:")
+                                .arg(displayName()) + '\n');
+                }
+                TaskHub::addTask(CompileTask(severity, errorMessage));
+            }
         } else {
             updateEnvironmentModifications(result.environmentItems);
         }
