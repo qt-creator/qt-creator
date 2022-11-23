@@ -2010,7 +2010,7 @@ bool InternalCppCompletionAssistProcessor::completeConstructorOrFunction(const Q
             bs.LA(startToken - lineStartToken);
             QString possibleDecl = bs.mid(lineStartToken).trimmed().append(QLatin1String("();"));
 
-            Document::Ptr doc = Document::create(QLatin1String("<completion>"));
+            Document::Ptr doc = Document::create(Utils::FilePath::fromPathPart(u"<completion>"));
             doc->setUtf8Source(possibleDecl.toUtf8());
             if (doc->parse(Document::ParseDeclaration)) {
                 doc->check();

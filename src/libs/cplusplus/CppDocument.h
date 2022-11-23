@@ -32,7 +32,7 @@ class CPLUSPLUS_EXPORT Document
     Document(const Document &other);
     void operator =(const Document &other);
 
-    Document(const QString &fileName);
+    Document(const Utils::FilePath &fileName);
 
 public:
     typedef QSharedPointer<Document> Ptr;
@@ -113,7 +113,7 @@ public:
 
     void check(CheckMode mode = FullCheck);
 
-    static Ptr create(const QString &fileName);
+    static Ptr create(const Utils::FilePath &filePath);
 
     class CPLUSPLUS_EXPORT DiagnosticMessage
     {
@@ -406,7 +406,7 @@ public:
                                        int withDefinedMacrosFromDocumentUntilLine = -1) const;
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
-                                     const QString &fileName) const;
+                                     const Utils::FilePath &filePath) const;
 
     QSet<QString> allIncludesForDocument(const QString &fileName) const;
 

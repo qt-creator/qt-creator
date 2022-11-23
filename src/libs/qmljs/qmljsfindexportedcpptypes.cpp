@@ -851,9 +851,9 @@ QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &doc
 
     // context properties need lookup inside function scope, and thus require a full check
     CPlusPlus::Document::Ptr localDoc = document;
-    if (document->checkMode() != CPlusPlus::Document::FullCheck && !contextPropertyDescriptions.isEmpty()) {
-        localDoc = m_snapshot.documentFromSource(document->utf8Source(),
-                                                 document->filePath().toString());
+    if (document->checkMode() != CPlusPlus::Document::FullCheck
+            && !contextPropertyDescriptions.isEmpty()) {
+        localDoc = m_snapshot.documentFromSource(document->utf8Source(), document->filePath());
         localDoc->check();
     }
 

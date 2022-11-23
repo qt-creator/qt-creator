@@ -28,7 +28,7 @@ namespace {
 Document::Ptr createDocument(const QString &filePath, const QByteArray &text,
                              int expectedGlobalSymbolCount)
 {
-    Document::Ptr document = Document::create(filePath);
+    Document::Ptr document = Document::create(FilePath::fromString(filePath));
     document->setUtf8Source(text);
     document->check();
     QTC_ASSERT(document->diagnosticMessages().isEmpty(), return Document::Ptr());

@@ -220,7 +220,7 @@ void FunctionUtilsTest::testVirtualFunctions()
     QFETCH(QByteArray, source);
     QFETCH(VirtualityList, virtualityList);
     QFETCH(QList<int>, firstVirtualList);
-    Document::Ptr document = Document::create(QLatin1String("virtuals"));
+    Document::Ptr document = Document::create(Utils::FilePath::fromPathPart(u"virtuals"));
     document->setUtf8Source(source);
     document->check(); // calls parse();
     QCOMPARE(document->diagnosticMessages().size(), 0);

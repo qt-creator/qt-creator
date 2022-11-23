@@ -330,5 +330,4 @@ private:
 bool CPLUSPLUS_EXPORT compareFullyQualifiedName(const QList<const Name *> &path,
                                                 const QList<const Name *> &other);
 
-
-} // namespace CPlusPlus
+} // CPlusPlus

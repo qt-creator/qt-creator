@@ -35,6 +35,7 @@
 */
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace {
 
@@ -243,8 +244,8 @@ private:
 } // anonymous namespace
 
 
-Document::Document(const QString &fileName)
-    : _filePath(Utils::FilePath::fromUserInput(QDir::cleanPath(fileName))),
+Document::Document(const FilePath &filePath)
+    : _filePath(filePath),
       _globalNamespace(nullptr),
       _revision(0),
       _editorRevision(0),
@@ -254,9 +255,9 @@ Document::Document(const QString &fileName)
 
     _control->setDiagnosticClient(new DocumentDiagnosticClient(this, &_diagnosticMessages));
 
-    const QByteArray localFileName = fileName.toUtf8();
+    const QByteArray localFileName = filePath.path().toUtf8();
     const StringLiteral *fileId = _control->stringLiteral(localFileName.constData(),
-                                                                      localFileName.size());
+                                                          localFileName.size());
     _translationUnit = new TranslationUnit(_control, fileId);
     _translationUnit->setLanguageFeatures(LanguageFeatures::defaultFeatures());
 }
@@ -517,9 +518,9 @@ const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(int utf16ch
     return nullptr;
 }
 
-Document::Ptr Document::create(const QString &fileName)
+Document::Ptr Document::create(const FilePath &filePath)
 {
-    Document::Ptr doc(new Document(fileName));
+    Document::Ptr doc(new Document(filePath));
     return doc;
 }
 
@@ -717,11 +718,11 @@ static QList<Macro> macrosDefinedUntilLine(const QList<Macro> &macros, int line)
 }
 
 Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
-                                             const Utils::FilePath &fileName,
+                                             const FilePath &filePath,
                                              int withDefinedMacrosFromDocumentUntilLine) const
 {
-    Document::Ptr newDoc = Document::create(fileName.toString());
-    if (Document::Ptr thisDocument = document(fileName)) {
+    Document::Ptr newDoc = Document::create(filePath);
+    if (Document::Ptr thisDocument = document(filePath)) {
         newDoc->_revision = thisDocument->_revision;
         newDoc->_editorRevision = thisDocument->_editorRevision;
         newDoc->_lastModified = thisDocument->_lastModified;
@@ -742,11 +743,11 @@ Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
 }
 
 Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
-                                           const QString &fileName) const
+                                           const FilePath &filePath) const
 {
-    Document::Ptr newDoc = Document::create(fileName);
+    Document::Ptr newDoc = Document::create(filePath);
 
-    if (Document::Ptr thisDocument = document(fileName)) {
+    if (Document::Ptr thisDocument = document(filePath)) {
         newDoc->_revision = thisDocument->_revision;
         newDoc->_editorRevision = thisDocument->_editorRevision;
         newDoc->_lastModified = thisDocument->_lastModified;

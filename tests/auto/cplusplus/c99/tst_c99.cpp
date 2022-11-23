@@ -73,7 +73,7 @@ class tst_c99: public QObject
 
     Document::Ptr document(const QString &fileName, QByteArray *errors = 0)
     {
-        Document::Ptr doc = Document::create(fileName);
+        Document::Ptr doc = Document::create(Utils::FilePath::fromString(fileName));
         QFile file(testdata(fileName));
         if (file.open(QFile::ReadOnly)) {
             LanguageFeatures features;

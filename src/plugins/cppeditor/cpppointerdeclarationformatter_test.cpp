@@ -72,7 +72,7 @@ public:
         Preprocessor preprocess(nullptr, &env);
         const QByteArray preprocessedSource = preprocess.run(filePath, sourceWithoutCursorMarker);
 
-        Document::Ptr document = Document::create(filePath.toString());
+        Document::Ptr document = Document::create(filePath);
         document->setUtf8Source(preprocessedSource);
         document->parse(parseMode);
         document->check();

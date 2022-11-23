@@ -11,6 +11,8 @@
 
 #include <QtTest>
 
+using namespace Utils;
+
 namespace {
 
 class FindFirstFunctionDefinition: protected CPlusPlus::ASTVisitor
@@ -147,7 +149,8 @@ void LocalSymbolsTest::test()
     QFETCH(QByteArray, source);
     QFETCH(QList<Result>, expectedUses);
 
-    CPlusPlus::Document::Ptr document = CPlusPlus::Document::create(QLatin1String("test.cpp"));
+    CPlusPlus::Document::Ptr document =
+            CPlusPlus::Document::create(FilePath::fromPathPart(u"test.cpp"));
     document->setUtf8Source(source);
     document->check();
     QVERIFY(document->diagnosticMessages().isEmpty());

@@ -35,6 +35,7 @@
 #include <QTextBlock>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 
@@ -42,13 +43,13 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
                               const CppCodeStyleSettings &settings)
 {
     // Preprocess source
-    Environment env;
+    CPlusPlus::Environment env;
     Preprocessor preprocess(nullptr, &env);
+    FilePath noFileFile = FilePath::fromPathPart(u"<no-file>");
     const QByteArray preprocessedSource
-        = preprocess.run(Utils::FilePath::fromParts({}, {}, u"<no-file>"),
-                         textDocument->toPlainText().toUtf8());
+        = preprocess.run(noFileFile, textDocument->toPlainText().toUtf8());
 
-    Document::Ptr cppDocument = Document::create(QLatin1String("<no-file>"));
+    Document::Ptr cppDocument = Document::create(noFileFile);
     cppDocument->setUtf8Source(preprocessedSource);
     cppDocument->parse(Document::ParseTranlationUnit);
     cppDocument->check();

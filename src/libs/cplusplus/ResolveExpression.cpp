@@ -27,6 +27,7 @@
 #include <map>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 static const bool debug = qEnvironmentVariableIsSet("QTC_LOOKUPCONTEXT_DEBUG");
 
@@ -666,7 +667,7 @@ class ExpressionDocumentHelper
 public:
     // Set up an expression document with an external Control
     ExpressionDocumentHelper(const QByteArray &utf8code, Control *control)
-        : document(Document::create(QLatin1String("<completion>")))
+        : document(Document::create(FilePath::fromPathPart(u"<completion>")))
     {
         Control *oldControl = document->swapControl(control);
         delete oldControl->diagnosticClient();

@@ -13,6 +13,8 @@
 
 #include <QSet>
 
+using namespace Utils;
+
 namespace CPlusPlus {
 
 TypeOfExpression::TypeOfExpression():
@@ -172,10 +174,10 @@ ExpressionAST *extractExpressionAST(Document::Ptr doc)
 Document::Ptr documentForExpression(const QByteArray &utf8code)
 {
     // create the expression's AST.
-    Document::Ptr doc = Document::create(QLatin1String("<completion>"));
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"<completion>"));
     doc->setUtf8Source(utf8code);
     doc->parse(Document::ParseExpression);
     return doc;
 }
 
-} // namespace CPlusPlus
+} // CPlusPlus

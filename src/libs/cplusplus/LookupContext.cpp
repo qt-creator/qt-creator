@@ -21,7 +21,9 @@
 #include <QVarLengthArray>
 #include <QDebug>
 
-using namespace CPlusPlus;
+using namespace Utils;
+
+namespace CPlusPlus {
 
 static const bool debug = qEnvironmentVariableIsSet("QTC_LOOKUPCONTEXT_DEBUG");
 
@@ -86,8 +88,6 @@ static bool isNestedInstantiationEnclosingTemplate(
     return true;
 }
 
-namespace CPlusPlus {
-
 static inline bool compareName(const Name *name, const Name *other)
 {
     if (name == other)
@@ -117,9 +117,6 @@ bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<cons
     return true;
 }
 
-}
-
-namespace CPlusPlus {
 namespace Internal {
 
 bool operator==(const FullyQualifiedName &left, const FullyQualifiedName &right)
@@ -140,7 +137,7 @@ size_t qHash(const FullyQualifiedName &fullyQualifiedName)
     }
     return h;
 }
-}
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -152,7 +149,7 @@ LookupContext::LookupContext()
 
 LookupContext::LookupContext(Document::Ptr thisDocument,
                              const Snapshot &snapshot)
-    : _expressionDocument(Document::create(QLatin1String("<LookupContext>")))
+    : _expressionDocument(Document::create(FilePath::fromPathPart(u"<LookupContext>")))
     , _thisDocument(thisDocument)
     , _snapshot(snapshot)
     , _bindings(new CreateBindings(thisDocument, snapshot))
@@ -2059,3 +2056,4 @@ Symbol *CreateBindings::instantiateTemplateFunction(const Name *instantiationNam
     return cloner.symbol(specialization, &subst);
 }
 
+} // CPlusPlus

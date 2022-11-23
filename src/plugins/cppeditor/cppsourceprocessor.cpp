@@ -445,7 +445,7 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
 
     qCDebug(log) << "Parsing:" << absoluteFileName << "contents:" << contents.size() << "bytes";
 
-    Document::Ptr document = Document::create(absoluteFileName);
+    Document::Ptr document = Document::create(Utils::FilePath::fromString(absoluteFileName));
     document->setEditorRevision(editorRevision);
     document->setLanguageFeatures(m_languageFeatures);
     for (const QString &include : initialIncludes) {

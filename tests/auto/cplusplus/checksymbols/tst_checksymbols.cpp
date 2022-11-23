@@ -121,7 +121,7 @@ public:
         preprocess.setKeepComments(true);
         const QByteArray preprocessedSource = preprocess.run(filePath, source);
 
-        Document::Ptr document = Document::create(filePath);
+        Document::Ptr document = Document::create(Utils::FilePath::fromString(filePath));
         document->setUtf8Source(preprocessedSource);
         if (!document->parse())
             return Document::Ptr();
