@@ -262,6 +262,11 @@ Rectangle {
     // the close of the old popup. Using an int keeps track of number of opened popups.
     property int menuOpen: 0
 
+    Connections {
+        target: statesEditorModel
+        onModelReset: root.menuOpen = 0
+    }
+
     // This timer is used to delay the current state animation as it didn't work due to the
     // repeaters item not being positioned in time resulting in 0 x and y position if the grids
     // row and column were not changed during the layout algorithm .
