@@ -149,7 +149,7 @@ static QString qualifiedTypeNameForContext(const ObjectValue *objectValue,
         if (!cImport.valid())
             break;
         for (const Export &e : std::as_const(cImport.possibleExports)) {
-            if (e.pathRequired.isEmpty() || vContext.paths.contains(e.pathRequired)) {
+            if (e.pathRequired.isEmpty() || vContext.paths.count(e.pathRequired) > 0) {
                 switch (e.exportName.type) {
                 case ImportType::Library:
                 {
