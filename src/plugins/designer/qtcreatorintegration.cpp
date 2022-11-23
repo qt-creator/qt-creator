@@ -348,7 +348,7 @@ static ClassDocumentPtrPair
         const unsigned recursionMaxIncludeDepth = maxIncludeDepth - 1u;
         const auto includedFiles = doc->includedFiles();
         for (const QString &include : includedFiles) {
-            const Snapshot::const_iterator it = docTable.find(include);
+            const Snapshot::const_iterator it = docTable.find(FilePath::fromString(include));
             if (it != docTable.end()) {
                 const Document::Ptr &includeDoc = it.value();
                 LookupContext context(includeDoc, docTable);
@@ -437,8 +437,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                 newDocTable.insert(i.value());
         }
     } else {
-        const Utils::FilePath configFileName =
-                Utils::FilePath::fromString(CppEditor::CppModelManager::configurationFileName());
+        const FilePath configFileName = CppEditor::CppModelManager::configurationFileName();
         const CppEditor::WorkingCopy::Table elements =
                 CppEditor::CppModelManager::instance()->workingCopy().elements();
         for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {

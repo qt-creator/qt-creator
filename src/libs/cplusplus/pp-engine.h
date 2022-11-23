@@ -54,7 +54,7 @@ class CPLUSPLUS_EXPORT Preprocessor
     typedef Internal::Value Value;
 
 public:
-    static QString configurationFileName();
+    static const Utils::FilePath &configurationFileName();
 
 public:
     Preprocessor(Client *client, Environment *env);

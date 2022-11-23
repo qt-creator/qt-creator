@@ -210,7 +210,7 @@ public:
     static QSet<QString> timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
 
     static Internal::CppSourceProcessor *createSourceProcessor();
-    static QString configurationFileName();
+    static const Utils::FilePath &configurationFileName();
     static QString editorConfigurationFileName();
 
     void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);

@@ -651,7 +651,7 @@ void FollowSymbolUnderCursor::findLink(
         const QString fileName = use->macro().fileName();
         if (fileName == CppModelManager::editorConfigurationFileName()) {
             editorWidget->showPreProcessorWidget();
-        } else if (fileName != CppModelManager::configurationFileName()) {
+        } else if (fileName != CppModelManager::configurationFileName().path()) {
             const Macro &macro = use->macro();
             link.targetFilePath = Utils::FilePath::fromString(macro.fileName());
             link.targetLine = macro.line();

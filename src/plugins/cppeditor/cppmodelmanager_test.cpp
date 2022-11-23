@@ -65,8 +65,10 @@ public:
     QString frameworksDir(bool cleaned = true) const
     { return directory(_("frameworks"), cleaned); }
 
-    QString fileFromSourcesDir(const QString &fileName) const
-    { return directory(_("sources")) + QLatin1Char('/') + fileName; }
+    FilePath fileFromSourcesDir(const QString &fileName) const
+    {
+        return FilePath::fromString(directory(_("sources"))).pathAppended(fileName);
+    }
 
     FilePath filePath(const QString &p) const
     {
@@ -74,12 +76,12 @@ public:
     }
 };
 
-QStringList toAbsolutePaths(const QStringList &relativePathList,
-                            const TemporaryCopiedDir &temporaryDir)
+FilePaths toAbsolutePaths(const QStringList &relativePathList,
+                          const TemporaryCopiedDir &temporaryDir)
 {
-    QStringList result;
+    FilePaths result;
     for (const QString &file : relativePathList)
-        result << temporaryDir.absolutePath(file.toUtf8());
+        result << FilePath::fromString(temporaryDir.absolutePath(file.toUtf8()));
     return result;
 }
 
@@ -96,12 +98,14 @@ public:
     {
         const MyTestDataDir projectDir(dir);
         for (const QString &file : files)
-            projectFiles << projectDir.file(file);
+            projectFiles << projectDir.filePath(file);
 
         RawProjectPart rpp;
         rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
         const ProjectFiles rppFiles = Utils::transform<ProjectFiles>(projectFiles,
-                [](const QString &file) { return ProjectFile(file, ProjectFile::classify(file)); });
+                [](const FilePath &file) {
+            return ProjectFile(file.toString(), ProjectFile::classify(file.toString()));
+        });
         const auto project = modelManagerTestHelper->createProject(
                     name, Utils::FilePath::fromString(dir).pathAppended(name + ".pro"));
 
@@ -112,7 +116,7 @@ public:
 
     ModelManagerTestHelper *modelManagerTestHelper;
     ProjectInfo::ConstPtr projectInfo;
-    QStringList projectFiles;
+    FilePaths projectFiles;
 };
 
 /// Changes a file on the disk and restores its original contents on destruction
@@ -211,10 +215,10 @@ void ModelManagerTest::testFrameworkHeaders()
     rpp.setMacros({{"OH_BEHAVE", "-1"}});
     rpp.setHeaderPaths({HeaderPath::makeUser(testDataDir.includeDir(false)),
                         HeaderPath::makeFramework(testDataDir.frameworksDir(false))});
-    const QString &source = testDataDir.fileFromSourcesDir(
-        _("test_modelmanager_framework_headers.cpp"));
+    const FilePath source =
+            testDataDir.fileFromSourcesDir("test_modelmanager_framework_headers.cpp");
     const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
-                                          {ProjectFile(source, ProjectFile::CXXSource)});
+                                          {ProjectFile(source.toString(), ProjectFile::CXXSource)});
     const auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}),
                                         {part});
 
@@ -222,7 +226,7 @@ void ModelManagerTest::testFrameworkHeaders()
     QCoreApplication::processEvents();
 
     QVERIFY(mm->snapshot().contains(source));
-    Document::Ptr doc = mm->document(Utils::FilePath::fromString(source));
+    Document::Ptr doc = mm->document(source);
     QVERIFY(!doc.isNull());
     CPlusPlus::Namespace *ns = doc->globalNamespace();
     QVERIFY(ns);
@@ -248,8 +252,8 @@ void ModelManagerTest::testRefreshAlsoIncludesOfProjectFiles()
 
     const MyTestDataDir testDataDir(_("testdata"));
 
-    const QString testCpp(testDataDir.fileFromSourcesDir(_("test_modelmanager_refresh.cpp")));
-    const QString testHeader(testDataDir.fileFromSourcesDir( _("test_modelmanager_refresh.h")));
+    const FilePath testCpp = testDataDir.fileFromSourcesDir(_("test_modelmanager_refresh.cpp"));
+    const FilePath testHeader = testDataDir.fileFromSourcesDir( _("test_modelmanager_refresh.h"));
 
     const auto project
             = helper.createProject(_("test_modelmanager_refresh_also_includes_of_project_files"),
@@ -259,10 +263,10 @@ void ModelManagerTest::testRefreshAlsoIncludesOfProjectFiles()
     rpp.setMacros({{"OH_BEHAVE", "-1"}});
     rpp.setHeaderPaths({HeaderPath::makeUser(testDataDir.includeDir(false))});
     auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
-                                    {ProjectFile(testCpp, ProjectFile::CXXSource)});
+                                    {ProjectFile(testCpp.toString(), ProjectFile::CXXSource)});
     auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}), {part});
 
-    QSet<QString> refreshedFiles = helper.updateProjectInfo(pi);
+    QSet<FilePath> refreshedFiles = helper.updateProjectInfo(pi);
     QCOMPARE(refreshedFiles.size(), 1);
     QVERIFY(refreshedFiles.contains(testCpp));
     CPlusPlus::Snapshot snapshot = mm->snapshot();
@@ -277,7 +281,7 @@ void ModelManagerTest::testRefreshAlsoIncludesOfProjectFiles()
     // Introduce a define that will enable another define once the document is reparsed.
     rpp.setMacros({{"TEST_DEFINE", "1"}});
     part = ProjectPart::create(project->projectFilePath(), rpp, {},
-                                        {ProjectFile(testCpp, ProjectFile::CXXSource)});
+                                        {ProjectFile(testCpp.toString(), ProjectFile::CXXSource)});
     pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}), {part});
 
     refreshedFiles = helper.updateProjectInfo(pi);
@@ -305,25 +309,25 @@ void ModelManagerTest::testRefreshSeveralTimes()
 
     const MyTestDataDir testDataDir(_("testdata_refresh"));
 
-    const QString testHeader1(testDataDir.file(_("defines.h")));
-    const QString testHeader2(testDataDir.file(_("header.h")));
-    const QString testCpp(testDataDir.file(_("source.cpp")));
+    const FilePath testHeader1 = testDataDir.filePath("defines.h");
+    const FilePath testHeader2 = testDataDir.filePath("header.h");
+    const FilePath testCpp = testDataDir.filePath("source.cpp");
 
     const auto project = helper.createProject(_("test_modelmanager_refresh_several_times"),
                                               Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
     rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     const ProjectFiles files = {
-        ProjectFile(testHeader1, ProjectFile::CXXHeader),
-        ProjectFile(testHeader2, ProjectFile::CXXHeader),
-        ProjectFile(testCpp, ProjectFile::CXXSource)
+        ProjectFile(testHeader1.toString(), ProjectFile::CXXHeader),
+        ProjectFile(testHeader2.toString(), ProjectFile::CXXHeader),
+        ProjectFile(testCpp.toString(), ProjectFile::CXXSource)
     };
     const auto part = ProjectPart::create(project->projectFilePath(), rpp, {}, files);
     auto pi = ProjectInfo::create(ProjectUpdateInfo(project, KitInfo(nullptr), {}, {}), {part});
     mm->updateProjectInfo(pi);
 
     CPlusPlus::Snapshot snapshot;
-    QSet<QString> refreshedFiles;
+    QSet<FilePath> refreshedFiles;
     Document::Ptr document;
 
     ProjectExplorer::Macros macros = {{"FIRST_DEFINE"}};
@@ -399,20 +403,21 @@ void ModelManagerTest::testRefreshAddedAndPurgeRemoved()
 
     const MyTestDataDir testDataDir(_("testdata_refresh"));
 
-    const QString testHeader1(testDataDir.file(_("header.h")));
-    const QString testHeader2(testDataDir.file(_("defines.h")));
-    const QString testCpp(testDataDir.file(_("source.cpp")));
+    const FilePath testHeader1 = testDataDir.filePath("header.h");
+    const FilePath testHeader2 = testDataDir.filePath("defines.h");
+    const FilePath testCpp = testDataDir.filePath("source.cpp");
 
     const auto project = helper.createProject(_("test_modelmanager_refresh_3"),
                                               Utils::FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
     rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
     const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
-            {{testCpp, ProjectFile::CXXSource}, {testHeader1, ProjectFile::CXXHeader}});
+            {{testCpp.toString(), ProjectFile::CXXSource},
+             {testHeader1.toString(), ProjectFile::CXXHeader}});
     auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
 
     CPlusPlus::Snapshot snapshot;
-    QSet<QString> refreshedFiles;
+    QSet<FilePath> refreshedFiles;
 
     refreshedFiles = helper.updateProjectInfo(pi);
 
@@ -426,7 +431,8 @@ void ModelManagerTest::testRefreshAddedAndPurgeRemoved()
 
     // Now add testHeader2 and remove testHeader1
     const auto newPart = ProjectPart::create(project->projectFilePath(), rpp, {},
-            {{testCpp, ProjectFile::CXXSource}, {testHeader2, ProjectFile::CXXHeader}});
+            {{testCpp.toString(), ProjectFile::CXXSource},
+             {testHeader2.toString(), ProjectFile::CXXHeader}});
     pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {newPart});
 
     refreshedFiles = helper.updateProjectInfo(pi);
@@ -452,31 +458,31 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
 
     TemporaryCopiedDir temporaryDir(MyTestDataDir(QLatin1String("testdata_refresh2")).path());
     fileToChange = temporaryDir.absolutePath(fileToChange.toUtf8());
-    initialProjectFiles = toAbsolutePaths(initialProjectFiles, temporaryDir);
-    finalProjectFiles = toAbsolutePaths(finalProjectFiles, temporaryDir);
+    const FilePaths initialProjectFilePaths = toAbsolutePaths(initialProjectFiles, temporaryDir);
+    const FilePaths finalProjectFilePaths = toAbsolutePaths(finalProjectFiles, temporaryDir);
 
     ModelManagerTestHelper helper;
     CppModelManager *mm = CppModelManager::instance();
 
     const auto project = helper.createProject(_("test_modelmanager_refresh_timeStampModified"),
-                                              Utils::FilePath::fromString("blubb.pro"));
+                                              FilePath::fromString("blubb.pro"));
     RawProjectPart rpp;
     rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
-    auto files = Utils::transform<ProjectFiles>(initialProjectFiles, [](const QString &f) {
-        return ProjectFile(f, ProjectFile::CXXSource);
+    auto files = Utils::transform<ProjectFiles>(initialProjectFilePaths, [](const FilePath &f) {
+        return ProjectFile(f.toString(), ProjectFile::CXXSource);
     });
     auto part = ProjectPart::create(project->projectFilePath(), rpp, {}, files);
     auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
 
     Document::Ptr document;
     CPlusPlus::Snapshot snapshot;
-    QSet<QString> refreshedFiles;
+    QSet<FilePath> refreshedFiles;
 
     refreshedFiles = helper.updateProjectInfo(pi);
 
-    QCOMPARE(refreshedFiles.size(), initialProjectFiles.size());
+    QCOMPARE(refreshedFiles.size(), initialProjectFilePaths.size());
     snapshot = mm->snapshot();
-    for (const QString &file : std::as_const(initialProjectFiles)) {
+    for (const FilePath &file : initialProjectFilePaths) {
         QVERIFY(refreshedFiles.contains(file));
         QVERIFY(snapshot.contains(file));
     }
@@ -495,17 +501,17 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
     QVERIFY(fileChangerAndRestorer.writeContents(newFileContentes));
 
     // Add or remove source file. The configuration stays the same.
-    files = Utils::transform<ProjectFiles>(finalProjectFiles, [](const QString &f) {
-        return ProjectFile(f, ProjectFile::CXXSource);
+    files = Utils::transform<ProjectFiles>(finalProjectFilePaths, [](const FilePath &f) {
+        return ProjectFile(f.toString(), ProjectFile::CXXSource);
     });
     part = ProjectPart::create(project->projectFilePath(), rpp, {}, files);
     pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
 
     refreshedFiles = helper.updateProjectInfo(pi);
 
-    QCOMPARE(refreshedFiles.size(), finalProjectFiles.size());
+    QCOMPARE(refreshedFiles.size(), finalProjectFilePaths.size());
     snapshot = mm->snapshot();
-    for (const QString &file : std::as_const(finalProjectFiles)) {
+    for (const FilePath &file : finalProjectFilePaths) {
         QVERIFY(refreshedFiles.contains(file));
         QVERIFY(snapshot.contains(file));
     }
@@ -541,7 +547,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange_data()
 ///        files of the first project.
 void ModelManagerTest::testSnapshotAfterTwoProjects()
 {
-    QSet<QString> refreshedFiles;
+    QSet<FilePath> refreshedFiles;
     ModelManagerTestHelper helper;
     ProjectCreator project1(&helper);
     ProjectCreator project2(&helper);
@@ -556,7 +562,7 @@ void ModelManagerTest::testSnapshotAfterTwoProjects()
     QCOMPARE(refreshedFiles, Utils::toSet(project1.projectFiles));
     const int snapshotSizeAfterProject1 = mm->snapshot().size();
 
-    for (const QString &file : std::as_const(project1.projectFiles))
+    for (const FilePath &file : std::as_const(project1.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
 
     // Project 2
@@ -571,9 +577,9 @@ void ModelManagerTest::testSnapshotAfterTwoProjects()
     QVERIFY(snapshotSizeAfterProject2 > snapshotSizeAfterProject1);
     QVERIFY(snapshotSizeAfterProject2 >= snapshotSizeAfterProject1 + project2.projectFiles.size());
 
-    for (const QString &file : std::as_const(project1.projectFiles))
+    for (const FilePath &file : std::as_const(project1.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
-    for (const QString &file : std::as_const(project2.projectFiles))
+    for (const FilePath &file : std::as_const(project2.projectFiles))
         QVERIFY(mm->snapshot().contains(file));
 }
 
@@ -608,7 +614,7 @@ void ModelManagerTest::testExtraeditorsupportUiFiles()
 
     fileNamesInWorkinCopy.sort();
     const QString expectedUiHeaderFileName = _("ui_mainwindow.h");
-    QCOMPARE(fileNamesInWorkinCopy.at(0), mm->configurationFileName());
+    QCOMPARE(fileNamesInWorkinCopy.at(0), mm->configurationFileName().toString());
     QCOMPARE(fileNamesInWorkinCopy.at(1), expectedUiHeaderFileName);
 
     // Check CppSourceProcessor / includes.
@@ -633,14 +639,14 @@ void ModelManagerTest::testGcIfLastCppeditorClosed()
     ModelManagerTestHelper helper;
 
     MyTestDataDir testDataDirectory(_("testdata_guiproject1"));
-    const QString file = testDataDirectory.file(_("main.cpp"));
+    const FilePath file = testDataDirectory.filePath("main.cpp");
 
     CppModelManager *mm = CppModelManager::instance();
     helper.resetRefreshedSourceFiles();
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
-    Core::IEditor *editor = Core::EditorManager::openEditor(Utils::FilePath::fromString(file));
+    Core::IEditor *editor = Core::EditorManager::openEditor(file);
     QVERIFY(editor);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
@@ -664,14 +670,14 @@ void ModelManagerTest::testDontGcOpenedFiles()
     ModelManagerTestHelper helper;
 
     MyTestDataDir testDataDirectory(_("testdata_guiproject1"));
-    const QString file = testDataDirectory.file(_("main.cpp"));
+    const FilePath file = testDataDirectory.filePath("main.cpp");
 
     CppModelManager *mm = CppModelManager::instance();
     helper.resetRefreshedSourceFiles();
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
-    Core::IEditor *editor = Core::EditorManager::openEditor(Utils::FilePath::fromString(file));
+    Core::IEditor *editor = Core::EditorManager::openEditor(file);
     QVERIFY(editor);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));

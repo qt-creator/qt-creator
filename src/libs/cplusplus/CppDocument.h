@@ -388,16 +388,12 @@ public:
     const_iterator end() const { return _documents.end(); }
 
     bool contains(const Utils::FilePath &fileName) const;
-    bool contains(const QString &fileName) const
-    { return contains(Utils::FilePath::fromString(fileName)); }
 
     Document::Ptr document(const Utils::FilePath &fileName) const;
     Document::Ptr document(const QString &fileName) const
     { return document(Utils::FilePath::fromString(fileName)); }
 
     const_iterator find(const Utils::FilePath &fileName) const;
-    const_iterator find(const QString &fileName) const
-    { return find(Utils::FilePath::fromString(fileName)); }
 
     Snapshot simplified(Document::Ptr doc) const;
 

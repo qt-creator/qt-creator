@@ -4,23 +4,26 @@
 #include "modelmanagertesthelper.h"
 
 #include "cpptoolstestcase.h"
-#include "cppworkingcopy.h"
 #include "projectinfo.h"
 
 #include <projectexplorer/session.h>
+
+#include <utils/algorithm.h>
 
 #include <QtTest>
 
 #include <cassert>
 
+using namespace Utils;
+
 namespace CppEditor::Tests {
 
-TestProject::TestProject(const QString &name, QObject *parent, const Utils::FilePath &filePath) :
+TestProject::TestProject(const QString &name, QObject *parent, const FilePath &filePath) :
     ProjectExplorer::Project("x-binary/foo", filePath),
     m_name(name)
 {
     setParent(parent);
-    setId(Utils::Id::fromString(name));
+    setId(Id::fromString(name));
     setDisplayName(name);
     qRegisterMetaType<QSet<QString> >();
 }
@@ -65,7 +68,7 @@ void ModelManagerTestHelper::cleanup()
 }
 
 ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(
-        const QString &name, const Utils::FilePath &filePath)
+        const QString &name, const FilePath &filePath)
 {
     auto tp = new TestProject(name, this, filePath);
     m_projects.push_back(tp);
@@ -74,13 +77,13 @@ ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(
     return tp;
 }
 
-QSet<QString> ModelManagerTestHelper::updateProjectInfo(
+QSet<FilePath> ModelManagerTestHelper::updateProjectInfo(
         const ProjectInfo::ConstPtr &projectInfo)
 {
     resetRefreshedSourceFiles();
     CppModelManager::instance()->updateProjectInfo(projectInfo).waitForFinished();
     QCoreApplication::processEvents();
-    return waitForRefreshedSourceFiles();
+    return Utils::transform(waitForRefreshedSourceFiles(), &FilePath::fromString);
 }
 
 void ModelManagerTestHelper::resetRefreshedSourceFiles()
@@ -116,4 +119,4 @@ void ModelManagerTestHelper::gcFinished()
     m_gcFinished = true;
 }
 
-} // namespace CppEditor::Tests
+} // CppEditor::Tests

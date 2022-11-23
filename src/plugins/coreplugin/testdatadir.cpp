@@ -5,10 +5,13 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QString>
 #include <QTest>
 
-using namespace Core::Tests;
+#include <utils/filepath.h>
+
+using namespace Utils;
+
+namespace Core::Tests {
 
 TestDataDir::TestDataDir(const QString &directory)
     : m_directory(directory)
@@ -21,6 +24,11 @@ TestDataDir::TestDataDir(const QString &directory)
 QString TestDataDir::file(const QString &fileName) const
 {
     return directory() + QLatin1Char('/') + fileName;
+}
+
+FilePath TestDataDir::filePath(const QString &fileName) const
+{
+    return FilePath::fromString(directory()) / fileName;
 }
 
 QString TestDataDir::path() const
@@ -37,3 +45,5 @@ QString TestDataDir::directory(const QString &subdir, bool clean) const
         path = QDir::cleanPath(path);
     return path;
 }
+
+} // Core::Tests

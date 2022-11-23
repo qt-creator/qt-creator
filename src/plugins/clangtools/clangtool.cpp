@@ -316,7 +316,7 @@ static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr>
         for (const CppEditor::ProjectFile &file : std::as_const(projectPart->files)) {
             QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unclassified, continue);
             QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unsupported, continue);
-            if (file.path == CppEditor::CppModelManager::configurationFileName())
+            if (file.path == CppEditor::CppModelManager::configurationFileName().path())
                 continue;
 
             if (file.active

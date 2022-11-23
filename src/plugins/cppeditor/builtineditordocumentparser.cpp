@@ -12,6 +12,7 @@
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -157,7 +158,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
     // Update the snapshot
     if (invalidateSnapshot) {
-        const QString configurationFileName = CppModelManager::configurationFileName();
+        const FilePath configurationFileName = CppModelManager::configurationFileName();
         if (invalidateConfig)
             state.snapshot.remove(configurationFileName);
         if (!state.snapshot.contains(configurationFileName))
@@ -186,7 +187,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         sourceProcessor.setWorkingCopy(workingCopy);
         sourceProcessor.setHeaderPaths(state.headerPaths);
         sourceProcessor.setLanguageFeatures(features);
-        sourceProcessor.run(configurationFileName);
+        sourceProcessor.run(configurationFileName.path());
         if (baseConfig.usePrecompiledHeaders) {
             for (const QString &precompiledHeader : std::as_const(state.precompiledHeaders))
                 sourceProcessor.run(precompiledHeader);

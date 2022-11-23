@@ -1479,7 +1479,7 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
         completeNamespace(b);
 
     addKeywords();
-    addMacros(CppModelManager::configurationFileName(), context.snapshot());
+    addMacros(CppModelManager::configurationFileName().path(), context.snapshot());
     addMacros(context.thisDocument()->filePath().toString(), context.snapshot());
     addSnippets();
     return !m_completions.isEmpty();

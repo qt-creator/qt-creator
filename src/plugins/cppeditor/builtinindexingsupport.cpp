@@ -6,7 +6,6 @@
 #include "builtineditordocumentparser.h"
 #include "cppchecksymbols.h"
 #include "cppeditorconstants.h"
-#include "cppeditorplugin.h"
 #include "cppmodelmanager.h"
 #include "cppprojectfile.h"
 #include "cppsourceprocessor.h"
@@ -26,7 +25,10 @@
 
 #include <QCoreApplication>
 #include <QElapsedTimer>
+#include <QLoggingCategory>
 #include <QRegularExpression>
+
+using namespace Utils;
 
 namespace CppEditor::Internal {
 
@@ -176,7 +178,7 @@ void index(QFutureInterface<void> &indexingFuture,
 
     sourceProcessor->setTodo(Utils::toSet(files));
 
-    const QString conf = CppModelManager::configurationFileName();
+    const FilePath &conf = CppModelManager::configurationFileName();
     bool processingHeaders = false;
 
     CppModelManager *cmm = CppModelManager::instance();
@@ -198,9 +200,9 @@ void index(QFutureInterface<void> &indexingFuture,
 
         const bool isSourceFile = i < sourceCount;
         if (isSourceFile) {
-            (void) sourceProcessor->run(conf);
+            (void) sourceProcessor->run(conf.path());
         } else if (!processingHeaders) {
-            (void) sourceProcessor->run(conf);
+            (void) sourceProcessor->run(conf.path());
 
             processingHeaders = true;
         }

@@ -716,7 +716,11 @@ void Preprocessor::State::updateIncludeGuardState_helper(IncludeGuardStateHint h
 #endif // DEBUG_INCLUDE_GUARD_TRACKING
 }
 
-QString Preprocessor::configurationFileName() { return QStringLiteral("<configuration>"); }
+const FilePath &Preprocessor::configurationFileName()
+{
+    const static FilePath configurationFile = FilePath::fromPathPart(u"<configuration>");
+    return configurationFile;
+}
 
 Preprocessor::Preprocessor(Client *client, Environment *env)
     : m_client(client)
@@ -2010,7 +2014,7 @@ void Preprocessor::handleIfDefDirective(bool checkUndefined, PPToken *tk)
 
             // the macro is a feature constraint(e.g. QT_NO_XXX)
             if (checkUndefined && macroName.startsWith("QT_NO_")) {
-                if (macro->fileName() == configurationFileName()) {
+                if (macro->fileName() == configurationFileName().pathView()) {
                     // and it' defined in a pro file (e.g. DEFINES += QT_NO_QOBJECT)
 
                     value = false; // take the branch

@@ -536,7 +536,7 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
 {
     QTC_ASSERT(context, return nullptr);
     QString symbolFile = QLatin1String(parameters.symbolFileName);
-    if (!snapshot.contains(symbolFile))
+    if (!snapshot.contains(FilePath::fromString(symbolFile)))
         return nullptr;
 
     CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(symbolFile);

@@ -177,11 +177,11 @@ static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEdi
     return closeEditorsSucceeded;
 }
 
-static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<QString> &filePaths)
+static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<FilePath> &filePaths)
 {
-    for (const QString &filePath : filePaths) {
+    for (const FilePath &filePath : filePaths) {
         if (!snapshot.contains(filePath)) {
-            qWarning() << "Missing file in snapshot:" << qPrintable(filePath);
+            qWarning() << "Missing file in snapshot:" << qPrintable(filePath.toString());
             return false;
         }
     }
@@ -291,7 +291,7 @@ bool TestCase::parseFiles(const QSet<FilePath> &filePaths)
         qWarning("After parsing: snapshot is empty.");
         return false;
     }
-    if (!snapshotContains(snapshot, filePaths_)) {
+    if (!snapshotContains(snapshot, filePaths)) {
         qWarning("After parsing: snapshot does not contain all expected files.");
         return false;
     }

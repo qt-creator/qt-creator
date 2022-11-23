@@ -392,7 +392,7 @@ void QmakeBuildSystem::updateCppCodeModel()
             });
         }
         generators.append(proGenerators);
-        fileList.prepend(CppEditor::CppModelManager::configurationFileName());
+        fileList.prepend(CppEditor::CppModelManager::configurationFileName().toString());
         rpp.setFiles(fileList, [cumulativeSourceFiles](const QString &filePath) {
             // Keep this lambda thread-safe!
             return !cumulativeSourceFiles.contains(filePath);

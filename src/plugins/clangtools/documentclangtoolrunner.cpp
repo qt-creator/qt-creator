@@ -134,7 +134,7 @@ static FileInfo getFileInfo(const FilePath &file, Project *project)
         for (const ProjectFile &projectFile : std::as_const(projectPart->files)) {
             QTC_ASSERT(projectFile.kind != ProjectFile::Unclassified, continue);
             QTC_ASSERT(projectFile.kind != ProjectFile::Unsupported, continue);
-            if (projectFile.path == CppModelManager::configurationFileName())
+            if (projectFile.path == CppModelManager::configurationFileName().path())
                 continue;
             const auto projectFilePath = FilePath::fromString(projectFile.path);
             if (file != projectFilePath)
