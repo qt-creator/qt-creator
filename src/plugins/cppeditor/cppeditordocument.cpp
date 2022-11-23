@@ -63,7 +63,7 @@ public:
         mm()->unregisterCppEditorDocument(m_registrationFilePath);
     }
 
-    QString filePath() const override { return m_cppEditorDocument->filePath().toString(); }
+    FilePath filePath() const override { return m_cppEditorDocument->filePath(); }
     QByteArray contents() const override { return m_cppEditorDocument->contentsText(); }
     unsigned revision() const override { return m_cppEditorDocument->contentsRevision(); }
 

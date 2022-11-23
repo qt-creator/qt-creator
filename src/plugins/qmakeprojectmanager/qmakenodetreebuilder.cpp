@@ -6,10 +6,13 @@
 #include "qmakeproject.h"
 #include "qmakeprojectmanagertr.h"
 
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
+
 #include <resourceeditor/resourcenode.h>
 
 #include <utils/algorithm.h>

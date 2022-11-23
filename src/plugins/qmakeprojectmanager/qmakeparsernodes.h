@@ -9,6 +9,7 @@
 
 #include <coreplugin/idocument.h>
 #include <cppeditor/generatedcodemodelsupport.h>
+#include <projectexplorer/projectnodes.h>
 #include <utils/textfileformat.h>
 
 #include <QFutureWatcher>
@@ -20,12 +21,15 @@
 
 #include <memory>
 
-namespace ProjectExplorer { class BuildConfiguration; }
+namespace ProjectExplorer {
+class BuildConfiguration;
+class ExtraCompilerFactory;
+} // ProjectExplorer
 
 namespace Utils {
 class FilePath;
 class FileSystemWatcher;
-} // namespace Utils;
+} // Utils;
 
 namespace QtSupport { class ProFileReader; }
 

@@ -11,6 +11,8 @@
 #include <utils/macroexpander.h>
 #include <utils/templateengine.h>
 
+using namespace Utils;
+
 namespace CppEditor {
 
 AbstractEditorSupport::AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent) :
@@ -27,22 +29,23 @@ AbstractEditorSupport::~AbstractEditorSupport()
 void AbstractEditorSupport::updateDocument()
 {
     ++m_revision;
-    m_modelmanager->updateSourceFiles(QSet<QString>{fileName()});
+    m_modelmanager->updateSourceFiles(QSet<QString>{filePath().toString()});
 }
 
 void AbstractEditorSupport::notifyAboutUpdatedContents() const
 {
-    m_modelmanager->emitAbstractEditorSupportContentsUpdated(fileName(), sourceFileName(), contents());
+    m_modelmanager->emitAbstractEditorSupportContentsUpdated(
+                filePath().toString(), sourceFilePath().toString(), contents());
 }
 
-QString AbstractEditorSupport::licenseTemplate(const QString &file, const QString &className)
+QString AbstractEditorSupport::licenseTemplate(const FilePath &filePath, const QString &className)
 {
     const QString license = Internal::CppFileSettings::licenseTemplate();
     Utils::MacroExpander expander;
     expander.registerVariable("Cpp:License:FileName", tr("The file name."),
-                              [file]() { return Utils::FilePath::fromString(file).fileName(); });
+                              [filePath] { return filePath.fileName(); });
     expander.registerVariable("Cpp:License:ClassName", tr("The class name."),
-                              [className]() { return className; });
+                              [className] { return className; });
 
     return Utils::TemplateEngine::processText(&expander, license, nullptr);
 }
@@ -52,5 +55,4 @@ bool AbstractEditorSupport::usePragmaOnce()
     return Internal::CppEditorPlugin::usePragmaOnce();
 }
 
-} // namespace CppEditor
-
+} // CppEditor

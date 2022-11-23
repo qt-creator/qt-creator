@@ -17,6 +17,7 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <projectexplorer/editorconfiguration.h>
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -31,7 +32,6 @@
 #include <utils/QtConcurrentTools>
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
-#include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -2074,7 +2074,7 @@ QList<ExtraCompiler *> QmakeProFile::extraCompilers() const
 }
 
 void QmakeProFile::setupExtraCompiler(const FilePath &buildDir,
-                                       const FileType &fileType, ExtraCompilerFactory *factory)
+                                      const FileType &fileType, ExtraCompilerFactory *factory)
 {
     for (const FilePath &fn : collectFiles(fileType)) {
         const FilePaths generated = generatedFiles(buildDir, fn, fileType);

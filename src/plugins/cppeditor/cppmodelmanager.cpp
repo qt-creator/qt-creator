@@ -1128,12 +1128,12 @@ BaseEditorDocumentProcessor *CppModelManager::cppEditorDocumentProcessor(const Q
 void CppModelManager::registerCppEditorDocument(CppEditorDocumentHandle *editorDocument)
 {
     QTC_ASSERT(editorDocument, return);
-    const QString filePath = editorDocument->filePath();
+    const FilePath filePath = editorDocument->filePath();
     QTC_ASSERT(!filePath.isEmpty(), return);
 
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
-    QTC_ASSERT(d->m_cppEditorDocuments.value(filePath, 0) == 0, return);
-    d->m_cppEditorDocuments.insert(filePath, editorDocument);
+    QTC_ASSERT(d->m_cppEditorDocuments.value(filePath.toString(), 0) == 0, return);
+    d->m_cppEditorDocuments.insert(filePath.toString(), editorDocument);
 }
 
 void CppModelManager::unregisterCppEditorDocument(const QString &filePath)
@@ -1204,7 +1204,7 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
     }
 
     for (AbstractEditorSupport *es : std::as_const(d->m_extraEditorSupports))
-        workingCopy.insert(es->fileName(), es->contents(), es->revision());
+        workingCopy.insert(es->filePath(), es->contents(), es->revision());
 
     // Add the project configuration file
     QByteArray conf = codeModelConfiguration();
@@ -1922,21 +1922,22 @@ void CppModelManager::GC()
         return;
 
     // Collect files of opened editors and editor supports (e.g. ui code model)
-    QStringList filesInEditorSupports;
+    FilePaths filesInEditorSupports;
     const QList<CppEditorDocumentHandle *> editorDocuments = cppEditorDocuments();
     for (const CppEditorDocumentHandle *editorDocument : editorDocuments)
         filesInEditorSupports << editorDocument->filePath();
 
     const QSet<AbstractEditorSupport *> abstractEditorSupportList = abstractEditorSupports();
     for (AbstractEditorSupport *abstractEditorSupport : abstractEditorSupportList)
-        filesInEditorSupports << abstractEditorSupport->fileName();
+        filesInEditorSupports << abstractEditorSupport->filePath();
 
     Snapshot currentSnapshot = snapshot();
     QSet<Utils::FilePath> reachableFiles;
     // The configuration file is part of the project files, which is just fine.
     // If single files are open, without any project, then there is no need to
     // keep the configuration file around.
-    FilePaths todo = transform(filesInEditorSupports + projectFiles(), &FilePath::fromString);
+    FilePaths todo = filesInEditorSupports;
+    todo += transform(projectFiles(), &FilePath::fromString);
 
     // Collect all files that are reachable from the project files
     while (!todo.isEmpty()) {
