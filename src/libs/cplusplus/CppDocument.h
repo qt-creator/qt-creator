@@ -300,7 +300,7 @@ public:
         }
     };
 
-    QStringList includedFiles() const;
+    Utils::FilePaths includedFiles() const;
     void addIncludeFile(const Include &include);
 
     const QList<Include> &resolvedIncludes() const
@@ -404,7 +404,7 @@ public:
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
                                      const Utils::FilePath &filePath) const;
 
-    QSet<QString> allIncludesForDocument(const QString &fileName) const;
+    QSet<Utils::FilePath> allIncludesForDocument(const Utils::FilePath &filePath) const;
 
     QList<IncludeLocation> includeLocationsOfDocument(const QString &fileNameOrPath) const;
 

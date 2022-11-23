@@ -22,6 +22,8 @@
 #include <cplusplus/TypeVisitor.h>
 #include <cplusplus/CoreTypes.h>
 
+#include <utils/algorithm.h>
+
 #include <QBitArray>
 #include <QByteArray>
 #include <QDebug>
@@ -297,13 +299,13 @@ void Document::setLastModified(const QDateTime &lastModified)
     _lastModified = lastModified;
 }
 
-QStringList Document::includedFiles() const
+FilePaths Document::includedFiles() const
 {
     QStringList files;
     for (const Include &i : std::as_const(_resolvedIncludes))
         files.append(i.resolvedFileName());
     files.removeDuplicates();
-    return files;
+    return transform(files, &FilePath::fromString);
 }
 
 // This assumes to be called with a QDir::cleanPath cleaned fileName.
@@ -762,18 +764,18 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
     return newDoc;
 }
 
-QSet<QString> Snapshot::allIncludesForDocument(const QString &fileName) const
+QSet<FilePath> Snapshot::allIncludesForDocument(const FilePath &filePath) const
 {
-    QSet<QString> result;
+    QSet<FilePath> result;
 
-    QStack<QString> files;
-    files.push(fileName);
+    QStack<FilePath> files;
+    files.push(filePath);
 
     while (!files.isEmpty()) {
-        QString file = files.pop();
+        FilePath file = files.pop();
         if (Document::Ptr doc = document(file)) {
-            const QStringList includedFiles = doc->includedFiles();
-            for (const QString &inc : includedFiles) {
+            const FilePaths includedFiles = doc->includedFiles();
+            for (const FilePath &inc : includedFiles) {
                 if (!result.contains(inc)) {
                     result.insert(inc);
                     files.push(inc);
@@ -815,10 +817,10 @@ QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(
     return result;
 }
 
-Utils::FilePaths Snapshot::filesDependingOn(const Utils::FilePath &fileName) const
+FilePaths Snapshot::filesDependingOn(const FilePath &filePath) const
 {
     updateDependencyTable();
-    return m_deps.filesDependingOn(fileName);
+    return m_deps.filesDependingOn(filePath);
 }
 
 void Snapshot::updateDependencyTable() const
@@ -838,9 +840,9 @@ bool Snapshot::operator==(const Snapshot &other) const
     return _documents == other._documents;
 }
 
-Document::Ptr Snapshot::document(const Utils::FilePath &fileName) const
+Document::Ptr Snapshot::document(const FilePath &filePath) const
 {
-    return _documents.value(fileName);
+    return _documents.value(filePath);
 }
 
 Snapshot Snapshot::simplified(Document::Ptr doc) const
@@ -849,9 +851,9 @@ Snapshot Snapshot::simplified(Document::Ptr doc) const
 
     if (doc) {
         snapshot.insert(doc);
-        const QSet<QString> fileNames = allIncludesForDocument(doc->filePath().toString());
-        for (const QString &fileName : fileNames)
-            if (Document::Ptr inc = document(fileName))
+        const QSet<FilePath> filePaths = allIncludesForDocument(doc->filePath());
+        for (const FilePath &filePath : filePaths)
+            if (Document::Ptr inc = document(filePath))
                 snapshot.insert(inc);
     }
 

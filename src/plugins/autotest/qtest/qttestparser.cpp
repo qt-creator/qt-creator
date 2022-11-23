@@ -53,10 +53,10 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
         }
     }
 
-    const QSet<QString> allIncludes = snapshot.allIncludesForDocument(doc->filePath().toString());
-    for (const QString &include : allIncludes) {
+    const QSet<FilePath> allIncludes = snapshot.allIncludesForDocument(doc->filePath());
+    for (const FilePath &include : allIncludes) {
         for (const QString &prefix : expectedHeaderPrefixes) {
-        if (include.endsWith(QString("%1/qtest.h").arg(prefix)))
+        if (include.pathView().endsWith(QString("%1/qtest.h").arg(prefix)))
             return true;
         }
     }

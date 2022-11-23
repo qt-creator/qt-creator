@@ -626,10 +626,10 @@ void ModelManagerTest::testExtraeditorsupportUiFiles()
     const CPlusPlus::Snapshot snapshot = mm->snapshot();
     const Document::Ptr document = snapshot.document(fileIncludingTheUiFile);
     QVERIFY(document);
-    const QStringList includedFiles = document->includedFiles();
+    const FilePaths includedFiles = document->includedFiles();
     QCOMPARE(includedFiles.size(), 2);
-    QCOMPARE(Utils::FilePath::fromString(includedFiles.at(0)).fileName(), _("mainwindow.h"));
-    QCOMPARE(Utils::FilePath::fromString(includedFiles.at(1)).fileName(), _("ui_mainwindow.h"));
+    QCOMPARE(includedFiles.at(0).fileName(), _("mainwindow.h"));
+    QCOMPARE(includedFiles.at(1).fileName(), _("ui_mainwindow.h"));
 }
 
 /// QTCREATORBUG-9828: Locator shows symbols of closed files
@@ -999,8 +999,8 @@ void ModelManagerTest::testRenameIncludes()
 
     const QDir workingDir(tmpDir.path());
     const QStringList fileNames = {"foo.h", "foo.cpp", "main.cpp"};
-    const QString oldHeader(workingDir.filePath(_("foo.h")));
-    const QString newHeader(workingDir.filePath(_("bar.h")));
+    const FilePath oldHeader = FilePath::fromString(workingDir.filePath("foo.h"));
+    const FilePath newHeader = FilePath::fromString(workingDir.filePath("bar.h"));
     CppModelManager *modelManager = CppModelManager::instance();
     const MyTestDataDir testDir(_("testdata_project1"));
 
@@ -1019,20 +1019,24 @@ void ModelManagerTest::testRenameIncludes()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    for (const QString &sourceFile : std::as_const(sourceFiles))
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{oldHeader});
+    for (const QString &sourceFile : std::as_const(sourceFiles)) {
+        QCOMPARE(snapshot.allIncludesForDocument(FilePath::fromString(sourceFile)),
+                 QSet<FilePath>{oldHeader});
+    }
 
     // Renaming the header
-    QVERIFY(Core::FileUtils::renameFile(Utils::FilePath::fromString(oldHeader),
-                                        Utils::FilePath::fromString(newHeader),
+    QVERIFY(Core::FileUtils::renameFile(oldHeader,
+                                        newHeader,
                                         Core::HandleIncludeGuards::Yes));
 
     // Update the c++ model manager again and check for the new includes
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
-    for (const QString &sourceFile : std::as_const(sourceFiles))
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{newHeader});
+    for (const QString &sourceFile : std::as_const(sourceFiles)) {
+        QCOMPARE(snapshot.allIncludesForDocument(FilePath::fromString(sourceFile)),
+                                                 QSet<FilePath>{newHeader});
+    }
 }
 
 void ModelManagerTest::testRenameIncludesInEditor()
@@ -1047,8 +1051,8 @@ void ModelManagerTest::testRenameIncludesInEditor()
 
     const QDir workingDir(tmpDir.path());
     const QStringList fileNames = {"baz.h", "baz2.h", "baz3.h", "foo.h", "foo.cpp", "main.cpp"};
-    const QString headerWithPragmaOnce(workingDir.filePath(_("foo.h")));
-    const QString renamedHeaderWithPragmaOnce(workingDir.filePath(_("bar.h")));
+    const FilePath headerWithPragmaOnce = FilePath::fromString(workingDir.filePath("foo.h"));
+    const FilePath renamedHeaderWithPragmaOnce = FilePath::fromString(workingDir.filePath("bar.h"));
     const QString headerWithNormalGuard(workingDir.filePath(_("baz.h")));
     const QString renamedHeaderWithNormalGuard(workingDir.filePath(_("foobar2000.h")));
     const QString headerWithUnderscoredGuard(workingDir.filePath(_("baz2.h")));
@@ -1077,8 +1081,10 @@ void ModelManagerTest::testRenameIncludesInEditor()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     CPlusPlus::Snapshot snapshot = modelManager->snapshot();
-    for (const QString &sourceFile : std::as_const(sourceFiles))
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{headerWithPragmaOnce});
+    for (const QString &sourceFile : std::as_const(sourceFiles)) {
+        QCOMPARE(snapshot.allIncludesForDocument(FilePath::fromString(sourceFile)),
+                 QSet<FilePath>{headerWithPragmaOnce});
+    }
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
@@ -1093,8 +1099,8 @@ void ModelManagerTest::testRenameIncludesInEditor()
     QVERIFY(modelManager->workingCopy().contains(mainFile));
 
     // Test the renaming of a header file where a pragma once guard is present
-    QVERIFY(Core::FileUtils::renameFile(Utils::FilePath::fromString(headerWithPragmaOnce),
-                                        Utils::FilePath::fromString(renamedHeaderWithPragmaOnce),
+    QVERIFY(Core::FileUtils::renameFile(headerWithPragmaOnce,
+                                        renamedHeaderWithPragmaOnce,
                                         Core::HandleIncludeGuards::Yes));
 
     // Test the renaming the header with include guard:
@@ -1155,8 +1161,10 @@ void ModelManagerTest::testRenameIncludesInEditor()
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
-    for (const QString &sourceFile : std::as_const(sourceFiles))
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{renamedHeaderWithPragmaOnce});
+    for (const QString &sourceFile : std::as_const(sourceFiles)) {
+        QCOMPARE(snapshot.allIncludesForDocument(FilePath::fromString(sourceFile)),
+                 QSet<FilePath>{renamedHeaderWithPragmaOnce});
+    }
 }
 
 void ModelManagerTest::testDocumentsAndRevisions()

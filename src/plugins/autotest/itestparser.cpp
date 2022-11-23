@@ -11,6 +11,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
+using namespace Utils;
+
 namespace Autotest {
 
 using LookupInfo = QPair<QString, QString>;
@@ -58,7 +60,7 @@ QByteArray CppParser::getFileContent(const Utils::FilePath &filePath) const
 bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                const Utils::FilePath &filePath,
                                const QString &cacheString,
-                               const std::function<bool(const QString &)> &checker)
+                               const std::function<bool(const FilePath &)> &checker)
 {
     const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     const QList<CppEditor::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
@@ -70,8 +72,8 @@ bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
         auto it = s_pchLookupCache.find(info);
         if (it == s_pchLookupCache.end()) {
             it = s_pchLookupCache.insert(info,
-                                         Utils::anyOf(snapshot.allIncludesForDocument(header),
-                                                      checker));
+                         Utils::anyOf(snapshot.allIncludesForDocument(FilePath::fromString(header)),
+                                      checker));
         }
         return it.value();
     };
@@ -86,8 +88,8 @@ bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
     return Autotest::precompiledHeaderContains(snapshot,
                                                filePath,
                                                headerFilePath,
-                                               [&](const QString &include) {
-                                                   return include.endsWith(headerFilePath);
+                                               [&](const FilePath &include) {
+                                                   return include.path().endsWith(headerFilePath);
                                                });
 }
 
@@ -98,8 +100,8 @@ bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
     return Autotest::precompiledHeaderContains(snapshot,
                                                filePath,
                                                headerFileRegex.pattern(),
-                                               [&](const QString &include) {
-                                                   return headerFileRegex.match(include).hasMatch();
+                                               [&](const FilePath &include) {
+                                                   return headerFileRegex.match(include.path()).hasMatch();
                                                });
 }
 

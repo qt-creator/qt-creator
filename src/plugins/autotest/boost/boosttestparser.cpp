@@ -12,6 +12,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -57,8 +59,8 @@ static bool includesBoostTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    for (const QString &include : snapshot.allIncludesForDocument(doc->filePath().toString())) {
-        if (boostTestHpp.match(include).hasMatch())
+    for (const FilePath &include : snapshot.allIncludesForDocument(doc->filePath())) {
+        if (boostTestHpp.match(include.path()).hasMatch())
             return true;
     }
 

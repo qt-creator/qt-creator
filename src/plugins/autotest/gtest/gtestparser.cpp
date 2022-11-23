@@ -47,8 +47,8 @@ static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    for (const QString &include : snapshot.allIncludesForDocument(doc->filePath().toString())) {
-        if (include.endsWith(gtestH))
+    for (const FilePath &include : snapshot.allIncludesForDocument(doc->filePath())) {
+        if (include.path().endsWith(gtestH))
             return true;
     }
 

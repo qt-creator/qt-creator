@@ -61,7 +61,7 @@ static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
         }
     }
 
-    for (const QString &include : snapshot.allIncludesForDocument(doc->filePath().toString())) {
+    for (const FilePath &include : snapshot.allIncludesForDocument(doc->filePath())) {
         for (const QString &catchHeader : catchHeaders) {
             if (include.endsWith(catchHeader))
                 return true;

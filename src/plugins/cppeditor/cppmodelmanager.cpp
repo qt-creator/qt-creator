@@ -1309,9 +1309,10 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
     for (const ProjectPart::ConstPtr &projectPart : projectInfo.projectParts()) {
         for (const ProjectFile &cxxFile : std::as_const(projectPart->files)) {
-            const QSet<QString> fileNames = d->m_snapshot.allIncludesForDocument(cxxFile.path);
-            for (const QString &fileName : fileNames)
-                d->m_snapshot.remove(fileName);
+            const QSet<FilePath> filePaths = d->m_snapshot.allIncludesForDocument(
+                        FilePath::fromString(cxxFile.path));
+            for (const FilePath &filePath : filePaths)
+                d->m_snapshot.remove(filePath);
             d->m_snapshot.remove(cxxFile.path);
         }
     }
@@ -1939,19 +1940,18 @@ void CppModelManager::GC()
     // The configuration file is part of the project files, which is just fine.
     // If single files are open, without any project, then there is no need to
     // keep the configuration file around.
-    QStringList todo = filesInEditorSupports + projectFiles();
+    FilePaths todo = transform(filesInEditorSupports + projectFiles(), &FilePath::fromString);
 
     // Collect all files that are reachable from the project files
     while (!todo.isEmpty()) {
-        const QString file = todo.last();
+        const FilePath filePath = todo.last();
         todo.removeLast();
 
-        const Utils::FilePath fileName = Utils::FilePath::fromString(file);
-        if (reachableFiles.contains(fileName))
+        if (reachableFiles.contains(filePath))
             continue;
-        reachableFiles.insert(fileName);
+        reachableFiles.insert(filePath);
 
-        if (Document::Ptr doc = currentSnapshot.document(file))
+        if (Document::Ptr doc = currentSnapshot.document(filePath))
             todo += doc->includedFiles();
     }
 

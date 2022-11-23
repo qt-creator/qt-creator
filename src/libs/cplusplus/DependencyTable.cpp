@@ -6,7 +6,9 @@
 #include <QDebug>
 #include <QFutureInterface>
 
-using namespace CPlusPlus;
+using namespace Utils;
+
+namespace CPlusPlus {
 
 Utils::FilePaths DependencyTable::filesDependingOn(const Utils::FilePath &fileName) const
 {
@@ -55,10 +57,10 @@ void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapsho
         if (Document::Ptr doc = snapshot.document(fileName)) {
             QBitArray bitmap(files.size());
             QList<int> directIncludes;
-            const QStringList documentIncludes = doc->includedFiles();
+            const FilePaths documentIncludes = doc->includedFiles();
 
-            for (const QString &includedFile : documentIncludes) {
-                int index = fileIndex.value(Utils::FilePath::fromString(includedFile));
+            for (const FilePath &includedFile : documentIncludes) {
+                int index = fileIndex.value(includedFile);
 
                 if (index == -1)
                     continue;
@@ -104,3 +106,5 @@ void DependencyTable::build(QFutureInterfaceBase &futureInterface, const Snapsho
             return;
     } while (changed);
 }
+
+} // CPlusPlus

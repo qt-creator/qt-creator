@@ -346,9 +346,9 @@ static ClassDocumentPtrPair
     if (maxIncludeDepth) {
         // Check the includes
         const unsigned recursionMaxIncludeDepth = maxIncludeDepth - 1u;
-        const auto includedFiles = doc->includedFiles();
-        for (const QString &include : includedFiles) {
-            const Snapshot::const_iterator it = docTable.find(FilePath::fromString(include));
+        const FilePaths includedFiles = doc->includedFiles();
+        for (const FilePath &include : includedFiles) {
+            const Snapshot::const_iterator it = docTable.find(include);
             if (it != docTable.end()) {
                 const Document::Ptr &includeDoc = it.value();
                 LookupContext context(includeDoc, docTable);
