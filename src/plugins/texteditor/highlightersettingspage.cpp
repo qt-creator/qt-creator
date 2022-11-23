@@ -20,7 +20,6 @@
 #include <QPointer>
 #include <QPushButton>
 
-using namespace TextEditor::Internal;
 using namespace Utils;
 
 namespace TextEditor {
@@ -107,6 +106,8 @@ public:
 
 } // Internal
 
+using namespace Internal;
+
 class HighlighterSettingsPagePrivate
 {
     Q_DECLARE_TR_FUNCTIONS(TextEditor::Internal::HighlighterSettingsPage)
@@ -128,7 +129,6 @@ public:
 
     QPointer<HighlighterSettingsPageWidget> m_widget;
 };
-
 
 void HighlighterSettingsPagePrivate::migrateGenericHighlighterFiles()
 {

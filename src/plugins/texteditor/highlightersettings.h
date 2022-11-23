@@ -50,8 +50,4 @@ private:
     QList<QRegularExpression> m_ignoredFiles;
 };
 
-namespace Internal {
-Utils::FilePath findFallbackDefinitionsLocation();
-}
-
 } // namespace TextEditor
