@@ -624,9 +624,9 @@ void TextureEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>
 }
 
 void TextureEditorView::nodeReparented(const ModelNode &node,
-                                       const NodeAbstractProperty &newPropertyParent,
-                                       const NodeAbstractProperty &oldPropertyParent,
-                                       PropertyChangeFlags propertyChange)
+                                       [[maybe_unused]] const NodeAbstractProperty &newPropertyParent,
+                                       [[maybe_unused]] const NodeAbstractProperty &oldPropertyParent,
+                                       [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
     if (node.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
         m_qmlBackEnd->contextObject()->setHasMaterialLibrary(true);
@@ -779,7 +779,7 @@ void TextureEditorView::duplicateTexture(const ModelNode &texture)
 void TextureEditorView::customNotification([[maybe_unused]] const AbstractView *view,
                                            const QString &identifier,
                                            const QList<ModelNode> &nodeList,
-                                           const QList<QVariant> &data)
+                                           [[maybe_unused]] const QList<QVariant> &data)
 {
     if (identifier == "selected_texture_changed") {
         if (!m_hasTextureRoot) {

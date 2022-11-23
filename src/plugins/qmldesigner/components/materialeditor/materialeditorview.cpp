@@ -1107,9 +1107,9 @@ void MaterialEditorView::customNotification([[maybe_unused]] const AbstractView 
 }
 
 void MaterialEditorView::nodeReparented(const ModelNode &node,
-                                        const NodeAbstractProperty &newPropertyParent,
-                                        const NodeAbstractProperty &oldPropertyParent,
-                                        PropertyChangeFlags propertyChange)
+                                        [[maybe_unused]] const NodeAbstractProperty &newPropertyParent,
+                                        [[maybe_unused]] const NodeAbstractProperty &oldPropertyParent,
+                                        [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
     if (node.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
         m_qmlBackEnd->contextObject()->setHasMaterialLibrary(true);
