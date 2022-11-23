@@ -53,7 +53,7 @@ public:
     };
     Q_ENUM(Kind)
 
-    // Default is <Directory>
+    // Default is <ExistingDirectory>
     void setExpectedKind(Kind expected);
     Kind expectedKind() const;
 

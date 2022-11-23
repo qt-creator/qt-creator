@@ -78,6 +78,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_nameLineEdit = new Utils::FancyLineEdit(frame);
 
     d->m_pathChooser = new Utils::PathChooser(frame);
+    d->m_pathChooser->setExpectedKind(PathChooser::Directory);
     d->m_pathChooser->setDisabled(d->m_forceSubProject);
 
     d->m_projectsDirectoryCheckBox = new QCheckBox(tr("Use as default project location"));
@@ -217,7 +218,12 @@ bool ProjectIntroPage::validate()
         filePath().pathAppended(QDir::fromNativeSeparators(d->m_nameLineEdit->text()));
 
     if (!projectDir.exists()) { // All happy
-        hideStatusLabel();
+        if (!d->m_pathChooser->filePath().exists()) {
+            displayStatusMessage(InfoLabel::Information, tr("Directory \"%1\" will be created.")
+                                 .arg(d->m_pathChooser->filePath().toUserOutput()));
+        } else {
+            hideStatusLabel();
+        }
         return true;
     }
 
