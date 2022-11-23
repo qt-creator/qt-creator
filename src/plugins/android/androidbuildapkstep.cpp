@@ -166,7 +166,6 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
     connect(targetSDKComboBox, &QComboBox::activated, this, [this, targetSDKComboBox](int idx) {
        const QString sdk = targetSDKComboBox->itemText(idx);
        m_step->setBuildTargetSdk(sdk);
-       AndroidManager::updateGradleProperties(m_step->target(), QString()); // FIXME: Use real key.
    });
 
     auto formLayout = new QFormLayout(group);

@@ -293,10 +293,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
             QTC_ASSERT(gradlePath.exists(), return);
             FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy);
         }
-
-        AndroidManager::updateGradleProperties(target, m_buildKey);
     }
-
 
     QString androidPackageDir;
     ProjectNode *node = target->project()->findNodeForBuildKey(m_buildKey);

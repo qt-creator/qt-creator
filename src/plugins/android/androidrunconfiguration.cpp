@@ -3,7 +3,6 @@
 
 #include "androidconstants.h"
 #include "androidglobal.h"
-#include "androidmanager.h"
 #include "androidrunconfiguration.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"
@@ -83,11 +82,10 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Utils::Id id)
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
     postStartShellCmdAspect->setLabelText(Tr::tr("Post-quit on-device shell commands:"));
 
-    setUpdater([this, target] {
+    setUpdater([this] {
         const BuildTargetInfo bti = buildTargetInfo();
         setDisplayName(bti.displayName);
         setDefaultDisplayName(bti.displayName);
-        AndroidManager::updateGradleProperties(target, buildKey());
     });
 
     connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);

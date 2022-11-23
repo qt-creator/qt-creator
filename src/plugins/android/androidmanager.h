@@ -94,7 +94,6 @@ public:
                                          const QString &alias, const QString &certificatePasswd);
     static bool checkCertificateExists(const Utils::FilePath &keystorePath,
                                        const QString &keystorePasswd, const QString &alias);
-    static bool updateGradleProperties(ProjectExplorer::Target *target, const QString &buildKey);
 
     static QProcess *runAdbCommandDetached(const QStringList &args, QString *err = nullptr,
                                            bool deleteOnFinish = false);
