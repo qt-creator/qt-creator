@@ -156,7 +156,7 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
                                                               Core::ICore::dialogParent());
             int result = importDlg->exec();
 
-            return result == QDialog::Accepted ? AddFilesResult::Succeeded : AddFilesResult::Cancelled;
+            return result == QDialog::Accepted ? AddFilesResult::succeeded() : AddFilesResult::cancelled();
         };
 
         auto add3DHandler = [&](const QString &group, const QString &ext) {

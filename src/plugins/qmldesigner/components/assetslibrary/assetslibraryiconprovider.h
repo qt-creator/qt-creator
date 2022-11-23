@@ -15,9 +15,12 @@ public:
     AssetsLibraryIconProvider(SynchronousImageCache &fontImageCache);
 
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
+    void clearCache();
+    void invalidateThumbnail(const QString &id);
 
 private:
     QPixmap generateFontIcons(const QString &filePath, const QSize &requestedSize) const;
+    QPixmap fetchPixmap(const QString &id, const QSize &requestedSize) const;
 
     SynchronousImageCache &m_fontImageCache;
 
@@ -26,6 +29,7 @@ private:
     std::vector<QSize> iconSizes = {{128, 128}, // Drag
                                     {96, 96},   // list @2x
                                     {48, 48}};  // list
+    QHash<QString, QPixmap> m_thumbnails;
 };
 
 } // namespace QmlDesigner

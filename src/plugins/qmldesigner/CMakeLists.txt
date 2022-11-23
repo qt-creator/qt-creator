@@ -740,9 +740,6 @@ extend_qtc_plugin(QmlDesigner
     assetslibrarywidget.cpp assetslibrarywidget.h
     assetslibrarymodel.cpp assetslibrarymodel.h
     assetslibraryiconprovider.cpp assetslibraryiconprovider.h
-    assetslibrarydir.cpp assetslibrarydir.h
-    assetslibrarydirsmodel.cpp assetslibrarydirsmodel.h
-    assetslibraryfilesmodel.cpp assetslibraryfilesmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

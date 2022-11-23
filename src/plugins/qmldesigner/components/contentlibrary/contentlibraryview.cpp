@@ -55,7 +55,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 // copy image to project
                 AddFilesResult result = ModelNodeOperations::addImageToProject({texPath}, "images", false);
 
-                if (result == AddFilesResult::Failed) {
+                if (result.status() == AddFilesResult::Failed) {
                     Core::AsynchronousMessageBox::warning(tr("Failed to Add Texture"),
                                                           tr("Could not add %1 to project.").arg(texPath));
                     return;

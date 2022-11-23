@@ -1,255 +1,309 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
-import QtQuickDesignerTheme
-import HelperWidgets
+import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
-import StudioTheme as StudioTheme
 
-ScrollView { // TODO: experiment using ListView instead of ScrollView + Column
-    id: assetsView
+TreeView {
+    id: root
     clip: true
-    interactive: assetsView.verticalScrollBarVisible && !contextMenu.opened
+    interactive: verticalScrollBar.visible && !root.contextMenu.opened
+    reuseItems: false
+    boundsBehavior: Flickable.StopAtBounds
+    rowSpacing: 5
 
-    Column {
-        Repeater {
-            model: assetsModel // context property
-            delegate: dirSection
+    required property Item assetsRoot
+    required property StudioControls.Menu contextMenu
+    property alias verticalScrollBar: verticalScrollBar
+
+    property var selectedAssets: ({})
+
+    // used to see if the op requested is to expand or to collapse.
+    property int lastRowCount: -1
+    // we need this to know if we need to expand further, while we're in onRowsChanged()
+    property bool requestedExpandAll: true
+    // used to compute the visual depth of the items we show to the user.
+    property int rootPathDepth: 0
+    property int rootPathRow: 0
+    // i.e. first child of the root path
+    readonly property int firstRow: root.rootPathRow + 1
+    property int rowToExpand: -1
+    property var _createdDirectories: []
+
+    rowHeightProvider: (row) => {
+        if (row <= root.rootPathRow)
+            return 0
+
+        return -1
+    }
+
+    ScrollBar.vertical: HelperWidgets.VerticalScrollBar {
+        id: verticalScrollBar
+        scrollBarVisible: root.contentHeight > root.height
+    }
+
+    model: assetsModel
+
+    onRowsChanged: {
+        if (root.rows > root.rootPathRow + 1 && !assetsModel.haveFiles ||
+            root.rows <= root.rootPathRow + 1 && assetsModel.haveFiles) {
+            assetsModel.syncHaveFiles()
         }
 
-        Component {
-            id: dirSection
+        updateRows()
+    }
 
-            Section {
-                id: section
+    Timer {
+        id: updateRowsTimer
+        interval: 200
+        repeat: false
 
-                width: assetsView.width -
-                       (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0) - 5
-                caption: dirName
-                sectionHeight: 30
-                sectionFontSize: 15
-                leftPadding: 0
-                topPadding: dirDepth > 0 ? 5 : 0
-                bottomPadding: 0
-                hideHeader: dirDepth === 0
-                showLeftBorder: dirDepth > 0
-                expanded: dirExpanded
-                visible: dirVisible
-                expandOnClick: false
-                useDefaulContextMenu: false
-                dropEnabled: true
-
-                onToggleExpand: {
-                    dirExpanded = !dirExpanded
-                }
-
-                onDropEnter: (drag)=> {
-                    root.updateDropExtFiles(drag)
-                    section.highlight = drag.accepted && root.dropSimpleExtFiles.length > 0
-                }
-
-                onDropExit: {
-                    section.highlight = false
-                }
-
-                onDrop: {
-                    section.highlight = false
-                    rootView.handleExtFilesDrop(root.dropSimpleExtFiles,
-                                                root.dropComplexExtFiles,
-                                                dirPath)
-                }
-
-                onShowContextMenu: {
-                    root.contextFilePath = ""
-                    root.contextDir = model
-                    root.isDirContextMenu = true
-                    root.allExpandedState = assetsModel.getAllExpandedState()
-                    contextMenu.popup()
-                }
-
-                Column {
-                    spacing: 5
-                    leftPadding: 5
-
-                    Repeater {
-                        model: dirsModel
-                        delegate: dirSection
-                    }
-
-                    Repeater {
-                        model: filesModel
-                        delegate: fileSection
-                    }
-
-                    Text {
-                        text: qsTr("Empty folder")
-                        color: StudioTheme.Values.themeTextColorDisabled
-                        font.pixelSize: 12
-                        visible: !(dirsModel && dirsModel.rowCount() > 0)
-                              && !(filesModel && filesModel.rowCount() > 0)
-
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.RightButton
-                            onClicked: {
-                                root.contextFilePath = ""
-                                root.contextDir = model
-                                root.isDirContextMenu = true
-                                contextMenu.popup()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Component {
-            id: fileSection
-
-            Rectangle {
-                width: assetsView.width -
-                       (assetsView.verticalScrollBarVisible ? assetsView.verticalThickness : 0)
-                height: img.height
-                color: root.selectedAssets[filePath]
-                                    ? StudioTheme.Values.themeInteraction
-                                    : (mouseArea.containsMouse ? StudioTheme.Values.themeSectionHeadBackground
-                                                               : "transparent")
-
-                Row {
-                    spacing: 5
-
-                    Image {
-                        id: img
-                        asynchronous: true
-                        fillMode: Image.PreserveAspectFit
-                        width: 48
-                        height: 48
-                        source: "image://qmldesigner_assets/" + filePath
-                    }
-
-                    Text {
-                        text: fileName
-                        color: StudioTheme.Values.themeTextColor
-                        font.pixelSize: 14
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-                }
-
-                readonly property string suffix: fileName.substr(-4)
-                readonly property bool isFont: suffix === ".ttf" || suffix === ".otf"
-                readonly property bool isEffect: suffix === ".qep"
-                property bool currFileSelected: false
-
-                MouseArea {
-                    id: mouseArea
-
-                    property bool allowTooltip: true
-
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-                    onExited: tooltipBackend.hideTooltip()
-                    onEntered: allowTooltip = true
-                    onCanceled: {
-                        tooltipBackend.hideTooltip()
-                        allowTooltip = true
-                    }
-                    onPositionChanged: tooltipBackend.reposition()
-                    onPressed: (mouse) => {
-                        forceActiveFocus()
-                        allowTooltip = false
-                        tooltipBackend.hideTooltip()
-                        var ctrlDown = mouse.modifiers & Qt.ControlModifier
-                        if (mouse.button === Qt.LeftButton) {
-                            if (!root.selectedAssets[filePath] && !ctrlDown)
-                                root.selectedAssets = {}
-                            currFileSelected = ctrlDown ? !root.selectedAssets[filePath] : true
-                            root.selectedAssets[filePath] = currFileSelected
-                            root.selectedAssetsChanged()
-
-                            if (currFileSelected) {
-                                rootView.startDragAsset(
-                                           Object.keys(root.selectedAssets).filter(p => root.selectedAssets[p]),
-                                           mapToGlobal(mouse.x, mouse.y))
-                            }
-                        } else {
-                            if (!root.selectedAssets[filePath] && !ctrlDown)
-                                root.selectedAssets = {}
-                            currFileSelected = root.selectedAssets[filePath] || !ctrlDown
-                            root.selectedAssets[filePath] = currFileSelected
-                            root.selectedAssetsChanged()
-
-                            root.contextFilePath = filePath
-                            root.contextDir = model.fileDir
-                            root.isDirContextMenu = false
-
-                            contextMenu.popup()
-                        }
-                    }
-
-                    onReleased: (mouse) => {
-                        allowTooltip = true
-                        if (mouse.button === Qt.LeftButton) {
-                            if (!(mouse.modifiers & Qt.ControlModifier))
-                                root.selectedAssets = {}
-                            root.selectedAssets[filePath] = currFileSelected
-                            root.selectedAssetsChanged()
-                        }
-                    }
-
-                    onDoubleClicked: (mouse) => {
-                        forceActiveFocus()
-                        allowTooltip = false
-                        tooltipBackend.hideTooltip()
-                        if (mouse.button === Qt.LeftButton && isEffect)
-                            rootView.openEffectMaker(filePath)
-                    }
-
-                    ToolTip {
-                        visible: !isFont && mouseArea.containsMouse && !contextMenu.visible
-                        text: filePath
-                        delay: 1000
-                    }
-
-                    Timer {
-                        interval: 1000
-                        running: mouseArea.containsMouse && mouseArea.allowTooltip
-                        onTriggered: {
-                            if (suffix === ".ttf" || suffix === ".otf") {
-                                tooltipBackend.name = fileName
-                                tooltipBackend.path = filePath
-                                tooltipBackend.showTooltip()
-                            }
-                        }
-                    }
-                }
-            }
+        onTriggered: {
+            root.updateRows()
         }
     }
-}
+
+    Connections {
+        target: rootView
+
+        function onDirectoryCreated(path)
+        {
+            root._createdDirectories.push(path)
+
+            updateRowsTimer.restart()
+        }
+    }
+
+    Connections {
+        target: assetsModel
+        function onDirectoryLoaded(path)
+        {
+            // updating rows for safety: the rows might have been created before the
+            // directory (esp. the root path) has been loaded, so we must make sure all rows are
+            // expanded -- otherwise, the tree may not become visible.
+
+            updateRowsTimer.restart()
+
+            let idx = assetsModel.indexForPath(path)
+            let row = root.rowAtIndex(idx)
+            let column = root.columnAtIndex(idx)
+
+            if (row >= root.rootPathRow && !root.isExpanded(row))
+                root.expand(row)
+        }
+
+        function onRootPathChanged()
+        {
+            // when we switch from one project to another, we need to reset the state of the
+            // view: make sure we will do an "expand all" (otherwise, the whole tree might
+            // be collapsed, and with our visible root not being the actual root of the tree,
+            // the entire tree would be invisible)
+            root.lastRowCount = -1
+            root.requestedExpandAll = true
+        }
+
+        function onFileChanged(filePath)
+        {
+            rootView.invalidateThumbnail(filePath)
+
+            let index = assetsModel.indexForPath(filePath)
+            let cell = root.cellAtIndex(index)
+            let fileItem = root.itemAtCell(cell)
+
+            if (fileItem)
+                fileItem.reloadImage()
+        }
+
+    } // Connections
+
+    function addCreatedFolder(path)
+    {
+        root._createdDirectories.push(path)
+    }
+
+    function selectedPathsAsList()
+    {
+        return Object.keys(root.selectedAssets)
+            .filter(itemPath => root.selectedAssets[itemPath])
+    }
+
+    // workaround for a bug -- might be fixed by https://codereview.qt-project.org/c/qt/qtdeclarative/+/442721
+    function resetVerticalScrollPosition()
+    {
+        root.contentY = 0
+    }
+
+    function updateRows()
+    {
+        if (root.rows <= 0)
+            return
+
+        while (root._createdDirectories.length > 0) {
+            let dirPath = root._createdDirectories.pop()
+            let index = assetsModel.indexForPath(dirPath)
+            let row = root.rowAtIndex(index)
+
+            if (row > 0)
+                root.expand(row)
+            else if (row === -1 && assetsModel.indexIsValid(index)) {
+                // It is possible that this directory, dirPath, was created inside of a parent
+                // directory that was not yet expanded in the TreeView. This can happen with the
+                // bridge plugin. In such a situation, we don't have a "row" for it yet, so we have
+                // to expand its parents, from root to our `index`
+                let parents = assetsModel.parentIndices(index);
+                parents.reverse().forEach(idx => {
+                    let row = root.rowAtIndex(idx)
+                    if (row > 0)
+                        root.expand(row)
+                })
+            }
+        }
+
+        // we have no way to know beyond doubt here if updateRows() was called due
+        // to a request to expand or to collapse rows - but it should be safe to
+        // assume that, if we have more rows now than the last time, then it's an expand
+        var expanding = (root.rows >= root.lastRowCount)
+
+        if (expanding) {
+            if (root.requestedExpandAll)
+                root._doExpandAll()
+        } else {
+            if (root.rowToExpand > 0) {
+                root.expand(root.rowToExpand)
+                root.rowToExpand = -1
+            }
+
+            // on collapsing, set expandAll flag to false.
+            root.requestedExpandAll = false;
+        }
+
+        root.lastRowCount = root.rows
+    }
+
+    function _doExpandAll()
+    {
+        let expandedAny = false
+        for (let nRow = 0; nRow < root.rows; ++nRow) {
+            let index = root._modelIndex(nRow, 0)
+            if (assetsModel.isDirectory(index) && !root.isExpanded(nRow)) {
+                root.expand(nRow);
+                expandedAny = true
+            }
+        }
+
+        if (!expandedAny)
+            Qt.callLater(root.forceLayout)
+    }
+
+    function expandAll()
+    {
+        // In order for _doExpandAll() to be called repeatedly (every time a new node is
+        // loaded, and then, expanded), we need to set requestedExpandAll to true.
+        root.requestedExpandAll = true
+        root._doExpandAll()
+    }
+
+    function collapseAll()
+    {
+        root.resetVerticalScrollPosition()
+
+        // collapse all, except for the root path - from the last item (leaves) up to the root
+        for (let nRow = root.rows - 1; nRow >= 0; --nRow) {
+            let index = root._modelIndex(nRow, 0)
+            // we don't want to collapse the root path, because doing so will hide the contents
+            // of the tree.
+            if (assetsModel.filePath(index) === assetsModel.rootPath())
+                break
+
+            root.collapse(nRow)
+        }
+    }
+
+    // workaround for a bug -- might be fixed by https://codereview.qt-project.org/c/qt/qtdeclarative/+/442721
+    onContentHeightChanged: {
+        if (root.contentHeight <= root.height) {
+            let first = root.itemAtCell(0, root.firstRow)
+            if (!first)
+                root.contentY = 0
+        }
+    }
+
+    function computeAllExpandedState()
+    {
+        var dirsWithChildren = [...Array(root.rows).keys()].filter(row => {
+            let index = root._modelIndex(row, 0)
+            return assetsModel.isDirectory(index) && assetsModel.hasChildren(index)
+        })
+
+        var countExpanded = dirsWithChildren.filter(row => root.isExpanded(row)).length
+
+        if (countExpanded === dirsWithChildren.length)
+            return "all_expanded"
+
+        if (countExpanded === 0)
+            return "all_collapsed"
+        return ""
+    }
+
+    function startDropHoverOver(row)
+    {
+        let index = root._modelIndex(row, 0)
+        if (assetsModel.isDirectory(index))
+            return
+
+        let parentItem = root._getDelegateParentForIndex(index)
+        parentItem.hasChildWithDropHover = true
+    }
+
+    function endDropHover(row)
+    {
+        let index = root._modelIndex(row, 0)
+        if (assetsModel.isDirectory(index))
+            return
+
+        let parentItem = root._getDelegateParentForIndex(index)
+        parentItem.hasChildWithDropHover = false
+    }
+
+    function isAssetSelected(itemPath)
+    {
+        return root.selectedAssets[itemPath] ? true : false
+    }
+
+    function clearSelectedAssets()
+    {
+        root.selectedAssets = {}
+    }
+
+    function setAssetSelected(itemPath, selected)
+    {
+        root.selectedAssets[itemPath] = selected
+        root.selectedAssetsChanged()
+    }
+
+    function _getDelegateParentForIndex(index)
+    {
+        let parentIndex = assetsModel.parentDirIndex(index)
+        let parentCell = root.cellAtIndex(parentIndex)
+        return root.itemAtCell(parentCell)
+    }
+
+    function _modelIndex(row)
+    {
+        // The modelIndex() function exists since 6.3. In Qt 6.3, this modelIndex() function was a
+        // member of the TreeView, while in Qt6.4 it was moved to TableView. In Qt6.4, the order of
+        // the arguments was changed.
+        if (assetsRoot.qtVersionAtLeast6_4)
+            return root.modelIndex(0, row)
+        else
+            return root.modelIndex(row, 0)
+    }
+
+    delegate: AssetDelegate {
+        assetsView: root
+        assetsRoot: root.assetsRoot
+        indentation: 5
+    }
+} // TreeView

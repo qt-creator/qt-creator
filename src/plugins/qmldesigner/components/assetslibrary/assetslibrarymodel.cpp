@@ -1,68 +1,44 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "assetslibrarymodel.h"
-#include "assetslibrarydirsmodel.h"
-#include "assetslibraryfilesmodel.h"
+#include <QCheckBox>
+#include <QFileInfo>
+#include <QFileSystemModel>
+#include <QImageReader>
+#include <QMessageBox>
+#include <QSortFilterProxyModel>
 
-#include <designersettings.h>
-#include <documentmanager.h>
-#include <synchronousimagecache.h>
-#include <theme.h>
-#include <utils/hdrimage.h>
+#include "assetslibrarymodel.h"
+
 #include <qmldesignerplugin.h>
 #include <modelnodeoperations.h>
 
 #include <coreplugin/icore.h>
-
-#include <utils/filesystemwatcher.h>
-#include <utils/stylehelper.h>
-
-#include <QCheckBox>
-#include <QDebug>
-#include <QDir>
-#include <QDirIterator>
-#include <QElapsedTimer>
-#include <QFont>
-#include <QImageReader>
-#include <QLoggingCategory>
-#include <QMessageBox>
-#include <QMetaProperty>
-#include <QPainter>
-#include <QRawFont>
-#include <QRegularExpression>
-
-static Q_LOGGING_CATEGORY(assetsLibraryBenchmark, "qtc.assetsLibrary.setRoot", QtWarningMsg)
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
-AssetsLibraryModel::AssetsLibraryModel(Utils::FileSystemWatcher *fileSystemWatcher, QObject *parent)
-    : QAbstractListModel(parent)
-    , m_fileSystemWatcher(fileSystemWatcher)
+AssetsLibraryModel::AssetsLibraryModel(QObject *parent)
+    : QSortFilterProxyModel{parent}
 {
-    // add role names
-    int role = 0;
-    const QMetaObject meta = AssetsLibraryDir::staticMetaObject;
-    for (int i = meta.propertyOffset(); i < meta.propertyCount(); ++i)
-        m_roleNames.insert(role++, meta.property(i).name());
+    createBackendModel();
+
+    setRecursiveFilteringEnabled(true);
 }
 
-void AssetsLibraryModel::setSearchText(const QString &searchText)
+void AssetsLibraryModel::createBackendModel()
 {
-    if (m_searchText != searchText) {
-        m_searchText = searchText;
-        refresh();
-    }
-}
+    m_sourceFsModel = new QFileSystemModel(parent());
 
-void AssetsLibraryModel::saveExpandedState(bool expanded, const QString &assetPath)
-{
-    m_expandedStateHash.insert(assetPath, expanded);
-}
+    m_sourceFsModel->setReadOnly(false);
 
-bool AssetsLibraryModel::loadExpandedState(const QString &assetPath)
-{
-    return m_expandedStateHash.value(assetPath, true);
+    setSourceModel(m_sourceFsModel);
+    QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this, &AssetsLibraryModel::directoryLoaded);
+    QObject::connect(m_sourceFsModel, &QFileSystemModel::dataChanged, this, &AssetsLibraryModel::onDataChanged);
+
+    QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this, [this](const QString &dir) {
+        syncHaveFiles();
+    });
 }
 
 bool AssetsLibraryModel::isEffectQmlExist(const QString &effectName)
@@ -72,50 +48,57 @@ bool AssetsLibraryModel::isEffectQmlExist(const QString &effectName)
     return qmlPath.exists();
 }
 
-AssetsLibraryModel::DirExpandState AssetsLibraryModel::getAllExpandedState() const
+void AssetsLibraryModel::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                                       const QList<int> &roles)
 {
-    const auto keys = m_expandedStateHash.keys();
-    bool allExpanded = true;
-    bool allCollapsed = true;
-    for (const QString &assetPath : keys) {
-        bool expanded = m_expandedStateHash.value(assetPath);
+    for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
+        QModelIndex index = m_sourceFsModel->index(i, 0, topLeft.parent());
+        QString path = m_sourceFsModel->filePath(index);
 
-        if (expanded)
-            allCollapsed = false;
-        if (!expanded)
-            allExpanded = false;
-
-        if (!allCollapsed && !allExpanded)
-            break;
+        if (!isDirectory(path))
+            emit fileChanged(path);
     }
-
-    return allExpanded ? DirExpandState::AllExpanded : allCollapsed ? DirExpandState::AllCollapsed
-           : DirExpandState::SomeExpanded;
 }
 
-void AssetsLibraryModel::toggleExpandAll(bool expand)
+void AssetsLibraryModel::destroyBackendModel()
 {
-    std::function<void(AssetsLibraryDir *)> expandDirRecursive;
-    expandDirRecursive = [&](AssetsLibraryDir *currAssetsDir) {
-        if (currAssetsDir->dirDepth() > 0) {
-            currAssetsDir->setDirExpanded(expand);
-            saveExpandedState(expand, currAssetsDir->dirPath());
-        }
+    setSourceModel(nullptr);
+    m_sourceFsModel->disconnect(this);
+    m_sourceFsModel->deleteLater();
+    m_sourceFsModel = nullptr;
+}
 
-        const QList<AssetsLibraryDir *> childDirs = currAssetsDir->childAssetsDirs();
-        for (const auto childDir : childDirs)
-            expandDirRecursive(childDir);
-    };
+void AssetsLibraryModel::setSearchText(const QString &searchText)
+{
+    m_searchText = searchText;
+    resetModel();
+}
 
-    beginResetModel();
-    expandDirRecursive(m_assetsDir);
-    endResetModel();
+bool AssetsLibraryModel::indexIsValid(const QModelIndex &index) const
+{
+    static QModelIndex invalidIndex;
+    return index != invalidIndex;
+}
+
+QList<QModelIndex> AssetsLibraryModel::parentIndices(const QModelIndex &index) const
+{
+    QModelIndex idx = index;
+    QModelIndex rootIdx = rootIndex();
+    QList<QModelIndex> result;
+
+    while (idx.isValid() && idx != rootIdx) {
+        result += idx;
+        idx = idx.parent();
+    }
+
+    return result;
 }
 
 void AssetsLibraryModel::deleteFiles(const QStringList &filePaths)
 {
-    bool askBeforeDelete = QmlDesignerPlugin::settings().value(
-                DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool();
+    bool askBeforeDelete = QmlDesignerPlugin::settings()
+                               .value(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET)
+                               .toBool();
     bool assetDelete = true;
 
     if (askBeforeDelete) {
@@ -123,7 +106,7 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths)
                         tr("File%1 might be in use. Delete anyway?\n\n%2")
                             .arg(filePaths.size() > 1 ? QChar('s') : QChar())
                             .arg(filePaths.join('\n').remove(DocumentManager::currentProjectDirPath()
-                                                             .toString().append('/'))),
+                                                                 .toString().append('/'))),
                         QMessageBox::No | QMessageBox::Yes);
         QCheckBox cb;
         cb.setText(tr("Do not ask this again"));
@@ -162,15 +145,13 @@ bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &
 
     dir.cdUp();
 
-    saveExpandedState(loadExpandedState(folderPath), dir.absoluteFilePath(newName));
-
     return dir.rename(oldName, newName);
 }
 
-void AssetsLibraryModel::addNewFolder(const QString &folderPath)
+bool AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
     QString iterPath = folderPath;
-    QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
+    static QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
     QDir dir{folderPath};
 
     while (dir.exists()) {
@@ -191,8 +172,8 @@ void AssetsLibraryModel::addNewFolder(const QString &folderPath)
                 --nPaddingZeros;
 
             iterPath = folderPath.mid(0, match.capturedStart())
-                         + QString('0').repeated(nPaddingZeros)
-                         + QString::number(num);
+                       + QString('0').repeated(nPaddingZeros)
+                       + QString::number(num);
         } else {
             iterPath = folderPath + '1';
         }
@@ -200,136 +181,155 @@ void AssetsLibraryModel::addNewFolder(const QString &folderPath)
         dir.setPath(iterPath);
     }
 
-    dir.mkpath(iterPath);
+    return dir.mkpath(iterPath);
 }
 
-void AssetsLibraryModel::deleteFolder(const QString &folderPath)
+bool AssetsLibraryModel::deleteFolderRecursively(const QModelIndex &folderIndex)
 {
-    QDir{folderPath}.removeRecursively();
+    auto idx = mapToSource(folderIndex);
+    bool ok = m_sourceFsModel->remove(idx);
+    if (!ok)
+        qWarning() << __FUNCTION__ << " could not remove folder recursively: " << m_sourceFsModel->filePath(idx);
+
+    return ok;
 }
 
-QObject *AssetsLibraryModel::rootDir() const
+bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    return m_assetsDir;
-}
+    QString path = m_sourceFsModel->filePath(sourceParent);
 
-bool AssetsLibraryModel::isEmpty() const
-{
-    return m_isEmpty;
-}
+    QModelIndex sourceIdx = m_sourceFsModel->index(sourceRow, 0, sourceParent);
+    QString sourcePath = m_sourceFsModel->filePath(sourceIdx);
 
-void AssetsLibraryModel::setIsEmpty(bool empty)
-{
-    if (m_isEmpty != empty) {
-        m_isEmpty = empty;
-        emit isEmptyChanged();
+    if (!m_searchText.isEmpty() && path.startsWith(m_rootPath) && QFileInfo{path}.isDir()) {
+        QString sourceName = m_sourceFsModel->fileName(sourceIdx);
+
+        return QFileInfo{sourcePath}.isFile() && sourceName.contains(m_searchText, Qt::CaseInsensitive);
+    } else {
+        return sourcePath.startsWith(m_rootPath) || m_rootPath.startsWith(sourcePath);
     }
 }
 
-QVariant AssetsLibraryModel::data(const QModelIndex &index, int role) const
+bool AssetsLibraryModel::checkHaveFiles(const QModelIndex &parentIdx) const
 {
-    if (!index.isValid()) {
-        qWarning() << Q_FUNC_INFO << "Invalid index requested: " << QString::number(index.row());
-        return {};
+    if (!parentIdx.isValid())
+        return false;
+
+    const int rowCount = this->rowCount(parentIdx);
+    for (int i = 0; i < rowCount; ++i) {
+        auto newIdx = this->index(i, 0, parentIdx);
+        if (!isDirectory(newIdx))
+            return true;
+
+        if (checkHaveFiles(newIdx))
+            return true;
     }
 
-    if (m_roleNames.contains(role))
-        return m_assetsDir ? m_assetsDir->property(m_roleNames.value(role)) : QVariant("");
-
-    qWarning() << Q_FUNC_INFO << "Invalid role requested: " << QString::number(role);
-    return {};
+    return false;
 }
 
-int AssetsLibraryModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
+void AssetsLibraryModel::setHaveFiles(bool value)
 {
-    return 1;
+    if (m_haveFiles != value) {
+        m_haveFiles = value;
+        emit haveFilesChanged();
+    }
 }
 
-QHash<int, QByteArray> AssetsLibraryModel::roleNames() const
+bool AssetsLibraryModel::checkHaveFiles() const
 {
-    return m_roleNames;
+    auto rootIdx = indexForPath(m_rootPath);
+    return checkHaveFiles(rootIdx);
 }
 
-// called when a directory is changed to refresh the model for this directory
-void AssetsLibraryModel::refresh()
+void AssetsLibraryModel::syncHaveFiles()
 {
-    setRootPath(m_assetsDir->dirPath());
+    setHaveFiles(checkHaveFiles());
 }
 
-void AssetsLibraryModel::setRootPath(const QString &path)
+void AssetsLibraryModel::setRootPath(const QString &newPath)
 {
-    QElapsedTimer time;
-    if (assetsLibraryBenchmark().isInfoEnabled())
-        time.start();
-
-    qCInfo(assetsLibraryBenchmark) << "start:" << time.elapsed();
-
-    static const QStringList ignoredTopLevelDirs {"imports", "asset_imports"};
-
-    m_fileSystemWatcher->clear();
-
-    std::function<bool(AssetsLibraryDir *, int, bool)> parseDir;
-    parseDir = [this, &parseDir](AssetsLibraryDir *currAssetsDir, int currDepth, bool recursive) {
-        m_fileSystemWatcher->addDirectory(currAssetsDir->dirPath(), Utils::FileSystemWatcher::WatchAllChanges);
-
-        QDir dir(currAssetsDir->dirPath());
-        dir.setNameFilters(supportedSuffixes().values());
-        dir.setFilter(QDir::Files);
-        QDirIterator itFiles(dir);
-        bool isEmpty = true;
-        while (itFiles.hasNext()) {
-            QString filePath = itFiles.next();
-            QString fileName = filePath.split('/').last();
-            if (m_searchText.isEmpty() || fileName.contains(m_searchText, Qt::CaseInsensitive)) {
-                currAssetsDir->addFile(filePath);
-                m_fileSystemWatcher->addFile(filePath, Utils::FileSystemWatcher::WatchAllChanges);
-                isEmpty = false;
-            }
-        }
-
-        if (recursive) {
-            dir.setNameFilters({});
-            dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-            QDirIterator itDirs(dir);
-
-            while (itDirs.hasNext()) {
-                QDir subDir = itDirs.next();
-                if (currDepth == 1 && ignoredTopLevelDirs.contains(subDir.dirName()))
-                    continue;
-
-                auto assetsDir = new AssetsLibraryDir(subDir.path(), currDepth,
-                                                      loadExpandedState(subDir.path()), currAssetsDir);
-                currAssetsDir->addDir(assetsDir);
-                saveExpandedState(loadExpandedState(assetsDir->dirPath()), assetsDir->dirPath());
-                isEmpty &= parseDir(assetsDir, currDepth + 1, true);
-            }
-        }
-
-        if (!m_searchText.isEmpty() && isEmpty)
-            currAssetsDir->setDirVisible(false);
-
-        return isEmpty;
-    };
-
-    qCInfo(assetsLibraryBenchmark) << "directories parsed:" << time.elapsed();
-
-    if (m_assetsDir)
-        delete m_assetsDir;
-
     beginResetModel();
-    m_assetsDir = new AssetsLibraryDir(path, 0, true, this);
-    bool hasProject = !QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().isEmpty();
-    bool isEmpty = parseDir(m_assetsDir, 1, hasProject);
-    setIsEmpty(isEmpty);
 
-    bool noAssets = m_searchText.isEmpty() && isEmpty;
-    // noAssets: the model has no asset files (project has no assets added)
-    // isEmpty: the model has no asset files (assets could exist but are filtered out)
+    destroyBackendModel();
+    createBackendModel();
 
-    m_assetsDir->setDirVisible(!noAssets); // if there are no assets, hide all empty asset folders
+    m_rootPath = newPath;
+    m_sourceFsModel->setRootPath(newPath);
+
+    m_sourceFsModel->setNameFilters(supportedSuffixes().values());
+    m_sourceFsModel->setNameFilterDisables(false);
+
     endResetModel();
 
-    qCInfo(assetsLibraryBenchmark) << "model reset:" << time.elapsed();
+    emit rootPathChanged();
+}
+
+QString AssetsLibraryModel::rootPath() const
+{
+    return m_rootPath;
+}
+
+QString AssetsLibraryModel::filePath(const QModelIndex &index) const
+{
+    QModelIndex fsIdx = mapToSource(index);
+    return m_sourceFsModel->filePath(fsIdx);
+}
+
+QString AssetsLibraryModel::fileName(const QModelIndex &index) const
+{
+    QModelIndex fsIdx = mapToSource(index);
+    return m_sourceFsModel->fileName(fsIdx);
+}
+
+QModelIndex AssetsLibraryModel::indexForPath(const QString &path) const
+{
+    QModelIndex idx = m_sourceFsModel->index(path, 0);
+    return mapFromSource(idx);
+}
+
+void AssetsLibraryModel::resetModel()
+{
+    beginResetModel();
+    endResetModel();
+}
+
+QModelIndex AssetsLibraryModel::rootIndex() const
+{
+    return indexForPath(m_rootPath);
+}
+
+bool AssetsLibraryModel::isDirectory(const QString &path) const
+{
+    QFileInfo fi{path};
+    return fi.isDir();
+}
+
+bool AssetsLibraryModel::isDirectory(const QModelIndex &index) const
+{
+    QString path = filePath(index);
+    return isDirectory(path);
+}
+
+QModelIndex AssetsLibraryModel::parentDirIndex(const QString &path) const
+{
+    QModelIndex idx = indexForPath(path);
+    QModelIndex parentIdx = idx.parent();
+
+    return parentIdx;
+}
+
+QModelIndex AssetsLibraryModel::parentDirIndex(const QModelIndex &index) const
+{
+    QModelIndex parentIdx = index.parent();
+    return parentIdx;
+}
+
+QString AssetsLibraryModel::parentDirPath(const QString &path) const
+{
+    QModelIndex idx = indexForPath(path);
+    QModelIndex parentIdx = idx.parent();
+    return filePath(parentIdx);
 }
 
 const QStringList &AssetsLibraryModel::supportedImageSuffixes()
@@ -406,19 +406,6 @@ const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
         insertSuffixes(supportedEffectMakerSuffixes());
     }
     return allSuffixes;
-}
-
-const QSet<QString> &AssetsLibraryModel::previewableSuffixes() const
-{
-    static QSet<QString> previewableSuffixes;
-    if (previewableSuffixes.isEmpty()) {
-        auto insertSuffixes = [](const QStringList &suffixes) {
-            for (const auto &suffix : suffixes)
-                previewableSuffixes.insert(suffix);
-        };
-        insertSuffixes(supportedFontSuffixes());
-    }
-    return previewableSuffixes;
 }
 
 } // namespace QmlDesigner

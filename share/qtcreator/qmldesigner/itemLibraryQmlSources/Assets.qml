@@ -1,22 +1,13 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
-import QtQuickDesignerTheme 1.0
-import HelperWidgets 2.0
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import QtQuick
+import HelperWidgets as HelperWidgets
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 
 Item {
     id: root
-
-    property var selectedAssets: ({})
-    property int allExpandedState: 0
-    property string contextFilePath: ""
-    property var contextDir: undefined
-    property bool isDirContextMenu: false
 
     // Array of supported externally dropped files that are imported as-is
     property var dropSimpleExtFiles: []
@@ -24,8 +15,12 @@ Item {
     // Array of supported externally dropped files that trigger custom import process
     property var dropComplexExtFiles: []
 
+    readonly property int qtVersionAtLeast6_4: rootView.qtVersionIsAtLeast6_4()
+    property bool _searchBoxEmpty: true
+
     AssetsContextMenu {
         id: contextMenu
+        assetsView: assetsView
     }
 
     function clearSearchFilter()
@@ -63,7 +58,7 @@ Item {
 
         onDropped: {
             rootView.handleExtFilesDrop(root.dropSimpleExtFiles, root.dropComplexExtFiles,
-                                        assetsModel.rootDir().dirPath)
+                                        assetsModel.rootPath())
         }
 
         Canvas { // marker for the drop area
@@ -90,11 +85,15 @@ Item {
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
         onClicked: {
-            if (!assetsModel.isEmpty) {
-                root.contextFilePath = ""
-                root.contextDir = assetsModel.rootDir()
-                root.isDirContextMenu = false
-                contextMenu.popup()
+            if (assetsModel.haveFiles) {
+                function onFolderCreated(path) {
+                    assetsView.addCreatedFolder(path)
+                }
+
+                var rootIndex = assetsModel.rootIndex()
+                var dirPath = assetsModel.filePath(rootIndex)
+                var dirName = assetsModel.fileName(rootIndex)
+                contextMenu.openContextMenuForRoot(rootIndex, dirPath, dirName, onFolderCreated)
             }
         }
     }
@@ -103,13 +102,8 @@ Item {
     function handleViewFocusOut()
     {
         contextMenu.close()
-        root.selectedAssets = {}
-        root.selectedAssetsChanged()
-    }
-
-    RegExpValidator {
-        id: folderNameValidator
-        regExp: /^(\w[^*/><?\\|:]*)$/
+        assetsView.selectedAssets = {}
+        assetsView.selectedAssetsChanged()
     }
 
     Column {
@@ -127,10 +121,29 @@ Item {
 
                 width: parent.width - addAssetButton.width - 5
 
-                onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
+                onSearchChanged: (searchText) => {
+                    updateSearchFilterTimer.restart()
+                }
             }
 
-            IconButton {
+            Timer {
+                id: updateSearchFilterTimer
+                interval: 200
+                repeat: false
+
+                onTriggered: {
+                    assetsView.resetVerticalScrollPosition()
+                    rootView.handleSearchFilterChanged(searchBox.text)
+                    assetsView.expandAll()
+
+                    if (root._searchBoxEmpty && searchBox.text)
+                        root._searchBoxEmpty = false
+                    else if (!root._searchBoxEmpty && !searchBox.text)
+                        root._searchBoxEmpty = true
+                }
+            }
+
+            HelperWidgets.IconButton {
                 id: addAssetButton
                 anchors.verticalCenter: parent.verticalCenter
                 tooltip: qsTr("Add a new asset to the project.")
@@ -146,14 +159,13 @@ Item {
             leftPadding: 10
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: 12
-            visible: assetsModel.isEmpty && !searchBox.isEmpty()
+            visible: !assetsModel.haveFiles && !root._searchBoxEmpty
         }
-
 
         Item { // placeholder when the assets library is empty
             width: parent.width
             height: parent.height - searchRow.height
-            visible: assetsModel.isEmpty && searchBox.isEmpty()
+            visible: !assetsModel.haveFiles && root._searchBoxEmpty
             clip: true
 
             DropArea { // handles external drop (goes into default folder based on suffix)
@@ -164,7 +176,7 @@ Item {
                 }
 
                 onDropped: {
-                    rootView.handleExtFilesDrop(root.dropSimpleExtFiles, root.dropComplexExtFiles)
+                    rootView.emitExtFilesDrop(root.dropSimpleExtFiles, root.dropComplexExtFiles)
                 }
 
                 Column {
@@ -217,8 +229,11 @@ Item {
 
         AssetsView {
             id: assetsView
+            assetsRoot: root
+            contextMenu: contextMenu
+
             width: parent.width
             height: parent.height - y
         }
-    }
+    } // Column
 }

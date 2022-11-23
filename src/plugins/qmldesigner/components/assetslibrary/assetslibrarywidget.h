@@ -21,7 +21,7 @@ class QShortcut;
 QT_END_NAMESPACE
 
 namespace Utils {
-    class FileSystemWatcher;
+    class QtcProcess;
 }
 
 namespace QmlDesigner {
@@ -42,7 +42,7 @@ class AssetsLibraryWidget : public QFrame
 public:
     AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
                         SynchronousImageCache &synchronousFontImageCache);
-    ~AssetsLibraryWidget();
+    ~AssetsLibraryWidget() = default;
 
     QList<QToolButton *> createToolBarWidgets();
 
@@ -59,14 +59,26 @@ public:
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
+
     Q_INVOKABLE void handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
                                         const QList<QUrl> &complexFilePaths,
-                                        const QString &targetDirPath = {});
+                                        const QString &targetDirPath);
+
+    Q_INVOKABLE void emitExtFilesDrop(const QList<QUrl> &simpleFilePaths,
+                                      const QList<QUrl> &complexFilePaths,
+                                      const QString &targetDirPath = {});
+
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
     Q_INVOKABLE void openEffectMaker(const QString &filePath);
+    Q_INVOKABLE bool qtVersionIsAtLeast6_4() const;
+    Q_INVOKABLE void invalidateThumbnail(const QString &id);
 
 signals:
     void itemActivated(const QString &itemName);
+    void extFilesDrop(const QList<QUrl> &simpleFilePaths,
+                      const QList<QUrl> &complexFilePaths,
+                      const QString &targetDirPath);
+    void directoryCreated(const QString &path);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -77,14 +89,12 @@ private:
     void addResources(const QStringList &files);
     void updateSearch();
 
-    QTimer m_assetCompressionTimer;
     QSize m_itemIconSize;
 
     SynchronousImageCache &m_fontImageCache;
 
     AssetsLibraryIconProvider *m_assetsIconProvider = nullptr;
-    Utils::FileSystemWatcher *m_fileSystemWatcher = nullptr;
-    QPointer<AssetsLibraryModel> m_assetsModel;
+    AssetsLibraryModel *m_assetsModel = nullptr;
 
     QScopedPointer<QQuickWidget> m_assetsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;

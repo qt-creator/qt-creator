@@ -1042,10 +1042,10 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
 {
     QString directory = showDialog ? AddImagesDialog::getDirectory(fileNames, defaultDir) : defaultDir;
     if (directory.isEmpty())
-        return AddFilesResult::Cancelled;
+        return AddFilesResult::cancelled(directory);
 
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    QTC_ASSERT(document, return AddFilesResult::Failed);
+    QTC_ASSERT(document, return AddFilesResult::failed(directory));
 
     QList<QPair<QString, QString>> copyList;
     QStringList removeList;
@@ -1073,7 +1073,7 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
     for (const auto &filePair : std::as_const(copyList)) {
         const bool success = QFile::copy(filePair.first, filePair.second);
         if (!success)
-            return AddFilesResult::Failed;
+            return AddFilesResult::failed(directory);
 
         ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(document->fileName());
         if (node) {
@@ -1083,7 +1083,7 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
         }
     }
 
-    return AddFilesResult::Succeeded;
+    return AddFilesResult::succeeded(directory);
 }
 
 static QString getAssetDefaultDirectory(const QString &assetDir, const QString &defaultDirectory)
