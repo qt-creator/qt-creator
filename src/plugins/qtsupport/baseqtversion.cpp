@@ -875,7 +875,7 @@ QString QtVersion::toHtml(bool verbose) const
             const QHash<ProKey, ProString> vInfo = d->versionInfo();
             if (!vInfo.isEmpty()) {
                 const QList<ProKey> keys = Utils::sorted(vInfo.keys());
-                foreach (const ProKey &key, keys) {
+                for (const ProKey &key : keys) {
                     const QString &value = vInfo.value(key).toQString();
                     QString variableName = key.toQString();
                     if (variableName != "QMAKE_MKSPECS"
@@ -2281,7 +2281,7 @@ QtVersion *QtVersionFactory::createQtVersionFromQMakePath
     setup.platforms = evaluator.values("QMAKE_PLATFORM"); // It's a list in general.
     setup.isQnx = !evaluator.value("QNX_CPUDIR").isEmpty();
 
-    foreach (QtVersionFactory *factory, factories) {
+    for (QtVersionFactory *factory : factories) {
         if (!factory->m_restrictionChecker || factory->m_restrictionChecker(setup)) {
             QtVersion *ver = factory->create();
             QTC_ASSERT(ver, continue);

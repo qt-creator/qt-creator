@@ -613,7 +613,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
 
     qDeleteAll(testData);
 
-    foreach (Kit *k, toUnregisterLater)
+    for (Kit *k : std::as_const(toUnregisterLater))
         KitManager::deregisterKit(k);
 
     // Delete kit templates:

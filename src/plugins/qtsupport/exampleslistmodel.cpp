@@ -126,7 +126,7 @@ void ExampleSetModel::recreateModel(const QtVersions &qtVersions)
         extraManifestDirs.insert(set.manifestPath);
     }
 
-    foreach (QtVersion *version, qtVersions) {
+    for (QtVersion *version : qtVersions) {
         // sanitize away qt versions that have already been added through extra sets
         if (extraManifestDirs.contains(version->docsPath().toString())) {
             if (debugExamples()) {
@@ -446,13 +446,13 @@ void ExamplesListModel::updateExamples()
     QString examplesInstallPath;
     QString demosInstallPath;
 
-    QStringList sources = m_exampleSetModel.exampleSources(&examplesInstallPath, &demosInstallPath);
-
+    const QStringList sources = m_exampleSetModel.exampleSources(&examplesInstallPath,
+                                                                 &demosInstallPath);
     beginResetModel();
     qDeleteAll(m_items);
     m_items.clear();
 
-    foreach (const QString &exampleSource, sources) {
+    for (const QString &exampleSource : sources) {
         QFile exampleFile(exampleSource);
         if (!exampleFile.open(QIODevice::ReadOnly)) {
             if (debugExamples())
@@ -604,8 +604,9 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
         examplesPath = exampleSet.examplesPath;
         demosPath = exampleSet.examplesPath;
     } else if (currentType == ExampleSetModel::QtExampleSet) {
-        int qtId = getQtId(m_selectedExampleSetIndex);
-        foreach (QtVersion *version, QtVersionManager::versions()) {
+        const int qtId = getQtId(m_selectedExampleSetIndex);
+        const QtVersions versions = QtVersionManager::versions();
+        for (QtVersion *version : versions) {
             if (version->uniqueId() == qtId) {
                 manifestScanPath = version->docsPath().toString();
                 examplesPath = version->examplesPath().toString();
@@ -620,11 +621,12 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
         const QStringList examplesPattern(QLatin1String("examples-manifest.xml"));
         const QStringList demosPattern(QLatin1String("demos-manifest.xml"));
         QFileInfoList fis;
-        foreach (QFileInfo subDir, dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        const QFileInfoList subDirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (QFileInfo subDir : subDirs) {
             fis << QDir(subDir.absoluteFilePath()).entryInfoList(examplesPattern);
             fis << QDir(subDir.absoluteFilePath()).entryInfoList(demosPattern);
         }
-        foreach (const QFileInfo &fi, fis)
+        for (const QFileInfo &fi : std::as_const(fis))
             sources.append(fi.filePath());
     }
     if (examplesInstallPath)

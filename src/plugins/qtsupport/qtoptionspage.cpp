@@ -414,7 +414,6 @@ void QtOptionsPageWidget::cleanUpQtVersions()
     if (toRemove.isEmpty())
         return;
 
-
     if (QMessageBox::warning(nullptr, Tr::tr("Remove Invalid Qt Versions"),
                              Tr::tr("Do you want to remove all invalid Qt Versions?<br>"
                                     "<ul><li>%1</li></ul><br>"
@@ -422,7 +421,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
-    foreach (QtVersionItem *item, toRemove)
+    for (QtVersionItem *item : std::as_const(toRemove))
         m_model->destroyItem(item);
 
     updateCleanUpButton();
@@ -531,8 +530,10 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
         return toolChains;
 
     QSet<QByteArray> ids;
-    foreach (const Abi &a, version->qtAbis()) {
-        foreach (ToolChain *tc, ToolChainManager::findToolChains(a)) {
+    const Abis abis = version->qtAbis();
+    for (const Abi &a : abis) {
+        const Toolchains tcList = ToolChainManager::findToolChains(a);
+        for (ToolChain *tc : tcList) {
             if (ids.contains(tc->id()))
                 continue;
             ids.insert(tc->id());
@@ -591,11 +592,11 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
     });
 
     // Remove changed/removed items:
-    foreach (QtVersionItem *item, toRemove)
+    for (QtVersionItem *item : std::as_const(toRemove))
         m_model->destroyItem(item);
 
     // Add changed/added items:
-    foreach (int a, toAdd) {
+    for (int a : std::as_const(toAdd)) {
         QtVersion *version = QtVersionManager::version(a)->clone();
         auto *item = new QtVersionItem(version);
 
