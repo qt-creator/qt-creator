@@ -36,7 +36,8 @@ class TextureEditorContextObject : public QObject
     Q_PROPERTY(bool hasAliasExport READ hasAliasExport NOTIFY hasAliasExportChanged)
     Q_PROPERTY(bool hasActiveTimeline READ hasActiveTimeline NOTIFY hasActiveTimelineChanged)
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
-    Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
+    Q_PROPERTY(bool hasSingleModelSelection READ hasSingleModelSelection WRITE setHasSingleModelSelection
+               NOTIFY hasSingleModelSelectionChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary WRITE setHasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
 
     Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
@@ -91,8 +92,8 @@ public:
     bool hasMaterialLibrary() const;
     void setHasMaterialLibrary(bool b);
 
-    bool hasModelSelection() const;
-    void setHasModelSelection(bool b);
+    bool hasSingleModelSelection() const;
+    void setHasSingleModelSelection(bool b);
 
     bool hasAliasExport() const { return m_aliasExport; }
 
@@ -124,7 +125,7 @@ signals:
     void hasActiveTimelineChanged();
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
-    void hasModelSelectionChanged();
+    void hasSingleModelSelectionChanged();
 
 private:
     QUrl m_specificsUrl;
@@ -148,7 +149,7 @@ private:
     bool m_hasActiveTimeline = false;
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialLibrary = false;
-    bool m_hasModelSelection = false;
+    bool m_hasSingleModelSelection = false;
 
     ModelNode m_selectedTexture;
 };

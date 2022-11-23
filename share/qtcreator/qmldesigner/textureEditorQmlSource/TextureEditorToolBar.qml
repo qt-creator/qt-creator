@@ -28,7 +28,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasTexture && hasModelSelection && hasQuick3DImport && hasMaterialLibrary
+            enabled: hasTexture && hasSingleModelSelection && hasQuick3DImport && hasMaterialLibrary
             onClicked: root.toolBarAction(ToolBarAction.ApplyToSelected)
             tooltip: qsTr("Apply texture to selected model's material.")
         }

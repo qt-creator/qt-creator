@@ -47,7 +47,7 @@ public:
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
-    void applyTextureToModel3D(const ModelNode &model3D, const ModelNode &texture);
+    void applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture);
     void applyTextureToMaterial(const QList<ModelNode> &materials, const ModelNode &texture);
 
     Q_INVOKABLE void updatePropsModel(const QString &matId);

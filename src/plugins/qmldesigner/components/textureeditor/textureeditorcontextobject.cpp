@@ -145,18 +145,18 @@ void TextureEditorContextObject::setHasMaterialLibrary(bool b)
     emit hasMaterialLibraryChanged();
 }
 
-bool TextureEditorContextObject::hasModelSelection() const
+bool TextureEditorContextObject::hasSingleModelSelection() const
 {
-    return m_hasModelSelection;
+    return m_hasSingleModelSelection;
 }
 
-void TextureEditorContextObject::setHasModelSelection(bool b)
+void TextureEditorContextObject::setHasSingleModelSelection(bool b)
 {
-    if (b == m_hasModelSelection)
+    if (b == m_hasSingleModelSelection)
         return;
 
-    m_hasModelSelection = b;
-    emit hasModelSelectionChanged();
+    m_hasSingleModelSelection = b;
+    emit hasSingleModelSelectionChanged();
 }
 
 void TextureEditorContextObject::setSelectedMaterial(const ModelNode &matNode)

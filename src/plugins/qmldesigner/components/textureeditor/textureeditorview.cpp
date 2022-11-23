@@ -451,6 +451,8 @@ void TextureEditorView::setupQmlBackend()
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
     currentQmlBackend->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+    bool hasValidSelection = QmlObjectNode(m_selectedModel).hasBindingProperty("materials");
+    currentQmlBackend->contextObject()->setHasSingleModelSelection(hasValidSelection);
 
     m_qmlBackEnd = currentQmlBackend;
 
@@ -554,6 +556,11 @@ void TextureEditorView::propertiesRemoved(const QList<AbstractProperty> &propert
             setValue(m_selectedTexture, property.name(), QmlObjectNode(m_selectedTexture).instanceValue(property.name()));
         }
 
+        if (property.name() == "materials" && (node == m_selectedModel
+                    || QmlObjectNode(m_selectedModel).propertyChangeForCurrentState() == node)) {
+            m_qmlBackEnd->contextObject()->setHasSingleModelSelection(false);
+        }
+
         dynamicPropertiesModel()->dispatchPropertyChanges(property);
     }
 }
@@ -596,6 +603,12 @@ void TextureEditorView::bindingPropertiesChanged(const QList<BindingProperty> &p
                 setValue(m_selectedTexture, property.name(), QmlObjectNode(m_selectedTexture).instanceValue(property.name()));
             else
                 setValue(m_selectedTexture, property.name(), QmlObjectNode(m_selectedTexture).modelValue(property.name()));
+        }
+
+        if (property.name() == "materials" && (node == m_selectedModel
+                    || QmlObjectNode(m_selectedModel).propertyChangeForCurrentState() == node)) {
+            bool hasMaterials = QmlObjectNode(m_selectedModel).hasBindingProperty("materials");
+            m_qmlBackEnd->contextObject()->setHasSingleModelSelection(hasMaterials);
         }
 
         dynamicPropertiesModel()->dispatchPropertyChanges(property);
@@ -660,7 +673,8 @@ void TextureEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNod
     if (selectedNodeList.size() == 1 && selectedNodeList.at(0).metaInfo().isQtQuick3DModel())
         m_selectedModel = selectedNodeList.at(0);
 
-    m_qmlBackEnd->contextObject()->setHasModelSelection(m_selectedModel.isValid());
+    bool hasValidSelection = QmlObjectNode(m_selectedModel).hasBindingProperty("materials");
+    m_qmlBackEnd->contextObject()->setHasSingleModelSelection(hasValidSelection);
 }
 
 void TextureEditorView::currentStateChanged(const ModelNode &node)

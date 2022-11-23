@@ -481,9 +481,9 @@ void MaterialBrowserView::instancePropertyChanged(const QList<QPair<ModelNode, P
     }
 }
 
-void MaterialBrowserView::applyTextureToModel3D(const ModelNode &model3D, const ModelNode &texture)
+void MaterialBrowserView::applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture)
 {
-    if (!texture.isValid() || !model3D.isValid() || !model3D.metaInfo().isQtQuick3DModel())
+    if (!texture.isValid() || !model3D.isValid() || !model3D.modelNode().metaInfo().isQtQuick3DModel())
         return;
 
     BindingProperty matsProp = model3D.bindingProperty("materials");
@@ -547,14 +547,13 @@ void MaterialBrowserView::applyTextureToProperty(const QString &matId, const QSt
 {
     QTC_ASSERT(!m_appliedTextureId.isEmpty(), return);
 
-    ModelNode mat = modelNodeForId(matId);
+    QmlObjectNode mat = modelNodeForId(matId);
     QTC_ASSERT(mat.isValid(), return);
 
     BindingProperty texProp = mat.bindingProperty(propName.toLatin1());
     QTC_ASSERT(texProp.isValid(), return);
 
-    QmlObjectNode qmlObjNode(mat);
-    qmlObjNode.setBindingProperty(propName.toLatin1(), m_appliedTextureId);
+    mat.setBindingProperty(propName.toLatin1(), m_appliedTextureId);
 
     closeChooseMatPropsView();
 }
