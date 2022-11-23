@@ -4,6 +4,7 @@
 #pragma once
 
 #include "squishperspective.h"
+#include "squishserverprocess.h"
 #include "suiteconf.h"
 
 #include <utils/environment.h>
@@ -102,6 +103,7 @@ private:
 
     enum RunnerQuery { ServerInfo, GetGlobalScriptDirs, SetGlobalScriptDirs };
 
+    void onServerStateChanged(SquishProcessState state);
     void setState(State state);
     void handleSetStateStartAppRunner();
     void handleSetStateQueryRunner();
@@ -114,11 +116,8 @@ private:
     void queryServer(RunnerQuery query);
     void executeRunnerQuery();
     static Utils::Environment squishEnvironment();
-    void onServerFinished();
     void onRunnerFinished();
     void onRecorderFinished();
-    void onServerOutput();
-    void onServerErrorOutput();
     void onRunnerOutput();                              // runner's results file
     void onRunnerErrorOutput();                         // runner's error stream
     void onRunnerStdOutput(const QString &line);        // runner's output stream
@@ -142,10 +141,9 @@ private:
 
     SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
-    Utils::QtcProcess m_serverProcess;
+    SquishServerProcess m_serverProcess;
     Utils::QtcProcess m_runnerProcess;
     Utils::QtcProcess m_recorderProcess;
-    int m_serverPort = -1;
     QString m_serverHost;
     Request m_request = None;
     State m_state = Idle;

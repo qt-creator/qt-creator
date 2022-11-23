@@ -18,8 +18,10 @@ add_qtc_plugin(Squish
     squishoutputpane.cpp squishoutputpane.h
     squishperspective.cpp squishperspective.h
     squishplugin.cpp squishplugin.h
+    squishprocessbase.cpp squishprocessbase.h
     squishresultmodel.cpp squishresultmodel.h
     squishsettings.cpp squishsettings.h
+    squishserverprocess.cpp squishserverprocess.h
     squishtesttreemodel.cpp squishtesttreemodel.h
     squishtesttreeview.cpp squishtesttreeview.h
     squishtools.cpp squishtools.h

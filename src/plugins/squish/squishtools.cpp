@@ -127,12 +127,11 @@ SquishTools::SquishTools(QObject *parent)
     connect(&m_runnerProcess, &QtcProcess::done,
             this, &SquishTools::onRunnerFinished);
 
-    connect(&m_serverProcess, &QtcProcess::readyReadStandardOutput,
-            this, &SquishTools::onServerOutput);
-    connect(&m_serverProcess, &QtcProcess::readyReadStandardError,
-            this, &SquishTools::onServerErrorOutput);
-    connect(&m_serverProcess, &QtcProcess::done,
-            this, &SquishTools::onServerFinished);
+    connect(&m_serverProcess, &SquishServerProcess::stateChanged,
+            this, &SquishTools::onServerStateChanged);
+    connect(&m_serverProcess, &SquishServerProcess::logOutputReceived,
+            this, &SquishTools::logOutputReceived);
+
     s_instance = this;
     m_perspective.initPerspective();
     connect(&m_perspective, &SquishPerspective::interruptRequested,
@@ -338,6 +337,30 @@ void SquishTools::writeServerSettingsChanges(const QList<QStringList> &changes)
     startSquishServer(ServerConfigChangeRequested);
 }
 
+void SquishTools::onServerStateChanged(SquishProcessState state)
+{
+    switch (state) {
+    case Starting:
+        setState(SquishTools::ServerStarting);
+        break;
+    case Started:
+        setState(SquishTools::ServerStarted);
+        break;
+    case StartFailed:
+        setState(SquishTools::ServerStartFailed);
+        break;
+    case Stopped:
+        setState(SquishTools::ServerStopped);
+        break;
+    case StopFailed:
+        setState(SquishTools::ServerStopFailed);
+        break;
+    default:
+        // Idle currently unhandled / not needed?
+        break;
+    }
+}
+
 void SquishTools::setState(SquishTools::State state)
 {
     qCInfo(LOG) << "State change:" << toolsStateName(m_state) << ">" << toolsStateName(state);
@@ -405,7 +428,7 @@ void SquishTools::setState(SquishTools::State state)
         }
         break;
     case ServerStopFailed:
-        m_serverProcess.close();
+        m_serverProcess.closeProcess();
         if (toolsSettings.minimizeIDE)
             restoreQtCreatorWindows();
         m_perspective.destroyControlBar();
@@ -469,7 +492,7 @@ void SquishTools::handleSetStateStartAppRunner()
         }
         break;
     case ServerStopFailed:
-        m_serverProcess.close();
+        m_serverProcess.closeProcess();
         if (toolsSettings.minimizeIDE)
             restoreQtCreatorWindows();
         m_perspective.destroyControlBar();
@@ -553,7 +576,6 @@ void SquishTools::startSquishServer(Request request)
     }
 
     toolsSettings.setup();
-    m_serverPort = -1;
 
     const FilePath squishServer = Environment::systemEnvironment().searchInPath(
         toolsSettings.serverPath.toString());
@@ -586,41 +608,13 @@ void SquishTools::startSquishServer(Request request)
     }
 
     const QStringList arguments = serverArgumentsFromSettings();
-    m_serverProcess.setCommand({toolsSettings.serverPath, arguments});
-
-    m_serverProcess.setEnvironment(squishEnvironment());
-
-    // especially when writing server config we re-use the process fast and start the server
-    // several times and may crash as the process may not have been cleanly destructed yet
-    m_serverProcess.close();
-    setState(ServerStarting);
-    qCDebug(LOG) << "Server starts:" << m_serverProcess.commandLine().toUserOutput();
-    m_serverProcess.start();
-    if (!m_serverProcess.waitForStarted()) {
-        setState(ServerStartFailed);
-        qWarning() << "squishserver did not start within 30s";
-    }
+    m_serverProcess.start({toolsSettings.serverPath, arguments}, squishEnvironment());
 }
 
 void SquishTools::stopSquishServer()
 {
     qCDebug(LOG) << "Stopping server";
-    if (m_serverProcess.state() != QProcess::NotRunning && m_serverPort > 0) {
-        QtcProcess serverKiller;
-        QStringList args;
-        args << "--stop" << "--port" << QString::number(m_serverPort);
-        serverKiller.setCommand({m_serverProcess.commandLine().executable(), args});
-        serverKiller.setEnvironment(m_serverProcess.environment());
-        serverKiller.start();
-        if (!serverKiller.waitForFinished()) {
-            qWarning() << "Could not shutdown server within 30s";
-            setState(ServerStopFailed);
-        }
-    } else {
-        qWarning() << "either no process running or port < 1?"
-                   << m_serverProcess.state() << m_serverPort;
-        setState(ServerStopFailed);
-    }
+    m_serverProcess.stop();
 }
 
 void SquishTools::startSquishRunner()
@@ -646,7 +640,7 @@ void SquishTools::setupAndStartRecorder()
     QStringList args;
     if (!toolsSettings.isLocalServer)
         args << "--host" << toolsSettings.serverHost;
-    args << "--port" << QString::number(m_serverPort);
+    args << "--port" << QString::number(m_serverProcess.port());
     args << "--debugLog" << "alpw"; // TODO make this configurable?
     args << "--record";
     args << "--suitedir" << m_suitePath.toUserOutput();
@@ -686,7 +680,7 @@ void SquishTools::executeRunnerQuery()
     if (!isValidToStartRunner() || !setupRunnerPath())
         return;
 
-    QStringList arguments = { "--port", QString::number(m_serverPort) };
+    QStringList arguments = { "--port", QString::number(m_serverProcess.port()) };
     Utils::CommandLine cmdLine = {toolsSettings.runnerPath, arguments};
     switch (m_query) {
     case ServerInfo:
@@ -715,13 +709,6 @@ Environment SquishTools::squishEnvironment()
         environment.prependOrSet("SQUISH_LICENSEKEY_DIR", toolsSettings.licenseKeyPath.nativePath());
     environment.prependOrSet("SQUISH_PREFIX", toolsSettings.squishPath.nativePath());
     return environment;
-}
-
-void SquishTools::onServerFinished()
-{
-    qCDebug(LOG) << "Server finished";
-    m_serverPort = -1;
-    setState(ServerStopped);
 }
 
 void SquishTools::onRunnerFinished()
@@ -797,46 +784,6 @@ void SquishTools::onRecorderFinished()
     qCInfo(LOG) << "Wrote recorded test case" << testFile.toUserOutput() << " " << result;
     m_currentRecorderSnippetFile.removeFile();
     m_currentRecorderSnippetFile.clear();
-}
-
-void SquishTools::onServerOutput()
-{
-    // output used for getting the port information of the current squishserver
-    const QByteArray output = m_serverProcess.readAllRawStandardOutput();
-    const QList<QByteArray> lines = output.split('\n');
-    for (const QByteArray &line : lines) {
-        const QByteArray trimmed = line.trimmed();
-        if (trimmed.isEmpty())
-            continue;
-        if (trimmed.startsWith("Port:")) {
-            if (m_serverPort == -1) {
-                bool ok;
-                int port = trimmed.mid(6).toInt(&ok);
-                if (ok) {
-                    m_serverPort = port;
-                    setState(ServerStarted);
-                } else {
-                    qWarning() << "could not get port number" << trimmed.mid(6);
-                    setState(ServerStartFailed);
-                }
-            } else {
-                qWarning() << "got a Port output - don't know why...";
-            }
-        }
-        emit logOutputReceived(QString("Server: ") + QLatin1String(trimmed));
-    }
-}
-
-void SquishTools::onServerErrorOutput()
-{
-    // output that must be send to the Runner/Server Log
-    const QByteArray output = m_serverProcess.readAllRawStandardError();
-    const QList<QByteArray> lines = output.split('\n');
-    for (const QByteArray &line : lines) {
-        const QByteArray trimmed = line.trimmed();
-        if (!trimmed.isEmpty())
-            emit logOutputReceived(QString("Server: ") + QLatin1String(trimmed));
-    }
 }
 
 static char firstNonWhitespace(const QByteArray &text)
@@ -1344,7 +1291,7 @@ QStringList SquishTools::runnerArgumentsFromSettings()
     QStringList arguments;
     if (!toolsSettings.isLocalServer)
         arguments << "--host" << toolsSettings.serverHost;
-    arguments << "--port" << QString::number(m_serverPort);
+    arguments << "--port" << QString::number(m_serverProcess.port());
     arguments << "--debugLog" << "alpw"; // TODO make this configurable?
 
     QTC_ASSERT(!m_testCases.isEmpty(), m_testCases.append(""));
@@ -1395,7 +1342,7 @@ bool SquishTools::isValidToStartRunner()
         setState(Idle);
         return false;
     }
-    if (m_serverPort == -1) {
+    if (m_serverProcess.port() == -1) {
         QMessageBox::critical(Core::ICore::dialogParent(),
                               Tr::tr("No Squish Server Port"),
                               Tr::tr("Failed to get the server port.\n"
