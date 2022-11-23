@@ -58,7 +58,7 @@ private:
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown,
             const ProjectExplorer::Abi &abi);
 
-    QStringList validationErrors() const;
+    QString validationErrorMessage() const;
 
     void setVersion(const QnxVersionNumber& version);
 

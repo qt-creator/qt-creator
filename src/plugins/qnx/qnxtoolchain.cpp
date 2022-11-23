@@ -75,7 +75,7 @@ static void setQnxEnvironment(Environment &env, const EnvironmentItems &qnxEnv)
 {
     // We only need to set QNX_HOST, QNX_TARGET, and QNX_CONFIGURATION_EXCLUSIVE
     // needed when running qcc
-    foreach (const EnvironmentItem &item, qnxEnv) {
+    for (const EnvironmentItem &item : qnxEnv) {
         if (item.name == QLatin1String("QNX_HOST") ||
             item.name == QLatin1String("QNX_TARGET") ||
             item.name == QLatin1String("QNX_CONFIGURATION_EXCLUSIVE"))
@@ -88,7 +88,7 @@ static void setQnxEnvironment(Environment &env, const EnvironmentItems &qnxEnv)
 static QStringList reinterpretOptions(const QStringList &args)
 {
     QStringList arguments;
-    foreach (const QString &str, args) {
+    for (const QString &str : args) {
         if (str.startsWith(QLatin1String("--sysroot=")))
             continue;
         QString arg = str;
@@ -97,7 +97,6 @@ static QStringList reinterpretOptions(const QStringList &args)
                 arg.prepend(QLatin1String("-Wp,"));
         arguments << arg;
     }
-
     return arguments;
 }
 

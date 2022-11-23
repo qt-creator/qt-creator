@@ -125,20 +125,12 @@ bool QnxConfiguration::activate()
         return true;
 
     if (!isValid()) {
-        QString errorMessage
-                = Tr::tr("The following errors occurred while activating the QNX configuration:");
-
-        foreach (const QString &error, validationErrors())
-            errorMessage += QLatin1String("\n") + error;
-
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             Tr::tr("Cannot Set Up QNX Configuration"),
-                             errorMessage,
-                             QMessageBox::Ok);
+        QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Cannot Set Up QNX Configuration"),
+                             validationErrorMessage(), QMessageBox::Ok);
         return false;
     }
 
-    foreach (const Target &target, m_targets)
+    for (const Target &target : std::as_const(m_targets))
         createTools(target);
 
     return true;
@@ -153,23 +145,25 @@ void QnxConfiguration::deactivate()
         ToolChainManager::toolchains(Utils::equal(&ToolChain::compilerCommand, qccCompilerPath()));
 
     QList<DebuggerItem> debuggersToRemove;
-    foreach (DebuggerItem debuggerItem,
-             DebuggerItemManager::debuggers()) {
+    const QList<DebuggerItem> debuggerItems = DebuggerItemManager::debuggers();
+    for (const DebuggerItem &debuggerItem : debuggerItems) {
         if (findTargetByDebuggerPath(debuggerItem.command()))
             debuggersToRemove.append(debuggerItem);
     }
 
-    foreach (Kit *kit, KitManager::kits()) {
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *kit : kits) {
         if (kit->isAutoDetected()
                 && DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-                && toolChainsToRemove.contains(ToolChainKitAspect::cxxToolChain(kit)))
+                && toolChainsToRemove.contains(ToolChainKitAspect::cxxToolChain(kit))) {
             KitManager::deregisterKit(kit);
+        }
     }
 
     for (ToolChain *tc : toolChainsToRemove)
         ToolChainManager::deregisterToolChain(tc);
 
-    foreach (DebuggerItem debuggerItem, debuggersToRemove)
+    for (const DebuggerItem &debuggerItem : std::as_const(debuggersToRemove))
         DebuggerItemManager::deregisterDebugger(debuggerItem.id());
 }
 
@@ -200,18 +194,18 @@ FilePath QnxConfiguration::sdpPath() const
 
 QnxQtVersion *QnxConfiguration::qnxQtVersion(const Target &target) const
 {
-    foreach (QtVersion *version,
-             QtVersionManager::instance()->versions(Utils::equal(&QtVersion::type,
-                                                                         QString::fromLatin1(Constants::QNX_QNX_QT)))) {
+    const QtVersions versions = QtVersionManager::instance()->versions(
+                Utils::equal(&QtVersion::type, QString::fromLatin1(Constants::QNX_QNX_QT)));
+    for (QtVersion *version : versions) {
         auto qnxQt = dynamic_cast<QnxQtVersion *>(version);
         if (qnxQt && qnxQt->sdpPath() == sdpPath()) {
-            foreach (const Abi &qtAbi, version->qtAbis()) {
+            const Abis abis = version->qtAbis();
+            for (const Abi &qtAbi : abis) {
                 if ((qtAbi == target.m_abi) && (qnxQt->cpuDir() == target.cpuDir()))
                     return qnxQt;
             }
         }
     }
-
     return nullptr;
 }
 
@@ -321,16 +315,18 @@ void QnxConfiguration::createKit(const Target &target, const QnxToolChainMap &to
     KitManager::registerKit(init);
 }
 
-QStringList QnxConfiguration::validationErrors() const
+QString QnxConfiguration::validationErrorMessage() const
 {
-    QStringList errorStrings;
+    if (isValid())
+        return {};
+
+    QStringList errorStrings
+            = {Tr::tr("The following errors occurred while activating the QNX configuration:")};
     if (m_qccCompiler.isEmpty())
         errorStrings << Tr::tr("- No GCC compiler found.");
-
     if (m_targets.isEmpty())
         errorStrings << Tr::tr("- No targets found.");
-
-    return errorStrings;
+    return errorStrings.join('\n');
 }
 
 void QnxConfiguration::setVersion(const QnxVersionNumber &version)
@@ -360,7 +356,7 @@ void QnxConfiguration::setDefaultConfiguration(const FilePath &envScript)
     QTC_ASSERT(!envScript.isEmpty(), return);
     m_envFile = envScript;
     m_qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(m_envFile);
-    foreach (const EnvironmentItem &item, m_qnxEnv) {
+    for (const EnvironmentItem &item : std::as_const(m_qnxEnv)) {
         if (item.name == QNXConfiguration)
             m_qnxConfiguration = FilePath::fromString(item.value).canonicalPath();
         else if (item.name == QNXTarget)

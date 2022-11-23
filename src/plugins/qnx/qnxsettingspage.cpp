@@ -197,11 +197,11 @@ void QnxSettingsWidget::updateInformation()
 void QnxSettingsWidget::populateConfigsCombo()
 {
     m_configsCombo->clear();
-    foreach (QnxConfiguration *config, m_qnxConfigManager->configurations()) {
+    const QList<QnxConfiguration *> configList = m_qnxConfigManager->configurations();
+    for (QnxConfiguration *config : configList) {
         m_configsCombo->addItem(config->displayName(),
-                                       QVariant::fromValue(static_cast<void*>(config)));
+                                QVariant::fromValue(static_cast<void*>(config)));
     }
-
     updateInformation();
 }
 
