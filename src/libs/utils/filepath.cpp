@@ -161,6 +161,14 @@ FilePath FilePath::fromParts(const QStringView scheme, const QStringView host, c
     return result;
 }
 
+FilePath FilePath::fromPathPart(const QStringView path)
+{
+    FilePath result;
+    result.m_data = path.toString();
+    result.m_pathLen = path.size();
+    return result;
+}
+
 FilePath FilePath::currentWorkingPath()
 {
     return FilePath::fromString(QDir::currentPath());
