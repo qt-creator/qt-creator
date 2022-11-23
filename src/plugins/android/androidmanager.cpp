@@ -696,9 +696,10 @@ bool AndroidManager::updateGradleProperties(Target *target, const QString &build
 
     const QString sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
     QFileInfo sourceDirInfo(sourceDirName);
-    const FilePath packageSourceDir = FilePath::fromString(sourceDirInfo.canonicalFilePath())
-            .pathAppended("gradlew");
-    if (!packageSourceDir.exists())
+    const FilePath packageSourceDir = FilePath::fromString(sourceDirInfo.canonicalFilePath());
+
+    const FilePath gradleWFile = packageSourceDir / "gradlew";
+    if (!gradleWFile.exists())
         return false;
 
     const FilePath wrapperProps = packageSourceDir / "gradle/wrapper/gradle-wrapper.properties";
