@@ -8,6 +8,8 @@
 #include "cppprojectpartchooser.h"
 #include "editordocumenthandle.h"
 
+using namespace Utils;
+
 namespace CppEditor {
 
 /*!
@@ -29,7 +31,7 @@ namespace CppEditor {
     \endlist
 */
 
-BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
+BaseEditorDocumentParser::BaseEditorDocumentParser(const FilePath &filePath)
     : m_filePath(filePath)
 {
     static int meta = qRegisterMetaType<ProjectPartInfo>("ProjectPartInfo");
@@ -38,7 +40,7 @@ BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
 
 BaseEditorDocumentParser::~BaseEditorDocumentParser() = default;
 
-QString BaseEditorDocumentParser::filePath() const
+const FilePath &BaseEditorDocumentParser::filePath() const
 {
     return m_filePath;
 }

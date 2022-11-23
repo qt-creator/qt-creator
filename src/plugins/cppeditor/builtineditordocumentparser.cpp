@@ -31,7 +31,7 @@ static QByteArray overwrittenToolchainDefines(const ProjectPart &projectPart)
     return defines;
 }
 
-BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const QString &filePath,
+BuiltinEditorDocumentParser::BuiltinEditorDocumentParser(const FilePath &filePath,
                                                          int fileSizeLimitInMb)
     : BaseEditorDocumentParser(filePath)
     , m_fileSizeLimitInMb(fileSizeLimitInMb)
@@ -62,7 +62,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
-    baseState.projectPartInfo = determineProjectPart(filePath(),
+    baseState.projectPartInfo = determineProjectPart(filePath().toString(),
                                                     baseConfig.preferredProjectPartId,
                                                     baseState.projectPartInfo,
                                                     updateParams.activeProject,
@@ -166,7 +166,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         state.snapshot.remove(filePath());
 
         Internal::CppSourceProcessor sourceProcessor(state.snapshot, [&](const Document::Ptr &doc) {
-            const bool isInEditor = doc->filePath().toString() == filePath();
+            const bool isInEditor = doc->filePath() == filePath();
             Document::Ptr otherDoc = modelManager->document(doc->filePath());
             unsigned newRev = otherDoc.isNull() ? 1U : otherDoc->revision() + 1;
             if (isInEditor)
@@ -193,12 +193,12 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
                 sourceProcessor.run(precompiledHeader);
         }
         if (!baseState.editorDefines.isEmpty())
-            sourceProcessor.run(CppModelManager::editorConfigurationFileName());
+            sourceProcessor.run(CppModelManager::editorConfigurationFileName().path());
         QStringList includedFiles = state.includedFiles;
         if (baseConfig.usePrecompiledHeaders)
             includedFiles << state.precompiledHeaders;
         includedFiles.removeDuplicates();
-        sourceProcessor.run(filePath(), includedFiles);
+        sourceProcessor.run(filePath().toString(), includedFiles);
         state.snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = state.snapshot.simplified(state.snapshot.document(filePath()));
         for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end(); i != ei; ++i) {
@@ -253,7 +253,7 @@ void BuiltinEditorDocumentParser::addFileAndDependencies(Snapshot *snapshot,
     QTC_ASSERT(snapshot, return);
 
     toRemove->insert(fileName);
-    if (fileName != Utils::FilePath::fromString(filePath())) {
+    if (fileName != filePath()) {
         Utils::FilePaths deps = snapshot->filesDependingOn(fileName);
         toRemove->unite(Utils::toSet(deps));
     }

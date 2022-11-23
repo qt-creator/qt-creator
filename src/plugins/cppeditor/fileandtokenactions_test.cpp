@@ -130,7 +130,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     QVERIFY(waitUntilAProjectIsLoaded());
 
     // Collect files to process
-    QStringList filesToOpen;
+    FilePaths filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
     const QList<ProjectInfo::ConstPtr> projectInfos = m_modelManager->projectInfos();
 
@@ -139,15 +139,15 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
                  << info->sourceFiles().size();
        const QSet<QString> sourceFiles = info->sourceFiles();
        for (const QString &sourceFile : sourceFiles)
-            filesToOpen << sourceFile;
+            filesToOpen << FilePath::fromString(sourceFile);
     }
 
     Utils::sort(filesToOpen);
 
     // Process all files from the projects
-    for (const QString &filePath : std::as_const(filesToOpen)) {
+    for (const FilePath &filePath : std::as_const(filesToOpen)) {
         // Skip e.g. "<configuration>"
-        if (!QFileInfo::exists(filePath))
+        if (!filePath.exists())
             continue;
 
         qDebug() << " --" << filePath;
@@ -159,7 +159,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         QCOMPARE(DocumentModel::openedDocuments().size(), 0);
         BaseTextEditor *editor;
         CppEditorWidget *editorWidget;
-        QVERIFY(openCppEditor(FilePath::fromString(filePath), &editor, &editorWidget));
+        QVERIFY(openCppEditor(filePath, &editor, &editorWidget));
 
         QCOMPARE(DocumentModel::openedDocuments().size(), 1);
         QVERIFY(m_modelManager->isCppEditor(editor));
@@ -176,7 +176,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
 
         const Snapshot snapshot = globalSnapshot();
         Document::Ptr document = snapshot.preprocessedDocument(
-            editorWidget->document()->toPlainText().toUtf8(), Utils::FilePath::fromString(filePath));
+            editorWidget->document()->toPlainText().toUtf8(), filePath);
         QVERIFY(document);
         document->parse();
         TranslationUnit *translationUnit = document->translationUnit();

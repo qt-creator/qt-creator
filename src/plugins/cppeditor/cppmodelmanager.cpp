@@ -304,9 +304,10 @@ CppSourceProcessor *CppModelManager::createSourceProcessor()
     });
 }
 
-QString CppModelManager::editorConfigurationFileName()
+const FilePath &CppModelManager::editorConfigurationFileName()
 {
-    return QLatin1String("<per-editor-defines>");
+    static const FilePath config = FilePath::fromPathPart(u"<per-editor-defines>");
+    return config;
 }
 
 ModelManagerSupport *CppModelManager::modelManagerSupport(Backend backend) const
@@ -1309,7 +1310,7 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
                         FilePath::fromString(cxxFile.path));
             for (const FilePath &filePath : filePaths)
                 d->m_snapshot.remove(filePath);
-            d->m_snapshot.remove(cxxFile.path);
+            d->m_snapshot.remove(FilePath::fromString(cxxFile.path));
         }
     }
 }
@@ -1325,7 +1326,7 @@ void CppModelManager::removeFilesFromSnapshot(const QSet<QString> &filesToRemove
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
     for (const QString &file : filesToRemove)
-        d->m_snapshot.remove(file);
+        d->m_snapshot.remove(FilePath::fromString(file));
 }
 
 class ProjectInfoComparer

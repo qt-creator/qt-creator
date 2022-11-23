@@ -648,7 +648,7 @@ void FollowSymbolUnderCursor::findLink(
             return processLinkCallback(link); //already on definition!
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
         const FilePath filePath = use->macro().filePath();
-        if (filePath.path() == CppModelManager::editorConfigurationFileName()) {
+        if (filePath.path() == CppModelManager::editorConfigurationFileName().path()) {
             editorWidget->showPreProcessorWidget();
         } else if (filePath.path() != CppModelManager::configurationFileName().path()) {
             const Macro &macro = use->macro();

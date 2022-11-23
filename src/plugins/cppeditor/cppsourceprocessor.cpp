@@ -170,9 +170,9 @@ void CppSourceProcessor::run(const QString &fileName,
     sourceNeeded(0, fileName, IncludeGlobal, initialIncludes);
 }
 
-void CppSourceProcessor::removeFromCache(const QString &fileName)
+void CppSourceProcessor::removeFromCache(const FilePath &filePath)
 {
-    m_snapshot.remove(fileName);
+    m_snapshot.remove(filePath);
 }
 
 void CppSourceProcessor::resetEnvironment()
@@ -213,7 +213,7 @@ bool CppSourceProcessor::getFileContents(const FilePath &absoluteFilePath,
     return true;
 }
 
-bool CppSourceProcessor::checkFile(const QString &absoluteFilePath) const
+bool CppSourceProcessor::checkFile(const FilePath &absoluteFilePath) const
 {
     if (absoluteFilePath.isEmpty()
             || m_included.contains(absoluteFilePath)
@@ -221,8 +221,7 @@ bool CppSourceProcessor::checkFile(const QString &absoluteFilePath) const
         return true;
     }
 
-    const QFileInfo fileInfo(absoluteFilePath);
-    return fileInfo.isFile() && fileInfo.isReadable();
+    return absoluteFilePath.isReadableFile();
 }
 
 QString CppSourceProcessor::cleanPath(const QString &path)
@@ -240,14 +239,15 @@ QString CppSourceProcessor::resolveFile(const QString &fileName, IncludeType typ
     if (isInjectedFile(fileName))
         return fileName;
 
-    if (QFileInfo(fileName).isAbsolute())
-        return checkFile(fileName) ? fileName : QString();
+    const FilePath filePath = FilePath::fromString(fileName);
+    if (filePath.isAbsolutePath())
+        return checkFile(filePath) ? fileName : QString();
 
     if (m_currentDoc) {
         if (type == IncludeLocal) {
             const QFileInfo currentFileInfo = m_currentDoc->filePath().toFileInfo();
             const QString path = cleanPath(currentFileInfo.absolutePath()) + fileName;
-            if (checkFile(path))
+            if (checkFile(FilePath::fromString(path)))
                 return path;
             // Fall through! "16.2 Source file inclusion" from the standard states to continue
             // searching as if this would be a global include.
@@ -291,7 +291,8 @@ QString CppSourceProcessor::resolveFile_helper(const QString &fileName,
             } else {
                 path = headerPathsIt->path + fileName;
             }
-            if (m_workingCopy.contains(path) || checkFile(path))
+            const FilePath filePath = FilePath::fromString(path);
+            if (m_workingCopy.contains(filePath) || checkFile(filePath))
                 return path;
         }
     }
@@ -386,7 +387,7 @@ void CppSourceProcessor::mergeEnvironment(Document::Ptr doc)
 
         if (Document::Ptr includedDoc = m_snapshot.document(includedFile))
             mergeEnvironment(includedDoc);
-        else if (!m_included.contains(includedFile))
+        else if (!m_included.contains(FilePath::fromString(includedFile)))
             run(includedFile);
     }
 
@@ -421,10 +422,10 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
             return;
         }
     }
-    if (m_included.contains(absoluteFileName))
+    if (m_included.contains(absoluteFilePath))
         return; // We've already seen this file.
     if (!isInjectedFile(absoluteFileName))
-        m_included.insert(absoluteFileName);
+        m_included.insert(absoluteFilePath);
 
     // Already in snapshot? Use it!
     if (Document::Ptr document = m_snapshot.document(absoluteFileName)) {
@@ -451,7 +452,7 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
     document->setEditorRevision(editorRevision);
     document->setLanguageFeatures(m_languageFeatures);
     for (const QString &include : initialIncludes) {
-        m_included.insert(include);
+        m_included.insert(FilePath::fromString(include));
         Document::Include inc(include, include, 0, IncludeLocal);
         document->addIncludeFile(inc);
     }

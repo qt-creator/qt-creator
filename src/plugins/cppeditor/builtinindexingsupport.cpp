@@ -135,7 +135,7 @@ void indexFindErrors(QFutureInterface<void> &indexingFuture,
         qDebug("FindErrorsIndexing: \"%s\"", qPrintable(file));
 
         // Parse the file as precisely as possible
-        BuiltinEditorDocumentParser parser(file);
+        BuiltinEditorDocumentParser parser(FilePath::fromString(file));
         parser.setReleaseSourceAndAST(false);
         parser.update({CppModelManager::instance()->workingCopy(), nullptr,
                        Utils::Language::Cxx, false});
@@ -171,7 +171,7 @@ void index(QFutureInterface<void> &indexingFuture,
     classifyFiles(params.sourceFiles, &headers, &sources);
 
     for (const QString &file : std::as_const(params.sourceFiles))
-        sourceProcessor->removeFromCache(file);
+        sourceProcessor->removeFromCache(FilePath::fromString(file));
 
     const int sourceCount = sources.size();
     QStringList files = sources + headers;

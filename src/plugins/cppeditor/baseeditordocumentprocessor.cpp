@@ -69,7 +69,7 @@ void BaseEditorDocumentProcessor::runParser(QFutureInterface<void> &future,
     }
 
     parser->update(future, updateParams);
-    CppModelManager::instance()->finishedRefreshingSourceFiles({parser->filePath()});
+    CppModelManager::instance()->finishedRefreshingSourceFiles({parser->filePath().toString()});
 
     future.setProgressValue(1);
 }

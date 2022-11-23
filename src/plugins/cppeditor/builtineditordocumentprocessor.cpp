@@ -137,8 +137,7 @@ QList<TextEditor::BlockRange> toTextEditorBlocks(
 
 BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(TextEditor::TextDocument *document)
     : BaseEditorDocumentProcessor(document->document(), document->filePath())
-    , m_parser(new BuiltinEditorDocumentParser(document->filePath().toString(),
-                                               indexerFileSizeLimitInMb()))
+    , m_parser(new BuiltinEditorDocumentParser(document->filePath(), indexerFileSizeLimitInMb()))
     , m_codeWarningsUpdated(false)
     , m_semanticHighlighter(new SemanticHighlighter(document))
 {

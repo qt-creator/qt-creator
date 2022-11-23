@@ -18,14 +18,8 @@ class CPPEDITOR_EXPORT WorkingCopy
 public:
     WorkingCopy();
 
-    void insert(const QString &fileName, const QByteArray &source, unsigned revision = 0)
-    { insert(Utils::FilePath::fromString(fileName), source, revision); }
-
     void insert(const Utils::FilePath &fileName, const QByteArray &source, unsigned revision = 0)
     { _elements.insert(fileName, {source, revision}); }
-
-    bool contains(const QString &fileName) const
-    { return contains(Utils::FilePath::fromString(fileName)); }
 
     bool contains(const Utils::FilePath &fileName) const
     { return _elements.contains(fileName); }

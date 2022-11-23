@@ -17,7 +17,7 @@ class CPPEDITOR_EXPORT BuiltinEditorDocumentParser : public BaseEditorDocumentPa
     Q_OBJECT
 
 public:
-    BuiltinEditorDocumentParser(const QString &filePath, int fileSizeLimitInMb = -1);
+    BuiltinEditorDocumentParser(const Utils::FilePath &filePath, int fileSizeLimitInMb = -1);
 
     bool releaseSourceAndAST() const;
     void setReleaseSourceAndAST(bool release);

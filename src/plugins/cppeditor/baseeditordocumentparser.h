@@ -58,10 +58,10 @@ public:
     };
 
 public:
-    BaseEditorDocumentParser(const QString &filePath);
+    BaseEditorDocumentParser(const Utils::FilePath &filePath);
     ~BaseEditorDocumentParser() override;
 
-    QString filePath() const;
+    const Utils::FilePath &filePath() const;
     Configuration configuration() const;
     void setConfiguration(const Configuration &configuration);
 
@@ -94,10 +94,10 @@ private:
     virtual void updateImpl(const QFutureInterface<void> &future,
                             const UpdateParams &updateParams) = 0;
 
-    const QString m_filePath;
+    const Utils::FilePath m_filePath;
     Configuration m_configuration;
     State m_state;
     mutable QMutex m_updateIsRunning;
 };
 
-} // namespace CppEditor
+} // CppEditor

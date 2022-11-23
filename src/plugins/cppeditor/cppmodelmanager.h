@@ -211,7 +211,7 @@ public:
 
     static Internal::CppSourceProcessor *createSourceProcessor();
     static const Utils::FilePath &configurationFileName();
-    static QString editorConfigurationFileName();
+    static const Utils::FilePath &editorConfigurationFileName();
 
     void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
     void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);

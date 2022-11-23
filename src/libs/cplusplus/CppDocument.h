@@ -381,8 +381,6 @@ public:
 
     void insert(Document::Ptr doc); // ### remove
     void remove(const Utils::FilePath &fileName); // ### remove
-    void remove(const QString &fileName)
-    { remove(Utils::FilePath::fromString(fileName)); }
 
     const_iterator begin() const { return _documents.begin(); }
     const_iterator end() const { return _documents.end(); }

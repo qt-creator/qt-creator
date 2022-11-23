@@ -46,7 +46,7 @@ public:
     void setTodo(const QSet<QString> &files);
 
     void run(const QString &fileName, const QStringList &initialIncludes = QStringList());
-    void removeFromCache(const QString &fileName);
+    void removeFromCache(const Utils::FilePath &filePath);
     void resetEnvironment();
 
     CPlusPlus::Snapshot snapshot() const { return m_snapshot; }
@@ -61,7 +61,7 @@ private:
 
     bool getFileContents(const Utils::FilePath &absoluteFilePath, QByteArray *contents,
                          unsigned *revision) const;
-    bool checkFile(const QString &absoluteFilePath) const;
+    bool checkFile(const Utils::FilePath &absoluteFilePath) const;
     QString resolveFile(const QString &fileName, IncludeType type);
     QString resolveFile_helper(const QString &fileName,
                                ProjectExplorer::HeaderPaths::Iterator headerPathsIt);
@@ -95,7 +95,7 @@ private:
     ProjectExplorer::HeaderPaths m_headerPaths;
     CPlusPlus::LanguageFeatures m_languageFeatures;
     WorkingCopy m_workingCopy;
-    QSet<QString> m_included;
+    QSet<Utils::FilePath> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
     QSet<QString> m_processed;
@@ -104,4 +104,4 @@ private:
     QTextCodec *m_defaultCodec;
 };
 
-} // namespace CppEditor::Internal
+} // CppEditor::Internal

@@ -1059,7 +1059,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     const QString renamedHeaderWithUnderscoredGuard(workingDir.filePath(_("foobar4000.h")));
     const QString headerWithMalformedGuard(workingDir.filePath(_("baz3.h")));
     const QString renamedHeaderWithMalformedGuard(workingDir.filePath(_("foobar5000.h")));
-    const QString mainFile(workingDir.filePath(_("main.cpp")));
+    const FilePath mainFile = FilePath::fromString(workingDir.filePath("main.cpp"));
     CppModelManager *modelManager = CppModelManager::instance();
     const MyTestDataDir testDir(_("testdata_project1"));
 
@@ -1088,7 +1088,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
-    Core::IEditor *editor = Core::EditorManager::openEditor(Utils::FilePath::fromString(mainFile));
+    Core::IEditor *editor = Core::EditorManager::openEditor(mainFile);
     QVERIFY(editor);
     EditorCloser editorCloser(editor);
     Utils::ExecuteOnDestruction saveAllFiles([](){
@@ -1157,7 +1157,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     QCOMPARE(renamedHeaderContents, originalMalformedGuardContents);
 
     // Update the c++ model manager again and check for the new includes
-    TestCase::waitForProcessedEditorDocument(mainFile);
+    TestCase::waitForProcessedEditorDocument(mainFile.toString());
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
