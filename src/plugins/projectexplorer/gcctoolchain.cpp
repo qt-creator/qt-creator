@@ -1564,10 +1564,10 @@ bool ClangToolChain::matchesCompilerCommand(const FilePath &command) const
         m_resolvedCompilerCommand = FilePath();
         if (HostOsInfo::isMacHost()
             && compilerCommand().parentDir() == FilePath::fromString("/usr/bin")) {
-            std::unique_ptr<QtcProcess> xcrun(new QtcProcess);
-            xcrun->setCommand({"/usr/bin/xcrun", {"-f", compilerCommand().fileName()}});
-            xcrun->runBlocking();
-            const FilePath output = FilePath::fromString(xcrun->cleanedStdOut().trimmed());
+            QtcProcess xcrun;
+            xcrun.setCommand({"/usr/bin/xcrun", {"-f", compilerCommand().fileName()}});
+            xcrun.runBlocking();
+            const FilePath output = FilePath::fromString(xcrun.cleanedStdOut().trimmed());
             if (output.isExecutableFile() && output != compilerCommand())
                 m_resolvedCompilerCommand = output;
         }
