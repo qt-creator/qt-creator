@@ -9,13 +9,7 @@
 
 #include <QList>
 
-QT_BEGIN_NAMESPACE
-class QDateTime;
-class QString;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer { class DeployableFile; }
-namespace Utils { class QtcProcess; }
 
 namespace RemoteLinux {
 namespace Internal { class GenericDirectUploadServicePrivate; }
@@ -35,23 +29,11 @@ public:
 
 protected:
     bool isDeploymentNecessary() const override;
-
     void doDeploy() override;
     void stopDeployment() override;
 
 private:
-    void runStat(const ProjectExplorer::DeployableFile &file);
-    QDateTime timestampFromStat(const ProjectExplorer::DeployableFile &file,
-                                Utils::QtcProcess *statProc);
-    void checkForStateChangeOnRemoteProcFinished();
-
-    QList<ProjectExplorer::DeployableFile> collectFilesToUpload(
-            const ProjectExplorer::DeployableFile &file) const;
-    void setFinished();
-    void queryFiles();
-    void uploadFiles();
-    void chmod();
-
+    friend class Internal::GenericDirectUploadServicePrivate;
     Internal::GenericDirectUploadServicePrivate * const d;
 };
 
