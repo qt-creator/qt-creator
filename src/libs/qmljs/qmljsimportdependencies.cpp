@@ -525,7 +525,7 @@ Export::Export(ImportKey exportName,
 
 bool Export::visibleInVContext(const ViewerContext &vContext) const
 {
-    return pathRequired.isEmpty() || vContext.paths.contains(pathRequired);
+    return pathRequired.isEmpty() || vContext.paths.count(pathRequired);
 }
 
 CoreImport::CoreImport() : language(Dialect::Qml) { }
