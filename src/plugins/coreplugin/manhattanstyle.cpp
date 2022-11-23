@@ -874,21 +874,24 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     editRect.adjust(0, 0, -13, 0);
                 }
 
+                Qt::TextElideMode elideMode = Qt::ElideRight;
+                if (widget && widget->dynamicPropertyNames().contains("elidemode"))
+                    elideMode = widget->property("elidemode").value<Qt::TextElideMode>();
+
                 QLatin1Char asterisk('*');
                 int elideWidth = editRect.width();
 
-                bool notElideAsterisk = widget && widget->property("notelideasterisk").toBool()
+                bool notElideAsterisk = elideMode == Qt::ElideRight && widget
+                                        && widget->property("notelideasterisk").toBool()
                                         && cb->currentText.endsWith(asterisk)
-                                        && option->fontMetrics.horizontalAdvance(cb->currentText) > elideWidth;
+                                        && option->fontMetrics.horizontalAdvance(cb->currentText)
+                                               > elideWidth;
 
                 QString text;
                 if (notElideAsterisk) {
                     elideWidth -= option->fontMetrics.horizontalAdvance(asterisk);
                     text = asterisk;
                 }
-                Qt::TextElideMode elideMode = Qt::ElideRight;
-                if (widget && widget->dynamicPropertyNames().contains("elidemode"))
-                    elideMode = widget->property("elidemode").value<Qt::TextElideMode>();
                 text.prepend(option->fontMetrics.elidedText(cb->currentText, elideMode, elideWidth));
 
                 if (creatorTheme()->flag(Theme::ComboBoxDrawTextShadow)
