@@ -1143,9 +1143,8 @@ QList<ExtraCompiler *> CMakeBuildSystem::findExtraCompilers()
     const FilePaths fileList = p->files([&fileExtensions](const Node *n) {
         if (!Project::SourceFiles(n) || !n->isEnabled()) // isEnabled excludes nodes from the file system tree
             return false;
-        const QString fp = n->filePath().toString();
-        const int pos = fp.lastIndexOf('.');
-        return pos >= 0 && fileExtensions.contains(fp.mid(pos + 1));
+        const QString suffix = n->filePath().suffix();
+        return !suffix.isEmpty() && fileExtensions.contains(suffix);
     });
 
     qCDebug(cmakeBuildSystemLog) << "Finding Extra Compilers: Got list of files to check.";
