@@ -110,8 +110,8 @@ void SourceProcessorTest::testIncludesCyclic()
     testCase.closeEditorAtEndOfTestCase(editor);
 
     // Check editor snapshot
-    const QString filePath = editor->document()->filePath().toString();
-    auto *processor = CppModelManager::cppEditorDocumentProcessor(filePath);
+    const FilePath filePath = editor->document()->filePath();
+    auto processor = CppModelManager::cppEditorDocumentProcessor(filePath);
     QVERIFY(processor);
     QVERIFY(TestCase::waitForProcessedEditorDocument(filePath));
     Snapshot snapshot = processor->snapshot();

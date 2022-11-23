@@ -40,7 +40,7 @@ using namespace Utils;
 namespace ClangCodeModel {
 namespace Internal {
 
-ProjectPart::ConstPtr projectPartForFile(const QString &filePath)
+ProjectPart::ConstPtr projectPartForFile(const FilePath &filePath)
 {
     if (const auto parser = CppEditor::BaseEditorDocumentParser::get(filePath))
         return parser->projectPartInfo().projectPart;
@@ -197,15 +197,14 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
     return GenerateCompilationDbResult(compileCommandsFile.fileName(), QString());
 }
 
-QString currentCppEditorDocumentFilePath()
+FilePath currentCppEditorDocumentFilePath()
 {
-    QString filePath;
+    FilePath filePath;
 
     const auto currentEditor = Core::EditorManager::currentEditor();
     if (currentEditor && CppEditor::CppModelManager::isCppEditor(currentEditor)) {
-        const auto currentDocument = currentEditor->document();
-        if (currentDocument)
-            filePath = currentDocument->filePath().toString();
+        if (const auto currentDocument = currentEditor->document())
+            filePath = currentDocument->filePath();
     }
 
     return filePath;

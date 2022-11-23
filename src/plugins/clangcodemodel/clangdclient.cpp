@@ -773,7 +773,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     const auto projectPart = !config.preferredProjectPartId.isEmpty()
             ? CppEditor::CppModelManager::instance()->projectPartForId(
                   config.preferredProjectPartId)
-            : projectPartForFile(filePath.toString());
+            : projectPartForFile(filePath);
     if (!projectPart)
         return;
 

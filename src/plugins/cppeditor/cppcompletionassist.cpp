@@ -411,7 +411,7 @@ std::unique_ptr<AssistInterface> InternalCompletionAssistProvider::createAssistI
     return std::make_unique<CppCompletionAssistInterface>(
                 filePath,
                 textEditorWidget,
-                BuiltinEditorDocumentParser::get(filePath.toString()),
+                BuiltinEditorDocumentParser::get(filePath),
                 languageFeatures,
                 reason,
                 CppModelManager::instance()->workingCopy());

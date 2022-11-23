@@ -87,7 +87,7 @@ ProjectPartInfo BaseEditorDocumentParser::projectPartInfo() const
     return state().projectPartInfo;
 }
 
-BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const QString &filePath)
+BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const FilePath &filePath)
 {
     CppModelManager *cmmi = CppModelManager::instance();
     if (CppEditorDocumentHandle *cppEditorDocument = cmmi->cppEditorDocument(filePath)) {

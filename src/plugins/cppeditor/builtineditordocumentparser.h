@@ -33,7 +33,7 @@ signals:
 
 public:
     using Ptr = QSharedPointer<BuiltinEditorDocumentParser>;
-    static Ptr get(const QString &filePath);
+    static Ptr get(const Utils::FilePath &filePath);
 
 private:
     void updateImpl(const QFutureInterface<void> &future,

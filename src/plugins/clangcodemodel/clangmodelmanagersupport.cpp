@@ -162,7 +162,7 @@ static void updateParserConfig(ClangdClient *client)
         if (!client->documentOpen(editor->textDocument()))
             return;
         const Utils::FilePath filePath = editor->textDocument()->filePath();
-        if (const auto processor = ClangEditorDocumentProcessor::get(filePath.toString()))
+        if (const auto processor = ClangEditorDocumentProcessor::get(filePath))
             client->updateParserConfig(filePath, processor->parserConfig());
     }
 }
@@ -395,7 +395,7 @@ void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
         return;
 
     const ::Utils::FilePath filePath = editor->document()->filePath();
-    if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString())) {
+    if (auto processor = ClangEditorDocumentProcessor::get(filePath)) {
         processor->semanticRehighlight();
         if (const auto client = clientForFile(filePath)) {
             client->updateParserConfig(filePath, processor->parserConfig());
@@ -806,7 +806,7 @@ void ClangModelManagerSupport::onTextMarkContextMenuRequested(TextEditor::TextEd
     QTC_ASSERT(lineNumber >= 1, return);
     QTC_ASSERT(menu, return);
 
-    const auto filePath = widget->textDocument()->filePath().toString();
+    const Utils::FilePath filePath = widget->textDocument()->filePath();
     ClangEditorDocumentProcessor *processor = ClangEditorDocumentProcessor::get(filePath);
     if (processor) {
         const auto assistInterface = createAssistInterface(widget, lineNumber);

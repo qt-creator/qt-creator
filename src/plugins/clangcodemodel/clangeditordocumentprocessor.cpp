@@ -92,7 +92,7 @@ CppEditor::BaseEditorDocumentParser::Configuration ClangEditorDocumentProcessor:
     return parser()->configuration();
 }
 
-ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const QString &filePath)
+ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const Utils::FilePath &filePath)
 {
     return qobject_cast<ClangEditorDocumentProcessor*>(
                 CppEditor::CppModelManager::cppEditorDocumentProcessor(filePath));

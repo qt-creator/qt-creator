@@ -43,7 +43,7 @@ namespace {
 
 Project *projectForCurrentEditor()
 {
-    const QString filePath = currentCppEditorDocumentFilePath();
+    const FilePath filePath = currentCppEditorDocumentFilePath();
     if (filePath.isEmpty())
         return nullptr;
 

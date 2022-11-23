@@ -197,7 +197,7 @@ void CppIncludeHierarchyItem::fetchMore()
 
     model()->m_seen.insert(m_filePath);
 
-    const QString editorFilePath = model()->editorFilePath();
+    const FilePath editorFilePath = FilePath::fromString(model()->editorFilePath());
 
     setChildrenChecked();
     if (m_subTree == InIncludes) {

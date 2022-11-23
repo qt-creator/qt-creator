@@ -5,7 +5,6 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "builtineditordocumentparser.h"
-#include "cppsourceprocessor.h"
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 #include "modelmanagertesthelper.h"
@@ -161,14 +160,14 @@ private:
     const Utils::FilePath m_filePath;
 };
 
-ProjectPart::ConstPtr projectPartOfEditorDocument(const QString &filePath)
+} // anonymous namespace
+
+static ProjectPart::ConstPtr projectPartOfEditorDocument(const FilePath &filePath)
 {
     auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
     QTC_ASSERT(editorDocument, return ProjectPart::ConstPtr());
     return editorDocument->processor()->parser()->projectPartInfo().projectPart;
 }
-
-} // anonymous namespace
 
 /// Check: The preprocessor cleans include and framework paths.
 void ModelManagerTest::testPathsAreClean()
@@ -792,8 +791,8 @@ void ModelManagerTest::testPrecompiledHeaders()
     ModelManagerTestHelper helper;
 
     MyTestDataDir testDataDirectory(_("testdata_defines"));
-    const QString main1File = testDataDirectory.file(_("main1.cpp"));
-    const QString main2File = testDataDirectory.file(_("main2.cpp"));
+    const FilePath main1File = testDataDirectory.filePath("main1.cpp");
+    const FilePath main2File = testDataDirectory.filePath("main2.cpp");
     const QString header = testDataDirectory.file(_("header.h"));
     const QString pch1File = testDataDirectory.file(_("pch1.h"));
     const QString pch2File = testDataDirectory.file(_("pch2.h"));
@@ -809,7 +808,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     rpp1.setPreCompiledHeaders({pch1File});
     rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
-            {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
+            {{main1File.toString(), ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("project2.projectfile");
@@ -817,7 +816,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     rpp2.setPreCompiledHeaders({pch2File});
     rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
-            {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
+            {{main2File.toString(), ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
 
     const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part1, part2});
 
@@ -830,7 +829,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     struct Data {
         QString firstDeclarationName;
         QString firstClassInPchFile;
-        QString fileName;
+        FilePath filePath;
     } d[] = {
         {_("one"), _("ClassInPch1"), main1File},
         {_("two"), _("ClassInPch2"), main2File}
@@ -838,16 +837,15 @@ void ModelManagerTest::testPrecompiledHeaders()
     for (auto &i : d) {
         const QString firstDeclarationName = i.firstDeclarationName;
         const QByteArray firstClassInPchFile = i.firstClassInPchFile.toUtf8();
-        const QString fileName = i.fileName;
+        const FilePath filePath = i.filePath;
 
-        Core::IEditor *editor = Core::EditorManager::openEditor(
-            Utils::FilePath::fromString(fileName));
+        Core::IEditor *editor = Core::EditorManager::openEditor(filePath);
         EditorCloser closer(editor);
         QVERIFY(editor);
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        auto parser = BuiltinEditorDocumentParser::get(fileName);
+        auto parser = BuiltinEditorDocumentParser::get(filePath);
         QVERIFY(parser);
         BaseEditorDocumentParser::Configuration config = parser->configuration();
         config.usePrecompiledHeaders = true;
@@ -856,7 +854,7 @@ void ModelManagerTest::testPrecompiledHeaders()
                         Utils::Language::Cxx, false});
 
         // Check if defines from pch are considered
-        Document::Ptr document = mm->document(Utils::FilePath::fromString(fileName));
+        Document::Ptr document = mm->document(filePath);
         QCOMPARE(nameOfFirstDeclaration(document), firstDeclarationName);
 
         // Check if declarations from pch are considered
@@ -922,7 +920,7 @@ void ModelManagerTest::testDefinesPerEditor()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(mm->isCppEditor(editor));
 
-        const QString filePath = editor->document()->filePath().toString();
+        const FilePath filePath = editor->document()->filePath();
         const auto parser = BaseEditorDocumentParser::get(filePath);
         BaseEditorDocumentParser::Configuration config = parser->configuration();
         config.editorDefines = editorDefines.toUtf8();
@@ -940,11 +938,11 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
     ModelManagerTestHelper helper;
 
     MyTestDataDir testDataDirectory(_("testdata_defines"));
-    const QString fileA = testDataDirectory.file(_("main1.cpp")); // content not relevant
-    const QString fileB = testDataDirectory.file(_("main2.cpp")); // content not relevant
+    const FilePath fileA = testDataDirectory.filePath("main1.cpp"); // content not relevant
+    const FilePath fileB = testDataDirectory.filePath("main2.cpp"); // content not relevant
 
     // Open file A in editor
-    Core::IEditor *editorA = Core::EditorManager::openEditor(Utils::FilePath::fromString(fileA));
+    Core::IEditor *editorA = Core::EditorManager::openEditor(fileA);
     QVERIFY(editorA);
     EditorCloser closerA(editorA);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
@@ -953,7 +951,7 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
     QVERIFY(!documentAProjectPart->hasProject());
 
     // Open file B in editor
-    Core::IEditor *editorB = Core::EditorManager::openEditor(Utils::FilePath::fromString(fileB));
+    Core::IEditor *editorB = Core::EditorManager::openEditor(fileB);
     QVERIFY(editorB);
     EditorCloser closerB(editorB);
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 2);
@@ -971,7 +969,7 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
     RawProjectPart rpp;
     rpp.setQtVersion(Utils::QtMajorVersion::None);
     const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
-            {{fileA, ProjectFile::CXXSource}, {fileB, ProjectFile::CXXSource}});
+        {{fileA.toString(), ProjectFile::CXXSource}, {fileB.toString(), ProjectFile::CXXSource}});
     const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
     helper.updateProjectInfo(pi);
 
@@ -1157,7 +1155,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     QCOMPARE(renamedHeaderContents, originalMalformedGuardContents);
 
     // Update the c++ model manager again and check for the new includes
-    TestCase::waitForProcessedEditorDocument(mainFile.toString());
+    TestCase::waitForProcessedEditorDocument(mainFile);
     modelManager->updateSourceFiles(sourceFiles).waitForFinished();
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
@@ -1186,7 +1184,7 @@ void ModelManagerTest::testDocumentsAndRevisions()
     TextEditor::BaseTextEditor *editor1;
     QVERIFY(helper.openCppEditor(filePath1, &editor1));
     helper.closeEditorAtEndOfTestCase(editor1);
-    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath1.toString()));
+    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath1));
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 2U);
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 1U);
 
@@ -1199,7 +1197,7 @@ void ModelManagerTest::testDocumentsAndRevisions()
     TextEditor::BaseTextEditor *editor2;
     QVERIFY(helper.openCppEditor(filePath2, &editor2));
     helper.closeEditorAtEndOfTestCase(editor2);
-    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath2.toString()));
+    QVERIFY(TestCase::waitForProcessedEditorDocument(filePath2));
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath1), 3U);
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 3U);
 
@@ -1209,4 +1207,4 @@ void ModelManagerTest::testDocumentsAndRevisions()
     VERIFY_DOCUMENT_REVISION(modelManager->document(filePath2), 4U);
 }
 
-} // namespace CppEditor::Internal
+} // CppEditor::Internal

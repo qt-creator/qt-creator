@@ -24,7 +24,7 @@ class CPPEDITOR_EXPORT BaseEditorDocumentParser : public QObject
 
 public:
     using Ptr = QSharedPointer<BaseEditorDocumentParser>;
-    static Ptr get(const QString &filePath);
+    static Ptr get(const Utils::FilePath &filePath);
 
     struct Configuration {
         bool usePrecompiledHeaders = false;

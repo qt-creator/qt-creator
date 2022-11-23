@@ -69,14 +69,14 @@ class CppCurrentDocumentFilterTestCase
     , public CppEditor::Tests::TestCase
 {
 public:
-    CppCurrentDocumentFilterTestCase(const QString &fileName,
+    CppCurrentDocumentFilterTestCase(const FilePath &filePath,
                                      const ResultDataList &expectedResults,
                                      const QString &searchText = QString())
         : BasicLocatorFilterTest(CppModelManager::instance()->currentDocumentFilter())
-        , m_fileName(fileName)
+        , m_filePath(filePath)
     {
         QVERIFY(succeededSoFar());
-        QVERIFY(!m_fileName.isEmpty());
+        QVERIFY(!m_filePath.isEmpty());
 
         ResultDataList results = ResultData::fromFilterEntryList(matchesFor(searchText));
         if (debug) {
@@ -93,10 +93,10 @@ private:
         QVERIFY(DocumentModel::openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
 
-        m_editor = EditorManager::openEditor(FilePath::fromString(m_fileName));
+        m_editor = EditorManager::openEditor(m_filePath);
         QVERIFY(m_editor);
 
-        QVERIFY(waitForFileInGlobalSnapshot(m_fileName));
+        QVERIFY(waitForFileInGlobalSnapshot(m_filePath));
     }
 
     void doAfterLocatorRun() override
@@ -109,7 +109,7 @@ private:
 
 private:
     IEditor *m_editor = nullptr;
-    const QString m_fileName;
+    const FilePath m_filePath;
 };
 
 } // anonymous namespace
@@ -301,7 +301,7 @@ void LocatorFilterTest::testLocatorFilter_data()
 void LocatorFilterTest::testCurrentDocumentFilter()
 {
     MyTestDataDir testDirectory("testdata_basic");
-    const QString testFile = testDirectory.file("file1.cpp");
+    const FilePath testFile = testDirectory.filePath("file1.cpp");
 
     auto expectedResults = ResultDataList{
         ResultData("int myVariable", ""),
@@ -355,7 +355,7 @@ void LocatorFilterTest::testCurrentDocumentFilter()
 void LocatorFilterTest::testCurrentDocumentHighlighting()
 {
     MyTestDataDir testDirectory("testdata_basic");
-    const QString testFile = testDirectory.file("file1.cpp");
+    const FilePath testFile = testDirectory.filePath("file1.cpp");
 
     const QString searchText = "pos";
     const ResultDataList expectedResults{

@@ -1515,7 +1515,7 @@ void CppCodeModelInspectorDialog::refresh()
     TextEditor::BaseTextEditor *editor = currentEditor();
     CppEditorDocumentHandle *cppEditorDocument = nullptr;
     if (editor) {
-        const QString editorFilePath = editor->document()->filePath().toString();
+        const FilePath editorFilePath = editor->document()->filePath();
         cppEditorDocument = cmmi->cppEditorDocument(editorFilePath);
         if (auto documentProcessor = CppModelManager::cppEditorDocumentProcessor(editorFilePath)) {
             const Snapshot editorSnapshot = documentProcessor->snapshot();

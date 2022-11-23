@@ -268,7 +268,7 @@ static bool waitForProcessedEditorDocument_internal(CppEditorDocumentHandle *edi
     }
 }
 
-bool TestCase::waitForProcessedEditorDocument(const QString &filePath, int timeOutInMs)
+bool TestCase::waitForProcessedEditorDocument(const FilePath &filePath, int timeOutInMs)
 {
     auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
     return waitForProcessedEditorDocument_internal(editorDocument, timeOutInMs);
@@ -314,21 +314,21 @@ bool TestCase::closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *edito
     return closeEditorsWithoutGarbageCollectorInvocation({editor});
 }
 
-CPlusPlus::Document::Ptr TestCase::waitForFileInGlobalSnapshot(const QString &filePath,
+CPlusPlus::Document::Ptr TestCase::waitForFileInGlobalSnapshot(const FilePath &filePath,
                                                                int timeOutInMs)
 {
-    const auto documents = waitForFilesInGlobalSnapshot(QStringList(filePath), timeOutInMs);
+    const auto documents = waitForFilesInGlobalSnapshot({filePath}, timeOutInMs);
     return documents.isEmpty() ? CPlusPlus::Document::Ptr() : documents.first();
 }
 
-QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(const QStringList &filePaths,
+QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(const FilePaths &filePaths,
                                                                        int timeOutInMs)
 {
     QElapsedTimer t;
     t.start();
 
     QList<CPlusPlus::Document::Ptr> result;
-    for (const QString &filePath : filePaths) {
+    for (const FilePath &filePath : filePaths) {
         forever {
             if (CPlusPlus::Document::Ptr document = globalSnapshot().document(filePath)) {
                 result.append(document);

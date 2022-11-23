@@ -29,7 +29,7 @@ public:
     CppEditor::BaseEditorDocumentParser::Configuration parserConfig();
 
 public:
-    static ClangEditorDocumentProcessor *get(const QString &filePath);
+    static ClangEditorDocumentProcessor *get(const Utils::FilePath &filePath);
 
 signals:
     void parserConfigChanged(const Utils::FilePath &filePath,

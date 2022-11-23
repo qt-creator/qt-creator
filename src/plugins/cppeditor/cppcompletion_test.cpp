@@ -68,7 +68,7 @@ public:
         m_textDocument = m_editorWidget->document();
 
         // Get Document
-        const Document::Ptr document = waitForFileInGlobalSnapshot(filePath.toString());
+        const Document::Ptr document = waitForFileInGlobalSnapshot(filePath);
         QVERIFY(document);
         QVERIFY(document->diagnosticMessages().isEmpty());
 

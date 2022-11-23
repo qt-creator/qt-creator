@@ -27,6 +27,7 @@ using namespace CppEditor;
 using namespace CPlusPlus;
 using namespace Designer;
 using namespace Designer::Internal;
+using namespace Utils;
 
 namespace {
 
@@ -125,22 +126,22 @@ bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
 class GoToSlotTestCase : public CppEditor::Tests::TestCase
 {
 public:
-    GoToSlotTestCase(const QStringList &files)
+    GoToSlotTestCase(const FilePaths &files)
     {
         QVERIFY(succeededSoFar());
         QCOMPARE(files.size(), 3);
 
         QList<TextEditor::BaseTextEditor *> editors;
-        for (const QString &file : files) {
-            IEditor *editor = EditorManager::openEditor(Utils::FilePath::fromString(file));
+        for (const FilePath &file : files) {
+            IEditor *editor = EditorManager::openEditor(file);
             TextEditor::BaseTextEditor *e = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             QVERIFY(e);
             closeEditorAtEndOfTestCase(editor);
             editors << e;
         }
 
-        const QString cppFile = files.at(0);
-        const QString hFile = files.at(1);
+        const FilePath cppFile = files.at(0);
+        const FilePath hFile = files.at(1);
 
         QCOMPARE(DocumentModel::openedDocuments().size(), files.size());
         waitForFilesInGlobalSnapshot({cppFile, hFile});
@@ -150,14 +151,14 @@ public:
         QVERIFY(integration);
         integration->emitNavigateToSlot("pushButton", "clicked()", QStringList());
 
-        QCOMPARE(EditorManager::currentDocument()->filePath().toString(), cppFile);
+        QCOMPARE(EditorManager::currentDocument()->filePath(), cppFile);
         QVERIFY(EditorManager::currentDocument()->isModified());
 
         // Wait for updated documents
         for (TextEditor::BaseTextEditor *editor : std::as_const(editors)) {
             QElapsedTimer t;
             t.start();
-            const QString filePath = editor->document()->filePath().toString();
+            const FilePath filePath = editor->document()->filePath();
             if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
                 while (t.elapsed() < 2000) {
                     if (Document::Ptr document = parser->document()) {
@@ -215,7 +216,7 @@ namespace Internal {
 void FormEditorPlugin::test_gotoslot()
 {
     QFETCH(QStringList, files);
-    (GoToSlotTestCase(files));
+    (GoToSlotTestCase(Utils::transform(files, FilePath::fromString)));
 }
 
 void FormEditorPlugin::test_gotoslot_data()

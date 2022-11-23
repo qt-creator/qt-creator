@@ -239,7 +239,7 @@ ProjectExplorer::HeaderPaths BuiltinEditorDocumentParser::headerPaths() const
     return extraState().headerPaths;
 }
 
-BuiltinEditorDocumentParser::Ptr BuiltinEditorDocumentParser::get(const QString &filePath)
+BuiltinEditorDocumentParser::Ptr BuiltinEditorDocumentParser::get(const FilePath &filePath)
 {
     if (BaseEditorDocumentParser::Ptr b = BaseEditorDocumentParser::get(filePath))
         return b.objectCast<BuiltinEditorDocumentParser>();

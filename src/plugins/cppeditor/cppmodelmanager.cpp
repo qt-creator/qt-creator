@@ -1111,16 +1111,16 @@ void CppModelManager::removeExtraEditorSupport(AbstractEditorSupport *editorSupp
     d->m_extraEditorSupports.remove(editorSupport);
 }
 
-CppEditorDocumentHandle *CppModelManager::cppEditorDocument(const QString &filePath) const
+CppEditorDocumentHandle *CppModelManager::cppEditorDocument(const FilePath &filePath) const
 {
     if (filePath.isEmpty())
         return nullptr;
 
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
-    return d->m_cppEditorDocuments.value(filePath, 0);
+    return d->m_cppEditorDocuments.value(filePath.toString(), 0);
 }
 
-BaseEditorDocumentProcessor *CppModelManager::cppEditorDocumentProcessor(const QString &filePath)
+BaseEditorDocumentProcessor *CppModelManager::cppEditorDocumentProcessor(const FilePath &filePath)
 {
     const auto document = instance()->cppEditorDocument(filePath);
     return document ? document->processor() : nullptr;
@@ -1442,7 +1442,7 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
     const QList<Core::IEditor *> editors = Core::EditorManager::visibleEditors();
     for (Core::IEditor *editor: editors) {
         if (Core::IDocument *document = editor->document()) {
-            const QString filePath = document->filePath().toString();
+            const FilePath filePath = document->filePath();
             if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
                 visibleCppEditorDocuments.insert(document);
                 theCppEditorDocument->processor()->run(projectsUpdated);
@@ -1455,7 +1455,7 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
         = Utils::toSet(Core::DocumentModel::openedDocuments());
     invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
     for (Core::IDocument *document : std::as_const(invisibleCppEditorDocuments)) {
-        const QString filePath = document->filePath().toString();
+        const FilePath filePath = document->filePath();
         if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
             const CppEditorDocumentHandle::RefreshReason refreshReason = projectsUpdated
                     ? CppEditorDocumentHandle::ProjectUpdate
@@ -1708,7 +1708,7 @@ void CppModelManager::onCurrentEditorChanged(Core::IEditor *editor)
     if (!editor || !editor->document())
         return;
 
-    const QString filePath = editor->document()->filePath().toString();
+    const FilePath filePath = editor->document()->filePath();
     if (CppEditorDocumentHandle *theCppEditorDocument = cppEditorDocument(filePath)) {
         const CppEditorDocumentHandle::RefreshReason refreshReason
                 = theCppEditorDocument->refreshReason();

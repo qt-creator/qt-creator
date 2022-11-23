@@ -7629,8 +7629,7 @@ void ConvertQt4Connect::match(const CppQuickFixInterface &interface, QuickFixOpe
 void ExtraRefactoringOperations::match(const CppQuickFixInterface &interface,
                                        QuickFixOperations &result)
 {
-    const auto processor = CppModelManager::cppEditorDocumentProcessor(
-                interface.filePath().toString());
+    const auto processor = CppModelManager::cppEditorDocumentProcessor(interface.filePath());
     if (processor) {
         const auto clangFixItOperations = processor->extraRefactoringOperations(interface);
         result.append(clangFixItOperations);

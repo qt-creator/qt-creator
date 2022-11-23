@@ -47,9 +47,9 @@ QJsonArray clangOptionsForFile(const CppEditor::ProjectFile &file,
                                const QJsonArray &generalOptions,
                                CppEditor::UsePrecompiledHeaders usePch, bool clStyle);
 
-CppEditor::ProjectPart::ConstPtr projectPartForFile(const QString &filePath);
+CppEditor::ProjectPart::ConstPtr projectPartForFile(const Utils::FilePath &filePath);
 
-QString currentCppEditorDocumentFilePath();
+Utils::FilePath currentCppEditorDocumentFilePath();
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 
