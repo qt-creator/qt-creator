@@ -45,8 +45,6 @@ public:
     inline void hide() { setVisible(false); }
     inline void show() { setVisible(true); }
 
-    void setBorderWidth(int bw) {m_borderWidth = bw; }
-
     void update();
 
     void setAlpha(bool enabled) { m_alpha = enabled; }
@@ -83,7 +81,6 @@ private:
 
     bool m_visible;
     bool m_alpha;
-    int m_borderWidth;
     int m_dropShadowWidth;
     int m_firstSelectionOriginalBegin;
     TextEditorWidget *m_editor;
