@@ -42,6 +42,8 @@ class TextureEditorContextObject : public QObject
 
     Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
+    Q_PROPERTY(QString activeDragSuffix READ activeDragSuffix NOTIFY activeDragSuffixChanged)
+
 public:
     TextureEditorContextObject(QQmlContext *context, QObject *parent = nullptr);
 
@@ -95,6 +97,9 @@ public:
     bool hasSingleModelSelection() const;
     void setHasSingleModelSelection(bool b);
 
+    QString activeDragSuffix() const;
+    void setActiveDragSuffix(const QString &suffix);
+
     bool hasAliasExport() const { return m_aliasExport; }
 
     void setSelectedMaterial(const ModelNode &matNode);
@@ -126,6 +131,7 @@ signals:
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
     void hasSingleModelSelectionChanged();
+    void activeDragSuffixChanged();
 
 private:
     QUrl m_specificsUrl;
@@ -152,6 +158,8 @@ private:
     bool m_hasSingleModelSelection = false;
 
     ModelNode m_selectedTexture;
+
+    QString m_activeDragSuffix;
 };
 
 } // QmlDesigner

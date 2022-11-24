@@ -821,10 +821,15 @@ void QmlDesigner::TextureEditorView::highlightSupportedProperties(bool highlight
     QTC_ASSERT(metaInfo.isValid(), return);
 
     for (const QString &propName : propNames) {
-        if (metaInfo.property(propName.toUtf8()).propertyType().isQtQuick3DTexture()) { // TODO: support dropping to texture source
+        if (metaInfo.property(propName.toUtf8()).propertyType().isQtQuick3DTexture()) {
             QObject *propEditorValObj = propMap.value(propName).value<QObject *>();
             PropertyEditorValue *propEditorVal = qobject_cast<PropertyEditorValue *>(propEditorValObj);
             propEditorVal->setHasActiveDrag(highlight);
+        } else if (metaInfo.property(propName.toUtf8()).propertyType().isUrl()) {
+            QObject *propEditorValObj = propMap.value(propName).value<QObject *>();
+            PropertyEditorValue *propEditorVal = qobject_cast<PropertyEditorValue *>(propEditorValObj);
+            if (propEditorVal)
+                propEditorVal->setHasActiveDrag(highlight);
         }
     }
 }
@@ -841,6 +846,9 @@ void TextureEditorView::dragStarted(QMimeData *mimeData)
         return;
 
     highlightSupportedProperties();
+
+    const QString suffix = "*." + assetPath.split('.').last().toLower();
+    m_qmlBackEnd->contextObject()->setActiveDragSuffix(suffix);
 }
 
 void TextureEditorView::dragEnded()

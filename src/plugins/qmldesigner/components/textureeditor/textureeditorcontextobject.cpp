@@ -103,6 +103,19 @@ void TextureEditorContextObject::setMajorVersion(int majorVersion)
     emit majorVersionChanged();
 }
 
+QString TextureEditorContextObject::activeDragSuffix() const
+{
+    return m_activeDragSuffix;
+}
+
+void TextureEditorContextObject::setActiveDragSuffix(const QString &suffix)
+{
+    if (m_activeDragSuffix != suffix) {
+        m_activeDragSuffix = suffix;
+        emit activeDragSuffixChanged();
+    }
+}
+
 bool TextureEditorContextObject::hasActiveTimeline() const
 {
     return m_hasActiveTimeline;
