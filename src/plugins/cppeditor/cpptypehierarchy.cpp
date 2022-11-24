@@ -185,7 +185,7 @@ void CppTypeHierarchyWidget::perform()
     Core::ProgressManager::addTask(m_future, tr("Evaluating Type Hierarchy"), "TypeHierarchy");
 }
 
-void CppTypeHierarchyWidget::performFromExpression(const QString &expression, const QString &fileName)
+void CppTypeHierarchyWidget::performFromExpression(const QString &expression, const FilePath &filePath)
 {
     if (m_future.isRunning())
         m_future.cancel();
@@ -194,7 +194,7 @@ void CppTypeHierarchyWidget::performFromExpression(const QString &expression, co
 
     showProgress();
 
-    m_future = CppElementEvaluator::asyncExecute(expression, fileName);
+    m_future = CppElementEvaluator::asyncExecute(expression, filePath);
     m_futureWatcher.setFuture(QFuture<void>(m_future));
     m_synchronizer.addFuture(m_future);
 
@@ -309,7 +309,7 @@ void CppTypeHierarchyWidget::onItemActivated(const QModelIndex &index)
         return;
 
     const Link updatedLink = CppElementEvaluator::linkFromExpression(
-                getExpression(index), link.targetFilePath.toString());
+                getExpression(index), link.targetFilePath);
     if (updatedLink.hasValidTarget())
         link = updatedLink;
 
@@ -320,7 +320,7 @@ void CppTypeHierarchyWidget::onItemDoubleClicked(const QModelIndex &index)
 {
     const auto link = index.data(LinkRole).value<Link>();
     if (link.hasValidTarget())
-        performFromExpression(getExpression(index), link.targetFilePath.toString());
+        performFromExpression(getExpression(index), link.targetFilePath);
 }
 
 // CppTypeHierarchyFactory

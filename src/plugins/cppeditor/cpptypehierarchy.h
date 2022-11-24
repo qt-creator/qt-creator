@@ -62,7 +62,7 @@ private slots:
 
 private:
     typedef QList<CppClass> CppClass::*HierarchyMember;
-    void performFromExpression(const QString &expression, const QString &fileName);
+    void performFromExpression(const QString &expression, const Utils::FilePath &filePath);
     QStandardItem *buildHierarchy(const CppClass &cppClass, QStandardItem *parent,
                                   bool isRoot, HierarchyMember member);
     void showNoTypeHierarchyLabel();

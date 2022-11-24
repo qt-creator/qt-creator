@@ -593,15 +593,14 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
 
     int line, column;
     if (suffix.isEmpty()) {
-        Document::Ptr targetDoc = changes.snapshot().document(QString::fromUtf8(definitionFunction->fileName()));
+        Document::Ptr targetDoc = changes.snapshot().document(definitionFunction->filePath());
         if (!targetDoc)
             return noResult;
 
         targetDoc->translationUnit()->getPosition(definitionFunction->endOffset(), &line, &column);
     } else {
         // we don't have an offset to the start of the function definition, so we need to manually find it...
-        CppRefactoringFilePtr targetFile = changes.file(
-            Utils::FilePath::fromString(QString::fromUtf8(definitionFunction->fileName())));
+        CppRefactoringFilePtr targetFile = changes.file(definitionFunction->filePath());
         if (!targetFile->isValid())
             return noResult;
 

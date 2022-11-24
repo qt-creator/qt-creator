@@ -24,7 +24,7 @@ QString cppExpressionAt(TextEditor::TextEditorWidget *editorWidget, int pos,
                         int *line, int *column, QString *function = nullptr,
                         int *scopeFromLine = nullptr, int *scopeToLine = nullptr);
 QString fixCppExpression(const QString &exp);
-QString cppFunctionAt(const QString &fileName, int line, int column = 0);
+QString cppFunctionAt(const Utils::FilePath &filePath, int line, int column = 0);
 
 // Get variables that are not initialized at a certain line
 // of a function from the code model. Shadowed variables will

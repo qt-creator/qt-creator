@@ -456,7 +456,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
     QFETCH(QStringList, finalProjectFiles);
 
     TemporaryCopiedDir temporaryDir(MyTestDataDir(QLatin1String("testdata_refresh2")).path());
-    fileToChange = temporaryDir.absolutePath(fileToChange.toUtf8());
+    const FilePath filePath = FilePath::fromString(temporaryDir.absolutePath(fileToChange.toUtf8()));
     const FilePaths initialProjectFilePaths = toAbsolutePaths(initialProjectFiles, temporaryDir);
     const FilePaths finalProjectFilePaths = toAbsolutePaths(finalProjectFiles, temporaryDir);
 
@@ -486,14 +486,14 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
         QVERIFY(snapshot.contains(file));
     }
 
-    document = snapshot.document(fileToChange);
+    document = snapshot.document(filePath);
     const QDateTime lastModifiedBefore = document->lastModified();
     QCOMPARE(document->globalSymbolCount(), 1);
     QCOMPARE(document->globalSymbolAt(0)->name()->identifier()->chars(), "someGlobal");
 
     // Modify the file
     QTest::qSleep(1000); // Make sure the timestamp is different
-    FileChangerAndRestorer fileChangerAndRestorer(FilePath::fromString(fileToChange));
+    FileChangerAndRestorer fileChangerAndRestorer(filePath);
     QByteArray originalContents;
     QVERIFY(fileChangerAndRestorer.readContents(&originalContents));
     const QByteArray newFileContentes = originalContents + "\nint addedOtherGlobal;";
@@ -514,7 +514,7 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
         QVERIFY(refreshedFiles.contains(file));
         QVERIFY(snapshot.contains(file));
     }
-    document = snapshot.document(fileToChange);
+    document = snapshot.document(filePath);
     const QDateTime lastModifiedAfter = document->lastModified();
     QVERIFY(lastModifiedAfter > lastModifiedBefore);
     QCOMPARE(document->globalSymbolCount(), 2);
@@ -618,7 +618,8 @@ void ModelManagerTest::testExtraeditorsupportUiFiles()
 
     // Check CppSourceProcessor / includes.
     // The CppSourceProcessor is expected to find the ui_* file in the working copy.
-    const QString fileIncludingTheUiFile = temporaryDir.absolutePath("mainwindow.cpp");
+    const FilePath fileIncludingTheUiFile =
+            FilePath::fromString(temporaryDir.absolutePath("mainwindow.cpp"));
     while (!mm->snapshot().document(fileIncludingTheUiFile))
         QCoreApplication::processEvents();
 

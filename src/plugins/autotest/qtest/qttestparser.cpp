@@ -168,9 +168,7 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     for (const CPlusPlus::LookupItem &item : std::as_const(lookupItems)) {
         if (CPlusPlus::Symbol *symbol = item.declaration()) {
             if (CPlusPlus::Class *toeClass = symbol->asClass()) {
-                const QString declFileName = QLatin1String(toeClass->fileId()->chars(),
-                                                           int(toeClass->fileId()->size()));
-                declaringDoc = snapshot.document(declFileName);
+                declaringDoc = snapshot.document(toeClass->filePath());
                 if (line)
                     *line = toeClass->line();
                 if (column)

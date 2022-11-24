@@ -219,7 +219,7 @@ bool PxNodeUtilities::isProxyHeader(const QString &file) const
     CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
 
-    CPlusPlus::Document::Ptr document = snapshot.document(file);
+    CPlusPlus::Document::Ptr document = snapshot.document(Utils::FilePath::fromString(file));
     if (document) {
         QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
         if (includes.count() != 1)

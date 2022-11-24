@@ -41,13 +41,13 @@ public:
     void execute();
     static QFuture<QSharedPointer<CppElement>> asyncExecute(TextEditor::TextEditorWidget *editor);
     static QFuture<QSharedPointer<CppElement>> asyncExecute(const QString &expression,
-                                                            const QString &fileName);
+                                                            const Utils::FilePath &filePath);
     bool identifiedCppElement() const;
     const QSharedPointer<CppElement> &cppElement() const;
     bool hasDiagnosis() const;
     const QString &diagnosis() const;
 
-    static Utils::Link linkFromExpression(const QString &expression, const QString &fileName);
+    static Utils::Link linkFromExpression(const QString &expression, const Utils::FilePath &filePath);
 
 private:
     class CppElementEvaluatorPrivate *d;

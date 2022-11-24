@@ -7,6 +7,8 @@
 
 #include "cppfileiterationorder.h"
 
+#include <utils/filepath.h>
+
 #include <QHash>
 #include <QSet>
 #include <QStringList>
@@ -51,17 +53,17 @@ public:
     void clearCache();
 
 private:
-    QStringList fileIterationOrder(const QString &referenceFile,
-                                   const CPlusPlus::Snapshot &snapshot);
-    void checkCacheConsistency(const QString &referenceFile, const CPlusPlus::Snapshot &snapshot);
-    void clearCache(const QString &referenceFile, const QString &comparingFile);
-    void insertCache(const QString &referenceFile, const QString &comparingFile);
+    Utils::FilePaths fileIterationOrder(const Utils::FilePath &referenceFile,
+                                        const CPlusPlus::Snapshot &snapshot);
+    void checkCacheConsistency(const Utils::FilePath &referenceFile, const CPlusPlus::Snapshot &snapshot);
+    void clearCache(const Utils::FilePath &referenceFile, const Utils::FilePath &comparingFile);
+    void insertCache(const Utils::FilePath &referenceFile, const Utils::FilePath &comparingFile);
 
-    void trackCacheUse(const QString &referenceFile);
+    void trackCacheUse(const Utils::FilePath &referenceFile);
 
-    QHash<QString, FileIterationOrder> m_filePriorityCache;
-    QHash<QString, QSet<QString> > m_fileMetaCache;
-    QStringList m_recent;
+    QHash<Utils::FilePath, FileIterationOrder> m_filePriorityCache;
+    QHash<Utils::FilePath, QSet<Utils::FilePath> > m_fileMetaCache;
+    Utils::FilePaths m_recent;
 };
 
 } // namespace CppEditor

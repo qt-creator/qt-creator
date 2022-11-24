@@ -5,9 +5,11 @@
 
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace CppEditor {
 
-FileIterationOrder::Entry::Entry(const QString &filePath,
+FileIterationOrder::Entry::Entry(const FilePath &filePath,
                                  const QString &projectPartId,
                                  int commonPrefixLength,
                                  int commonProjectPartPrefixLength)
@@ -66,13 +68,13 @@ bool operator<(const FileIterationOrder::Entry &first, const FileIterationOrder:
 
 FileIterationOrder::FileIterationOrder() = default;
 
-FileIterationOrder::FileIterationOrder(const QString &referenceFilePath,
+FileIterationOrder::FileIterationOrder(const FilePath &referenceFilePath,
                                        const QString &referenceProjectPartId)
 {
     setReference(referenceFilePath, referenceProjectPartId);
 }
 
-void FileIterationOrder::setReference(const QString &filePath,
+void FileIterationOrder::setReference(const FilePath &filePath,
                                       const QString &projectPartId)
 {
     m_referenceFilePath = filePath;
@@ -84,7 +86,7 @@ bool FileIterationOrder::isValid() const
     return !m_referenceFilePath.isEmpty();
 }
 
-static int commonPrefixLength(const QString &filePath1, const QString &filePath2)
+static int commonPrefixLength(const QStringView filePath1, const QStringView filePath2)
 {
     const auto mismatches = std::mismatch(filePath1.begin(), filePath1.end(),
                                           filePath2.begin(), filePath2.end());
@@ -92,21 +94,21 @@ static int commonPrefixLength(const QString &filePath1, const QString &filePath2
 }
 
 FileIterationOrder::Entry FileIterationOrder::createEntryFromFilePath(
-        const QString &filePath,
+        const FilePath &filePath,
         const QString &projectPartId) const
 {
-    const int filePrefixLength = commonPrefixLength(m_referenceFilePath, filePath);
+    const int filePrefixLength = commonPrefixLength(m_referenceFilePath.pathView(), filePath.pathView());
     const int projectPartPrefixLength = commonPrefixLength(m_referenceProjectPartId, projectPartId);
     return Entry(filePath, projectPartId, filePrefixLength, projectPartPrefixLength);
 }
 
-void FileIterationOrder::insert(const QString &filePath, const QString &projectPartId)
+void FileIterationOrder::insert(const FilePath &filePath, const QString &projectPartId)
 {
     const Entry entry = createEntryFromFilePath(filePath, projectPartId);
     m_set.insert(entry);
 }
 
-void FileIterationOrder::remove(const QString &filePath, const QString &projectPartId)
+void FileIterationOrder::remove(const FilePath &filePath, const QString &projectPartId)
 {
     const auto needleElement = createEntryFromFilePath(filePath, projectPartId);
     const auto range = m_set.equal_range(needleElement);
@@ -121,6 +123,16 @@ void FileIterationOrder::remove(const QString &filePath, const QString &projectP
 QStringList FileIterationOrder::toStringList() const
 {
     QStringList result;
+
+    for (const auto &entry : m_set)
+        result.append(entry.filePath.toString());
+
+    return result;
+}
+
+Utils::FilePaths FileIterationOrder::toFilePaths() const
+{
+    FilePaths result;
 
     for (const auto &entry : m_set)
         result.append(entry.filePath);

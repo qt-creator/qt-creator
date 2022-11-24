@@ -276,7 +276,7 @@ public:
 
     Document::Ptr expressionDocument() const;
     Document::Ptr thisDocument() const;
-    Document::Ptr document(const QString &fileName) const;
+    Document::Ptr document(const Utils::FilePath &filePath) const;
     Snapshot snapshot() const;
 
     ClassOrNamespace *globalNamespace() const;

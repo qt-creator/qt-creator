@@ -123,7 +123,7 @@ QWidget *CppEditorOutline::widget() const
     return m_combo;
 }
 
-QSharedPointer<CPlusPlus::Document> getDocument(const QString &filePath)
+QSharedPointer<CPlusPlus::Document> getDocument(const Utils::FilePath &filePath)
 {
     const CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
     return snapshot.document(filePath);

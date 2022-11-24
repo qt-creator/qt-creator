@@ -24,7 +24,7 @@ QSet<QString> ClassViewController::findClassDeclarations(const QString &fileName
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
 
     // scan original file
-    CPlusPlus::Document::Ptr document = snapshot.document(fileName);
+    CPlusPlus::Document::Ptr document = snapshot.document(Utils::FilePath::fromString(fileName));
     if (!document.isNull())
         appendClassDeclarationsFromDocument(document, line, column, &classNames);
 
@@ -32,7 +32,7 @@ QSet<QString> ClassViewController::findClassDeclarations(const QString &fileName
         QString otherFileName = CppEditor::correspondingHeaderOrSource(fileName);
 
         // scan other file
-        document = snapshot.document(otherFileName);
+        document = snapshot.document(Utils::FilePath::fromString(otherFileName));
         if (!document.isNull())
             appendClassDeclarationsFromDocument(document, -1, -1, &classNames);
     }

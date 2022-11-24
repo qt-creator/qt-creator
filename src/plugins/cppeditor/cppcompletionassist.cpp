@@ -1040,8 +1040,8 @@ int InternalCppCompletionAssistProcessor::startCompletionHelper()
 
     int line = 0, column = 0;
     Utils::Text::convertPosition(interface()->textDocument(), startOfExpression, &line, &column);
-    const QString fileName = interface()->filePath().toString();
-    return startCompletionInternal(fileName, line, column - 1, expression, endOfExpression);
+    return startCompletionInternal(interface()->filePath(),
+                                   line, column - 1, expression, endOfExpression);
 }
 
 bool InternalCppCompletionAssistProcessor::tryObjCCompletion()
@@ -1268,7 +1268,7 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
             || mt.matchesName(QLatin1String(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
-int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString &fileName,
+int InternalCppCompletionAssistProcessor::startCompletionInternal(const Utils::FilePath &filePath,
                                                                   int line,
                                                                   int positionInBlock,
                                                                   const QString &expr,
@@ -1276,7 +1276,7 @@ int InternalCppCompletionAssistProcessor::startCompletionInternal(const QString 
 {
     QString expression = expr.trimmed();
 
-    Document::Ptr thisDocument = cppInterface()->snapshot().document(fileName);
+    Document::Ptr thisDocument = cppInterface()->snapshot().document(filePath);
     if (!thisDocument)
         return -1;
 

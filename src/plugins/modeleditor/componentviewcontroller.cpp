@@ -29,6 +29,8 @@
 // TODO implement removing include dependencies that are not longer used
 // TODO refactor add/remove relations between ancestor packages into extra controller class
 
+using namespace Utils;
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -148,7 +150,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
 
     const QStringList filePaths = findFilePathOfComponent(component);
     for (const QString &filePath : filePaths) {
-        CPlusPlus::Document::Ptr document = snapshot.document(filePath);
+        CPlusPlus::Document::Ptr document = snapshot.document(FilePath::fromString(filePath));
         if (document) {
             const QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
             for (const CPlusPlus::Document::Include &include : includes) {

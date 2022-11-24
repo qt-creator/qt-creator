@@ -74,7 +74,7 @@ CppRefactoringFile::CppRefactoringFile(const FilePath &filePath, const QSharedPo
     : RefactoringFile(filePath, data)
 {
     const Snapshot &snapshot = this->data()->m_snapshot;
-    m_cppDocument = snapshot.document(filePath.toString());
+    m_cppDocument = snapshot.document(filePath);
 }
 
 CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const FilePath &filePath)

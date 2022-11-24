@@ -388,8 +388,6 @@ public:
     bool contains(const Utils::FilePath &filePath) const;
 
     Document::Ptr document(const Utils::FilePath &filePath) const;
-    Document::Ptr document(const QString &fileName) const
-    { return document(Utils::FilePath::fromString(fileName)); }
 
     const_iterator find(const Utils::FilePath &filePath) const;
 

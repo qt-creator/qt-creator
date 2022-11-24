@@ -46,7 +46,7 @@ class CppFindReferencesParameters
 {
 public:
     QList<QByteArray> symbolId;
-    QByteArray symbolFileName;
+    Utils::FilePath symbolFilePath;
     QString prettySymbolName;
     Utils::FilePaths filesToRename;
     bool categorize = false;

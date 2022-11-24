@@ -22,7 +22,10 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
-namespace Utils { class Link; }
+namespace Utils {
+class FilePath;
+class Link;
+} // Utils
 
 namespace CPlusPlus {
 
@@ -77,6 +80,8 @@ public:
 
     /// Returns this Symbol's file name length.
     int fileNameLength() const;
+
+    Utils::FilePath filePath() const;
 
     /// Returns this Symbol's name.
     const Name *name() const { return _name; }

@@ -354,8 +354,8 @@ Document::Ptr LookupContext::expressionDocument() const
 Document::Ptr LookupContext::thisDocument() const
 { return _thisDocument; }
 
-Document::Ptr LookupContext::document(const QString &fileName) const
-{ return _snapshot.document(fileName); }
+Document::Ptr LookupContext::document(const FilePath &filePath) const
+{ return _snapshot.document(filePath); }
 
 Snapshot LookupContext::snapshot() const
 { return _snapshot; }

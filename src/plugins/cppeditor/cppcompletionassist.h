@@ -86,7 +86,7 @@ private:
     int startCompletionHelper();
     bool tryObjCCompletion();
     bool objcKeywordsWanted() const;
-    int startCompletionInternal(const QString &fileName,
+    int startCompletionInternal(const Utils::FilePath &filePath,
                                 int line, int positionInBlock,
                                 const QString &expression,
                                 int endOfExpression);

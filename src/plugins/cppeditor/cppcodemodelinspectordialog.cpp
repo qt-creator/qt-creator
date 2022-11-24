@@ -1436,7 +1436,7 @@ void CppCodeModelInspectorDialog::onDocumentSelected(const QModelIndex &current,
     if (current.isValid()) {
         const QModelIndex index = m_proxySnapshotModel->index(current.row(),
                                                               SnapshotModel::FilePathColumn);
-        const QString filePath = QDir::fromNativeSeparators(
+        const FilePath filePath = FilePath::fromUserInput(
             m_proxySnapshotModel->data(index, Qt::DisplayRole).toString());
         const SnapshotInfo info = m_snapshotInfos->at(m_ui->snapshotSelector->currentIndex());
         updateDocumentData(info.snapshot.document(filePath));

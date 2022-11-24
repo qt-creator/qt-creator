@@ -20,6 +20,7 @@
 #include <utility>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppEditor {
 namespace {
@@ -134,7 +135,7 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
     if (!declaration)
         return nullptr;
 
-    QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
+    const FilePath declFile = declaration->filePath();
 
     Document::Ptr thisDocument = snapshot.document(declFile);
     if (!thisDocument) {
@@ -150,11 +151,11 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
     }
 
     Hit best;
-    const QStringList fileNames = fileIterationOrder(declFile, snapshot);
-    for (const QString &fileName : fileNames) {
-        Document::Ptr doc = snapshot.document(fileName);
+    const FilePaths filePaths = fileIterationOrder(declFile, snapshot);
+    for (const FilePath &filePath : filePaths) {
+        Document::Ptr doc = snapshot.document(filePath);
         if (!doc) {
-            clearCache(declFile, fileName);
+            clearCache(declFile, filePath);
             continue;
         }
 
@@ -220,7 +221,7 @@ Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snaps
             return nullptr;
     }
 
-    QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
+    const FilePath declFile = declaration->filePath();
     const Document::Ptr thisDocument = snapshot.document(declFile);
     if (!thisDocument) {
         qWarning() << "undefined document:" << declaration->fileName();
@@ -230,11 +231,11 @@ Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snaps
     using SymbolWithPriority = QPair<Symbol *, bool>;
     QList<SymbolWithPriority> candidates;
     QList<SymbolWithPriority> fallbacks;
-    const QStringList fileNames = fileIterationOrder(declFile, snapshot);
-    for (const QString &fileName : fileNames) {
-        Document::Ptr doc = snapshot.document(fileName);
+    const FilePaths filePaths = fileIterationOrder(declFile, snapshot);
+    for (const FilePath &filePath : filePaths) {
+        Document::Ptr doc = snapshot.document(filePath);
         if (!doc) {
-            clearCache(declFile, fileName);
+            clearCache(declFile, filePath);
             continue;
         }
 
@@ -271,7 +272,7 @@ Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snaps
     for (const auto &candidate : std::as_const(candidates)) {
         if (candidate.first == declaration)
             continue;
-        if (QLatin1String(candidate.first->fileName()) == declFile
+        if (candidate.first->filePath() == declFile
                 && candidate.first->sourceLocation() == declaration->sourceLocation())
             continue;
         if (!candidate.first->asDeclaration())
@@ -298,10 +299,10 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
     if (!declaration->identifier())
         return nullptr;
 
-    QString declFile = QString::fromUtf8(declaration->fileName(), declaration->fileNameLength());
+    const FilePath declFile = declaration->filePath();
 
-    const QStringList fileNames = fileIterationOrder(declFile, snapshot);
-    for (const QString &file : fileNames) {
+    const FilePaths filePaths = fileIterationOrder(declFile, snapshot);
+    for (const FilePath &file : filePaths) {
         Document::Ptr doc = snapshot.document(file);
         if (!doc) {
             clearCache(declFile, file);
@@ -438,16 +439,16 @@ QList<Declaration *> SymbolFinder::findMatchingDeclaration(const LookupContext &
     return result;
 }
 
-QStringList SymbolFinder::fileIterationOrder(const QString &referenceFile, const Snapshot &snapshot)
+FilePaths SymbolFinder::fileIterationOrder(const FilePath &referenceFile, const Snapshot &snapshot)
 {
     if (m_filePriorityCache.contains(referenceFile)) {
         checkCacheConsistency(referenceFile, snapshot);
     } else {
         for (Document::Ptr doc : snapshot)
-            insertCache(referenceFile, doc->filePath().path());
+            insertCache(referenceFile, doc->filePath());
     }
 
-    QStringList files = m_filePriorityCache.value(referenceFile).toStringList();
+    FilePaths files = m_filePriorityCache.value(referenceFile).toFilePaths();
 
     trackCacheUse(referenceFile);
 
@@ -461,19 +462,19 @@ void SymbolFinder::clearCache()
     m_recent.clear();
 }
 
-void SymbolFinder::checkCacheConsistency(const QString &referenceFile, const Snapshot &snapshot)
+void SymbolFinder::checkCacheConsistency(const FilePath &referenceFile, const Snapshot &snapshot)
 {
     // We only check for "new" files, which which are in the snapshot but not in the cache.
     // The counterpart validation for "old" files is done when one tries to access the
     // corresponding document and notices it's now null.
-    const QSet<QString> &meta = m_fileMetaCache.value(referenceFile);
+    const QSet<FilePath> &meta = m_fileMetaCache.value(referenceFile);
     for (const Document::Ptr &doc : snapshot) {
-        if (!meta.contains(doc->filePath().path()))
-            insertCache(referenceFile, doc->filePath().path());
+        if (!meta.contains(doc->filePath()))
+            insertCache(referenceFile, doc->filePath());
     }
 }
 
-const QString projectPartIdForFile(const QString &filePath)
+const QString projectPartIdForFile(const FilePath &filePath)
 {
     const QList<ProjectPart::ConstPtr> parts = CppModelManager::instance()->projectPart(filePath);
     if (!parts.isEmpty())
@@ -481,13 +482,13 @@ const QString projectPartIdForFile(const QString &filePath)
     return QString();
 }
 
-void SymbolFinder::clearCache(const QString &referenceFile, const QString &comparingFile)
+void SymbolFinder::clearCache(const FilePath &referenceFile, const FilePath &comparingFile)
 {
     m_filePriorityCache[referenceFile].remove(comparingFile, projectPartIdForFile(comparingFile));
     m_fileMetaCache[referenceFile].remove(comparingFile);
 }
 
-void SymbolFinder::insertCache(const QString &referenceFile, const QString &comparingFile)
+void SymbolFinder::insertCache(const FilePath &referenceFile, const FilePath &comparingFile)
 {
     FileIterationOrder &order = m_filePriorityCache[referenceFile];
     if (!order.isValid()) {
@@ -499,7 +500,7 @@ void SymbolFinder::insertCache(const QString &referenceFile, const QString &comp
     m_fileMetaCache[referenceFile].insert(comparingFile);
 }
 
-void SymbolFinder::trackCacheUse(const QString &referenceFile)
+void SymbolFinder::trackCacheUse(const FilePath &referenceFile)
 {
     if (!m_recent.isEmpty()) {
         if (m_recent.last() == referenceFile)
@@ -511,7 +512,7 @@ void SymbolFinder::trackCacheUse(const QString &referenceFile)
 
     // We don't want this to grow too much.
     if (m_recent.size() > kMaxCacheSize) {
-        const QString &oldest = m_recent.takeFirst();
+        const FilePath &oldest = m_recent.takeFirst();
         m_filePriorityCache.remove(oldest);
         m_fileMetaCache.remove(oldest);
     }

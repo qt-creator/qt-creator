@@ -393,7 +393,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
             std::bind(&CppFindReferences::searchAgain, this, search));
     CppFindReferencesParameters parameters;
     parameters.symbolId = fullIdForSymbol(symbol);
-    parameters.symbolFileName = QByteArray(symbol->fileName());
+    parameters.symbolFilePath = symbol->filePath();
     parameters.categorize = codeModelSettings()->categorizeFindReferences();
 
     if (symbol->asClass() || symbol->asForwardClassDeclaration()) {
@@ -535,11 +535,10 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
                                                  CPlusPlus::LookupContext *context)
 {
     QTC_ASSERT(context, return nullptr);
-    QString symbolFile = QLatin1String(parameters.symbolFileName);
-    if (!snapshot.contains(FilePath::fromString(symbolFile)))
+    if (!snapshot.contains(parameters.symbolFilePath))
         return nullptr;
 
-    CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
+    CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(parameters.symbolFilePath);
     // document is not parsed and has no bindings yet, do it
     QByteArray source = getSource(newSymbolDocument->filePath(), m_modelManager->workingCopy());
     CPlusPlus::Document::Ptr doc =
