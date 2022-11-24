@@ -3,14 +3,16 @@
 
 #include "fileutils.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/foldernavigationwidget.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/navigationwidget.h>
-#include <coreplugin/vcsmanager.h>
+#include "coreconstants.h"
+#include "documentmanager.h"
+#include "editormanager/editormanager.h"
+#include "foldernavigationwidget.h"
+#include "icore.h"
+#include "iversioncontrol.h"
+#include "messagemanager.h"
+#include "navigationwidget.h"
+#include "vcsmanager.h"
+
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -251,12 +253,9 @@ bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFileP
     if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
         result = orgFilePath.renameFile(newFilePath);
     if (result) {
-        // yeah we moved, tell the filemanager about it
         DocumentManager::renamedFile(orgFilePath, newFilePath);
-    }
-
-    if (result)
         updateHeaderFileGuardIfApplicable(orgFilePath, newFilePath, handleGuards);
+    }
     return result;
 }
 
@@ -291,11 +290,16 @@ bool FileUtils::updateHeaderFileGuardAfterRename(const QString &headerPath,
     int guardStartLine = -1;
     int guardCloseLine = -1;
 
-    QByteArray data = headerFile.readAll();
+    const QByteArray data = headerFile.readAll();
     headerFile.close();
 
-    const auto headerFileTextFormat = Utils::TextFileFormat::detect(data);
-    QTextStream inStream(&data);
+    auto headerFileTextFormat = Utils::TextFileFormat::detect(data);
+    if (!headerFileTextFormat.codec)
+        headerFileTextFormat.codec = EditorManager::defaultTextCodec();
+    QString stringContent;
+    if (!headerFileTextFormat.decode(data, &stringContent))
+        return false;
+    QTextStream inStream(&stringContent);
     int lineCounter = 0;
     QString line;
     while (!inStream.atEnd()) {
@@ -398,10 +402,7 @@ bool FileUtils::updateHeaderFileGuardAfterRename(const QString &headerPath,
                 }
                 lineCounter++;
             }
-            const QTextCodec *textCodec = (headerFileTextFormat.codec == nullptr)
-                                              ? QTextCodec::codecForName("UTF-8")
-                                              : headerFileTextFormat.codec;
-            tmpHeader.write(textCodec->fromUnicode(outString));
+            tmpHeader.write(headerFileTextFormat.codec->fromUnicode(outString));
             tmpHeader.close();
         } else {
             // if opening the temp file failed report error
