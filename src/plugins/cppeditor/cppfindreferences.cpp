@@ -329,9 +329,8 @@ static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
 
     const CPlusPlus::Snapshot snapshot = context.snapshot();
 
-    const Utils::FilePath sourceFile = Utils::FilePath::fromUtf8(symbol->fileName(),
-                                                                 symbol->fileNameLength());
-    Utils::FilePaths files{sourceFile};
+    const FilePath sourceFile = symbol->filePath();
+    FilePaths files{sourceFile};
 
     if (symbol->asClass()
         || symbol->asForwardClassDeclaration()

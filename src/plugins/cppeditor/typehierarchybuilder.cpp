@@ -6,6 +6,7 @@
 #include <cplusplus/FindUsages.h>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 namespace {
@@ -162,14 +163,13 @@ LookupItem TypeHierarchyBuilder::followTypedef(const LookupContext &context, con
     return matchingItem;
 }
 
-static Utils::FilePaths filesDependingOn(const Snapshot &snapshot,
-                                         Symbol *symbol)
+static FilePaths filesDependingOn(const Snapshot &snapshot, Symbol *symbol)
 {
     if (!symbol)
-        return Utils::FilePaths();
+        return {};
 
-    const Utils::FilePath file = Utils::FilePath::fromUtf8(symbol->fileName(), symbol->fileNameLength());
-    return Utils::FilePaths { file } + snapshot.filesDependingOn(file);
+    const FilePath file = symbol->filePath();
+    return FilePaths{file} + snapshot.filesDependingOn(file);
 }
 
 void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
@@ -187,12 +187,12 @@ void TypeHierarchyBuilder::buildDerived(QFutureInterfaceBase &futureInterface,
     const QString &symbolName = _overview.prettyName(LookupContext::fullyQualifiedName(symbol));
     DerivedHierarchyVisitor visitor(symbolName, cache);
 
-    const Utils::FilePaths &dependingFiles = filesDependingOn(snapshot, symbol);
+    const FilePaths dependingFiles = filesDependingOn(snapshot, symbol);
     if (depth == 0)
         futureInterface.setProgressRange(0, dependingFiles.size());
 
     int i = -1;
-    for (const Utils::FilePath &fileName : dependingFiles) {
+    for (const FilePath &fileName : dependingFiles) {
         if (futureInterface.isCanceled())
             return;
         if (depth == 0)
