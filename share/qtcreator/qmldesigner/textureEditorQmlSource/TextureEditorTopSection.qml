@@ -11,7 +11,7 @@ Column {
     function refreshPreview()
     {
         texturePreview.source = ""
-        texturePreview.source = "image://textureEditor/" + backendValues.source.valueToString
+        texturePreview.source = "image://qmldesigner_thumbnails/" + resolveResourcePath(backendValues.source.valueToString)
     }
 
     anchors.left: parent.left
@@ -34,12 +34,11 @@ Column {
 
         Image {
             id: texturePreview
-
+            asynchronous: true
             sourceSize.width: 150
             sourceSize.height: 150
             anchors.centerIn: parent
-            source: "image://textureEditor/" + backendValues.source.valueToString
-            cache: false
+            source: "image://qmldesigner_thumbnails/" + resolveResourcePath(backendValues.source.valueToString)
         }
     }
 }

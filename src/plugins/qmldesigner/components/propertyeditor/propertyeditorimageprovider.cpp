@@ -25,18 +25,25 @@ QQuickImageResponse *PropertyEditorImageProvider::requestImageResponse(const QSt
         return m_smallImageCacheProvider.requestImageResponse("#" + id.split('.').first(),
                                                               requestedSize);
 
-    QImage image;
-    auto response = std::make_unique<QmlDesigner::ImageResponse>(image);
+    auto response = std::make_unique<QmlDesigner::ImageResponse>(m_smallImageCacheProvider.defaultImage());
 
     QMetaObject::invokeMethod(
         response.get(),
-        [response = QPointer<QmlDesigner::ImageResponse>(response.get()), image, suffix, id] {
-            if (AssetsLibraryModel::supportedImageSuffixes().contains(suffix))
-                response->setImage(QImage(Utils::StyleHelper::dpiSpecificImageFile(id)));
-            else if (AssetsLibraryModel::supportedTexture3DSuffixes().contains(suffix))
-                response->setImage(HdrImage{id}.image());
-            else
-                response->abort();
+        [response = QPointer<QmlDesigner::ImageResponse>(response.get()), suffix, id, requestedSize] {
+            if (AssetsLibraryModel::supportedImageSuffixes().contains(suffix)) {
+                QImage image = QImage(Utils::StyleHelper::dpiSpecificImageFile(id));
+                if (!image.isNull()) {
+                    response->setImage(image.scaled(requestedSize, Qt::KeepAspectRatio));
+                    return;
+                }
+            } else if (AssetsLibraryModel::supportedTexture3DSuffixes().contains(suffix)) {
+                HdrImage hdr{id};
+                if (!hdr.image().isNull()) {
+                    response->setImage(hdr.image().scaled(requestedSize, Qt::KeepAspectRatio));
+                    return;
+                }
+            }
+            response->setImage(response->image().scaled(requestedSize, Qt::KeepAspectRatio));
         },
         Qt::QueuedConnection);
 

@@ -6,6 +6,7 @@
 #include "bindingproperty.h"
 #include "documentmanager.h"
 #include "nodemetainfo.h"
+#include "propertyeditorimageprovider.h"
 #include "propertyeditorvalue.h"
 #include "qmldesignerconstants.h"
 #include "qmlobjectnode.h"
@@ -41,46 +42,17 @@ static QObject *variantToQObject(const QVariant &value)
 
 namespace QmlDesigner {
 
-class TextureEditorImageProvider : public QQuickImageProvider
-{
-    QPixmap m_previewPixmap;
-
-public:
-    TextureEditorImageProvider()
-        : QQuickImageProvider(Pixmap) {}
-
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override
-    {
-        QPixmap pixmap;
-        const QString suffix = id.split('.').last().toLower();
-        const QString path = DocumentManager::currentResourcePath().path() + '/' + id;
-        if (suffix == "hdr")
-            pixmap = HdrImage{path}.toPixmap();
-        else
-            pixmap = Utils::StyleHelper::dpiSpecificImageFile(path);
-
-        if (pixmap.isNull())
-            pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png");
-
-        if (size)
-            *size = pixmap.size();
-
-        if (requestedSize.isValid())
-            return pixmap.scaled(requestedSize, Qt::KeepAspectRatio);
-
-        return pixmap;
-    }
-};
-
-TextureEditorQmlBackend::TextureEditorQmlBackend(TextureEditorView *textureEditor)
+TextureEditorQmlBackend::TextureEditorQmlBackend(TextureEditorView *textureEditor, AsynchronousImageCache &imageCache)
     : m_view(new QQuickWidget)
     , m_textureEditorTransaction(new TextureEditorTransaction(textureEditor))
     , m_contextObject(new TextureEditorContextObject(m_view->rootContext()))
-    , m_textureEditorImageProvider(new TextureEditorImageProvider())
 {
+    QImage defaultImage;
+    defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
+    m_textureEditorImageProvider = new PropertyEditorImageProvider(imageCache, defaultImage);
     m_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-    m_view->engine()->addImageProvider("textureEditor", m_textureEditorImageProvider);
+    m_view->engine()->addImageProvider("qmldesigner_thumbnails", m_textureEditorImageProvider);
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(textureEditor->model());
     context()->setContextObject(m_contextObject.data());

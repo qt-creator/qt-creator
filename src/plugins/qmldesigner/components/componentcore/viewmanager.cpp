@@ -69,8 +69,8 @@ public:
         , navigatorView{externalDependencies}
         , propertyEditorView(imageCache, externalDependencies)
         , materialEditorView{externalDependencies}
-        , materialBrowserView{externalDependencies}
-        , textureEditorView{externalDependencies}
+        , materialBrowserView{imageCache, externalDependencies}
+        , textureEditorView{imageCache, externalDependencies}
         , statesEditorView{externalDependencies}
         , newStatesEditorView{externalDependencies}
     {}

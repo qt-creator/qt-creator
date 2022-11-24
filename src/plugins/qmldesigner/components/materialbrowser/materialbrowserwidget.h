@@ -28,14 +28,14 @@ class MaterialBrowserView;
 class MaterialBrowserModel;
 class MaterialBrowserTexturesModel;
 class PreviewImageProvider;
-class TextureImageProvider;
+class PropertyEditorImageProvider;
 
 class MaterialBrowserWidget : public QFrame
 {
     Q_OBJECT
 
 public:
-    MaterialBrowserWidget(MaterialBrowserView *view);
+    MaterialBrowserWidget(class AsynchronousImageCache &imageCache, MaterialBrowserView *view);
     ~MaterialBrowserWidget() = default;
 
     QList<QToolButton *> createToolBarWidgets();
@@ -72,7 +72,7 @@ private:
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
     PreviewImageProvider *m_previewImageProvider = nullptr;
-    TextureImageProvider *m_textureImageProvider = nullptr;
+    PropertyEditorImageProvider *m_textureImageProvider = nullptr;
     Core::IContext *m_context = nullptr;
 
     QString m_filterText;

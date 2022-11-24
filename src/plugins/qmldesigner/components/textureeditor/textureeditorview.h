@@ -31,7 +31,8 @@ class TextureEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    TextureEditorView(ExternalDependenciesInterface &externalDependencies);
+    TextureEditorView(class AsynchronousImageCache &imageCache,
+                      ExternalDependenciesInterface &externalDependencies);
     ~TextureEditorView() override;
 
     bool hasWidget() const override;
@@ -105,6 +106,7 @@ private:
 
     bool noValidSelection() const;
 
+    AsynchronousImageCache &m_imageCache;
     ModelNode m_selectedTexture;
     QTimer m_ensureMatLibTimer;
     QShortcut *m_updateShortcut = nullptr;

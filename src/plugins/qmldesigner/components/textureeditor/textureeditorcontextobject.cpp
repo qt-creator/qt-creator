@@ -12,6 +12,7 @@
 
 #include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -332,6 +333,13 @@ void TextureEditorContextObject::goIntoComponent()
 {
     QTC_ASSERT(m_model, return);
     DocumentManager::goIntoComponent(m_selectedTexture);
+}
+
+QString TextureEditorContextObject::resolveResourcePath(const QString &path)
+{
+    if (Utils::FilePath::fromString(path).isAbsolutePath())
+        return path;
+    return DocumentManager::currentResourcePath().path() + '/' + path;
 }
 
 } // QmlDesigner

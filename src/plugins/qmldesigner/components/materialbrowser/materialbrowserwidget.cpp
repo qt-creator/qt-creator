@@ -10,6 +10,7 @@
 #include <designeractionmanager.h>
 #include <designermcumanager.h>
 #include <documentmanager.h>
+#include <propertyeditorimageprovider.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <variantproperty.h>
@@ -89,33 +90,6 @@ public:
     }
 };
 
-class TextureImageProvider : public QQuickImageProvider
-{
-public:
-    TextureImageProvider() : QQuickImageProvider(Pixmap) {}
-
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override
-    {
-        QPixmap pixmap;
-        const QString suffix = id.split('.').last().toLower();
-        if (suffix == "hdr")
-            pixmap = HdrImage{id}.toPixmap();
-        else
-            pixmap = Utils::StyleHelper::dpiSpecificImageFile(id);
-
-        if (pixmap.isNull())
-            pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png");
-
-        if (size)
-            *size = pixmap.size();
-
-        if (requestedSize.isValid())
-            return pixmap.scaled(requestedSize, Qt::KeepAspectRatio);
-
-        return pixmap;
-    }
-};
-
 bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusOut) {
@@ -145,9 +119,16 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                     QString iconPath = QLatin1String("%1/%2")
                                     .arg(DocumentManager::currentResourcePath().path(),
                                          m_textureToDrag.variantProperty("source").value().toString());
-                    model->startDrag(mimeData,
-                                     m_textureImageProvider->requestPixmap(iconPath, nullptr,
-                                                                           {128, 128}));
+
+                    QPixmap pixmap;
+                    const QString suffix = iconPath.split('.').last().toLower();
+                    if (suffix == "hdr")
+                        pixmap = HdrImage{iconPath}.toPixmap();
+                    else
+                        pixmap = Utils::StyleHelper::dpiSpecificImageFile(iconPath);
+                    if (pixmap.isNull())
+                        pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png");
+                    model->startDrag(mimeData, pixmap.scaled({128, 128}));
                 }
                 m_materialToDrag = {};
                 m_textureToDrag = {};
@@ -161,14 +142,18 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-MaterialBrowserWidget::MaterialBrowserWidget(MaterialBrowserView *view)
+MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
+                                             MaterialBrowserView *view)
     : m_materialBrowserView(view)
     , m_materialBrowserModel(new MaterialBrowserModel(this))
     , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(this))
     , m_quickWidget(new QQuickWidget(this))
     , m_previewImageProvider(new PreviewImageProvider())
-    , m_textureImageProvider(new TextureImageProvider())
 {
+    QImage defaultImage;
+    defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
+    m_textureImageProvider = new PropertyEditorImageProvider(imageCache, defaultImage);
+
     setWindowTitle(tr("Material Browser", "Title of material browser widget"));
     setMinimumWidth(120);
 

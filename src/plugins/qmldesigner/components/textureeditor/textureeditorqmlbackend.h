@@ -17,6 +17,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class PropertyEditorImageProvider;
 class TextureEditorContextObject;
 class TextureEditorImageProvider;
 class TextureEditorTransaction;
@@ -27,7 +28,8 @@ class TextureEditorQmlBackend
     Q_DISABLE_COPY(TextureEditorQmlBackend)
 
 public:
-    TextureEditorQmlBackend(TextureEditorView *materialEditor);
+    TextureEditorQmlBackend(TextureEditorView *materialEditor,
+                            class AsynchronousImageCache &imageCache);
     ~TextureEditorQmlBackend();
 
     void setup(const QmlObjectNode &selectedTextureNode, const QString &stateName, const QUrl &qmlSpecificsFile,
@@ -63,7 +65,7 @@ private:
     DesignerPropertyMap m_backendValuesPropertyMap;
     QScopedPointer<TextureEditorTransaction> m_textureEditorTransaction;
     QScopedPointer<TextureEditorContextObject> m_contextObject;
-    TextureEditorImageProvider *m_textureEditorImageProvider = nullptr;
+    PropertyEditorImageProvider *m_textureEditorImageProvider = nullptr;
 };
 
 } // namespace QmlDesigner

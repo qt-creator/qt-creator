@@ -14,6 +14,7 @@
 #include <projectexplorer/target.h>
 #include <utils/fileutils.h>
 
+#include <QGuiApplication>
 #include <QPlainTextEdit>
 
 namespace QmlDesigner {
@@ -103,7 +104,11 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     auto callback = [=, captureCallback = std::move(captureCallback)](const QImage &image) {
         if (nullImageHandling == ImageCacheCollectorNullImageHandling::CaptureNullImage
             || !image.isNull()) {
-            QSize smallImageSize = image.size().scaled(QSize{96, 96}.boundedTo(image.size()),
+            QSize targetSize {96, 96};
+            const qreal ratio = qGuiApp->devicePixelRatio();
+            if (ratio > 1.0)
+                targetSize *= qRound(ratio);
+            QSize smallImageSize = image.size().scaled(targetSize.boundedTo(image.size()),
                                                        Qt::KeepAspectRatio);
             QImage smallImage = image.isNull() ? QImage{}
                                                : image.scaled(smallImageSize,

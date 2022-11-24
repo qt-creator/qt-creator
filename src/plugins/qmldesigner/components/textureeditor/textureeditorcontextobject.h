@@ -73,6 +73,7 @@ public:
 
     Q_INVOKABLE bool isBlocked(const QString &propName) const;
     Q_INVOKABLE void goIntoComponent();
+    Q_INVOKABLE QString resolveResourcePath(const QString &path);
 
     enum ToolBarAction {
         ApplyToSelected,

@@ -49,8 +49,10 @@
 
 namespace QmlDesigner {
 
-TextureEditorView::TextureEditorView(ExternalDependenciesInterface &externalDependencies)
+TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
+                                     ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
+    , m_imageCache(imageCache)
     , m_stackedWidget(new QStackedWidget)
     , m_dynamicPropertiesModel(new Internal::DynamicPropertiesModel(true, this))
 {
@@ -432,7 +434,7 @@ void TextureEditorView::setupQmlBackend()
     QString currentStateName = currentState().isBaseState() ? currentState().name() : "invalid state";
 
     if (!currentQmlBackend) {
-        currentQmlBackend = new TextureEditorQmlBackend(this);
+        currentQmlBackend = new TextureEditorQmlBackend(this, m_imageCache);
 
         m_stackedWidget->addWidget(currentQmlBackend->widget());
         m_qmlBackendHash.insert(qmlPaneUrl.toString(), currentQmlBackend);

@@ -22,7 +22,8 @@ class MaterialBrowserView : public AbstractView
     Q_OBJECT
 
 public:
-    MaterialBrowserView(ExternalDependenciesInterface &externalDependencies);
+    MaterialBrowserView(class AsynchronousImageCache &imageCache,
+                        ExternalDependenciesInterface &externalDependencies);
     ~MaterialBrowserView() override;
 
     bool hasWidget() const override;
@@ -64,6 +65,7 @@ private:
     void loadPropertyGroups();
     void requestPreviews();
 
+    AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
 

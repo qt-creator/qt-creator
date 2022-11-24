@@ -41,8 +41,10 @@ static QString propertyEditorResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
 }
 
-MaterialBrowserView::MaterialBrowserView(ExternalDependenciesInterface &externalDependencies)
+MaterialBrowserView::MaterialBrowserView(AsynchronousImageCache &imageCache,
+                                         ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
+    , m_imageCache(imageCache)
 {
     m_previewTimer.setSingleShot(true);
     connect(&m_previewTimer, &QTimer::timeout, this, &MaterialBrowserView::requestPreviews);
@@ -59,11 +61,10 @@ bool MaterialBrowserView::hasWidget() const
 WidgetInfo MaterialBrowserView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new MaterialBrowserWidget(this);
+        m_widget = new MaterialBrowserWidget(m_imageCache, this);
 
         auto matEditorContext = new Internal::MaterialBrowserContext(m_widget.data());
         Core::ICore::addContextObject(matEditorContext);
-
 
         // custom notifications below are sent to the MaterialEditor
         MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
