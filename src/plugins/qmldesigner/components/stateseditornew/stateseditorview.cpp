@@ -229,6 +229,16 @@ void StatesEditorView::cloneState(int nodeId)
     int from = newNode.parentProperty().indexOf(newNode);
     int to = stateNode.parentProperty().indexOf(stateNode) + 1;
 
+    // When duplicating an extended state the new state needs to be added after the extend group.
+    if (!modelState.hasExtend()) {
+        auto modelNodeList = activeStatesGroupNode().nodeListProperty("states").toModelNodeList();
+        for (; to != modelNodeList.count(); ++to) {
+            QmlModelState currentState(modelNodeList.at(to));
+            if (!currentState.isValid() || currentState.isBaseState() || !currentState.hasExtend())
+                break;
+        }
+    }
+
     executeInTransaction("moveState", [this, &newState, from, to]() {
         activeStatesGroupNode().nodeListProperty("states").slide(from, to);
         setCurrentState(newState);
