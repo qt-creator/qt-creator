@@ -63,7 +63,7 @@ bool RsyncDeployService::isDeploymentNecessary() const
 
 TaskItem RsyncDeployService::mkdirTask()
 {
-    auto setupHandler = [this](QtcProcess &process) {
+    const auto setupHandler = [this](QtcProcess &process) {
         QStringList remoteDirs;
         for (const FileToTransfer &file : std::as_const(m_files))
             remoteDirs << file.m_target.parentDir().path();
@@ -75,7 +75,7 @@ TaskItem RsyncDeployService::mkdirTask()
             emit stdErrData(QString::fromLocal8Bit(proc->readAllStandardError()));
         });
     };
-    auto errorHandler = [this](const QtcProcess &process) {
+    const auto errorHandler = [this](const QtcProcess &process) {
         QString finalMessage = process.errorString();
         const QString stdErr = process.cleanedStdErr();
         if (!stdErr.isEmpty()) {
@@ -91,14 +91,14 @@ TaskItem RsyncDeployService::mkdirTask()
 
 TaskItem RsyncDeployService::transferTask()
 {
-    auto setupHandler = [this](FileTransfer &transfer) {
+    const auto setupHandler = [this](FileTransfer &transfer) {
         transfer.setTransferMethod(FileTransferMethod::Rsync);
         transfer.setRsyncFlags(m_flags);
         transfer.setFilesToTransfer(m_files);
         connect(&transfer, &FileTransfer::progress,
                 this, &AbstractRemoteLinuxDeployService::stdOutData);
     };
-    auto errorHandler = [this](const FileTransfer &transfer) {
+    const auto errorHandler = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
         if (result.m_error == QProcess::FailedToStart)
             emit errorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
@@ -112,12 +112,12 @@ TaskItem RsyncDeployService::transferTask()
 
 void RsyncDeployService::doDeploy()
 {
-    auto finishHandler = [this] {
+    const auto finishHandler = [this] {
         m_taskTree.release()->deleteLater();
         stopDeployment();
     };
 
-    Group root {
+    const Group root {
         mkdirTask(),
         transferTask(),
         OnGroupDone(finishHandler),
