@@ -608,7 +608,8 @@ void AndroidSettingsWidget::validateSdk()
 
 void AndroidSettingsWidget::openSDKDownloadUrl()
 {
-    QDesktopServices::openUrl(QUrl::fromUserInput("https://developer.android.com/studio/"));
+    QDesktopServices::openUrl(QUrl::fromUserInput(
+                                  "https://developer.android.com/studio#command-line-tools-only"));
 }
 
 void AndroidSettingsWidget::openNDKDownloadUrl()
