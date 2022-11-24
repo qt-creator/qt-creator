@@ -114,7 +114,7 @@ static QList<Document::Ptr> findDocumentsIncluding(const Snapshot &docTable,
                     docList.append(doc);
                 }
             } else {
-                if (include.resolvedFileName() == fileName)
+                if (include.resolvedFileName().path() == fileName)
                     docList.append(doc);
             }
         }

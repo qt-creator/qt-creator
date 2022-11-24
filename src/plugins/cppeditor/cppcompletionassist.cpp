@@ -1479,8 +1479,8 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
         completeNamespace(b);
 
     addKeywords();
-    addMacros(CppModelManager::configurationFileName().path(), context.snapshot());
-    addMacros(context.thisDocument()->filePath().toString(), context.snapshot());
+    addMacros(CppModelManager::configurationFileName(), context.snapshot());
+    addMacros(context.thisDocument()->filePath(), context.snapshot());
     addSnippets();
     return !m_completions.isEmpty();
 }
@@ -1841,29 +1841,29 @@ void InternalCppCompletionAssistProcessor::addKeywords()
     }
 }
 
-void InternalCppCompletionAssistProcessor::addMacros(const QString &fileName,
+void InternalCppCompletionAssistProcessor::addMacros(const Utils::FilePath &filePath,
                                                      const Snapshot &snapshot)
 {
-    QSet<QString> processed;
+    QSet<Utils::FilePath> processed;
     QSet<QString> definedMacros;
 
-    addMacros_helper(snapshot, fileName, &processed, &definedMacros);
+    addMacros_helper(snapshot, filePath, &processed, &definedMacros);
 
     for (const QString &macroName : std::as_const(definedMacros))
         addCompletionItem(macroName, Icons::macroIcon(), MacrosOrder);
 }
 
 void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snapshot,
-                                                    const QString &fileName,
-                                                    QSet<QString> *processed,
+                                                    const Utils::FilePath &filePath,
+                                                    QSet<Utils::FilePath> *processed,
                                                     QSet<QString> *definedMacros)
 {
-    Document::Ptr doc = snapshot.document(fileName);
+    Document::Ptr doc = snapshot.document(filePath);
 
-    if (!doc || processed->contains(doc->filePath().path()))
+    if (!doc || processed->contains(doc->filePath()))
         return;
 
-    processed->insert(doc->filePath().path());
+    processed->insert(doc->filePath());
 
     const QList<Document::Include> includes = doc->resolvedIncludes();
     for (const Document::Include &i : includes)

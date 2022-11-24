@@ -588,7 +588,7 @@ QVariant IncludesModel::data(const QModelIndex &index, int role) const
     static const QBrush redBrush(QColor(205, 38, 38));
 
     const Document::Include include = m_includes.at(index.row());
-    const QString resolvedFileName = QDir::toNativeSeparators(include.resolvedFileName());
+    const FilePath resolvedFileName = include.resolvedFileName();
     const bool isResolved = !resolvedFileName.isEmpty();
 
     if (role == Qt::DisplayRole) {
@@ -599,7 +599,7 @@ QVariant IncludesModel::data(const QModelIndex &index, int role) const
             return include.line();
         } else if (column == FilePathsColumn) {
             return QVariant(CMI::Utils::unresolvedFileNameWithDelimiters(include)
-                            + QLatin1String(" --> ") + resolvedFileName);
+                            + QLatin1String(" --> ") + resolvedFileName.toUserOutput());
         }
     } else if (role == Qt::ForegroundRole) {
         return isResolved ? greenBrush : redBrush;

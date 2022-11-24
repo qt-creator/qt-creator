@@ -383,12 +383,12 @@ void CppSourceProcessor::mergeEnvironment(Document::Ptr doc)
 
     const QList<Document::Include> includes = doc->resolvedIncludes();
     for (const Document::Include &incl : includes) {
-        const QString includedFile = incl.resolvedFileName();
+        const FilePath includedFile = incl.resolvedFileName();
 
         if (Document::Ptr includedDoc = m_snapshot.document(includedFile))
             mergeEnvironment(includedDoc);
-        else if (!m_included.contains(FilePath::fromString(includedFile)))
-            run(includedFile);
+        else if (!m_included.contains(includedFile))
+            run(includedFile.toString());
     }
 
     m_env.addMacros(doc->definedMacros());
@@ -416,7 +416,7 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
     const FilePath absoluteFilePath = FilePath::fromString(absoluteFileName);
 
     if (m_currentDoc) {
-        m_currentDoc->addIncludeFile(Document::Include(fileName, absoluteFileName, line, type));
+        m_currentDoc->addIncludeFile(Document::Include(fileName, absoluteFilePath, line, type));
         if (absoluteFileName.isEmpty()) {
             m_currentDoc->addDiagnosticMessage(messageNoSuchFile(m_currentDoc, fileName, line));
             return;
@@ -453,7 +453,7 @@ void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, Include
     document->setLanguageFeatures(m_languageFeatures);
     for (const QString &include : initialIncludes) {
         m_included.insert(FilePath::fromString(include));
-        Document::Include inc(include, include, 0, IncludeLocal);
+        Document::Include inc(include, FilePath::fromString(include), 0, IncludeLocal);
         document->addIncludeFile(inc);
     }
     if (info.exists())

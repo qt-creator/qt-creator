@@ -122,10 +122,10 @@ private:
     void addCompletionItem(CPlusPlus::Symbol *symbol,
                            int order = 0);
     void addKeywords();
-    void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);
+    void addMacros(const Utils::FilePath &filePath, const CPlusPlus::Snapshot &snapshot);
     void addMacros_helper(const CPlusPlus::Snapshot &snapshot,
-                          const QString &fileName,
-                          QSet<QString> *processed,
+                          const Utils::FilePath &filePath,
+                          QSet<Utils::FilePath> *processed,
                           QSet<QString> *definedMacros);
 
     enum {

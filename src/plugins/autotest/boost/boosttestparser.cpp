@@ -55,7 +55,7 @@ static bool includesBoostTest(const CPlusPlus::Document::Ptr &doc,
 {
     static const QRegularExpression boostTestHpp("^.*/boost/test/.*\\.hpp$");
     for (const CPlusPlus::Document::Include &inc : doc->resolvedIncludes()) {
-        if (boostTestHpp.match(inc.resolvedFileName()).hasMatch())
+        if (boostTestHpp.match(inc.resolvedFileName().path()).hasMatch())
             return true;
     }
 

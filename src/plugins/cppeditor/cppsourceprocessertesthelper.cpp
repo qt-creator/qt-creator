@@ -3,7 +3,11 @@
 
 #include "cppsourceprocessertesthelper.h"
 
+#include <utils/filepath.h>
+
 #include <QDir>
+
+using namespace Utils;
 
 namespace CppEditor::Tests::Internal {
 
@@ -28,9 +32,9 @@ QString TestIncludePaths::directoryOfTestFile()
     return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/local"));
 }
 
-QString TestIncludePaths::testFilePath(const QString &fileName)
+FilePath TestIncludePaths::testFilePath(const QString &fileName)
 {
-    return directoryOfTestFile() + QLatin1Char('/') + fileName;
+    return FilePath::fromString(directoryOfTestFile()) / fileName;
 }
 
-} // namespace CppEditor::Tests::Internal
+} // CppEditor::Tests::Internal

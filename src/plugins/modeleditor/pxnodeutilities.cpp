@@ -224,7 +224,7 @@ bool PxNodeUtilities::isProxyHeader(const QString &file) const
         QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
         if (includes.count() != 1)
             return false;
-        return QFileInfo(includes.at(0).resolvedFileName()).fileName() == QFileInfo(file).fileName();
+        return includes.at(0).resolvedFileName().fileName() == QFileInfo(file).fileName();
     }
     return false;
 }

@@ -1794,7 +1794,7 @@ void CppModelManager::renameIncludes(const Utils::FilePath &oldFilePath,
         return;
 
     const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
-        isUiFile ? oldFileName : oldFilePath.toString());
+        isUiFile ? FilePath::fromString(oldFileName) : oldFilePath);
     for (const Snapshot::IncludeLocation &loc : locations) {
         const FilePath filePath = loc.first->filePath();
 

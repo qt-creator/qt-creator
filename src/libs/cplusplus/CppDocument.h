@@ -218,13 +218,13 @@ public:
     };
 
     class Include {
-        QString _resolvedFileName;
+        Utils::FilePath _resolvedFileName;
         QString _unresolvedFileName;
         int _line;
         Client::IncludeType _type;
 
     public:
-        Include(const QString &unresolvedFileName, const QString &resolvedFileName, int line,
+        Include(const QString &unresolvedFileName, const Utils::FilePath &resolvedFileName, int line,
                 Client::IncludeType type)
             : _resolvedFileName(resolvedFileName)
             , _unresolvedFileName(unresolvedFileName)
@@ -232,7 +232,7 @@ public:
             , _type(type)
         { }
 
-        const QString &resolvedFileName() const
+        const Utils::FilePath &resolvedFileName() const
         { return _resolvedFileName; }
 
         const QString &unresolvedFileName() const
@@ -404,7 +404,7 @@ public:
 
     QSet<Utils::FilePath> allIncludesForDocument(const Utils::FilePath &filePath) const;
 
-    QList<IncludeLocation> includeLocationsOfDocument(const QString &fileNameOrPath) const;
+    QList<IncludeLocation> includeLocationsOfDocument(const Utils::FilePath &fileNameOrPath) const;
 
     Utils::FilePaths filesDependingOn(const Utils::FilePath &filePath) const;
 

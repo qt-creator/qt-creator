@@ -6,6 +6,8 @@
 #include <QtGlobal>
 #include <QString>
 
+namespace Utils { class FilePath; }
+
 namespace CppEditor::Tests::Internal {
 
 class TestIncludePaths
@@ -17,7 +19,7 @@ public:
     static QString globalQtCoreIncludePath();
     static QString globalIncludePath();
     static QString directoryOfTestFile();
-    static QString testFilePath(const QString &fileName = QLatin1String("file.cpp"));
+    static Utils::FilePath testFilePath(const QString &fileName = QLatin1String("file.cpp"));
 };
 
-} // namespace CppEditor::Tests::Internal
+} // CppEditor::Tests::Internal

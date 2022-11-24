@@ -29,11 +29,11 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
     _preproc.setKeepComments(true);
 
     if (Document::Ptr doc = _snapshot.document(filePath)) {
-        _merged.insert(filePath.toString());
+        _merged.insert(filePath);
 
         for (Snapshot::const_iterator i = _snapshot.begin(), ei = _snapshot.end(); i != ei; ++i) {
             if (isInjectedFile(i.key().toString()))
-                mergeEnvironment(i.key().toString());
+                mergeEnvironment(i.key());
         }
 
         const QList<Document::Include> includes = doc->resolvedIncludes();
@@ -55,20 +55,21 @@ void FastPreprocessor::sourceNeeded(int line, const QString &fileName, IncludeTy
 {
     Q_UNUSED(initialIncludes)
     Q_ASSERT(_currentDoc);
+    FilePath filePath = FilePath::fromString(fileName);
     if (_addIncludesToCurrentDoc) {
-        // CHECKME: Is that cleanName needed?
-        const QString cleanName = QDir::cleanPath(fileName);
-        _currentDoc->addIncludeFile(Document::Include(fileName, cleanName, line, mode));
+        // CHECKME: Is that cleanPath needed?
+        const FilePath cleanPath = filePath.cleanPath();
+        _currentDoc->addIncludeFile(Document::Include(fileName, cleanPath, line, mode));
     }
-    mergeEnvironment(fileName);
+    mergeEnvironment(filePath);
 }
 
-void FastPreprocessor::mergeEnvironment(const QString &fileName)
+void FastPreprocessor::mergeEnvironment(const FilePath &filePath)
 {
-    if (! _merged.contains(fileName)) {
-        _merged.insert(fileName);
+    if (! _merged.contains(filePath)) {
+        _merged.insert(filePath);
 
-        if (Document::Ptr doc = _snapshot.document(fileName)) {
+        if (Document::Ptr doc = _snapshot.document(filePath)) {
             const QList<Document::Include> includes = doc->resolvedIncludes();
             for (const Document::Include &i : includes)
                 mergeEnvironment(i.resolvedFileName());

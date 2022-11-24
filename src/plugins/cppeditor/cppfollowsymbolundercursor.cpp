@@ -624,7 +624,7 @@ void FollowSymbolUnderCursor::findLink(
             const QList<Document::Include> includes = doc->resolvedIncludes();
             for (const Document::Include &incl : includes) {
                 if (incl.line() == lineno) {
-                    link.targetFilePath = Utils::FilePath::fromString(incl.resolvedFileName());
+                    link.targetFilePath = incl.resolvedFileName();
                     link.linkTextStart = beginOfToken + 1;
                     link.linkTextEnd = endOfToken - 1;
                     processLinkCallback(link);

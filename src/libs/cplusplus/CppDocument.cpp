@@ -299,11 +299,11 @@ void Document::setLastModified(const QDateTime &lastModified)
 
 FilePaths Document::includedFiles() const
 {
-    QStringList files;
+    FilePaths files;
     for (const Include &i : std::as_const(_resolvedIncludes))
         files.append(i.resolvedFileName());
-    files.removeDuplicates();
-    return transform(files, &FilePath::fromString);
+    FilePath::removeDuplicates(files);
+    return files;
 }
 
 // This assumes to be called with a QDir::cleanPath cleaned fileName.
@@ -786,13 +786,13 @@ QSet<FilePath> Snapshot::allIncludesForDocument(const FilePath &filePath) const
 }
 
 QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(
-        const QString &fileNameOrPath) const
+        const FilePath &fileNameOrPath) const
 {
-    const bool matchFullPath = FilePath::fromString(fileNameOrPath).isAbsolutePath();
+    const bool matchFullPath = fileNameOrPath.isAbsolutePath();
     const auto isMatch = [&](const Document::Include &include) {
         if (matchFullPath)
             return include.resolvedFileName() == fileNameOrPath;
-        return FilePath::fromString(include.resolvedFileName()).fileName() == fileNameOrPath;
+        return include.resolvedFileName().fileName() == fileNameOrPath.fileName();
     };
     QList<IncludeLocation> result;
     for (const_iterator cit = begin(), citEnd = end(); cit != citEnd; ++cit) {
@@ -807,7 +807,7 @@ QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(
         }
         if (!matchFullPath && !foundMatch) {
             for (const auto &includeFile : cit.value()->unresolvedIncludes()) {
-                if (includeFile.unresolvedFileName() == fileNameOrPath)
+                if (includeFile.unresolvedFileName() == fileNameOrPath.path())
                     result.push_back({doc, includeFile.line()});
             }
         }

@@ -82,7 +82,7 @@ public:
 
         // Test model
         CppIncludeHierarchyModel model;
-        model.buildHierarchy(editor->document()->filePath().toString());
+        model.buildHierarchy(editor->document()->filePath());
         const QString actualHierarchy = toString(model);
         QCOMPARE(actualHierarchy, expectedHierarchy);
     }

@@ -3,11 +3,14 @@
 
 #pragma once
 
-#include "PreprocessorClient.h"
 #include "CppDocument.h"
-#include "pp.h"
+#include "PreprocessorClient.h"
+#include "PreprocessorEnvironment.h"
+#include "pp-engine.h"
 
 #include <cplusplus/Control.h>
+
+#include <utils/filepath.h>
 
 #include <QSet>
 #include <QString>
@@ -19,11 +22,11 @@ class CPLUSPLUS_EXPORT FastPreprocessor: public Client
     Environment _env;
     Snapshot _snapshot;
     Preprocessor _preproc;
-    QSet<QString> _merged;
+    QSet<Utils::FilePath> _merged;
     Document::Ptr _currentDoc;
     bool _addIncludesToCurrentDoc;
 
-    void mergeEnvironment(const QString &fileName);
+    void mergeEnvironment(const Utils::FilePath &filePath);
 
 public:
     FastPreprocessor(const Snapshot &snapshot);

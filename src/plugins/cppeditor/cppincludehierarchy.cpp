@@ -58,24 +58,24 @@ static Snapshot globalSnapshot()
 struct FileAndLine
 {
     FileAndLine() = default;
-    FileAndLine(const QString &f, int l) : file(f), line(l) {}
+    FileAndLine(const FilePath &f, int l) : file(f), line(l) {}
 
-    QString file;
+    FilePath file;
     int line = 0;
 };
 
 using FileAndLines = QList<FileAndLine>;
 
-static FileAndLines findIncluders(const QString &filePath)
+static FileAndLines findIncluders(const FilePath &filePath)
 {
     FileAndLines result;
     const Snapshot snapshot = globalSnapshot();
     for (auto cit = snapshot.begin(), citEnd = snapshot.end(); cit != citEnd; ++cit) {
-        const QString filePathFromSnapshot = cit.key().toString();
+        const FilePath filePathFromSnapshot = cit.key();
         Document::Ptr doc = cit.value();
         const QList<Document::Include> resolvedIncludes = doc->resolvedIncludes();
         for (const auto &includeFile : resolvedIncludes) {
-            const QString includedFilePath = includeFile.resolvedFileName();
+            const FilePath includedFilePath = includeFile.resolvedFileName();
             if (includedFilePath == filePath)
                 result.append(FileAndLine(filePathFromSnapshot, int(includeFile.line())));
         }
@@ -83,7 +83,7 @@ static FileAndLines findIncluders(const QString &filePath)
     return result;
 }
 
-static FileAndLines findIncludes(const QString &filePath, const Snapshot &snapshot)
+static FileAndLines findIncludes(const FilePath &filePath, const Snapshot &snapshot)
 {
     FileAndLines result;
     if (Document::Ptr doc = snapshot.document(filePath)) {
@@ -101,11 +101,11 @@ public:
     enum SubTree { RootItem, InIncludes, InIncludedBy };
     CppIncludeHierarchyItem() = default;
 
-    void createChild(const QString &filePath, SubTree subTree,
+    void createChild(const FilePath &filePath, SubTree subTree,
                      int line = 0, bool definitelyNoChildren = false)
     {
         auto item = new CppIncludeHierarchyItem;
-        item->m_fileName = filePath.mid(filePath.lastIndexOf('/') + 1);
+        item->m_fileName = filePath.fileName();
         item->m_filePath = filePath;
         item->m_line = line;
         item->m_subTree = subTree;
@@ -120,7 +120,7 @@ public:
             item->setChildrenChecked();
     }
 
-    QString filePath() const
+    FilePath filePath() const
     {
         return isPhony() ? model()->editorFilePath() : m_filePath;
     }
@@ -138,7 +138,7 @@ private:
 
     Qt::ItemFlags flags(int) const override
     {
-        const Utils::Link link(Utils::FilePath::fromString(m_filePath), m_line);
+        const Utils::Link link(m_filePath, m_line);
         if (link.hasValidTarget())
             return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -148,7 +148,7 @@ private:
     void fetchMore() override;
 
     QString m_fileName;
-    QString m_filePath;
+    FilePath m_filePath;
     int m_line = 0;
     SubTree m_subTree = RootItem;
     bool m_isCyclic = false;
@@ -171,11 +171,11 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
 
     switch (role) {
         case Qt::ToolTipRole:
-            return m_filePath;
+            return m_filePath.displayName();
         case Qt::DecorationRole:
-            return FileIconProvider::icon(FilePath::fromString(m_filePath));
+            return FileIconProvider::icon(m_filePath);
         case LinkRole:
-            return QVariant::fromValue(Link(FilePath::fromString(m_filePath), m_line));
+            return QVariant::fromValue(Link(m_filePath, m_line));
     }
 
     return QVariant();
@@ -197,7 +197,7 @@ void CppIncludeHierarchyItem::fetchMore()
 
     model()->m_seen.insert(m_filePath);
 
-    const FilePath editorFilePath = FilePath::fromString(model()->editorFilePath());
+    const FilePath editorFilePath = model()->editorFilePath();
 
     setChildrenChecked();
     if (m_subTree == InIncludes) {
@@ -220,12 +220,14 @@ void CppIncludeHierarchyItem::fetchMore()
     }
 }
 
-void CppIncludeHierarchyModel::buildHierarchy(const QString &document)
+void CppIncludeHierarchyModel::buildHierarchy(const FilePath &document)
 {
     m_editorFilePath = document;
     rootItem()->removeChildren();
-    rootItem()->createChild(tr("Includes"), CppIncludeHierarchyItem::InIncludes);
-    rootItem()->createChild(tr("Included by"), CppIncludeHierarchyItem::InIncludedBy);
+    rootItem()->createChild(FilePath::fromPathPart(tr("Includes")),
+                            CppIncludeHierarchyItem::InIncludes);
+    rootItem()->createChild(FilePath::fromPathPart(tr("Included by")),
+                            CppIncludeHierarchyItem::InIncludedBy);
 }
 
 void CppIncludeHierarchyModel::setSearching(bool on)
@@ -411,7 +413,7 @@ void CppIncludeHierarchyWidget::perform()
         return;
 
     const Utils::FilePath documentPath = m_editor->textDocument()->filePath();
-    m_model.buildHierarchy(documentPath.toString());
+    m_model.buildHierarchy(documentPath);
 
     m_inspectedFile->setText(m_editor->textDocument()->displayName());
     m_inspectedFile->setLink(Utils::Link(documentPath));

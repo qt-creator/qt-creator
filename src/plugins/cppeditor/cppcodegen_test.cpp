@@ -388,7 +388,7 @@ void CodegenTest::testDefinitionFirstMember()
     Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 3);
     QVERIFY(sourceDocument);
     sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
-                                                     headerDocument->filePath().toString(), 1,
+                                                     headerDocument->filePath(), 1,
                                                      Client::IncludeLocal));
 
     Snapshot snapshot;
@@ -447,7 +447,7 @@ void CodegenTest::testDefinitionLastMember()
     Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 3);
     QVERIFY(sourceDocument);
     sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
-                                                     headerDocument->filePath().toString(), 1,
+                                                     headerDocument->filePath(), 1,
                                                      Client::IncludeLocal));
 
     Snapshot snapshot;
@@ -513,7 +513,7 @@ void CodegenTest::testDefinitionMiddleMember()
     Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 4);
     QVERIFY(sourceDocument);
     sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
-                                                     headerDocument->filePath().toString(), 1,
+                                                     headerDocument->filePath(), 1,
                                                      Client::IncludeLocal));
 
     Snapshot snapshot;
@@ -573,7 +573,7 @@ void CodegenTest::testDefinitionMiddleMemberSurroundedByUndefined()
     Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 3);
     QVERIFY(sourceDocument);
     sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
-                                                     headerDocument->filePath().toString(), 1,
+                                                     headerDocument->filePath(), 1,
                                                      Client::IncludeLocal));
 
     Snapshot snapshot;
@@ -636,7 +636,7 @@ void CodegenTest::testDefinitionMemberSpecificFile()
     Document::Ptr sourceDocument = createDocumentAndFile(&temporaryDir, "file.cpp", sourceText, 3);
     QVERIFY(sourceDocument);
     sourceDocument->addIncludeFile(Document::Include(QLatin1String("file.h"),
-                                                     headerDocument->filePath().toString(), 1,
+                                                     headerDocument->filePath(), 1,
                                                      Client::IncludeLocal));
 
     Snapshot snapshot;

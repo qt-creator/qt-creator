@@ -8031,7 +8031,7 @@ private:
             Node &node = includeGraph[filePath];
             node.document = doc;
             for (const Document::Include &include : doc->resolvedIncludes()) {
-                const auto filePath = FilePath::fromString(include.resolvedFileName());
+                const FilePath filePath = include.resolvedFileName();
                 if (shouldHandle(filePath)) {
                     Node &includedNode = includeGraph[filePath];
                     includedNode.includedBy.push_back(node);
@@ -8105,7 +8105,7 @@ private:
                                 refactoring.snapshot(),
                                 currentFile->endOf(m_usingDirective),
                                 true)) {
-            processIncludes(refactoring, filePath().toString());
+            processIncludes(refactoring, filePath());
         }
 
         for (auto &file : std::as_const(m_changes))
@@ -8143,10 +8143,10 @@ private:
         return visitor.isGlobalUsingNamespace() && !visitor.foundGlobalUsingNamespace();
     }
 
-    void processIncludes(CppRefactoringChanges &refactoring, const QString &fileName)
+    void processIncludes(CppRefactoringChanges &refactoring, const FilePath &filePath)
     {
         QList<Snapshot::IncludeLocation>
-            includeLocationsOfDocument = refactoring.snapshot().includeLocationsOfDocument(fileName);
+            includeLocationsOfDocument = refactoring.snapshot().includeLocationsOfDocument(filePath);
         for (Snapshot::IncludeLocation &loc : includeLocationsOfDocument) {
             if (m_processed.contains(loc.first))
                 continue;
@@ -8157,7 +8157,7 @@ private:
                                                     file->position(loc.second, 1));
             m_processed.insert(loc.first);
             if (noGlobalUsing)
-                processIncludes(refactoring, loc.first->filePath().toString());
+                processIncludes(refactoring, loc.first->filePath());
         }
     }
 

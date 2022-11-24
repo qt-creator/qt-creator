@@ -21,6 +21,7 @@
 #include <QSet>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 
@@ -62,18 +63,18 @@ class CppInclude : public CppElement
 {
 public:
     explicit CppInclude(const Document::Include &includeFile)
-        : path(QDir::toNativeSeparators(includeFile.resolvedFileName()))
-        , fileName(Utils::FilePath::fromString(includeFile.resolvedFileName()).fileName())
+        : path(includeFile.resolvedFileName())
+        , fileName(path.fileName())
     {
         helpCategory = Core::HelpItem::Brief;
         helpIdCandidates = QStringList(fileName);
         helpMark = fileName;
-        link = Utils::Link(Utils::FilePath::fromString(path));
-        tooltip = path;
+        link = Utils::Link(path);
+        tooltip = path.toUserOutput();
     }
 
 public:
-    QString path;
+    Utils::FilePath path;
     QString fileName;
 };
 
@@ -95,7 +96,7 @@ public:
 CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     : CppElement()
     , declaration(declaration)
-    , icon(Icons::iconForSymbol(declaration))
+    , icon(CPlusPlus::Icons::iconForSymbol(declaration))
 {
     Overview overview;
     overview.showArgumentNames = true;

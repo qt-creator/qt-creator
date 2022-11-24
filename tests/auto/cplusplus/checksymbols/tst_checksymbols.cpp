@@ -1148,14 +1148,14 @@ void tst_CheckSymbols::test_checksymbols_infiniteLoop()
     const QString filePath1 = QDir::tempPath() + QLatin1String("/file1.h");
     Tests::TestCase::writeFile(FilePath::fromString(filePath1), source1);
 
-    const QString filePath2 = QDir::tempPath() + QLatin1String("/file2.h");
-    Tests::TestCase::writeFile(FilePath::fromString(filePath2), source2);
+    const FilePath filePath2 = FilePath::fromString(QDir::tempPath()) / "/file2.h";
+    Tests::TestCase::writeFile(filePath2, source2);
 
     const Document::Ptr document1 = TestCase::createDocument(filePath1, source1);
     document1->addIncludeFile(Document::Include("file2.h", filePath2, 1, Client::IncludeLocal));
     Snapshot snapshot;
     snapshot.insert(document1);
-    snapshot.insert(TestCase::createDocument(filePath2, source2));
+    snapshot.insert(TestCase::createDocument(filePath2.toString(), source2));
 
     TestCase::runCheckSymbols(document1, snapshot);
 }
