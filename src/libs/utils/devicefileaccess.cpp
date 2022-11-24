@@ -458,7 +458,7 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
             return false;
         }
     } else {
-        if (!QFile::remove(filePath.toString())) {
+        if (!QFile::remove(filePath.path())) {
             if (error) {
                 *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove file \"%1\".")
                         .arg(filePath.toUserOutput());
@@ -652,7 +652,7 @@ QByteArray DesktopDeviceFileAccess::fileId(const FilePath &filePath) const
         return result;
 
     QT_STATBUF statResult;
-    if (QT_STAT(filePath.toString().toLocal8Bit().constData(), &statResult))
+    if (QT_STAT(filePath.path().toLocal8Bit().constData(), &statResult))
         return result;
     result = QByteArray::number(quint64(statResult.st_dev), 16);
     result += ':';
