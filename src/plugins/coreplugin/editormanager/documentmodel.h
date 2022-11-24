@@ -32,7 +32,7 @@ public:
     struct CORE_EXPORT Entry {
         Entry();
         ~Entry();
-        Utils::FilePath fileName() const;
+        Utils::FilePath filePath() const;
         QString displayName() const;
         QString plainDisplayName() const;
         QString uniqueDisplayName() const;

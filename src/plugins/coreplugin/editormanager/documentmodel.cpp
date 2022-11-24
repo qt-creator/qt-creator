@@ -36,7 +36,7 @@ bool compare(const DocumentModel::Entry *e1, const DocumentModel::Entry *e2)
         return e1->pinned;
 
     const int cmp = e1->plainDisplayName().localeAwareCompare(e2->plainDisplayName());
-    return (cmp < 0) || (cmp == 0 && e1->fileName() < e2->fileName());
+    return (cmp < 0) || (cmp == 0 && e1->filePath() < e2->filePath());
 }
 
 // Return a pair of indices. The first is the index that needs to be removed or -1 if no removal
@@ -81,7 +81,7 @@ int DocumentModelPrivate::rowCount(const QModelIndex &parent) const
 
 void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
 {
-    const Utils::FilePath filePath = entry->fileName();
+    const Utils::FilePath filePath = entry->filePath();
 
     // replace a non-loaded entry (aka 'suspended') if possible
     DocumentModel::Entry *previousEntry = DocumentModel::entryForFilePath(filePath);
@@ -224,7 +224,7 @@ void DocumentModelPrivate::removeDocument(int idx)
     DocumentModel::Entry *entry = m_entries.takeAt(idx);
     endRemoveRows();
 
-    const FilePath fixedPath = DocumentManager::filePathKey(entry->fileName(),
+    const FilePath fixedPath = DocumentManager::filePathKey(entry->filePath(),
                                                             DocumentManager::ResolveLinks);
     if (!fixedPath.isEmpty())
         m_entryByFixedPath.remove(fixedPath);
@@ -246,7 +246,7 @@ std::optional<int> DocumentModelPrivate::indexOfDocument(IDocument *document) co
 Qt::ItemFlags DocumentModelPrivate::flags(const QModelIndex &index) const
 {
     const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
-    if (!e || e->fileName().isEmpty())
+    if (!e || e->filePath().isEmpty())
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     return Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
@@ -256,9 +256,9 @@ QMimeData *DocumentModelPrivate::mimeData(const QModelIndexList &indexes) const
     auto data = new Utils::DropMimeData;
     for (const QModelIndex &index : indexes) {
         const DocumentModel::Entry *e = DocumentModel::entryAtRow(index.row());
-        if (!e || e->fileName().isEmpty())
+        if (!e || e->filePath().isEmpty())
             continue;
-        data->addFile(e->fileName());
+        data->addFile(e->filePath());
     }
     return data;
 }
@@ -311,7 +311,7 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
             return pinnedIcon();
         return QVariant();
     case Qt::ToolTipRole:
-        return entry->fileName().isEmpty() ? entry->displayName() : entry->fileName().toUserOutput();
+        return entry->filePath().isEmpty() ? entry->displayName() : entry->filePath().toUserOutput();
     default:
         break;
     }
@@ -463,7 +463,7 @@ void DocumentModelPrivate::removeAllSuspendedEntries(PinnedFileRemovalPolicy pin
         if (pinnedFileRemovalPolicy == DoNotRemovePinnedFiles && entry->pinned)
             continue;
 
-        const FilePath fixedPath = DocumentManager::filePathKey(entry->fileName(),
+        const FilePath fixedPath = DocumentManager::filePathKey(entry->filePath(),
                                                                 DocumentManager::ResolveLinks);
         int row = i + 1/*<no document>*/;
         d->beginRemoveRows(QModelIndex(), row, row);
@@ -496,7 +496,7 @@ DocumentModel::Entry *DocumentModelPrivate::DynamicEntry::operator->() const
 
 void DocumentModelPrivate::DynamicEntry::disambiguate()
 {
-    const QString display = entry->fileName().fileNameWithPathComponents(++pathComponents);
+    const QString display = entry->filePath().fileNameWithPathComponents(++pathComponents);
     entry->document->setUniqueDisplayName(display);
 }
 
@@ -544,7 +544,7 @@ QAbstractItemModel *DocumentModel::model()
     return d;
 }
 
-Utils::FilePath DocumentModel::Entry::fileName() const
+Utils::FilePath DocumentModel::Entry::filePath() const
 {
     return document->filePath();
 }

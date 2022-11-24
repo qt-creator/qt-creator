@@ -81,7 +81,7 @@ void OpenDocumentsFilter::refreshInternally()
         // create copy with only the information relevant to use
         // to avoid model deleting entries behind our back
         entry.displayName = e->displayName();
-        entry.fileName = e->fileName();
+        entry.fileName = e->filePath();
         m_editors.append(entry);
     }
 }

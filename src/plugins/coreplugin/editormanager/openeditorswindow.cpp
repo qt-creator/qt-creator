@@ -227,10 +227,10 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
     auto item = new QTreeWidgetItem();
     if (entry->document->isModified())
         title += tr("*");
-    item->setIcon(0, !entry->fileName().isEmpty() && entry->document->isFileReadOnly()
-                  ? DocumentModel::lockedIcon() : Utils::FileIconProvider::icon(entry->fileName()));
+    item->setIcon(0, !entry->filePath().isEmpty() && entry->document->isFileReadOnly()
+                  ? DocumentModel::lockedIcon() : Utils::FileIconProvider::icon(entry->filePath()));
     item->setText(0, title);
-    item->setToolTip(0, entry->fileName().toString());
+    item->setToolTip(0, entry->filePath().toString());
     item->setData(0, int(Role::Entry), QVariant::fromValue(entry));
     item->setData(0, int(Role::View), QVariant::fromValue(view));
     item->setTextAlignment(0, Qt::AlignLeft);

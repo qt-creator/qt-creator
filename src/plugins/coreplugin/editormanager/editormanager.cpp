@@ -551,22 +551,22 @@ void EditorManagerPrivate::init()
             this, &EditorManagerPrivate::closeAllEditorsExceptVisible);
 
     connect(m_openGraphicalShellContextAction, &QAction::triggered, this, [this] {
-        if (!m_contextMenuEntry || m_contextMenuEntry->fileName().isEmpty())
+        if (!m_contextMenuEntry || m_contextMenuEntry->filePath().isEmpty())
             return;
-        FileUtils::showInGraphicalShell(ICore::dialogParent(), m_contextMenuEntry->fileName());
+        FileUtils::showInGraphicalShell(ICore::dialogParent(), m_contextMenuEntry->filePath());
     });
     connect(m_showInFileSystemViewContextAction, &QAction::triggered, this, [this] {
-        if (!m_contextMenuEntry || m_contextMenuEntry->fileName().isEmpty())
+        if (!m_contextMenuEntry || m_contextMenuEntry->filePath().isEmpty())
             return;
-        FileUtils::showInFileSystemView(m_contextMenuEntry->fileName());
+        FileUtils::showInFileSystemView(m_contextMenuEntry->filePath());
     });
     connect(m_openTerminalAction, &QAction::triggered, this, &EditorManagerPrivate::openTerminal);
     connect(m_findInDirectoryAction, &QAction::triggered,
             this, &EditorManagerPrivate::findInDirectory);
     connect(m_filePropertiesAction, &QAction::triggered, this, []() {
-        if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
+        if (!d->m_contextMenuEntry || d->m_contextMenuEntry->filePath().isEmpty())
             return;
-        DocumentManager::showFilePropertiesDialog(d->m_contextMenuEntry->fileName());
+        DocumentManager::showFilePropertiesDialog(d->m_contextMenuEntry->filePath());
     });
     connect(m_pinAction, &QAction::triggered, this, &EditorManagerPrivate::togglePinned);
 
@@ -1593,7 +1593,7 @@ bool EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
         return editor != nullptr;
     }
 
-    if (!openEditor(view, entry->fileName(), entry->id(), flags)) {
+    if (!openEditor(view, entry->filePath(), entry->id(), flags)) {
         DocumentModelPrivate::removeEntry(entry);
         return false;
     }
@@ -2409,14 +2409,14 @@ void EditorManagerPrivate::copyFilePathFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    setClipboardAndSelection(d->m_contextMenuEntry->fileName().toUserOutput());
+    setClipboardAndSelection(d->m_contextMenuEntry->filePath().toUserOutput());
 }
 
 void EditorManagerPrivate::copyLocationFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    const QString text = d->m_contextMenuEntry->fileName().toUserOutput()
+    const QString text = d->m_contextMenuEntry->filePath().toUserOutput()
             + QLatin1Char(':') + m_copyLocationContextAction->data().toString();
     setClipboardAndSelection(text);
 }
@@ -2425,7 +2425,7 @@ void EditorManagerPrivate::copyFileNameFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    setClipboardAndSelection(d->m_contextMenuEntry->fileName().fileName());
+    setClipboardAndSelection(d->m_contextMenuEntry->filePath().fileName());
 }
 
 void EditorManagerPrivate::saveDocumentFromContextMenu()
@@ -2622,23 +2622,23 @@ void EditorManagerPrivate::autoSuspendDocuments()
 
 void EditorManagerPrivate::openTerminal()
 {
-    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
+    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->filePath().isEmpty())
         return;
-    FileUtils::openTerminal(d->m_contextMenuEntry->fileName().parentDir());
+    FileUtils::openTerminal(d->m_contextMenuEntry->filePath().parentDir());
 }
 
 void EditorManagerPrivate::findInDirectory()
 {
-    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
+    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->filePath().isEmpty())
         return;
-    const FilePath path = d->m_contextMenuEntry->fileName();
+    const FilePath path = d->m_contextMenuEntry->filePath();
     emit m_instance->findOnFileSystemRequest(
         (path.isDir() ? path : path.parentDir()).toString());
 }
 
 void EditorManagerPrivate::togglePinned()
 {
-    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
+    if (!d->m_contextMenuEntry || d->m_contextMenuEntry->filePath().isEmpty())
         return;
 
     const bool currentlyPinned = d->m_contextMenuEntry->pinned;
@@ -2852,7 +2852,7 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     d->m_contextMenuEntry = entry;
     d->m_contextMenuEditor = editor;
 
-    const FilePath filePath = entry ? entry->fileName() : FilePath();
+    const FilePath filePath = entry ? entry->filePath() : FilePath();
     const bool copyActionsEnabled = !filePath.isEmpty();
     d->m_copyFilePathContextAction->setEnabled(copyActionsEnabled);
     d->m_copyLocationContextAction->setEnabled(copyActionsEnabled);
@@ -2929,7 +2929,7 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
 {
     QTC_ASSERT(contextMenu, return);
     d->m_contextMenuEntry = entry;
-    bool enabled = entry && !entry->fileName().isEmpty();
+    bool enabled = entry && !entry->filePath().isEmpty();
     d->m_openGraphicalShellContextAction->setEnabled(enabled);
     d->m_showInFileSystemViewContextAction->setEnabled(enabled);
     d->m_openTerminalAction->setEnabled(enabled);
@@ -2943,7 +2943,7 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
     QMenu *openWith = contextMenu->addMenu(tr("Open With"));
     openWith->setEnabled(enabled);
     if (enabled)
-        populateOpenWithMenu(openWith, entry->fileName());
+        populateOpenWithMenu(openWith, entry->filePath());
 }
 
 /*!
@@ -3274,7 +3274,7 @@ static QString makeTitleUnique(QString *titlePattern)
             QSet<QString> docnames;
             const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
             for (const DocumentModel::Entry *entry : entries) {
-                QString name = entry->fileName().toString();
+                QString name = entry->filePath().toString();
                 if (name.isEmpty())
                     name = entry->displayName();
                 else
@@ -3562,7 +3562,7 @@ QByteArray EditorManager::saveState()
 
     for (const DocumentModel::Entry *entry : entries) {
         if (!entry->document->isTemporary()) {
-            stream << entry->fileName().toString() << entry->plainDisplayName() << entry->id()
+            stream << entry->filePath().toString() << entry->plainDisplayName() << entry->id()
                    << entry->pinned;
         }
     }

@@ -135,7 +135,7 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
         const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
         for (DocumentModel::Entry *entry : entries) {
             if (entry)
-                seedPaths.insert(entry->fileName());
+                seedPaths.insert(entry->filePath());
         }
         CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
         setFileIterator(new CppIncludesIterator(snapshot, seedPaths));

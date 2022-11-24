@@ -2367,13 +2367,13 @@ bool ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project
     QTC_ASSERT(project, return false);
     QList<DocumentModel::Entry *> openFiles = DocumentModel::entries();
     Utils::erase(openFiles, [project](const DocumentModel::Entry *entry) {
-        return entry->pinned || !project->isKnownFile(entry->fileName());
+        return entry->pinned || !project->isKnownFile(entry->filePath());
     });
     for (const Project * const otherProject : SessionManager::projects()) {
         if (otherProject == project)
             continue;
         Utils::erase(openFiles, [otherProject](const DocumentModel::Entry *entry) {
-            return otherProject->isKnownFile(entry->fileName());
+            return otherProject->isKnownFile(entry->filePath());
         });
     }
     return EditorManager::closeDocuments(openFiles);

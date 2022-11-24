@@ -1033,7 +1033,7 @@ static FileInfos fileInfosMatchingDocuments(const FileInfos &fileInfos,
     QSet<Utils::FilePath> documentPaths;
     for (const Core::DocumentModel::Entry *e : Core::DocumentModel::entries()) {
         if (predicate(e->document))
-            documentPaths.insert(e->fileName());
+            documentPaths.insert(e->filePath());
     }
 
     return Utils::filtered(fileInfos, [documentPaths](const FileInfo &fileInfo) {

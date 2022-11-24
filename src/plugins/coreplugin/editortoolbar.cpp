@@ -425,7 +425,7 @@ bool EditorToolBar::eventFilter(QObject *obj, QEvent *event)
                 return Utils::StyledBar::eventFilter(obj, event);
             auto drag = new QDrag(this);
             auto data = new Utils::DropMimeData;
-            data->addFile(entry->fileName());
+            data->addFile(entry->filePath());
             drag->setMimeData(data);
             Qt::DropAction action = drag->exec(Qt::MoveAction | Qt::CopyAction, Qt::MoveAction);
             if (action == Qt::MoveAction)
