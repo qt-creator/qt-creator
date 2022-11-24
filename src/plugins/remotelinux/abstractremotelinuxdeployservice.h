@@ -69,7 +69,6 @@ protected:
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
                                  const QDateTime &remoteTimestamp);
-
     bool hasLocalFileChanged(const ProjectExplorer::DeployableFile &deployableFile) const;
     bool hasRemoteFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
                               const QDateTime &remoteTimestamp) const;
@@ -80,7 +79,6 @@ private:
     virtual bool isDeploymentNecessary() const = 0;
     virtual void doDeploy() = 0;
     virtual void stopDeployment() = 0;
-
 
     Internal::AbstractRemoteLinuxDeployServicePrivate * const d;
 };

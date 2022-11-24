@@ -23,7 +23,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 namespace {
-enum State { Inactive, Deploying };
+enum State { Inactive, Deploying, Stopping };
 } // anonymous namespace
 
 class AbstractRemoteLinuxDeployServicePrivate
@@ -34,7 +34,6 @@ public:
 
     DeploymentTimeInfo deployTimes;
     State state = Inactive;
-    bool stopRequested = false;
 };
 } // namespace Internal
 
@@ -117,13 +116,10 @@ void AbstractRemoteLinuxDeployService::start()
 
 void AbstractRemoteLinuxDeployService::stop()
 {
-    if (d->stopRequested)
+    if (d->state != Deploying)
         return;
-
-    if (d->state == Deploying) {
-        d->stopRequested = true;
-        stopDeployment();
-    }
+    d->state = Stopping;
+    stopDeployment();
 }
 
 CheckResult AbstractRemoteLinuxDeployService::isDeploymentPossible() const
@@ -145,9 +141,8 @@ void AbstractRemoteLinuxDeployService::importDeployTimes(const QVariantMap &map)
 
 void AbstractRemoteLinuxDeployService::handleDeploymentDone()
 {
-    QTC_ASSERT(d->state == Deploying, return);
+    QTC_ASSERT(d->state != Inactive, return);
     d->state = Inactive;
-    d->stopRequested = false;
     emit finished();
 }
 
