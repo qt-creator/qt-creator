@@ -24,10 +24,8 @@
 
 #include <utils/algorithm.h>
 
-#include <QBitArray>
 #include <QByteArray>
 #include <QDebug>
-#include <QDir>
 #include <QFutureInterface>
 #include <QStack>
 
@@ -682,19 +680,19 @@ bool Snapshot::isEmpty() const
     return _documents.isEmpty();
 }
 
-Snapshot::const_iterator Snapshot::find(const Utils::FilePath &fileName) const
+Snapshot::const_iterator Snapshot::find(const FilePath &filePath) const
 {
-    return _documents.find(fileName);
+    return _documents.find(filePath);
 }
 
-void Snapshot::remove(const Utils::FilePath &fileName)
+void Snapshot::remove(const FilePath &filePath)
 {
-    _documents.remove(fileName);
+    _documents.remove(filePath);
 }
 
-bool Snapshot::contains(const Utils::FilePath &fileName) const
+bool Snapshot::contains(const FilePath &filePath) const
 {
-    return _documents.contains(fileName);
+    return _documents.contains(filePath);
 }
 
 void Snapshot::insert(Document::Ptr doc)
@@ -790,11 +788,11 @@ QSet<FilePath> Snapshot::allIncludesForDocument(const FilePath &filePath) const
 QList<Snapshot::IncludeLocation> Snapshot::includeLocationsOfDocument(
         const QString &fileNameOrPath) const
 {
-    const bool matchFullPath = Utils::FilePath::fromString(fileNameOrPath).isAbsolutePath();
+    const bool matchFullPath = FilePath::fromString(fileNameOrPath).isAbsolutePath();
     const auto isMatch = [&](const Document::Include &include) {
         if (matchFullPath)
             return include.resolvedFileName() == fileNameOrPath;
-        return Utils::FilePath::fromString(include.resolvedFileName()).fileName() == fileNameOrPath;
+        return FilePath::fromString(include.resolvedFileName()).fileName() == fileNameOrPath;
     };
     QList<IncludeLocation> result;
     for (const_iterator cit = begin(), citEnd = end(); cit != citEnd; ++cit) {

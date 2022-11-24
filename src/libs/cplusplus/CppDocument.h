@@ -32,7 +32,7 @@ class CPLUSPLUS_EXPORT Document
     Document(const Document &other);
     void operator =(const Document &other);
 
-    Document(const Utils::FilePath &fileName);
+    Document(const Utils::FilePath &filePath);
 
 public:
     typedef QSharedPointer<Document> Ptr;
@@ -380,23 +380,23 @@ public:
     bool isEmpty() const;
 
     void insert(Document::Ptr doc); // ### remove
-    void remove(const Utils::FilePath &fileName); // ### remove
+    void remove(const Utils::FilePath &filePath); // ### remove
 
     const_iterator begin() const { return _documents.begin(); }
     const_iterator end() const { return _documents.end(); }
 
-    bool contains(const Utils::FilePath &fileName) const;
+    bool contains(const Utils::FilePath &filePath) const;
 
-    Document::Ptr document(const Utils::FilePath &fileName) const;
+    Document::Ptr document(const Utils::FilePath &filePath) const;
     Document::Ptr document(const QString &fileName) const
     { return document(Utils::FilePath::fromString(fileName)); }
 
-    const_iterator find(const Utils::FilePath &fileName) const;
+    const_iterator find(const Utils::FilePath &filePath) const;
 
     Snapshot simplified(Document::Ptr doc) const;
 
     Document::Ptr preprocessedDocument(const QByteArray &source,
-                                       const Utils::FilePath &fileName,
+                                       const Utils::FilePath &filePath,
                                        int withDefinedMacrosFromDocumentUntilLine = -1) const;
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
@@ -406,7 +406,7 @@ public:
 
     QList<IncludeLocation> includeLocationsOfDocument(const QString &fileNameOrPath) const;
 
-    Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
+    Utils::FilePaths filesDependingOn(const Utils::FilePath &filePath) const;
 
     void updateDependencyTable() const;
     void updateDependencyTable(QFutureInterfaceBase &futureInterface) const;
