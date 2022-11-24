@@ -6,6 +6,7 @@
 #include "qnxtr.h"
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 using namespace Utils;
 
@@ -20,14 +21,18 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
     connect(m_genericTester, &DeviceTester::errorMessage,
             this, &DeviceTester::errorMessage);
     connect(m_genericTester, &DeviceTester::finished,
-            this, &QnxDeviceTester::handleGenericTestFinished);
+            this, &QnxDeviceTester::finished);
+}
 
-    connect(&m_varRunProcess, &QtcProcess::done, this, &QnxDeviceTester::handleVarRunDone);
+static QStringList versionSpecificCommandsToTest(int versionNumber)
+{
+    if (versionNumber > 0x060500)
+        return {"slog2info"};
+    return {};
 }
 
 void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration)
 {
-    QTC_ASSERT(m_state == Inactive, return);
     static const QStringList s_commandsToTest = {"awk",
                                                  "cat",
                                                  "cut",
@@ -45,76 +50,38 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConf
                                                  "sleep",
                                                  "tail",
                                                  "uname"};
-
     m_deviceConfiguration = deviceConfiguration;
-    m_state = GenericTest;
-
     QnxDevice::ConstPtr qnxDevice = m_deviceConfiguration.dynamicCast<const QnxDevice>();
     m_genericTester->setExtraCommandsToTest(
                 s_commandsToTest + versionSpecificCommandsToTest(qnxDevice->qnxVersion()));
+
+    using namespace Tasking;
+
+    auto setupHandler = [this](QtcProcess &process) {
+        emit progressMessage(Tr::tr("Checking that files can be created in /var/run..."));
+        const CommandLine cmd {m_deviceConfiguration->filePath("/bin/sh"),
+            {"-c", QLatin1String("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1")
+                        .arg("/var/run/qtc_xxxx.pid")}};
+        process.setCommand(cmd);
+    };
+    auto doneHandler = [this](const QtcProcess &) {
+        emit progressMessage(Tr::tr("Files can be created in /var/run.") + '\n');
+    };
+    auto errorHandler = [this](const QtcProcess &process) {
+        const QString message = process.result() == ProcessResult::StartFailed
+                ? Tr::tr("An error occurred while checking that files can be created in /var/run.")
+                  + '\n' + process.errorString()
+                : Tr::tr("Files cannot be created in /var/run.");
+        emit errorMessage(message + '\n');
+    };
+    m_genericTester->setExtraTests({Process(setupHandler, doneHandler, errorHandler)});
+
     m_genericTester->testDevice(deviceConfiguration);
 }
 
 void QnxDeviceTester::stopTest()
 {
-    QTC_ASSERT(m_state != Inactive, return);
-
-    if (m_state == GenericTest)
-        m_genericTester->stopTest();
-
-    setFinished(TestFailure);
-}
-
-void QnxDeviceTester::handleGenericTestFinished(TestResult result)
-{
-    QTC_ASSERT(m_state == GenericTest, return);
-
-    if (result == TestFailure) {
-        setFinished(TestFailure);
-        return;
-    }
-
-    m_state = VarRunTest;
-    emit progressMessage(Tr::tr("Checking that files can be created in /var/run..."));
-    const CommandLine cmd {m_deviceConfiguration->filePath("/bin/sh"),
-        {"-c", QLatin1String("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1")
-                    .arg("/var/run/qtc_xxxx.pid")}};
-    m_varRunProcess.setCommand(cmd);
-    m_varRunProcess.start();
-}
-
-void QnxDeviceTester::handleVarRunDone()
-{
-    if (m_varRunProcess.result() == ProcessResult::FinishedWithSuccess) {
-        emit progressMessage(Tr::tr("Files can be created in /var/run.") + '\n');
-    } else {
-        m_result = TestFailure;
-        const QString message = m_varRunProcess.result() == ProcessResult::StartFailed
-                ? Tr::tr("An error occurred while checking that files can be created in /var/run.")
-                  + '\n' + m_varRunProcess.errorString()
-                : Tr::tr("Files cannot be created in /var/run.");
-        emit errorMessage(message + '\n');
-    }
-    setFinished(m_result);
-}
-
-void QnxDeviceTester::setFinished(TestResult result)
-{
-    if (m_result == TestSuccess)
-        m_result = result;
-    m_state = Inactive;
-    disconnect(m_genericTester, nullptr, this, nullptr);
-    m_varRunProcess.close();
-    emit finished(m_result);
-}
-
-QStringList QnxDeviceTester::versionSpecificCommandsToTest(int versionNumber) const
-{
-    QStringList result;
-    if (versionNumber > 0x060500)
-        result << QLatin1String("slog2info");
-
-    return result;
+    m_genericTester->stopTest();
 }
 
 } // Qnx::Internal

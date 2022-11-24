@@ -4,9 +4,6 @@
 #pragma once
 
 #include <remotelinux/linuxdevicetester.h>
-#include <utils/qtcprocess.h>
-
-#include <QStringList>
 
 namespace Qnx {
 namespace Internal {
@@ -22,25 +19,8 @@ public:
     void stopTest() override;
 
 private:
-    enum State {
-        Inactive,
-        GenericTest,
-        VarRunTest
-    };
-
-    void handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult result);
-    void handleVarRunDone();
-
-    void setFinished(ProjectExplorer::DeviceTester::TestResult result);
-
-    QStringList versionSpecificCommandsToTest(int versionNumber) const;
-
-    RemoteLinux::GenericLinuxDeviceTester *m_genericTester;
+    RemoteLinux::GenericLinuxDeviceTester *m_genericTester = nullptr;
     ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
-    ProjectExplorer::DeviceTester::TestResult m_result = TestSuccess;
-    State m_state = Inactive;
-
-    Utils::QtcProcess m_varRunProcess;
 };
 
 } // namespace Internal
