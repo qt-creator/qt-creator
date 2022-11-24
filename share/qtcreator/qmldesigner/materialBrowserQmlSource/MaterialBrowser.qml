@@ -281,7 +281,7 @@ Item {
                         }
 
                         Text {
-                            text:qsTr("There are no texture in this project.")
+                            text:qsTr("There are no textures in this project.")
                             visible: materialBrowserTexturesModel.isEmpty && searchBox.isEmpty()
                             textFormat: Text.RichText
                             color: StudioTheme.Values.themeTextColor
