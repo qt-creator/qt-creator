@@ -45,6 +45,10 @@ Rectangle {
     onWidthChanged: root.responsiveResize(root.width, root.height)
     onHeightChanged: root.responsiveResize(root.width, root.height)
 
+    function showEvent() {
+        addCanvas.requestPaint()
+    }
+
     Component.onCompleted: root.responsiveResize(root.width, root.height)
 
     function numFit(overall, size, space) {
@@ -860,22 +864,22 @@ Rectangle {
                 width: root.thumbWidth
                 height: root.thumbHeight
 
+                property int plusExtend: 20
+                property int halfWidth: addCanvas.width / 2
+                property int halfHeight: addCanvas.height / 2
+
                 onPaint: {
                     var ctx = getContext("2d")
 
                     ctx.strokeStyle = StudioTheme.Values.themeStateHighlight
                     ctx.lineWidth = 6
 
-                    var plusExtend = 20
-                    var halfWidth = addCanvas.width / 2
-                    var halfHeight = addCanvas.height / 2
-
                     ctx.beginPath()
-                    ctx.moveTo(halfWidth, halfHeight - plusExtend)
-                    ctx.lineTo(halfWidth, halfHeight + plusExtend)
+                    ctx.moveTo(addCanvas.halfWidth, addCanvas.halfHeight - addCanvas.plusExtend)
+                    ctx.lineTo(addCanvas.halfWidth, addCanvas.halfHeight + addCanvas.plusExtend)
 
-                    ctx.moveTo(halfWidth - plusExtend, halfHeight)
-                    ctx.lineTo(halfWidth + plusExtend, halfHeight)
+                    ctx.moveTo(addCanvas.halfWidth - addCanvas.plusExtend, addCanvas.halfHeight)
+                    ctx.lineTo(addCanvas.halfWidth + addCanvas.plusExtend, addCanvas.halfHeight)
                     ctx.stroke()
 
                     ctx.save()
