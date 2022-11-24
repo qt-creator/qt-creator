@@ -162,7 +162,7 @@ QMimeData *TreeItemModel::mimeData(const QModelIndexList &indexes) const
         if (locations.isEmpty())
             continue;
         const SymbolLocation loc = *locations.constBegin();
-        mimeData->addFile(Utils::FilePath::fromString(loc.fileName()), loc.line(), loc.column());
+        mimeData->addFile(loc.filePath(), loc.line(), loc.column());
     }
     if (mimeData->files().isEmpty()) {
         delete mimeData;

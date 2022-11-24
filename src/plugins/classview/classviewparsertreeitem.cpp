@@ -101,7 +101,7 @@ void ParserTreeItemPrivate::mergeSymbol(const CPlusPlus::Symbol *symbol)
         childItem = ParserTreeItem::ConstPtr(new ParserTreeItem());
 
     // locations have 1-based column in Symbol, use the same here.
-    SymbolLocation location(QString::fromUtf8(symbol->fileName() , symbol->fileNameLength()),
+    SymbolLocation location(symbol->filePath(),
                             symbol->line(), symbol->column());
 
     childItem->d->m_symbolLocations.insert(location);

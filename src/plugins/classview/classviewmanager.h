@@ -7,8 +7,9 @@
 #include <QSharedPointer>
 #include <QStandardItem>
 
-namespace ClassView {
-namespace Internal {
+namespace Utils { class FilePath; }
+
+namespace ClassView::Internal {
 
 class ManagerPrivate;
 
@@ -24,7 +25,7 @@ public:
     void fetchMore(QStandardItem *item, bool skipRoot = false);
     bool hasChildren(QStandardItem *item) const;
 
-    void gotoLocation(const QString &fileName, int line = 0, int column = 0);
+    void gotoLocation(const Utils::FilePath &filePath, int line = 0, int column = 0);
     void gotoLocations(const QList<QVariant> &locations);
     void setFlatMode(bool flat);
     void onWidgetVisibilityIsChanged(bool visibility);
@@ -41,5 +42,4 @@ private:
     ManagerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ClassView
+} // ClassView::Internal

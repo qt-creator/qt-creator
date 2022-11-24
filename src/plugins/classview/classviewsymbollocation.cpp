@@ -5,8 +5,7 @@
 
 #include <QHash>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 /*!
     \class SymbolLocation
@@ -23,7 +22,7 @@ SymbolLocation::SymbolLocation() :
 {
 }
 
-SymbolLocation::SymbolLocation(const QString &file, int lineNumber, int columnNumber)
+SymbolLocation::SymbolLocation(const Utils::FilePath &file, int lineNumber, int columnNumber)
     : m_fileName(file)
     , m_line(lineNumber)
     , m_column(qMax(columnNumber, 0))
@@ -31,5 +30,4 @@ SymbolLocation::SymbolLocation(const QString &file, int lineNumber, int columnNu
 {
 }
 
-} // namespace Internal
-} // namespace ClassView
+} // ClassView::Internal
