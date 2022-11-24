@@ -75,13 +75,9 @@ protected:
     bool hasRemoteFileChanged(const ProjectExplorer::DeployableFile &deployableFile,
                               const QDateTime &remoteTimestamp) const;
 
-    void handleDeploymentDone();
-
 private:
     virtual bool isDeploymentNecessary() const = 0;
     virtual Utils::Tasking::Group deployRecipe() = 0;
-    void doDeploy();
-    void stopDeployment();
 
     Internal::AbstractRemoteLinuxDeployServicePrivate * const d;
 };

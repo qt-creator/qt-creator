@@ -23,10 +23,6 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-namespace {
-enum State { Inactive, Deploying, Stopping };
-} // anonymous namespace
-
 class AbstractRemoteLinuxDeployServicePrivate
 {
 public:
@@ -34,9 +30,9 @@ public:
     QPointer<Target> target;
 
     DeploymentTimeInfo deployTimes;
-    State state = Inactive;
     std::unique_ptr<TaskTree> m_taskTree;
 };
+
 } // namespace Internal
 
 using namespace Internal;
@@ -97,7 +93,7 @@ void AbstractRemoteLinuxDeployService::setDevice(const IDevice::ConstPtr &device
 
 void AbstractRemoteLinuxDeployService::start()
 {
-    QTC_ASSERT(d->state == Inactive, return);
+    QTC_ASSERT(!d->m_taskTree, return);
 
     const CheckResult check = isDeploymentPossible();
     if (!check) {
@@ -112,16 +108,22 @@ void AbstractRemoteLinuxDeployService::start()
         return;
     }
 
-    d->state = Deploying;
-    doDeploy();
+    d->m_taskTree.reset(new TaskTree(deployRecipe()));
+    const auto endHandler = [this] {
+        d->m_taskTree.release()->deleteLater();
+        emit finished();
+    };
+    connect(d->m_taskTree.get(), &TaskTree::done, this, endHandler);
+    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, endHandler);
+    d->m_taskTree->start();
 }
 
 void AbstractRemoteLinuxDeployService::stop()
 {
-    if (d->state != Deploying)
+    if (!d->m_taskTree)
         return;
-    d->state = Stopping;
-    stopDeployment();
+    d->m_taskTree.reset();
+    emit finished();
 }
 
 CheckResult AbstractRemoteLinuxDeployService::isDeploymentPossible() const
@@ -139,32 +141,6 @@ QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const
 void AbstractRemoteLinuxDeployService::importDeployTimes(const QVariantMap &map)
 {
     d->deployTimes.importDeployTimes(map);
-}
-
-void AbstractRemoteLinuxDeployService::handleDeploymentDone()
-{
-    QTC_ASSERT(d->state != Inactive, return);
-    d->state = Inactive;
-    emit finished();
-}
-
-void AbstractRemoteLinuxDeployService::doDeploy()
-{
-    QTC_ASSERT(!d->m_taskTree, return);
-    d->m_taskTree.reset(new TaskTree(deployRecipe()));
-    const auto endHandler = [this] {
-        d->m_taskTree.release()->deleteLater();
-        handleDeploymentDone();
-    };
-    connect(d->m_taskTree.get(), &TaskTree::done, this, endHandler);
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, endHandler);
-    d->m_taskTree->start();
-}
-
-void AbstractRemoteLinuxDeployService::stopDeployment()
-{
-    d->m_taskTree.reset();
-    handleDeploymentDone();
 }
 
 } // namespace RemoteLinux
