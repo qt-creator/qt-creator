@@ -17,6 +17,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Tasking;
 
 namespace Qdb {
 namespace Internal {
@@ -27,64 +28,70 @@ class QdbStopApplicationService : public RemoteLinux::AbstractRemoteLinuxDeployS
 {
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbStopApplicationService)
 
-public:
-    QdbStopApplicationService()
-    {
-        connect(&m_process, &QtcProcess::done,
-                this, &QdbStopApplicationService::handleProcessDone);
-        connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-            m_errorOutput.append(QString::fromUtf8(m_process.readAllStandardError()));
-        });
-        connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-            emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
-        });
-    }
-
 private:
-    void handleProcessDone();
-
     bool isDeploymentNecessary() const final { return true; }
-
     void doDeploy() final;
     void stopDeployment() final;
 
-    QtcProcess m_process;
-    QString m_errorOutput;
+    std::unique_ptr<TaskTree> m_taskTree;
 };
-
-void QdbStopApplicationService::handleProcessDone()
-{
-    const QString failureMessage = tr("Could not check and possibly stop running application.");
-
-    if (m_process.exitStatus() == QProcess::CrashExit) {
-        emit errorMessage(failureMessage);
-    } else if (m_process.result() != ProcessResult::FinishedWithSuccess) {
-        emit stdErrData(m_process.errorString());
-    } else if (m_errorOutput.contains("Could not connect: Connection refused")) {
-        emit progressMessage(tr("Checked that there is no running application."));
-    } else if (!m_errorOutput.isEmpty()) {
-        emit stdErrData(m_errorOutput);
-        emit errorMessage(failureMessage);
-    } else {
-        emit progressMessage(tr("Stopped the running application."));
-    }
-
-    stopDeployment();
-}
 
 void QdbStopApplicationService::doDeploy()
 {
-    auto device = DeviceKitAspect::device(target()->kit());
-    QTC_ASSERT(device, return);
+    QTC_ASSERT(!m_taskTree, return);
 
-    m_process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
-    m_process.setWorkingDirectory("/usr/bin");
-    m_process.start();
+    const auto setupHandler = [this](QtcProcess &process) {
+        const auto device = DeviceKitAspect::device(target()->kit());
+        QTC_CHECK(device);
+        process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
+        process.setWorkingDirectory("/usr/bin");
+        QtcProcess *proc = &process;
+        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
+            emit stdOutData(QString::fromUtf8(proc->readAllStandardOutput()));
+        });
+    };
+    const auto doneHandler = [this](const QtcProcess &) {
+        emit progressMessage(tr("Stopped the running application."));
+    };
+    const auto errorHandler = [this](const QtcProcess &process) {
+        const QString errorOutput = process.cleanedStdErr();
+        const QString failureMessage = tr("Could not check and possibly stop running application.");
+        if (process.exitStatus() == QProcess::CrashExit) {
+            emit errorMessage(failureMessage);
+        } else if (process.result() != ProcessResult::FinishedWithSuccess) {
+            emit stdErrData(process.errorString());
+        } else if (errorOutput.contains("Could not connect: Connection refused")) {
+            emit progressMessage(tr("Checked that there is no running application."));
+        } else if (!errorOutput.isEmpty()) {
+            emit stdErrData(errorOutput);
+            emit errorMessage(failureMessage);
+        }
+    };
+    const auto rootSetupHandler = [this] {
+        const auto device = DeviceKitAspect::device(target()->kit());
+        if (!device) {
+            emit errorMessage(tr("No device to stop the application on."));
+            return GroupConfig{GroupAction::StopWithError};
+        }
+        return GroupConfig();
+    };
+    const auto rootEndHandler = [this] {
+        m_taskTree.release()->deleteLater();
+        stopDeployment();
+    };
+    const Group root {
+        DynamicSetup(rootSetupHandler),
+        Process(setupHandler, doneHandler, errorHandler),
+        OnGroupDone(rootEndHandler),
+        OnGroupError(rootEndHandler)
+    };
+    m_taskTree.reset(new TaskTree(root));
+    m_taskTree->start();
 }
 
 void QdbStopApplicationService::stopDeployment()
 {
-    m_process.close();
+    m_taskTree.reset();
     handleDeploymentDone();
 }
 
