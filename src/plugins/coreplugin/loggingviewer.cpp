@@ -652,7 +652,7 @@ void LoggingViewManagerWidget::loadAndUpdateFromPreset()
     if (fp.isEmpty())
         return;
     // read file, update categories
-    const std::optional<QByteArray> contents = fp.fileContents();
+    const Utils::expected_str<QByteArray> contents = fp.fileContents();
     if (!contents) {
         QMessageBox::critical(ICore::dialogParent(),
                               tr("Error"),

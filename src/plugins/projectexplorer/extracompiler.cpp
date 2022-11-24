@@ -16,6 +16,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/fontsettings.h>
 
+#include <utils/expected.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
@@ -98,8 +99,10 @@ ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
         if (!d->compileTime.isValid() || d->compileTime > lastModified)
             d->compileTime = lastModified;
 
-        if (const std::optional<QByteArray> contents = target.fileContents())
-            setContent(target, *contents);
+        const expected_str<QByteArray> contents = target.fileContents();
+        QTC_ASSERT_EXPECTED(contents, return);
+
+        setContent(target, *contents);
     }
 }
 
@@ -169,10 +172,11 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
             if (d->compileTime >= generateTime)
                 return;
 
-            if (const std::optional<QByteArray> contents = target.fileContents()) {
-                d->compileTime = generateTime;
-                setContent(target, *contents);
-            }
+            const expected_str<QByteArray> contents = target.fileContents();
+            QTC_ASSERT_EXPECTED(contents, return);
+
+            d->compileTime = generateTime;
+            setContent(target, *contents);
         }
     });
 }

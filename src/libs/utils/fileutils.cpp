@@ -55,28 +55,12 @@ bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode)
 {
     QTC_ASSERT(!(mode & ~(QIODevice::ReadOnly | QIODevice::Text)), return false);
 
-    if (filePath.needsDevice()) {
-        const std::optional<QByteArray> contents = filePath.fileContents();
-        if (!contents) {
-            m_errorString = tr("Cannot read %1").arg(filePath.toUserOutput());
-            return false;
-        }
-        m_data = *contents;
-        return true;
-    }
-
-    QFile file(filePath.toString());
-    if (!file.open(QIODevice::ReadOnly | mode)) {
-        m_errorString = tr("Cannot open %1 for reading: %2").arg(
-                filePath.toUserOutput(), file.errorString());
+    const expected_str<QByteArray> contents = filePath.fileContents();
+    if (!contents) {
+        m_errorString = contents.error();
         return false;
     }
-    m_data = file.readAll();
-    if (file.error() != QFile::NoError) {
-        m_errorString = tr("Cannot read %1: %2").arg(
-                filePath.toUserOutput(), file.errorString());
-        return false;
-    }
+    m_data = *contents;
     return true;
 }
 
@@ -225,10 +209,10 @@ bool FileSaver::finalize()
         m_file->close();
         m_file->open(QIODevice::ReadOnly);
         const QByteArray data = m_file->readAll();
-        const bool res = m_filePath.writeFileContents(data);
+        const expected_str<qint64> res = m_filePath.writeFileContents(data);
         m_file->remove();
         m_file.reset();
-        return res;
+        return res.has_value();
     }
 
     if (!m_isSafe)
@@ -703,15 +687,20 @@ bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgt
         const QDateTime srcModified = srcFilePath.lastModified();
         const QDateTime tgtModified = tgtFilePath.lastModified();
         if (srcModified == tgtModified) {
-            const std::optional<QByteArray> srcContents = srcFilePath.fileContents();
-            const std::optional<QByteArray> tgtContents = srcFilePath.fileContents();
-            if (srcContents == tgtContents)
+            // TODO: Create FilePath::hashFromContents() and compare hashes.
+            const expected_str<QByteArray> srcContents = srcFilePath.fileContents();
+            const expected_str<QByteArray> tgtContents = srcFilePath.fileContents();
+            if (srcContents && srcContents == tgtContents)
                 return true;
         }
         tgtFilePath.removeFile();
     }
 
-    return srcFilePath.copyFile(tgtFilePath);
+    const expected_str<void> copyResult = srcFilePath.copyFile(tgtFilePath);
+
+    // TODO forward error to caller instead of assert, since IO errors can always be expected
+    QTC_ASSERT_EXPECTED(copyResult, return false);
+    return true;
 }
 
 QString FileUtils::fileSystemFriendlyName(const QString &name)

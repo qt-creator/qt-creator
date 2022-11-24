@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include "expected.h"
 #include "filepathinfo.h"
 #include "osspecificaspects.h"
 
@@ -119,15 +120,15 @@ public:
     OsType osType() const;
     bool removeFile() const;
     bool removeRecursively(QString *error = nullptr) const;
-    bool copyFile(const FilePath &target) const;
+    expected_str<void> copyFile(const FilePath &target) const;
     bool renameFile(const FilePath &target) const;
     qint64 fileSize() const;
     qint64 bytesAvailable() const;
     bool createDir() const;
     FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
     FilePaths dirEntries(QDir::Filters filters) const;
-    std::optional<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
-    bool writeFileContents(const QByteArray &data, qint64 offset = 0) const;
+    expected_str<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
+    expected_str<qint64> writeFileContents(const QByteArray &data, qint64 offset = 0) const;
     FilePathInfo filePathInfo() const;
 
     bool operator==(const FilePath &other) const;
@@ -198,11 +199,12 @@ public:
     static void sort(FilePaths &files);
 
     // Asynchronous interface
-    void asyncCopyFile(const Continuation<bool> &cont, const FilePath &target) const;
-    void asyncFileContents(const Continuation<const std::optional<QByteArray> &> &cont,
+    void asyncCopyFile(const Continuation<const expected_str<void> &> &cont,
+                       const FilePath &target) const;
+    void asyncFileContents(const Continuation<const expected_str<QByteArray> &> &cont,
                            qint64 maxSize = -1,
                            qint64 offset = 0) const;
-    void asyncWriteFileContents(const Continuation<bool> &cont,
+    void asyncWriteFileContents(const Continuation<const expected_str<qint64> &> &cont,
                                 const QByteArray &data,
                                 qint64 offset = 0) const;
 

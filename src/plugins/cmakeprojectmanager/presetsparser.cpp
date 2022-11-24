@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "presetsparser.h"
-#include "utils/algorithm.h"
 
 #include "cmakeprojectmanagertr.h"
+
+#include <utils/algorithm.h>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -391,7 +392,7 @@ const PresetsData &PresetsParser::presetsData() const
 
 bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage, int &errorLine)
 {
-    const std::optional<QByteArray> jsonContents = jsonFile.fileContents();
+    const Utils::expected_str<QByteArray> jsonContents = jsonFile.fileContents();
     if (!jsonContents) {
         errorMessage = Tr::tr("Failed to read %1 file").arg(jsonFile.fileName());
         return false;

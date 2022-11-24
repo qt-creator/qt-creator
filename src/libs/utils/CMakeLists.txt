@@ -42,6 +42,7 @@ add_qtc_library(Utils
     environmentmodel.cpp environmentmodel.h
     execmenu.cpp execmenu.h
     executeondestruction.h
+    expected.h
     fadingindicator.cpp fadingindicator.h
     faketooltip.cpp faketooltip.h
     fancylineedit.cpp fancylineedit.h

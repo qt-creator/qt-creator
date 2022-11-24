@@ -224,7 +224,7 @@ void ContentLibraryBundleImporter::handleImportTimer()
 QVariantHash ContentLibraryBundleImporter::loadAssetRefMap(const Utils::FilePath &bundlePath)
 {
     FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
-    const std::optional<QByteArray> content = assetRefPath.fileContents();
+    const Utils::expected_str<QByteArray> content = assetRefPath.fileContents();
     if (content) {
         QJsonParseError error;
         QJsonDocument bundleDataJsonDoc = QJsonDocument::fromJson(*content, &error);
@@ -266,7 +266,7 @@ QString ContentLibraryBundleImporter::unimportComponent(const QString &qmlFile)
     removedFiles.append(qmlFile);
 
     FilePath qmldirPath = bundleImportPath.resolvePath(QStringLiteral("qmldir"));
-    const std::optional<QByteArray> qmldirContent = qmldirPath.fileContents();
+    const expected_str<QByteArray> qmldirContent = qmldirPath.fileContents();
     QByteArray newContent;
 
     QString qmlType = qmlFilePath.baseName();

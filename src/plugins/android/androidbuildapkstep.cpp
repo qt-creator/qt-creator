@@ -680,7 +680,9 @@ static bool copyFileIfNewer(const FilePath &sourceFilePath,
 
     if (!destinationFilePath.parentDir().ensureWritableDir())
         return false;
-    return sourceFilePath.copyFile(destinationFilePath);
+    expected_str<void> result = sourceFilePath.copyFile(destinationFilePath);
+    QTC_ASSERT_EXPECTED(result, return false);
+    return true;
 }
 
 void AndroidBuildApkStep::doRun()

@@ -1,9 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include <QtTest>
 #include <QDebug>
 #include <QRandomGenerator>
+#include <QtTest>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -13,12 +13,12 @@
 using namespace Utils;
 
 namespace QTest {
-    template<>
-    char *toString(const FilePath &filePath)
-    {
-        return qstrdup(filePath.toString().toLocal8Bit().constData());
-    }
+template<>
+char *toString(const FilePath &filePath)
+{
+    return qstrdup(filePath.toString().toLocal8Bit().constData());
 }
+} // namespace QTest
 
 class tst_fileutils : public QObject
 {
@@ -1027,7 +1027,7 @@ void tst_fileutils::asyncLocalCopy()
     const FilePath orig = FilePath::fromString(rootPath).pathAppended("x/y/fileToCopy.txt");
     QVERIFY(orig.exists());
     const FilePath dest = FilePath::fromString(rootPath).pathAppended("x/fileToCopyDest.txt");
-    auto afterCopy = [&orig, &dest, this] (bool result) {
+    auto afterCopy = [&orig, &dest, this](expected_str<void> result) {
         QVERIFY(result);
         // check existence, size and content
         QVERIFY(dest.exists());

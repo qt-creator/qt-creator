@@ -875,7 +875,7 @@ static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
     }
 
     // found a new library!
-    const std::optional<QByteArray> contents = qmldirFile.fileContents();
+    const expected_str<QByteArray> contents = qmldirFile.fileContents();
     if (!contents)
         return false;
     QString qmldirData = QString::fromUtf8(*contents);
@@ -985,7 +985,7 @@ void ModelManagerInterface::parseLoop(QSet<Utils::FilePath> &scannedPaths,
             contents = entry.first;
             documentRevision = entry.second;
         } else {
-            const std::optional<QByteArray> fileContents = fileName.fileContents();
+            const expected_str<QByteArray> fileContents = fileName.fileContents();
             if (fileContents) {
                 QTextStream ins(*fileContents);
                 contents = ins.readAll();

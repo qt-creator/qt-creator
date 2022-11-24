@@ -7,6 +7,7 @@ Project {
         "asynctask/asynctask.qbs",
         "commandline/commandline.qbs",
         "deviceshell/deviceshell.qbs",
+        "expected/expected.qbs",
         "fileutils/fileutils.qbs",
         "fsengine/fsengine.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",

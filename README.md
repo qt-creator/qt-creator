@@ -688,3 +688,15 @@ SQLite (https://www.sqlite.org) is in the Public Domain.
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
+
+### TartanLlama/expected
+
+  Implementation of std::expected compatible with C++11/C++14/C++17.
+
+  https://github.com/TartanLlama/expected
+
+  To the extent possible under law, the author(s) have dedicated all
+  copyright and related and neighboring rights to this software to the
+  public domain worldwide. This software is distributed without any warranty.
+
+  http://creativecommons.org/publicdomain/zero/1.0/

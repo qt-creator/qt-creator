@@ -34,7 +34,7 @@ protected:
     virtual bool exists(const FilePath &filePath) const;
     virtual bool removeFile(const FilePath &filePath) const;
     virtual bool removeRecursively(const FilePath &filePath, QString *error) const;
-    virtual bool copyFile(const FilePath &filePath, const FilePath &target) const;
+    virtual expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const;
     virtual bool renameFile(const FilePath &filePath, const FilePath &target) const;
 
     virtual OsType osType(const FilePath &filePath) const;
@@ -56,31 +56,27 @@ protected:
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const;
 
-    virtual std::optional<QByteArray> fileContents(
-            const FilePath &filePath,
-            qint64 limit,
-            qint64 offset) const;
-    virtual bool writeFileContents(
-            const FilePath &filePath,
-            const QByteArray &data,
-            qint64 offset) const;
+    virtual expected_str<QByteArray> fileContents(const FilePath &filePath,
+                                                  qint64 limit,
+                                                  qint64 offset) const;
 
-    virtual void asyncFileContents(
-            const FilePath &filePath,
-            const Continuation<std::optional<QByteArray>> &cont,
-            qint64 limit,
-            qint64 offset) const;
+    virtual expected_str<qint64> writeFileContents(const FilePath &filePath,
+                                                   const QByteArray &data,
+                                                   qint64 offset) const;
 
-    virtual void asyncWriteFileContents(
-            const FilePath &filePath,
-            const Continuation<bool> &cont,
-            const QByteArray &data,
-            qint64 offset) const;
+    virtual void asyncFileContents(const FilePath &filePath,
+                                   const Continuation<expected_str<QByteArray>> &cont,
+                                   qint64 limit,
+                                   qint64 offset) const;
 
-    virtual void asyncCopyFile(
-            const FilePath &filePath,
-            const Continuation<bool> &cont,
-            const FilePath &target) const;
+    virtual void asyncWriteFileContents(const FilePath &filePath,
+                                        const Continuation<expected_str<qint64>> &cont,
+                                        const QByteArray &data,
+                                        qint64 offset) const;
+
+    virtual void asyncCopyFile(const FilePath &filePath,
+                               const Continuation<expected_str<void>> &cont,
+                               const FilePath &target) const;
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
@@ -105,7 +101,7 @@ protected:
     bool exists(const FilePath &filePath) const override;
     bool removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
-    bool copyFile(const FilePath &filePath, const FilePath &target) const override;
+    expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     OsType osType(const FilePath &filePath) const override;
@@ -127,14 +123,12 @@ protected:
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
-    std::optional<QByteArray> fileContents(
-            const FilePath &filePath,
-            qint64 limit,
-            qint64 offset) const override;
-    bool writeFileContents(
-            const FilePath &filePath,
-            const QByteArray &data,
-            qint64 offset) const override;
+    expected_str<QByteArray> fileContents(const FilePath &filePath,
+                                          qint64 limit,
+                                          qint64 offset) const override;
+    expected_str<qint64> writeFileContents(const FilePath &filePath,
+                                           const QByteArray &data,
+                                           qint64 offset) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT UnixDeviceFileAccess : public DeviceFileAccess
@@ -160,7 +154,7 @@ protected:
     bool exists(const FilePath &filePath) const override;
     bool removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
-    bool copyFile(const FilePath &filePath, const FilePath &target) const override;
+    expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
@@ -178,14 +172,12 @@ protected:
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
-    std::optional<QByteArray> fileContents(
-            const FilePath &filePath,
-            qint64 limit,
-            qint64 offset) const override;
-    bool writeFileContents(
-            const FilePath &filePath,
-            const QByteArray &data,
-            qint64 offset) const override;
+    expected_str<QByteArray> fileContents(const FilePath &filePath,
+                                          qint64 limit,
+                                          qint64 offset) const override;
+    expected_str<qint64> writeFileContents(const FilePath &filePath,
+                                           const QByteArray &data,
+                                           qint64 offset) const override;
 
 private:
     bool iterateWithFind(

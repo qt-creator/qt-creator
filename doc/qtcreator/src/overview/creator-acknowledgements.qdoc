@@ -988,5 +988,19 @@
         SOFTWARE.
         \endcode
 
+        \li \b TartanLlama/expected
+
+        Implementation of std::expected compatible with C++11/C++14/C++17.
+
+        The sources can be found in:
+        \list
+            \li \c QtCreator/src/libs/3rdparty/tl_expected
+            \li \l https://github.com/TartanLlama/expected
+        \endlist
+
+        CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+
+        https://creativecommons.org/publicdomain/zero/1.0/
+
      \endlist
 */

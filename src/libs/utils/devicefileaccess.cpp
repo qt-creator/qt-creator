@@ -6,8 +6,10 @@
 #include "algorithm.h"
 #include "commandline.h"
 #include "environment.h"
+#include "expected.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QCoreApplication>
 #include <QOperatingSystemVersion>
@@ -18,8 +20,8 @@
 #ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
 #endif
-#include <qt_windows.h>
 #include <shlobj.h>
+#include <qt_windows.h>
 #else
 #include <qplatformdefs.h>
 #endif
@@ -137,12 +139,13 @@ bool DeviceFileAccess::removeRecursively(const FilePath &filePath, QString *erro
     return false;
 }
 
-bool DeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
+expected_str<void> DeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
     Q_UNUSED(filePath)
     Q_UNUSED(target)
     QTC_CHECK(false);
-    return false;
+    return make_unexpected(
+        Tr::tr("copyFile is not implemented for \"%1\"").arg(filePath.toUserOutput()));
 }
 
 bool DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
@@ -166,10 +169,9 @@ FilePath DeviceFileAccess::symLinkTarget(const FilePath &filePath) const
     return {};
 }
 
-void DeviceFileAccess::iterateDirectory(
-        const FilePath &filePath,
-        const FilePath::IterateDirCallback &callBack,
-        const FileFilter &filter) const
+void DeviceFileAccess::iterateDirectory(const FilePath &filePath,
+                                        const FilePath::IterateDirCallback &callBack,
+                                        const FileFilter &filter) const
 {
     Q_UNUSED(filePath)
     Q_UNUSED(callBack)
@@ -177,28 +179,28 @@ void DeviceFileAccess::iterateDirectory(
     QTC_CHECK(false);
 }
 
-std::optional<QByteArray> DeviceFileAccess::fileContents(
-        const FilePath &filePath,
-        qint64 limit,
-        qint64 offset) const
+expected_str<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath,
+                                                        qint64 limit,
+                                                        qint64 offset) const
 {
     Q_UNUSED(filePath)
     Q_UNUSED(limit)
     Q_UNUSED(offset)
     QTC_CHECK(false);
-    return {};
+    return make_unexpected(
+        Tr::tr("fileContents is not implemented for \"%1\"").arg(filePath.toUserOutput()));
 }
 
-bool DeviceFileAccess::writeFileContents(
-        const FilePath &filePath,
-        const QByteArray &data,
-        qint64 offset) const
+expected_str<qint64> DeviceFileAccess::writeFileContents(const FilePath &filePath,
+                                                         const QByteArray &data,
+                                                         qint64 offset) const
 {
     Q_UNUSED(filePath)
     Q_UNUSED(data)
     Q_UNUSED(offset)
     QTC_CHECK(false);
-    return false;
+    return make_unexpected(
+        Tr::tr("writeFileContents is not implemented for \"%1\"").arg(filePath.toUserOutput()));
 }
 
 FilePathInfo DeviceFileAccess::filePathInfo(const FilePath &filePath) const
@@ -251,8 +253,7 @@ QByteArray DeviceFileAccess::fileId(const FilePath &filePath) const
 }
 
 std::optional<FilePath> DeviceFileAccess::refersToExecutableFile(
-        const FilePath &filePath,
-        FilePath::MatchScope matchScope) const
+    const FilePath &filePath, FilePath::MatchScope matchScope) const
 {
     Q_UNUSED(matchScope)
     if (isExecutableFile(filePath))
@@ -260,32 +261,28 @@ std::optional<FilePath> DeviceFileAccess::refersToExecutableFile(
     return {};
 }
 
-void DeviceFileAccess::asyncFileContents(
-        const FilePath &filePath,
-        const Continuation<std::optional<QByteArray>> &cont,
-        qint64 limit,
-        qint64 offset) const
+void DeviceFileAccess::asyncFileContents(const FilePath &filePath,
+                                         const Continuation<expected_str<QByteArray>> &cont,
+                                         qint64 limit,
+                                         qint64 offset) const
 {
     cont(fileContents(filePath, limit, offset));
 }
 
-void DeviceFileAccess::asyncWriteFileContents(
-        const FilePath &filePath,
-        const Continuation<bool> &cont,
-        const QByteArray &data,
-        qint64 offset) const
+void DeviceFileAccess::asyncWriteFileContents(const FilePath &filePath,
+                                              const Continuation<expected_str<qint64>> &cont,
+                                              const QByteArray &data,
+                                              qint64 offset) const
 {
     cont(writeFileContents(filePath, data, offset));
 }
 
-void DeviceFileAccess::asyncCopyFile(
-        const FilePath &filePath,
-        const Continuation<bool> &cont,
-        const FilePath &target) const
+void DeviceFileAccess::asyncCopyFile(const FilePath &filePath,
+                                     const Continuation<expected_str<void>> &cont,
+                                     const FilePath &target) const
 {
     cont(copyFile(filePath, target));
 }
-
 
 // DesktopDeviceFileAccess
 
@@ -303,8 +300,8 @@ bool DesktopDeviceFileAccess::isExecutableFile(const FilePath &filePath) const
     return fi.isExecutable() && !fi.isDir();
 }
 
-static std::optional<FilePath> isWindowsExecutableHelper
-    (const FilePath &filePath, const QStringView suffix)
+static std::optional<FilePath> isWindowsExecutableHelper(const FilePath &filePath,
+                                                         const QStringView suffix)
 {
     const QFileInfo fi(filePath.path().append(suffix));
     if (!fi.isExecutable() || fi.isDir())
@@ -314,8 +311,7 @@ static std::optional<FilePath> isWindowsExecutableHelper
 }
 
 std::optional<FilePath> DesktopDeviceFileAccess::refersToExecutableFile(
-        const FilePath &filePath,
-        FilePath::MatchScope matchScope) const
+    const FilePath &filePath, FilePath::MatchScope matchScope) const
 {
     if (isExecutableFile(filePath))
         return filePath;
@@ -432,36 +428,38 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
         if (dir.isRoot()) {
             if (error) {
                 *error = QCoreApplication::translate("Utils::FileUtils",
-                    "Refusing to remove root directory.");
+                                                     "Refusing to remove root directory.");
             }
             return false;
         }
         if (dir.path() == QDir::home().canonicalPath()) {
             if (error) {
                 *error = QCoreApplication::translate("Utils::FileUtils",
-                    "Refusing to remove your home directory.");
+                                                     "Refusing to remove your home directory.");
             }
             return false;
         }
 
-        const QStringList fileNames = dir.entryList(
-                    QDir::Files | QDir::Hidden | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
+        const QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden | QDir::System
+                                                    | QDir::Dirs | QDir::NoDotAndDotDot);
         for (const QString &fileName : fileNames) {
             if (!removeRecursively(filePath / fileName, error))
                 return false;
         }
         if (!QDir::root().rmdir(dir.path())) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove directory \"%1\".")
-                        .arg(filePath.toUserOutput());
+                *error = QCoreApplication::translate("Utils::FileUtils",
+                                                     "Failed to remove directory \"%1\".")
+                             .arg(filePath.toUserOutput());
             }
             return false;
         }
     } else {
         if (!QFile::remove(filePath.path())) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove file \"%1\".")
-                        .arg(filePath.toUserOutput());
+                *error = QCoreApplication::translate("Utils::FileUtils",
+                                                     "Failed to remove file \"%1\".")
+                             .arg(filePath.toUserOutput());
             }
             return false;
         }
@@ -469,9 +467,14 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
     return true;
 }
 
-bool DesktopDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
+expected_str<void> DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
+                                                     const FilePath &target) const
 {
-    return QFile::copy(filePath.path(), target.path());
+    if (QFile::copy(filePath.path(), target.path()))
+        return {};
+    return make_unexpected(Tr::tr("Failed to copy file \"%1\" to \"%2\".")
+                               .arg(filePath.toUserOutput())
+                               .arg(target.toUserOutput()));
 }
 
 bool DesktopDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
@@ -514,10 +517,9 @@ FilePath DesktopDeviceFileAccess::symLinkTarget(const FilePath &filePath) const
     return FilePath::fromString(info.symLinkTarget());
 }
 
-void DesktopDeviceFileAccess::iterateDirectory(
-        const FilePath &filePath,
-        const FilePath::IterateDirCallback &callBack,
-        const FileFilter &filter) const
+void DesktopDeviceFileAccess::iterateDirectory(const FilePath &filePath,
+                                               const FilePath::IterateDirCallback &callBack,
+                                               const FileFilter &filter) const
 {
     QDirIterator it(filePath.path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
     while (it.hasNext()) {
@@ -532,18 +534,17 @@ void DesktopDeviceFileAccess::iterateDirectory(
     }
 }
 
-std::optional<QByteArray> DesktopDeviceFileAccess::fileContents(
-        const FilePath &filePath,
-        qint64 limit,
-        qint64 offset) const
+expected_str<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePath,
+                                                               qint64 limit,
+                                                               qint64 offset) const
 {
     const QString path = filePath.path();
     QFile f(path);
     if (!f.exists())
-        return {};
+        return make_unexpected(Tr::tr("File \"%1\" does not exist").arg(path));
 
     if (!f.open(QFile::ReadOnly))
-        return {};
+        return make_unexpected(Tr::tr("Could not open File \"%1\"").arg(path));
 
     if (offset != 0)
         f.seek(offset);
@@ -551,21 +552,35 @@ std::optional<QByteArray> DesktopDeviceFileAccess::fileContents(
     if (limit != -1)
         return f.read(limit);
 
-    return f.readAll();
+    const QByteArray data = f.readAll();
+    if (f.error() != QFile::NoError) {
+        return make_unexpected(
+            Tr::tr("Cannot read \"%1\": %2").arg(filePath.toUserOutput(), f.errorString()));
+    }
+
+    return data;
 }
 
-bool DesktopDeviceFileAccess::writeFileContents(
-        const FilePath &filePath,
-        const QByteArray &data,
-        qint64 offset) const
+expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &filePath,
+                                                                const QByteArray &data,
+                                                                qint64 offset) const
 {
     QFile file(filePath.path());
     const bool isOpened = file.open(QFile::WriteOnly | QFile::Truncate);
-    QTC_ASSERT(isOpened, return false);
+    if (!isOpened)
+        return make_unexpected(
+            Tr::tr("Could not open file \"%1\" for writing").arg(filePath.toUserOutput()));
+
     if (offset != 0)
         file.seek(offset);
     qint64 res = file.write(data);
-    return res == data.size();
+    if (res != data.size())
+        return make_unexpected(
+            Tr::tr("Could not write to file \"%1\" (only %2 of %3 bytes written)")
+                .arg(filePath.toUserOutput())
+                .arg(res)
+                .arg(data.size()));
+    return res;
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const
@@ -603,7 +618,9 @@ static inline QByteArray fileIdWin7(HANDLE handle)
     BY_HANDLE_FILE_INFORMATION info;
     if (GetFileInformationByHandle(handle, &info)) {
         char buffer[sizeof "01234567:0123456701234567\0"];
-        qsnprintf(buffer, sizeof(buffer), "%lx:%08lx%08lx",
+        qsnprintf(buffer,
+                  sizeof(buffer),
+                  "%lx:%08lx%08lx",
                   info.dwVolumeSerialNumber,
                   info.nFileIndexHigh,
                   info.nFileIndexLow);
@@ -618,20 +635,25 @@ static QByteArray fileIdWin8(HANDLE handle)
     QByteArray result;
     FILE_ID_INFO infoEx;
     if (GetFileInformationByHandleEx(handle,
-                                     static_cast<FILE_INFO_BY_HANDLE_CLASS>(18), // FileIdInfo in Windows 8
-                                     &infoEx, sizeof(FILE_ID_INFO))) {
+                                     static_cast<FILE_INFO_BY_HANDLE_CLASS>(
+                                         18), // FileIdInfo in Windows 8
+                                     &infoEx,
+                                     sizeof(FILE_ID_INFO))) {
         result = QByteArray::number(infoEx.VolumeSerialNumber, 16);
         result += ':';
         // Note: MinGW-64's definition of FILE_ID_128 differs from the MSVC one.
-        result += QByteArray(reinterpret_cast<const char *>(&infoEx.FileId), int(sizeof(infoEx.FileId))).toHex();
+        result += QByteArray(reinterpret_cast<const char *>(&infoEx.FileId),
+                             int(sizeof(infoEx.FileId)))
+                      .toHex();
     }
     return result;
 }
 
 static QByteArray fileIdWin(HANDLE fHandle)
 {
-    return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8 ?
-                fileIdWin8(HANDLE(fHandle)) : fileIdWin7(HANDLE(fHandle));
+    return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8
+               ? fileIdWin8(HANDLE(fHandle))
+               : fileIdWin7(HANDLE(fHandle));
 }
 #endif
 
@@ -640,10 +662,13 @@ QByteArray DesktopDeviceFileAccess::fileId(const FilePath &filePath) const
     QByteArray result;
 
 #ifdef Q_OS_WIN
-    const HANDLE handle =
-            CreateFile((wchar_t*)filePath.toUserOutput().utf16(), 0,
-                       FILE_SHARE_READ, NULL, OPEN_EXISTING,
-                       FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    const HANDLE handle = CreateFile((wchar_t *) filePath.toUserOutput().utf16(),
+                                     0,
+                                     FILE_SHARE_READ,
+                                     NULL,
+                                     OPEN_EXISTING,
+                                     FILE_FLAG_BACKUP_SEMANTICS,
+                                     NULL);
     if (handle != INVALID_HANDLE_VALUE) {
         result = fileIdWin(handle);
         CloseHandle(handle);
@@ -667,7 +692,6 @@ OsType DesktopDeviceFileAccess::osType(const FilePath &filePath) const
     Q_UNUSED(filePath);
     return HostOsInfo::hostOs();
 }
-
 
 // UnixDeviceAccess
 
@@ -769,9 +793,19 @@ bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *
     return result.exitCode == 0;
 }
 
-bool UnixDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
+expected_str<void> UnixDeviceFileAccess::copyFile(const FilePath &filePath,
+                                                  const FilePath &target) const
 {
-    return runInShellSuccess({"cp", {filePath.path(), target.path()}, OsType::OsTypeLinux});
+    const RunResult result = runInShell(
+        {"cp", {filePath.path(), target.path()}, OsType::OsTypeLinux});
+
+    if (result.exitCode != 0) {
+        return make_unexpected(Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
+                                   .arg(filePath.toUserOutput())
+                                   .arg(target.toUserOutput())
+                                   .arg(QString::fromUtf8(result.stdErr)));
+    }
+    return {};
 }
 
 bool UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
@@ -781,15 +815,15 @@ bool UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &
 
 FilePath UnixDeviceFileAccess::symLinkTarget(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"readlink", {"-n", "-e", filePath.path()}, OsType::OsTypeLinux});
+    const RunResult result = runInShell(
+        {"readlink", {"-n", "-e", filePath.path()}, OsType::OsTypeLinux});
     const QString out = QString::fromUtf8(result.stdOut);
     return out.isEmpty() ? FilePath() : filePath.withNewPath(out);
 }
 
-std::optional<QByteArray> UnixDeviceFileAccess::fileContents(
-        const FilePath &filePath,
-        qint64 limit,
-        qint64 offset) const
+expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &filePath,
+                                                            qint64 limit,
+                                                            qint64 offset) const
 {
     QStringList args = {"if=" + filePath.path(), "status=none"};
     if (limit > 0 || offset > 0) {
@@ -802,22 +836,30 @@ std::optional<QByteArray> UnixDeviceFileAccess::fileContents(
     const RunResult r = runInShell({"dd", args, OsType::OsTypeLinux});
 
     if (r.exitCode != 0)
-        return {};
+        return make_unexpected(Tr::tr("Failed reading file \"%1\": %2")
+                                   .arg(filePath.toUserOutput())
+                                   .arg(QString::fromUtf8(r.stdErr)));
 
     return r.stdOut;
 }
 
-bool UnixDeviceFileAccess::writeFileContents(
-        const FilePath &filePath,
-        const QByteArray &data,
-        qint64 offset) const
+expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &filePath,
+                                                             const QByteArray &data,
+                                                             qint64 offset) const
 {
     QStringList args = {"of=" + filePath.path()};
     if (offset != 0) {
         args.append("bs=1");
         args.append(QString("seek=%1").arg(offset));
     }
-    return runInShellSuccess({"dd", args, OsType::OsTypeLinux}, data);
+    RunResult result = runInShell({"dd", args, OsType::OsTypeLinux}, data);
+
+    if (result.exitCode != 0) {
+        return make_unexpected(Tr::tr("Failed writing file \"%1\": %2")
+                                   .arg(filePath.toUserOutput())
+                                   .arg(QString::fromUtf8(result.stdErr)));
+    }
+    return data.size();
 }
 
 OsType UnixDeviceFileAccess::osType(const FilePath &filePath) const
@@ -828,7 +870,8 @@ OsType UnixDeviceFileAccess::osType(const FilePath &filePath) const
 
 QDateTime UnixDeviceFileAccess::lastModified(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"stat", {"-L", "-c", "%Y", filePath.path()}, OsType::OsTypeLinux});
+    const RunResult result = runInShell(
+        {"stat", {"-L", "-c", "%Y", filePath.path()}, OsType::OsTypeLinux});
     qint64 secs = result.stdOut.toLongLong();
     const QDateTime dt = QDateTime::fromSecsSinceEpoch(secs, Qt::UTC);
     return dt;
@@ -836,10 +879,13 @@ QDateTime UnixDeviceFileAccess::lastModified(const FilePath &filePath) const
 
 QFile::Permissions UnixDeviceFileAccess::permissions(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"stat", {"-L", "-c", "%a", filePath.path()}, OsType::OsTypeLinux});
+    const RunResult result = runInShell(
+        {"stat", {"-L", "-c", "%a", filePath.path()}, OsType::OsTypeLinux});
     const uint bits = result.stdOut.toUInt(nullptr, 8);
     QFileDevice::Permissions perm = {};
-#define BIT(n, p) if (bits & (1<<n)) perm |= QFileDevice::p
+#define BIT(n, p) \
+    if (bits & (1 << n)) \
+    perm |= QFileDevice::p
     BIT(0, ExeOther);
     BIT(1, WriteOther);
     BIT(2, ReadOther);
@@ -856,12 +902,14 @@ QFile::Permissions UnixDeviceFileAccess::permissions(const FilePath &filePath) c
 bool UnixDeviceFileAccess::setPermissions(const FilePath &filePath, QFile::Permissions perms) const
 {
     const int flags = int(perms);
-    return runInShellSuccess({"chmod", {QString::number(flags, 16), filePath.path()}, OsType::OsTypeLinux});
+    return runInShellSuccess(
+        {"chmod", {QString::number(flags, 16), filePath.path()}, OsType::OsTypeLinux});
 }
 
 qint64 UnixDeviceFileAccess::fileSize(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"stat", {"-L", "-c", "%s", filePath.path()}, OsType::OsTypeLinux});
+    const RunResult result = runInShell(
+        {"stat", {"-L", "-c", "%s", filePath.path()}, OsType::OsTypeLinux});
     return result.stdOut.toLongLong();
 }
 
@@ -873,7 +921,8 @@ qint64 UnixDeviceFileAccess::bytesAvailable(const FilePath &filePath) const
 
 QByteArray UnixDeviceFileAccess::fileId(const FilePath &filePath) const
 {
-    const RunResult result = runInShell({"stat", {"-L", "-c", "%D:%i", filePath.path()}, OsType::OsTypeLinux});
+    const RunResult result = runInShell(
+        {"stat", {"-L", "-c", "%D:%i", filePath.path()}, OsType::OsTypeLinux});
     if (result.exitCode != 0)
         return {};
 
@@ -882,15 +931,15 @@ QByteArray UnixDeviceFileAccess::fileId(const FilePath &filePath) const
 
 FilePathInfo UnixDeviceFileAccess::filePathInfo(const FilePath &filePath) const
 {
-    const RunResult stat = runInShell({"stat", {"-L", "-c", "%f %Y %s", filePath.path()}, OsType::OsTypeLinux});
+    const RunResult stat = runInShell(
+        {"stat", {"-L", "-c", "%f %Y %s", filePath.path()}, OsType::OsTypeLinux});
     return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut));
 }
 
 // returns whether 'find' could be used.
-bool UnixDeviceFileAccess::iterateWithFind(
-        const FilePath &filePath,
-        const FileFilter &filter,
-        const FilePath::IterateDirCallback &callBack) const
+bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
+                                           const FileFilter &filter,
+                                           const FilePath::IterateDirCallback &callBack) const
 {
     QTC_CHECK(filePath.isAbsolutePath());
 
@@ -899,7 +948,8 @@ bool UnixDeviceFileAccess::iterateWithFind(
     // TODO: Using stat -L will always return the link target, not the link itself.
     // We may wan't to add the information that it is a link at some point.
     if (callBack.index() == 1)
-        cmdLine.addArgs(R"(-exec echo -n \"{}\"" " \; -exec stat -L -c "%f %Y %s" "{}" \;)", CommandLine::Raw);
+        cmdLine.addArgs(R"(-exec echo -n \"{}\"" " \; -exec stat -L -c "%f %Y %s" "{}" \;)",
+                        CommandLine::Raw);
 
     const RunResult result = runInShell(cmdLine);
     const QString out = QString::fromUtf8(result.stdOut);
@@ -951,13 +1001,12 @@ bool UnixDeviceFileAccess::iterateWithFind(
     return true;
 }
 
-void UnixDeviceFileAccess::findUsingLs(
-        const QString &current,
-        const FileFilter &filter,
-        QStringList *found) const
+void UnixDeviceFileAccess::findUsingLs(const QString &current,
+                                       const FileFilter &filter,
+                                       QStringList *found) const
 {
     const RunResult result = runInShell({"ls", {"-1", "-p", "--", current}, OsType::OsTypeLinux});
-    const QStringList entries  = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
+    const QStringList entries = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
     for (QString entry : entries) {
         const QChar last = entry.back();
         if (last == '/') {
@@ -975,13 +1024,13 @@ static void iterateLsOutput(const FilePath &base,
                             const FileFilter &filter,
                             const FilePath::IterateDirCallback &callBack)
 {
-    const QList<QRegularExpression> nameRegexps =
-            transform(filter.nameFilters, [](const QString &filter) {
-        QRegularExpression re;
-        re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
-        QTC_CHECK(re.isValid());
-        return re;
-    });
+    const QList<QRegularExpression> nameRegexps
+        = transform(filter.nameFilters, [](const QString &filter) {
+              QRegularExpression re;
+              re.setPattern(QRegularExpression::wildcardToRegularExpression(filter));
+              QTC_CHECK(re.isValid());
+              return re;
+          });
 
     const auto nameMatches = [&nameRegexps](const QString &fileName) {
         for (const QRegularExpression &re : nameRegexps) {
@@ -1009,17 +1058,17 @@ static void iterateLsOutput(const FilePath &base,
     }
 }
 
-void UnixDeviceFileAccess::iterateDirectory(
-        const FilePath &filePath,
-        const FilePath::IterateDirCallback &callBack,
-        const FileFilter &filter) const
+void UnixDeviceFileAccess::iterateDirectory(const FilePath &filePath,
+                                            const FilePath::IterateDirCallback &callBack,
+                                            const FileFilter &filter) const
 {
     // We try to use 'find' first, because that can filter better directly.
     // Unfortunately, it's not installed on all devices by default.
     if (m_tryUseFind) {
         if (iterateWithFind(filePath, filter, callBack))
             return;
-        m_tryUseFind = false; // remember the failure for the next time and use the 'ls' fallback below.
+        m_tryUseFind
+            = false; // remember the failure for the next time and use the 'ls' fallback below.
     }
 
     // if we do not have find - use ls as fallback
@@ -1028,4 +1077,4 @@ void UnixDeviceFileAccess::iterateDirectory(
     iterateLsOutput(filePath, entries, filter, callBack);
 }
 
-} // Utils
+} // namespace Utils

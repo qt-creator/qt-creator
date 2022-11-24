@@ -55,7 +55,7 @@ static bool getFileContent(const FilePath &filePath,
     if (fileToContentsMap.contains(filePath)) {
         *tempString = fileToContentsMap.value(filePath);
     } else {
-        const std::optional<QByteArray> content = filePath.fileContents();
+        const expected_str<QByteArray> content = filePath.fileContents();
         if (!content)
             return false;
         *tempString = QTC_GUARD(encoding) ? encoding->toUnicode(*content)

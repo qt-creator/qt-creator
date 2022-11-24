@@ -15,12 +15,7 @@
 #include <ctype.h>
 
 #include <utils/processhandle.h>
-
-#define QTC_ASSERT_STRINGIFY_HELPER(x) #x
-#define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
-#define QTC_ASSERT_STRING(cond) qDebug("SOFT ASSERT: \"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
-#define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
-#define QTC_CHECK(cond) if (cond) {} else { QTC_ASSERT_STRING(#cond); } do {} while (0)
+#include <utils/qtcassert.h>
 
 namespace Debugger::Internal {
 

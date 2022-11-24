@@ -256,9 +256,8 @@ void CallgrindToolRunner::triggerParse()
         m_hostOutputFile = FilePath::fromString(dataFile.fileName());
     }
 
-    const auto afterCopy = [this](bool res) {
-        QTC_CHECK(res);
-        QTC_ASSERT(m_hostOutputFile.exists(), return);
+    const auto afterCopy = [this](expected_str<void> res) {
+        QTC_ASSERT_EXPECTED(res, return);
         showStatusMessage(Tr::tr("Parsing Profile Data..."));
         m_parser.parse(m_hostOutputFile);
     };
