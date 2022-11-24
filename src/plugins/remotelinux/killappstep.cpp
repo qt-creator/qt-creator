@@ -17,66 +17,60 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
 class KillAppService : public AbstractRemoteLinuxDeployService
 {
 public:
-    void setRemoteExecutable(const FilePath &filePath);
+    void setRemoteExecutable(const FilePath &filePath) { m_remoteExecutable = filePath; }
 
 private:
-    bool isDeploymentNecessary() const override;
+    bool isDeploymentNecessary() const override { return !m_remoteExecutable.isEmpty(); }
 
     void doDeploy() override;
     void stopDeployment() override;
 
-    void handleSignalOpFinished(const QString &errorMessage);
-
     FilePath m_remoteExecutable;
-    DeviceProcessSignalOperation::Ptr m_signalOperation;
+    std::unique_ptr<TaskTree> m_taskTree;
 };
-
-void KillAppService::setRemoteExecutable(const FilePath &filePath)
-{
-    m_remoteExecutable = filePath;
-}
-
-bool KillAppService::isDeploymentNecessary() const
-{
-    return !m_remoteExecutable.isEmpty();
-}
 
 void KillAppService::doDeploy()
 {
-    m_signalOperation = deviceConfiguration()->signalOperation();
-    if (!m_signalOperation) {
-        handleDeploymentDone();
-        return;
-    }
-    connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
-            this, &KillAppService::handleSignalOpFinished, Qt::QueuedConnection);
-    emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
-                            .arg(m_remoteExecutable.path()));
-    m_signalOperation->killProcess(m_remoteExecutable.path());
+    QTC_ASSERT(!m_taskTree, return);
+
+    const auto setupHandler = [this](DeviceProcessKiller &killer) {
+        killer.setProcessPath(m_remoteExecutable);
+        emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
+                             .arg(m_remoteExecutable.path()));
+    };
+    const auto doneHandler = [this](const DeviceProcessKiller &) {
+        emit progressMessage(Tr::tr("Remote application killed."));
+    };
+    const auto errorHandler = [this](const DeviceProcessKiller &) {
+        emit progressMessage(Tr::tr("Failed to kill remote application. "
+                                    "Assuming it was not running."));
+    };
+
+    const auto endHandler = [this] {
+        m_taskTree.release()->deleteLater();
+        stopDeployment();
+    };
+
+    const Group root {
+        Killer(setupHandler, doneHandler, errorHandler),
+        OnGroupDone(endHandler),
+        OnGroupError(endHandler)
+    };
+    m_taskTree.reset(new TaskTree(root));
+    m_taskTree->start();
 }
 
 void KillAppService::stopDeployment()
 {
-    if (m_signalOperation) {
-        disconnect(m_signalOperation.data(), nullptr, this, nullptr);
-        m_signalOperation.clear();
-    }
+    m_taskTree.reset();
     handleDeploymentDone();
-}
-
-void KillAppService::handleSignalOpFinished(const QString &errorMessage)
-{
-    if (errorMessage.isEmpty())
-        emit progressMessage(Tr::tr("Remote application killed."));
-    else
-        emit progressMessage(Tr::tr("Failed to kill remote application. Assuming it was not running."));
-    stopDeployment();
 }
 
 class KillAppStep : public AbstractRemoteLinuxDeployStep
