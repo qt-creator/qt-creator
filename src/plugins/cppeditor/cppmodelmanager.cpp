@@ -1238,7 +1238,6 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSi
         return files;
 
     QSet<QString> result;
-    QFileInfo fileInfo;
     QList<QRegularExpression> regexes;
     const QStringList wildcards = ignorePattern.split('\n');
 
@@ -1246,19 +1245,19 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSi
         regexes.append(QRegularExpression::fromWildcard(wildcard, Qt::CaseInsensitive,
                                                         QRegularExpression::UnanchoredWildcardConversion));
 
-    for (const QString &filePath : files) {
-        fileInfo.setFile(filePath);
-        if (fileSizeLimitInMb > 0 && fileSizeExceedsLimit(fileInfo, fileSizeLimitInMb))
+    for (const QString &file : files) {
+        const FilePath filePath = FilePath::fromString(file);
+        if (fileSizeLimitInMb > 0 && fileSizeExceedsLimit(filePath, fileSizeLimitInMb))
             continue;
         bool skip = false;
         if (ignoreFiles) {
             for (const QRegularExpression &rx: std::as_const(regexes)) {
-                QRegularExpressionMatch match = rx.match(fileInfo.absoluteFilePath());
+                QRegularExpressionMatch match = rx.match(filePath.absoluteFilePath().path());
                 if (match.hasMatch()) {
                     const QString msg = QCoreApplication::translate(
                                 "CppIndexer",
                                 "C++ Indexer: Skipping file \"%1\" because its path matches the ignore pattern.")
-                                    .arg(filePath);
+                                    .arg(filePath.displayName());
                     QMetaObject::invokeMethod(Core::MessageManager::instance(),
                                               [msg]() { Core::MessageManager::writeSilently(msg); });
                     skip = true;
@@ -1268,7 +1267,7 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSi
         }
 
         if (!skip)
-            result << filePath;
+            result << filePath.toString();
     }
 
     return result;

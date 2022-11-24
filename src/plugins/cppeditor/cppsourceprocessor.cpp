@@ -422,8 +422,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
         return;
     }
 
-    const QFileInfo info = absoluteFilePath.toFileInfo();
-    if (fileSizeExceedsLimit(info, m_fileSizeLimitInMb))
+    if (fileSizeExceedsLimit(absoluteFilePath, m_fileSizeLimitInMb))
         return; // TODO: Add diagnostic message
 
     // Otherwise get file contents
@@ -445,8 +444,8 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
         Document::Include inc(include.toString(), include, 0, IncludeLocal);
         document->addIncludeFile(inc);
     }
-    if (info.exists())
-        document->setLastModified(info.lastModified());
+    if (absoluteFilePath.exists())
+        document->setLastModified(absoluteFilePath.lastModified());
 
     const Document::Ptr previousDocument = switchCurrentDocument(document);
     const QByteArray preprocessedCode = m_preprocess.run(absoluteFilePath, contents);

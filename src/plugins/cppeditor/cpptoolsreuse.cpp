@@ -39,6 +39,7 @@
 #include <QTextDocument>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -336,18 +337,17 @@ int indexerFileSizeLimitInMb()
     return -1;
 }
 
-bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb)
+bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
 {
     if (sizeLimitInMb <= 0)
         return false;
 
-    const qint64 fileSizeInMB = fileInfo.size() / (1000 * 1000);
+    const qint64 fileSizeInMB = filePath.fileSize() / (1000 * 1000);
     if (fileSizeInMB > sizeLimitInMb) {
-        const QString absoluteFilePath = fileInfo.absoluteFilePath();
         const QString msg = QCoreApplication::translate(
                     "CppIndexer",
                     "C++ Indexer: Skipping file \"%1\" because it is too big.")
-                        .arg(absoluteFilePath);
+                        .arg(filePath.displayName());
 
         QMetaObject::invokeMethod(Core::MessageManager::instance(),
                                   [msg]() { Core::MessageManager::writeSilently(msg); });

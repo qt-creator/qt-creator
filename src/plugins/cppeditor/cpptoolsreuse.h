@@ -16,12 +16,6 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Token.h>
 
-QT_BEGIN_NAMESPACE
-class QChar;
-class QFileInfo;
-class QTextCursor;
-QT_END_NAMESPACE
-
 namespace CPlusPlus {
 class Macro;
 class Symbol;
@@ -31,6 +25,7 @@ class LookupContext;
 namespace TextEditor { class AssistInterface; }
 
 namespace CppEditor {
+
 class CppRefactoringFile;
 class ProjectInfo;
 class CppCompletionAssistProcessor;
@@ -75,7 +70,7 @@ bool CPPEDITOR_EXPORT preferLowerCaseFileNames();
 UsePrecompiledHeaders CPPEDITOR_EXPORT getPchUsage();
 
 int indexerFileSizeLimitInMb();
-bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb);
+bool fileSizeExceedsLimit(const Utils::FilePath &filePath, int sizeLimitInMb);
 
 ProjectExplorer::Project CPPEDITOR_EXPORT *projectForProjectInfo(const ProjectInfo &info);
 ProjectExplorer::Project CPPEDITOR_EXPORT *projectForProjectPart(const ProjectPart &part);
