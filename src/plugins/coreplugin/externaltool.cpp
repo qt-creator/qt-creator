@@ -187,9 +187,9 @@ bool ExternalTool::modifiesCurrentDocument() const
     return m_modifiesCurrentDocument;
 }
 
-void ExternalTool::setFileName(const Utils::FilePath &fileName)
+void ExternalTool::setFilePath(const FilePath &filePath)
 {
-    m_filePath = fileName;
+    m_filePath = filePath;
 }
 
 void ExternalTool::setPreset(QSharedPointer<ExternalTool> preset)
@@ -197,7 +197,7 @@ void ExternalTool::setPreset(QSharedPointer<ExternalTool> preset)
     m_presetTool = preset;
 }
 
-Utils::FilePath ExternalTool::fileName() const
+FilePath ExternalTool::filePath() const
 {
     return m_filePath;
 }
@@ -440,9 +440,10 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
     return tool;
 }
 
-ExternalTool * ExternalTool::createFromFile(const Utils::FilePath &fileName, QString *errorMessage, const QString &locale)
+ExternalTool * ExternalTool::createFromFile(const FilePath &fileName, QString *errorMessage,
+                                            const QString &locale)
 {
-    Utils::FilePath absFileName = fileName.absoluteFilePath();
+    FilePath absFileName = fileName.absoluteFilePath();
     FileReader reader;
     if (!reader.fetch(absFileName, errorMessage))
         return nullptr;

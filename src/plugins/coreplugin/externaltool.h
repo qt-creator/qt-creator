@@ -10,13 +10,12 @@
 #include <utils/id.h>
 
 #include <QObject>
-#include <QStringList>
-#include <QProcess>
 #include <QSharedPointer>
 #include <QTextCodec>
 #include <QMetaType>
 
 namespace Utils { class QtcProcess; }
+
 namespace Core {
 
 class CORE_EXPORT ExternalTool : public QObject
@@ -51,15 +50,16 @@ public:
     Utils::Environment baseEnvironment() const;
     Utils::EnvironmentItems environmentUserChanges() const;
 
-    void setFileName(const Utils::FilePath &fileName);
+    void setFilePath(const Utils::FilePath &filePath);
     void setPreset(QSharedPointer<ExternalTool> preset);
-    Utils::FilePath fileName() const;
+    Utils::FilePath filePath() const;
     // all tools that are preset (changed or unchanged) have the original value here:
     QSharedPointer<ExternalTool> preset() const;
 
-    static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = nullptr, const QString &locale = QString());
+    static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = nullptr,
+                                       const QString &locale = {});
     static ExternalTool *createFromFile(const Utils::FilePath &fileName, QString *errorMessage = nullptr,
-                                        const QString &locale = QString());
+                                        const QString &locale = {});
 
     bool save(QString *errorMessage = nullptr) const;
 
@@ -105,6 +105,7 @@ private:
 class CORE_EXPORT ExternalToolRunner : public QObject
 {
     Q_OBJECT
+
 public:
     ExternalToolRunner(const ExternalTool *tool);
     ~ExternalToolRunner() override;

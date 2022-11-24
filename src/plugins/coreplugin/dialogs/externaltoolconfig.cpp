@@ -323,7 +323,7 @@ void ExternalToolModel::revertTool(const QModelIndex &modelIndex)
 {
     ExternalTool *tool = toolForIndex(modelIndex);
     QTC_ASSERT(tool, return);
-    QTC_ASSERT(tool->preset() && !tool->preset()->fileName().isEmpty(), return);
+    QTC_ASSERT(tool->preset() && !tool->preset()->filePath().isEmpty(), return);
     auto resetTool = new ExternalTool(tool->preset().data());
     resetTool->setPreset(tool->preset());
     (*tool) = (*resetTool);
@@ -832,23 +832,23 @@ void ExternalToolConfig::apply()
                     // case 1: tool is changed preset
                     if (tool->preset() && (*tool) != (*(tool->preset()))) {
                         // check if we need to choose a new file name
-                        if (tool->preset()->fileName() == tool->fileName()) {
-                            const QString &fileName = tool->preset()->fileName().fileName();
+                        if (tool->preset()->filePath() == tool->filePath()) {
+                            const QString &fileName = tool->preset()->filePath().fileName();
                             const FilePath &newFilePath = getUserFilePath(fileName);
                             // TODO error handling if newFilePath.isEmpty() (i.e. failed to find a unused name)
-                            tool->setFileName(newFilePath);
+                            tool->setFilePath(newFilePath);
                         }
                         // TODO error handling
                         tool->save();
                     // case 2: tool is previously changed preset but now same as preset
                     } else if (tool->preset() && (*tool) == (*(tool->preset()))) {
                         // check if we need to delete the changed description
-                        if (originalTool->fileName() != tool->preset()->fileName()
-                                && originalTool->fileName().exists()) {
+                        if (originalTool->filePath() != tool->preset()->filePath()
+                                && originalTool->filePath().exists()) {
                             // TODO error handling
-                            originalTool->fileName().removeFile();
+                            originalTool->filePath().removeFile();
                         }
-                        tool->setFileName(tool->preset()->fileName());
+                        tool->setFilePath(tool->preset()->filePath());
                         // no need to save, it's the same as the preset
                     // case 3: tool is custom tool
                     } else {
@@ -865,7 +865,7 @@ void ExternalToolConfig::apply()
                 id = findUnusedId(id, newToolsMap);
                 tool->setId(id);
                 // TODO error handling if newFilePath.isEmpty() (i.e. failed to find a unused name)
-                tool->setFileName(getUserFilePath(id + QLatin1String(".xml")));
+                tool->setFilePath(getUserFilePath(id + QLatin1String(".xml")));
                 // TODO error handling
                 tool->save();
                 toolToAdd = new ExternalTool(tool);
@@ -879,7 +879,7 @@ void ExternalToolConfig::apply()
     for (const ExternalTool *tool : std::as_const(originalTools)) {
         QTC_ASSERT(!tool->preset(), continue);
         // TODO error handling
-        tool->fileName().removeFile();
+        tool->filePath().removeFile();
     }
 
     ExternalToolManager::setToolsByCategory(resultMap);
