@@ -244,7 +244,7 @@ void CppRefactoringChangesData::reindentSelection(const QTextCursor &selection,
 
 void CppRefactoringChangesData::fileChanged(const FilePath &filePath)
 {
-    m_modelManager->updateSourceFiles({filePath.toString()});
+    m_modelManager->updateSourceFiles({filePath});
 }
 
 } // CppEditor

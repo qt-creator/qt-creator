@@ -137,9 +137,9 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
    for (const ProjectInfo::ConstPtr &info : projectInfos) {
         qDebug() << "Project" << info->projectFilePath().toUserOutput() << "- files to process:"
                  << info->sourceFiles().size();
-       const QSet<QString> sourceFiles = info->sourceFiles();
-       for (const QString &sourceFile : sourceFiles)
-            filesToOpen << FilePath::fromString(sourceFile);
+       const QSet<FilePath> sourceFiles = info->sourceFiles();
+       for (const FilePath &sourceFile : sourceFiles)
+            filesToOpen << sourceFile;
     }
 
     Utils::sort(filesToOpen);

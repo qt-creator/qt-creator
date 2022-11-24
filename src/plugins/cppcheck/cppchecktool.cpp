@@ -22,10 +22,11 @@
 
 #include <QThread>
 
+using namespace Utils;
+
 namespace Cppcheck::Internal {
 
-CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager,
-                           const Utils::Id &progressId) :
+CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager, const Id &progressId) :
     m_manager(manager),
     m_progressRegexp("^.* checked (\\d+)% done$"),
     m_messageRegexp("^(.+),(\\d+),(\\w+),(\\w+),(.*)$"),
@@ -194,13 +195,12 @@ void CppcheckTool::check(const Utils::FilePaths &files)
         return;
     }
 
-    std::map<CppEditor::ProjectPart::ConstPtr, Utils::FilePaths> groups;
-    for (const Utils::FilePath &file : std::as_const(filtered)) {
-        const QString stringed = file.toString();
+    std::map<CppEditor::ProjectPart::ConstPtr, FilePaths> groups;
+    for (const FilePath &file : std::as_const(filtered)) {
         for (const CppEditor::ProjectPart::ConstPtr &part : parts) {
             using CppEditor::ProjectFile;
             QTC_ASSERT(part, continue);
-            const auto match = [stringed](const ProjectFile &pFile){return pFile.path == stringed;};
+            const auto match = [file](const ProjectFile &pFile){return pFile.path == file;};
             if (Utils::contains(part->files, match))
                 groups[part].push_back(file);
         }

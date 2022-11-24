@@ -13,7 +13,7 @@
 
 namespace CppEditor {
 
-ProjectFile::ProjectFile(const QString &filePath, Kind kind, bool active)
+ProjectFile::ProjectFile(const Utils::FilePath &filePath, Kind kind, bool active)
     : path(filePath)
     , kind(kind)
     , active(active)

@@ -457,8 +457,7 @@ void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search,
 {
     const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
     if (!filePaths.isEmpty()) {
-        m_modelManager->updateSourceFiles(
-            Utils::transform<QSet>(filePaths, &Utils::FilePath::toString));
+        m_modelManager->updateSourceFiles(Utils::toSet(filePaths));
         SearchResultWindow::instance()->hide();
     }
 

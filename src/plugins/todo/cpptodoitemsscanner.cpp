@@ -14,6 +14,8 @@
 
 #include <cctype>
 
+using namespace Utils;
+
 namespace Todo {
 namespace Internal {
 
@@ -35,7 +37,7 @@ void CppTodoItemsScanner::scannerParamsChanged()
 
     CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
 
-    QSet<QString> filesToBeUpdated;
+    QSet<FilePath> filesToBeUpdated;
     const CppEditor::ProjectInfoList infoList = modelManager->projectInfos();
     for (const CppEditor::ProjectInfo::ConstPtr &info : infoList)
         filesToBeUpdated.unite(info->sourceFiles());

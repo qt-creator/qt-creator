@@ -73,13 +73,12 @@ static void extractAllFiles(const DebuggerRunTool *runTool, QStringList &include
         for (const ProjectFile &file : std::as_const(part->files)) {
             if (!file.active)
                 continue;
-            const auto path = FilePath::fromString(file.path);
-            if (file.isHeader() && !headers.contains(path))
-                headers.push_back(path);
-            else if (file.isSource() && !sources.contains(path))
-                sources.push_back(path);
-            else if (file.path.endsWith(".s") && !assemblers.contains(path))
-                assemblers.push_back(path);
+            if (file.isHeader() && !headers.contains(file.path))
+                headers.push_back(file.path);
+            else if (file.isSource() && !sources.contains(file.path))
+                sources.push_back(file.path);
+            else if (file.path.endsWith(".s") && !assemblers.contains(file.path))
+                assemblers.push_back(file.path);
         }
         for (const HeaderPath &include : std::as_const(part->headerPaths)) {
             if (!includes.contains(include.path))

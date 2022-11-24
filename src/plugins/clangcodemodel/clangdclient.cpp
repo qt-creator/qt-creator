@@ -81,6 +81,7 @@ using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -341,7 +342,7 @@ static void addToCompilationDb(QJsonObject &cdb,
     //       Should we make use of them or keep using our own?
     args.prepend("clang");
 
-    const QString fileString = Utils::FilePath::fromString(sourceFile.path).toUserOutput();
+    const QString fileString = sourceFile.path.toUserOutput();
     args.append(fileString);
     QJsonObject value;
     value.insert("workingDirectory", workingDir.toString());
@@ -819,7 +820,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                 *projectPart, warningsConfigForProject(project()), includeDir,
                 ProjectExplorer::Macro::toMacros(config.editorDefines));
-    const CppEditor::ProjectFile file(filePath.toString(),
+    const CppEditor::ProjectFile file(filePath,
                                       CppEditor::ProjectFile::classify(filePath.toString()));
     const QJsonArray projectPartOptions = fullProjectPartOptions(
                 optionsBuilder, globalClangOptions());
@@ -833,7 +834,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     emit configChanged();
 }
 
-void ClangdClient::switchIssuePaneEntries(const Utils::FilePath &filePath)
+void ClangdClient::switchIssuePaneEntries(const FilePath &filePath)
 {
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DIAGNOSTICS);
     const Tasks tasks = d->issuePaneEntries.value(filePath);

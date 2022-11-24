@@ -283,8 +283,7 @@ CPlusPlus::Document::Ptr TestCase::waitForRehighlightedSemanticDocument(CppEdito
 
 bool TestCase::parseFiles(const QSet<FilePath> &filePaths)
 {
-    QSet<QString> filePaths_ = transform(filePaths, &FilePath::toString);
-    CppModelManager::instance()->updateSourceFiles(filePaths_).waitForFinished();
+    CppModelManager::instance()->updateSourceFiles(filePaths).waitForFinished();
     QCoreApplication::processEvents();
     const CPlusPlus::Snapshot snapshot = globalSnapshot();
     if (snapshot.isEmpty()) {

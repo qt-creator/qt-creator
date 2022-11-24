@@ -78,8 +78,7 @@ void CppcheckTrigger::checkEditors(const QList<IEditor *> &editors)
         if (!m_currentProject->isKnownFile(path))
             continue;
 
-        const QString &pathString = path.toString();
-        if (!info->sourceFiles().contains(pathString))
+        if (!info->sourceFiles().contains(path))
             continue;
 
         connect(document, &IDocument::aboutToReload,

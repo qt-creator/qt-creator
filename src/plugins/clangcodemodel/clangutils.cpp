@@ -110,13 +110,13 @@ static QJsonObject createFileObject(const FilePath &buildDir,
                                     bool clStyle)
 {
     QJsonObject fileObject;
-    fileObject["file"] = projFile.path;
+    fileObject["file"] = projFile.path.toString();
     QJsonArray args;
 
     if (purpose == CompilationDbPurpose::Project) {
         args = QJsonArray::fromStringList(arguments);
 
-        const ProjectFile::Kind kind = ProjectFile::classify(projFile.path);
+        const ProjectFile::Kind kind = ProjectFile::classify(projFile.path.path());
         if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                 || projectPart.toolchainType == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
             if (!ProjectFile::isObjC(kind)) {
@@ -138,7 +138,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
-    args.append(QDir::toNativeSeparators(projFile.path));
+    args.append(projFile.path.toUserOutput());
     fileObject["arguments"] = args;
     fileObject["directory"] = buildDir.toString();
     return fileObject;
@@ -269,7 +269,7 @@ QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &proje
                 ? ProjectFile::CHeader : ProjectFile::CXXHeader;
     }
     if (usePch == UsePrecompiledHeaders::Yes
-            && projectPart.precompiledHeaders.contains(file.path)) {
+            && projectPart.precompiledHeaders.contains(file.path.path())) {
         usePch = UsePrecompiledHeaders::No;
     }
     optionsBuilder.updateFileLanguage(fileKind);

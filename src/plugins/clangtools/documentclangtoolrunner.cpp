@@ -135,20 +135,19 @@ static FileInfo getFileInfo(const FilePath &file, Project *project)
         for (const ProjectFile &projectFile : std::as_const(projectPart->files)) {
             QTC_ASSERT(projectFile.kind != ProjectFile::Unclassified, continue);
             QTC_ASSERT(projectFile.kind != ProjectFile::Unsupported, continue);
-            if (projectFile.path == CppModelManager::configurationFileName().path())
+            if (projectFile.path == CppModelManager::configurationFileName())
                 continue;
-            const auto projectFilePath = FilePath::fromString(projectFile.path);
-            if (file != projectFilePath)
+            if (file != projectFile.path)
                 continue;
             if (!projectFile.active)
                 continue;
             // found the best candidate, early return
             ProjectFile::Kind sourceKind = ProjectFile::sourceKind(projectFile.kind);
             if (projectPart->buildTargetType != BuildTargetType::Unknown)
-                return FileInfo(projectFilePath, sourceKind, projectPart);
+                return FileInfo(projectFile.path, sourceKind, projectPart);
             // found something but keep looking for better candidates
             if (candidate.projectPart.isNull())
-                candidate = FileInfo(projectFilePath, sourceKind, projectPart);
+                candidate = FileInfo(projectFile.path, sourceKind, projectPart);
         }
     }
 

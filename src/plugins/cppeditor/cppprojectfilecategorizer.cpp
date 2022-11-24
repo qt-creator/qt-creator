@@ -4,6 +4,9 @@
 #include "cppprojectfilecategorizer.h"
 
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
+
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -38,7 +41,7 @@ ProjectFiles ProjectFileCategorizer::classifyFiles(const QStringList &filePaths,
     ProjectFiles ambiguousHeaders;
 
     for (const QString &filePath : filePaths) {
-        const ProjectFile projectFile(filePath,
+        const ProjectFile projectFile(FilePath::fromString(filePath),
                                       getMimeType
                                           ? ProjectFile::classifyByMimeType(getMimeType(filePath))
                                           : ProjectFile::classify(filePath),

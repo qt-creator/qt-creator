@@ -9,22 +9,14 @@
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/toolchain.h>
 
+using namespace Utils;
+
 namespace CppEditor {
 
 ProjectInfo::ConstPtr ProjectInfo::create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
                                      const QVector<ProjectPart::ConstPtr> &projectParts)
 {
     return ConstPtr(new ProjectInfo(updateInfo, projectParts));
-}
-
-const QVector<ProjectPart::ConstPtr> ProjectInfo::projectParts() const
-{
-    return m_projectParts;
-}
-
-const QSet<QString> ProjectInfo::sourceFiles() const
-{
-    return m_sourceFiles;
 }
 
 bool ProjectInfo::operator ==(const ProjectInfo &other) const
@@ -58,9 +50,9 @@ bool ProjectInfo::configurationOrFilesChanged(const ProjectInfo &other) const
     return configurationChanged(other) || m_sourceFiles != other.m_sourceFiles;
 }
 
-static QSet<QString> getSourceFiles(const QVector<ProjectPart::ConstPtr> &projectParts)
+static QSet<FilePath> getSourceFiles(const QVector<ProjectPart::ConstPtr> &projectParts)
 {
-    QSet<QString> sourceFiles;
+    QSet<FilePath> sourceFiles;
     for (const ProjectPart::ConstPtr &part : projectParts) {
         for (const ProjectFile &file : std::as_const(part->files))
             sourceFiles.insert(file.path);

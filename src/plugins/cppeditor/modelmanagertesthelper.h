@@ -43,7 +43,7 @@ public:
     QSet<Utils::FilePath> updateProjectInfo(const ProjectInfo::ConstPtr &projectInfo);
 
     void resetRefreshedSourceFiles();
-    QSet<QString> waitForRefreshedSourceFiles();
+    QSet<Utils::FilePath> waitForRefreshedSourceFiles();
     void waitForFinishedGc();
 
 signals:

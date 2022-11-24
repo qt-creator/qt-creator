@@ -19,6 +19,7 @@
 #include <QFutureInterface>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -134,11 +135,11 @@ void CppProjectUpdater::checkForExtraCompilersFinished()
     m_projectUpdateFutureInterface.reset();
 
     QList<ExtraCompiler *> extraCompilers;
-    QSet<QString> compilerFiles;
+    QSet<FilePath> compilerFiles;
     for (const QPointer<ExtraCompiler> &compiler : std::as_const(m_extraCompilers)) {
         if (compiler) {
             extraCompilers += compiler.data();
-            compilerFiles += Utils::transform<QSet>(compiler->targets(), &Utils::FilePath::toString);
+            compilerFiles += Utils::toSet(compiler->targets());
         }
     }
     GeneratedCodeModelSupport::update(extraCompilers);

@@ -10,7 +10,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/toolchain.h>
-#include <utils/fileutils.h>
+
+#include <utils/filepath.h>
 
 #include <QHash>
 #include <QList>
@@ -28,8 +29,8 @@ public:
     static ConstPtr create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
                            const QVector<ProjectPart::ConstPtr> &projectParts);
 
-    const QVector<ProjectPart::ConstPtr> projectParts() const;
-    const QSet<QString> sourceFiles() const;
+    const QVector<ProjectPart::ConstPtr> &projectParts() const { return m_projectParts; }
+    const QSet<Utils::FilePath> &sourceFiles() const { return m_sourceFiles; }
     QString projectName() const { return m_projectName; }
     Utils::FilePath projectFilePath() const { return m_projectFilePath; }
     Utils::FilePath projectRoot() const { return m_projectFilePath.parentDir(); }
@@ -51,7 +52,7 @@ private:
     const Utils::FilePath m_projectFilePath;
     const Utils::FilePath m_buildRoot;
     const ProjectExplorer::HeaderPaths m_headerPaths;
-    const QSet<QString> m_sourceFiles;
+    const QSet<Utils::FilePath> m_sourceFiles;
     const ProjectExplorer::Macros m_defines;
 };
 

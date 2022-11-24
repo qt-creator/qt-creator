@@ -87,7 +87,7 @@ public:
         ReservedProgressNotification
     };
 
-    QFuture<void> updateSourceFiles(const QSet<QString> &sourceFiles,
+    QFuture<void> updateSourceFiles(const QSet<Utils::FilePath> &sourceFiles,
                                     ProgressNotificationMode mode = ReservedProgressNotification);
     void updateCppEditorDocuments(bool projectsUpdated = false) const;
     WorkingCopy workingCopy() const;
@@ -103,7 +103,7 @@ public:
     ProjectInfoList projectInfos() const;
     ProjectInfo::ConstPtr projectInfo(ProjectExplorer::Project *project) const;
     QFuture<void> updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
-                                    const QSet<QString> &additionalFiles = {});
+                                    const QSet<Utils::FilePath> &additionalFiles = {});
 
     /// \return The project part with the given project file
     ProjectPart::ConstPtr projectPartForId(const QString &projectPartId) const;
@@ -192,7 +192,7 @@ public:
 
     CppIndexingSupport *indexingSupport();
 
-    QStringList projectFiles();
+    Utils::FilePaths projectFiles();
 
     ProjectExplorer::HeaderPaths headerPaths();
 
@@ -207,7 +207,7 @@ public:
 
     QThreadPool *sharedThreadPool();
 
-    static QSet<QString> timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
+    static QSet<Utils::FilePath> timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
 
     static Internal::CppSourceProcessor *createSourceProcessor();
     static const Utils::FilePath &configurationFileName();
@@ -284,13 +284,13 @@ private:
     void recalculateProjectPartMappings();
 
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
-    void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
+    void removeFilesFromSnapshot(const QSet<Utils::FilePath> &removedFiles);
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
     WorkingCopy buildWorkingCopyList();
 
     void ensureUpdated();
-    QStringList internalProjectFiles() const;
+    Utils::FilePaths internalProjectFiles() const;
     ProjectExplorer::HeaderPaths internalHeaderPaths() const;
     ProjectExplorer::Macros internalDefinedMacros() const;
 
@@ -301,4 +301,4 @@ private:
     Internal::CppModelManagerPrivate *d;
 };
 
-} // namespace CppEditor
+} // CppEditor

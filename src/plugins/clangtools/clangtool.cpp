@@ -312,16 +312,14 @@ static FileInfos sortedFileInfos(const QVector<CppEditor::ProjectPart::ConstPtr>
         for (const CppEditor::ProjectFile &file : std::as_const(projectPart->files)) {
             QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unclassified, continue);
             QTC_ASSERT(file.kind != CppEditor::ProjectFile::Unsupported, continue);
-            if (file.path == CppEditor::CppModelManager::configurationFileName().path())
+            if (file.path == CppEditor::CppModelManager::configurationFileName())
                 continue;
 
             if (file.active
                 && (CppEditor::ProjectFile::isSource(file.kind)
                     || CppEditor::ProjectFile::isHeader(file.kind))) {
                 ProjectFile::Kind sourceKind = CppEditor::ProjectFile::sourceKind(file.kind);
-                fileInfos.emplace_back(Utils::FilePath::fromString(file.path),
-                                       sourceKind,
-                                       projectPart);
+                fileInfos.emplace_back(file.path, sourceKind, projectPart);
             }
         }
     }

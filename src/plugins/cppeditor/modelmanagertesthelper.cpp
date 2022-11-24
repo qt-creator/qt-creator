@@ -83,7 +83,7 @@ QSet<FilePath> ModelManagerTestHelper::updateProjectInfo(
     resetRefreshedSourceFiles();
     CppModelManager::instance()->updateProjectInfo(projectInfo).waitForFinished();
     QCoreApplication::processEvents();
-    return Utils::transform(waitForRefreshedSourceFiles(), &FilePath::fromString);
+    return waitForRefreshedSourceFiles();
 }
 
 void ModelManagerTestHelper::resetRefreshedSourceFiles()
@@ -92,12 +92,12 @@ void ModelManagerTestHelper::resetRefreshedSourceFiles()
     m_refreshHappened = false;
 }
 
-QSet<QString> ModelManagerTestHelper::waitForRefreshedSourceFiles()
+QSet<FilePath> ModelManagerTestHelper::waitForRefreshedSourceFiles()
 {
     while (!m_refreshHappened)
         QCoreApplication::processEvents();
 
-    return m_lastRefreshedSourceFiles;
+    return Utils::transform(m_lastRefreshedSourceFiles, &FilePath::fromString);
 }
 
 void ModelManagerTestHelper::waitForFinishedGc()

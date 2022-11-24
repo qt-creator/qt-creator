@@ -169,7 +169,7 @@ public:
 
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
-    QStringList m_projectFiles;
+    Utils::FilePaths m_projectFiles;
     ProjectExplorer::HeaderPaths m_headerPaths;
     ProjectExplorer::Macros m_definedMacros;
 
@@ -262,9 +262,9 @@ const char pp_configuration[] =
     "#define __ptr32\n"
     "#define __ptr64\n";
 
-QSet<QString> CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck)
+QSet<FilePath> CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck)
 {
-    QSet<QString> sourceFiles;
+    QSet<FilePath> sourceFiles;
 
     for (const Document::Ptr &doc : documentsToCheck) {
         const QDateTime lastModified = doc->lastModified();
@@ -273,7 +273,7 @@ QSet<QString> CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr>
             const FilePath filePath = doc->filePath();
 
             if (filePath.exists() && filePath.lastModified() != lastModified)
-                sourceFiles.insert(filePath.toString());
+                sourceFiles.insert(filePath);
         }
     }
 
@@ -403,7 +403,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     }
 
     const ToolChain * tc = nullptr;
-    const ProjectFile classifier(filePath.toString(), ProjectFile::classify(filePath.toString()));
+    const ProjectFile classifier(filePath, ProjectFile::classify(filePath.toString()));
     if (classifier.isC()) {
         tc = ToolChainKitAspect::cToolChain(project->activeTarget()->kit());
     } else if (classifier.isCxx() || classifier.isHeader()) {
@@ -890,8 +890,8 @@ void CppModelManager::initCppTools()
     connect(Core::VcsManager::instance(), &Core::VcsManager::repositoryChanged,
             this, &CppModelManager::updateModifiedSourceFiles);
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::filesChangedInternally,
-            [this](const Utils::FilePaths &filePaths) {
-        updateSourceFiles(Utils::transform<QSet>(filePaths, &Utils::FilePath::toString));
+            [this](const FilePaths &filePaths) {
+        updateSourceFiles(toSet(filePaths));
     });
 
     connect(this, &CppModelManager::documentUpdated,
@@ -1027,16 +1027,16 @@ void CppModelManager::ensureUpdated()
     d->m_dirty = false;
 }
 
-QStringList CppModelManager::internalProjectFiles() const
+FilePaths CppModelManager::internalProjectFiles() const
 {
-    QStringList files;
+    FilePaths files;
     for (const ProjectData &projectData : std::as_const(d->m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             for (const ProjectFile &file : part->files)
                 files += file.path;
         }
     }
-    files.removeDuplicates();
+    FilePath::removeDuplicates(files);
     return files;
 }
 
@@ -1272,13 +1272,14 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSi
     return result;
 }
 
-QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFiles,
+QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFiles,
                                                  ProgressNotificationMode mode)
 {
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
-    const QSet<QString> filteredFiles = filteredFilesRemoved(sourceFiles, indexerFileSizeLimitInMb(),
+    const QSet<QString> filteredFiles = filteredFilesRemoved(transform(sourceFiles, &FilePath::toString),
+                                                             indexerFileSizeLimitInMb(),
                                                              codeModelSettings()->ignoreFiles(),
                                                              codeModelSettings()->ignorePattern());
 
@@ -1304,11 +1305,10 @@ void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const Projec
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
     for (const ProjectPart::ConstPtr &projectPart : projectInfo.projectParts()) {
         for (const ProjectFile &cxxFile : std::as_const(projectPart->files)) {
-            const QSet<FilePath> filePaths = d->m_snapshot.allIncludesForDocument(
-                        FilePath::fromString(cxxFile.path));
+            const QSet<FilePath> filePaths = d->m_snapshot.allIncludesForDocument(cxxFile.path);
             for (const FilePath &filePath : filePaths)
                 d->m_snapshot.remove(filePath);
-            d->m_snapshot.remove(FilePath::fromString(cxxFile.path));
+            d->m_snapshot.remove(cxxFile.path);
         }
     }
 }
@@ -1320,11 +1320,11 @@ const QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments() con
 }
 
 /// \brief Remove all given files from the snapshot.
-void CppModelManager::removeFilesFromSnapshot(const QSet<QString> &filesToRemove)
+void CppModelManager::removeFilesFromSnapshot(const QSet<FilePath> &filesToRemove)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
-    for (const QString &file : filesToRemove)
-        d->m_snapshot.remove(FilePath::fromString(file));
+    for (const FilePath &file : filesToRemove)
+        d->m_snapshot.remove(file);
 }
 
 class ProjectInfoComparer
@@ -1342,16 +1342,16 @@ public:
     bool configurationChanged() const { return m_new.configurationChanged(m_old); }
     bool configurationOrFilesChanged() const { return m_new.configurationOrFilesChanged(m_old); }
 
-    QSet<QString> addedFiles() const
+    QSet<FilePath> addedFiles() const
     {
-        QSet<QString> addedFilesSet = m_newSourceFiles;
+        QSet<FilePath> addedFilesSet = m_newSourceFiles;
         addedFilesSet.subtract(m_oldSourceFiles);
         return addedFilesSet;
     }
 
-    QSet<QString> removedFiles() const
+    QSet<FilePath> removedFiles() const
     {
-        QSet<QString> removedFilesSet = m_oldSourceFiles;
+        QSet<FilePath> removedFilesSet = m_oldSourceFiles;
         removedFilesSet.subtract(m_newSourceFiles);
         return removedFilesSet;
     }
@@ -1364,14 +1364,14 @@ public:
     }
 
     /// Returns a list of common files that have a changed timestamp.
-    QSet<QString> timeStampModifiedFiles(const Snapshot &snapshot) const
+    QSet<FilePath> timeStampModifiedFiles(const Snapshot &snapshot) const
     {
-        QSet<QString> commonSourceFiles = m_newSourceFiles;
+        QSet<FilePath> commonSourceFiles = m_newSourceFiles;
         commonSourceFiles.intersect(m_oldSourceFiles);
 
         QList<Document::Ptr> documentsToCheck;
-        for (const QString &file : commonSourceFiles) {
-            if (Document::Ptr document = snapshot.document(FilePath::fromString(file)))
+        for (const FilePath &file : commonSourceFiles) {
+            if (Document::Ptr document = snapshot.document(file))
                 documentsToCheck << document;
         }
 
@@ -1391,10 +1391,10 @@ private:
 
 private:
     const ProjectInfo &m_old;
-    const QSet<QString> m_oldSourceFiles;
+    const QSet<FilePath> m_oldSourceFiles;
 
     const ProjectInfo &m_new;
-    const QSet<QString> m_newSourceFiles;
+    const QSet<FilePath> m_newSourceFiles;
 };
 
 /// Make sure that m_projectLock is locked for writing when calling this.
@@ -1406,8 +1406,7 @@ void CppModelManager::recalculateProjectPartMappings()
         for (const ProjectPart::ConstPtr &projectPart : projectData.projectInfo->projectParts()) {
             d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             for (const ProjectFile &cxxFile : projectPart->files)
-                d->m_fileToProjectParts[Utils::FilePath::fromString(cxxFile.path).canonicalPath()].append(
-                            projectPart);
+                d->m_fileToProjectParts[cxxFile.path.canonicalPath()].append(projectPart);
         }
     }
 
@@ -1464,12 +1463,12 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
 }
 
 QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
-                                                 const QSet<QString> &additionalFiles)
+                                                 const QSet<FilePath> &additionalFiles)
 {
     if (!newProjectInfo)
         return {};
 
-    QSet<QString> filesToReindex;
+    QSet<FilePath> filesToReindex;
     QStringList removedProjectParts;
     bool filesRemoved = false;
 
@@ -1481,7 +1480,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
     { // Only hold the lock for a limited scope, so the dumping afterwards does not deadlock.
         QWriteLocker projectLocker(&d->m_projectLock);
 
-        const QSet<QString> newSourceFiles = newProjectInfo->sourceFiles();
+        const QSet<FilePath> newSourceFiles = newProjectInfo->sourceFiles();
 
         // Check if we can avoid a full reindexing
         const auto it = d->m_projectData.find(project);
@@ -1503,18 +1502,18 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
 
                 // Otherwise check for added and modified files
                 } else {
-                    const QSet<QString> addedFiles = comparer.addedFiles();
+                    const QSet<FilePath> addedFiles = comparer.addedFiles();
                     filesToReindex.unite(addedFiles);
 
-                    const QSet<QString> modifiedFiles = comparer.timeStampModifiedFiles(snapshot());
+                    const QSet<FilePath> modifiedFiles = comparer.timeStampModifiedFiles(snapshot());
                     filesToReindex.unite(modifiedFiles);
                 }
 
                 // Announce and purge the removed files from the snapshot
-                const QSet<QString> removedFiles = comparer.removedFiles();
+                const QSet<FilePath> removedFiles = comparer.removedFiles();
                 if (!removedFiles.isEmpty()) {
                     filesRemoved = true;
-                    emit aboutToRemoveFiles(Utils::toList(removedFiles));
+                    emit aboutToRemoveFiles(transform<QStringList>(removedFiles, &FilePath::toString));
                     removeFilesFromSnapshot(removedFiles);
                 }
             }
@@ -1935,8 +1934,7 @@ void CppModelManager::GC()
     // The configuration file is part of the project files, which is just fine.
     // If single files are open, without any project, then there is no need to
     // keep the configuration file around.
-    FilePaths todo = filesInEditorSupports;
-    todo += transform(projectFiles(), &FilePath::fromString);
+    FilePaths todo = filesInEditorSupports + projectFiles();
 
     // Collect all files that are reachable from the project files
     while (!todo.isEmpty()) {
@@ -2032,7 +2030,7 @@ CppIndexingSupport *CppModelManager::indexingSupport()
     return d->m_internalIndexingSupport;
 }
 
-QStringList CppModelManager::projectFiles()
+FilePaths CppModelManager::projectFiles()
 {
     QWriteLocker locker(&d->m_projectLock);
     ensureUpdated();
