@@ -20,9 +20,9 @@
     specifies the compiler and other necessary tools for building an application
     for and running it on a particular platform.
 
-    \QC automatically detects the compilers that are registered by your
-    system or by the Qt Installer and lists them in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits > \uicontrol Compilers.
+    \QC automatically detects the compilers that your system or the Qt Installer
+    registers and lists them in \uicontrol Edit > \uicontrol Preferences >
+    \uicontrol Kits > \uicontrol Compilers.
 
     \image qtcreator-toolchains.png
 
@@ -81,7 +81,7 @@
             compilers from the various KEIL development environments.
             Currently supported architectures are \c 8051 and \c ARM.
 
-        \li \l{http://sdcc.sourceforge.net}{SDCC} is a retargetable, optimizing
+        \li \l{http://sdcc.sourceforge.net}{SDCC} is an optimizing
             C bare-metal compiler for various architectures.
             Currently supported architectures are \c 8051 and \c STM8.
 
@@ -90,7 +90,7 @@
     The emscripten compiler is tool chain for compiling to
     \l{Building Applications for the Web}{WebAssembly}.
 
-    \section1 Redetecting Compilers
+    \section1 Re-detecting Compilers
 
     When \QC finds an x86_64 GCC compiler, it sets up an instance for the native
     x86_64 target. If you plan to create also 32-bit x86 binaries without using
@@ -113,7 +113,7 @@
 
     To enable Microsoft Visual C++ Compilers (MSVC) and clang-cl to find system
     headers, libraries, and the linker, \QC executes them inside a command
-    prompt where the environment has been set up using \c {vcvarsall.bat}. For
+    prompt where you set up the environment using \c {vcvarsall.bat}. For
     these compilers, you also specify the path to the script that sets up the
     command prompt in the \uicontrol Initialization field.
 
@@ -245,7 +245,7 @@
 
     To keep working with the third-party tool chain, create a new shell link
     that adds the required paths (as Visual Studio and Qt do). The shell link
-    must point to cmd.exe, as illustrated by the following example:
+    must point to cmd.exe:
 
     \c {C:\Windows\System32\cmd.exe /K C:\path_to\myenv.bat}
 

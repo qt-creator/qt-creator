@@ -1849,7 +1849,7 @@ void tst_Dumpers::dumper()
 
     } else if (m_debuggerEngine == LldbEngine) {
         //qCDebug(lcDumpers).noquote() << "GOT OUTPUT: " << output;
-        int pos = output.indexOf("data=[{");
+        int pos = output.indexOf("data=[");
         QVERIFY(pos != -1);
         output = output.mid(pos);
         contents = output;

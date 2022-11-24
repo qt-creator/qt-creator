@@ -414,11 +414,38 @@ void VcsOutputWindow::appendWarning(const QString &text)
     append(text + '\n', Warning, false);
 }
 
+// Helper to format arguments for log windows hiding common password options.
+static inline QString formatArguments(const QStringList &args)
+{
+    const char passwordOptionC[] = "--password";
+    QString rc;
+    QTextStream str(&rc);
+    const int size = args.size();
+    // Skip authentication options
+    for (int i = 0; i < size; i++) {
+        const QString arg = filterPasswordFromUrls(args.at(i));
+        if (i)
+            str << ' ';
+        if (arg.startsWith(QString::fromLatin1(passwordOptionC) + '=')) {
+            str << ProcessArgs::quoteArg("--password=********");
+            continue;
+        }
+        str << ProcessArgs::quoteArg(arg);
+        if (arg == passwordOptionC) {
+            str << ' ' << ProcessArgs::quoteArg("********");
+            i++;
+        }
+    }
+    return rc;
+}
+
 QString VcsOutputWindow::msgExecutionLogEntry(const FilePath &workingDir, const CommandLine &command)
 {
+    const QString maskedCmdline = ProcessArgs::quoteArg(command.executable().toUserOutput())
+            + ' ' + formatArguments(command.splitArguments());
     if (workingDir.isEmpty())
-        return tr("Running: %1").arg(command.toUserOutput()) + '\n';
-    return tr("Running in %1: %2").arg(workingDir.toUserOutput(), command.toUserOutput()) + '\n';
+        return tr("Running: %1").arg(maskedCmdline) + '\n';
+    return tr("Running in %1: %2").arg(workingDir.toUserOutput(), maskedCmdline) + '\n';
 }
 
 void VcsOutputWindow::appendShellCommandLine(const QString &text)

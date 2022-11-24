@@ -189,7 +189,7 @@
 
     \section1 Running the Application
 
-    The application is complete and ready to be deployed to a device:
+    You can now deploy the application to a device:
 
     \list 1
 
@@ -199,8 +199,8 @@
         \li Connect the device to the development PC.
 
     If you are using a device running Android v4.2.2, it should prompt you to
-    verify the connection to allow USB debugging from the PC it is connected
-    to. To avoid such prompts every time you connect the device, select the
+    verify the connection to allow USB debugging from the PC. To avoid such
+    prompts every time you connect the device, select the
     \uicontrol {Always allow from this computer} check box, and then select
     \uicontrol OK.
 

@@ -33,7 +33,7 @@ public:
 
 private:
     QString fullCommandLine(const CommandLine &commandLine) const final;
-    void sendControlSignal(Utils::ControlSignal controlSignal) final;
+    void handleSendControlSignal(Utils::ControlSignal controlSignal) final;
 
     const QString m_pidFile;
 };
@@ -71,7 +71,7 @@ QString QnxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
     return fullCommandLine;
 }
 
-void QnxProcessImpl::sendControlSignal(Utils::ControlSignal controlSignal)
+void QnxProcessImpl::handleSendControlSignal(Utils::ControlSignal controlSignal)
 {
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
     const QString args = QString::fromLatin1("-%1 `cat %2`")

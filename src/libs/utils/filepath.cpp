@@ -348,14 +348,16 @@ QStringView FilePath::pathView() const
 
 QString FilePath::path() const
 {
-    if (m_data.startsWith("/./"))
-        return m_data.mid(3, m_pathLen - 3);
+    QTC_ASSERT(!m_data.startsWith(u"/./"), return m_data.mid(3, m_pathLen - 3));
     return m_data.left(m_pathLen);
 }
 
-void FilePath::setParts(const QStringView scheme, const QStringView host, const QStringView path)
+void FilePath::setParts(const QStringView scheme, const QStringView host, QStringView path)
 {
     QTC_CHECK(!scheme.contains('/'));
+
+    if (path.startsWith(u"/./"))
+        path = path.mid(3);
 
     m_data = path.toString() + scheme.toString() + host.toString();
     m_schemeLen = scheme.size();
@@ -1086,6 +1088,7 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 */
 FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 {
+    isSameDevice(deviceTemplate);
     const bool sameDevice = scheme() == deviceTemplate.scheme() && host() == deviceTemplate.host();
     if (sameDevice)
         return *this;
@@ -1343,7 +1346,7 @@ bool FilePath::isNewerThan(const QDateTime &timeStamp) const
  */
 Qt::CaseSensitivity FilePath::caseSensitivity() const
 {
-    if (scheme().isEmpty())
+    if (m_schemeLen == 0)
         return HostOsInfo::fileNameCaseSensitivity();
 
     // FIXME: This could or possibly should the target device's file name case sensitivity

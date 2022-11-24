@@ -77,6 +77,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     , m_themeChooser(new ThemeChooser)
     , m_resetWarningsButton(new QPushButton)
 {
+    m_languageBox->setObjectName("languageBox");
     m_languageBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_languageBox->setMinimumContentsLength(20);
 
@@ -273,7 +274,7 @@ void GeneralSettings::setShowShortcutsInContextMenu(bool show)
     ICore::settings()->setValueWithDefault(settingsKeyShortcutsInContextMenu,
                                            show,
                                            m_defaultShowShortcutsInContextMenu);
-    QGuiApplication::styleHints()->setShowShortcutsInContextMenus(show);
+    QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus, !show);
 }
 
 GeneralSettings::GeneralSettings()

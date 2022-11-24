@@ -687,6 +687,8 @@ public:
     {
         QRectF rect;
         const TextMark *mark;
+        friend bool operator==(const AnnotationRect &a, const AnnotationRect &b)
+        { return a.mark == b.mark && a.rect == b.rect; }
     };
     QMap<int, QList<AnnotationRect>> m_annotationRects;
     QRectF getLastLineLineRect(const QTextBlock &block);
@@ -4021,7 +4023,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
                                                    const PaintEventBlockData &blockData,
                                                    QPainter &painter)
 {
-    m_annotationRects.remove(data.block.blockNumber());
+    const QList<AnnotationRect> previousRects = m_annotationRects.take(data.block.blockNumber());
 
     if (!m_displaySettings.m_displayAnnotations)
         return;
@@ -4081,6 +4083,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         }
     }
 
+    QList<AnnotationRect> newRects;
     for (const TextMark *mark : std::as_const(marks)) {
         boundingRect = QRectF(x, boundingRect.top(), q->viewport()->width() - x, boundingRect.height());
         if (boundingRect.isEmpty())
@@ -4095,8 +4098,16 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
 
         x = boundingRect.right();
         offset = itemOffset / 2;
-        m_annotationRects[data.block.blockNumber()].append({boundingRect, mark});
+        newRects.append({boundingRect, mark});
     }
+
+    if (previousRects != newRects) {
+        for (const AnnotationRect &annotationRect : qAsConst(newRects))
+            q->viewport()->update(annotationRect.rect.toAlignedRect());
+        for (const AnnotationRect &annotationRect : previousRects)
+            q->viewport()->update(annotationRect.rect.toAlignedRect());
+    }
+    m_annotationRects[data.block.blockNumber()] = newRects;
 }
 
 QColor blendRightMarginColor(const FontSettings &settings, bool areaColor)

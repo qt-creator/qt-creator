@@ -481,7 +481,17 @@ qint64 SshProcessInterface::processId() const
 
 bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
 {
-    return d->m_devicePrivate->runInShell(command, data).exitCode == 0;
+    QtcProcess process;
+    CommandLine cmd = {d->m_device->filePath("/bin/sh"), {"-c"}};
+    QString tmp;
+    ProcessArgs::addArg(&tmp, command.executable().path());
+    ProcessArgs::addArgs(&tmp, command.arguments());
+    cmd.addArg(tmp);
+    process.setCommand(cmd);
+    process.setWriteData(data);
+    process.start();
+    QTC_CHECK(process.waitForFinished()); // otherwise we may start producing killers for killers
+    return process.exitCode() == 0;
 }
 
 void SshProcessInterface::start()
@@ -494,6 +504,20 @@ qint64 SshProcessInterface::write(const QByteArray &data)
     return d->m_process.writeRaw(data);
 }
 
+void SshProcessInterface::sendControlSignal(Utils::ControlSignal controlSignal)
+{
+    if (d->m_process.usesTerminal()) {
+        switch (controlSignal) {
+        case Utils::ControlSignal::Terminate: d->m_process.terminate();      break;
+        case Utils::ControlSignal::Kill:      d->m_process.kill();           break;
+        case Utils::ControlSignal::Interrupt: d->m_process.interrupt();      break;
+        case Utils::ControlSignal::KickOff:   d->m_process.kickoffProcess(); break;
+        }
+        return;
+    }
+    handleSendControlSignal(controlSignal);
+}
+
 LinuxProcessInterface::LinuxProcessInterface(const LinuxDevice *linuxDevice)
     : SshProcessInterface(linuxDevice)
 {
@@ -504,7 +528,7 @@ LinuxProcessInterface::~LinuxProcessInterface()
     killIfRunning();
 }
 
-void LinuxProcessInterface::sendControlSignal(ControlSignal controlSignal)
+void LinuxProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
 {
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
     const qint64 pid = processId();

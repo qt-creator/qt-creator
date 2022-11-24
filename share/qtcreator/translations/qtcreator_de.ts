@@ -10244,7 +10244,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Could not start process &quot;%1&quot; %2.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; %2. konnte nicht gestartet werden {1&quot;?}</translation>
+        <translation>Der Prozess &quot;%1&quot; %2 konnte nicht gestartet werden.</translation>
     </message>
 </context>
 <context>
@@ -10270,7 +10270,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>The build device failed to prepare for the build of %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Gerät konnte nicht für das Erstellen von %1 (%2) vorbereitet werden.</translation>
     </message>
     <message>
         <source>Compile</source>
@@ -10392,11 +10392,11 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Append &lt;b&gt;%2&lt;/b&gt; to &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge &lt;b&gt;%2&lt;/b&gt; zu &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; hinzu</translation>
     </message>
     <message>
         <source>Prepend &lt;b&gt;%2&lt;/b&gt; to &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge &lt;b&gt;%2&lt;/b&gt; am Anfang von &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; hinzu</translation>
     </message>
     <message>
         <source>Set &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; to &lt;b&gt;%2&lt;/b&gt; [disabled]</source>
@@ -10433,7 +10433,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Matches all files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Dateien aus allen geöffneten Projekten. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
 </context>
 <context>
@@ -10539,15 +10539,15 @@ Außer: %2
     </message>
     <message>
         <source>Show Compile &amp;Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der &amp;Kompilierung zeigen</translation>
     </message>
     <message>
         <source>Show the output that generated this issue in Compile Output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige das Problem in der Ausgabe der Kompilierung.</translation>
     </message>
     <message>
         <source>O</source>
-        <translation type="unfinished">O</translation>
+        <translation>K</translation>
     </message>
 </context>
 <context>
@@ -10558,7 +10558,7 @@ Außer: %2
     </message>
     <message>
         <source>Matches all files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Dateien aus dem Projekt des aktuellen Dokuments. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
 </context>
 <context>
@@ -10630,7 +10630,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Hide Source and Header Groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Source- und Headergruppen ausblenden</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -10638,7 +10638,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Filter Tree</source>
-        <translation type="unfinished">Baum filtern</translation>
+        <translation>Baum filtern</translation>
     </message>
 </context>
 <context>
@@ -10726,7 +10726,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Manage...</source>
-        <translation type="unfinished">Verwalten...</translation>
+        <translation>Verwalten...</translation>
     </message>
     <message>
         <source>Sessions</source>
@@ -10741,7 +10741,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;version control:</source>
-        <translation type="unfinished">Unter &amp;Versionskontrolle stellen:</translation>
+        <translation>Unter &amp;Versionskontrolle stellen:</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -11092,39 +11092,39 @@ Möchten Sie sie ignorieren?</translation>
     </message>
     <message>
         <source>Build for &amp;Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Für &amp;Ausführungskonfiguration erstellen</translation>
     </message>
     <message>
         <source>Build for &amp;Run Configuration &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Für &amp;Ausführungskonfiguration &quot;%1&quot; erstellen</translation>
     </message>
     <message>
         <source>Add New...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Close Other Projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere Projekte schließen</translation>
     </message>
     <message>
         <source>Close All Projects Except &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Projekte außer &quot;%1&quot; schließen</translation>
     </message>
     <message>
         <source>Remove...</source>
-        <translation type="unfinished">Entfernen...</translation>
+        <translation>Entfernen...</translation>
     </message>
     <message>
         <source>Rename...</source>
-        <translation type="unfinished">Umbenennen...</translation>
+        <translation>Umbenennen...</translation>
     </message>
     <message>
         <source>Main file of the project the current document belongs to.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptdatei des Projekts, zu dem das aktuelle Dokument gehört.</translation>
     </message>
     <message>
         <source>The name of the project the current document belongs to.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des Projekts, zu dem das aktuelle Dokument gehört.</translation>
     </message>
     <message>
         <source>Adding Files to Project Failed</source>
@@ -11292,43 +11292,43 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>The name of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Active project&apos;s main file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptdatei des aktiven Projekts.</translation>
     </message>
     <message>
         <source>The type of the active project&apos;s active build configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Typ der aktiven Build-Konfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Full build path of the active project&apos;s active build configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständiger Pfad der aktiven Build-Konfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Active build environment of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Build-Umgebung des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Name of the active project&apos;s active run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der aktiven Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>The executable of the active project&apos;s active run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei der aktiven Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Active run environment of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Ausführungsumgebung des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Variables in the environment of the active project&apos;s active run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der Umgebung der aktiven Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>The working directory of the active project&apos;s active run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Arbeitsverzeichnis der aktiven Ausführungskonfiguration des aktiven Projekts.</translation>
     </message>
     <message>
         <source>Load Project</source>
@@ -11337,7 +11337,7 @@ Bitte versuchen Sie es erneut.</translation>
     <message>
         <source>Sanitizer</source>
         <comment>Category for sanitizer issues listed under &apos;Issues&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Sanitizer</translation>
     </message>
     <message>
         <source>Parse Build Output...</source>
@@ -11358,19 +11358,19 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Open Project in &quot;%1&quot;</source>
-        <translation type="unfinished">Projekt in &quot;%1&quot; öffnen</translation>
+        <translation>Projekt in &quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>Open Project &quot;%1&quot;</source>
-        <translation type="unfinished">Projekt &quot;%1&quot; öffnen</translation>
+        <translation>Projekt &quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
-        <translation type="unfinished">Die Datei &quot;%1&quot; wurde in &quot;%2&quot; umbenannt, aber die folgenden Projekte konnten nicht automatisch geändert werden: %3</translation>
+        <translation>Die Datei &quot;%1&quot; wurde in &quot;%2&quot; umbenannt, aber die folgenden Projekte konnten nicht automatisch geändert werden: %3</translation>
     </message>
     <message>
         <source>The following projects failed to automatically remove the file: %1</source>
-        <translation type="unfinished">Die folgenden Projekte konnten die Datei nicht automatisch entfernen: %1</translation>
+        <translation>Die folgenden Projekte konnten die Datei nicht automatisch entfernen: %1</translation>
     </message>
     <message>
         <source>No project loaded.</source>
@@ -11463,28 +11463,29 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Matches all files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Dateien aus allen Projektverzeichnissen. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Run run configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration ausführen</translation>
     </message>
     <message>
         <source>Run a run configuration of the current active project</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Ausführungskonfiguration des aktiven Projekts ausführen</translation>
     </message>
     <message>
         <source>Switch run configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration auswählen</translation>
     </message>
     <message>
         <source>Switch active run configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Ausführungskonfiguration auswählen</translation>
     </message>
     <message>
         <source>Switched run configuration to
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration wurde geändert auf
+%1</translation>
     </message>
     <message>
         <source>Close Project &quot;%1&quot;</source>
@@ -12507,7 +12508,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Invalid path &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Pfad &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot execute &quot;%1&quot;.</source>
@@ -12557,7 +12558,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Project name is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektname ist ungültig.</translation>
     </message>
     <message>
         <source>Name is empty.</source>
@@ -12605,11 +12606,11 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     <message>
         <source>The default behavior can be set in %1 &gt; Preferences &gt; Environment &gt; System.</source>
         <comment>macOS</comment>
-        <translation type="unfinished"></translation>
+        <translation>Das Standardverhalten kann in %1 &gt; Einstellungen &gt; Umgebung &gt; System eingestellt werden.</translation>
     </message>
     <message>
         <source>The default behavior can be set in Edit &gt; Preferences &gt; Environment &gt; System.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Standardverhalten kann in Bearbeiten &gt; Einstellungen &gt; Umgebung &gt; System eingestellt werden.</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -13697,7 +13698,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
-        <translation type="unfinished">&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert&lt;br/&gt;&lt;br/&gt;Sie können es im &lt;a href=&quot;projectmode&quot;&gt;Projektmodus&lt;/a&gt; konfigurieren&lt;br/&gt; {128, 128, 255)?} {1&lt;?}</translation>
+        <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255);}&lt;/style&gt;Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert&lt;br/&gt;&lt;br/&gt;Sie können es im &lt;a href=&quot;projectmode&quot;&gt;Projektmodus&lt;/a&gt; konfigurieren&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Project: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
@@ -13760,7 +13761,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Main file of the project</source>
-        <translation type="unfinished"></translation>
+        <translation>Hauptdatei des Projekts</translation>
     </message>
     <message>
         <source>Name of current project</source>
@@ -13768,15 +13769,15 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Name of the project</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des Projekts</translation>
     </message>
     <message>
         <source>Name of the project&apos;s active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der aktiven Build-Konfiguration des Projekts</translation>
     </message>
     <message>
         <source>Name of the project&apos;s active build system</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des aktiven Build-Systems des Projekts</translation>
     </message>
     <message>
         <source>Type of current build</source>
@@ -13784,7 +13785,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Type of the project&apos;s active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ der aktiven Build-Konfiguration des Projekts</translation>
     </message>
     <message>
         <source>Kits</source>
@@ -13800,103 +13801,103 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Start removing auto-detected items associated with this docker image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beginne mit dem Entfernen der automatisch bestimmten Einträge, die mit diesem Docker-Image verbunden sind.</translation>
     </message>
     <message>
         <source>Removing kits...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Kits...</translation>
     </message>
     <message>
         <source>Removed &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; entfernt</translation>
     </message>
     <message>
         <source>Removing Qt version entries...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Qt-Versions-Einträge...</translation>
     </message>
     <message>
         <source>Removing toolchain entries...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Toolchain-Einträge...</translation>
     </message>
     <message>
         <source>Removal of previously auto-detected kit items finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen von ehemals automatisch bestimmten Kit-Einträgen beendet.</translation>
     </message>
     <message>
         <source>Start listing auto-detected items associated with this docker image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beginne mit dem Auflisten der automatisch bestimmten Einträge, die mit diesem Docker-Image verbundenden sind.</translation>
     </message>
     <message>
         <source>Kits:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits:</translation>
     </message>
     <message>
         <source>Qt versions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Versionen:</translation>
     </message>
     <message>
         <source>Toolchains:</source>
-        <translation type="unfinished"></translation>
+        <translation>Toolchains:</translation>
     </message>
     <message>
         <source>Listing of previously auto-detected kit items finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflisten der ehemals automatisch bestimmten Kit-Einträge beendet.</translation>
     </message>
     <message>
         <source>Found &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; gefunden</translation>
     </message>
     <message>
         <source>Searching for qmake executables...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach ausführbaren qmake-Dateien...</translation>
     </message>
     <message>
         <source>Error: %1.</source>
-        <translation type="unfinished">Fehler: %1.</translation>
+        <translation>Fehler: %1.</translation>
     </message>
     <message>
         <source>No Qt installation found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Qt-Installation gefunden.</translation>
     </message>
     <message>
         <source>Searching toolchains...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach Toolchains...</translation>
     </message>
     <message>
         <source>Searching toolchains of type %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach Toolchains vom Typ %1</translation>
     </message>
     <message>
         <source>%1 new toolchains found.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 neue Toolchain(s) gefunden.</translation>
     </message>
     <message>
         <source>Starting auto-detection. This will take a while...</source>
-        <translation type="unfinished"></translation>
+        <translation>Beginne mit der automatischen Bestimmung. Dies wird eine Weile dauern...</translation>
     </message>
     <message>
         <source>Registered kit %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit %1 registriert</translation>
     </message>
     <message>
         <source>Auto-detected</source>
-        <translation type="unfinished">Automatisch bestimmt</translation>
+        <translation>Automatisch bestimmt</translation>
     </message>
     <message>
         <source>Automatically managed by %1 or the installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch von %1 oder vom Installationsprogramm verwaltet.</translation>
     </message>
     <message>
         <source>Manual</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <source>Debug</source>
-        <translation type="unfinished">Debug</translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Release</translation>
+        <translation>Release</translation>
     </message>
 </context>
 <context>
@@ -15259,7 +15260,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Name of the build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der Build-Konfiguration</translation>
     </message>
     <message>
         <source>Variables in the current build environment</source>
@@ -15267,15 +15268,15 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Variables in the build configuration&apos;s environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der Umgebungseinstellung der Build-Konfiguration</translation>
     </message>
     <message>
         <source>Tooltip in target selector:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis in der Zielauswahl:</translation>
     </message>
     <message>
         <source>Appears as a tooltip when hovering the build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Erscheint als Hinweis, wenn die Maus über die Build-Konfiguration bewegt wird</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -15310,15 +15311,15 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Variables in the current build environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der aktuellen Build-Umgebung.</translation>
     </message>
     <message>
         <source>Variables in the active build environment of the project containing the currently open document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der aktiven Build-Umgebung des Projekts, welches das aktuelle offene Dokument enthält.</translation>
     </message>
     <message>
         <source>Variables in the active build environment of the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der aktiven Build-Umgebung des aktiven Projekts.</translation>
     </message>
 </context>
 <context>
@@ -16111,7 +16112,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Evaluating Type Hierarchy</source>
-        <translation type="unfinished"></translation>
+        <translation>Werte Typ-Hierarchie aus</translation>
     </message>
     <message>
         <source>Derived</source>
@@ -16119,7 +16120,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Evaluating type hierarchy...</source>
-        <translation type="unfinished"></translation>
+        <translation>Werte Typ-Hierarchie aus...</translation>
     </message>
 </context>
 <context>
@@ -16223,7 +16224,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Starting %1...</source>
-        <translation type="unfinished">Starte %1 %2... {1.?}</translation>
+        <translation>Starte %1...</translation>
     </message>
     <message>
         <source>No executable specified.</source>
@@ -16587,43 +16588,43 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>The program &quot;%1&quot; does not exist or is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm &quot;%1&quot; existiert nicht oder ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Process Not Responding</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess antwortet nicht</translation>
     </message>
     <message>
         <source>The process is not responding.</source>
-        <translation type="unfinished">Der Prozess antwortet nicht.</translation>
+        <translation>Der Prozess antwortet nicht.</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; is not responding.</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; antwortet nicht.</translation>
+        <translation>Der Prozess &quot;%1&quot; antwortet nicht.</translation>
     </message>
     <message>
         <source>Terminate the process?</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess beenden?</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; finished successfully.</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; wurde beendet.</translation>
+        <translation>Das Kommando &quot;%1&quot; wurde beendet.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; terminated with exit code %2.</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; wurde beendet, Rückgabewert %2.</translation>
+        <translation>Das Kommando &quot;%1&quot; wurde beendet, Rückgabewert %2.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; terminated abnormally.</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; wurde unnormal beendet.</translation>
+        <translation>Das Kommando &quot;%1&quot; wurde unerwartet beendet.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; could not be started.</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; konnte nicht gestartet werden.</translation>
+        <translation>Das Kommando &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; did not respond within the timeout limit (%2 s).</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; konnte nicht innerhalb des Zeitlimits (%2 s) beendet werden.</translation>
+        <translation>Das Kommando &quot;%1&quot; hat nicht innerhalb des Zeitlimits (%2 s) geantwortet.</translation>
     </message>
     <message>
         <source>Invalid command</source>
@@ -16631,75 +16632,75 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Internal socket error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Socketfehler: %1</translation>
     </message>
     <message>
         <source>Cannot set up communication channel: %1</source>
-        <translation type="unfinished">Es konnte kein Kommunikationskanal hergestellt werden: %1</translation>
+        <translation>Es konnte kein Kommunikationskanal hergestellt werden: %1</translation>
     </message>
     <message>
         <source>Press &lt;RETURN&gt; to close this window...</source>
-        <translation type="unfinished">Betätigen Sie die &lt;RETURN&gt; Taste, um das Fenster zu schließen...</translation>
+        <translation>Betätigen Sie die &lt;RETURN&gt; Taste, um das Fenster zu schließen...</translation>
     </message>
     <message>
         <source>Cannot create temporary file: %1</source>
-        <translation type="unfinished">Es konnte keine temporäre Datei erstellt werden: %1</translation>
+        <translation>Es konnte keine temporäre Datei erstellt werden: %1</translation>
     </message>
     <message>
         <source>Cannot write temporary file. Disk full?</source>
-        <translation type="unfinished">Es konnte keine temporäre Datei erstellt werden. Möglicherweise ist kein Speicherplatz mehr auf der Festplatte vorhanden?</translation>
+        <translation>Es konnte keine temporäre Datei erstellt werden. Möglicherweise ist kein Speicherplatz mehr auf der Festplatte vorhanden?</translation>
     </message>
     <message>
         <source>Cannot create temporary directory &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Das temporäre Verzeichnis &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
+        <translation>Das temporäre Verzeichnis &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Unexpected output from helper program (%1).</source>
-        <translation type="unfinished">Die Ausgabe des Hilfsprogrammes (%1) kann nicht ausgewertet werden.</translation>
+        <translation>Die Ausgabe des Hilfsprogrammes (%1) kann nicht ausgewertet werden.</translation>
     </message>
     <message>
         <source>Cannot change to working directory &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Es konnte nicht zum Arbeitsverzeichnis &quot;%1&quot; gewechselt werden: %2</translation>
+        <translation>Es konnte nicht zum Arbeitsverzeichnis &quot;%1&quot; gewechselt werden: %2</translation>
     </message>
     <message>
         <source>Cannot execute &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Das Kommando &quot;%1&quot; konnte nicht ausgeführt werden: %2</translation>
+        <translation>Das Kommando &quot;%1&quot; konnte nicht ausgeführt werden: %2</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; could not be started: %2</source>
-        <translation type="unfinished">Der Prozess &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
+        <translation>Der Prozess &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>Quoting error in command.</source>
-        <translation type="unfinished">Falsch gesetzte Anführungszeichen im Kommando.</translation>
+        <translation>Falsch gesetzte Anführungszeichen im Kommando.</translation>
     </message>
     <message>
         <source>Debugging complex shell commands in a terminal is currently not supported.</source>
-        <translation type="unfinished">Das Debuggen komplexer Shell-Kommandos in einem Terminal wird gegenwärtig nicht unterstützt.</translation>
+        <translation>Das Debuggen komplexer Shell-Kommandos in einem Terminal wird gegenwärtig nicht unterstützt.</translation>
     </message>
     <message>
         <source>Quoting error in terminal command.</source>
-        <translation type="unfinished">Quotierungsfehler in Terminal-Kommando.</translation>
+        <translation>Falsch gesetzte Anführungszeichen im Terminal-Kommando.</translation>
     </message>
     <message>
         <source>Terminal command may not be a shell command.</source>
-        <translation type="unfinished">Shell-Kommandos sind als Terminal-Kommando nicht zulässig.</translation>
+        <translation>Shell-Kommandos sind als Terminal-Kommando nicht zulässig.</translation>
     </message>
     <message>
         <source>Cannot start the terminal emulator &quot;%1&quot;, change the setting in the Environment preferences. (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Terminal-Emulator &quot;%1&quot; konnte nicht gestartet werden, ändern Sie den Wert in den Einstellungen zur Umgebung (%2)</translation>
     </message>
     <message>
         <source>Cannot create socket &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Der Socket &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
+        <translation>Der Socket &quot;%1&quot; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Cannot obtain a handle to the inferior: %1</source>
-        <translation type="unfinished">Der zu debuggende Prozess konnte nicht angesprochen werden: %1</translation>
+        <translation>Der Handle für den Prozess konnte nicht erhalten werden: %1</translation>
     </message>
     <message>
         <source>Cannot obtain exit status from inferior: %1</source>
-        <translation type="unfinished">Der Rückgabewert des zu debuggenden Prozesses konnte nicht erhalten werden: %1</translation>
+        <translation>Der Rückgabewert des Prozesses konnte nicht erhalten werden: %1</translation>
     </message>
 </context>
 <context>
@@ -17684,7 +17685,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Target triple:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieltripel:</translation>
     </message>
 </context>
 <context>
@@ -17729,7 +17730,9 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <source>If checked, %1 will set up two instances of each x86_64 compiler:
 One for the native x86_64 target, and one for a plain x86 target.
 Enable this if you plan to create 32-bit x86 binaries without using a dedicated cross compiler.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn dies aktiviert ist, wird %1 zwei Instanzen jedes x86_64-Compilers erstellen:
+eine für das native x86_64-Ziel und eine für ein x86-Ziel.
+Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne einen speziellen Cross-Compiler zu verwenden.</translation>
     </message>
     <message>
         <source>Clone</source>
@@ -19974,15 +19977,15 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Show &amp;App Output</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ausgabe der Anwendung zeigen</translation>
     </message>
     <message>
         <source>Show the output that generated this issue in Application Output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige das Problem in der Ausgabe der Anwendung.</translation>
     </message>
     <message>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <source>Re-run this run-configuration.</source>
@@ -20237,7 +20240,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Cannot read %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann %1 nicht lesen</translation>
     </message>
     <message>
         <source>Cannot read %1: %2</source>
@@ -20282,12 +20285,12 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>%1 on %2</source>
         <comment>File on device</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1 auf %2</translation>
     </message>
     <message>
         <source>%1 %2 on %3</source>
         <comment>File and args on device</comment>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 auf %3</translation>
     </message>
 </context>
 <context>
@@ -25744,7 +25747,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Fetching process list. This might take a while.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufe Prozessliste ab. Dies kann eine Weile dauern.</translation>
     </message>
 </context>
 <context>
@@ -26335,7 +26338,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>The name of the kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des Kits.</translation>
     </message>
     <message>
         <source>The name of the currently active kit in a filesystem-friendly version.</source>
@@ -26343,15 +26346,15 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>The name of the kit in a filesystem-friendly version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des aktiven Kits zur Verwendung als Dateiname.</translation>
     </message>
     <message>
         <source>The ID of the currently active kit.</source>
-        <translation type="unfinished">Die ID des aktiven Kits.</translation>
+        <translation>Die ID des aktiven Kits.</translation>
     </message>
     <message>
         <source>The ID of the kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ID des Kits.</translation>
     </message>
     <message>
         <source>Clone of %1</source>
@@ -26444,29 +26447,29 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Variables in the run environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der Ausführungsumgebung.</translation>
     </message>
     <message>
         <source>The run configuration&apos;s working directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Arbeitsverzeichnis der Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>The run configuration&apos;s name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name der Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>The run configuration&apos;s executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei der Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>Run on %{Device:Name}</source>
         <extracomment>Shown in Run configuration if no executable is given, %1 is device name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Auf %{Device:Name} ausführen</translation>
     </message>
     <message>
         <source>%1 (on %{Device:Name})</source>
         <extracomment>Shown in Run configuration, Add menu: &quot;name of runnable (on device name)&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (auf %{Device:Name})</translation>
     </message>
     <message>
         <source>No build system active</source>
@@ -26708,7 +26711,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>%1 (%2, %3 %4 at %5)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2, %3 %4 an %5)</translation>
     </message>
 </context>
 <context>
@@ -28433,111 +28436,111 @@ The affected files are:
     <name>CppEditor::QuickFix</name>
     <message>
         <source>Rewrite Using %1</source>
-        <translation type="unfinished">Unter Verwendung von %1 umschreiben</translation>
+        <translation>Unter Verwendung von %1 umschreiben</translation>
     </message>
     <message>
         <source>Swap Operands</source>
-        <translation type="unfinished">Operanden vertauschen</translation>
+        <translation>Operanden vertauschen</translation>
     </message>
     <message>
         <source>Rewrite Condition Using ||</source>
-        <translation type="unfinished">Bedingung unter Verwendung des ||-Operators umschreiben</translation>
+        <translation>Bedingung unter Verwendung des ||-Operators umschreiben</translation>
     </message>
     <message>
         <source>Split Declaration</source>
-        <translation type="unfinished">Deklaration aufspalten</translation>
+        <translation>Deklaration aufspalten</translation>
     </message>
     <message>
         <source>Add Curly Braces</source>
-        <translation type="unfinished">Geschweifte Klammern hinzufügen</translation>
+        <translation>Geschweifte Klammern hinzufügen</translation>
     </message>
     <message>
         <source>Move Declaration out of Condition</source>
-        <translation type="unfinished">Deklaration aus Bedingung entfernen</translation>
+        <translation>Deklaration aus Bedingung herausnehmen</translation>
     </message>
     <message>
         <source>Split if Statement</source>
-        <translation type="unfinished">if-Anweisung aufspalten</translation>
+        <translation>if-Anweisung aufteilen</translation>
     </message>
     <message>
         <source>Enclose in %1(...)</source>
-        <translation type="unfinished">In %1(...) einschließen</translation>
+        <translation>In %1(...) einschließen</translation>
     </message>
     <message>
         <source>Convert to String Literal</source>
-        <translation type="unfinished">In Zeichenkettenliteral umwandeln</translation>
+        <translation>In Zeichenkettenliteral umwandeln</translation>
     </message>
     <message>
         <source>Convert to Character Literal and Enclose in QLatin1Char(...)</source>
-        <translation type="unfinished">In Zeichenliteral umwandeln und in QLatin1Char(...) einschließen</translation>
+        <translation>In Zeichenliteral umwandeln und in QLatin1Char(...) einschließen</translation>
     </message>
     <message>
         <source>Convert to Character Literal</source>
-        <translation type="unfinished">In Zeichenliteral umwandeln</translation>
+        <translation>In Zeichenliteral umwandeln</translation>
     </message>
     <message>
         <source>Mark as Translatable</source>
-        <translation type="unfinished">Zur Übersetzung vorsehen</translation>
+        <translation>Zur Übersetzung vorsehen</translation>
     </message>
     <message>
         <source>Convert to Objective-C String Literal</source>
-        <translation type="unfinished">In Objective-C-Zeichenkettenliteral umwandeln</translation>
+        <translation>In Objective-C-Zeichenkettenliteral umwandeln</translation>
     </message>
     <message>
         <source>Convert to Hexadecimal</source>
-        <translation type="unfinished">In Hexadezimaldarstellung umwandeln</translation>
+        <translation>In Hexadezimaldarstellung umwandeln</translation>
     </message>
     <message>
         <source>Convert to Octal</source>
-        <translation type="unfinished">In Oktaldarstellung umwandeln</translation>
+        <translation>In Oktaldarstellung umwandeln</translation>
     </message>
     <message>
         <source>Convert to Decimal</source>
-        <translation type="unfinished">In Dezimaldarstellung umwandeln</translation>
+        <translation>In Dezimaldarstellung umwandeln</translation>
     </message>
     <message>
         <source>Convert to Binary</source>
-        <translation type="unfinished">In Binärdarstellung umwandeln</translation>
+        <translation>In Binärdarstellung umwandeln</translation>
     </message>
     <message>
         <source>Add Local Declaration</source>
-        <translation type="unfinished">Lokale Deklaration hinzufügen</translation>
+        <translation>Lokale Deklaration hinzufügen</translation>
     </message>
     <message>
         <source>Convert to Camel Case</source>
-        <translation type="unfinished">In Camel-Case umwandeln</translation>
+        <translation>In Camel-Case umwandeln</translation>
     </message>
     <message>
         <source>Add #include %1</source>
-        <translation type="unfinished">#include %1 hinzufügen</translation>
+        <translation>#include %1 hinzufügen</translation>
     </message>
     <message>
         <source>Add forward declaration for %1</source>
-        <translation type="unfinished">Forward declaration für %1 hinzufügen</translation>
+        <translation>Vorwärtsdeklaration für %1 hinzufügen</translation>
     </message>
     <message>
         <source>Switch with Previous Parameter</source>
-        <translation type="unfinished">Mit vorangehendem Parameter tauschen</translation>
+        <translation>Mit vorangehendem Parameter tauschen</translation>
     </message>
     <message>
         <source>Switch with Next Parameter</source>
-        <translation type="unfinished">Mit nächstem Parameter tauschen</translation>
+        <translation>Mit nächstem Parameter tauschen</translation>
     </message>
     <message>
         <source>Reformat to &quot;%1&quot;</source>
-        <translation type="unfinished">In &quot;%1&quot; umformatieren</translation>
+        <translation>In &quot;%1&quot; umformatieren</translation>
     </message>
     <message>
         <source>Reformat Pointers or References</source>
-        <translation type="unfinished">Zeiger/Referenzen umformatieren</translation>
+        <translation>Zeiger/Referenzen umformatieren</translation>
     </message>
     <message>
         <source>Complete Switch Statement</source>
-        <translation type="unfinished">Switch-Anweisung vervollständigen</translation>
+        <translation>Switch-Anweisung vervollständigen</translation>
     </message>
     <message>
         <source>Extract Constant as Function Parameter</source>
-        <translation type="unfinished">Konstante als Funktionsparameter extrahieren</translation>
+        <translation>Konstante als Funktionsparameter extrahieren</translation>
     </message>
     <message>
         <source>Move Definition Outside Class</source>
@@ -28561,31 +28564,31 @@ The affected files are:
     </message>
     <message>
         <source>Assign to Local Variable</source>
-        <translation type="unfinished">Lokaler Variable zuweisen</translation>
+        <translation>Lokaler Variable zuweisen</translation>
     </message>
     <message>
         <source>Optimize for-Loop</source>
-        <translation type="unfinished">for-Schleife optimieren</translation>
+        <translation>for-Schleife optimieren</translation>
     </message>
     <message>
         <source>Escape String Literal as UTF-8</source>
-        <translation type="unfinished">Zeichenkette als UTF-8-Escape-Sequenzen darstellen</translation>
+        <translation>Zeichenkette als UTF-8-Escape-Sequenzen darstellen</translation>
     </message>
     <message>
         <source>Unescape String Literal as UTF-8</source>
-        <translation type="unfinished">Zeichenkette ohne UTF-8-Escape-Sequenzen darstellen</translation>
+        <translation>Zeichenkette ohne UTF-8-Escape-Sequenzen darstellen</translation>
     </message>
     <message>
         <source>Convert connect() to Qt 5 Style</source>
-        <translation type="unfinished">connect() in Qt5-Stil umwandeln</translation>
+        <translation>connect() in Qt5-Stil umwandeln</translation>
     </message>
     <message>
         <source>Remove All Occurrences of &quot;using namespace %1&quot; in Global Scope and Adjust Type Names Accordingly</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Vorkommen von &quot;using namespace %1&quot; im globalen Gültigkeitsbereich entfernen, und die Typnamen entsprechend anpassen</translation>
     </message>
     <message>
         <source>Remove &quot;using namespace %1&quot; and Adjust Type Names Accordingly</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;using namespace %1&quot; entfernen und die Typnamen entsprechend anpassen</translation>
     </message>
     <message>
         <source>Insert Virtual Functions of Base Classes</source>
@@ -28604,43 +28607,43 @@ The affected files are:
     </message>
     <message>
         <source>&amp;C++</source>
-        <translation type="unfinished">&amp;C++</translation>
+        <translation>&amp;C++</translation>
     </message>
     <message>
         <source>Switch Header/Source</source>
-        <translation type="unfinished">Zwischen Header- und Quelldatei wechseln</translation>
+        <translation>Zwischen Header- und Quelldatei wechseln</translation>
     </message>
     <message>
         <source>Open Corresponding Header/Source in Next Split</source>
-        <translation type="unfinished">Headerdatei beziehungsweise Quelldatei im nächsten geteilten Fenster anzeigen</translation>
+        <translation>Headerdatei beziehungsweise Quelldatei im nächsten geteilten Fenster anzeigen</translation>
     </message>
     <message>
         <source>Meta+E, F4</source>
-        <translation type="unfinished">Meta+E, F4</translation>
+        <translation>Meta+E, F4</translation>
     </message>
     <message>
         <source>Ctrl+E, F4</source>
-        <translation type="unfinished">Ctrl+E, F4</translation>
+        <translation>Ctrl+E, F4</translation>
     </message>
     <message>
         <source>Show Preprocessed Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorverarbeitete Quelle anzeigen</translation>
     </message>
     <message>
         <source>Show Preprocessed Source in Next Split</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorverarbeitete Quelle im nächsten geteilten Fenster anzeigen</translation>
     </message>
     <message>
         <source>The license template.</source>
-        <translation type="unfinished">Die Lizenzvorlage.</translation>
+        <translation>Die Lizenzvorlage.</translation>
     </message>
     <message>
         <source>The configured path to the license template</source>
-        <translation type="unfinished">Der eingestellte Pfad der Lizenzvorlage</translation>
+        <translation>Der eingestellte Pfad zur Lizenzvorlage</translation>
     </message>
     <message>
         <source>Insert &quot;#pragma once&quot; instead of &quot;#ifndef&quot; include guards into header file</source>
-        <translation type="unfinished">&quot;#pragma once&quot; statt Include-Guards mit &quot;#ifndef&quot; in Header-Datei einfügen</translation>
+        <translation>&quot;#pragma once&quot; statt Include-Guards mit &quot;#ifndef&quot; in Header-Datei einfügen</translation>
     </message>
     <message>
         <source>C++</source>
@@ -28680,27 +28683,27 @@ The affected files are:
     </message>
     <message>
         <source>Follow Symbol Under Cursor to Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbol unter Einfügemarke zum Typ verfolgen</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F2</source>
-        <translation type="unfinished">Ctrl+Shift+F2</translation>
+        <translation>Ctrl+Shift+F2</translation>
     </message>
     <message>
         <source>Follow Symbol to Type in Next Split</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbol unter Einfügemarke im nächsten geteilten Fenster zum Typ verfolgen</translation>
     </message>
     <message>
         <source>Meta+E, Ctrl+Shift+F2</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+E, Ctrl+Shift+F2</translation>
     </message>
     <message>
         <source>Ctrl+E, Ctrl+Shift+F2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+E, Ctrl+Shift+F2</translation>
     </message>
     <message>
         <source>Find References With Access Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Verweise mit Zugriffstyp finden</translation>
     </message>
     <message>
         <source>Open Type Hierarchy</source>
@@ -28744,7 +28747,7 @@ The affected files are:
     </message>
     <message>
         <source>Clangd</source>
-        <translation type="unfinished"></translation>
+        <translation>Clangd</translation>
     </message>
 </context>
 <context>
@@ -30278,11 +30281,11 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
     <message>
         <source>Import Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Importwarnung</translation>
     </message>
     <message>
         <source>Import Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Build importieren</translation>
     </message>
     <message>
         <source>%1 - temporary</source>
@@ -31700,15 +31703,15 @@ Möchten Sie es beenden?</translation>
     <name>Utils::FileWizardPage</name>
     <message>
         <source>Choose the Location</source>
-        <translation type="unfinished">Pfadangabe</translation>
+        <translation>Pfadangabe</translation>
     </message>
     <message>
         <source>File name:</source>
-        <translation type="unfinished">Dateiname:</translation>
+        <translation>Dateiname:</translation>
     </message>
     <message>
         <source>Path:</source>
-        <translation type="unfinished">Pfad:</translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <source>Location</source>
@@ -33092,7 +33095,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Define Item Model Class</source>
-        <translation>Item Model-Klasse definieren</translation>
+        <translation>Item Model-Klasse festlegen</translation>
     </message>
     <message>
         <source>Creates a Qt item model.</source>
@@ -33144,7 +33147,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Qt Quick Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick-Anwendung</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project.</source>
@@ -33160,7 +33163,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Generate setup code</source>
-        <translation type="unfinished"></translation>
+        <translation>Setup-Code erzeugen</translation>
     </message>
     <message>
         <source>Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
@@ -33168,7 +33171,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt eine QML-Datei mit allgemeingültigem Quelltext, beginnend mit &quot;import QtQuick&quot;.</translation>
     </message>
     <message>
         <source>Choose a Form Template</source>
@@ -33188,15 +33191,15 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Creates an Effect Maker file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt eine Effect Maker-Datei.</translation>
     </message>
     <message>
         <source>Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekte</translation>
     </message>
     <message>
         <source>Effect File (Effect Maker)</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt-Datei (Effect Maker)</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -33670,11 +33673,13 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Fully qualified name, including namespaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständig qualifizierter Name einschließlich Namensräumen</translation>
     </message>
     <message>
         <source>Creates a widget-based Qt application that contains a Qt Designer-based main window.Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Widget-basierte Qt-Anwendung mit einem Qt Designer-basierten Hauptfenster.
+
+Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
     </message>
     <message>
         <source>Shared Library</source>
@@ -33755,63 +33760,67 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Creates a project containing a single main.cpp file with a stub implementation.Preselects a desktop Qt for building the application if available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Projekt, das aus einer main.cpp-Datei mit einem Implementationsrumpf besteht.
+
+Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
     </message>
     <message>
         <source>%{JS: value(&apos;BaseCB&apos;) ? value(&apos;BaseCB&apos;).slice(1) : &apos;MyClass&apos;}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: value(&apos;BaseCB&apos;) ? value(&apos;BaseCB&apos;).slice(1) : &apos;MyClass&apos;}</translation>
     </message>
     <message>
         <source>%{JS: Util.fileName(&apos;%{ProjectName}&apos;, &apos;pyproject&apos;)}</source>
-        <translation type="unfinished"></translation>
+        <translation>%{JS: Util.fileName(&apos;%{ProjectName}&apos;, &apos;pyproject&apos;)}</translation>
     </message>
     <message>
         <source>Empty Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Leeres Fenster</translation>
     </message>
     <message>
         <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file) - Requires .ui to Python conversion</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt for Python-Anwendung, die ein Qt Designer-basiertes Widget (ui-Datei) enthält. Erfordert Umwandlung von .ui nach Python.</translation>
     </message>
     <message>
         <source>Window UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenster-UI</translation>
     </message>
     <message>
         <source>Creates a Qt for Python application that includes a Qt Designer-based widget (.ui file) - Load the forms dynamically/at runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt for Python-Anwendung, die ein Qt Designer-basiertes Widget (ui-Datei) enthält. Lädt die Formulare dynamisch zur Laufzeit.</translation>
     </message>
     <message>
         <source>Window UI - Dynamic load</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenster-UI - dynamisch laden</translation>
     </message>
     <message>
         <source>Empty Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Leere Anwendung</translation>
     </message>
     <message>
         <source>PySide 6</source>
-        <translation type="unfinished">PySide 6</translation>
+        <translation>PySide 6</translation>
     </message>
     <message>
         <source>Qt 6.2</source>
-        <translation type="unfinished">Qt 6.2</translation>
+        <translation>Qt 6.2</translation>
     </message>
     <message>
         <source>Minimum required Qt version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mindestens benötigte Qt-Version:</translation>
     </message>
     <message>
         <source>Create example project</source>
-        <translation type="unfinished"></translation>
+        <translation>Beispielprojekt erzeugen</translation>
     </message>
     <message>
         <source>Qt 6</source>
-        <translation type="unfinished">Qt 6</translation>
+        <translation>Qt 6</translation>
     </message>
     <message>
         <source>Creates a Qt Quick 2 UI project with a QML entry point. To use it, you need to have a QML runtime environment.Use this only if you are prototyping. You cannot create a full application with this. Consider using a Qt Quick Application project instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Qt Quick 2 UI-Projekt mit QML-Einsprungpunkt. Um es zu verwenden, brauchen Sie eine QML-Laufzeitumgebung wie qmlscene.
+
+Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anwendung erstellen. Vielleicht ist ein Qt Quick-Anwendungsprojekt besser geeignet.</translation>
     </message>
     <message>
         <source>Binary</source>
@@ -33919,43 +33928,43 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Creates a CMake-based test project for which a code snippet can be entered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein CMake-basiertes Testprojekt, für welches ein Code-Ausschnitt angegeben werden kann.</translation>
     </message>
     <message>
         <source>int main(int argc, char *argv[]){    return 0;}</source>
-        <translation type="unfinished"></translation>
+        <translation>int main(int argc, char *argv[]){    return 0;}</translation>
     </message>
     <message>
         <source>Code:</source>
-        <translation type="unfinished">Code:</translation>
+        <translation>Code:</translation>
     </message>
     <message>
         <source>QtCore</source>
-        <translation type="unfinished"></translation>
+        <translation>QtCore</translation>
     </message>
     <message>
         <source>QtCore, QtWidgets</source>
-        <translation type="unfinished"></translation>
+        <translation>QtCore, QtWidgets</translation>
     </message>
     <message>
         <source>Use Qt Modules:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Module verwenden:</translation>
     </message>
     <message>
         <source>Application bundle (macOS)</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendungs-Bundle (macOS)</translation>
     </message>
     <message>
         <source>Define Code snippet</source>
-        <translation type="unfinished"></translation>
+        <translation>Code-Ausschnitt festlegen</translation>
     </message>
     <message>
         <source>Code snippet</source>
-        <translation type="unfinished"></translation>
+        <translation>Code-Ausschnitt</translation>
     </message>
     <message>
         <source>Code Snippet</source>
-        <translation type="unfinished">Code-Ausschnitt</translation>
+        <translation>Code-Ausschnitt</translation>
     </message>
     <message>
         <source>MyItem</source>
@@ -34738,7 +34747,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>LineEdit (&quot;%1&quot;) has an invalid value &quot;%2&quot; in &quot;completion&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>LineEdit (&quot;%1&quot;) hat einen ungültigen Wert &quot;%2&quot; in &quot;completion&quot;.</translation>
     </message>
     <message>
         <source>TextEdit (&quot;%1&quot;) data is not an object.</source>
@@ -35037,7 +35046,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Replacement for</source>
-        <translation type="unfinished"></translation>
+        <translation>Ersatz für</translation>
     </message>
     <message>
         <source>Replacement for &quot;%1&quot;</source>
@@ -35049,7 +35058,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Could not find any qml_*.qm file at &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte in &quot;%1&quot; keine qml_*.qm-Datei finden</translation>
     </message>
 </context>
 <context>
@@ -35064,23 +35073,23 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Build system</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-System</translation>
     </message>
     <message>
         <source>The currently active run configuration&apos;s name.</source>
-        <translation type="unfinished">Der Name der aktiven Ausführungskonfiguration.</translation>
+        <translation>Der Name der aktiven Ausführungskonfiguration.</translation>
     </message>
     <message>
         <source>The currently active run configuration&apos;s executable (if applicable).</source>
-        <translation type="unfinished">Die ausführbare Datei der aktiven Ausführungskonfiguration (falls möglich).</translation>
+        <translation>Die ausführbare Datei der aktiven Ausführungskonfiguration (falls möglich).</translation>
     </message>
     <message>
         <source>Variables in the current run environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen in der aktuellen Ausführungsumgebung.</translation>
     </message>
     <message>
         <source>The currently active run configuration&apos;s working directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Arbeitsverzeichnis der aktiven Ausführungskonfiguration.</translation>
     </message>
 </context>
 <context>
@@ -36004,7 +36013,7 @@ provided they were unmodified before the refactoring.</source>
     <name>ProjectExplorer::ProjectTree</name>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is generated.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Warnung:&lt;/b&gt; Diese Datei wurde generiert.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
@@ -36057,7 +36066,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Reset to Default</source>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen</translation>
+        <translation>Auf Vorgabe zurücksetzen</translation>
     </message>
 </context>
 <context>
@@ -39339,7 +39348,13 @@ To prepend to a variable, use VARIABLE=+VALUE.
 Existing variables can be referenced in a VALUE with ${OTHER}.
 To clear a variable, put its name on a line with nothing else on it.
 To disable a variable, prefix the line with &quot;#&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine Umgebungsvariable pro Zeile ein.
+Um eine Variable zu setzen oder zu ändern, benutzen Sie VARIABLE=WERT.
+Um einen Wert an eine Variable anzufügen, benutzen Sie VARIABLE+=WERT.
+Um einen Wert einer Variable voranzustellen, benutzen Sie VARIABLE=+WERT.
+Existierende Variablen können in einem WERT mit ${ANDERE} verwendet werden.
+Um eine Variable zu leeren, schreiben Sie nichts als ihren Namen in eine Zeile.
+Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</translation>
     </message>
 </context>
 <context>
@@ -40690,7 +40705,7 @@ Zeile: %4, Spalte: %5
     <name>CppEditor::Internal::CppEditorDocument</name>
     <message>
         <source>&lt;b&gt;Warning&lt;/b&gt;: This file is not part of any project. The code model might have issues parsing this file properly.</source>
-        <translation type="unfinished">&lt;b&gt;Warnung&lt;/b&gt;: Diese Datei ist in keinem Projekt enthalten. Das Codemodell könnte Probleme haben, die Datei korrekt auszuwerten.</translation>
+        <translation>&lt;b&gt;Warnung&lt;/b&gt;: Diese Datei ist in keinem Projekt enthalten. Das Codemodell könnte Probleme haben, die Datei korrekt auszuwerten.</translation>
     </message>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
@@ -40883,15 +40898,15 @@ Ablaufdatum: %3</translation>
     <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Use Regular Expressions</source>
-        <translation type="unfinished">Reguläre Ausdrücke verwenden</translation>
+        <translation>Reguläre Ausdrücke verwenden</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Groß-/Kleinschreibung</translation>
     </message>
     <message>
         <source>Show Non-matching Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht passende Zeilen anzeigen</translation>
     </message>
     <message>
         <source>Project Settings</source>
@@ -40923,7 +40938,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Build System Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe des Build-Systems</translation>
     </message>
     <message>
         <source>Import Directory</source>
@@ -40969,7 +40984,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>The process crashed.</source>
-        <translation type="unfinished">Der Prozess ist abgestürzt.</translation>
+        <translation>Der Prozess ist abgestürzt.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -41989,7 +42004,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Remove Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis löschen</translation>
     </message>
     <message>
         <source>File to remove:</source>
@@ -41997,7 +42012,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Folder to remove:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu löschendes Verzeichnis:</translation>
     </message>
     <message>
         <source>&amp;Delete file permanently</source>
@@ -42258,35 +42273,35 @@ Are you sure?</source>
     <name>CppEditor::CppQuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
-        <translation>Getter- und Setter-Funktionen erstellen</translation>
+        <translation>Getter- und Setter-Funktionen erzeugen</translation>
     </message>
     <message>
         <source>Create Implementations for Member Functions</source>
-        <translation type="unfinished"></translation>
+        <translation>Implementationen für Memberfunktionen erzeugen</translation>
     </message>
     <message>
         <source>Generate Setter</source>
-        <translation type="unfinished"></translation>
+        <translation>Setter erzeugen</translation>
     </message>
     <message>
         <source>Generate Getter</source>
-        <translation type="unfinished"></translation>
+        <translation>Getter erzeugen</translation>
     </message>
     <message>
         <source>Generate Getter and Setter</source>
-        <translation type="unfinished"></translation>
+        <translation>Getter und Setter erzeugen</translation>
     </message>
     <message>
         <source>Generate Constant Q_PROPERTY and Missing Members</source>
-        <translation type="unfinished"></translation>
+        <translation>Konstantes Q_PROPERTY-Element und fehlende Memberfunktionen erzeugen</translation>
     </message>
     <message>
         <source>Generate Q_PROPERTY and Missing Members with Reset Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Q_PROPERTY-Element und fehlende Memberfunktionen sowie Reset-Funktion erzeugen</translation>
     </message>
     <message>
         <source>Generate Q_PROPERTY and Missing Members</source>
-        <translation type="unfinished"></translation>
+        <translation>Q_PROPERTY-Element und fehlende Memberfunktionen erzeugen</translation>
     </message>
     <message>
         <source>Convert to Stack Variable</source>
@@ -42298,11 +42313,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Base Class Constructors</source>
-        <translation type="unfinished"></translation>
+        <translation>Konstruktoren der Basisklassen</translation>
     </message>
     <message>
         <source>Generate Constructor</source>
-        <translation type="unfinished"></translation>
+        <translation>Konstruktor erzeugen</translation>
     </message>
     <message>
         <source>Generate Missing Q_PROPERTY Members</source>
@@ -42698,7 +42713,8 @@ Ausgabe:
     <message>
         <source>You just dragged some files from one project node to another.
 What should %1 do now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie haben gerade eine oder mehrere Dateien von einem Projektknoten zu einem anderen gezogen.
+Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Copy Only File References</source>
@@ -43243,39 +43259,39 @@ What should %1 do now?</source>
     <name>ProjectExplorer::MakeStep</name>
     <message>
         <source>Make arguments:</source>
-        <translation type="unfinished">Kommandozeilenargumente für make:</translation>
+        <translation>Kommandozeilenargumente für make:</translation>
     </message>
     <message>
         <source>Parallel jobs:</source>
-        <translation type="unfinished">Parallele Jobs:</translation>
+        <translation>Parallele Jobs:</translation>
     </message>
     <message>
         <source>Override MAKEFLAGS</source>
-        <translation type="unfinished">MAKEFLAGS überschreiben</translation>
+        <translation>MAKEFLAGS überschreiben</translation>
     </message>
     <message>
         <source>&lt;code&gt;MAKEFLAGS&lt;/code&gt; specifies parallel jobs. Check &quot;%1&quot; to override.</source>
-        <translation type="unfinished">&lt;code&gt;MAKEFLAGS&lt;/code&gt; legt parallele Jobs fest. Wählen Sie &quot;%1&quot;, um dies zu überstimmen.</translation>
+        <translation>&lt;code&gt;MAKEFLAGS&lt;/code&gt; legt parallele Jobs fest. Wählen Sie &quot;%1&quot;, um dies zu überstimmen.</translation>
     </message>
     <message>
         <source>Disable in subdirectories:</source>
-        <translation type="unfinished"></translation>
+        <translation>In Unterverzeichnissen deaktivieren:</translation>
     </message>
     <message>
         <source>Runs this step only for a top-level build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt diesen Schritt nur beim Erstellen des obersten Verzeichnisses aus.</translation>
     </message>
     <message>
         <source>Targets:</source>
-        <translation type="unfinished">Ziele:</translation>
+        <translation>Ziele:</translation>
     </message>
     <message>
         <source>Make:</source>
-        <translation type="unfinished">Make:</translation>
+        <translation>Make:</translation>
     </message>
     <message>
         <source>Override %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibe %1:</translation>
     </message>
     <message>
         <source>Make</source>
@@ -43287,15 +43303,15 @@ What should %1 do now?</source>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1</source>
-        <translation type="unfinished">&lt;b&gt;Make:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; No build configuration.</source>
-        <translation type="unfinished">&lt;b&gt;Make:&lt;/b&gt; Keine Build-Konfiguration.</translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; Keine Build-Konfiguration.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
-        <translation type="unfinished">&lt;b&gt;Make:&lt;/b&gt; %1 konnte in der Umgebung nicht gefunden werden.</translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; %1 konnte in der Umgebung nicht gefunden werden.</translation>
     </message>
 </context>
 <context>
@@ -46328,7 +46344,7 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::Internal::AddRunConfigDialog</name>
     <message>
         <source>[none]</source>
-        <translation type="unfinished"></translation>
+        <translation>[leer]</translation>
     </message>
     <message>
         <source>Name</source>
@@ -46336,30 +46352,30 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle</translation>
     </message>
     <message>
         <source>Create Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration erzeugen</translation>
     </message>
     <message>
         <source>Filter candidates by name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Name filtern</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugen</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::AppOutputSettingsPage</name>
     <message>
         <source>Word-wrap output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe umbrechen</translation>
     </message>
     <message>
         <source>Clear old output on a new run</source>
-        <translation type="unfinished"></translation>
+        <translation>Alte Ausgabe bei erneutem Start leeren</translation>
     </message>
     <message>
         <source>Merge stderr and stdout</source>
@@ -46375,19 +46391,19 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>On First Output Only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur bei erster Ausgabe</translation>
     </message>
     <message>
         <source>Limit output to %1 characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe auf %1 Zeichen beschränken</translation>
     </message>
     <message>
         <source>Open Application Output when running:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der Anwendung beim Ausführen öffnen:</translation>
     </message>
     <message>
         <source>Open Application Output when debugging:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der Anwendung beim Debuggen öffnen:</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -46402,7 +46418,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>The build directory is not reachable from the build device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Verzeichnis kann auf dem Build-Gerät nicht erreicht werden.</translation>
     </message>
     <message>
         <source>Shadow build:</source>
@@ -46428,15 +46444,15 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::Internal::CompileOutputSettingsPage</name>
     <message>
         <source>Word-wrap output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe umbrechen</translation>
     </message>
     <message>
         <source>Open Compile Output when building</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der Kompilierung beim Erstellen öffnen</translation>
     </message>
     <message>
         <source>Limit output to %1 characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe auf %1 Zeichen beschränken</translation>
     </message>
     <message>
         <source>Compile Output</source>
@@ -46447,11 +46463,11 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::Internal::DeploymentDataView</name>
     <message>
         <source>Source File Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelldateipfad</translation>
     </message>
     <message>
         <source>Target Directory</source>
-        <translation type="unfinished">Zielverzeichnis</translation>
+        <translation>Zielverzeichnis</translation>
     </message>
     <message>
         <source>Add</source>
@@ -46467,7 +46483,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Override deployment data from build system</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment-Daten des Build-Systems überschreiben</translation>
     </message>
 </context>
 <context>
@@ -46647,7 +46663,7 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::KitAspectWidget</name>
     <message>
         <source>Mark as Mutable</source>
-        <translation type="unfinished">Als veränderlich kennzeichnen</translation>
+        <translation>Als veränderlich kennzeichnen</translation>
     </message>
     <message>
         <source>Manage...</source>
@@ -46684,19 +46700,19 @@ Do you want to display them anyway?</source>
     <name>ProjectExplorer::Internal::ParseIssuesDialog</name>
     <message>
         <source>Parse Build Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Ausgabe auswerten</translation>
     </message>
     <message>
         <source>Output went to stderr</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe ging in die Standardfehlerausgabe</translation>
     </message>
     <message>
         <source>Clear existing tasks</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende Aufgaben entfernen</translation>
     </message>
     <message>
         <source>Load from File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus Datei laden...</translation>
     </message>
     <message>
         <source>Choose File</source>
@@ -46704,31 +46720,31 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Could Not Open File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei konnte nicht geöffnet werden</translation>
     </message>
     <message>
         <source>Could not open file: &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; kann nicht geöffnet werden: %2</translation>
     </message>
     <message>
         <source>Build Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Ausgabe</translation>
     </message>
     <message>
         <source>Parsing Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswertungseinstellungen</translation>
     </message>
     <message>
         <source>Use parsers from kit:</source>
-        <translation type="unfinished"></translation>
+        <translation>Parser vom Kit benutzen:</translation>
     </message>
     <message>
         <source>Cannot Parse</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswerten fehlgeschlagen</translation>
     </message>
     <message>
         <source>Cannot parse: The chosen kit does not provide an output parser.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswerten fehlgeschlagen: Das gewählte Kit stellt keine Ausgabe-Parser bereit.</translation>
     </message>
 </context>
 <context>
@@ -46769,63 +46785,63 @@ Do you want to display them anyway?</source>
     <name>ProjextExplorer::Internal::ProjectExplorerSettings</name>
     <message>
         <source>Current directory</source>
-        <translation type="unfinished">Arbeitsverzeichnis</translation>
+        <translation>Arbeitsverzeichnis</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">Verzeichnis</translation>
+        <translation>Verzeichnis</translation>
     </message>
     <message>
         <source>Close source files along with project</source>
-        <translation type="unfinished">Quelldateien zusammen mit Projekt schließen</translation>
+        <translation>Quelldateien zusammen mit Projekt schließen</translation>
     </message>
     <message>
         <source>Save all files before build</source>
-        <translation type="unfinished">Alle Dateien vor Erstellen speichern</translation>
+        <translation>Alle Dateien vor Erstellen speichern</translation>
     </message>
     <message>
         <source>Always deploy project before running it</source>
-        <translation type="unfinished">Vor Ausführung des Projekts stets Deployment durchführen</translation>
+        <translation>Vor Ausführung des Projekts stets Deployment durchführen</translation>
     </message>
     <message>
         <source>Add linker library search paths to run environment</source>
-        <translation type="unfinished">Linker-Bibliothekspfade zur Ausführungsumgebung hinzufügen</translation>
+        <translation>Linker-Bibliothekspfade zur Ausführungsumgebung hinzufügen</translation>
     </message>
     <message>
         <source>Always ask before stopping applications</source>
-        <translation type="unfinished">Nachfrage beim Stoppen von Anwendungen</translation>
+        <translation>Beim Stoppen von Anwendungen stets nachfragen</translation>
     </message>
     <message>
         <source>Create suitable run configurations automatically</source>
-        <translation type="unfinished">Automatisch Ausführungskonfigurationen erzeugen</translation>
+        <translation>Automatisch Ausführungskonfigurationen erzeugen</translation>
     </message>
     <message>
         <source>Clear issues list on new build</source>
-        <translation type="unfinished">Problemliste bei neuer Erstellung leeren</translation>
+        <translation>Problemliste bei neuer Erstellung leeren</translation>
     </message>
     <message>
         <source>Abort on error when building all projects</source>
-        <translation type="unfinished">Bei Fehler abbrechen, wenn alle Projekte erstellt werden</translation>
+        <translation>Bei Fehler abbrechen, wenn alle Projekte erstellt werden</translation>
     </message>
     <message>
         <source>Start build processes with low priority</source>
-        <translation type="unfinished">Erstellungsprozesse mit niedriger Priorität starten</translation>
+        <translation>Erstellungsprozesse mit niedriger Priorität starten</translation>
     </message>
     <message>
         <source>Do Not Build Anything</source>
-        <translation type="unfinished"></translation>
+        <translation>Nichts erstellen</translation>
     </message>
     <message>
         <source>Build the Whole Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ganze Projekt erstellen</translation>
     </message>
     <message>
         <source>Build Only the Application to Be Run</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur die auszuführende Anwendung erstellen</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>All</source>
@@ -46841,47 +46857,47 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Same Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Gleiche Anwendung</translation>
     </message>
     <message>
         <source>Enabled</source>
-        <translation type="unfinished">Aktiviert</translation>
+        <translation>Aktiviert</translation>
     </message>
     <message>
         <source>Disabled</source>
-        <translation type="unfinished">Deaktiviert</translation>
+        <translation>Deaktiviert</translation>
     </message>
     <message>
         <source>Deduced from Project</source>
-        <translation type="unfinished">Aus Projekt abgeleitet</translation>
+        <translation>Aus Projekt abgeleitet</translation>
     </message>
     <message>
         <source>Use jom instead of nmake</source>
-        <translation type="unfinished">jom statt nmake verwenden</translation>
+        <translation>jom statt nmake verwenden</translation>
     </message>
     <message>
         <source>Projects Directory</source>
-        <translation type="unfinished">Projektverzeichnis</translation>
+        <translation>Projektverzeichnis</translation>
     </message>
     <message>
         <source>Closing Projects</source>
-        <translation type="unfinished">Schließen von Projekten</translation>
+        <translation>Schließen von Projekten</translation>
     </message>
     <message>
         <source>Build and Run</source>
-        <translation type="unfinished">Erstellung und Ausführung</translation>
+        <translation>Erstellung und Ausführung</translation>
     </message>
     <message>
         <source>Build before deploying:</source>
-        <translation type="unfinished">Vor dem Deployment erstellen:</translation>
+        <translation>Vor dem Deployment erstellen:</translation>
     </message>
     <message>
         <source>Stop applications before building:</source>
-        <translation type="unfinished">Anwendungen vor dem Erstellen beenden:</translation>
+        <translation>Anwendungen vor dem Erstellen beenden:</translation>
     </message>
     <message>
         <source>Default for &quot;Run in terminal&quot;:</source>
-        <translation type="unfinished">Vorgabe für &quot;Im Terminal ausführen&quot;:</translation>
+        <translation>Vorgabe für &quot;Im Terminal ausführen&quot;:</translation>
     </message>
     <message>
         <source>General</source>
@@ -47406,7 +47422,7 @@ Do you want to display them anyway?</source>
     </message>
     <message>
         <source>Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad:</translation>
     </message>
     <message>
         <source>File Selection</source>
@@ -48316,7 +48332,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     <name>ProjectExplorer::Internal::CustomParsersSettingsPage</name>
     <message>
         <source>Custom output parsers defined here can be enabled individually in the project&apos;s build or run settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Parser, die hier vom Benutzer definiert wurden, können einzeln in den Build- oder Ausführungseinstellungen des Projekts aktiviert werden.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -48328,11 +48344,11 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>New Parser</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Parser</translation>
     </message>
     <message>
         <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Ausgabe-Parser</translation>
     </message>
 </context>
 <context>
@@ -51241,107 +51257,107 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     <name>CppEditor::Internal::CppCodeStyleSettingsPage</name>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Content</source>
-        <translation type="unfinished">Inhalt</translation>
+        <translation>Inhalt</translation>
     </message>
     <message>
         <source>Indent</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrücken</translation>
     </message>
     <message>
         <source>&quot;public&quot;, &quot;protected&quot; and
 &quot;private&quot; within class body</source>
-        <translation type="unfinished">&quot;public&quot;, &quot;protected&quot; und
+        <translation>&quot;public&quot;, &quot;protected&quot; und
 &quot;private&quot; im Klassenrumpf</translation>
     </message>
     <message>
         <source>Declarations relative to &quot;public&quot;,
 &quot;protected&quot; and &quot;private&quot;</source>
-        <translation type="unfinished">Deklarationen relativ zu &quot;public&quot;,
+        <translation>Deklarationen relativ zu &quot;public&quot;,
 &quot;protected&quot; und &quot;private&quot;</translation>
     </message>
     <message>
         <source>Statements within function body</source>
-        <translation type="unfinished">Anweisungen im Funktionsrumpf</translation>
+        <translation>Anweisungen im Funktionsrumpf</translation>
     </message>
     <message>
         <source>Statements within blocks</source>
-        <translation type="unfinished">Anweisungen in Blöcken</translation>
+        <translation>Anweisungen in Blöcken</translation>
     </message>
     <message>
         <source>Declarations within
 &quot;namespace&quot; definition</source>
-        <translation type="unfinished">Deklarationen in
+        <translation>Deklarationen in
 Namensraum-Definition</translation>
     </message>
     <message>
         <source>Braces</source>
-        <translation type="unfinished">Klammern</translation>
+        <translation>Klammern</translation>
     </message>
     <message>
         <source>Indent Braces</source>
-        <translation type="unfinished">Klammern einrücken </translation>
+        <translation>Klammern einrücken</translation>
     </message>
     <message>
         <source>Class declarations</source>
-        <translation type="unfinished">Klassendeklarationen</translation>
+        <translation>Klassendeklarationen</translation>
     </message>
     <message>
         <source>Namespace declarations</source>
-        <translation type="unfinished">Namensraum-Deklarationen</translation>
+        <translation>Namensraum-Deklarationen</translation>
     </message>
     <message>
         <source>Enum declarations</source>
-        <translation type="unfinished">Deklarationen von Aufzählungen</translation>
+        <translation>Deklarationen von Aufzählungen</translation>
     </message>
     <message>
         <source>Function declarations</source>
-        <translation type="unfinished">Funktionsdeklarationen</translation>
+        <translation>Funktionsdeklarationen</translation>
     </message>
     <message>
         <source>Blocks</source>
-        <translation type="unfinished">Blöcke</translation>
+        <translation>Blöcke</translation>
     </message>
     <message>
         <source>&quot;switch&quot;</source>
-        <translation type="unfinished">&quot;switch&quot;</translation>
+        <translation>&quot;switch&quot;</translation>
     </message>
     <message>
         <source>Indent within &quot;switch&quot;</source>
-        <translation type="unfinished">Einrückung in &quot;switch&quot;</translation>
+        <translation>Innerhalb &quot;switch&quot; einrücken</translation>
     </message>
     <message>
         <source>&quot;case&quot; or &quot;default&quot;</source>
-        <translation type="unfinished">&quot;case&quot; oder &quot;default&quot;</translation>
+        <translation>&quot;case&quot; oder &quot;default&quot;</translation>
     </message>
     <message>
         <source>Statements relative to
 &quot;case&quot; or &quot;default&quot;</source>
-        <translation type="unfinished">Anweisungen relativ zu
+        <translation>Anweisungen relativ zu
 &quot;case&quot; oder &quot;default&quot;</translation>
     </message>
     <message>
         <source>Blocks relative to
 &quot;case&quot; or &quot;default&quot;</source>
-        <translation type="unfinished">Blöcke relativ zu
+        <translation>Blöcke relativ zu
 &quot;case&quot; oder &quot;default&quot;</translation>
     </message>
     <message>
         <source>&quot;break&quot; statement relative to
 &quot;case&quot; or &quot;default&quot;</source>
-        <translation type="unfinished">&quot;break&quot;-Anweisung relativ zu
+        <translation>&quot;break&quot;-Anweisung relativ zu
 &quot;case&quot; oder &quot;default&quot;</translation>
     </message>
     <message>
         <source>Alignment</source>
-        <translation type="unfinished">Ausrichtung</translation>
+        <translation>Ausrichtung</translation>
     </message>
     <message>
         <source>Align</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausrichten</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -51358,7 +51374,7 @@ a = a +
         b
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 Bewirkt die Ausrichtung an Operanden nach =, += etc. Wenn die Option deaktiviert ist, wird die reguläre Einrückung von Fortsetzungszeilen verwendet.&lt;br&gt;
 &lt;br&gt;
 Mit Ausrichtung:
@@ -51375,7 +51391,7 @@ a = a +
     </message>
     <message>
         <source>Align after assignments</source>
-        <translation type="unfinished">Nach Zuweisung ausrichten</translation>
+        <translation>Nach Zuweisung ausrichten</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -51394,34 +51410,37 @@ if (a &amp;&amp;
     c;
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Fügt eine weitere Einrückungsebene zu Bedingungen in switch-, if-, while- und foreach-Anweisungen hinzu, falls sie sonst gleich oder weniger als eine geschachtelte Anweisung eingerückt würden.
 
-&lt;ul&gt;
-&lt;li&gt;Keine: Kein besondere Behandlung, normales Verhalten der Rücktaste.
-&lt;/li&gt;
-
-&lt;li&gt;Vorangehender Einrückung folgen: In führenden Leerzeichen wird die Einfügemarke auf die nächstliegende Einrückung vorangehender Zeilen gestellt.
-&lt;/li&gt;
-
-&lt;li&gt;Ausrücken: Wenn das hinter der Einfügemarke befindliche Zeichen ein Leerzeichen ist, verhält sich die Rücktaste wie ein rückwärtiger Tabulator.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</translation>
+Wenn mit vier Leerzeichen eingerückt wird, sind nur if-Anweisungen betroffen. Ohne weitere Einrückung:
+&lt;pre&gt;
+if (a &amp;&amp;
+    b)
+    c;
+&lt;/pre&gt;
+Mit weiterer Einrückung:
+&lt;pre&gt;
+if (a &amp;&amp;
+        b)
+    c;
+&lt;/pre&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add extra padding to conditions
 if they would align to the next line</source>
-        <translation type="unfinished">Bedingungen weiter einrücken
-wenn sie sonst an der nächsten Zeile ausgerichtet werden würden</translation>
+        <translation>Bedingungen weiter einrücken,
+wenn sie sonst an der nächsten Zeile
+ausgerichtet werden würden</translation>
     </message>
     <message>
         <source>Pointers and References</source>
-        <translation type="unfinished">Zeiger und Referenzen</translation>
+        <translation>Zeiger und Referenzen</translation>
     </message>
     <message>
         <source>Bind &apos;*&apos; and &apos;&amp;&amp;&apos; in types/declarations to</source>
-        <translation type="unfinished">Binde &apos;*&apos; und &apos;&amp;&amp;&apos; in Typen und Deklarationen an</translation>
+        <translation>Binde &apos;*&apos; und &apos;&amp;&amp;&apos; in Typen und Deklarationen an</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;This does not apply to the star and reference symbol in pointer/reference to functions and arrays, e.g.:
@@ -51432,7 +51451,7 @@ wenn sie sonst an der nächsten Zeile ausgerichtet werden würden</translation>
    int (*pa)[2] = ...;
 
 &lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;Dies bezieht sich nicht auf die Stern- und Referenzsymbole in Zeigern auf / Referenzen zu Funktionen und Feldern, zum Beispiel:
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Dies bezieht sich nicht auf die Stern- und Referenzsymbole in Zeigern auf / Referenzen zu Funktionen und Feldern, zum Beispiel:
 &lt;pre&gt;   int (&amp;rf)() = ...;
    int (*pf)() = ...;
 
@@ -51443,38 +51462,38 @@ wenn sie sonst an der nächsten Zeile ausgerichtet werden würden</translation>
     </message>
     <message>
         <source>Identifier</source>
-        <translation type="unfinished">Bezeichner</translation>
+        <translation>Bezeichner</translation>
     </message>
     <message>
         <source>Type name</source>
-        <translation type="unfinished">Typname</translation>
+        <translation>Typname</translation>
     </message>
     <message>
         <source>Left const/volatile</source>
-        <translation type="unfinished">Linkes const/volatile</translation>
+        <translation>Linkes const/volatile</translation>
     </message>
     <message>
         <source>This does not apply to references.</source>
-        <translation type="unfinished">Bezieht sich nicht auf Referenzen.</translation>
+        <translation>Bezieht sich nicht auf Referenzen.</translation>
     </message>
     <message>
         <source>Right const/volatile</source>
-        <translation type="unfinished">Rechtes const/volatile</translation>
+        <translation>Rechtes const/volatile</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppFileSettingsPage</name>
     <message>
         <source>Headers</source>
-        <translation type="unfinished">Header-Dateien</translation>
+        <translation>Header-Dateien</translation>
     </message>
     <message>
         <source>&amp;Suffix:</source>
-        <translation type="unfinished">&amp;Endung:</translation>
+        <translation>&amp;Endung:</translation>
     </message>
     <message>
         <source>S&amp;earch paths:</source>
-        <translation type="unfinished">&amp;Suchpfade:</translation>
+        <translation>&amp;Suchpfade:</translation>
     </message>
     <message>
         <source>Comma-separated list of header paths.
@@ -51482,47 +51501,47 @@ wenn sie sonst an der nächsten Zeile ausgerichtet werden würden</translation>
 Paths can be absolute or relative to the directory of the current open document.
 
 These paths are used in addition to current directory on Switch Header/Source.</source>
-        <translation type="unfinished">Kommaseparierte Liste von Pfaden für Header-Dateien.
+        <translation>Kommaseparierte Liste von Pfaden für Header-Dateien.
 
-Die Pfade können absolut oder relativ zum Verzeichnis des gegenwärtig geöffneten Dokuments angegeben werden.
+Die Pfade können absolut oder relativ zum Verzeichnis des aktuell geöffneten Dokuments angegeben werden.
 
 Diese Pfade werden zusätzlich zum aktuellen Verzeichnis beim Wechseln zwischen Header- und Quelldatei verwendet.</translation>
     </message>
     <message>
         <source>&amp;Prefixes:</source>
-        <translation type="unfinished">&amp;Präfixe:</translation>
+        <translation>&amp;Präfixe:</translation>
     </message>
     <message>
         <source>Comma-separated list of header prefixes.
 
 These prefixes are used in addition to current file name on Switch Header/Source.</source>
-        <translation type="unfinished">Kommaseparierte Liste der Header-Präfixe.
+        <translation>Kommaseparierte Liste der Header-Präfixe.
 
 Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- und Quelldatei verwendet.</translation>
     </message>
     <message>
         <source>Include guards</source>
-        <translation type="unfinished">Include-Guards</translation>
+        <translation>Include-Guards</translation>
     </message>
     <message>
         <source>Uses &quot;#pragma once&quot; instead of &quot;#ifndef&quot; include guards.</source>
-        <translation type="unfinished">Verwendet &quot;#pragma once&quot; statt Include-Guards mit &quot;#ifndef&quot;.</translation>
+        <translation>Verwendet &quot;#pragma once&quot; statt Include-Guards mit &quot;#ifndef&quot;.</translation>
     </message>
     <message>
         <source>Use &quot;#pragma once&quot; instead of &quot;#ifndef&quot; guards</source>
-        <translation type="unfinished">&quot;#pragma once&quot; statt Include-Guards mit &quot;#ifndef&quot; verwenden</translation>
+        <translation>&quot;#pragma once&quot; statt Include-Guards mit &quot;#ifndef&quot; verwenden</translation>
     </message>
     <message>
         <source>Sources</source>
-        <translation type="unfinished">Quelldateien</translation>
+        <translation>Quelldateien</translation>
     </message>
     <message>
         <source>S&amp;uffix:</source>
-        <translation type="unfinished">E&amp;ndung:</translation>
+        <translation>E&amp;ndung:</translation>
     </message>
     <message>
         <source>Se&amp;arch paths:</source>
-        <translation type="unfinished">S&amp;uchpfade:</translation>
+        <translation>S&amp;uchpfade:</translation>
     </message>
     <message>
         <source>Comma-separated list of source paths.
@@ -51530,214 +51549,216 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
 Paths can be absolute or relative to the directory of the current open document.
 
 These paths are used in addition to current directory on Switch Header/Source.</source>
-        <translation type="unfinished">Kommaseparierte Liste von Pfaden für Quelldateien.
+        <translation>Kommaseparierte Liste von Pfaden für Quelldateien.
 
-Die Pfade können absolut oder relativ zum Verzeichnis des gegenwärtig geöffneten Dokuments angegeben werden.
+Die Pfade können absolut oder relativ zum Verzeichnis des aktuell geöffneten Dokuments angegeben werden.
 
 Diese Pfade werden zusätzlich zum aktuellen Verzeichnis beim Wechseln zwischen Header- und Quelldatei verwendet.</translation>
     </message>
     <message>
         <source>P&amp;refixes:</source>
-        <translation type="unfinished">P&amp;räfixe:</translation>
+        <translation>P&amp;räfixe:</translation>
     </message>
     <message>
         <source>Comma-separated list of source prefixes.
 
 These prefixes are used in addition to current file name on Switch Header/Source.</source>
-        <translation type="unfinished">Kommaseparierte Liste der Quelldatei-Präfixe.
+        <translation>Kommaseparierte Liste der Quelldatei-Präfixe.
 
 Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- und Quelldatei verwendet.</translation>
     </message>
     <message>
         <source>&amp;Lower case file names</source>
-        <translation type="unfinished">&amp;Kleinbuchstaben für Dateinamen verwenden</translation>
+        <translation>&amp;Kleinbuchstaben für Dateinamen verwenden</translation>
     </message>
     <message>
         <source>License &amp;template:</source>
-        <translation type="unfinished">Lizenz-&amp;Vorlage:</translation>
+        <translation>Lizenz&amp;vorlage:</translation>
     </message>
 </context>
 <context>
     <name>CppQuickFixSettingsWidget</name>
     <message>
         <source>Generated Function Locations</source>
-        <translation type="unfinished"></translation>
+        <translation>Platzierung generierter Funktionen</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>≥</source>
-        <translation type="unfinished"></translation>
+        <translation>≥</translation>
     </message>
     <message>
         <source>lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen</translation>
     </message>
     <message>
         <source>Generate Getters</source>
-        <translation type="unfinished"></translation>
+        <translation>Getter erzeugen</translation>
     </message>
     <message>
         <source>Generate Setters</source>
-        <translation type="unfinished"></translation>
+        <translation>Setter erzeugen</translation>
     </message>
     <message>
         <source>In .cpp file:</source>
-        <translation type="unfinished"></translation>
+        <translation>In der .cpp-Datei:</translation>
     </message>
     <message>
         <source>Outside class:</source>
-        <translation type="unfinished"></translation>
+        <translation>Außerhalb der Klasse:</translation>
     </message>
     <message>
         <source>Inside class:</source>
-        <translation type="unfinished"></translation>
+        <translation>Innerhalb der Klasse:</translation>
     </message>
     <message>
         <source>Getter Setter Generation Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaften für das Erzeugen von Gettern/Settern</translation>
     </message>
     <message>
         <source>Getter name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Getter-Name:</translation>
     </message>
     <message>
         <source>For example, new&lt;Name&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Beispiel new&lt;Name&gt;</translation>
     </message>
     <message>
         <source>Setter name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Setter-Name:</translation>
     </message>
     <message>
         <source>Setters should be slots</source>
-        <translation type="unfinished"></translation>
+        <translation>Setter sollen Slots sein</translation>
     </message>
     <message>
         <source>Generate signals with the new value as parameter</source>
-        <translation type="unfinished"></translation>
+        <translation>Signale mit dem neuen Wert als Parameter erzeugen</translation>
     </message>
     <message>
         <source>Getter attributes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Getter-Attribute:</translation>
     </message>
     <message>
         <source>Setter parameter name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Setter Parameter-Name:</translation>
     </message>
     <message>
         <source>Reset name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Reset-Name:</translation>
     </message>
     <message>
         <source>Signal name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Signal-Name:</translation>
     </message>
     <message>
         <source>See tool tip for more information</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr Informationen finden Sie im Tooltip</translation>
     </message>
     <message>
         <source>Normally reset&lt;Name&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalerweise reset&lt;Name&gt;</translation>
     </message>
     <message>
         <source>For example, [[nodiscard]]</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Beispiel [[nodiscard]]</translation>
     </message>
     <message>
         <source>Normally &lt;name&gt;Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalerweise &lt;name&gt;Changed</translation>
     </message>
     <message>
         <source>Member variable name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Member-Variablenname:</translation>
     </message>
     <message>
         <source>For example, m_&lt;name&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Beispiel m_&lt;name&gt;</translation>
     </message>
     <message>
         <source>Missing Namespace Handling</source>
-        <translation type="unfinished"></translation>
+        <translation>Handhabung fehlender Namensräume</translation>
     </message>
     <message>
         <source>Generate missing namespaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Namensräume erstellen</translation>
     </message>
     <message>
         <source>Add &quot;using namespace ...&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;using namespace ...&quot; hinzufügen</translation>
     </message>
     <message>
         <source>Rewrite types to match the existing namespaces</source>
-        <translation type="unfinished"></translation>
+        <translation>Typen so umschreiben, dass sie den existierenden Namensräumen entsprechen</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Uncheck this to make Qt Creator try to derive the type of expression in the &amp;quot;Assign to Local Variable&amp;quot; quickfix.&lt;/p&gt;&lt;p&gt;Note that this might fail for more complex types.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wählen Sie diese Einstellung ab, wenn Qt Creator versuchen soll, den Typ des Ausdrucks im Quick Fix &amp;quot;Lokaler Variable zuweisen&amp;quot; abzuleiten.&lt;/p&gt;&lt;p&gt;Dies kann für komplexere Typen fehlschlagen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use type &quot;auto&quot; when creating new variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ &quot;auto&quot; beim Erstellen von neuen Variablen benutzen</translation>
     </message>
     <message>
         <source>Custom Getter Setter Templates</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Getter/Setter-Vorlagen</translation>
     </message>
     <message>
         <source>Template</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage</translation>
     </message>
     <message>
         <source>Types:</source>
-        <translation type="unfinished">Typen:</translation>
+        <translation>Typen:</translation>
     </message>
     <message>
         <source>Separate the types by comma.</source>
-        <translation type="unfinished"></translation>
+        <translation>Typen durch Komma trennen.</translation>
     </message>
     <message>
         <source>Comparison:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergleich:</translation>
     </message>
     <message>
         <source>Assignment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuweisung:</translation>
     </message>
     <message>
         <source>Return expression:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückgabe-Ausdruck:</translation>
     </message>
     <message>
         <source>Return type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückgabe-Typ:</translation>
     </message>
     <message>
         <source>Use &lt;new&gt; and &lt;cur&gt; to access the parameter and current value. Use &lt;type&gt; to access the type and &lt;T&gt; for the template parameter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nutzen Sie &lt;new&gt; und &lt;cur&gt;, um auf den Parameter und den aktuellen Wert zuzugreifen. Nutzen Sie &lt;type&gt; und &lt;T&gt;, um auf den Typ und den Vorlagenparameter zuzugreifen.</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Normally arguments get passed by const reference. If the Type is one of the following ones, the argument gets passed by value. Namespaces and template arguments are removed. The real Type must contain the given Type. For example, &quot;int&quot; matches &quot;int32_t&quot; but not &quot;vector&lt;int&gt;&quot;. &quot;vector&quot; matches &quot;std::pmr::vector&lt;int&gt;&quot; but not &quot;std::optional&lt;vector&lt;int&gt;&gt;&quot;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>https://learn.microsoft.com/de-de/cpp/cpp/templates-and-name-resolution</translatorcomment>
+        <translation>Normalerweise werden Argumente als konstante Referenz übergeben. Das Argument wird als Wert übergeben, wenn der Typ einer der folgenden ist. Namensräume und Vorlagenargumente werden entfernt. Der wirkliche Typ muss den angegebenen Typ enthalten. Zum Beispiel passt &quot;int&quot; zu &quot;int32_t&quot;, aber nicht zu &quot;vector&lt;int&gt;&quot;. &quot;vector&quot; passt zu &quot;std::pmr::vector&lt;int&gt;&quot;, aber nicht zu &quot;std::optional&lt;vector&lt;int&gt;&gt;&quot;</translation>
     </message>
     <message>
         <source>Value types:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>https://learn.microsoft.com/de-de/cpp/cpp/value-types-modern-cpp</translatorcomment>
+        <translation>Werttypen:</translation>
     </message>
     <message>
         <source>Return non-value types by const reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht-Werttypen als konstante Referenz zurückgeben</translation>
     </message>
     <message>
         <source>Use &lt;name&gt; for the variable
@@ -51748,7 +51769,14 @@ e.g. name = &quot;m_test_foo_&quot;:
 &quot;set_&lt;name&gt; =&gt; &quot;set_test_foo&quot;
 &quot;set&lt;Name&gt; =&gt; &quot;setTest_foo&quot;
 &quot;set&lt;Camel&gt; =&gt; &quot;setTestFoo&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nutzen Sie &lt;name&gt; für die Variable
+Nutzen Sie &lt;camel&gt; für Camel-Case
+Nutzen Sie &lt;snake&gt; für Snake-Case
+Nutzen Sie &lt;Name&gt;, &lt;Camel&gt; und &lt;Snake&gt; für Großschreibung
+z.B. name = &quot;m_test_foo_&quot;:
+&quot;set_&lt;name&gt; =&gt; &quot;set_test_foo&quot;
+&quot;set&lt;Name&gt; =&gt; &quot;setTest_foo&quot;
+&quot;set&lt;Camel&gt; =&gt; &quot;setTestFoo&quot;</translation>
     </message>
 </context>
 <context>
@@ -52010,15 +52038,15 @@ the QML editor know about a likely URI.</source>
     <name>Utils::Archive</name>
     <message>
         <source>File format not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiformat wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>Could not find any unarchiving executable in PATH (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte kein Archivierungswerkzeug im PATH finden (%1).</translation>
     </message>
     <message>
         <source>Command failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando schlug fehl.</translation>
     </message>
     <message>
         <source>Running %1
@@ -52026,69 +52054,72 @@ in &quot;%2&quot;.
 
 </source>
         <comment>Running &lt;cmd&gt; in &lt;workingdirectory&gt;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Führe %1
+in &quot;%2&quot; aus.
+
+</translation>
     </message>
 </context>
 <context>
     <name>Utils::StringAspect</name>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Zurücksetzen</translation>
+        <translation>Zurücksetzen</translation>
     </message>
 </context>
 <context>
     <name>Utils::TriStateAspect</name>
     <message>
         <source>Enable</source>
-        <translation type="unfinished">Aktivieren</translation>
+        <translation>Aktivieren</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished">Deaktivieren</translation>
+        <translation>Deaktivieren</translation>
     </message>
     <message>
         <source>Leave at Default</source>
-        <translation type="unfinished">Vorgabe beibehalten</translation>
+        <translation>Vorgabe beibehalten</translation>
     </message>
 </context>
 <context>
     <name>Utils::BaseTreeView</name>
     <message>
         <source>Show %1 Column</source>
-        <translation type="unfinished">Spalte %1 anzeigen</translation>
+        <translation>Spalte %1 anzeigen</translation>
     </message>
 </context>
 <context>
     <name>Utils::FileSystemModel</name>
     <message>
         <source>My Computer</source>
-        <translation type="unfinished"></translation>
+        <translation>Mein Computer</translation>
     </message>
     <message>
         <source>Computer</source>
-        <translation type="unfinished">Computer</translation>
+        <translation>Computer</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Größe</translation>
+        <translation>Größe</translation>
     </message>
     <message>
         <source>Kind</source>
         <comment>Match OS X Finder</comment>
-        <translation type="unfinished"></translation>
+        <translation>Art</translation>
     </message>
     <message>
         <source>Type</source>
         <comment>All other platforms</comment>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Date Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt geändert</translation>
     </message>
 </context>
 <context>
@@ -52108,83 +52139,83 @@ in &quot;%2&quot;.
     <name>Utils::LauncherSocket</name>
     <message>
         <source>Failed to start process launcher at &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess-Launcher &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>Process launcher closed unexpectedly: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess-Launcher wurde unerwartet beendet: %1</translation>
     </message>
     <message>
         <source>Socket error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Socketfehler: %1</translation>
     </message>
     <message>
         <source>Internal protocol error: invalid packet size %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Protokollfehler: Ungültige Paketgröße %1.</translation>
     </message>
     <message>
         <source>Internal protocol error: invalid packet type %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Protokollfehler: Ungültiger Pakettyp %1.</translation>
     </message>
     <message>
         <source>Launcher socket closed unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Launcher-Socket wurde unerwartet geschlossen.</translation>
     </message>
 </context>
 <context>
     <name>Utils::LauncherHandle</name>
     <message>
         <source>Process launcher socket error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess-Launcher Socketfehler.</translation>
     </message>
 </context>
 <context>
     <name>Utils::MinimizableInfoBars</name>
     <message>
         <source>Minimize</source>
-        <translation type="unfinished">Minimieren</translation>
+        <translation>Minimieren</translation>
     </message>
 </context>
 <context>
     <name>Utils::NameValuesDialog</name>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Abbrechen</translation>
+        <translation>&amp;Abbrechen</translation>
     </message>
 </context>
 <context>
     <name>Utils::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
-        <translation type="unfinished">Variable einfügen</translation>
+        <translation>Variable einfügen</translation>
     </message>
     <message>
         <source>Current Value: %1</source>
-        <translation type="unfinished">Aktueller Wert: %1</translation>
+        <translation>Aktueller Wert: %1</translation>
     </message>
     <message>
         <source>Insert Unexpanded Value</source>
-        <translation type="unfinished">Nicht expandierten Wert einfügen</translation>
+        <translation>Nicht expandierten Wert einfügen</translation>
     </message>
     <message>
         <source>Insert &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; einfügen</translation>
+        <translation>&quot;%1&quot; einfügen</translation>
     </message>
     <message>
         <source>Insert Expanded Value</source>
-        <translation type="unfinished">Expandierten Wert einfügen</translation>
+        <translation>Expandierten Wert einfügen</translation>
     </message>
     <message>
         <source>Select a variable to insert.</source>
-        <translation type="unfinished">Wählen Sie eine Variable aus, die eingefügt werden soll.</translation>
+        <translation>Wählen Sie eine Variable aus, die eingefügt werden soll.</translation>
     </message>
     <message>
         <source>Variables</source>
-        <translation type="unfinished">Variablen</translation>
+        <translation>Variablen</translation>
     </message>
 </context>
 <context>
@@ -53112,247 +53143,250 @@ in &quot;%2&quot;.
     <name>CppEditor::AbstractEditorSupport</name>
     <message>
         <source>The file name.</source>
-        <translation type="unfinished">Der Dateiname.</translation>
+        <translation>Der Dateiname.</translation>
     </message>
     <message>
         <source>The class name.</source>
-        <translation type="unfinished">Der Klassenname.</translation>
+        <translation>Der Klassenname.</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
-        <translation type="unfinished">Werte C/C++-Dateien aus</translation>
+        <translation>Werte C/C++-Dateien aus</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::ClangDiagnosticConfigsSelectionWidget</name>
     <message>
         <source>Diagnostic configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagnosekonfiguration:</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::ClangDiagnosticConfigsWidget</name>
     <message>
         <source>Diagnostic Configurations</source>
-        <translation type="unfinished">Diagnosekonfigurationen</translation>
+        <translation>Diagnosekonfigurationen</translation>
     </message>
     <message>
         <source>Copy...</source>
-        <translation type="unfinished">Kopieren...</translation>
+        <translation>Kopieren...</translation>
     </message>
     <message>
         <source>Rename...</source>
-        <translation type="unfinished">Umbenennen...</translation>
+        <translation>Umbenennen...</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Clang Warnings</source>
-        <translation type="unfinished">Clang-Warnungen</translation>
+        <translation>Clang-Warnungen</translation>
     </message>
     <message>
         <source>Copy Diagnostic Configuration</source>
-        <translation type="unfinished">Diagnosekonfiguration kopieren</translation>
+        <translation>Diagnosekonfiguration kopieren</translation>
     </message>
     <message>
         <source>Diagnostic configuration name:</source>
-        <translation type="unfinished">Diagnosekonfigurationsname:</translation>
+        <translation>Diagnosekonfigurationsname:</translation>
     </message>
     <message>
         <source>%1 (Copy)</source>
-        <translation type="unfinished">%1 (Kopie)</translation>
+        <translation>%1 (Kopie)</translation>
     </message>
     <message>
         <source>Rename Diagnostic Configuration</source>
-        <translation type="unfinished">Diagnosekonfiguration umbenennen</translation>
+        <translation>Diagnosekonfiguration umbenennen</translation>
     </message>
     <message>
         <source>New name:</source>
-        <translation type="unfinished">Neuer Name:</translation>
+        <translation>Neuer Name:</translation>
     </message>
     <message>
         <source>Option &quot;%1&quot; is invalid.</source>
-        <translation type="unfinished">Option &quot;%1&quot; ist ungültig.</translation>
+        <translation>Option &quot;%1&quot; ist ungültig.</translation>
     </message>
     <message>
         <source>Copy this configuration to customize it.</source>
-        <translation type="unfinished">Kopieren Sie diese Konfiguration, um sie anzupassen.</translation>
+        <translation>Kopieren Sie diese Konfiguration, um sie anzupassen.</translation>
     </message>
     <message>
         <source>Configuration passes sanity checks.</source>
-        <translation type="unfinished">Die Konfiguration besteht die Sanity Checks.</translation>
+        <translatorcomment>https://de.wikipedia.org/wiki/Sanity_Check</translatorcomment>
+        <translation>Die Konfiguration besteht die Sanity Checks.</translation>
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished">%1</translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::ConfigsModel</name>
     <message>
         <source>Built-in</source>
-        <translation type="unfinished">Integriert</translation>
+        <translation>Integriert</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::ClangBaseChecks</name>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation type="unfinished">Für passende Optionen lesen Sie das GCC- oder Clang-Handbuch oder auch die &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC-Onlinedokumentation&lt;/a&gt;.</translation>
+        <translation>Für passende Optionen lesen Sie das GCC- oder Clang-Handbuch oder auch die &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC-Onlinedokumentation&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Use diagnostic flags from build system</source>
-        <translation type="unfinished">Diagnose-Flags des Build-Systems verwenden</translation>
+        <translation>Diagnose-Flags des Build-Systems verwenden</translation>
     </message>
 </context>
 <context>
     <name>CppEditor</name>
     <message>
         <source>Follow Symbol to Type is only available when using clangd</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbol unter Einfügemarke zum Typ verfolgen steht nur mit Clangd zur Verfügung</translation>
     </message>
     <message>
         <source>C++</source>
-        <translation type="unfinished">C++</translation>
+        <translation>C++</translation>
     </message>
     <message>
         <source>Quick Fixes</source>
-        <translation type="unfinished"></translation>
+        <translation>Quick Fixes</translation>
     </message>
     <message>
         <source>Code Style</source>
-        <translation type="unfinished">Coding-Stil</translation>
+        <translation>Coding-Stil</translation>
     </message>
     <message>
         <source>File Naming</source>
-        <translation type="unfinished">Namenskonventionen für Dateien</translation>
+        <translation>Namenskonventionen für Dateien</translation>
     </message>
     <message>
         <source>Diagnostic Configurations</source>
-        <translation type="unfinished">Diagnosekonfigurationen</translation>
+        <translation>Diagnosekonfigurationen</translation>
     </message>
     <message>
         <source>C++ Symbols in Current Document</source>
-        <translation type="unfinished">C++-Symbole im aktuellen Dokument</translation>
+        <translation>C++-Symbole im aktuellen Dokument</translation>
     </message>
     <message>
         <source>C++ Classes</source>
-        <translation type="unfinished">C++-Klassen</translation>
+        <translation>C++-Klassen</translation>
     </message>
     <message>
         <source>C++ Functions</source>
-        <translation type="unfinished">C++-Funktionen</translation>
+        <translation>C++-Funktionen</translation>
     </message>
     <message>
         <source>All Included C/C++ Files</source>
-        <translation type="unfinished">Alle eingebundenen C/C++-Dateien</translation>
+        <translation>Alle eingebundenen C/C++-Dateien</translation>
     </message>
     <message>
         <source>C++ Classes, Enums, Functions and Type Aliases</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>https://learn.microsoft.com/de-de/cpp/cpp/aliases-and-typedefs-cpp</translatorcomment>
+        <translation>C++-Klassen, -Aufzählungen, -Funktionen und -Typaliase</translation>
     </message>
     <message>
         <source>C++ Symbols</source>
-        <translation type="unfinished">C++-Symbole</translation>
+        <translation>C++-Symbole</translation>
     </message>
     <message>
         <source>Cannot show preprocessed file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorverarbeitete Datei kann nicht angezeigt werden: %1</translation>
     </message>
     <message>
         <source>%1, falling back to built-in preprocessor.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Explicitly not using a full stop at the end, because the value for %1 contains one</translatorcomment>
+        <translation>Falle auf den integrierten Präprozessor zurück: %1</translation>
     </message>
     <message>
         <source>Failed to open output file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabedatei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to write output file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabedatei &quot;%1&quot; konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Could not determine which compiler to invoke.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der zu startende Compiler konnte nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Could not determine compiler command line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Kommandozeile für den Compiler konnte nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>The project contains C source files, but the currently active kit has no C compiler. The code model will not be fully functional.</source>
-        <translation type="unfinished">Das Projekt enthält C-Quelldateien, aber das aktive Kit hat keinen C-Compiler. Das Codemodell wird nur eingeschränkt funktionieren.</translation>
+        <translation>Das Projekt enthält C-Quelldateien, aber das aktive Kit hat keinen C-Compiler. Das Codemodell wird nur eingeschränkt funktionieren.</translation>
     </message>
     <message>
         <source>The project contains C++ source files, but the currently active kit has no C++ compiler. The code model will not be fully functional.</source>
-        <translation type="unfinished">Das Projekt enthält C++-Quelldateien, aber das aktive Kit hat keinen C++-Compiler. Das Codemodell wird nur eingeschränkt funktionieren.</translation>
+        <translation>Das Projekt enthält C++-Quelldateien, aber das aktive Kit hat keinen C++-Compiler. Das Codemodell wird nur eingeschränkt funktionieren.</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::ClangdSettings</name>
     <message>
         <source>Background Priority</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrund-Priorität</translation>
     </message>
     <message>
         <source>Normal Priority</source>
-        <translation type="unfinished"></translation>
+        <translation>Normale Priorität</translation>
     </message>
     <message>
         <source>Low Priority</source>
-        <translation type="unfinished"></translation>
+        <translation>Niedrige Priorität</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Aus</translation>
+        <translation>Aus</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppCodeModelSettingsWidget</name>
     <message>
         <source>Interpret ambiguous headers as C headers</source>
-        <translation type="unfinished">Mehrdeutige Header als C-Header behandeln</translation>
+        <translation>Mehrdeutige Header als C-Header behandeln</translation>
     </message>
     <message>
         <source>Do not index files greater than</source>
-        <translation type="unfinished">Dateien nicht indizieren, wenn sie größer sind als</translation>
+        <translation>Dateien nicht indizieren, wenn sie größer sind als</translation>
     </message>
     <message>
         <source>MB</source>
-        <translation type="unfinished">MB</translation>
+        <translation>MB</translation>
     </message>
     <message>
         <source>Ignore precompiled headers</source>
-        <translation type="unfinished">Vorkompilierte Header-Dateien nicht beachten</translation>
+        <translation>Vorkompilierte Header-Dateien nicht beachten</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When precompiled headers are not ignored, the parsing for code completion and semantic highlighting will process the precompiled header before processing any file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Code-Vervollständigung und semantische Hervorhebung verarbeiten die vorkompilierte Headerdatei vor jeder anderen Datei sofern vorkompilierte Headerdateien nicht übersprungen werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Code-Vervollständigung und semantische Hervorhebung verarbeiten die vorkompilierte Headerdatei vor jeder anderen Datei, sofern vorkompilierte Headerdateien nicht übersprungen werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use built-in preprocessor to show pre-processed files</source>
-        <translation type="unfinished"></translation>
+        <translation>Den integrierten Präprozessor zum Anzeigen von vorverarbeiteten Dateien benutzen</translation>
     </message>
     <message>
         <source>Uncheck this to invoke the actual compiler to show a pre-processed source file in the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie dies ab, um den Compiler zum Anzeigen von vorverarbeiteten Dateien zu benutzen.</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Code Model</source>
-        <translation type="unfinished">Codemodell</translation>
+        <translation>Codemodell</translation>
     </message>
 </context>
 <context>
@@ -53370,117 +53404,132 @@ The thread priority for building the background index can be adjusted since clan
 Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.
 Normal Priority: Reduced priority compared to interactive work.
 Low Priority: Same priority as other clangd work.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate,
+es erhöht aber die CPU-Last beim ersten Öffnen von Projekten.
+Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert.
+
+Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer,
+aber weniger genauer, integrierter Indexer benutzt.
+
+Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.
+Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.
+Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.
+Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.</translation>
     </message>
     <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der Threads, die von Clangd benutzt werden. Die globale Indizierung nutzt auch diese Anzahl Threads.</translation>
     </message>
     <message>
         <source>Controls whether clangd may insert header files as part of symbol completion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestimmt, ob Clangd beim Vervollständigen von Symbolen Header-Dateien einfügen darf.</translation>
     </message>
     <message>
         <source>Defines the amount of time Qt Creator waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestimmt die Zeit, die Qt Creator vor dem Senden von Dokumentänderungen an den Server wartet.
+Falls sich das Dokument innerhalb dieser Zeit wieder ändert, wird erneut die volle Zeit gewartet.</translation>
     </message>
     <message>
         <source>Files greater than this will not be opened as documents in clangd.
 The built-in code model will handle highlighting, completion and so on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Größere Dateien werden nicht als Dokumente in Clangd geöffnet.
+Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigung und weitere Funktionen.</translation>
     </message>
     <message>
         <source>The maximum number of completion results returned by clangd.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die maximale Anzahl Resultate die von Clangd für die Code-Vervollständigung zurück gegeben werden.</translation>
     </message>
     <message>
         <source>Use clangd</source>
-        <translation type="unfinished"></translation>
+        <translation>Clangd benutzen</translation>
     </message>
     <message>
         <source>Insert header files on completion</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei Code-Vervollständigung Header-Dateien hinzufügen</translation>
     </message>
     <message>
         <source>Ignore files greater than</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien ignorieren, wenn sie größer sind als</translation>
     </message>
     <message>
         <source>Completion results:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der Resultate der Code-Vervollständigung:</translation>
     </message>
     <message>
         <source>No limit</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Begrenzung</translation>
     </message>
     <message>
         <source>Path to executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur ausführbaren Datei:</translation>
     </message>
     <message>
         <source>Background indexing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Indizierung:</translation>
     </message>
     <message>
         <source>Worker thread count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Thread-Anzahl:</translation>
     </message>
     <message>
         <source>Document update threshold:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitabstand für das Aktualisieren von Dokumenten:</translation>
     </message>
     <message>
         <source>Sessions with a single clangd instance</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzungen mit einer einzigen Clangd-Instanz</translation>
     </message>
     <message>
         <source>By default, Qt Creator runs one clangd process per project.
 If you have sessions with tightly coupled projects that should be
 managed by the same clangd process, add them here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalerweise startet Qt Creator einen Clangd-Prozess pro Projekt.
+Wenn Sie Sitzungen mit eng zusammengehörenden Projekten haben,
+die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hinzu.</translation>
     </message>
     <message>
         <source>Add ...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Choose a session:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitzung wählen:</translation>
     </message>
     <message>
         <source>Additional settings are available via &lt;a href=&quot;https://clangd.llvm.org/config&quot;&gt; clangd configuration files&lt;/a&gt;.&lt;br&gt;User-specific settings go &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;, project-specific settings can be configured by putting a .clangd file into the project source tree.</source>
-        <translation type="unfinished"></translation>
+        <translation>Weitere Einstellungen stehen über &lt;a href=&quot;https://clangd.llvm.org/config&quot;&gt;Clangds Einstellungsdatei&lt;/a&gt; zur Verfügung.&lt;br&gt;Benutzerdefinierte Einstellungen müssen &lt;a href=&quot;%1&quot;&gt;hier&lt;/a&gt; festgelegt werden. Projektabhängige Einstellungen können in einer .clangd-Datei im Quellverzeichnis des Projekts festgelegt werden.</translation>
     </message>
     <message>
         <source>Failed to retrieve clangd version: Unexpected clangd output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Clangd-Version nicht bestimmen. Unerwartete Ausgabe.</translation>
     </message>
     <message>
         <source>The clangd version is %1, but %2 or greater is required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Clangd-Version ist %1, aber %2 oder neuer wird benötigt.</translation>
     </message>
     <message>
         <source>Clangd</source>
-        <translation type="unfinished"></translation>
+        <translation>Clangd</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppEditorOutline</name>
     <message>
         <source>Sort Alphabetically</source>
-        <translation type="unfinished">Alphabetisch sortieren</translation>
+        <translation>Alphabetisch sortieren</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::CppEditorWidget</name>
     <message>
         <source>&amp;Refactor</source>
-        <translation type="unfinished">&amp;Refactoring</translation>
+        <translatorcomment>https://de.wikipedia.org/wiki/Refactoring</translatorcomment>
+        <translation>&amp;Refactoring</translation>
     </message>
 </context>
 <context>
@@ -53493,7 +53542,7 @@ managed by the same clangd process, add them here.</source>
 **   To protect a percent sign, use &apos;%%&apos;.
 **************************************************************************/
 </source>
-        <translation type="unfinished">/**************************************************************************
+        <translation>/**************************************************************************
 ** %1 license header template
 **   Special keywords: %USER% %DATE% %YEAR%
 **   Environment variables: %$VARIABLE%
@@ -53503,42 +53552,42 @@ managed by the same clangd process, add them here.</source>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Choose Location for New License Template File</source>
-        <translation type="unfinished">Dateiname für eine neue Lizenzvorlage</translation>
+        <translation>Dateiname für eine neue Lizenzvorlage</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppFindReferences</name>
     <message>
         <source>Reads</source>
-        <translation type="unfinished"></translation>
+        <translation>Lesezugriffe</translation>
     </message>
     <message>
         <source>Writes</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreibzugriffe</translation>
     </message>
     <message>
         <source>Declarations</source>
-        <translation type="unfinished">Deklarationen</translation>
+        <translation>Deklarationen</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Andere</translation>
+        <translation>Andere</translation>
     </message>
     <message>
         <source>C++ Usages:</source>
-        <translation type="unfinished"></translation>
+        <translation>C++ Referenzen:</translation>
     </message>
     <message>
         <source>Searching for Usages</source>
-        <translation type="unfinished">Suche nach Referenzen</translation>
+        <translation>Suche nach Referenzen</translation>
     </message>
     <message numerus="yes">
         <source>Re&amp;name %n files</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Eine Datei umbe&amp;nennen</numerusform>
             <numerusform>%n Dateien umbe&amp;nennen</numerusform>
         </translation>
@@ -53546,52 +53595,52 @@ managed by the same clangd process, add them here.</source>
     <message>
         <source>Files:
 %1</source>
-        <translation type="unfinished">Dateien:
+        <translation>Dateien:
 %1</translation>
     </message>
     <message>
         <source>C++ Macro Usages:</source>
-        <translation type="unfinished">C++ Macro-Referenzen:</translation>
+        <translation>C++ Macro-Referenzen:</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppIncludesFilter</name>
     <message>
         <source>Matches all files that are included by all C++ files in all projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtert alle Dateien die von allen C++-Dateien aller Projekte eingebunden werden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
-        <translation type="unfinished">&lt;Symbol auswählen&gt;</translation>
+        <translation>&lt;Symbol auswählen&gt;</translation>
     </message>
     <message>
         <source>&lt;No Symbols&gt;</source>
-        <translation type="unfinished">&lt;Keine Symbole&gt;</translation>
+        <translation>&lt;Keine Symbole&gt;</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::CppProjectUpdater</name>
     <message>
         <source>Preparing C++ Code Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereite das C++-Codemodell vor</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Quickfix</name>
     <message>
         <source>Add Class Member &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Klassen-Member &quot;%1&quot; hinzufügen</translation>
     </message>
     <message>
         <source>Provide the type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ bestimmen</translation>
     </message>
     <message>
         <source>Data type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Datentyp:</translation>
     </message>
 </context>
 <context>
@@ -53676,19 +53725,20 @@ managed by the same clangd process, add them here.</source>
     <name>CppEditor::Internal::ConstructorParams</name>
     <message>
         <source>Initialize in Constructor</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Konstruktor initialisieren</translation>
     </message>
     <message>
         <source>Member Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Membername</translation>
     </message>
     <message>
         <source>Parameter Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Parametername</translation>
     </message>
     <message>
         <source>Default Value</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>https://learn.microsoft.com/de-de/cpp/cpp/default-arguments?view=msvc-170</translatorcomment>
+        <translation>Standardwert</translation>
     </message>
 </context>
 <context>
@@ -53719,38 +53769,38 @@ Use drag and drop to change the order of the parameters.</source>
     <name>CppEditor::Internal::CppQuickFixProjectsSettings</name>
     <message>
         <source>Quick Fix settings are saved in a file. Existing settings file &quot;%1&quot; found. Should this file be used or a new one be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für Quick Fixes werden in einer Datei gespeichert. Es wurde eine existierende Einstellungs-Datei &quot;%1&quot; gefunden. Soll diese Datei benutzt, oder eine neue Datei erstellt werden?</translation>
     </message>
     <message>
         <source>Switch Back to Global Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu globalen Einstellungen zurückwechseln</translation>
     </message>
     <message>
         <source>Use Existing</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende benutzen</translation>
     </message>
     <message>
         <source>Create New</source>
-        <translation type="unfinished">Neu erstellen</translation>
+        <translation>Neue erstellen</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::CppQuickFixProjectSettingsWidget</name>
     <message>
         <source>Custom settings are saved in a file. If you use the global settings, you can delete that file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Einstellungen werden in einer Datei gespeichert. Wenn Sie die globalen Einstellungen benutzen, können Sie diese Datei löschen.</translation>
     </message>
     <message>
         <source>Delete Custom Settings File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei mit benutzerdefinierten Einstellungen löschen</translation>
     </message>
     <message>
         <source>Resets all settings to the global settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt alle Einstellungen auf die globalen Einstellungen zurück.</translation>
     </message>
     <message>
         <source>Reset to Global</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf globale Einstellungen zurücksetzen</translation>
     </message>
 </context>
 <context>
@@ -53758,112 +53808,112 @@ Use drag and drop to change the order of the parameters.</source>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Qt</source>
-        <translation type="unfinished">Qt</translation>
+        <translation>Qt</translation>
     </message>
     <message>
         <source>GNU</source>
-        <translation type="unfinished">GNU</translation>
+        <translation>GNU</translation>
     </message>
     <message>
         <source>Old Creator</source>
-        <translation type="unfinished">Veraltete Creator-Konvention</translation>
+        <translation>Veraltete Creator-Konvention</translation>
     </message>
 </context>
 <context>
     <name>CppTypeHierarchyTreeView</name>
     <message>
         <source>Open in Editor</source>
-        <translation type="unfinished">In Editor öffnen</translation>
+        <translation>In Editor öffnen</translation>
     </message>
     <message>
         <source>Open Type Hierarchy</source>
-        <translation type="unfinished">Klassenhierarchie öffnen</translation>
+        <translation>Klassenhierarchie öffnen</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles aufklappen</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle einklappen</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::SymbolsFindFilter</name>
     <message>
         <source>Searching for Symbol</source>
-        <translation type="unfinished">Suche nach Symbol</translation>
+        <translation>Suche nach Symbol</translation>
     </message>
     <message>
         <source>C++ Symbols:</source>
-        <translation type="unfinished">C++-Symbole:</translation>
+        <translation>C++-Symbole:</translation>
     </message>
     <message>
         <source>Classes</source>
-        <translation type="unfinished">Klassen</translation>
+        <translation>Klassen</translation>
     </message>
     <message>
         <source>Functions</source>
-        <translation type="unfinished">Funktionen</translation>
+        <translation>Funktionen</translation>
     </message>
     <message>
         <source>Enums</source>
-        <translation type="unfinished">Enumerationen</translation>
+        <translation>Enumerationen</translation>
     </message>
     <message>
         <source>Declarations</source>
-        <translation type="unfinished">Deklarationen</translation>
+        <translation>Deklarationen</translation>
     </message>
     <message>
         <source>Scope: %1
 Types: %2
 Flags: %3</source>
-        <translation type="unfinished">Bereich: %1
+        <translation>Bereich: %1
 Typen: %2
 Flags: %3</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Projects</source>
-        <translation type="unfinished">Projekte</translation>
+        <translation>Projekte</translation>
     </message>
 </context>
 <context>
     <name>CppEditor::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
-        <translation type="unfinished">Typen:</translation>
+        <translation>Typen:</translation>
     </message>
     <message>
         <source>Classes</source>
-        <translation type="unfinished">Klassen</translation>
+        <translation>Klassen</translation>
     </message>
     <message>
         <source>Functions</source>
-        <translation type="unfinished">Funktionen</translation>
+        <translation>Funktionen</translation>
     </message>
     <message>
         <source>Enums</source>
-        <translation type="unfinished">Enumerationen</translation>
+        <translation>Enumerationen</translation>
     </message>
     <message>
         <source>Declarations</source>
-        <translation type="unfinished">Deklarationen</translation>
+        <translation>Deklarationen</translation>
     </message>
     <message>
         <source>Projects only</source>
-        <translation type="unfinished">Nur Projekte</translation>
+        <translation>Nur Projekte</translation>
     </message>
     <message>
         <source>All files</source>
-        <translation type="unfinished">Alle Dateien</translation>
+        <translation>Alle Dateien</translation>
     </message>
 </context>
 <context>
@@ -55310,91 +55360,91 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <name>ProjectExplorer::SeparateDebugInfoAspect</name>
     <message>
         <source>Separate debug info:</source>
-        <translation type="unfinished"></translation>
+        <translation>Separate Debug-Information:</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::CustomParsersBuildWidget</name>
     <message>
         <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Ausgabe-Parser</translation>
     </message>
     <message>
         <source>Parse standard output during build</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardausgabe während des Erstellens auswerten</translation>
     </message>
     <message>
         <source>Makes output parsers look for diagnostics on stdout rather than stderr.</source>
-        <translation type="unfinished"></translation>
+        <translation>Veranlasst Parser, in der Standardausgabe anstelle der Standardfehlerausgabe nach Diagnosemeldungen zu suchen.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::BuildPropertiesSettings</name>
     <message>
         <source>Enable</source>
-        <translation type="unfinished">Aktivieren</translation>
+        <translation>Aktivieren</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished">Deaktivieren</translation>
+        <translation>Deaktivieren</translation>
     </message>
     <message>
         <source>Use Project Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt-Vorgabe benutzen</translation>
     </message>
     <message>
         <source>Default build directory:</source>
-        <translation type="unfinished">Vorgabe-Build-Verzeichnis:</translation>
+        <translation>Vorgabe-Build-Verzeichnis:</translation>
     </message>
     <message>
         <source>Separate debug info:</source>
-        <translation type="unfinished"></translation>
+        <translation>Separate Debug-Information:</translation>
     </message>
     <message>
         <source>QML debugging:</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Debuggen:</translation>
     </message>
     <message>
         <source>Use qmlcachegen:</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlcachegen benutzen:</translation>
     </message>
     <message>
         <source>Default Build Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Build-Eigenschaften</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::CodeStyleSettingsWidget</name>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">Sprache:</translation>
+        <translation>Sprache:</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::CustomParsersAspect</name>
     <message>
         <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Ausgabe-Parser</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SelectionWidget</name>
     <message>
         <source>Custom output parsers scan command line output for user-provided error patterns&lt;br&gt;to create entries in Issues.&lt;br&gt;The parsers can be configured &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Parser werten die Kommandozeilenausgabe mit vom Benutzer gewählten Fehler-Suchmustern aus.&lt;br&gt;Sie können diese Parser &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; konfigurieren.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::CustomParsersSelectionWidget</name>
     <message>
         <source>There are no custom parsers active</source>
-        <translation type="unfinished"></translation>
+        <translation>Es sind keine benutzerdefinierten Parser aktiv</translation>
     </message>
     <message numerus="yes">
         <source>There are %n custom parsers active</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Es ist ein benutzerdefinierter Parser aktiv</numerusform>
+            <numerusform>Es sind %n benutzerdefinierte Parser aktiv</numerusform>
         </translation>
     </message>
 </context>
@@ -55402,186 +55452,186 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <name>ProjectExplorer::DeviceFileSystemModel</name>
     <message>
         <source>File Type</source>
-        <translation type="unfinished">Dateityp</translation>
+        <translation>Dateityp</translation>
     </message>
     <message>
         <source>File Name</source>
-        <translation type="unfinished">Dateiname</translation>
+        <translation>Dateiname</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::FileTransferPrivate</name>
     <message>
         <source>No device set for test transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät für die Testübertragung gesetzt.</translation>
     </message>
     <message>
         <source>No files to transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Dateien zu übertragen.</translation>
     </message>
     <message>
         <source>Missing transfer implementation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Implementation der Dateiübertragungsmethode nicht vorhanden.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::FileTransfer</name>
     <message>
         <source>sftp</source>
-        <translation type="unfinished"></translation>
+        <translation>sftp</translation>
     </message>
     <message>
         <source>rsync</source>
-        <translation type="unfinished"></translation>
+        <translation>rsync</translation>
     </message>
     <message>
         <source>generic file copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Generisches Dateikopieren</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::EditorSettingsWidget</name>
     <message>
         <source>Restore Global</source>
-        <translation type="unfinished">Globale Einstellungen wiederherstellen</translation>
+        <translation>Globale Einstellungen wiederherstellen</translation>
     </message>
     <message>
         <source>Display Settings</source>
-        <translation type="unfinished">Anzeigeeinstellungen</translation>
+        <translation>Anzeigeeinstellungen</translation>
     </message>
     <message>
         <source>Display right &amp;margin at column:</source>
-        <translation type="unfinished">Rechten &amp;Rand anzeigen bei Spalte:</translation>
+        <translation>Rechten &amp;Rand anzeigen bei Spalte:</translation>
     </message>
     <message>
         <source>Use context-specific margin</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontextspezifischen Rand verwenden</translation>
     </message>
     <message>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzt unterschiedlichen Rand abhängig vom Kontext, falls verfügbar. Zum Beispiel das ColumnLimit vom ClangFormat Plugin.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::FilesInAllProjectsFind</name>
     <message>
         <source>Files in All Project Directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien in allen Projektverzeichnissen</translation>
     </message>
     <message>
         <source>Files in All Project Directories:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien in allen Projektverzeichnissen:</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::TargetTripleWidget</name>
     <message>
         <source>Override for code model</source>
-        <translation type="unfinished"></translation>
+        <translation>Für Codemodell überschreiben</translation>
     </message>
     <message>
         <source>Enable in the rare case that the code model
 fails because Clang does not understand the target architecture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivieren Sie diese Einstellung, falls das Codemodell Fehler anzeigt, weil Clang die Zielarchitektur nicht versteht.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::BuildDeviceKitAspect</name>
     <message>
         <source>Build device</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Gerät</translation>
     </message>
     <message>
         <source>The device used to build applications on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät, auf dem Anwendungen erstellt werden.</translation>
     </message>
     <message>
         <source>No build device set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Build-Gerät gesetzt.</translation>
     </message>
     <message>
         <source>Unconfigured</source>
-        <translation type="unfinished">Nicht konfiguriert</translation>
+        <translation>Nicht konfiguriert</translation>
     </message>
     <message>
         <source>Build host address</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostadresse des Build-Geräts</translation>
     </message>
     <message>
         <source>Build SSH port</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Port des Build-Geräts</translation>
     </message>
     <message>
         <source>Build user name</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername des Build-Geräts</translation>
     </message>
     <message>
         <source>Build private key file</source>
-        <translation type="unfinished"></translation>
+        <translation>Private Schlüsseldatei des Build-Geräts</translation>
     </message>
     <message>
         <source>Build device name</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Gerätename</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::RunAsRootAspect</name>
     <message>
         <source>Run as root user</source>
-        <translation type="unfinished"></translation>
+        <translation>Als root-Benutzer ausführen</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::InterpreterAspect</name>
     <message>
         <source>Manage...</source>
-        <translation type="unfinished">Verwalten...</translation>
+        <translation>Verwalten...</translation>
     </message>
     <message>
         <source>Interpreter</source>
-        <translation type="unfinished">Interpreter</translation>
+        <translation>Interpreter</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SimpleTargetRunnerPrivate</name>
     <message>
         <source>Cannot retrieve debugging output.</source>
-        <translation type="unfinished">Es konnte keine Debug-Ausgabe erhalten werden.</translation>
+        <translation>Es konnte keine Debug-Ausgabe erhalten werden.</translation>
     </message>
     <message>
         <source>User requested stop. Shutting down...</source>
-        <translation type="unfinished">Abbruch auf Nutzeranforderung...</translation>
+        <translation>Abbruch auf Nutzeranforderung...</translation>
     </message>
     <message>
         <source>Cannot run: No command given.</source>
-        <translation type="unfinished">Keine Ausführung möglich: Kein Kommando angegeben.</translation>
+        <translation>Keine Ausführung möglich: Kein Kommando angegeben.</translation>
     </message>
     <message>
         <source>%1 exited with code %2</source>
-        <translation type="unfinished">%2 wurde mit dem Rückgabewert %2 beendet {1 ?}</translation>
+        <translation>%1 wurde mit dem Rückgabewert %2 beendet</translation>
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation type="unfinished">%1 ist abgestürzt.</translation>
+        <translation>%1 ist abgestürzt.</translation>
     </message>
     <message>
         <source>The process was ended forcefully.</source>
-        <translation type="unfinished">Der Prozess wurde gestoppt.</translation>
+        <translation>Der Prozess wurde gestoppt.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake or CMake Project (Limited Functionality)</source>
-        <translation type="unfinished"></translation>
+        <translation>Als qmake- oder CMake-Projekt importieren (eingeschränkte Funktionalität)</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.&lt;p&gt;This creates a project file that allows you to use %1 as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importiert ein existierendes Projekt, dass nicht qmake, CMake, Qbs, Meson oder Autotools benutzt.&lt;p&gt;Dies erstellt eine Projektdatei, die Ihnen erlaubt, %1 als Code-Editor und zum Starten des Debuggers und von Analysewerkzeugen zu benutzen. Wenn Sie das Projekt bauen wollen, müssen Sie die generierte Datei möglicherweise anpassen.</translation>
     </message>
     <message>
         <source>Unknown build system &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekanntes Build-System &quot;%1&quot;</translation>
     </message>
 </context>
 <context>

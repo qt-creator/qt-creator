@@ -129,19 +129,20 @@ bool ObjectsMapTreeItem::parseProperties(const QByteArray &properties)
     if (properties.isEmpty() || properties.at(0) != '{')
         return false;
 
+    QString p = QString::fromUtf8(properties);
     ParseState state = None;
-    QByteArray name;
-    QByteArray value;
-    QByteArray oper;
+    QString name;
+    QString value;
+    QString oper;
     bool masquerading = false;
-    for (char c : properties) {
+    for (QChar c : p) {
         if (masquerading) {
             value.append('\\').append(c);
             masquerading = false;
             continue;
         }
 
-        switch (c) {
+        switch (c.unicode()) {
         case '=':
             if (state == Value) {
                 value.append(c);
@@ -171,7 +172,7 @@ bool ObjectsMapTreeItem::parseProperties(const QByteArray &properties)
             } else if (state == Value) {
                 state = None;
                 Property prop;
-                if (!prop.set(QLatin1String(name), QLatin1String(oper), QLatin1String(value))) {
+                if (!prop.set(name, oper, value)) {
                     propertyRoot->removeChildren();
                     return false;
                 }
@@ -213,7 +214,7 @@ bool ObjectsMapTreeItem::parseProperties(const QByteArray &properties)
             }
             break;
         default:
-            if (QChar::isSpace(c)) {
+            if (c.isSpace()) {
                 if (state == Value) {
                     value.append(c);
                 } else if (state == Name) {
@@ -282,7 +283,14 @@ void ObjectsMapModel::addNewObject(ObjectsMapTreeItem *item)
     QTC_ASSERT(item, return );
     QTC_ASSERT(rootItem(), return );
 
-    rootItem()->appendChild(item);
+    auto parentItem = rootItem();
+    const QString parentName = item->parentName();
+    if (!parentName.isEmpty()) {
+        if (auto found = findItem(parentName))
+            parentItem = found;
+    }
+
+    parentItem->appendChild(item);
     emit modelChanged();
 }
 

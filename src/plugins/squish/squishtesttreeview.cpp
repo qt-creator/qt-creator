@@ -178,7 +178,7 @@ static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePat
     const Utils::FilePath scripts = s->scriptsPath(suiteConf.language());
     const Utils::FilePath test = scripts.pathAppended(testStr + extension);
     const Utils::FilePath testFile = destination.pathAppended("test" + extension);
-    QTC_ASSERT(testFile.exists(), return false);
+    QTC_ASSERT(!testFile.exists(), return false);
     ok = test.copyFile(testFile);
     QTC_ASSERT(ok, return false);
 

@@ -300,6 +300,7 @@ private:
     int _methodKey;
     bool _skipFunctionBodies;
     int _depth;
+    bool _typeWasUnsignedOrSigned = false;
 };
 
 } // namespace CPlusPlus

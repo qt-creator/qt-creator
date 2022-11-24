@@ -10,7 +10,9 @@
 #include <qt_windows.h>
 #else
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include <unistd.h>
 #endif
 
@@ -127,7 +129,7 @@ void ProcessHelper::interruptPid(qint64 pid)
 #ifdef Q_OS_WIN
     EnumWindows(sendInterruptMessageToAllWindowsOfProcess_enumWnd, pid);
 #else
-    Q_UNUSED(pid)
+    ::kill(pid, SIGINT);
 #endif
 }
 

@@ -276,8 +276,25 @@ FullySpecifiedType Bind::postfixDeclarator(PostfixDeclaratorAST *ast, const Full
     return value;
 }
 
-bool Bind::preVisit(AST *)
+bool Bind::preVisit(AST *ast)
 {
+    if (_typeWasUnsignedOrSigned) {
+        if (SimpleSpecifierAST *simpleAst = ast->asSimpleSpecifier()) {
+            switch (tokenKind(simpleAst->specifier_token)) {
+                case T_CHAR:
+                case T_CHAR16_T:
+                case T_CHAR32_T:
+                case T_WCHAR_T:
+                case T_INT:
+                case T_SHORT:
+                case T_LONG:
+                    _type.setType(&UndefinedType::instance);
+                    break;
+            }
+        }
+        _typeWasUnsignedOrSigned = false;
+    }
+
     ++_depth;
     if (_depth > kMaxDepth)
         return false;
@@ -2980,13 +2997,17 @@ bool Bind::visit(SimpleSpecifierAST *ast)
         case T_SIGNED:
             if (_type.isSigned())
                 translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setType(control()->integerType(IntegerType::Int));
             _type.setSigned(true);
+            _typeWasUnsignedOrSigned = true;
             break;
 
         case T_UNSIGNED:
             if (_type.isUnsigned())
                 translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
+            _type.setType(control()->integerType(IntegerType::Int));
             _type.setUnsigned(true);
+            _typeWasUnsignedOrSigned = true;
             break;
 
         case T_CHAR:

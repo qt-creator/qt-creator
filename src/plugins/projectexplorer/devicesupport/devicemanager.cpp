@@ -174,7 +174,7 @@ void DeviceManager::load()
     // devices with the same id.
     for (IDevice::ConstPtr device : std::as_const(userDevices)) {
         for (const IDevice::Ptr &sdkDevice : std::as_const(sdkDevices)) {
-            if (device->id() == sdkDevice->id()) {
+            if (device->id() == sdkDevice->id() || device->rootPath() == sdkDevice->rootPath()) {
                 if (device->version() < sdkDevice->version())
                     device = sdkDevice;
                 sdkDevices.removeOne(sdkDevice);

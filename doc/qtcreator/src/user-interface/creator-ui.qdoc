@@ -50,17 +50,14 @@
     \endif
 
     \if defined(qtcreator)
-    You can use the \l{Selecting Modes}{mode selector} (1) to change to another
-    \QC mode.
+    Use the \l{Selecting Modes}{mode selector} (1) to change to another \QC mode.
 
-    You can use the kit selector (2) to select the
-    \l{glossary-buildandrun-kit}{kit} for running (3), debugging (4), or
-    building (5) the application. Output from these actions is displayed on
-    the task bar (7).
+    Use the kit selector (2) to select the \l{glossary-buildandrun-kit}{kit} for
+    running (3), debugging (4), or building (5) the application. The task bar (7)
+    displays output from these actions.
 
-    You can use the \l{Searching with the Locator}{locator} (6) to browse
-    through projects, files, classes, functions, documentation, and file
-    systems.
+    Use the \l{Searching with the Locator}{locator} (6) to browse through
+    projects, files, classes, functions, documentation, and file systems.
 
     For a quick tour of the user interface that takes you to the locations of
     these controls, select \uicontrol Help > \uicontrol {UI Tour}.
@@ -147,8 +144,8 @@
 
     \section1 Changing Languages
 
-    \QC has been localized into several languages. If the system language
-    is one of the supported languages, it is automatically selected. To
+    \QC has several language versions. If the system language
+    is one of the supported languages, \QC selects it automatically. To
     change the language, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Environment and select a language in the \uicontrol Language
     field. Select \uicontrol {Restart Now} to restart \QC and have the change
@@ -156,16 +153,16 @@
 
     \section1 High DPI Scaling
 
-    The operating systems supported by \QC implement high dots-per-inch (DPI)
+    The operating systems that \QC supports implement high dots-per-inch (DPI)
     scaling at varying levels. Therefore, \QC handles high DPI scaling
     differently on different operating systems:
 
     \list
-        \li On \macos, high DPI scaling is forced, which means that \QC allows
+        \li On \macos, \QC forces high DPI scaling, which means that it allows
             Qt to use the system scaling factor as the \QC scaling factor.
-        \li On Windows, if no \l{High DPI}{scaling environment variables} are
-            set, \QC instructs Qt to detect the scaling factor and use it for
-            \QC.
+        \li On Windows, if you do not set \l{High DPI}
+            {scaling environment variables}, \QC instructs Qt to detect the
+            scaling factor and use it as the \QC scaling factor.
         \li On Linux, \QC leaves it to the user to enable high DPI scaling
             because the process varies so much on different distributions
             and windowing systems that it cannot be reliably done automatically.
@@ -257,14 +254,14 @@
 
     \list
 
-        \li On Linux and other Unix platforms, the files are located in
+        \li On Linux and other Unix platforms, look in
             \c {~/.config/QtProject} and
             \c {~/.local/share/data/QtProject/qtcreator}.
 
-        \li On \macos, the files are located in \c {~/.config/QtProject} and
+        \li On \macos, look in \c {~/.config/QtProject} and
             \c {~/Library/Application Support/QtProject/Qt Creator}.
 
-        \li On Windows, the files are located in
+        \li On Windows, look in
             \c {%appdata%\QtProject} and \c {%localappdata%\QtProject}.
 
     \endlist
@@ -288,8 +285,8 @@
 
     \if defined(qtcreator)
     The mode selector allows you to quickly switch between tasks such as editing
-    project and source files, designing application UIs, configuring how
-    projects are built and executed, and debugging your applications. To change
+    project and source files, designing application UIs, configuring projects for
+    building and running, and debugging your applications. To change
     modes, click the icons, or use the \l{keyboard-shortcuts}
     {corresponding keyboard shortcut}.
 
@@ -533,7 +530,7 @@
     To jump from one issue to the next or previous one, press \key F6 and
     \key Shift+F6.
 
-    By default, the \uicontrol Issues view is cleared on a new build. To keep
+    By default, a new build clears the \uicontrol Issues view. To keep
     the issues from the previous build rounds, deselect \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General >
     \uicontrol {Clear issues list on new build}.
@@ -545,8 +542,8 @@
 
     \image qtcreator-search-results.png "Search Results"
 
-    The search results are stored in the search history (1) from which you can
-    select earlier searches.
+    The search history (1) stores the search results. You can select earlier
+    searches from the history.
 
     The figure below shows an example search result for all
     occurrences of the search string in the specified directory.
@@ -559,7 +556,7 @@
     \section1 Application Output
 
     \uicontrol{Application Output} displays the status of a program when
-    it is executed, and the debug output.
+    you execute it, and the debug output.
 
     \image qtcreator-application-output.png
 

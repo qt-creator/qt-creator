@@ -150,4 +150,11 @@ Environment DesktopDevice::systemEnvironment() const
     return Environment::systemEnvironment();
 }
 
+FilePath DesktopDevice::rootPath() const
+{
+    if (id() == DESKTOP_DEVICE_ID)
+        return FilePath::fromParts({}, {}, QDir::rootPath());
+    return IDevice::rootPath();
+}
+
 } // namespace ProjectExplorer

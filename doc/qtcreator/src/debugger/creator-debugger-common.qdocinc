@@ -62,7 +62,7 @@
     breakpoint in the \uicontrol Breakpoints view.
 
     At various times, attempts are made to implant pending breakpoints into
-    the debugged process. Succesfull implantation might create one or more
+    the debugged process. Successful implantation might create one or more
     implanted breakpoints, each associated with an actual address in
     the debugged breakpoint. The implantation might also move a breakpoint
     marker in the editor from an empty line to the next line for which the
@@ -389,7 +389,7 @@
     to the most powerful feature of the debugger: comprehensive display of data
     belonging to Qt's basic objects. For example, in case of QObject, instead of
     displaying a pointer to some private data structure, you see a list of
-    children, signals and slots.
+    children, signals, and slots.
 
     Similarly, instead of displaying many pointers and integers, \QC's debugger
     displays the contents of a QHash or QMap in an orderly manner. Also, the

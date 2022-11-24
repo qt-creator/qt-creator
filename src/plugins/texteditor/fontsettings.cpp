@@ -336,7 +336,7 @@ qreal FontSettings::lineSpacing() const
     currentFont.setPointSize(m_fontSize * m_fontZoom / 100);
     qreal spacing = QFontMetricsF(currentFont).lineSpacing();
     if (m_lineSpacing != 100)
-        spacing *= 100 / m_lineSpacing;
+        spacing *= qreal(m_lineSpacing) / 100;
     return spacing;
 }
 

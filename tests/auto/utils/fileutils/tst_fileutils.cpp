@@ -30,6 +30,9 @@ signals:
 private slots:
     void initTestCase();
 
+    void isEmpty_data();
+    void isEmpty();
+
     void parentDir_data();
     void parentDir();
 
@@ -141,6 +144,29 @@ void tst_fileutils::initTestCase()
 
     // initialize test for tst_fileutils::asyncLocalCopy()
     touch(dir, "x/y/fileToCopy.txt", true);
+}
+
+void tst_fileutils::isEmpty_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<bool>("result");
+
+    QTest::newRow("empty path") << "" << true;
+    QTest::newRow("root only") << "/" << false;
+    QTest::newRow("//") << "//" << false;
+    QTest::newRow("scheme://host") << "scheme://host" << true;   // Intentional (for now?)
+    QTest::newRow("scheme://host/") << "scheme://host/" << false;
+    QTest::newRow("scheme://host/a") << "scheme://host/a" << false;
+    QTest::newRow("scheme://host/.") << "scheme://host/." << false;
+}
+
+void tst_fileutils::isEmpty()
+{
+    QFETCH(QString, path);
+    QFETCH(bool, result);
+
+    FilePath filePath = FilePath::fromString(path);
+    QCOMPARE(filePath.isEmpty(), result);
 }
 
 void tst_fileutils::parentDir_data()

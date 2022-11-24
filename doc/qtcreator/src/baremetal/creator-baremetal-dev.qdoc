@@ -99,7 +99,7 @@
         \li In the \uicontrol Type field, select the interface type.
 
         \li In the \uicontrol Speed field, enter the interface speed between
-            120 and 8000 kiloherz (kHz).
+            120 and 8000 kilohertz (kHz).
 
         \li Select the \uicontrol {Disable cache} check box to disable the
             \EBlink flash cache.

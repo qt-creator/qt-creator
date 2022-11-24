@@ -48,7 +48,7 @@
 
     \section1 Creating Custom QML Types
 
-    Because the \l Window QML type requires states to be added into child
+    Because the \l Window QML type requires that you add states into child
     components, we use the wizard to create a custom QML type called
     \e Page that we will refer to from \e main.qml.
 
@@ -126,7 +126,7 @@
     To make the image move between the rectangles when users click them, we add
     states to the Page component, where we change the values of the \c x and
     \c y properties of \e icon to match those of the middle right and top left
-    rectangles. To make sure that the image is displayed within the rectangle
+    rectangles. To make sure that the image stays within the rectangle
     when the view is scaled on different sizes of screens, we \e bind the values
     of the \c x and \c y properties of \e icon to those of the rectangles:
 

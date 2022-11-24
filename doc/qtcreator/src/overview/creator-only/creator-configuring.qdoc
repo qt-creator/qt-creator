@@ -36,12 +36,12 @@
     \QC is an integrated development environment (IDE) that you can use to
     develop Qt applications. While you can use the Qt Installer to install \QC,
     the stand-alone \QC installer never installs Qt or any Qt tools, such as
-    qmake. To use \QC for Qt development, you also need to have a Qt version
-    and a compiler installed. If you update the compiler version later, you
+    qmake. To use \QC for Qt development, you also need to install a Qt version
+    and a compiler. If you update the compiler version later, you
     can register it into \QC.
 
-    The Qt Installer attempts to auto-detect the installed compilers and Qt
-    versions. If it succeeds, the relevant kits will automatically become
+    The Qt Installer attempts to auto-detect compilers and Qt versions. If it
+    succeeds, the relevant kits will automatically become
     available in \QC. If it does not, you must add the kits yourself to tell
     \QC where everything is.
 
@@ -51,18 +51,17 @@
     For more information, see \l{Adding Kits}.
 
     Each kit consists of a set of values that define one environment, such as a
-    \l{glossary-device}{device}, compiler, and Qt version. If you know you have
-    installed a Qt version, but it is not listed in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits > \uicontrol {Qt Versions}, select
-    \uicontrol {Link with Qt}.
+    \l{glossary-device}{device}, compiler, and Qt version. If \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Kits > \uicontrol {Qt Versions} does not
+    show all the installed Qt versions, select \uicontrol {Link with Qt}.
 
-    If the Qt version is still not listed under \uicontrol Auto-detected, select
+    If \uicontrol Auto-detected still does not show the Qt version, select
     \uicontrol {Add} to add it manually.
 
     For more information, see \l{Adding Qt Versions}.
 
-    Also check that your compiler is listed in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits > \uicontrol {Compilers}.
+    Also check that \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+    \uicontrol {Compilers} shows your compiler.
 
     For more information, see \l{Adding Compilers}.
 
@@ -95,8 +94,8 @@
     in the \uicontrol Theme field.
 
     You can use the \QC text and code editors with your favorite color scheme
-    that defines how code elements are highlighted and which background color is
-    used. You can select one of the predefined color schemes or create custom
+    that defines how to highlight code elements and which background color to
+    use. You can select one of the predefined color schemes or create custom
     ones. The color schemes apply to highlighting C++ files, QML files, and
     generic files.
 
@@ -105,11 +104,10 @@
 
     For more information, see \l{Defining Color Schemes}.
 
-    Generic highlighting is provided by
     \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
-    {KSyntaxHighlighting}, which is the syntax highlighting engine for Kate
-    syntax definitions. \QC comes with most of the commonly used syntax files,
-    and you can download additional files.
+    {KSyntaxHighlighting} provides generic highlighting. It is the syntax
+    highlighting engine for Kate syntax definitions. \QC comes with most of
+    the commonly used syntax files, and you can download additional files.
 
     To download and use highlight definition files, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
@@ -132,7 +130,7 @@
 
     \QC supports several version control systems. In most cases, you do not need
     to configure the version control in any special way to make it work with
-    \QC. Once it is set up correctly on the development PC, it should just work.
+    \QC.
 
     However, some configuration options are available and you can set them in
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Version Control} >
@@ -147,9 +145,9 @@
     You can enable disabled plugins if you need them and disable plugins you
     don't need.
 
-    You can also install additional plugins that you downloaded from
-    \l{https://marketplace.qt.io/}{Qt Marketplace} or some other source,
-    such as \l{https://github.com/}{GitHub}.
+    You can download and install additional plugins from
+    \l{https://marketplace.qt.io/}{Qt Marketplace} or some
+    other source, such as \l{https://github.com/}{GitHub}.
 
     \section2 Enabling and Disabling Plugins
 
@@ -174,7 +172,7 @@
     browse the available plugins in the \uicontrol Marketplace tab in the
     Welcome mode.
 
-    \note You can install only plugins that are supported by your \QC version.
+    \note You can install only plugins that your \QC version supports.
 
     To install plugins:
 

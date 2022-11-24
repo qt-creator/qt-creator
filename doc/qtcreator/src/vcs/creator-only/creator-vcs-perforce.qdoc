@@ -17,10 +17,15 @@
     Perforce is a fast software configuration management system developed by
     Perforce Software.
 
-    Since \QC 4.9, the Perforce plugin is disabled by default. To enable
-    it, select \uicontrol Help > \uicontrol {About Plugins} >
-    \uicontrol {Version Control} > \uicontrol Perforce. Then select
-    \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \section1 Enabling the Perforce Plugin
+
+    To enable the Perforce plugin:
+
+    \list 1
+        \li Select \uicontrol Help > \uicontrol {About Plugins} >
+        \uicontrol {Version Control} > \uicontrol Perforce.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \endlist
 
     \section1 Configuring Perforce
 
@@ -29,8 +34,8 @@
     specify the details individually for several projects, use configuration
     files instead. Create a \c {p4config.txt} configuration file for each
     project in the top level project directory, and run
-    \c{p4 set P4CONFIG=p4config.txt} once. Note that
-    \uicontrol {Environment Variables} must be unchecked.
+    \c{p4 set P4CONFIG=p4config.txt} once. You must deselect the
+    \uicontrol {Environment Variables} check box.
 
     \section1 Editing Files
 
@@ -49,11 +54,11 @@
     To group files for commit, select \uicontrol Tools > \uicontrol Perforce >
     \uicontrol {Pending Changes}.
 
-    To view information about changelists and the files in them, select
+    To view information about change lists and the files in them, select
     \uicontrol Tools > \uicontrol Perforce > \uicontrol Describe.
 
-    By default, you are prompted to confirm that you want to submit changes.
-    To suppress the prompt, select \uicontrol Edit > \uicontrol Preferences >
+    By default, you must confirm that you want to submit changes. To suppress
+    the confirmation prompt, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol {Version Control} > \uicontrol Perforce, and then deselect the
     \uicontrol {Prompt on submit} check box.
 */

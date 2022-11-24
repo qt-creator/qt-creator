@@ -97,7 +97,7 @@
        \row
             \li {1,2} General
             \li Empty File
-            \li Empty file that you can save with any filename extensio.
+            \li Empty file that you can save with any filename extension.
         \row
             \li Scratch Buffer
             \li Scratch buffer that uses temporary files. You can

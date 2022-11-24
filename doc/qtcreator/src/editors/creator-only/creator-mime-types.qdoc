@@ -34,7 +34,7 @@
 
     \QC searches for the value within a specified range in the files and takes
     the priority of the magic header into account. If you specify wide search
-    ranges, openging files in \QC might take a long time. Therefore, you are
+    ranges, opening files in \QC might take a long time. Therefore, you are
     advised to use the recommended values for the range and priority of the
     magic header.
 

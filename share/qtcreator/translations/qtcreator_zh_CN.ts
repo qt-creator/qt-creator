@@ -5,269 +5,270 @@
     <name>ADS::DockAreaTitleBar</name>
     <message>
         <source>Detach Area</source>
-        <translation type="unfinished"></translation>
+        <translation>分离区域</translation>
     </message>
     <message>
         <source>Close Area</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭区域</translation>
     </message>
     <message>
         <source>Close Other Areas</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭其它区域</translation>
     </message>
 </context>
 <context>
     <name>ADS::DockManager</name>
     <message>
         <source>Cannot Save Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>无法保存工作区</translation>
     </message>
     <message>
         <source>Could not save workspace to file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法保存工作区到 %1 文件</translation>
     </message>
     <message>
         <source>Delete Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>删除工作区</translation>
     </message>
     <message>
         <source>Delete Workspaces</source>
-        <translation type="unfinished"></translation>
+        <translation>删除工作区</translation>
     </message>
     <message>
         <source>Delete workspace %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除 %1 工作区？</translation>
     </message>
     <message>
         <source>Delete these workspaces?
     %1</source>
-        <translation type="unfinished"></translation>
+        <translation>删除这些工作区？
+    %1</translation>
     </message>
     <message>
         <source>Cannot Restore Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>无法恢复工作区</translation>
     </message>
     <message>
         <source>Could not restore workspace %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法恢复 %1 工作区</translation>
     </message>
 </context>
 <context>
     <name>ADS::DockWidgetTab</name>
     <message>
         <source>Detach</source>
-        <translation type="unfinished">分离</translation>
+        <translation>分离</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">关闭</translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <source>Close Others</source>
-        <translation type="unfinished">关闭其他</translation>
+        <translation>关闭其它</translation>
     </message>
 </context>
 <context>
     <name>ADS::WorkspaceDialog</name>
     <message>
         <source>Workspace Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>工作区管理器</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">新建(&amp;N)</translation>
+        <translation>新建(&amp;N)</translation>
     </message>
     <message>
         <source>&amp;Rename</source>
-        <translation type="unfinished">重命名(&amp;R)</translation>
+        <translation>重命名(&amp;R)</translation>
     </message>
     <message>
         <source>C&amp;lone</source>
-        <translation type="unfinished">克隆(&amp;L)</translation>
+        <translation>克隆(&amp;L)</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">删除(&amp;D)</translation>
+        <translation>删除(&amp;D)</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">重置</translation>
+        <translation>重置</translation>
     </message>
     <message>
         <source>&amp;Switch To</source>
-        <translation type="unfinished"></translation>
+        <translation>切换到(&amp;S)</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished">导入</translation>
+        <translation>导入</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>导出</translation>
     </message>
     <message>
         <source>Restore last workspace on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>启动时恢复上一个工作区</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;What is a Workspace?&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-workspaces.html&quot;&gt;什么是工作区？&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
     <name>ADS::WorkspaceModel</name>
     <message>
         <source>Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>工作区</translation>
     </message>
     <message>
         <source>Last Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>上次修改</translation>
     </message>
     <message>
         <source>New Workspace Name</source>
-        <translation type="unfinished"></translation>
+        <translation>新工作区名称</translation>
     </message>
     <message>
         <source>&amp;Create</source>
-        <translation type="unfinished">创建(&amp;C)</translation>
+        <translation>创建(&amp;C)</translation>
     </message>
     <message>
         <source>Create and &amp;Open</source>
-        <translation type="unfinished"></translation>
+        <translation>创建并打开(&amp;O)</translation>
     </message>
     <message>
         <source>&amp;Clone</source>
-        <translation type="unfinished"></translation>
+        <translation>克隆(&amp;C)</translation>
     </message>
     <message>
         <source>Clone and &amp;Open</source>
-        <translation type="unfinished"></translation>
+        <translation>克隆并打开(&amp;O)</translation>
     </message>
     <message>
         <source>Rename Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名工作区</translation>
     </message>
     <message>
         <source>&amp;Rename</source>
-        <translation type="unfinished">重命名(&amp;R)</translation>
+        <translation>重命名(&amp;R)</translation>
     </message>
     <message>
         <source>Rename and &amp;Open</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名并打开(&amp;O)</translation>
     </message>
 </context>
 <context>
     <name>ADS::WorkspaceNameInputDialog</name>
     <message>
         <source>Enter the name of the workspace:</source>
-        <translation type="unfinished"></translation>
+        <translation>输入工作区名称：</translation>
     </message>
 </context>
 <context>
     <name>ADS::WorkspaceView</name>
     <message>
         <source>Import Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>导入工作区</translation>
     </message>
     <message>
         <source>Export Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>导出工作区</translation>
     </message>
 </context>
 <context>
     <name>AccountImage</name>
     <message>
         <source>Account</source>
-        <translation type="unfinished"></translation>
+        <translation>账号</translation>
     </message>
 </context>
 <context>
     <name>AddImageToResources</name>
     <message>
         <source>File Name</source>
-        <translation type="unfinished">文件名</translation>
+        <translation>文件名</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
     <message>
         <source>Add Resources</source>
-        <translation type="unfinished"></translation>
+        <translation>添加资源</translation>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">浏览(&amp;B)...</translation>
+        <translation>浏览(&amp;B)...</translation>
     </message>
     <message>
         <source>Target Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>目标路径</translation>
     </message>
 </context>
 <context>
     <name>AddImplementationsDialog</name>
     <message>
         <source>Member Function Implementations</source>
-        <translation type="unfinished"></translation>
+        <translation>成员函数实现</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Inline</source>
-        <translation type="unfinished"></translation>
+        <translation>内联</translation>
     </message>
     <message>
         <source>Outside Class</source>
-        <translation type="unfinished"></translation>
+        <translation>类外</translation>
     </message>
     <message>
         <source>Default implementation location:</source>
-        <translation type="unfinished"></translation>
+        <translation>默认实现位置：</translation>
     </message>
 </context>
 <context>
     <name>AddSignalHandlerDialog</name>
     <message>
         <source>Implement Signal Handler</source>
-        <translation type="unfinished"></translation>
+        <translation>实现信号处理</translation>
     </message>
     <message>
         <source>Frequently used signals</source>
-        <translation type="unfinished"></translation>
+        <translation>频繁使用的信号</translation>
     </message>
     <message>
         <source>Property changes</source>
-        <translation type="unfinished"></translation>
+        <translation>属性改变</translation>
     </message>
     <message>
         <source>All signals</source>
-        <translation type="unfinished"></translation>
+        <translation>所有信号</translation>
     </message>
     <message>
         <source>Signal:</source>
-        <translation type="unfinished"></translation>
+        <translation>信号：</translation>
     </message>
     <message>
         <source>Choose the signal you want to handle:</source>
-        <translation type="unfinished"></translation>
+        <translation>选择你想要处理的信号：</translation>
     </message>
     <message>
         <source>The item will be exported automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>该项会自动导出</translation>
     </message>
 </context>
 <context>
     <name>AlignCamerasToViewAction</name>
     <message>
         <source>Align Selected Cameras to View</source>
-        <translation type="unfinished"></translation>
+        <translation>对齐选定的相机以查看</translation>
     </message>
     <message>
         <source>Align View to Selected Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>将视图对齐到选择的相机</translation>
     </message>
 </context>
 <context>
@@ -447,1339 +448,1362 @@
     </message>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建 AVD。非法输入。</translation>
     </message>
     <message>
         <source>Could not start process &quot;%1 %2&quot;</source>
-        <translation type="unfinished">无法启动进程&quot;%1&quot; {1 %2&quot;?}</translation>
+        <translation>无法启动进程&quot;%1&quot; {1 %2&quot;?}</translation>
     </message>
     <message>
         <source>Cannot create AVD. Command timed out.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建 AVD。命令超时。</translation>
     </message>
     <message>
         <source>Emulator Tool Is Missing</source>
-        <translation type="unfinished"></translation>
+        <translation>模拟器缺失</translation>
     </message>
     <message>
         <source>Install the missing emulator tool (%1) to the installed Android SDK.</source>
-        <translation type="unfinished"></translation>
+        <translation>给已安装的安卓 SDK 安装缺失的模拟器工具(%1)</translation>
     </message>
     <message>
         <source>AVD Start Error</source>
-        <translation type="unfinished"></translation>
+        <translation>AVD 启动出错</translation>
     </message>
     <message>
         <source>Incorrect password.</source>
-        <translation type="unfinished"></translation>
+        <translation>密码错误</translation>
     </message>
     <message>
         <source>Android build platform SDK:</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓构建平台 SDK：</translation>
     </message>
     <message>
         <source>Create Templates</source>
-        <translation type="unfinished"></translation>
+        <translation>创建模板</translation>
     </message>
     <message>
         <source>Create an Android package for Custom Java code, assets, and Gradle configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>为自定义的 Java 代码、资源以及配置创建安卓包</translation>
     </message>
     <message>
         <source>Android customization:</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓自定义：</translation>
     </message>
     <message>
         <source>Application Signature</source>
-        <translation type="unfinished"></translation>
+        <translation>应用签名</translation>
     </message>
     <message>
         <source>Select Keystore File</source>
-        <translation type="unfinished"></translation>
+        <translation>选择密钥存储文件</translation>
     </message>
     <message>
         <source>Create...</source>
-        <translation type="unfinished"></translation>
+        <translation>创建...</translation>
     </message>
     <message>
         <source>Signing a debug package</source>
-        <translation type="unfinished"></translation>
+        <translation>调试包签名</translation>
     </message>
     <message>
         <source>Advanced Actions</source>
-        <translation type="unfinished"></translation>
+        <translation>高级选项</translation>
     </message>
     <message>
         <source>Open package location after build</source>
-        <translation type="unfinished"></translation>
+        <translation>构建后打开包位置</translation>
     </message>
     <message>
         <source>Add debug server</source>
-        <translation type="unfinished"></translation>
+        <translation>添加调试服务器</translation>
     </message>
     <message>
         <source>Packages debug server with the APK to enable debugging. For the signed APK this option is unchecked by default.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 APK 打包调试服务器以启动调试。对于签名的 APK 这个选项默认关闭。</translation>
     </message>
     <message>
         <source>Verbose output</source>
-        <translation type="unfinished"></translation>
+        <translation>详细输出</translation>
     </message>
     <message>
         <source>Build Android App Bundle (*.aab)</source>
-        <translation type="unfinished"></translation>
+        <translation>构建安卓应用包（*.aab）</translation>
     </message>
     <message>
         <source>Additional Libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>其它库</translation>
     </message>
     <message>
         <source>List of extra libraries to include in Android package and load on startup.</source>
-        <translation type="unfinished"></translation>
+        <translation>包含在安卓包中以及启动时加载的额外库列表</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation type="unfinished">添加...</translation>
+        <translation>添加...</translation>
     </message>
     <message>
         <source>Select library to include in package.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择包含到包中的库</translation>
     </message>
     <message>
         <source>Select additional libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>选择额外的库</translation>
     </message>
     <message>
         <source>Libraries (*.so)</source>
-        <translation type="unfinished"></translation>
+        <translation>库(*.so)</translation>
     </message>
     <message>
         <source>Remove currently selected library from list.</source>
-        <translation type="unfinished"></translation>
+        <translation>从列表中移除当前所选的库</translation>
     </message>
     <message>
         <source>Include prebuilt OpenSSL libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>包含预构建的 OpenSSL 库</translation>
     </message>
     <message>
         <source>This is useful for apps that use SSL operations. The path can be defined in Edit &gt; Preferences &gt; Devices &gt; Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>这对使用 SSL 的应用有用。该路径可在编辑—&gt;偏好-&gt;设备-&gt;安卓中定义。</translation>
     </message>
     <message>
         <source>Build Android APK</source>
-        <translation type="unfinished"></translation>
+        <translation>构建安卓 APK</translation>
     </message>
     <message>
         <source>&quot;%1&quot; step failed initialization.</source>
-        <translation type="unfinished"></translation>
+        <translation>步骤“%1”初始化失败</translation>
     </message>
     <message>
         <source>Keystore/Certificate password verification failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>密钥库/证书密码验证失败</translation>
     </message>
     <message>
         <source>Warning: Signing a debug or profile package.</source>
-        <translation type="unfinished"></translation>
+        <translation>警告：正在对调试或配置文件包签名</translation>
     </message>
     <message>
         <source>The Qt version for kit %1 is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>该 Qt 版本对套件 %1 无效</translation>
     </message>
     <message>
         <source>The installed SDK tools version (%1) does not include Gradle scripts. The minimum Qt version required for Gradle build to work is %2</source>
-        <translation type="unfinished"></translation>
+        <translation>所安装的 SDK 工具版本(%1)不包含 Gradle 脚本。对于可正常工作的 Gradle 构建最低的 Qt 版本为 %2</translation>
     </message>
     <message>
         <source>The minimum Qt version required for Gradle build to work is %1. It is recommended to install the latest Qt version.</source>
-        <translation type="unfinished"></translation>
+        <translation>对于可构建 Gradle 的最低 Qt 版本为 %1。建议安装最新版本的 Qt。</translation>
     </message>
     <message>
         <source>The API level set for the APK is less than the minimum required by the kit.
 The minimum API level required by the kit is %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>APK 的 API 级别设定低于套件所需的最低要求。
+套件所需的最低 API 级别是 %1。</translation>
     </message>
     <message>
         <source>No valid input file for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>对于“%1”没有有效的输入文件</translation>
     </message>
     <message>
         <source>Android build SDK version is not defined. Check Android settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有定义安卓构建套件版本。请检查安卓设定。</translation>
     </message>
     <message>
         <source>Cannot sign the package. Invalid keystore path (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>无法对包进行签名。无效密钥库路径（%1）。</translation>
     </message>
     <message>
         <source>Cannot sign the package. Certificate alias %1 does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法对包签名。证书别名%1不存在。</translation>
     </message>
     <message>
         <source>Android deploy settings file not found, not building an APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓部署设定文件不存在，未构建 APK。</translation>
     </message>
     <message>
         <source>The Android build folder %1 was not found and could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到安卓构建文件夹%1，并无法创建。</translation>
     </message>
     <message>
         <source>Cannot copy the target&apos;s lib file %1 to the Android build folder %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法复制目标的库文件%1到安卓构建目录%2。</translation>
     </message>
     <message>
         <source>Cannot copy file &quot;%1&quot; to Android build libs folder &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法拷贝文件“%1”到安卓构建库路径“%2”。</translation>
     </message>
     <message>
         <source>Cannot open androiddeployqt input file &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开 androiddeployqt 输入文件“%1”以写入。</translation>
     </message>
     <message>
         <source>Cannot set up &quot;%1&quot;, not building an APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法设置“%1”，未构建 APK。</translation>
     </message>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
-        <translation type="unfinished">正在启动 &quot;%1&quot; %2
-</translation>
+        <translation>正在启动 &quot;%1&quot; %2</translation>
     </message>
     <message>
         <source>Failed to run keytool.</source>
-        <translation type="unfinished"></translation>
+        <translation>运行 keytool 失败。</translation>
     </message>
     <message>
         <source>Enter keystore password</source>
-        <translation type="unfinished"></translation>
+        <translation>输入密钥库密码。</translation>
     </message>
     <message>
         <source>Enter certificate password</source>
-        <translation type="unfinished"></translation>
+        <translation>输入证书密码。</translation>
     </message>
     <message>
         <source>Could not run: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法运行：%1</translation>
     </message>
     <message>
         <source>No devices found in output of: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>在输出中找不到设备：%1</translation>
     </message>
     <message>
         <source>Android Debugger (%1, NDK %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓调试器（%1，NDK %2）</translation>
     </message>
     <message>
         <source>Android %1 Clang %2</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 %1 Clang %2</translation>
     </message>
     <message>
         <source>Use Keystore password</source>
-        <translation type="unfinished"></translation>
+        <translation>使用密钥库密码</translation>
     </message>
     <message>
         <source>Keystore password is too short.</source>
-        <translation type="unfinished"></translation>
+        <translation>密钥库密码过短。</translation>
     </message>
     <message>
         <source>Keystore passwords do not match.</source>
-        <translation type="unfinished"></translation>
+        <translation>密钥库密码不匹配。</translation>
     </message>
     <message>
         <source>Certificate password is too short.</source>
-        <translation type="unfinished"></translation>
+        <translation>证书密码过短。</translation>
     </message>
     <message>
         <source>Certificate passwords do not match.</source>
-        <translation type="unfinished"></translation>
+        <translation>证书密码不匹配。</translation>
     </message>
     <message>
         <source>Certificate alias is missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>证书别名缺失。</translation>
     </message>
     <message>
         <source>Invalid country code.</source>
-        <translation type="unfinished"></translation>
+        <translation>无效国家码。</translation>
     </message>
     <message>
         <source>Keystore Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>密钥库文件名</translation>
     </message>
     <message>
         <source>Uninstall the existing app before deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>在部署前卸载已有应用</translation>
     </message>
     <message>
         <source>No Android architecture (ABI) is set by the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目未设置安卓架构（ABI）。</translation>
     </message>
     <message>
         <source>Initializing deployment to Android device/simulator</source>
-        <translation type="unfinished"></translation>
+        <translation>部署到安卓设备/模拟器初始化</translation>
     </message>
     <message>
         <source>The kit&apos;s run configuration is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>套件运行的配置无效。</translation>
     </message>
     <message>
         <source>The kit&apos;s build configuration is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>套件构建配置无效。</translation>
     </message>
     <message>
         <source>The kit&apos;s build steps list is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>套件构建步骤列表无效。</translation>
     </message>
     <message>
         <source>The kit&apos;s deploy configuration is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>套件部署配置无效。</translation>
     </message>
     <message>
         <source>No valid deployment device is set.</source>
-        <translation type="unfinished"></translation>
+        <translation>未设置有效部署设备。</translation>
     </message>
     <message>
         <source>The deployment device &quot;%1&quot; is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>部署设备“%1”无效。</translation>
     </message>
     <message>
         <source>The deployment device &quot;%1&quot; does not support the architectures used by the kit.
 The kit supports &quot;%2&quot;, but the device uses &quot;%3&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>部署设备“%1”不支持套件架构。
+套件支持“%2”，但设备使用“%3”。</translation>
     </message>
     <message>
         <source>The deployment device &quot;%1&quot; is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>部署设备“%1”未连接。</translation>
     </message>
     <message>
         <source>Android: The main ABI of the deployment device (%1) is not selected. The app execution or debugging might not work properly. Add it from Projects &gt; Build &gt; Build Steps &gt; qmake &gt; ABIs.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：部署设备（%1）的主 ABI 未选择。应用执行或调试可能不会正常。从项目-&gt;构建-&gt;构建步骤-&gt;qmake-&gt; ABIs 进行配置。</translation>
     </message>
     <message>
         <source>Deploying to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>部署到%1</translation>
     </message>
     <message>
         <source>The deployment step&apos;s project node is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>部署步骤的项目节点无效。</translation>
     </message>
     <message>
         <source>Cannot find the androiddeployqt input JSON file.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法找到 androiddeployqt 的输入 JSON 文件。</translation>
     </message>
     <message>
         <source>Cannot find the androiddeployqt tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法找到 androiddeployqt 工具。</translation>
     </message>
     <message>
         <source>Cannot find the package name from the Android Manifest file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从安卓的 Manifest 文件“%1”中找到包名。</translation>
     </message>
     <message>
         <source>Uninstalling the previous package &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>卸载前一个包“%1”。</translation>
     </message>
     <message>
         <source>Starting: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>启动：%1</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; exited normally.</source>
-        <translation type="unfinished"></translation>
+        <translation>进程“%1”正常退出。</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; exited with code %2.</source>
-        <translation type="unfinished">进程&quot;%1&quot;退出，退出代码 %2 。</translation>
+        <translation>进程&quot;%1&quot;退出，退出代码 %2 。</translation>
     </message>
     <message>
         <source>The process &quot;%1&quot; crashed.</source>
-        <translation type="unfinished">进程&quot;%1&quot;崩溃。</translation>
+        <translation>进程&quot;%1&quot;崩溃。</translation>
     </message>
     <message>
         <source>Installing the app failed even after uninstalling the previous one.</source>
-        <translation type="unfinished"></translation>
+        <translation>安装应用失败甚至已经卸载了前一个应用。</translation>
     </message>
     <message>
         <source>Installing the app failed with an unknown error.</source>
-        <translation type="unfinished"></translation>
+        <translation>安装应用失败，发生未知错误。</translation>
     </message>
     <message>
         <source>Deployment failed with the following errors:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>部署失败，错误如下：
+
+</translation>
     </message>
     <message>
         <source>
 Uninstalling the installed package may solve the issue.
 Do you want to uninstall the existing package?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+卸载已安装的包可能解决这个问题。
+你想卸载已经存在的包吗？</translation>
     </message>
     <message>
         <source>Install failed</source>
-        <translation type="unfinished"></translation>
+        <translation>安装失败</translation>
     </message>
     <message>
         <source>The deployment AVD &quot;%1&quot; cannot be started.</source>
-        <translation type="unfinished"></translation>
+        <translation>部署 AVD “%1” 无法启动。</translation>
     </message>
     <message>
         <source>Package deploy: Failed to pull &quot;%1&quot; to &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>包部署：从“%1”拉取到“%2”失败。</translation>
     </message>
     <message>
         <source>Package deploy: Running command &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>包部署：运行命令“%1”。</translation>
     </message>
     <message>
         <source>Install an APK File</source>
-        <translation type="unfinished"></translation>
+        <translation>安装 APK 文件</translation>
     </message>
     <message>
         <source>Qt Android Installer</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 安卓安装器</translation>
     </message>
     <message>
         <source>Device name:</source>
-        <translation type="unfinished"></translation>
+        <translation>设备名称：</translation>
     </message>
     <message>
         <source>Device type:</source>
-        <translation type="unfinished">设备类型:</translation>
+        <translation>设备类型：</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">未知</translation>
+        <translation>未知</translation>
     </message>
     <message>
         <source>Serial number:</source>
-        <translation type="unfinished"></translation>
+        <translation>序列号：</translation>
     </message>
     <message>
         <source>CPU architecture:</source>
-        <translation type="unfinished"></translation>
+        <translation>CPU 架构：</translation>
     </message>
     <message>
         <source>OS version:</source>
-        <translation type="unfinished"></translation>
+        <translation>操作系统版本：</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">是</translation>
+        <translation>是</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">否</translation>
+        <translation>否</translation>
     </message>
     <message>
         <source>Authorized:</source>
-        <translation type="unfinished"></translation>
+        <translation>已授权：</translation>
     </message>
     <message>
         <source>Android target flavor:</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓目标风格：</translation>
     </message>
     <message>
         <source>Skin type:</source>
-        <translation type="unfinished"></translation>
+        <translation>皮肤类型：</translation>
     </message>
     <message>
         <source>OpenGL status:</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenGL 状态：</translation>
     </message>
     <message>
         <source>Android Device Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓设备管理</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>刷新</translation>
     </message>
     <message>
         <source>Start AVD</source>
-        <translation type="unfinished"></translation>
+        <translation>启动 AVD</translation>
     </message>
     <message>
         <source>Erase AVD</source>
-        <translation type="unfinished"></translation>
+        <translation>擦除 AVD</translation>
     </message>
     <message>
         <source>AVD Arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>AVD 参数</translation>
     </message>
     <message>
         <source>Set up Wi-Fi</source>
-        <translation type="unfinished"></translation>
+        <translation>设置 Wi-Fi</translation>
     </message>
     <message>
         <source>Emulator for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>模拟“%1”</translation>
     </message>
     <message>
         <source>Physical device</source>
-        <translation type="unfinished">物理设备</translation>
+        <translation>物理设备</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Erase the Android AVD &quot;%1&quot;?
 This cannot be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>擦除安卓 AVD “%1”?
+该步骤无法撤销。</translation>
     </message>
     <message>
         <source>The device has to be connected with ADB debugging enabled to use this feature.</source>
-        <translation type="unfinished"></translation>
+        <translation>设备必须连接到 ADB 调试器来启用这个特性。</translation>
     </message>
     <message>
         <source>Opening connection port %1 failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>打开连接端口“%1”失败。</translation>
     </message>
     <message>
         <source>Retrieving the device IP address failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>检索设备 IP 地址失败。</translation>
     </message>
     <message>
         <source>The retrieved IP address is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>检索到的 IP 地址无效。</translation>
     </message>
     <message>
         <source>Connecting to the device IP &quot;%1&quot; failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>连接到设备 IP “%1” 失败。</translation>
     </message>
     <message>
         <source>An error occurred while removing the Android AVD &quot;%1&quot; using avdmanager tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 ADV 管理管理工具移除安卓 AVD “%1” 时出错。</translation>
     </message>
     <message>
         <source>Emulator Command-line Startup Options</source>
-        <translation type="unfinished"></translation>
+        <translation>模拟器命令行启动参数</translation>
     </message>
     <message>
         <source>Emulator command-line startup options (&lt;a href=&quot;%1&quot;&gt;Help Web Page&lt;/a&gt;):</source>
-        <translation type="unfinished"></translation>
+        <translation>模拟器命令行启动参数(&lt;a href=&quot;%1&quot;&gt;帮助页面&lt;/a&gt;)：</translation>
     </message>
     <message>
         <source>The device info returned from AvdDialog is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>从 ADV 对话框返回的设备信息无效。</translation>
     </message>
     <message>
         <source>Android: SDK installation error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：SDK 安装错误 0x%1</translation>
     </message>
     <message>
         <source>Android: NDK installation error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：NDK 安装错误 0x%1</translation>
     </message>
     <message>
         <source>Android: Java installation error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：Java 安装错误 0x%1</translation>
     </message>
     <message>
         <source>Android: ant installation error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：ANT 安装错误 0x%1</translation>
     </message>
     <message>
         <source>Android: adb installation error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：ADB 安装错误 0x%1</translation>
     </message>
     <message>
         <source>Android: Device connection error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：设备连接错误 0x%1</translation>
     </message>
     <message>
         <source>Android: Device permission error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：设备权限错误 0x%1</translation>
     </message>
     <message>
         <source>Android: Device authorization error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：设备授权错误 0x%1</translation>
     </message>
     <message>
         <source>Android: Device API level not supported: error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：设备 API 级别不支持：错误 0x%1</translation>
     </message>
     <message>
         <source>Android: Unknown error 0x%1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓：未知错误 0x%1</translation>
     </message>
     <message>
         <source>Unknown Android version. API Level: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>未知安卓版本。API 级别：%1</translation>
     </message>
     <message>
         <source>Error creating Android templates.</source>
-        <translation type="unfinished"></translation>
+        <translation>错误创建安卓模板。</translation>
     </message>
     <message>
         <source>Cannot parse &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法解析“%1”。</translation>
     </message>
     <message>
         <source>Starting Android virtual device failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动安卓虚拟设备失败。</translation>
     </message>
     <message>
         <source>Android package installation failed.
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓包安装失败。
+%1</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">概要</translation>
+        <translation>概要</translation>
     </message>
     <message>
         <source>XML Source</source>
-        <translation type="unfinished"></translation>
+        <translation>XML 源</translation>
     </message>
     <message>
         <source>Android Manifest editor</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 Manifest 编辑器</translation>
     </message>
     <message>
         <source>Master icon</source>
-        <translation type="unfinished"></translation>
+        <translation>主图标</translation>
     </message>
     <message>
         <source>Select master icon.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择主图标。</translation>
     </message>
     <message>
         <source>LDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>低屏幕密度图标</translation>
     </message>
     <message>
         <source>Select an icon suitable for low-density (ldpi) screens (~120dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>为低密度屏幕（~120 dpi）选择合适的图标。</translation>
     </message>
     <message>
         <source>MDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>中等屏幕密度图标</translation>
     </message>
     <message>
         <source>Select an icon for medium-density (mdpi) screens (~160dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>为中等密度屏幕（120~160 dpi）选择图标</translation>
     </message>
     <message>
         <source>HDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>高屏幕密度图标</translation>
     </message>
     <message>
         <source>Select an icon for high-density (hdpi) screens (~240dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>为高密度屏幕（160~240 dpi）选择图标。</translation>
     </message>
     <message>
         <source>XHDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>超高屏幕密度图标</translation>
     </message>
     <message>
         <source>Select an icon for extra-high-density (xhdpi) screens (~320dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>为超高密度屏幕（240~320 dpi）选择图标。</translation>
     </message>
     <message>
         <source>XXHDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>超超高屏幕密度图标</translation>
     </message>
     <message>
         <source>Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>为超超高密度屏幕（320~480dpi）选择图标。</translation>
     </message>
     <message>
         <source>XXXHDPI icon</source>
-        <translation type="unfinished"></translation>
+        <translation>超超超高屏幕密度图标</translation>
     </message>
     <message>
         <source>Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi).</source>
-        <translation type="unfinished"></translation>
+        <translation>为超超超高密度屏幕（480~640 dpi）选择图标。</translation>
     </message>
     <message>
         <source>Icon scaled up.</source>
-        <translation type="unfinished"></translation>
+        <translation>图标放大。</translation>
     </message>
     <message>
         <source>Click to select...</source>
-        <translation type="unfinished"></translation>
+        <translation>单击以选择...</translation>
     </message>
     <message>
         <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation type="unfinished"></translation>
+        <translation>图片（*.png *.jpg *.jpeg *.webp *.svg）</translation>
     </message>
     <message>
         <source>Include default permissions for Qt modules.</source>
-        <translation type="unfinished"></translation>
+        <translation>包括 Qt 模块的默认权限。</translation>
     </message>
     <message>
         <source>Include default features for Qt modules.</source>
-        <translation type="unfinished"></translation>
+        <translation>包括 Qt 模块的默认特性。</translation>
     </message>
     <message>
         <source>Package</source>
-        <translation type="unfinished">包</translation>
+        <translation>包</translation>
     </message>
     <message>
         <source>&lt;p align=&quot;justify&quot;&gt;Please choose a valid package name for your application (for example, &quot;org.example.myapplication&quot;).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Packages are usually defined using a hierarchical naming pattern, with levels in the hierarchy separated by periods (.) (pronounced &quot;dot&quot;).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;In general, a package name begins with the top level domain name of the organization and then the organization&apos;s domain and then any subdomains listed in reverse order. The organization can then choose a specific name for their package. Package names should be all lowercase characters whenever possible.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Complete conventions for disambiguating package names and rules for naming packages when the Internet domain name cannot be directly used as a package name are described in section 7.7 of the Java Language Specification.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p align=&quot;justify&quot;&gt;请为你的应用选择有效的报名（例如，“org.example.myapplication”）。&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;通常使用分层命名模式定义包，层次结构中的级别由 . 分隔。&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;通常，包名以组织的顶级域名开头，然后是组织的域，然后以相反顺序列出其它子域。然后为他们的包选择一个特定的名字。包名应尽可能全部使用小写字符。&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Java 语言规范的第 7.7 节描述了，当互联网域名不能直接用于包名时，用来消除包名歧义的完整约定和命名包的规则&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Package name:</source>
-        <translation type="unfinished">包名称:</translation>
+        <translation>包名称:</translation>
     </message>
     <message>
         <source>The package name is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>包名称无效。</translation>
     </message>
     <message>
         <source>Version code:</source>
-        <translation type="unfinished"></translation>
+        <translation>版本代码：</translation>
     </message>
     <message>
         <source>Version name:</source>
-        <translation type="unfinished">版本名称:</translation>
+        <translation>版本名称:</translation>
     </message>
     <message>
         <source>Sets the minimum required version on which this application can be run.</source>
-        <translation type="unfinished"></translation>
+        <translation>设置应用可运行的最低需求版本。</translation>
     </message>
     <message>
         <source>Not set</source>
-        <translation type="unfinished"></translation>
+        <translation>未设置</translation>
     </message>
     <message>
         <source>Minimum required SDK:</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 最低需求：</translation>
     </message>
     <message>
         <source>Sets the target SDK. Set this to the highest tested version. This disables compatibility behavior of the system for your application.</source>
-        <translation type="unfinished"></translation>
+        <translation>设置目标 SDK。设置这项到最高测试版本。操作系统将对你的应用禁用兼容行为。</translation>
     </message>
     <message>
         <source>Target SDK:</source>
-        <translation type="unfinished"></translation>
+        <translation>目标 SDK：</translation>
     </message>
     <message>
         <source>Application name:</source>
-        <translation type="unfinished"></translation>
+        <translation>应用名称：</translation>
     </message>
     <message>
         <source>Activity name:</source>
-        <translation type="unfinished"></translation>
+        <translation>活动名称：</translation>
     </message>
     <message>
         <source>Style extraction:</source>
-        <translation type="unfinished"></translation>
+        <translation>风格提取：</translation>
     </message>
     <message>
         <source>Screen orientation:</source>
-        <translation type="unfinished"></translation>
+        <translation>屏幕朝向：</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">高级</translation>
+        <translation>高级</translation>
     </message>
     <message>
         <source>Application icon</source>
-        <translation type="unfinished"></translation>
+        <translation>应用图标</translation>
     </message>
     <message>
         <source>Android services</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓服务</translation>
     </message>
     <message>
         <source>Splash screen</source>
-        <translation type="unfinished"></translation>
+        <translation>启动画面</translation>
     </message>
     <message>
         <source>Service Definition Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>服务定义无效</translation>
     </message>
     <message>
         <source>Cannot switch to source when there are invalid services.</source>
-        <translation type="unfinished"></translation>
+        <translation>存在无效服务时无法切换源。</translation>
     </message>
     <message>
         <source>Cannot save when there are invalid services.</source>
-        <translation type="unfinished"></translation>
+        <translation>存在无效服务时无法保存。</translation>
     </message>
     <message>
         <source>The structure of the Android manifest file is corrupted. Expected a top level &apos;manifest&apos; node.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 manifest 文件结构损坏。需要一个顶级清单节点。</translation>
     </message>
     <message>
         <source>The structure of the Android manifest file is corrupted. Expected an &apos;application&apos; and &apos;activity&apos; sub node.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 manifest 文件结构损坏。需要 “application” 和 “activity” 子节点。</translation>
     </message>
     <message>
         <source>API %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>API %1：%2</translation>
     </message>
     <message>
         <source>Could not parse file: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法解析文件：%1。</translation>
     </message>
     <message>
         <source>%2: Could not parse file: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>%2：无法解析文件：%1。</translation>
     </message>
     <message>
         <source>Goto error</source>
-        <translation type="unfinished"></translation>
+        <translation>跳转错误</translation>
     </message>
     <message>
         <source>Services invalid. Manifest cannot be saved. Correct the service definitions before saving.</source>
-        <translation type="unfinished"></translation>
+        <translation>服务无效。无法保存 Manifest。请在保存前修正服务定义。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Make install:&lt;/b&gt; 拷贝应用到 %1</translation>
     </message>
     <message>
         <source>&quot;%1&quot; step has an invalid C++ toolchain.</source>
-        <translation type="unfinished"></translation>
+        <translation>步骤“%1”有无效 c++ 工具链。</translation>
     </message>
     <message>
         <source>Removing directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>移除目录 %1</translation>
     </message>
     <message>
         <source>Failed to clean &quot;%1&quot; from the previous build, with error:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>从前次构建中清理 %1 失败，错误：%2</translation>
     </message>
     <message>
         <source>Deploy to Android Device</source>
-        <translation type="unfinished"></translation>
+        <translation>部署到安卓设备</translation>
     </message>
     <message>
         <source>Java Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Java 语言服务器</translation>
     </message>
     <message>
         <source>Would you like to configure Android options? This will ensure Android kits can be usable and all essential packages are installed. To do it later, select Edit &gt; Preferences &gt; Devices &gt; Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>你想要配置安卓选项吗？这会确定安卓套件可使用并且所有重要的包都安装了。要稍后再做，选择编辑-&gt;偏好-&gt;设备-&gt;安卓。</translation>
     </message>
     <message>
         <source>Configure Android</source>
-        <translation type="unfinished"></translation>
+        <translation>配置安卓</translation>
     </message>
     <message>
         <source>Configure Android...</source>
-        <translation type="unfinished"></translation>
+        <translation>配置安卓...</translation>
     </message>
     <message>
         <source>%1 needs additional settings to enable Android support. You can configure those settings in the Options dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 需要额外的设置来启动安卓支持。你可以在选项对话框中配置这些。</translation>
     </message>
     <message>
         <source>%1 has been stopped.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 停止。</translation>
     </message>
     <message>
         <source>Selected device is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择的设备无效。</translation>
     </message>
     <message>
         <source>Selected device is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择的设备断开连接。</translation>
     </message>
     <message>
         <source>Launching AVD.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动 AVD。</translation>
     </message>
     <message>
         <source>Could not start AVD.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法启动 AVD。</translation>
     </message>
     <message>
         <source>No valid AVD has been selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>未选择有效 AVD。</translation>
     </message>
     <message>
         <source>Checking if %1 app is installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>检查 %1 应用是否安装。</translation>
     </message>
     <message>
         <source>ABI of the selected device is unknown. Cannot install APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>所选设备的 ABI 未知，无法安装 APK。</translation>
     </message>
     <message>
         <source>Cannot install %1 app for %2 architecture. The appropriate APK was not found in resources folders.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法为 %2 架构安装应用 %1。在资源文件夹中找不到合适的 APK。</translation>
     </message>
     <message>
         <source>Installing %1 APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>安装 %1 APK。</translation>
     </message>
     <message>
         <source>Too many .qmlproject files in your project. Open directly the .qmlproject file you want to work with and then run the preview.</source>
-        <translation type="unfinished"></translation>
+        <translation>您的项目中有大量 .qmlproject 文件。直接打开要使用的 .qmlproject 文件，然后运行预览。</translation>
     </message>
     <message>
         <source>No .qmlproject file found among project files.</source>
-        <translation type="unfinished"></translation>
+        <translation>在项目文件中未找到 .qmlproject 文件。</translation>
     </message>
     <message>
         <source>Could not gather information on project files.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法在项目文件中收集信息。</translation>
     </message>
     <message>
         <source>Could not create file for %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>无法为 %1 创建文件 “%2”</translation>
     </message>
     <message>
         <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>运行 “%1” 时超时</translation>
     </message>
     <message>
         <source>Crash while creating file for %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>为 %1 创建文件“%2”时崩溃</translation>
     </message>
     <message>
         <source>Creating file for %1 failed. &quot;%2&quot; (exit code %3).</source>
-        <translation type="unfinished"></translation>
+        <translation>为 %1 创建文件 “%2” 时失败，（退出码 %3）。</translation>
     </message>
     <message>
         <source>Uploading files.</source>
-        <translation type="unfinished"></translation>
+        <translation>上传文件。</translation>
     </message>
     <message>
         <source>Starting %1.</source>
-        <translation type="unfinished">正在启动 %1 %2
- {1.?}</translation>
+        <translation>正在启动 %1。</translation>
     </message>
     <message>
         <source>%1 is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 正在运行。</translation>
     </message>
     <message>
         <source>NDK is not configured in Devices &gt; Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>设备-&gt;安卓中未配置 NDK。</translation>
     </message>
     <message>
         <source>SDK is not configured in Devices &gt; Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>设备-&gt;安卓中未配置 SDK。</translation>
     </message>
     <message>
         <source>Failed to detect the ABIs used by the Qt version. Check the settings in Devices &gt; Android for errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法检测 Qt 版本所使用的 ABI。检查设备-&gt;安卓中的设置是否有误。</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>清理环境</translation>
     </message>
     <message>
         <source>Activity manager start arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>活动管理器启动参数：</translation>
     </message>
     <message>
         <source>Pre-launch on-device shell commands:</source>
-        <translation type="unfinished"></translation>
+        <translation>预启动设备上的 shell 命令：</translation>
     </message>
     <message>
         <source>Post-quit on-device shell commands:</source>
-        <translation type="unfinished"></translation>
+        <translation>退出设备上的 shell 命令：</translation>
     </message>
     <message>
         <source>&quot;%1&quot; terminated.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” 终止。</translation>
     </message>
     <message>
         <source>No free ports available on host for QML debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>主机上无可用于 QML 调试的空闲端口。</translation>
     </message>
     <message>
         <source>Failed to find application directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>查找应用目录失败。</translation>
     </message>
     <message>
         <source>Cannot find C++ debug server in NDK installation.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从 NDK 安装中找到 C++ 调试器。</translation>
     </message>
     <message>
         <source>The lldb-server binary has not been found.</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到 lldb-server 库。</translation>
     </message>
     <message>
         <source>Cannot copy C++ debug server.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法复制 c++ 调试服务器。</translation>
     </message>
     <message>
         <source>Failed to start the activity.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动活动失败。</translation>
     </message>
     <message>
         <source>Activity Manager threw the error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>活动管理器抛出错误：%1</translation>
     </message>
     <message>
         <source>Failed to start debugger server.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动调试服务器失败。</translation>
     </message>
     <message>
         <source>Failed to forward JDB debugging ports.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法转发 JDB 调试端口。</translation>
     </message>
     <message>
         <source>Failed to start JDB.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动 JDB 失败。</translation>
     </message>
     <message>
         <source>Cannot attach JDB to the running application.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法关联 JDB 到运行的应用。</translation>
     </message>
     <message>
         <source>&quot;%1&quot; died.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1” 死亡。</translation>
     </message>
     <message>
         <source>Encountered SSL errors, download is aborted.</source>
-        <translation type="unfinished"></translation>
+        <translation>发生 SSL 错误，下载中止。</translation>
     </message>
     <message>
         <source>The SDK Tools download URL is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 工具下载 URL 为空。</translation>
     </message>
     <message>
         <source>Downloading SDK Tools package...</source>
-        <translation type="unfinished"></translation>
+        <translation>下载 SDK 工具包...</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Download SDK Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>下载 SDK 工具</translation>
     </message>
     <message>
         <source>Could not open %1 for writing: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开 %1 以写入：%2。</translation>
     </message>
     <message>
         <source>Downloading Android SDK Tools from URL %1 has failed: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>从 %1 下载安卓 SDK 工具失败：%2。</translation>
     </message>
     <message>
         <source>Download from %1 was redirected.</source>
-        <translation type="unfinished"></translation>
+        <translation>从 %1 的下载被重定向。</translation>
     </message>
     <message>
         <source>Writing and verifying the integrity of the downloaded file has failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>写入和验证下载文件的完整性失败。</translation>
     </message>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
-        <translation type="unfinished"></translation>
+        <translation>操作需要用户交互。使用“SDK 管理器”命令行工具。</translation>
     </message>
     <message>
         <source>Updating installed packages.</source>
-        <translation type="unfinished"></translation>
+        <translation>更新安装的包。</translation>
     </message>
     <message>
         <source>Failed.</source>
-        <translation type="unfinished">失败.</translation>
+        <translation>失败.</translation>
     </message>
     <message>
         <source>Done
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>完成
+
+</translation>
     </message>
     <message>
         <source>Installing</source>
-        <translation type="unfinished"></translation>
+        <translation>安装</translation>
     </message>
     <message>
         <source>Uninstalling</source>
-        <translation type="unfinished"></translation>
+        <translation>卸载</translation>
     </message>
     <message>
         <source>AndroidSdkManager</source>
         <comment>Failed</comment>
-        <translation type="unfinished"></translation>
+        <translation>安卓 SDK 管理器</translation>
     </message>
     <message>
         <source>AndroidSdkManager</source>
         <comment>Done
 
 </comment>
-        <translation type="unfinished"></translation>
+        <translation>安卓 SDK 管理器</translation>
     </message>
     <message>
         <source>License command failed.
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>许可命令失败。
+
+</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 SDK 管理器</translation>
     </message>
     <message>
         <source>Update Installed</source>
-        <translation type="unfinished"></translation>
+        <translation>更新已安装的</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation>应用</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <source>Stable</source>
-        <translation type="unfinished"></translation>
+        <translation>稳定</translation>
     </message>
     <message>
         <source>Beta</source>
-        <translation type="unfinished"></translation>
+        <translation>测试</translation>
     </message>
     <message>
         <source>Dev</source>
-        <translation type="unfinished"></translation>
+        <translation>开发</translation>
     </message>
     <message>
         <source>Canary</source>
-        <translation type="unfinished"></translation>
+        <translation>金丝雀</translation>
     </message>
     <message>
         <source>Include obsolete</source>
-        <translation type="unfinished"></translation>
+        <translation>包括过时的</translation>
     </message>
     <message>
         <source>Available</source>
-        <translation type="unfinished">可用</translation>
+        <translation>可用</translation>
     </message>
     <message>
         <source>Installed</source>
-        <translation type="unfinished">已安装</translation>
+        <translation>已安装</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">所有</translation>
+        <translation>所有</translation>
     </message>
     <message>
         <source>Advanced Options...</source>
-        <translation type="unfinished"></translation>
+        <translation>高级选项...</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">展开全部</translation>
+        <translation>展开全部</translation>
     </message>
     <message>
         <source>Do you want to accept the Android SDK license?</source>
-        <translation type="unfinished"></translation>
+        <translation>要接受安卓 SDK 许可证吗？</translation>
     </message>
     <message>
         <source>Show Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>显示包</translation>
     </message>
     <message>
         <source>Channel:</source>
-        <translation type="unfinished"></translation>
+        <translation>通道：</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>修改安卓 SDK</translation>
     </message>
     <message>
         <source>%1 cannot find the following essential packages: &quot;%2&quot;.
 Install them manually after the current operation is done.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 无法找到下列重要包：“%2”
+请在当前操作结束后手动安装。
+</translation>
     </message>
     <message>
         <source>Android SDK installation is missing necessary packages. Do you want to install the missing packages?</source>
-        <translation type="unfinished"></translation>
+        <translation>缺失安卓 SDK 安装所必要的包。你想安装这些缺失包吗？</translation>
     </message>
     <message>
         <source>Checking pending licenses...
 </source>
-        <translation type="unfinished"></translation>
+        <translation>正在检查待处理的许可证...
+</translation>
     </message>
     <message>
         <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>如果不接受相应的许可证，安卓 SDK 包安装可能会失败。</translation>
     </message>
     <message>
         <source>
 SDK Manager is busy.</source>
-        <translation type="unfinished"></translation>
+        <translation>
+SDK 管理器繁忙。</translation>
     </message>
     <message numerus="yes">
         <source>%n Android SDK packages shall be updated.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n 安卓 SDK 包将被更新。</numerusform>
         </translation>
     </message>
     <message>
         <source>[Packages to be uninstalled:]
 </source>
-        <translation type="unfinished"></translation>
+        <translation>[将会卸载的包：]</translation>
     </message>
     <message>
         <source>SDK Manager is busy. Operation cancelled.</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 管理器繁忙。操作取消。</translation>
     </message>
     <message>
         <source>Installing/Uninstalling selected packages...
 </source>
-        <translation type="unfinished"></translation>
+        <translation>安装/卸载选择的包...
+</translation>
     </message>
     <message>
         <source>Closing the %1 dialog will cancel the running and scheduled SDK operations.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>关闭%1对话框将取消运行中的和计划的 SDK 操作。
+</translation>
     </message>
     <message>
         <source>preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>偏好</translation>
     </message>
     <message>
         <source>options</source>
-        <translation type="unfinished"></translation>
+        <translation>选项</translation>
     </message>
     <message>
         <source>Updating installed packages...
 </source>
-        <translation type="unfinished"></translation>
+        <translation>正在更新安装的包...
+</translation>
     </message>
     <message>
         <source>Android SDK operations finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 SDK 操作结束。</translation>
     </message>
     <message>
         <source>Operation cancelled.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>操作取消。
+</translation>
     </message>
     <message>
         <source>
 No pending operations to cancel...
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+没有待取消的操作...
+</translation>
     </message>
     <message>
         <source>
 Cancelling pending operations...
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+正在取消待处理的操作...
+</translation>
     </message>
     <message>
         <source>SDK Manager Arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 管理器参数</translation>
     </message>
     <message>
         <source>Cannot load available arguments for &quot;sdkmanager&quot; command.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法为“SDK管理器”命令加载可用参数。</translation>
     </message>
     <message>
         <source>SDK manager arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 管理器参数：</translation>
     </message>
     <message>
         <source>Available arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>可用参数：</translation>
     </message>
     <message>
         <source>Revision</source>
-        <translation type="unfinished"></translation>
+        <translation>修订</translation>
     </message>
     <message>
         <source>API</source>
-        <translation type="unfinished"></translation>
+        <translation>API</translation>
     </message>
     <message>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>工具</translation>
     </message>
     <message>
         <source>SDK Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 平台</translation>
     </message>
     <message>
         <source>The name of the class implementing the service.</source>
-        <translation type="unfinished"></translation>
+        <translation>实现服务的类名。</translation>
     </message>
     <message>
         <source>Checked if the service is run in an external process.</source>
-        <translation type="unfinished"></translation>
+        <translation>检查服务是否在外部进程中运行。</translation>
     </message>
     <message>
         <source>The name of the external process.
 Prefix with : if the process is private, use a lowercase name if the process is global.</source>
-        <translation type="unfinished"></translation>
+        <translation>外部进程名称。
+前缀为:标识进程是私有的，如果是全局进程，使用小写名称。</translation>
     </message>
     <message>
         <source>Checked if the service is in a separate dynamic library.</source>
-        <translation type="unfinished"></translation>
+        <translation>检查服务是否在单独的动态库中。</translation>
     </message>
     <message>
         <source>The name of the separate dynamic library.</source>
-        <translation type="unfinished"></translation>
+        <translation>独立动态库名称。</translation>
     </message>
     <message>
         <source>The arguments for telling the app to run the service instead of the main activity.</source>
-        <translation type="unfinished"></translation>
+        <translation>告诉应用程序运行服务而不是主要活动的参数。</translation>
     </message>
     <message>
         <source>Service class name.</source>
-        <translation type="unfinished"></translation>
+        <translation>服务类名。</translation>
     </message>
     <message>
         <source>Run in external process.</source>
-        <translation type="unfinished"></translation>
+        <translation>在外部进程中运行。</translation>
     </message>
     <message>
         <source>Process name.</source>
-        <translation type="unfinished"></translation>
+        <translation>进程名。</translation>
     </message>
     <message>
         <source>Run in external library.</source>
-        <translation type="unfinished"></translation>
+        <translation>在外部库中运行。</translation>
     </message>
     <message>
         <source>Library name.</source>
-        <translation type="unfinished"></translation>
+        <translation>库名。</translation>
     </message>
     <message>
         <source>Service arguments.</source>
-        <translation type="unfinished"></translation>
+        <translation>服务参数。</translation>
     </message>
     <message>
         <source>The class name must be set.</source>
-        <translation type="unfinished"></translation>
+        <translation>必须设置类名。</translation>
     </message>
     <message>
         <source>The process name must be set for a service run in an external process.</source>
-        <translation type="unfinished"></translation>
+        <translation>必须为在外部进程中运行的服务设置进程名。</translation>
     </message>
     <message>
         <source>The library name must be set for a service run in an external library.</source>
-        <translation type="unfinished"></translation>
+        <translation>必须为在外部库中运行的服务设置库名。</translation>
     </message>
     <message>
         <source>Open Android SDK download URL in the system&apos;s browser.</source>
-        <translation type="unfinished"></translation>
+        <translation>在系统浏览器中打开安卓 SDK 下载链接。</translation>
     </message>
     <message>
         <source>Add the selected custom NDK. The toolchains and debuggers will be created automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>添加所选的自定义 NDK。工具链和调试器会自动创建。</translation>
     </message>
     <message>
         <source>Remove the selected NDK if it has been added manually.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果已经手动添加，删除所选的 NDK。</translation>
     </message>
     <message>
         <source>Force a specific NDK installation to be used by all Android kits.&lt;br/&gt;Note that the forced NDK might not be compatible with all registered Qt versions.</source>
-        <translation type="unfinished"></translation>
+        <translation>强制所有安卓套件使用特定的 NDK 安装。&lt;br/&gt;注意，强制 NDK 可能与已注册的 Qt 版本不兼容。</translation>
     </message>
     <message>
         <source>Open JDK download URL in the system&apos;s browser.</source>
-        <translation type="unfinished"></translation>
+        <translation>在系统浏览器中打开 JDK 下载链接。</translation>
     </message>
     <message>
         <source>Set Up SDK</source>
-        <translation type="unfinished"></translation>
+        <translation>设置 SDK</translation>
     </message>
     <message>
         <source>Automatically download Android SDK Tools to selected location.
@@ -1789,27 +1813,30 @@ from %1,
 and extracted to the selected path.
 After the SDK Tools are properly set up, you are prompted to install any essential
 packages required for Qt to build for Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>自动下载安卓 SDK 工具到选定位置。
+
+如果选择的路径不包含有效 SDK 工具，则从 %1 下载 SDK 工具包并且解压到所选路径。
+正确设置 SDK 工具后，系统会提示安装 Qt 构建安卓所必需的包。</translation>
     </message>
     <message>
         <source>SDK Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 管理器</translation>
     </message>
     <message>
         <source>Open Android NDK download URL in the system&apos;s browser.</source>
-        <translation type="unfinished"></translation>
+        <translation>在系统浏览器中打开安卓 NDK 下载链接。</translation>
     </message>
     <message>
         <source>Automatically create kits for Android tool chains</source>
-        <translation type="unfinished"></translation>
+        <translation>为安卓工具链自动创建套件</translation>
     </message>
     <message>
         <source>Select the path of the prebuilt OpenSSL binaries.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择预构建的 OpenSSL 二进制文件路径。</translation>
     </message>
     <message>
         <source>Download OpenSSL</source>
-        <translation type="unfinished"></translation>
+        <translation>下载 OpenSSL</translation>
     </message>
     <message>
         <source>Automatically download OpenSSL prebuilt libraries.
@@ -1819,392 +1846,400 @@ are performed. Find the checkbox under &quot;Projects &gt; Build &gt; Build Step
 Build Android APK &gt; Additional Libraries&quot;.
 If the automatic download fails, Qt Creator proposes to open the download URL
 in the system&apos;s browser for manual download.</source>
-        <translation type="unfinished"></translation>
+        <translation>自动下载 OpenSSL 预构建库。
+
+如果有任何 SSL 操作，这些库可以随应用程序一起提供执行。
+从“项目-&gt;构建-&gt;构建步骤-&gt;构建安卓 APK-&gt;额外库”中查找复选框。
+如果自动下载失败，Qt Creator 建议在系统浏览器中打开下载链接进行手动下载。</translation>
     </message>
     <message>
         <source>Android SDK path exists and is writable.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 SDK 路径存在并可写。</translation>
     </message>
     <message>
         <source>JDK path exists and is writable.</source>
-        <translation type="unfinished"></translation>
+        <translation>JDK 路径存在并可写。</translation>
     </message>
     <message>
         <source>SDK tools installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 工具已安装。</translation>
     </message>
     <message>
         <source>SDK manager runs.</source>
-        <translation type="unfinished"></translation>
+        <translation>SDK 管理器运行。</translation>
     </message>
     <message>
         <source>Platform tools installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>平台工具已安装。</translation>
     </message>
     <message>
         <source>All essential packages installed for all installed Qt versions.</source>
-        <translation type="unfinished"></translation>
+        <translation>已为所有已安装的 Qt 版本安装必要包。</translation>
     </message>
     <message>
         <source>Build tools installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>构建工具已安装。</translation>
     </message>
     <message>
         <source>Platform SDK installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>平台 SDK 已安装。</translation>
     </message>
     <message>
         <source>Android settings are OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓设置完成。</translation>
     </message>
     <message>
         <source>Android settings have errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓设置存在错误。</translation>
     </message>
     <message>
         <source>OpenSSL path exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSSL 路径存在。</translation>
     </message>
     <message>
         <source>QMake include project (openssl.pri) exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>QMake 包含项目（openssl.pri）存在。</translation>
     </message>
     <message>
         <source>CMake include project (CMakeLists.txt) exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake 包含项目（CMakeLists.txt）存在</translation>
     </message>
     <message>
         <source>OpenSSL Settings are OK.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSSl 设置完成。</translation>
     </message>
     <message>
         <source>OpenSSL settings have errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSSL 设置存在错误。</translation>
     </message>
     <message>
         <source>Select JDK Path</source>
-        <translation type="unfinished"></translation>
+        <translation>选择 JDK 路径</translation>
     </message>
     <message>
         <source>Select Android SDK Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>选择安卓 SDK 文件夹</translation>
     </message>
     <message>
         <source>Select OpenSSL Include Project File</source>
-        <translation type="unfinished"></translation>
+        <translation>选择 OpenSSL 包含项目文件</translation>
     </message>
     <message>
         <source>Android Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓设置</translation>
     </message>
     <message>
         <source>JDK location:</source>
-        <translation type="unfinished"></translation>
+        <translation>JDK 位置：</translation>
     </message>
     <message>
         <source>Android NDK list:</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 NDK 列表：</translation>
     </message>
     <message>
         <source>Android OpenSSL settings (Optional)</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 OpenSSL 设置（可选）</translation>
     </message>
     <message>
         <source>OpenSSL binaries location:</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSSL 二进制位置：</translation>
     </message>
     <message>
         <source>Failed to create the SDK Tools path %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>创建 SDK 工具路径%1失败。</translation>
     </message>
     <message>
         <source>Select an NDK</source>
-        <translation type="unfinished"></translation>
+        <translation>选择 NDK</translation>
     </message>
     <message>
         <source>Add Custom NDK</source>
-        <translation type="unfinished"></translation>
+        <translation>添加自定义 NDK</translation>
     </message>
     <message>
         <source>The selected path has an invalid NDK. This might mean that the path contains space characters, or that it does not have a &quot;toolchains&quot; sub-directory, or that the NDK version could not be retrieved because of a missing &quot;source.properties&quot; or &quot;RELEASE.TXT&quot; file</source>
-        <translation type="unfinished"></translation>
+        <translation>选择的路径存在无效 NDK。可能意味着路径包含空格，或者没有“toolchins”子路径，或者因为缺失“source.properties 或 RELEASE.TXT”文件无法检索 NDK 版本</translation>
     </message>
     <message>
         <source>OpenSSL Cloning</source>
-        <translation type="unfinished"></translation>
+        <translation>正在克隆 OpenSSL</translation>
     </message>
     <message>
         <source>OpenSSL prebuilt libraries repository is already configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenSSL 预构建二进制仓库已配置。</translation>
     </message>
     <message>
         <source>The selected download path (%1) for OpenSSL already exists and the directory is not empty. Select a different path or make sure it is an empty directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>所选的用于下载 OpenSSL 的路径（%1）已存在并且非空。请选择其它空路径。</translation>
     </message>
     <message>
         <source>Cloning OpenSSL prebuilt libraries...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在克隆 OpenSSL 预构建二进制包...</translation>
     </message>
     <message>
         <source>OpenSSL prebuilt libraries cloning failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>克隆 OpenSSL 预构建二进制包失败。</translation>
     </message>
     <message>
         <source>Opening OpenSSL URL for manual download.</source>
-        <translation type="unfinished"></translation>
+        <translation>打开 OpenSSL 链接进行手动下载。</translation>
     </message>
     <message>
         <source>Open Download URL</source>
-        <translation type="unfinished"></translation>
+        <translation>打开下载链接</translation>
     </message>
     <message>
         <source>The Git tool might not be installed properly on your system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Git 工具可能没有正确安装。</translation>
     </message>
     <message>
         <source>(SDK Version: %1, NDK Version: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>（SDK 版本：%1， NDK 版本：%2）</translation>
     </message>
     <message>
         <source>Unset Default</source>
-        <translation type="unfinished"></translation>
+        <translation>取消默认</translation>
     </message>
     <message>
         <source>Make Default</source>
-        <translation type="unfinished">设置为默认</translation>
+        <translation>设置为默认</translation>
     </message>
     <message>
         <source>The selected path already has a valid SDK Tools package.</source>
-        <translation type="unfinished"></translation>
+        <translation>所选路径已存在有效 SDK 工具包。</translation>
     </message>
     <message>
         <source>Download and install Android SDK Tools to %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>下载并安装安卓 SDK 到%1？</translation>
     </message>
     <message>
         <source>Android Clang</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓 Clang</translation>
     </message>
     <message>
         <source>Overwrite existing AVD name</source>
-        <translation type="unfinished"></translation>
+        <translation>覆盖存在的 AVD 名称</translation>
     </message>
     <message>
         <source>Device definition:</source>
-        <translation type="unfinished"></translation>
+        <translation>设备定义：</translation>
     </message>
     <message>
         <source>Architecture (ABI):</source>
-        <translation type="unfinished"></translation>
+        <translation>架构（ABI）：</translation>
     </message>
     <message>
         <source>Target API:</source>
-        <translation type="unfinished"></translation>
+        <translation>目标 API：</translation>
     </message>
     <message>
         <source>Cannot create a new AVD. No suitable Android system image is installed.&lt;br/&gt;Install a system image for the intended Android version from the SDK Manager.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建新的 AVD。未安装合适的安卓系统镜像。&lt;br/&gt;从 SDK 管理器安装目标安卓版本的系统镜像。</translation>
     </message>
     <message>
         <source>Cannot create an AVD for ABI %1.&lt;br/&gt;Install a system image for it from the SDK Manager tab first.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法为 ABI %1 创建 AVD。&lt;br/&gt;请先从 SDK 管理器标签中安装系统镜像。</translation>
     </message>
     <message>
         <source>Allowed characters are: a-z A-Z 0-9 and . _ -</source>
-        <translation type="unfinished"></translation>
+        <translation>允许的字符集：a-z A-Z 0-9 and . _ -</translation>
     </message>
     <message>
         <source>No application .pro file found in this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>在当前项目中未找到应用项目管理文件(.pro)。</translation>
     </message>
     <message>
         <source>No Application .pro File</source>
-        <translation type="unfinished"></translation>
+        <translation>无项目管理文件（.pro）</translation>
     </message>
     <message>
         <source>Select the .pro file for which you want to create the Android template files.</source>
-        <translation type="unfinished"></translation>
+        <translation>为你想创建的安卓模板文件选择 .pro 文件。</translation>
     </message>
     <message>
         <source>.pro file:</source>
-        <translation type="unfinished"></translation>
+        <translation>.pro 文件：</translation>
     </message>
     <message>
         <source>Select a .pro File</source>
-        <translation type="unfinished"></translation>
+        <translation>选择一个 .pro 文件</translation>
     </message>
     <message>
         <source>Android package source directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓包源码路径：</translation>
     </message>
     <message>
         <source>The Android package source directory cannot be the same as the project directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓包源码路径不能是项目路径。</translation>
     </message>
     <message>
         <source>Copy the Gradle files to Android directory</source>
-        <translation type="unfinished"></translation>
+        <translation>复制 Gradle 文件到安卓路径</translation>
     </message>
     <message>
         <source>It is highly recommended if you are planning to extend the Java part of your Qt application.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果您想扩展 Qt 应用的 Java 部分，强烈建议您这样做。</translation>
     </message>
     <message>
         <source>Select the Android package source directory.
 
 The files in the Android package source directory are copied to the build directory&apos;s Android directory and the default files are overwritten.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择安卓包源码路径。
+
+安卓包源码目录中的文件将被复制到构建目录的 Android 目录中，并覆盖默认文件。</translation>
     </message>
     <message>
         <source>The Android template files will be created in the %1 set in the .pro file.</source>
-        <translation type="unfinished"></translation>
+        <translation>安卓模板文件会创建到 .pro 文件设置的 %1 路径中。</translation>
     </message>
     <message>
         <source>Create Android Template Files Wizard</source>
-        <translation type="unfinished"></translation>
+        <translation>创建安卓模板文件向导</translation>
     </message>
     <message>
         <source>Project File not Updated</source>
-        <translation type="unfinished"></translation>
+        <translation>项目文件未更新</translation>
     </message>
     <message>
         <source>Could not update the project file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法更新项目文件%1。</translation>
     </message>
     <message>
         <source>Java:</source>
-        <translation type="unfinished"></translation>
+        <translation>Java：</translation>
     </message>
     <message>
         <source>Java Language Server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Java 语言服务器：</translation>
     </message>
     <message>
         <source>Path to equinox launcher jar</source>
-        <translation type="unfinished"></translation>
+        <translation>Equinox 启动器 jar 的路径</translation>
     </message>
     <message>
         <source>Select splash screen image</source>
-        <translation type="unfinished"></translation>
+        <translation>选择启动画面图像</translation>
     </message>
     <message>
         <source>Portrait splash screen</source>
-        <translation type="unfinished"></translation>
+        <translation>纵向启动画面</translation>
     </message>
     <message>
         <source>Select portrait splash screen image</source>
-        <translation type="unfinished"></translation>
+        <translation>选择纵向启动画面图像</translation>
     </message>
     <message>
         <source>Landscape splash screen</source>
-        <translation type="unfinished"></translation>
+        <translation>横向启动画面</translation>
     </message>
     <message>
         <source>Select landscape splash screen image</source>
-        <translation type="unfinished"></translation>
+        <translation>选择横向启动画面图像</translation>
     </message>
     <message>
         <source>Clear All</source>
-        <translation type="unfinished"></translation>
+        <translation>清除所有</translation>
     </message>
     <message>
         <source>A non-sticky splash screen is hidden automatically when an activity is drawn.
 To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
-        <translation type="unfinished"></translation>
+        <translation>绘制活动时会自动隐藏非粘性启动画面。
+调用 QtAndroid::hideSplashScreen() 函数隐藏粘性启动画面。</translation>
     </message>
     <message>
         <source>Sticky splash screen:</source>
-        <translation type="unfinished"></translation>
+        <translation>粘性启动画面：</translation>
     </message>
     <message>
         <source>Image show mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>图像显示模式：</translation>
     </message>
     <message>
         <source>Background color of the splash screen.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动画面背景颜色。</translation>
     </message>
     <message>
         <source>Background color:</source>
-        <translation type="unfinished"></translation>
+        <translation>背景颜色：</translation>
     </message>
     <message>
         <source>Select master image to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要使用的主图像。</translation>
     </message>
     <message>
         <source>Master image:</source>
-        <translation type="unfinished"></translation>
+        <translation>主图像：</translation>
     </message>
     <message>
         <source>Select portrait master image to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要使用的纵向主图像。</translation>
     </message>
     <message>
         <source>Portrait master image:</source>
-        <translation type="unfinished"></translation>
+        <translation>纵向主图像：</translation>
     </message>
     <message>
         <source>Select landscape master image to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择要使用的横向主图像。</translation>
     </message>
     <message>
         <source>Landscape master image:</source>
-        <translation type="unfinished"></translation>
+        <translation>横向主图像：</translation>
     </message>
     <message>
         <source>LDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>低屏幕密度</translation>
     </message>
     <message>
         <source>MDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>中屏幕密度</translation>
     </message>
     <message>
         <source>HDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>高屏幕密度</translation>
     </message>
     <message>
         <source>XHDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>超高屏幕密度</translation>
     </message>
     <message>
         <source>XXHDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>超超高屏幕密度</translation>
     </message>
     <message>
         <source>XXXHDPI</source>
-        <translation type="unfinished"></translation>
+        <translation>超超超高屏幕密度</translation>
     </message>
     <message>
         <source>An image is used for the splashscreen. Qt Creator manages
 splashscreen by using a different method which requires changing
 the manifest file by overriding your settings. Allow override?</source>
-        <translation type="unfinished"></translation>
+        <translation>用于启动画面的图像。Qt Creator 通过使用需要修改 manifest 文件的不同方法
+来管理启动图像，并会覆盖你的设置。允许覆盖？</translation>
     </message>
     <message>
         <source>Convert</source>
-        <translation type="unfinished"></translation>
+        <translation>转换</translation>
     </message>
     <message>
         <source>Select background color</source>
-        <translation type="unfinished"></translation>
+        <translation>选择背景颜色</translation>
     </message>
     <message>
         <source>Select master image</source>
-        <translation type="unfinished"></translation>
+        <translation>选择主图像</translation>
     </message>
     <message>
         <source>Select portrait master image</source>
-        <translation type="unfinished"></translation>
+        <translation>选择纵向主图像</translation>
     </message>
     <message>
         <source>Select landscape master image</source>
-        <translation type="unfinished"></translation>
+        <translation>选择横向主图像</translation>
     </message>
     <message>
         <source>Images</source>
-        <translation type="unfinished">图片</translation>
+        <translation>图片</translation>
     </message>
 </context>
 <context>
@@ -2219,607 +2254,613 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
     <message>
         <source>Unable to send command line arguments to the already running instance. It does not appear to be responding. Do you want to start a new instance of %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>无法发送命令行参数到运行中的实例。似乎没有响应。是否启动%1的新实例？</translation>
     </message>
     <message>
         <source>Could not find Core plugin in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从%1中找到核心插件</translation>
     </message>
     <message>
         <source>Core plugin is disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>核心插件被禁用。</translation>
     </message>
 </context>
 <context>
     <name>ApplicationWindowSpecifics</name>
     <message>
         <source>Window</source>
-        <translation type="unfinished"></translation>
+        <translation>窗口</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">标题</translation>
+        <translation>标题</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation type="unfinished">颜色</translation>
+        <translation>颜色</translation>
     </message>
     <message>
         <source>Visible</source>
-        <translation type="unfinished">可见</translation>
+        <translation>可见</translation>
     </message>
     <message>
         <source>Opacity</source>
-        <translation type="unfinished">不透明度</translation>
+        <translation>不透明度</translation>
     </message>
 </context>
 <context>
     <name>Autotest</name>
     <message>
         <source>Testing</source>
-        <translation type="unfinished"></translation>
+        <translation>测试</translation>
     </message>
     <message>
         <source>&amp;Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>测试（&amp;T）</translation>
     </message>
     <message>
         <source>Run &amp;All Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所有测试（&amp;A）</translation>
     </message>
     <message>
         <source>Run All Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所有测试</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+A</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+A</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+A</translation>
     </message>
     <message>
         <source>Run All Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所有测试但不部署</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+E</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+E</translation>
     </message>
     <message>
         <source>&amp;Run Selected Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所选的测试（&amp;R）</translation>
     </message>
     <message>
         <source>Run Selected Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所选的测试</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+R</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+R</translation>
     </message>
     <message>
         <source>&amp;Run Selected Tests Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>运行所选的测试但不部署（&amp;R）</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+W</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+W</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+W</translation>
     </message>
     <message>
         <source>Run &amp;Failed Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行失败的测试&amp;F</translation>
     </message>
     <message>
         <source>Run Failed Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行失败的测试</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+F</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+F</translation>
     </message>
     <message>
         <source>Run Tests for &amp;Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>为当前文件运行测试&amp;C</translation>
     </message>
     <message>
         <source>Run Tests for Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>为当前文件运行测试</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+C</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+C</translation>
     </message>
     <message>
         <source>Re&amp;scan Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>重新扫描测试（&amp;s）</translation>
     </message>
     <message>
         <source>Ctrl+Meta+T, Ctrl+Meta+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+T, Ctrl+Meta+S</translation>
     </message>
     <message>
         <source>Alt+Shift+T,Alt+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+Shift+T,Alt+S</translation>
     </message>
     <message>
         <source>&amp;Run Test Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>运行光标所选测试（&amp;R）</translation>
     </message>
     <message>
         <source>Run Test Under Cursor Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>运行光标所选测试但不部署</translation>
     </message>
     <message>
         <source>&amp;Debug Test Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>调试光标所选测试（&amp;D）</translation>
     </message>
     <message>
         <source>Debug Test Under Cursor Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>调试光标所选测试但不部署</translation>
     </message>
     <message>
         <source>Selected test was not found (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到所选测试（%1）。</translation>
     </message>
     <message>
         <source>Boost Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Boost 测试</translation>
     </message>
     <message>
         <source>Executing test case %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试用例 %1</translation>
     </message>
     <message>
         <source>Executing test suite %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试套件 %1</translation>
     </message>
     <message>
         <source>Test execution took %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试耗费 %1</translation>
     </message>
     <message>
         <source>Test suite execution took %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试套件耗费 %1</translation>
     </message>
     <message>
         <source>Executing test module %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试模块 %1</translation>
     </message>
     <message>
         <source>Test module execution took %1</source>
-        <translation type="unfinished"></translation>
+        <translation>测试模块耗费 %1</translation>
     </message>
     <message>
         <source>%1 failures detected in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>在 %2 中检测到错误 %1。</translation>
     </message>
     <message>
         <source>%1 tests passed.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 测试通过。</translation>
     </message>
     <message>
         <source>No errors detected.</source>
-        <translation type="unfinished"></translation>
+        <translation>未检测到错误。</translation>
     </message>
     <message>
         <source>Running tests exited with %1</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试结束，返回值 %1</translation>
     </message>
     <message>
         <source>Executable: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>可执行： %1</translation>
     </message>
     <message>
         <source>Running tests failed.
 %1
 Executable: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试失败。
+%1
+可执行：%2</translation>
     </message>
     <message>
         <source>Running tests without output.</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试但不输出。</translation>
     </message>
     <message>
         <source>Log format:</source>
-        <translation type="unfinished"></translation>
+        <translation>日志格式：</translation>
     </message>
     <message>
         <source>Report level:</source>
-        <translation type="unfinished"></translation>
+        <translation>报告级别：</translation>
     </message>
     <message>
         <source>Seed:</source>
-        <translation type="unfinished"></translation>
+        <translation>随机种子：</translation>
     </message>
     <message>
         <source>A seed of 0 means no randomization. A value of 1 uses the current time, any other value is used as random seed generator.</source>
-        <translation type="unfinished"></translation>
+        <translation>随机种子 0 意味着无随机化。值 1 使用当前时间，任何其他值用作随机种子生成器。</translation>
     </message>
     <message>
         <source>Randomize</source>
-        <translation type="unfinished"></translation>
+        <translation>随机化</translation>
     </message>
     <message>
         <source>Randomize execution order.</source>
-        <translation type="unfinished"></translation>
+        <translation>随机化执行顺序。</translation>
     </message>
     <message>
         <source>Catch system errors</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获系统错误</translation>
     </message>
     <message>
         <source>Catch or ignore system errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>捕获或忽略系统错误。</translation>
     </message>
     <message>
         <source>Floating point exceptions</source>
-        <translation type="unfinished"></translation>
+        <translation>浮点异常</translation>
     </message>
     <message>
         <source>Enable floating point exception traps.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用浮点异常陷阱。</translation>
     </message>
     <message>
         <source>Detect memory leaks</source>
-        <translation type="unfinished"></translation>
+        <translation>检测内存泄露</translation>
     </message>
     <message>
         <source>Enable memory leak detection.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用内存泄露检测。</translation>
     </message>
     <message>
         <source>parameterized</source>
-        <translation type="unfinished"></translation>
+        <translation>参数化</translation>
     </message>
     <message>
         <source>fixture</source>
-        <translation type="unfinished"></translation>
+        <translation>装置</translation>
     </message>
     <message>
         <source>templated</source>
-        <translation type="unfinished"></translation>
+        <translation>模板</translation>
     </message>
     <message>
         <source>Catch Test</source>
-        <translation type="unfinished"></translation>
+        <translation>捕捉测试</translation>
     </message>
     <message>
         <source>Exception:</source>
-        <translation type="unfinished"></translation>
+        <translation>异常：</translation>
     </message>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>执行 %1 “%1”</translation>
     </message>
     <message>
         <source>%1 &quot;%2&quot; passed</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 “%2” 通过</translation>
     </message>
     <message>
         <source>Expression passed</source>
-        <translation type="unfinished"></translation>
+        <translation>表达式通过</translation>
     </message>
     <message>
         <source>Expression failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>表达式失败：%1</translation>
     </message>
     <message>
         <source>Finished executing %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>结束执行 %1 “%2”</translation>
     </message>
     <message>
         <source>Number of resamples for bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>引导的重采样数</translation>
     </message>
     <message>
         <source> ms</source>
-        <translation type="unfinished">毫秒</translation>
+        <translation> 毫秒</translation>
     </message>
     <message>
         <source>Abort after</source>
-        <translation type="unfinished"></translation>
+        <translation>后中止</translation>
     </message>
     <message>
         <source>Aborts after the specified number of failures.</source>
-        <translation type="unfinished"></translation>
+        <translation>在指定失败次数后中止。</translation>
     </message>
     <message>
         <source>Benchmark samples</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试样本</translation>
     </message>
     <message>
         <source>Number of samples to collect while running benchmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>运行基准测试时的采样数。</translation>
     </message>
     <message>
         <source>Benchmark resamples</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试重采样</translation>
     </message>
     <message>
         <source>Number of resamples used for statistical bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>用于统计的引导重采样数</translation>
     </message>
     <message>
         <source>Confidence interval used for statistical bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>用于统计的引导置信区间。</translation>
     </message>
     <message>
         <source>Benchmark confidence interval</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试置信区间</translation>
     </message>
     <message>
         <source>Benchmark warmup time</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试预热时间</translation>
     </message>
     <message>
         <source>Warmup time for each test.</source>
-        <translation type="unfinished"></translation>
+        <translation>每个测试预热时间</translation>
     </message>
     <message>
         <source>Disable analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用分析</translation>
     </message>
     <message>
         <source>Disables statistical analysis and bootstrapping.</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用统计分析和引导。</translation>
     </message>
     <message>
         <source>Show success</source>
-        <translation type="unfinished"></translation>
+        <translation>显示成功</translation>
     </message>
     <message>
         <source>Show success for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>显示测试成功。</translation>
     </message>
     <message>
         <source>Break on failure while debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>调试时失败跳出</translation>
     </message>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
-        <translation type="unfinished"></translation>
+        <translation>将故障转换为调试断点。</translation>
     </message>
     <message>
         <source>Skip throwing assertions</source>
-        <translation type="unfinished"></translation>
+        <translation>跳过抛出断言</translation>
     </message>
     <message>
         <source>Skips all assertions that test for thrown exceptions.</source>
-        <translation type="unfinished"></translation>
+        <translation>跳过所有测试抛出异常的断言。</translation>
     </message>
     <message>
         <source>Visualize whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>空白可视化</translation>
     </message>
     <message>
         <source>Makes whitespace visible.</source>
-        <translation type="unfinished"></translation>
+        <translation>使空白可见。</translation>
     </message>
     <message>
         <source>Warn on empty tests</source>
-        <translation type="unfinished"></translation>
+        <translation>空白测试时警告</translation>
     </message>
     <message>
         <source>Warns if a test section does not check any assertion.</source>
-        <translation type="unfinished"></translation>
+        <translation>若测试部分不做断言检查，发出警告。</translation>
     </message>
     <message>
         <source>Running tests for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>为 %1 运行测试</translation>
     </message>
     <message>
         <source>Output on failure</source>
-        <translation type="unfinished"></translation>
+        <translation>失败时输出</translation>
     </message>
     <message>
         <source>Output mode</source>
-        <translation type="unfinished"></translation>
+        <translation>输出模式</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <source>Verbose</source>
-        <translation type="unfinished">详细</translation>
+        <translation>详细</translation>
     </message>
     <message>
         <source>Very Verbose</source>
-        <translation type="unfinished"></translation>
+        <translation>非常详细</translation>
     </message>
     <message>
         <source>Repetition mode</source>
-        <translation type="unfinished"></translation>
+        <translation>重复模式</translation>
     </message>
     <message>
         <source>Until Fail</source>
-        <translation type="unfinished"></translation>
+        <translation>直到失败</translation>
     </message>
     <message>
         <source>Until Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>直到通过</translation>
     </message>
     <message>
         <source>After Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>超时后</translation>
     </message>
     <message>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation>计数</translation>
     </message>
     <message>
         <source>Number of re-runs for the test.</source>
-        <translation type="unfinished"></translation>
+        <translation>重复测试次数。</translation>
     </message>
     <message>
         <source>Schedule random</source>
-        <translation type="unfinished"></translation>
+        <translation>随机安排</translation>
     </message>
     <message>
         <source>Stop on failure</source>
-        <translation type="unfinished"></translation>
+        <translation>失败时停止</translation>
     </message>
     <message>
         <source>Run tests in parallel mode using given number of jobs.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用给定的作业数以并行模式运行测试。</translation>
     </message>
     <message>
         <source>Jobs</source>
-        <translation type="unfinished"></translation>
+        <translation>作业</translation>
     </message>
     <message>
         <source>Test load</source>
-        <translation type="unfinished"></translation>
+        <translation>测试加载</translation>
     </message>
     <message>
         <source>Try not to start tests when they may cause CPU load to pass a threshold.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试可能导致 CPU 负载超过阈值时，尽量不要开始测试。</translation>
     </message>
     <message>
         <source>Threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>阈值</translation>
     </message>
     <message>
         <source>CTest</source>
-        <translation type="unfinished"></translation>
+        <translation>C测试</translation>
     </message>
     <message>
         <source>Repeat tests</source>
-        <translation type="unfinished"></translation>
+        <translation>重复测试</translation>
     </message>
     <message>
         <source>Run in parallel</source>
-        <translation type="unfinished"></translation>
+        <translation>并行运行</translation>
     </message>
     <message>
         <source>Google Test</source>
-        <translation type="unfinished"></translation>
+        <translation>谷歌测试</translation>
     </message>
     <message>
         <source>Enable or disable grouping of test cases by folder or GTest filter.
 See also Google Test settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用或禁用按文件夹或 GTest 过滤器对测试用例进行分组。
+见谷歌测试设置。</translation>
     </message>
     <message>
         <source>Running tests failed.
  %1
 Executable: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试失败。
+%1
+可执行：%2</translation>
     </message>
     <message>
         <source>(iteration %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>（迭代 %1）</translation>
     </message>
     <message>
         <source>Repeating test suite %1 (iteration %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>重复测试套件 %1（迭代 %2）</translation>
     </message>
     <message>
         <source>Entering test case %1</source>
-        <translation type="unfinished"></translation>
+        <translation>进入测试用例 %1</translation>
     </message>
     <message>
         <source>Execution took %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行耗费 %1。</translation>
     </message>
     <message>
         <source>Iterations:</source>
-        <translation type="unfinished"></translation>
+        <translation>迭代：</translation>
     </message>
     <message>
         <source>A seed of 0 generates a seed based on the current timestamp.</source>
-        <translation type="unfinished"></translation>
+        <translation>种子 0 基于当前时间戳生成种子。</translation>
     </message>
     <message>
         <source>Run disabled tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行禁用的测试</translation>
     </message>
     <message>
         <source>Executes disabled tests when performing a test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>当执行的测试运行时，执行禁用的测试。</translation>
     </message>
     <message>
         <source>Shuffle tests</source>
-        <translation type="unfinished"></translation>
+        <translation>随机测试</translation>
     </message>
     <message>
         <source>Shuffles tests automatically on every iteration by the given seed.</source>
-        <translation type="unfinished"></translation>
+        <translation>在给定的种子每一次迭代中自动运行随机测试。</translation>
     </message>
     <message>
         <source>Repeats a test run (you might be required to increase the timeout to avoid canceling the tests).</source>
-        <translation type="unfinished"></translation>
+        <translation>重复运行测试（你可能会被要求增加超时来避免取消测试）。</translation>
     </message>
     <message>
         <source>Throw on failure</source>
-        <translation type="unfinished"></translation>
+        <translation>失败时抛出异常</translation>
     </message>
     <message>
         <source>Turns assertion failures into C++ exceptions.</source>
-        <translation type="unfinished"></translation>
+        <translation>将断言失败转换为 C++ 异常。</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">目录</translation>
+        <translation>目录</translation>
     </message>
     <message>
         <source>GTest Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>GTest 过滤器</translation>
     </message>
     <message>
         <source>Group mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>组模式：</translation>
     </message>
     <message>
         <source>Select on what grouping the tests should be based.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择测试应基于何种分组。</translation>
     </message>
     <message>
         <source>Active filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>激活的过滤器：</translation>
     </message>
     <message>
         <source>Set the GTest filter to be used for grouping.
 See Google Test documentation for further information on GTest filters.</source>
-        <translation type="unfinished"></translation>
+        <translation>设置 GTest 过滤器用于分组。
+见谷歌测试文档获取更多关于 GTest 过滤器的信息。</translation>
     </message>
     <message>
         <source>&lt;matching&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;匹配&gt;</translation>
     </message>
     <message>
         <source>&lt;not matching&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;不匹配&gt;</translation>
     </message>
     <message>
         <source>Change GTest filter in use inside the settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>在设置中改变使用的 GTest 过滤器。</translation>
     </message>
     <message>
         <source>typed</source>
@@ -2827,217 +2868,219 @@ See Google Test documentation for further information on GTest filters.</source>
     </message>
     <message>
         <source>Active frameworks:</source>
-        <translation type="unfinished"></translation>
+        <translation>活跃的框架：</translation>
     </message>
     <message>
         <source>Automatically run tests after build</source>
-        <translation type="unfinished"></translation>
+        <translation>在构建后自动运行测试</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">无</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">所有</translation>
+        <translation>所有</translation>
     </message>
     <message>
         <source>Selected</source>
-        <translation type="unfinished">选中</translation>
+        <translation>选中</translation>
     </message>
     <message>
         <source>Qt Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 测试</translation>
     </message>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 每次迭代（总共：%3，迭代：%4）</translation>
     </message>
     <message>
         <source>Qt version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 版本：%1</translation>
     </message>
     <message>
         <source>Qt build: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt 构建：%1</translation>
     </message>
     <message>
         <source>QTest version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>QTest 版本：%1</translation>
     </message>
     <message>
         <source>XML parsing failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>XML 解析失败。</translation>
     </message>
     <message>
         <source>Entering test function %1::%2</source>
-        <translation type="unfinished"></translation>
+        <translation>进入测试函数 %1::%2</translation>
     </message>
     <message>
         <source>Executing test function %1</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试函数 %1</translation>
     </message>
     <message>
         <source>Execution took %1 ms.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行耗费 %1 毫秒。</translation>
     </message>
     <message>
         <source>Test execution took %1 ms.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试执行耗费 %1 毫秒。</translation>
     </message>
     <message>
         <source>Test function finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试函数结束。</translation>
     </message>
     <message>
         <source>Test finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>测试结束。</translation>
     </message>
     <message>
         <source>Walltime</source>
-        <translation type="unfinished"></translation>
+        <translation>现实时间</translation>
     </message>
     <message>
         <source>Uses walltime metrics for executing benchmarks (default).</source>
-        <translation type="unfinished"></translation>
+        <translation>使用现实时间指标执行基准测试（默认）。</translation>
     </message>
     <message>
         <source>Tick counter</source>
-        <translation type="unfinished"></translation>
+        <translation>时钟计数器</translation>
     </message>
     <message>
         <source>Uses tick counter when executing benchmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行基准测试时使用时钟计数器。</translation>
     </message>
     <message>
         <source>Event counter</source>
-        <translation type="unfinished"></translation>
+        <translation>事件计数器</translation>
     </message>
     <message>
         <source>Uses event counter when executing benchmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行基准测试时使用事件计数器。</translation>
     </message>
     <message>
         <source>Callgrind</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Uses Valgrind Callgrind when executing benchmarks (it must be installed).</source>
-        <translation type="unfinished"></translation>
+        <translation>执行基准测试时使用 Valgrind Callgrind（必须安装）。</translation>
     </message>
     <message>
         <source>Perf</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Uses Perf when executing benchmarks (it must be installed).</source>
-        <translation type="unfinished"></translation>
+        <translation>执行基准测试时使用 Perf（必须安装）。</translation>
     </message>
     <message>
         <source>Disable crash handler while debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>调试时禁用崩溃处理程序</translation>
     </message>
     <message>
         <source>Enables interrupting tests on assertions.</source>
-        <translation type="unfinished"></translation>
+        <translation>断言时启用中断测试。</translation>
     </message>
     <message>
         <source>Use XML output</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 XML 输出</translation>
     </message>
     <message>
         <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.
 
 Warning: Plain text misses some information, such as duration.</source>
-        <translation type="unfinished"></translation>
+        <translation>建议使用 XML 输出，它避免了一些解析问题，虽然纯文本可读性更好。
+
+警告：纯文本丢失了一些信息，比如持续时间。</translation>
     </message>
     <message>
         <source>Verbose benchmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>详细基准测试</translation>
     </message>
     <message>
         <source>Log signals and slots</source>
-        <translation type="unfinished"></translation>
+        <translation>记录信号和槽</translation>
     </message>
     <message>
         <source>Log every signal emission and resulting slot invocations.</source>
-        <translation type="unfinished"></translation>
+        <translation>记录每个信号发射和产生的槽函数调用。</translation>
     </message>
     <message>
         <source>Limit warnings</source>
-        <translation type="unfinished"></translation>
+        <translation>限制警告</translation>
     </message>
     <message>
         <source>Set the maximum number of warnings. 0 means that the number is not limited.</source>
-        <translation type="unfinished"></translation>
+        <translation>设置警告数量最大值。0 意味着没有限制。</translation>
     </message>
     <message>
         <source>Unlimited</source>
-        <translation type="unfinished"></translation>
+        <translation>无限制的</translation>
     </message>
     <message>
         <source>Benchmark Metrics</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试指标</translation>
     </message>
     <message>
         <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;官方不支持单一可执行程序中的多个测试用例，根据具体实现，它可能会被执行，但绝不会被明确选择&lt;/p&gt;</translation>
     </message>
     <message>
         <source>inherited</source>
-        <translation type="unfinished"></translation>
+        <translation>继承</translation>
     </message>
     <message>
         <source>multiple testcases</source>
-        <translation type="unfinished"></translation>
+        <translation>多个测试用例</translation>
     </message>
     <message>
         <source>Quick Test</source>
-        <translation type="unfinished"></translation>
+        <translation>快速测试</translation>
     </message>
     <message>
         <source>&lt;unnamed&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;未命名&gt;</translation>
     </message>
     <message>
         <source>Give all test cases a name to ensure correct behavior when running test cases and to be able to select them</source>
-        <translation type="unfinished"></translation>
+        <translation>为所有的测试用例命名以确保在运行测试用例时有正确行为，并且可以选择它们</translation>
     </message>
     <message>
         <source>Scanning for Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>扫描测试</translation>
     </message>
     <message>
         <source>Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>测试</translation>
     </message>
     <message>
         <source>No active test frameworks.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有活跃的测试框架。</translation>
     </message>
     <message>
         <source>Run This Test</source>
-        <translation type="unfinished"></translation>
+        <translation>运行这个测试</translation>
     </message>
     <message>
         <source>Run Without Deployment</source>
-        <translation type="unfinished">忽略部署直接运行</translation>
+        <translation>忽略部署直接运行</translation>
     </message>
     <message>
         <source>Debug This Test</source>
-        <translation type="unfinished"></translation>
+        <translation>调试这个测试</translation>
     </message>
     <message>
         <source>Debug Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略部署直接调试</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished">全选</translation>
+        <translation>全选</translation>
     </message>
     <message>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>反选所有</translation>
     </message>
     <message>
         <source>Filter Test Tree</source>
@@ -3045,499 +3088,509 @@ Warning: Plain text misses some information, such as duration.</source>
     </message>
     <message>
         <source>Sort Naturally</source>
-        <translation type="unfinished"></translation>
+        <translation>自然排序</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">展开全部</translation>
+        <translation>展开全部</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">折叠全部</translation>
+        <translation>折叠全部</translation>
     </message>
     <message>
         <source>Sort Alphabetically</source>
-        <translation type="unfinished">按字母排序</translation>
+        <translation>按字母排序</translation>
     </message>
     <message>
         <source>Show Init and Cleanup Functions</source>
-        <translation type="unfinished"></translation>
+        <translation>显示初始化和清场函数</translation>
     </message>
     <message>
         <source>Show Data Functions</source>
-        <translation type="unfinished"></translation>
+        <translation>显示数据函数</translation>
     </message>
     <message>
         <source>Test executable crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>可执行程序测试崩溃。</translation>
     </message>
     <message>
         <source>Stop Test Run</source>
-        <translation type="unfinished"></translation>
+        <translation>停止测试运行</translation>
     </message>
     <message>
         <source>Filter Test Results</source>
-        <translation type="unfinished"></translation>
+        <translation>测试过滤结果</translation>
     </message>
     <message>
         <source>Switch Between Visual and Text Display</source>
-        <translation type="unfinished"></translation>
+        <translation>在视觉和文本显示间切换</translation>
     </message>
     <message>
         <source>Test Results</source>
-        <translation type="unfinished">测试结果</translation>
+        <translation>测试结果</translation>
     </message>
     <message>
         <source>Pass</source>
-        <translation type="unfinished">通过</translation>
+        <translation>通过</translation>
     </message>
     <message>
         <source>Fail</source>
-        <translation type="unfinished"></translation>
+        <translation>失败</translation>
     </message>
     <message>
         <source>Expected Fail</source>
-        <translation type="unfinished"></translation>
+        <translation>预期失败</translation>
     </message>
     <message>
         <source>Unexpected Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>非预期通过</translation>
     </message>
     <message>
         <source>Skip</source>
-        <translation type="unfinished">跳过</translation>
+        <translation>跳过</translation>
     </message>
     <message>
         <source>Benchmarks</source>
-        <translation type="unfinished"></translation>
+        <translation>基准测试</translation>
     </message>
     <message>
         <source>Debug Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>调试信息</translation>
     </message>
     <message>
         <source>Warning Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>警告信息</translation>
     </message>
     <message>
         <source>Internal Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>内部信息</translation>
     </message>
     <message>
         <source>Check All Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>勾选所有过滤器</translation>
     </message>
     <message>
         <source>Uncheck All Filters</source>
-        <translation type="unfinished"></translation>
+        <translation>取消勾选所有过滤器</translation>
     </message>
     <message>
         <source>Test summary</source>
-        <translation type="unfinished"></translation>
+        <translation>测试概要</translation>
     </message>
     <message>
         <source>passes</source>
-        <translation type="unfinished"></translation>
+        <translation>通过</translation>
     </message>
     <message>
         <source>fails</source>
-        <translation type="unfinished"></translation>
+        <translation>失败</translation>
     </message>
     <message>
         <source>unexpected passes</source>
-        <translation type="unfinished"></translation>
+        <translation>非预期通过</translation>
     </message>
     <message>
         <source>expected fails</source>
-        <translation type="unfinished"></translation>
+        <translation>预期失败</translation>
     </message>
     <message>
         <source>fatals</source>
-        <translation type="unfinished"></translation>
+        <translation>严重</translation>
     </message>
     <message>
         <source>blacklisted</source>
-        <translation type="unfinished"></translation>
+        <translation>黑名单</translation>
     </message>
     <message>
         <source>skipped</source>
-        <translation type="unfinished"></translation>
+        <translation>跳过</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">复制</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>复制所有</translation>
     </message>
     <message>
         <source>Save Output to File...</source>
-        <translation type="unfinished"></translation>
+        <translation>将输出保存到文件...</translation>
     </message>
     <message>
         <source>Run This Test Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略部署运行测试</translation>
     </message>
     <message>
         <source>Debug This Test Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略部署调试测试</translation>
     </message>
     <message>
         <source>Save Output To</source>
-        <translation type="unfinished"></translation>
+        <translation>保存输出到</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">错误</translation>
+        <translation>错误</translation>
     </message>
     <message>
         <source>Failed to write &quot;%1&quot;.
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>写入失败 “%1”。
+
+%2</translation>
     </message>
     <message>
         <source>AutoTest Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>自动测试调试</translation>
     </message>
     <message>
         <source>Test run canceled by user.</source>
-        <translation type="unfinished"></translation>
+        <translation>用户取消测试运行</translation>
     </message>
     <message>
         <source>
 Run configuration: deduced from &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>
+运行配置：从“%1”中推导</translation>
     </message>
     <message>
         <source>
 Run configuration: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>
+运行配置：“%1”</translation>
     </message>
     <message>
         <source>Omitted the following arguments specified on the run configuration page for &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>省略在“%1”运行配置页面中指定的以下参数：</translation>
     </message>
     <message>
         <source>Omitted the following environment variables for &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>对“%1”省略了以下环境变量：</translation>
     </message>
     <message>
         <source>Executable path is empty. (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>可执行程序路径为空。（%1）</translation>
     </message>
     <message>
         <source>Current kit has changed. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>当前套件改变，取消测试运行。</translation>
     </message>
     <message>
         <source>Test case canceled due to timeout.
 Maybe raise the timeout?</source>
-        <translation type="unfinished"></translation>
+        <translation>超时导致测试用例取消。
+增加超时时间？</translation>
     </message>
     <message>
         <source>Failed to start test for project &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动项目“%1”的测试失败。</translation>
     </message>
     <message>
         <source>Test for project &quot;%1&quot; crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目“%1”的测试崩溃。</translation>
     </message>
     <message>
         <source>Test for project &quot;%1&quot; did not produce any expected output.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目“%1”的测试未产生任何预期输出。</translation>
     </message>
     <message>
         <source>No tests selected. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>未选择测试，取消测试运行。</translation>
     </message>
     <message>
         <source>Project is null. Canceling test run.
 Only desktop kits are supported. Make sure the currently active kit is a desktop kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目为空，取消测试运行。
+仅支持桌面套件。确保当前活跃套件为桌面套件。</translation>
     </message>
     <message>
         <source>Project is not configured. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>项目未配置。取消测试运行。</translation>
     </message>
     <message>
         <source>Project is null for &quot;%1&quot;. Removing from test run.
 Check the test environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>“%1”项目为空。从运行测试中移除。
+检测测试环境。</translation>
     </message>
     <message>
         <source>Project&apos;s run configuration was deduced for &quot;%1&quot;.
 This might cause trouble during execution.
 (deduced from &quot;%2&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>为“%1”推导出项目的运行配置。
+这可能导致执行中的一些问题。
+（从“%2”中推导）</translation>
     </message>
     <message>
         <source>Startup project has changed. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>启动项目已更改，取消测试运行。</translation>
     </message>
     <message>
         <source>No test cases left for execution. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有待执行的测试用例，取消测试运行。</translation>
     </message>
     <message>
         <source>Running Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>运行测试</translation>
     </message>
     <message>
         <source>Failed to get run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>获取运行配置失败。</translation>
     </message>
     <message>
         <source>Could not find command &quot;%1&quot;. (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>无法找到命令“%1”。（%2）</translation>
     </message>
     <message>
         <source>Unable to display test results when using CDB.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 CDB 时无法显示测试结果。</translation>
     </message>
     <message>
         <source>Build failed. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>构建失败。取消测试运行。</translation>
     </message>
     <message>
         <source>Select Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>选择运行配置</translation>
     </message>
     <message>
         <source>Could not determine which run configuration to choose for running tests</source>
-        <translation type="unfinished"></translation>
+        <translation>无法确定为运行的测试选择哪个运行配置</translation>
     </message>
     <message>
         <source>Remember choice. Cached choices can be reset by switching projects or using the option to clear the cache.</source>
-        <translation type="unfinished"></translation>
+        <translation>记住选择。缓存下来的选择可以通过切换项目或者使用选项来清除。</translation>
     </message>
     <message>
         <source>Run Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>运行配置：</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
+        <translation>执行档:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数:</translation>
     </message>
     <message>
         <source>Working Directory:</source>
-        <translation type="unfinished">工作目录:</translation>
+        <translation>工作目录:</translation>
     </message>
     <message>
         <source>Omit internal messages</source>
-        <translation type="unfinished"></translation>
+        <translation>省略内部信息</translation>
     </message>
     <message>
         <source>Hides internal messages by default. You can still enable them by using the test results filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>默认隐藏内部信息。你依然可以通过使用测试结果过滤器来启用它们。</translation>
     </message>
     <message>
         <source>Omit run configuration warnings</source>
-        <translation type="unfinished"></translation>
+        <translation>省略运行配置警告</translation>
     </message>
     <message>
         <source>Hides warnings related to a deduced run configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>隐藏与推导出的运行配置相关的警告。</translation>
     </message>
     <message>
         <source>Limit result output</source>
-        <translation type="unfinished"></translation>
+        <translation>限制结果输出</translation>
     </message>
     <message>
         <source>Limits result output to 100000 characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>将输出结果限制为100000个字符。</translation>
     </message>
     <message>
         <source>Limit result description:</source>
-        <translation type="unfinished"></translation>
+        <translation>限制结果描述：</translation>
     </message>
     <message>
         <source>Limit number of lines shown in test result tooltip and description.</source>
-        <translation type="unfinished"></translation>
+        <translation>限制测试结果工具提示和描述中的显示行数。</translation>
     </message>
     <message>
         <source>Open results when tests start</source>
-        <translation type="unfinished"></translation>
+        <translation>测试开始时打开结果</translation>
     </message>
     <message>
         <source>Displays test results automatically when tests are started.</source>
-        <translation type="unfinished"></translation>
+        <translation>当测试开始时自动显示测试结果面板。</translation>
     </message>
     <message>
         <source>Open results when tests finish</source>
-        <translation type="unfinished"></translation>
+        <translation>测试结束时打开结果面板</translation>
     </message>
     <message>
         <source>Displays test results automatically when tests are finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>在测试结束时自动显示测试结果面板。</translation>
     </message>
     <message>
         <source>Only for unsuccessful test runs</source>
-        <translation type="unfinished"></translation>
+        <translation>仅适用于不成功的测试运行</translation>
     </message>
     <message>
         <source>Displays test results only if the test run contains failed, fatal or unexpectedly passed tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>仅在测试运行失败、严重问题或非预期通过时显示结果面板。</translation>
     </message>
     <message>
         <source>Automatically scroll results</source>
-        <translation type="unfinished"></translation>
+        <translation>自动滚动结果</translation>
     </message>
     <message>
         <source>Automatically scrolls down when new items are added and scrollbar is at bottom.</source>
-        <translation type="unfinished"></translation>
+        <translation>当新的项添加并且滚动条位于底部时自动向下滚动。</translation>
     </message>
     <message>
         <source>Group results by application</source>
-        <translation type="unfinished"></translation>
+        <translation>按照应用对结果分组</translation>
     </message>
     <message>
         <source>Process arguments</source>
-        <translation type="unfinished"></translation>
+        <translation>处理参数</translation>
     </message>
     <message>
         <source>Allow passing arguments specified on the respective run configuration.
 Warning: this is an experimental feature and might lead to failing to execute the test executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>允许传递在相应运行配置上指定的参数。
+警告：这是个实验特性，并且可能导致测试执行失败。</translation>
     </message>
     <message>
         <source>Runs chosen tests automatically if a build succeeded.</source>
-        <translation type="unfinished"></translation>
+        <translation>构建成功后自动运行选择的测试。</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">超时时间:</translation>
+        <translation>超时时间:</translation>
     </message>
     <message>
         <source>Timeout used when executing each test case.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行每个测试用例的超时时间。</translation>
     </message>
     <message>
         <source> s</source>
-        <translation type="unfinished">秒</translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>Timeout used when executing test cases. This will apply for each test case on its own, not the whole project.</source>
-        <translation type="unfinished"></translation>
+        <translation>执行测试用例时的超时时间。它单独应用在每个测试用例上，而不是整个项目。</translation>
     </message>
     <message>
         <source>Selects the test frameworks to be handled by the AutoTest plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择由 AutoTest 插件处理的测试框架。</translation>
     </message>
     <message>
         <source>Framework</source>
-        <translation type="unfinished">框架</translation>
+        <translation>框架</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation>组</translation>
     </message>
     <message>
         <source>Enables grouping of test cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>为测试用例启用分组</translation>
     </message>
     <message>
         <source>Reset Cached Choices</source>
-        <translation type="unfinished"></translation>
+        <translation>重置缓存的选择</translation>
     </message>
     <message>
         <source>Clear all cached choices of run configurations for tests where the executable could not be deduced.</source>
-        <translation type="unfinished"></translation>
+        <translation>对于无法推导出可执行程序的测试，清除运行配置中所有缓存的选择。</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">概要</translation>
+        <translation>概要</translation>
     </message>
     <message>
         <source>Automatically run</source>
-        <translation type="unfinished"></translation>
+        <translation>自动运行</translation>
     </message>
     <message>
         <source>Active Test Frameworks</source>
-        <translation type="unfinished"></translation>
+        <translation>活跃的测试框架</translation>
     </message>
     <message>
         <source>Enable or disable test frameworks to be handled by the AutoTest plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用或禁用由 AutoTest 插件处理的测试框架</translation>
     </message>
     <message>
         <source>Enable or disable grouping of test cases by folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>启用或禁用按文件夹对测试用例分组。</translation>
     </message>
     <message>
         <source>No active test frameworks or tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>无活跃的测试框架或工具。</translation>
     </message>
     <message>
         <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
-        <translation type="unfinished"></translation>
+        <translation>在没有活跃的测试框架时无法使用 AutoTest 插件。</translation>
     </message>
     <message>
         <source>Mixing test frameworks and test tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>混合测试框架和测试工具。</translation>
     </message>
     <message>
         <source>Mixing test frameworks and test tools can lead to duplicating run information when using &quot;Run All Tests&quot;, for example.</source>
-        <translation type="unfinished"></translation>
+        <translation>例如，当使用“运行所有测试”时，混合测试框架和测试工具可能产生重复运行信息。</translation>
     </message>
     <message>
         <source>%1 (none)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1（无）</translation>
     </message>
 </context>
 <context>
     <name>AutotoolsProjectManager</name>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">参数:</translation>
+        <translation>参数:</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autogen step.</source>
-        <translation type="unfinished">配置未改变，跳过autogen步骤。</translation>
+        <translation>配置未改变，跳过autogen步骤。</translation>
     </message>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
-        <translation type="unfinished">Autogen</translation>
+        <translation>Autogen</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
-        <translation type="unfinished">配置未改变，跳过autoreconf步骤。</translation>
+        <translation>配置未改变，跳过autoreconf步骤。</translation>
     </message>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
-        <translation type="unfinished">Autoreconf</translation>
+        <translation>Autoreconf</translation>
     </message>
     <message>
         <source>Autotools Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Autotools 管理器</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping configure step.</source>
-        <translation type="unfinished">配置未改变，跳过configure步骤。</translation>
+        <translation>配置未改变，跳过configure步骤。</translation>
     </message>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
-        <translation type="unfinished">配置</translation>
+        <translation>配置</translation>
     </message>
     <message>
         <source>Parsing %1 in directory %2</source>
-        <translation type="unfinished">正在目录 %2中分析 %1</translation>
+        <translation>正在目录 %2中解析 %1</translation>
     </message>
     <message>
         <source>Parsing directory %1</source>
-        <translation type="unfinished">正在分析目录 %1</translation>
+        <translation>正在解析目录 %1</translation>
     </message>
 </context>
 <context>
@@ -4338,7 +4391,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation>其他</translation>
+        <translation>其它</translation>
     </message>
     <message>
         <source>Log count:</source>
@@ -5344,33 +5397,6 @@ Local pulls are not applied to the master branch.</source>
     <name>Boot2Qt</name>
     <message>
         <source>Boot2Qt: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BrowserWindow</name>
-    <message>
-        <source>Edit</source>
-        <translation type="unfinished">编辑</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="unfinished">复制</translation>
-    </message>
-    <message>
-        <source>URL:</source>
-        <translation type="unfinished">URL:</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation type="unfinished">浏览...</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="unfinished">打开文件</translation>
-    </message>
-    <message>
-        <source>Enter location</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6776,7 +6802,7 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">其他</translation>
+        <translation type="unfinished">其它</translation>
     </message>
     <message>
         <source>Added</source>
@@ -7852,7 +7878,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation>其他</translation>
+        <translation>其它</translation>
     </message>
     <message>
         <source>&amp;History count:</source>
@@ -8966,7 +8992,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Close Others</source>
-        <translation>关闭其他</translation>
+        <translation>关闭其它</translation>
     </message>
     <message>
         <source>Split</source>
@@ -9010,7 +9036,7 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Close Other Editors</source>
-        <translation>关闭其他编辑器</translation>
+        <translation>关闭其它编辑器</translation>
     </message>
     <message>
         <source>File Error</source>
@@ -10172,7 +10198,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>Close Others</source>
-        <translation type="unfinished">关闭其他</translation>
+        <translation>关闭其它</translation>
     </message>
     <message>
         <source>Cannot Open File</source>
@@ -12886,7 +12912,7 @@ if (a &amp;&amp;
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-如果switch、if、while和foreach表达式中的多行条件的缩进等于或少于其他嵌套语句，则为其多添加一层缩进。
+如果switch、if、while和foreach表达式中的多行条件的缩进等于或少于其它嵌套语句，则为其多添加一层缩进。
 
 如果是四个空格方式的缩进，则只修改if语句。不添加额外空白：
 &lt;pre&gt;
@@ -13241,7 +13267,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">其他</translation>
+        <translation type="unfinished">其它</translation>
     </message>
     <message>
         <source>C++ Usages:</source>
@@ -16149,7 +16175,7 @@ Do you want to retry?</source>
     </message>
     <message>
         <source>Misc Types</source>
-        <translation>其他类型</translation>
+        <translation>其它类型</translation>
     </message>
     <message>
         <source>The debugger to use for this kit.</source>
@@ -21149,7 +21175,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation>其他</translation>
+        <translation>其它</translation>
     </message>
     <message>
         <source>Pull with rebase</source>
@@ -24176,7 +24202,7 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">其他</translation>
+        <translation type="unfinished">其它</translation>
     </message>
     <message>
         <source>Set an Environment Variable:</source>
@@ -26012,7 +26038,7 @@ Error: %5</source>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation>其他</translation>
+        <translation>其它</translation>
     </message>
     <message>
         <source>Mercurial</source>
@@ -28108,7 +28134,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation>其他</translation>
+        <translation>其它</translation>
     </message>
     <message>
         <source>Prompt on submit</source>
@@ -28303,7 +28329,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Other Project</source>
-        <translation>其他项目</translation>
+        <translation>其它项目</translation>
     </message>
     <message>
         <source>Import Project</source>
@@ -29342,7 +29368,7 @@ Excluding: %2
     </message>
     <message>
         <source>Close Other Tabs</source>
-        <translation>关闭其他标签</translation>
+        <translation>关闭其它标签</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -29908,7 +29934,7 @@ Excluding: %2
     <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
-        <translation>&lt;会话中没有其他项目&gt;</translation>
+        <translation>&lt;会话中没有其它项目&gt;</translation>
     </message>
 </context>
 <context>
@@ -33089,7 +33115,7 @@ These files are preserved.</source>
     </message>
     <message>
         <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
-        <translation type="unfinished">构建使用的编译器。&lt;br&gt;请确保使用的编译器生成的二进制与目标设备、Qt版本和其他库兼容。</translation>
+        <translation type="unfinished">构建使用的编译器。&lt;br&gt;请确保使用的编译器生成的二进制与目标设备、Qt版本和其它库兼容。</translation>
     </message>
     <message>
         <source>Compilers produce code for different ABIs: %1</source>
@@ -34970,7 +34996,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Other files</source>
-        <translation>其他文件</translation>
+        <translation>其它文件</translation>
     </message>
     <message>
         <source>Could not write project file %1.</source>
@@ -34994,7 +35020,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation>用qmake构建项目时使用的mkspec。&lt;br&gt;当使用其他构建系统时该设置被忽略。</translation>
+        <translation>用qmake构建项目时使用的mkspec。&lt;br&gt;当使用其它构建系统时该设置被忽略。</translation>
     </message>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
@@ -36108,7 +36134,7 @@ The new project can be opened in Qt Creator using the main CMakeLists.txt file.<
     </message>
     <message>
         <source>Name already used in another state</source>
-        <translation type="unfinished">名称已经被其他状态使用</translation>
+        <translation type="unfinished">名称已经被其它状态使用</translation>
     </message>
     <message>
         <source>Root</source>
@@ -37698,7 +37724,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Close Others</source>
-        <translation type="unfinished">关闭其他</translation>
+        <translation>关闭其它</translation>
     </message>
 </context>
 <context>
@@ -41132,7 +41158,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
 </source>
         <translation>ptrace: 操作不允许。
 
-无法attach到进程。请确认其他调试器没有追踪该进程。
+无法attach到进程。请确认其它调试器没有追踪该进程。
 检查/proc/sys/kernel/yama/ptrace_scope
 的设置
 详情参考 /etc/sysctl.d/10-ptrace.conf
@@ -41149,7 +41175,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
 </source>
         <translation>ptrace: 操作不允许。
 
-无法attach到进程。请确认其他调试器没有追踪该进程。
+无法attach到进程。请确认其它调试器没有追踪该进程。
 如果您的uid和目标进程的uid
 相符，检查
 /proc/sys/kernel/yama/ptrace_scope的设置
@@ -41312,7 +41338,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
-        <translation>所有使用该构建套件的项目使用的Qt库。&lt;br&gt; 基于qmake的项目必需一个Qt版本，而使用其他构建系统的项目则为可选。</translation>
+        <translation>所有使用该构建套件的项目使用的Qt库。&lt;br&gt; 基于qmake的项目必需一个Qt版本，而使用其它构建系统的项目则为可选。</translation>
     </message>
     <message>
         <source>Qt version</source>
@@ -43576,7 +43602,7 @@ Row: %4, Column: %5
     </message>
     <message>
         <source>Close Other Tabs</source>
-        <translation type="unfinished">关闭其他标签</translation>
+        <translation type="unfinished">关闭其它标签</translation>
     </message>
     <message>
         <source>Type text and hit Enter to send.</source>
@@ -44905,7 +44931,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
     <message>
         <source>Miscellaneous</source>
-        <translation type="unfinished">其他</translation>
+        <translation type="unfinished">其它</translation>
     </message>
 </context>
 <context>
@@ -47121,7 +47147,7 @@ Influences the indentation of continuation lines.
 &lt;/pre&gt;
 &lt;/li&gt;
 
-&lt;li&gt;伴随空格: 允许使用空格进行对齐，忽略其他缩进设置。
+&lt;li&gt;伴随空格: 允许使用空格进行对齐，忽略其它缩进设置。
 &lt;pre&gt;
 (tab)int i = foo(a, b
 (tab)            c, d);
@@ -50012,11 +50038,11 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>%1 cost spent in a given function excluding costs from called functions.</source>
-        <translation>给定的函数的花费为 %1，不包括调用其他函数的花费。</translation>
+        <translation>给定的函数的花费为 %1，不包括调用其它函数的花费。</translation>
     </message>
     <message>
         <source>%1 cost spent in a given function including costs from called functions.</source>
-        <translation>给定的函数的花费为 %1，包括调用其他函数的花费。</translation>
+        <translation>给定的函数的花费为 %1，包括调用其它函数的花费。</translation>
     </message>
     <message>
         <source>Function</source>

@@ -114,7 +114,7 @@ void DebuggerItem::createId()
     m_id = QUuid::createUuid().toString();
 }
 
-void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *error)
+void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *customEnv)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
@@ -137,7 +137,8 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         return;
     }
 
-    Environment env = sysEnv.isValid() ? sysEnv : Environment::systemEnvironment();
+    Environment env = customEnv ? *customEnv : m_command.deviceEnvironment();
+
     // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
     // python but does not contain a python dll.
     const bool isAndroidNdkLldb = DebuggerItem::addAndroidLldbPythonEnv(m_command, env);
@@ -186,18 +187,8 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
         const bool unableToFindAVersion = (0 == version);
         const bool gdbSupportsConfigurationFlag = (version >= 70700);
         if (gdbSupportsConfigurationFlag || unableToFindAVersion) {
-
-            auto gdbConfiguration = [this, &output, &sysEnv]() {
-                if (!output.contains("qnx"))
-                    return getGdbConfiguration(m_command, sysEnv);
-
-                Environment env = sysEnv;
-                env.set("QNX_TARGET", QString());
-                return getGdbConfiguration(m_command, env);
-            };
-
-            const QString gdbTargetAbiString =
-                    extractGdbTargetAbiStringFromGdbOutput(gdbConfiguration());
+            const QString gdbTargetAbiString = extractGdbTargetAbiStringFromGdbOutput(
+                getGdbConfiguration(m_command, env));
             if (!gdbTargetAbiString.isEmpty()) {
                 m_abis.append(Abi::abiFromTargetTriplet(gdbTargetAbiString));
                 return;
