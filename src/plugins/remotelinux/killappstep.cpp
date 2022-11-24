@@ -27,19 +27,14 @@ public:
     void setRemoteExecutable(const FilePath &filePath) { m_remoteExecutable = filePath; }
 
 private:
-    bool isDeploymentNecessary() const override { return !m_remoteExecutable.isEmpty(); }
-
-    void doDeploy() override;
-    void stopDeployment() override;
+    bool isDeploymentNecessary() const final { return !m_remoteExecutable.isEmpty(); }
+    Group deployRecipe() final;
 
     FilePath m_remoteExecutable;
-    std::unique_ptr<TaskTree> m_taskTree;
 };
 
-void KillAppService::doDeploy()
+Group KillAppService::deployRecipe()
 {
-    QTC_ASSERT(!m_taskTree, return);
-
     const auto setupHandler = [this](DeviceProcessKiller &killer) {
         killer.setProcessPath(m_remoteExecutable);
         emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
@@ -52,25 +47,7 @@ void KillAppService::doDeploy()
         emit progressMessage(Tr::tr("Failed to kill remote application. "
                                     "Assuming it was not running."));
     };
-
-    const auto endHandler = [this] {
-        m_taskTree.release()->deleteLater();
-        stopDeployment();
-    };
-
-    const Group root {
-        Killer(setupHandler, doneHandler, errorHandler),
-        OnGroupDone(endHandler),
-        OnGroupError(endHandler)
-    };
-    m_taskTree.reset(new TaskTree(root));
-    m_taskTree->start();
-}
-
-void KillAppService::stopDeployment()
-{
-    m_taskTree.reset();
-    handleDeploymentDone();
+    return Group { Killer(setupHandler, doneHandler, errorHandler) };
 }
 
 class KillAppStep : public AbstractRemoteLinuxDeployStep

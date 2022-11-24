@@ -16,8 +16,6 @@
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
-#include <QDateTime>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Utils::Tasking;
@@ -31,15 +29,12 @@ public:
 
 private:
     QString remoteFilePath() const;
-
-    bool isDeploymentNecessary() const override;
-    void doDeploy() override;
-    void stopDeployment() override;
+    bool isDeploymentNecessary() const final;
+    Group deployRecipe() final;
     TaskItem uploadTask();
     TaskItem installTask();
 
     FilePath m_packageFilePath;
-    std::unique_ptr<TaskTree> m_taskTree;
 };
 
 void TarPackageDeployService::setPackageFilePath(const FilePath &filePath)
@@ -102,28 +97,9 @@ TaskItem TarPackageDeployService::installTask()
     return Process(setupHandler, doneHandler, errorHandler);
 }
 
-void TarPackageDeployService::doDeploy()
+Group TarPackageDeployService::deployRecipe()
 {
-    QTC_ASSERT(!m_taskTree, return);
-
-    const auto finishHandler = [this] {
-        m_taskTree.release()->deleteLater();
-        stopDeployment();
-    };
-    const Group root {
-        uploadTask(),
-        installTask(),
-        OnGroupDone(finishHandler),
-        OnGroupError(finishHandler),
-    };
-    m_taskTree.reset(new TaskTree(root));
-    m_taskTree->start();
-}
-
-void TarPackageDeployService::stopDeployment()
-{
-    m_taskTree.reset();
-    handleDeploymentDone();
+    return Group { uploadTask(), installTask() };
 }
 
 // TarPackageDeployStep

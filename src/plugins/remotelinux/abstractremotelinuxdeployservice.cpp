@@ -12,12 +12,13 @@
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
+#include <utils/tasktree.h>
 
 #include <QDateTime>
-#include <QFileInfo>
 #include <QPointer>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -34,6 +35,7 @@ public:
 
     DeploymentTimeInfo deployTimes;
     State state = Inactive;
+    std::unique_ptr<TaskTree> m_taskTree;
 };
 } // namespace Internal
 
@@ -144,6 +146,25 @@ void AbstractRemoteLinuxDeployService::handleDeploymentDone()
     QTC_ASSERT(d->state != Inactive, return);
     d->state = Inactive;
     emit finished();
+}
+
+void AbstractRemoteLinuxDeployService::doDeploy()
+{
+    QTC_ASSERT(!d->m_taskTree, return);
+    d->m_taskTree.reset(new TaskTree(deployRecipe()));
+    const auto endHandler = [this] {
+        d->m_taskTree.release()->deleteLater();
+        handleDeploymentDone();
+    };
+    connect(d->m_taskTree.get(), &TaskTree::done, this, endHandler);
+    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, endHandler);
+    d->m_taskTree->start();
+}
+
+void AbstractRemoteLinuxDeployService::stopDeployment()
+{
+    d->m_taskTree.reset();
+    handleDeploymentDone();
 }
 
 } // namespace RemoteLinux

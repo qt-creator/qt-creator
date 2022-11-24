@@ -35,16 +35,14 @@ public:
     void setFlags(const QString &flags) { m_flags = flags; }
 
 private:
-    bool isDeploymentNecessary() const override;
-    void doDeploy() override;
-    void stopDeployment() override;
+    bool isDeploymentNecessary() const final;
+    Group deployRecipe() final;
     TaskItem mkdirTask();
     TaskItem transferTask();
 
     mutable FilesToTransfer m_files;
     bool m_ignoreMissingFiles = false;
     QString m_flags;
-    std::unique_ptr<TaskTree> m_taskTree;
 };
 
 void RsyncDeployService::setDeployableFiles(const QList<DeployableFile> &files)
@@ -110,28 +108,9 @@ TaskItem RsyncDeployService::transferTask()
     return Transfer(setupHandler, {}, errorHandler);
 }
 
-void RsyncDeployService::doDeploy()
+Group RsyncDeployService::deployRecipe()
 {
-    const auto finishHandler = [this] {
-        m_taskTree.release()->deleteLater();
-        stopDeployment();
-    };
-
-    const Group root {
-        mkdirTask(),
-        transferTask(),
-        OnGroupDone(finishHandler),
-        OnGroupError(finishHandler),
-    };
-
-    m_taskTree.reset(new TaskTree(root));
-    m_taskTree->start();
-}
-
-void RsyncDeployService::stopDeployment()
-{
-    m_taskTree.reset();
-    handleDeploymentDone();
+    return Group { mkdirTask(), transferTask() };
 }
 
 // RsyncDeployStep

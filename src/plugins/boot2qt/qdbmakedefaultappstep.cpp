@@ -34,10 +34,8 @@ public:
 private:
     bool isDeploymentNecessary() const final { return true; }
 
-    void doDeploy() final
+    Group deployRecipe() final
     {
-        QTC_ASSERT(!m_taskTree, return);
-
         const auto setupHandler = [this](QtcProcess &process) {
             QString remoteExe;
             if (RunConfiguration *rc = target()->activeRunConfiguration()) {
@@ -63,27 +61,10 @@ private:
         const auto errorHandler = [this](const QtcProcess &process) {
             emit errorMessage(tr("Remote process failed: %1").arg(process.errorString()));
         };
-        const auto endHandler = [this] {
-            m_taskTree.release()->deleteLater();
-            stopDeployment();
-        };
-        const Group root {
-            Process(setupHandler, doneHandler, errorHandler),
-            OnGroupDone(endHandler),
-            OnGroupError(endHandler)
-        };
-        m_taskTree.reset(new TaskTree(root));
-        m_taskTree->start();
-    }
-
-    void stopDeployment() final
-    {
-        m_taskTree.reset();
-        handleDeploymentDone();
+        return Group { Process(setupHandler, doneHandler, errorHandler) };
     }
 
     bool m_makeDefault = true;
-    std::unique_ptr<TaskTree> m_taskTree;
 };
 
 // QdbMakeDefaultAppStep

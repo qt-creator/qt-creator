@@ -16,7 +16,6 @@
 
 #include <QDateTime>
 #include <QDir>
-#include <QList>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -55,7 +54,6 @@ public:
     IncrementalDeployment incremental = IncrementalDeployment::NotSupported;
     bool ignoreMissingFiles = false;
     QList<DeployableFile> deployableFiles;
-    std::unique_ptr<TaskTree> m_taskTree;
 };
 
 QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
@@ -123,12 +121,6 @@ bool GenericDirectUploadService::isDeploymentNecessary() const
     QTC_CHECK(collected.size() >= d->deployableFiles.size());
     d->deployableFiles = collected;
     return !d->deployableFiles.isEmpty();
-}
-
-void GenericDirectUploadService::stopDeployment()
-{
-    d->m_taskTree.reset();
-    handleDeploymentDone();
 }
 
 QDateTime GenericDirectUploadServicePrivate::timestampFromStat(const DeployableFile &file,
@@ -291,19 +283,8 @@ TaskItem GenericDirectUploadServicePrivate::chmodTree(const TreeStorage<UploadSt
     return Tree {setupChmodHandler};
 }
 
-void GenericDirectUploadService::doDeploy()
+Group GenericDirectUploadService::deployRecipe()
 {
-    QTC_ASSERT(!d->m_taskTree, return);
-
-    const auto endHandler = [this] {
-        d->m_taskTree.release()->deleteLater();
-        stopDeployment();
-    };
-    const auto doneHandler = [this, endHandler] {
-        emit progressMessage(Tr::tr("All files successfully deployed."));
-        endHandler();
-    };
-
     const auto preFilesToStat = [this](UploadStorage *storage) {
         QList<DeployableFile> filesToStat;
         for (const DeployableFile &file : std::as_const(d->deployableFiles)) {
@@ -333,6 +314,9 @@ void GenericDirectUploadService::doDeploy()
         if (timestamp.isValid())
             saveDeploymentTimeStamp(file, timestamp);
     };
+    const auto doneHandler = [this] {
+        emit progressMessage(Tr::tr("All files successfully deployed."));
+    };
 
     const TreeStorage<UploadStorage> storage;
     const Group root {
@@ -343,12 +327,9 @@ void GenericDirectUploadService::doDeploy()
             d->chmodTree(storage),
             d->statTree(storage, postFilesToStat, postStatEndHandler)
         },
-        OnGroupDone(doneHandler),
-        OnGroupError(endHandler)
+        OnGroupDone(doneHandler)
     };
-
-    d->m_taskTree.reset(new TaskTree(root));
-    d->m_taskTree->start();
+    return root;
 }
 
 } //namespace RemoteLinux

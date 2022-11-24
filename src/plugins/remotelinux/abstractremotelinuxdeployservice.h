@@ -16,6 +16,8 @@ class Kit;
 class Target;
 }
 
+namespace Utils::Tasking { class Group; }
+
 namespace RemoteLinux {
 namespace Internal { class AbstractRemoteLinuxDeployServicePrivate; }
 
@@ -77,8 +79,9 @@ protected:
 
 private:
     virtual bool isDeploymentNecessary() const = 0;
-    virtual void doDeploy() = 0;
-    virtual void stopDeployment() = 0;
+    virtual Utils::Tasking::Group deployRecipe() = 0;
+    void doDeploy();
+    void stopDeployment();
 
     Internal::AbstractRemoteLinuxDeployServicePrivate * const d;
 };

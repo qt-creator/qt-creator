@@ -21,18 +21,16 @@ class REMOTELINUX_EXPORT GenericDirectUploadService : public AbstractRemoteLinux
     Q_OBJECT
 public:
     GenericDirectUploadService(QObject *parent = nullptr);
-    ~GenericDirectUploadService() override;
+    ~GenericDirectUploadService();
 
     void setDeployableFiles(const QList<ProjectExplorer::DeployableFile> &deployableFiles);
     void setIncrementalDeployment(IncrementalDeployment incremental);
     void setIgnoreMissingFiles(bool ignoreMissingFiles);
 
-protected:
-    bool isDeploymentNecessary() const override;
-    void doDeploy() override;
-    void stopDeployment() override;
-
 private:
+    bool isDeploymentNecessary() const final;
+    Utils::Tasking::Group deployRecipe() final;
+
     friend class Internal::GenericDirectUploadServicePrivate;
     Internal::GenericDirectUploadServicePrivate * const d;
 };

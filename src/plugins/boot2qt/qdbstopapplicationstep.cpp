@@ -30,16 +30,11 @@ class QdbStopApplicationService : public RemoteLinux::AbstractRemoteLinuxDeployS
 
 private:
     bool isDeploymentNecessary() const final { return true; }
-    void doDeploy() final;
-    void stopDeployment() final;
-
-    std::unique_ptr<TaskTree> m_taskTree;
+    Group deployRecipe() final;
 };
 
-void QdbStopApplicationService::doDeploy()
+Group QdbStopApplicationService::deployRecipe()
 {
-    QTC_ASSERT(!m_taskTree, return);
-
     const auto setupHandler = [this](QtcProcess &process) {
         const auto device = DeviceKitAspect::device(target()->kit());
         QTC_CHECK(device);
@@ -75,24 +70,11 @@ void QdbStopApplicationService::doDeploy()
         }
         return GroupConfig();
     };
-    const auto rootEndHandler = [this] {
-        m_taskTree.release()->deleteLater();
-        stopDeployment();
-    };
     const Group root {
         DynamicSetup(rootSetupHandler),
-        Process(setupHandler, doneHandler, errorHandler),
-        OnGroupDone(rootEndHandler),
-        OnGroupError(rootEndHandler)
+        Process(setupHandler, doneHandler, errorHandler)
     };
-    m_taskTree.reset(new TaskTree(root));
-    m_taskTree->start();
-}
-
-void QdbStopApplicationService::stopDeployment()
-{
-    m_taskTree.reset();
-    handleDeploymentDone();
+    return root;
 }
 
 // QdbStopApplicationStep

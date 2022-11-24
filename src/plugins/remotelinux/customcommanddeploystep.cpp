@@ -24,17 +24,15 @@ class CustomCommandDeployService : public AbstractRemoteLinuxDeployService
 {
 public:
     void setCommandLine(const QString &commandLine);
-    CheckResult isDeploymentPossible() const override;
+    CheckResult isDeploymentPossible() const final;
 
 protected:
-    void doDeploy() override;
-    void stopDeployment() override;
+    Group deployRecipe() final;
 
 private:
-    bool isDeploymentNecessary() const override { return true; }
+    bool isDeploymentNecessary() const final { return true; }
 
     QString m_commandLine;
-    std::unique_ptr<TaskTree> m_taskTree;
 };
 
 void CustomCommandDeployService::setCommandLine(const QString &commandLine)
@@ -50,10 +48,8 @@ CheckResult CustomCommandDeployService::isDeploymentPossible() const
     return AbstractRemoteLinuxDeployService::isDeploymentPossible();
 }
 
-void CustomCommandDeployService::doDeploy()
+Group CustomCommandDeployService::deployRecipe()
 {
-    QTC_ASSERT(!m_taskTree, return);
-
     const auto setupHandler = [this](QtcProcess &process) {
         emit progressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
@@ -78,23 +74,7 @@ void CustomCommandDeployService::doDeploy()
                 .arg(process.exitCode()));
         }
     };
-    const auto endHandler = [this] {
-        m_taskTree.release()->deleteLater();
-        stopDeployment();
-    };
-    const Group root {
-        Process(setupHandler, doneHandler, errorHandler),
-        OnGroupDone(endHandler),
-        OnGroupError(endHandler)
-    };
-    m_taskTree.reset(new TaskTree(root));
-    m_taskTree->start();
-}
-
-void CustomCommandDeployService::stopDeployment()
-{
-    m_taskTree.reset();
-    handleDeploymentDone();
+    return Group { Process(setupHandler, doneHandler, errorHandler) };
 }
 
 class CustomCommandDeployStep : public AbstractRemoteLinuxDeployStep
