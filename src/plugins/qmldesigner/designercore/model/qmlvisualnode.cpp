@@ -209,7 +209,7 @@ void QmlVisualNode::setDoubleProperty(const PropertyName &name, double value)
 
 void QmlVisualNode::setPosition(const QmlVisualNode::Position &position)
 {
-    if (!isValid())
+    if (!modelNode().isValid())
         return;
 
     if (!qFuzzyIsNull(position.x()) || modelNode().hasProperty("x"))
