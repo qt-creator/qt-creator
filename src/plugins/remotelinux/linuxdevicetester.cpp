@@ -49,42 +49,42 @@ public:
     QList<TaskItem> m_extraTests;
 };
 
-const QStringList s_commandsToTest = {"base64",
-                                      "cat",
-                                      "chmod",
-                                      "cp",
-                                      "cut",
-                                      "dd",
-                                      "df",
-                                      "echo",
-                                      "eval",
-                                      "exit",
-                                      "kill",
-                                      "ls",
-                                      "mkdir",
-                                      "mkfifo",
-                                      "mktemp",
-                                      "mv",
-                                      "printf",
-                                      "read",
-                                      "readlink",
-                                      "rm",
-                                      "sed",
-                                      "sh",
-                                      "shift",
-                                      "stat",
-                                      "tail",
-                                      "test",
-                                      "trap",
-                                      "touch",
-                                      "which"};
-// other possible commands (checked for qnx):
-// "awk", "grep", "netstat", "print", "pidin", "sleep", "uname"
-
 static const char s_echoContents[] = "Hello Remote World!";
 
 QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
 {
+    static const QStringList s_commandsToTest = {"base64",
+                                                 "cat",
+                                                 "chmod",
+                                                 "cp",
+                                                 "cut",
+                                                 "dd",
+                                                 "df",
+                                                 "echo",
+                                                 "eval",
+                                                 "exit",
+                                                 "kill",
+                                                 "ls",
+                                                 "mkdir",
+                                                 "mkfifo",
+                                                 "mktemp",
+                                                 "mv",
+                                                 "printf",
+                                                 "read",
+                                                 "readlink",
+                                                 "rm",
+                                                 "sed",
+                                                 "sh",
+                                                 "shift",
+                                                 "stat",
+                                                 "tail",
+                                                 "test",
+                                                 "trap",
+                                                 "touch",
+                                                 "which"};
+    // other possible commands (checked for qnx):
+    // "awk", "grep", "netstat", "print", "pidin", "sleep", "uname"
+
     QStringList commands = s_commandsToTest + m_extraCommands;
     commands.removeDuplicates();
     Utils::sort(commands);
