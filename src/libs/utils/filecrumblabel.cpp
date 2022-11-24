@@ -17,7 +17,7 @@ FileCrumbLabel::FileCrumbLabel(QWidget *parent)
     setTextFormat(Qt::RichText);
     setWordWrap(true);
     connect(this, &QLabel::linkActivated, this, [this](const QString &url) {
-        emit pathClicked(FilePath::fromString(QUrl(url).toLocalFile()));
+        emit pathClicked(FilePath::fromUrl(QUrl(url)));
     });
     setPath(FilePath());
 }
@@ -25,7 +25,7 @@ FileCrumbLabel::FileCrumbLabel(QWidget *parent)
 static QString linkForPath(const FilePath &path, const QString &display)
 {
     return "<a href=\""
-            + QUrl::fromLocalFile(path.toString()).toString(QUrl::FullyEncoded) + "\">"
+            + path.toUrl().toString(QUrl::FullyEncoded) + "\">"
             + display + "</a>";
 }
 
@@ -37,7 +37,7 @@ void FileCrumbLabel::setPath(const FilePath &path)
         const QString fileName = current.fileName();
         if (!fileName.isEmpty()) {
             links.prepend(linkForPath(current, fileName));
-        } else if (HostOsInfo::isWindowsHost() && QDir(current.toString()).isRoot()) {
+        } else if (HostOsInfo::isWindowsHost() && current.isRootPath()) {
             // Only on Windows add the drive letter, without the '/' at the end
             QString display = current.toString();
             if (display.endsWith('/'))
