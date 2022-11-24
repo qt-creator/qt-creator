@@ -50,8 +50,13 @@ StudioControls.Menu {
 
     function openContextMenuForFile(fileIndex, dirModelIndex, selectedAssetPathsList, onFolderCreated)
     {
-        var numSelected = selectedAssetPathsList.filter(p => p).length
-        deleteFileItem.text = numSelected > 1 ? qsTr("Delete Files") : qsTr("Delete File")
+        if (selectedAssetPathsList.length > 1) {
+            deleteFileItem.text = qsTr("Delete Files")
+            addTexturesItem.text = qsTr("Add Textures")
+        } else {
+            deleteFileItem.text = qsTr("Delete File")
+            addTexturesItem.text = qsTr("Add Texture")
+        }
 
         root.__onFolderCreated = onFolderCreated
         root.__selectedAssetPathsList = selectedAssetPathsList
@@ -81,6 +86,23 @@ StudioControls.Menu {
     StudioControls.MenuSeparator {
         visible: root.__isDirectory
         height: visible ? StudioTheme.Values.border : 0
+    }
+
+    StudioControls.MenuItem {
+        id: addTexturesItem
+        text: qsTr("Add Texture")
+        visible: root.__fileIndex && assetsModel.allFilePathsAreImages(root.__selectedAssetPathsList)
+        height: addTexturesItem.visible ? addTexturesItem.implicitHeight : 0
+        onTriggered: rootView.addTextures(root.__selectedAssetPathsList)
+    }
+
+    StudioControls.MenuItem {
+        id: addLightProbes
+        text: qsTr("Add Light Probe")
+        visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
+                 && assetsModel.allFilePathsAreImages(root.__selectedAssetPathsList)
+        height: addLightProbes.visible ? addLightProbes.implicitHeight : 0
+        onTriggered: rootView.addLightProbe(root.__selectedAssetPathsList[0])
     }
 
     StudioControls.MenuItem {

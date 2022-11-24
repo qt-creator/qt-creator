@@ -4,6 +4,7 @@
 #pragma once
 
 #include <previewtooltip/previewtooltipbackend.h>
+#include "addtexture.h"
 #include "assetslibrarymodel.h"
 
 #include <QFileIconProvider>
@@ -72,6 +73,8 @@ public:
     Q_INVOKABLE void openEffectMaker(const QString &filePath);
     Q_INVOKABLE bool qtVersionIsAtLeast6_4() const;
     Q_INVOKABLE void invalidateThumbnail(const QString &id);
+    Q_INVOKABLE void addTextures(const QStringList &filePaths);
+    Q_INVOKABLE void addLightProbe(const QString &filePaths);
 
 signals:
     void itemActivated(const QString &itemName);
@@ -79,6 +82,7 @@ signals:
                       const QList<QUrl> &complexFilePaths,
                       const QString &targetDirPath);
     void directoryCreated(const QString &path);
+    void addTexturesRequested(const QStringList &filePaths, QmlDesigner::AddTextureMode mode);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

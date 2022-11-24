@@ -10,10 +10,11 @@
 
 #include "assetslibrarymodel.h"
 
-#include <qmldesignerplugin.h>
 #include <modelnodeoperations.h>
+#include <qmldesignerplugin.h>
 
 #include <coreplugin/icore.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 namespace QmlDesigner {
@@ -177,6 +178,15 @@ bool AssetsLibraryModel::deleteFolderRecursively(const QModelIndex &folderIndex)
         qWarning() << __FUNCTION__ << " could not remove folder recursively: " << m_sourceFsModel->filePath(idx);
 
     return ok;
+}
+
+bool AssetsLibraryModel::allFilePathsAreImages(const QStringList &filePaths) const
+{
+    return Utils::allOf(filePaths, [](const QString &path) {
+        const QString suffix = "*." + path.split('.').last().toLower();
+
+        return AssetsLibraryModel::supportedImageSuffixes().contains(suffix);
+    });
 }
 
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

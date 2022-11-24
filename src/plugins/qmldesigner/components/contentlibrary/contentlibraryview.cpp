@@ -55,53 +55,9 @@ WidgetInfo ContentLibraryView::widgetInfo()
             m_draggedBundleTexture = tex;
         });
         connect(m_widget, &ContentLibraryWidget::addTextureRequested, this,
-                [&] (const QString texPath, ContentLibraryWidget::AddTextureMode mode) {
-            executeInTransaction("ContentLibraryView::widgetInfo", [&] {
-                // copy image to project
-                AddFilesResult result = ModelNodeOperations::addImageToProject({texPath}, "images", false);
-
-                if (result.status() == AddFilesResult::Failed) {
-                    Core::AsynchronousMessageBox::warning(tr("Failed to Add Texture"),
-                                                          tr("Could not add %1 to project.").arg(texPath));
-                    return;
-                }
-
-                if (mode == ContentLibraryWidget::AddTextureMode::Image)
-                    return;
-
-                // create a texture from the image
-                ModelNode matLib = materialLibraryNode();
-                if (!matLib.isValid())
-                    return;
-
-                NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.Texture");
-
-                QString sourceVal = QLatin1String("images/%1").arg(texPath.split('/').last());
-                ModelNode texNode = getTextureDefaultInstance(sourceVal);
-                if (!texNode.isValid()) {
-                    texNode = createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
-                                              metaInfo.minorVersion());
-                    texNode.validId();
-                    VariantProperty sourceProp = texNode.variantProperty("source");
-                    sourceProp.setValue(sourceVal);
-                    matLib.defaultNodeListProperty().reparentHere(texNode);
-                }
-
-                // assign the texture as scene environment's light probe
-                if (mode == ContentLibraryWidget::AddTextureMode::LightProbe && m_sceneId != -1) {
-                    QmlObjectNode sceneEnv = resolveSceneEnv();
-                    if (sceneEnv.isValid()) {
-                        sceneEnv.setBindingProperty("lightProbe", texNode.id());
-                        sceneEnv.setVariantProperty("backgroundMode",
-                                                    QVariant::fromValue(Enumeration("SceneEnvironment",
-                                                                                    "SkyBox")));
-                    }
-                }
-                QTimer::singleShot(0, this, [this, texNode]() {
-                    if (model() && texNode.isValid())
-                        emitCustomNotification("selected_texture_changed", {texNode});
-                });
-            });
+                [&] (const QString &texPath, AddTextureMode mode) {
+            emitCustomNotification("add_texture", {}, {"ContentLibraryView::widgetInfo",
+                                                       texPath, QVariant::fromValue(mode), true});
         });
 
         connect(m_widget, &ContentLibraryWidget::updateSceneEnvStateRequested,

@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "assetslibraryview.h"
+
 #include "assetslibrarywidget.h"
-#include "metainfo.h"
+#include "qmldesignerplugin.h"
 #include <asynchronousimagecache.h>
 #include <bindingproperty.h>
 #include <coreplugin/icore.h>
@@ -22,9 +23,7 @@
 #include <sqlitedatabase.h>
 #include <synchronousimagecache.h>
 #include <utils/algorithm.h>
-#include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
-#include <qmldesignerconstants.h>
 
 namespace QmlDesigner {
 
@@ -60,6 +59,13 @@ WidgetInfo AssetsLibraryView::widgetInfo()
     if (m_widget.isNull()) {
         m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
                                            imageCacheData()->synchronousFontImageCache};
+
+        connect(m_widget, &AssetsLibraryWidget::addTexturesRequested, this,
+        [&] (const QStringList &filePaths, AddTextureMode mode) {
+            // to MaterialBrowserView
+            emitCustomNotification("add_textures", {}, {"AssetsLibraryView::widgetInfo",
+                                                        filePaths, QVariant::fromValue(mode), false});
+        });
     }
 
     return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, 0, tr("Assets"));

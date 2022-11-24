@@ -4,6 +4,7 @@
 #pragma once
 
 #include "abstractview.h"
+#include "addtexture.h"
 
 #include <QPointer>
 #include <QSet>
@@ -51,6 +52,8 @@ public:
     void applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture);
     void applyTextureToMaterial(const QList<ModelNode> &materials, const ModelNode &texture);
 
+    void active3DSceneChanged(qint32 sceneId) override;
+
     Q_INVOKABLE void updatePropsModel(const QString &matId);
     Q_INVOKABLE void applyTextureToProperty(const QString &matId, const QString &propName);
     Q_INVOKABLE void closeChooseMatPropsView();
@@ -64,6 +67,10 @@ private:
     bool isTexture(const ModelNode &node) const;
     void loadPropertyGroups();
     void requestPreviews();
+    ModelNode resolveSceneEnv();
+
+    void addOneTexture(const QString &filePath, AddTextureMode mode, bool addToProject);
+    void addTextures(const QStringList &texturePaths, AddTextureMode mode, bool addToProject);
 
     AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
@@ -79,6 +86,7 @@ private:
     QPointer<QQuickView> m_chooseMatPropsView;
     QHash<QString, QList<PropertyName>> m_textureModels;
     QString m_appliedTextureId;
+    int m_sceneId = -1;
 };
 
 } // namespace QmlDesigner

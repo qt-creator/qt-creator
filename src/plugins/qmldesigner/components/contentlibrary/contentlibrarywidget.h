@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "addtexture.h"
+
 #include <QFrame>
 #include <QPointer>
 
@@ -55,12 +57,10 @@ public:
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void updateSceneEnvState();
 
-    enum class AddTextureMode { Image, Texture, LightProbe };
-
 signals:
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
     void bundleTextureDragStarted(QmlDesigner::ContentLibraryTexture *bundleTex);
-    void addTextureRequested(const QString texPath, QmlDesigner::ContentLibraryWidget::AddTextureMode mode);
+    void addTextureRequested(const QString texPath, QmlDesigner::AddTextureMode mode);
     void updateSceneEnvStateRequested();
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();

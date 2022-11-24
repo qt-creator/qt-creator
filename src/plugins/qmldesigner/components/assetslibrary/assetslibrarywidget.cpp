@@ -148,6 +148,17 @@ bool AssetsLibraryWidget::qtVersionIsAtLeast6_4() const
     return (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0));
 }
 
+
+void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
+{
+    emit addTexturesRequested(filePaths, AddTextureMode::Texture);
+}
+
+void AssetsLibraryWidget::addLightProbe(const QString &filePath)
+{
+    emit addTexturesRequested({filePath}, AddTextureMode::LightProbe);
+}
+
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
 {
     m_assetsIconProvider->invalidateThumbnail(id);
