@@ -683,8 +683,7 @@ void FollowSymbolUnderCursor::findLink(
         for (const LookupItem &r : resolvedSymbols) {
             if (Symbol *d = r.declaration()) {
                 if (d->asDeclaration() || d->asFunction()) {
-                    const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
-                    if (data.filePath().toString() == fileName) {
+                    if (data.filePath() == d->filePath()) {
                         if (line == d->line() && positionInBlock >= d->column()) {
                             // TODO: check the end
                             result = r; // take the symbol under cursor.

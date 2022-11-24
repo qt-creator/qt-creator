@@ -19,7 +19,7 @@ public:
     explicit ClassViewController(QObject *parent = nullptr);
     ~ClassViewController() = default;
 
-    QSet<QString> findClassDeclarations(const QString &fileName, int line = -1, int column = -1);
+    QSet<QString> findClassDeclarations(const Utils::FilePath &filePath, int line = -1, int column = -1);
 
 private:
     void appendClassDeclarationsFromDocument(CPlusPlus::Document::Ptr document, int line, int column,

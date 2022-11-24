@@ -52,6 +52,7 @@
 
 using namespace CppEditor;
 using namespace LanguageClient;
+using namespace Utils;
 
 namespace ClangCodeModel {
 namespace Internal {
@@ -337,12 +338,11 @@ void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &curso
     CppModelManager::findUsages(cursor, CppModelManager::Backend::Builtin);
 }
 
-void ClangModelManagerSupport::switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit)
+void ClangModelManagerSupport::switchHeaderSource(const FilePath &filePath, bool inNextSplit)
 {
     if (ClangdClient * const client = clientForFile(filePath)) {
         // The fast, synchronous approach works most of the time, so let's try that one first.
-        const auto otherFile = Utils::FilePath::fromString(
-                    correspondingHeaderOrSource(filePath.toString()));
+        const FilePath otherFile = correspondingHeaderOrSource(filePath);
         if (!otherFile.isEmpty())
             openEditor(otherFile, inNextSplit);
         else

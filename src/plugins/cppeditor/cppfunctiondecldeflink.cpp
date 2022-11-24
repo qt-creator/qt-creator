@@ -147,10 +147,7 @@ static QSharedPointer<FunctionDeclDefLink> findLinkHelper(QSharedPointer<Functio
         return noResult;
 
     // parse the target file to get the linked decl/def
-    const QString targetFileName = QString::fromUtf8(
-                target->fileName(), target->fileNameLength());
-    CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(
-        Utils::FilePath::fromString(targetFileName));
+    CppRefactoringFileConstPtr targetFile = changes.fileNoEditor(target->filePath());
     if (!targetFile->isValid())
         return noResult;
 

@@ -14,10 +14,13 @@
 #include <QDir>
 #include <QtTest>
 
+using namespace Utils;
+
 static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
-static void createTempFile(const QString &fileName)
+static void createTempFile(const FilePath &filePath)
 {
+    QString fileName = filePath.toString();
     QFile file(fileName);
     QDir(QFileInfo(fileName).absolutePath()).mkpath(_("."));
     file.open(QFile::WriteOnly);
@@ -40,8 +43,8 @@ void HeaderSourceTest::test()
     QVERIFY(temporaryDir.isValid());
 
     const QDir path = QDir(temporaryDir.path() + QLatin1Char('/') + _(QTest::currentDataTag()));
-    const QString sourcePath = path.absoluteFilePath(sourceFileName);
-    const QString headerPath = path.absoluteFilePath(headerFileName);
+    const FilePath sourcePath = FilePath::fromString(path.absoluteFilePath(sourceFileName));
+    const FilePath headerPath = FilePath::fromString(path.absoluteFilePath(headerFileName));
     createTempFile(sourcePath);
     createTempFile(headerPath);
 

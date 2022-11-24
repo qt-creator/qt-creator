@@ -31,7 +31,9 @@
 #include <QMessageBox>
 
 using namespace ProjectExplorer;
-using namespace CMakeProjectManager::Internal;
+using namespace Utils;
+
+namespace CMakeProjectManager::Internal {
 
 CMakeManager::CMakeManager()
     : m_runCMakeAction(new QAction(QIcon(), Tr::tr("Run CMake"), this))
@@ -218,12 +220,12 @@ void CMakeManager::buildFile(Node *node)
     CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(fileNode->parentProjectNode());
     if (!targetNode)
         return;
-    Utils::FilePath filePath = fileNode->filePath();
+    FilePath filePath = fileNode->filePath();
     if (filePath.fileName().contains(".h")) {
         bool wasHeader = false;
-        const QString sourceFile = CppEditor::correspondingHeaderOrSource(filePath.toString(), &wasHeader);
+        const FilePath sourceFile = CppEditor::correspondingHeaderOrSource(filePath, &wasHeader);
         if (wasHeader && !sourceFile.isEmpty())
-            filePath = Utils::FilePath::fromString(sourceFile);
+            filePath = sourceFile;
     }
     Target *target = project->activeTarget();
     QTC_ASSERT(target, return);
@@ -252,3 +254,5 @@ void CMakeManager::buildFileContextMenu()
     if (Node *node = ProjectTree::currentNode())
         buildFile(node);
 }
+
+} // CMakeProjectManager::Internal

@@ -26,6 +26,7 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 namespace {
@@ -54,7 +55,7 @@ private:
             tip += evaluator.diagnosis();
             setPriority(Priority_Diagnostic);
         }
-        const Utils::FilePath filePath = editorWidget->textDocument()->filePath();
+        const FilePath filePath = editorWidget->textDocument()->filePath();
         const QStringList fallback = identifierWordsUnderCursor(tc);
         if (evaluator.identifiedCppElement()) {
             const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
@@ -187,11 +188,10 @@ void BuiltinModelManagerSupport::findUsages(const CursorInEditor &data) const
     }
 }
 
-void BuiltinModelManagerSupport::switchHeaderSource(const Utils::FilePath &filePath,
+void BuiltinModelManagerSupport::switchHeaderSource(const FilePath &filePath,
                                                     bool inNextSplit)
 {
-    const auto otherFile = Utils::FilePath::fromString(
-                correspondingHeaderOrSource(filePath.toString()));
+    const FilePath otherFile = correspondingHeaderOrSource(filePath);
     if (!otherFile.isEmpty())
         openEditor(otherFile, inNextSplit);
 }

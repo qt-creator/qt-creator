@@ -8,6 +8,7 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
 
+using namespace Utils;
 namespace ModelEditor {
 namespace Internal {
 
@@ -16,7 +17,7 @@ ClassViewController::ClassViewController(QObject *parent)
 {
 }
 
-QSet<QString> ClassViewController::findClassDeclarations(const QString &fileName, int line, int column)
+QSet<QString> ClassViewController::findClassDeclarations(const FilePath &filePath, int line, int column)
 {
     QSet<QString> classNames;
 
@@ -24,15 +25,15 @@ QSet<QString> ClassViewController::findClassDeclarations(const QString &fileName
     CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
 
     // scan original file
-    CPlusPlus::Document::Ptr document = snapshot.document(Utils::FilePath::fromString(fileName));
+    CPlusPlus::Document::Ptr document = snapshot.document(filePath);
     if (!document.isNull())
         appendClassDeclarationsFromDocument(document, line, column, &classNames);
 
     if (line <= 0) {
-        QString otherFileName = CppEditor::correspondingHeaderOrSource(fileName);
+        const FilePath otherFilePath = CppEditor::correspondingHeaderOrSource(filePath);
 
         // scan other file
-        document = snapshot.document(Utils::FilePath::fromString(otherFileName));
+        document = snapshot.document(otherFilePath);
         if (!document.isNull())
             appendClassDeclarationsFromDocument(document, -1, -1, &classNames);
     }

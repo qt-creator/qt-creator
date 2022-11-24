@@ -543,11 +543,11 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
             {FilePath::fromString(QString::fromUtf8(funImpl->fileName())), funImpl->line() + 2});
         return true;
     }
-    const QString implFilePath = CppEditor::correspondingHeaderOrSource(declFilePath.toString());
+    const FilePath implFilePath = CppEditor::correspondingHeaderOrSource(declFilePath);
     const CppEditor::InsertionLocation location = CppEditor::insertLocationForMethodDefinition
             (fun, false, CppEditor::NamespaceHandling::CreateMissing, refactoring, implFilePath);
 
-    if (BaseTextEditor *editor = editorAt(FilePath::fromString(location.fileName()),
+    if (BaseTextEditor *editor = editorAt(location.filePath(),
                                           location.line(), location.column())) {
         Overview o;
         const QString className = o.prettyName(cl->name());
@@ -555,7 +555,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
             + functionNameWithParameterNames + "\n{\n" + QString(indentation, ' ') + "\n}\n"
             + location.suffix();
         editor->insert(definition);
-        Core::EditorManager::openEditorAt({FilePath::fromString(location.fileName()),
+        Core::EditorManager::openEditorAt({location.filePath(),
                                            int(location.line() + location.prefix().count('\n') + 2),
                                            indentation});
         return true;

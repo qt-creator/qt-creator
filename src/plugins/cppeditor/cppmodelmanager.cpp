@@ -1726,17 +1726,17 @@ void CppModelManager::onAboutToLoadSession()
     GC();
 }
 
-QSet<QString> CppModelManager::dependingInternalTargets(const Utils::FilePath &file) const
+QSet<QString> CppModelManager::dependingInternalTargets(const FilePath &file) const
 {
     QSet<QString> result;
     const Snapshot snapshot = this->snapshot();
     QTC_ASSERT(snapshot.contains(file), return result);
     bool wasHeader;
-    const QString correspondingFile
-            = correspondingHeaderOrSource(file.toString(), &wasHeader, CacheUsage::ReadOnly);
-    const Utils::FilePaths dependingFiles = snapshot.filesDependingOn(
-                wasHeader ? file : Utils::FilePath::fromString(correspondingFile));
-    for (const Utils::FilePath &fn : std::as_const(dependingFiles)) {
+    const FilePath correspondingFile
+            = correspondingHeaderOrSource(file, &wasHeader, CacheUsage::ReadOnly);
+    const FilePaths dependingFiles = snapshot.filesDependingOn(
+                wasHeader ? file : correspondingFile);
+    for (const FilePath &fn : std::as_const(dependingFiles)) {
         for (const ProjectPart::ConstPtr &part : projectPart(fn))
             result.insert(part->buildSystemTarget);
     }

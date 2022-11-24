@@ -768,10 +768,10 @@ static int commonFilePathLength(const QString &s1, const QString &s2)
     return length;
 }
 
-static QString correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
-                                                    const QStringList &candidateFileNames,
-                                                    const Project *project,
-                                                    CacheUsage cacheUsage)
+static FilePath correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
+                                                     const QStringList &candidateFileNames,
+                                                     const Project *project,
+                                                     CacheUsage cacheUsage)
 {
     QString bestFileName;
     int compareValue = 0;
@@ -789,36 +789,37 @@ static QString correspondingHeaderOrSourceInProject(const QFileInfo &fileInfo,
     }
     if (!bestFileName.isEmpty()) {
         const QFileInfo candidateFi(bestFileName);
-        QTC_ASSERT(candidateFi.isFile(), return QString());
+        QTC_ASSERT(candidateFi.isFile(), return {});
         if (cacheUsage == CacheUsage::ReadWrite) {
             m_headerSourceMapping[fileInfo.absoluteFilePath()] = candidateFi.absoluteFilePath();
             m_headerSourceMapping[candidateFi.absoluteFilePath()] = fileInfo.absoluteFilePath();
         }
-        return candidateFi.absoluteFilePath();
+        return FilePath::fromString(candidateFi.absoluteFilePath());
     }
 
-    return QString();
+    return {};
 }
 
 } // namespace Internal
 
 using namespace Internal;
 
-QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, CacheUsage cacheUsage)
+FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, CacheUsage cacheUsage)
 {
+    const QString fileName = filePath.toString();
     const QFileInfo fi(fileName);
     ProjectFile::Kind kind = ProjectFile::classify(fileName);
     const bool isHeader = ProjectFile::isHeader(kind);
     if (wasHeader)
         *wasHeader = isHeader;
     if (m_headerSourceMapping.contains(fi.absoluteFilePath()))
-        return m_headerSourceMapping.value(fi.absoluteFilePath());
+        return FilePath::fromString(m_headerSourceMapping.value(fi.absoluteFilePath()));
 
     if (debug)
         qDebug() << Q_FUNC_INFO << fileName <<  kind;
 
     if (kind == ProjectFile::Unsupported)
-        return QString();
+        return {};
 
     const QString baseName = fi.completeBaseName();
     const QString privateHeaderSuffix = QLatin1String("_p");
@@ -858,7 +859,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
                     if (!isHeader || !baseName.endsWith(privateHeaderSuffix))
                         m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
                 }
-                return candidateFi.absoluteFilePath();
+                return FilePath::fromString(candidateFi.absoluteFilePath());
             }
         }
     }
@@ -866,7 +867,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
     // Find files in the current project
     Project *currentProject = ProjectTree::currentProject();
     if (currentProject) {
-        const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
+        const FilePath path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
                                                                   currentProject, cacheUsage);
         if (!path.isEmpty())
             return path;
@@ -880,14 +881,14 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader, Ca
             if (project == currentProject)
                 continue; // We have already checked the current project.
 
-            const QString path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
-                                                                      project, cacheUsage);
+            const FilePath path = correspondingHeaderOrSourceInProject(fi, candidateFileNames,
+                                                                       project, cacheUsage);
             if (!path.isEmpty())
                 return path;
         }
     }
 
-    return QString();
+    return {};
 }
 
 } // namespace CppEditor

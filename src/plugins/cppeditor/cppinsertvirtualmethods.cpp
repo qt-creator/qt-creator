@@ -46,6 +46,7 @@
 
 using namespace CPlusPlus;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
@@ -703,8 +704,8 @@ public:
             return;
 
         bool isHeaderFile = false;
-        m_cppFileName = correspondingHeaderOrSource(interface.filePath().toString(), &isHeaderFile);
-        m_factory->setHasImplementationFile(isHeaderFile && !m_cppFileName.isEmpty());
+        m_cppFilePath = correspondingHeaderOrSource(interface.filePath(), &isHeaderFile);
+        m_factory->setHasImplementationFile(isHeaderFile && !m_cppFilePath.isEmpty());
 
         m_valid = true;
     }
@@ -881,8 +882,7 @@ public:
             if (!clazz)
                 return;
 
-            CppRefactoringFilePtr implementationFile = refactoring.file(
-                Utils::FilePath::fromString(m_cppFileName));
+            CppRefactoringFilePtr implementationFile = refactoring.file(m_cppFilePath);
             Utils::ChangeSet implementationChangeSet;
             const int insertPos = qMax(0, implementationFile->document()->characterCount() - 1);
 
@@ -932,7 +932,7 @@ private:
     InsertVirtualMethodsDialog *m_factory = nullptr;
     const ClassSpecifierAST *m_classAST = nullptr;
     bool m_valid = false;
-    QString m_cppFileName;
+    FilePath m_cppFilePath;
     int m_insertPosDecl = 0;
     int m_insertPosOutside = 0;
     unsigned m_functionCount = 0;

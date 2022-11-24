@@ -352,7 +352,7 @@ void CodegenTest::testDefinitionEmptyClass()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), sourceDocument->filePath().toString());
+    QCOMPARE(loc.filePath(), sourceDocument->filePath());
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
     QCOMPARE(loc.suffix(), QString());
     QCOMPARE(loc.line(), 3);
@@ -410,7 +410,7 @@ void CodegenTest::testDefinitionFirstMember()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), sourceDocument->filePath().toString());
+    QCOMPARE(loc.filePath(), sourceDocument->filePath());
     QCOMPARE(loc.line(), 4);
     QCOMPARE(loc.column(), 1);
     QCOMPARE(loc.suffix(), QLatin1String("\n\n"));
@@ -469,7 +469,7 @@ void CodegenTest::testDefinitionLastMember()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), sourceDocument->filePath().toString());
+    QCOMPARE(loc.filePath(), sourceDocument->filePath());
     QCOMPARE(loc.line(), 7);
     QCOMPARE(loc.column(), 2);
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
@@ -535,7 +535,7 @@ void CodegenTest::testDefinitionMiddleMember()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), sourceDocument->filePath().toString());
+    QCOMPARE(loc.filePath(), sourceDocument->filePath());
     QCOMPARE(loc.line(), 7);
     QCOMPARE(loc.column(), 2);
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
@@ -595,7 +595,7 @@ void CodegenTest::testDefinitionMiddleMemberSurroundedByUndefined()
     QList<InsertionLocation> locList = find.methodDefinition(decl);
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), sourceDocument->filePath().toString());
+    QCOMPARE(loc.filePath(), sourceDocument->filePath());
     QCOMPARE(loc.line(), 4);
     QCOMPARE(loc.column(), 1);
     QCOMPARE(loc.prefix(), QString());
@@ -656,14 +656,14 @@ void CodegenTest::testDefinitionMemberSpecificFile()
     CppRefactoringChanges changes(snapshot);
     InsertionPointLocator find(changes);
     QList<InsertionLocation> locList =
-            find.methodDefinition(decl, true, sourceDocument->filePath().toString());
+            find.methodDefinition(decl, true, sourceDocument->filePath());
     QVERIFY(locList.size() == 1);
     InsertionLocation loc = locList.first();
-    QCOMPARE(loc.fileName(), sourceDocument->filePath().toString());
+    QCOMPARE(loc.filePath(), sourceDocument->filePath());
     QCOMPARE(loc.line(), 7);
     QCOMPARE(loc.column(), 2);
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
     QCOMPARE(loc.suffix(), QString());
 }
 
-} // namespace CppEditor::Internal
+} // CppEditor::Internal

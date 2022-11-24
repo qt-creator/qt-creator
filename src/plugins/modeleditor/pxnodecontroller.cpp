@@ -28,6 +28,8 @@
 #include <QMenu>
 #include <QQueue>
 
+using namespace Utils;
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -135,7 +137,8 @@ void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int
         menu->addAction(new MenuAction(tr("Add Component %1").arg(elementName), elementName,
                                        MenuAction::TYPE_ADD_COMPONENT, menu));
         const QStringList classNames = Utils::toList(
-            d->classViewController->findClassDeclarations(filePath, line, column));
+            d->classViewController->findClassDeclarations(
+                        FilePath::fromString(filePath), line, column));
         if (!classNames.empty()) {
             menu->addSeparator();
             int index = 0;

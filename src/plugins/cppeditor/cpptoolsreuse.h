@@ -58,8 +58,10 @@ CppCompletionAssistProcessor CPPEDITOR_EXPORT *getCppCompletionAssistProcessor()
 
 enum class CacheUsage { ReadWrite, ReadOnly };
 
-QString CPPEDITOR_EXPORT correspondingHeaderOrSource(const QString &fileName, bool *wasHeader = nullptr,
-                                                    CacheUsage cacheUsage = CacheUsage::ReadWrite);
+Utils::FilePath CPPEDITOR_EXPORT correspondingHeaderOrSource(
+     const Utils::FilePath &filePath, bool *wasHeader = nullptr,
+     CacheUsage cacheUsage = CacheUsage::ReadWrite);
+
 void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSplit,
                                  Utils::Id editorId = {});
 class CppCodeModelSettings;

@@ -5,19 +5,17 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "cppcodestylesettings.h"
-#include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditorwidget.h"
 #include "cppfunctiondecldeflink.h"
 #include "cppinsertvirtualmethods.h"
-#include "cpplocatorfilter.h"
 #include "cpppointerdeclarationformatter.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixprojectsettings.h"
 #include "cpprefactoringchanges.h"
 #include "cpptoolsreuse.h"
-#include "cppvirtualfunctionassistprovider.h"
 #include "includeutils.h"
+#include "indexitem.h"
 #include "insertionpointlocator.h"
 #include "symbolfinder.h"
 
@@ -103,9 +101,9 @@ const QList<CppQuickFixFactory *> &CppQuickFixFactory::cppQuickFixFactories()
 
 namespace Internal {
 
-QString inlinePrefix(const QString &targetFile, const std::function<bool()> &extraCondition = {})
+QString inlinePrefix(const FilePath &targetFile, const std::function<bool()> &extraCondition = {})
 {
-    if (ProjectFile::isHeader(ProjectFile::classify(targetFile))
+    if (ProjectFile::isHeader(ProjectFile::classify(targetFile.path()))
             && (!extraCondition || extraCondition())) {
         return "inline ";
     }
@@ -2527,10 +2525,10 @@ class InsertDeclOperation: public CppQuickFixOperation
 {
 public:
     InsertDeclOperation(const CppQuickFixInterface &interface,
-                        const QString &targetFileName, const Class *targetSymbol,
+                        const FilePath &targetFilePath, const Class *targetSymbol,
                         InsertionPointLocator::AccessSpec xsSpec, const QString &decl, int priority)
         : CppQuickFixOperation(interface, priority)
-        , m_targetFileName(FilePath::fromString(targetFileName))
+        , m_targetFilePath(targetFilePath)
         , m_targetSymbol(targetSymbol)
         , m_xsSpec(xsSpec)
         , m_decl(decl)
@@ -2546,10 +2544,10 @@ public:
 
         InsertionPointLocator locator(refactoring);
         const InsertionLocation loc = locator.methodDeclarationInClass(
-                    m_targetFileName, m_targetSymbol, m_xsSpec);
+                    m_targetFilePath, m_targetSymbol, m_xsSpec);
         QTC_ASSERT(loc.isValid(), return);
 
-        CppRefactoringFilePtr targetFile = refactoring.file(m_targetFileName);
+        CppRefactoringFilePtr targetFile = refactoring.file(m_targetFilePath);
         int targetPosition1 = targetFile->position(loc.line(), loc.column());
         int targetPosition2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
 
@@ -2564,7 +2562,7 @@ public:
     static QString generateDeclaration(const Function *function);
 
 private:
-    FilePath m_targetFileName;
+    FilePath m_targetFilePath;
     const Class *m_targetSymbol;
     InsertionPointLocator::AccessSpec m_xsSpec;
     QString m_decl;
@@ -2573,22 +2571,22 @@ private:
 class DeclOperationFactory
 {
 public:
-    DeclOperationFactory(const CppQuickFixInterface &interface, const QString &fileName,
+    DeclOperationFactory(const CppQuickFixInterface &interface, const FilePath &filePath,
                          const Class *matchingClass, const QString &decl)
         : m_interface(interface)
-        , m_fileName(fileName)
+        , m_filePath(filePath)
         , m_matchingClass(matchingClass)
         , m_decl(decl)
     {}
 
     QuickFixOperation *operator()(InsertionPointLocator::AccessSpec xsSpec, int priority)
     {
-        return new InsertDeclOperation(m_interface, m_fileName, m_matchingClass, xsSpec, m_decl, priority);
+        return new InsertDeclOperation(m_interface, m_filePath, m_matchingClass, xsSpec, m_decl, priority);
     }
 
 private:
     const CppQuickFixInterface &m_interface;
-    const QString &m_fileName;
+    const FilePath &m_filePath;
     const Class *m_matchingClass;
     const QString &m_decl;
 };
@@ -2646,8 +2644,7 @@ void InsertDeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOpe
                 return;
             }
         }
-        QString fileName = QString::fromUtf8(matchingClass->fileName(),
-                                             matchingClass->fileNameLength());
+        const FilePath fileName = matchingClass->filePath();
         const QString decl = InsertDeclOperation::generateDeclaration(fun);
 
         // Add several possible insertion locations for declaration
@@ -2685,23 +2682,23 @@ public:
     // Make sure that either loc is valid or targetFileName is not empty.
     InsertDefOperation(const CppQuickFixInterface &interface,
                        Declaration *decl, DeclaratorAST *declAST, const InsertionLocation &loc,
-                       const DefPos defpos, const QString &targetFileName = QString(),
+                       const DefPos defpos, const FilePath &targetFileName = {},
                        bool freeFunction = false)
         : CppQuickFixOperation(interface, 0)
         , m_decl(decl)
         , m_declAST(declAST)
         , m_loc(loc)
         , m_defpos(defpos)
-        , m_targetFileName(targetFileName)
+        , m_targetFilePath(targetFileName)
     {
         if (m_defpos == DefPosImplementationFile) {
-            const QString declFile = QString::fromUtf8(decl->fileName(), decl->fileNameLength());
-            const QDir dir = QFileInfo(declFile).dir();
+            const FilePath declFile = decl->filePath();
+            const FilePath targetFile =  m_loc.isValid() ? m_loc.filePath() : m_targetFilePath;
+            const FilePath resolved = targetFile.relativePathFrom(declFile.parentDir());
             setPriority(2);
             setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
                                                        "Add Definition in %1")
-                           .arg(dir.relativeFilePath(m_loc.isValid() ? m_loc.fileName()
-                                                                     : m_targetFileName)));
+                           .arg(resolved.displayName()));
         } else if (freeFunction) {
             setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
                                                        "Add Definition Here"));
@@ -2721,7 +2718,7 @@ public:
             DefPos defPos,
             DeclaratorAST *declAST,
             Declaration *decl,
-            const QString &targetFilePath,
+            const FilePath &targetFilePath,
             ChangeSet *changeSet = nullptr,
             QList<ChangeSet::Range> *indentRanges = nullptr)
     {
@@ -2731,8 +2728,7 @@ public:
                                                       refactoring, targetFilePath);
         QTC_ASSERT(loc.isValid(), return);
 
-        CppRefactoringFilePtr targetFile = refactoring.file(
-            Utils::FilePath::fromString(loc.fileName()));
+        CppRefactoringFilePtr targetFile = refactoring.file(loc.filePath());
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         oo.showFunctionSignatures = true;
         oo.showReturnTypes = true;
@@ -2846,14 +2842,14 @@ public:
 private:
     void perform() override
     {
-        insertDefinition(this, m_loc, m_defpos, m_declAST, m_decl, m_targetFileName);
+        insertDefinition(this, m_loc, m_defpos, m_declAST, m_decl, m_targetFilePath);
     }
 
     Declaration *m_decl;
     DeclaratorAST *m_declAST;
     InsertionLocation m_loc;
     const DefPos m_defpos;
-    const QString m_targetFileName;
+    const FilePath m_targetFilePath;
 };
 
 } // anonymous namespace
@@ -2894,14 +2890,13 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                 // location, because insertLocationForMethodDefinition() should
                                 // be used in perform() to get consistent insert positions.
                                 for (const InsertionLocation &location :
-                                     locator.methodDefinition(decl, false, QString())) {
+                                     locator.methodDefinition(decl, false, {})) {
                                     if (!location.isValid())
                                         continue;
 
-                                    const QString fileName = location.fileName();
-                                    if (ProjectFile::isHeader(ProjectFile::classify(fileName))) {
-                                        const QString source
-                                                = correspondingHeaderOrSource(fileName);
+                                    const FilePath filePath = location.filePath();
+                                    if (ProjectFile::isHeader(ProjectFile::classify(filePath.path()))) {
+                                        const FilePath source = correspondingHeaderOrSource(filePath);
                                         if (!source.isEmpty()) {
                                             op = new InsertDefOperation(interface, decl, declAST,
                                                                         InsertionLocation(),
@@ -2912,7 +2907,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                         op = new InsertDefOperation(interface, decl, declAST,
                                                                     InsertionLocation(),
                                                                     DefPosImplementationFile,
-                                                                    fileName);
+                                                                    filePath);
                                     }
 
                                     if (op)
@@ -2929,7 +2924,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                                 result << new InsertDefOperation(interface, decl, declAST,
                                                                  InsertionLocation(),
                                                                  DefPosOutsideClass,
-                                                                 interface.filePath().toString());
+                                                                 interface.filePath());
                             }
 
                             // Insert Position: Inside Class
@@ -2938,10 +2933,10 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             const CppRefactoringFilePtr file = interface.currentFile();
                             file->lineAndColumn(file->endOf(simpleDecl), &line, &column);
                             const InsertionLocation loc
-                                    = InsertionLocation(interface.filePath().toString(), QString(),
+                                    = InsertionLocation(interface.filePath(), QString(),
                                                         QString(), line, column);
                             result << new InsertDefOperation(interface, decl, declAST, loc,
-                                                             DefPosInsideClass, QString(),
+                                                             DefPosInsideClass, FilePath(),
                                                              isFreeFunction);
 
                             return;
@@ -3229,20 +3224,20 @@ private:
 
         CppRefactoringChanges refactoring(snapshot());
         const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(filePath().toString()));
-        QString cppFile; // Only set if the class is defined in a header file.
+        FilePath cppFile; // Only set if the class is defined in a header file.
         if (isHeaderFile) {
             InsertionPointLocator locator(refactoring);
             for (const InsertionLocation &location
                  : locator.methodDefinition(unimplemented.first(), false, {})) {
                 if (!location.isValid())
                     continue;
-                const QString fileName = location.fileName();
-                if (ProjectFile::isHeader(ProjectFile::classify(fileName))) {
-                    const QString source = correspondingHeaderOrSource(fileName);
+                const FilePath filePath = location.filePath();
+                if (ProjectFile::isHeader(ProjectFile::classify(filePath.path()))) {
+                    const FilePath source = correspondingHeaderOrSource(filePath);
                     if (!source.isEmpty())
                         cppFile = source;
                 } else {
-                    cppFile = fileName;
+                    cppFile = filePath;
                 }
                 break;
             }
@@ -3251,7 +3246,7 @@ private:
         MemberFunctionImplSettings settings;
         switch (m_mode) {
         case InsertDefsFromDecls::Mode::User: {
-            AddImplementationsDialog dlg(unimplemented, Utils::FilePath::fromString(cppFile));
+            AddImplementationsDialog dlg(unimplemented, cppFile);
             if (dlg.exec() == QDialog::Accepted)
                 settings = dlg.settings();
             break;
@@ -3301,19 +3296,19 @@ private:
             SimpleDeclarationAST *m_decl = nullptr;
         };
 
-        QHash<QString, QPair<ChangeSet, QList<ChangeSet::Range>>> changeSets;
+        QHash<FilePath, QPair<ChangeSet, QList<ChangeSet::Range>>> changeSets;
         for (const MemberFunctionImplSetting &setting : std::as_const(settings)) {
             DeclFinder finder(currentFile().data(), setting.func);
             finder.accept(m_classAST);
             QTC_ASSERT(finder.decl(), continue);
             InsertionLocation loc;
-            const QString targetFilePath = setting.defPos == DefPosImplementationFile
-                    ? cppFile : filePath().toString();
+            const FilePath targetFilePath = setting.defPos == DefPosImplementationFile
+                    ? cppFile : filePath();
             QTC_ASSERT(!targetFilePath.isEmpty(), continue);
             if (setting.defPos == DefPosInsideClass) {
                 int line, column;
                 currentFile()->lineAndColumn(currentFile()->endOf(finder.decl()), &line, &column);
-                loc = InsertionLocation(filePath().toString(), QString(), QString(), line, column);
+                loc = InsertionLocation(filePath(), QString(), QString(), line, column);
             }
             auto &changeSet = changeSets[targetFilePath];
             InsertDefOperation::insertDefinition(
@@ -3322,8 +3317,7 @@ private:
                         &changeSet.first, &changeSet.second);
         }
         for (auto it = changeSets.cbegin(); it != changeSets.cend(); ++it) {
-            const CppRefactoringFilePtr file = refactoring.file(
-                Utils::FilePath::fromString(it.key()));
+            const CppRefactoringFilePtr file = refactoring.file(it.key());
             for (const ChangeSet::Range &r : it.value().second)
                 file->appendIndentRange(r);
             file->setChangeSet(it.value().first);
@@ -3444,19 +3438,19 @@ class GetterSetterRefactoringHelper
 {
 public:
     GetterSetterRefactoringHelper(CppQuickFixOperation *operation,
-                                  const QString &fileName,
+                                  const FilePath &filePath,
                                   Class *clazz)
         : m_operation(operation)
         , m_changes(m_operation->snapshot())
         , m_locator(m_changes)
-        , m_headerFile(m_changes.file(Utils::FilePath::fromString(fileName)))
+        , m_headerFile(m_changes.file(filePath))
         , m_sourceFile([&] {
-            QString cppFileName = correspondingHeaderOrSource(fileName, &m_isHeaderHeaderFile);
-            if (!m_isHeaderHeaderFile || !QFile::exists(cppFileName)) {
+            FilePath cppFilePath = correspondingHeaderOrSource(filePath, &m_isHeaderHeaderFile);
+            if (!m_isHeaderHeaderFile || !cppFilePath.exists()) {
                 // there is no "source" file
                 return m_headerFile;
             } else {
-                return m_changes.file(Utils::FilePath::fromString(cppFileName));
+                return m_changes.file(cppFilePath);
             }
         }())
         , m_class(clazz)
@@ -3649,7 +3643,7 @@ protected:
                                                     ? NamespaceHandling::CreateMissing
                                                     : NamespaceHandling::Ignore,
                                                 m_changes,
-                                                m_sourceFile->filePath().toString(),
+                                                m_sourceFile->filePath(),
                                                 insertedNamespaces);
         if (m_settings->addUsingNamespaceinCppFile()) {
             // check if we have to insert a using namespace ...
@@ -3675,7 +3669,7 @@ protected:
                 ns.resize(ns.size() - 2); // remove last '::'
                 ns += ";\n";
                 const auto &loc = m_sourceFileInsertionPoint;
-                m_sourceFileInsertionPoint = InsertionLocation(loc.fileName(),
+                m_sourceFileInsertionPoint = InsertionLocation(loc.filePath(),
                                                                loc.prefix() + ns,
                                                                loc.suffix(),
                                                                loc.line(),
@@ -3787,9 +3781,7 @@ public:
 
     void perform() override
     {
-        GetterSetterRefactoringHelper helper(this,
-                                             currentFile()->filePath().toString(),
-                                             m_data.clazz);
+        GetterSetterRefactoringHelper helper(this, currentFile()->filePath(), m_data.clazz);
         helper.performGeneration(m_data, m_generateFlags);
         helper.applyChanges();
     }
@@ -3976,7 +3968,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
                                                         false,
                                                         NamespaceHandling::Ignore,
                                                         m_changes,
-                                                        m_headerFile->filePath().toString());
+                                                        m_headerFile->filePath());
                 const FullySpecifiedType returnType = getReturnTypeAt(m_headerFile, loc);
                 const QString clazz = symbolAt(data.clazz, m_headerFile, loc);
                 QString code = overview.prettyType(returnType, clazz + "::" + data.getterName)
@@ -4067,7 +4059,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
                                                         false,
                                                         NamespaceHandling::Ignore,
                                                         m_changes,
-                                                        m_headerFile->filePath().toString());
+                                                        m_headerFile->filePath());
 
                 FullySpecifiedType newParameterType = typeAt(data.declarationSymbol->type(),
                                                              data.clazz,
@@ -4141,7 +4133,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
                     false,
                     NamespaceHandling::Ignore,
                     m_changes,
-                    m_headerFile->filePath().toString());
+                    m_headerFile->filePath());
                 const FullySpecifiedType type = typeAt(data.declarationSymbol->type(),
                                                        data.clazz,
                                                        m_headerFile,
@@ -4722,7 +4714,7 @@ private:
         if (m_candidates.empty())
             return;
         GetterSetterRefactoringHelper helper(this,
-                                             currentFile()->filePath().toString(),
+                                             currentFile()->filePath(),
                                              m_candidates.front().data.clazz);
         for (MemberInfo &mi : m_candidates) {
             if (mi.requestedFlags != 0) {
@@ -4907,7 +4899,7 @@ public:
         }
         funcDef.append(QLatin1String("\n}\n\n"));
         funcDef.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
-        funcDef.prepend(inlinePrefix(currentFile->filePath().toString()));
+        funcDef.prepend(inlinePrefix(currentFile->filePath()));
         funcCall.append(QLatin1Char(';'));
 
         // Get starting indentation from original code.
@@ -5447,7 +5439,6 @@ public:
     {
         FoundDeclaration result;
         Function *func = ast->symbol;
-        QString declFileName;
         if (Class *matchingClass = isMemberFunction(context(), func)) {
             // Dealing with member functions
             const QualifiedNameId *qName = func->name()->asQualifiedNameId();
@@ -5460,10 +5451,8 @@ public:
                     continue;
                 }
 
-                declFileName = QString::fromUtf8(matchingClass->fileName(),
-                                                 matchingClass->fileNameLength());
-
-                result.file = refactoring.file(Utils::FilePath::fromString(declFileName));
+                const FilePath declFilePath = matchingClass->filePath();
+                result.file = refactoring.file(declFilePath);
                 ASTPath astPath(result.file->cppDocument());
                 const QList<AST *> path = astPath(s->line(), s->column());
                 SimpleDeclarationAST *simpleDecl = nullptr;
@@ -5483,10 +5472,10 @@ public:
         } else if (Namespace *matchingNamespace = isNamespaceFunction(context(), func)) {
             // Dealing with free functions and inline member functions.
             bool isHeaderFile;
-            declFileName = correspondingHeaderOrSource(filePath().toString(), &isHeaderFile);
-            if (!QFile::exists(declFileName))
+            FilePath declFilePath = correspondingHeaderOrSource(filePath(), &isHeaderFile);
+            if (!declFilePath.exists())
                 return FoundDeclaration();
-            result.file = refactoring.file(Utils::FilePath::fromString(declFileName));
+            result.file = refactoring.file(declFilePath);
             if (!result.file)
                 return FoundDeclaration();
             const LookupContext lc(result.file->cppDocument(), snapshot());
@@ -6295,12 +6284,11 @@ public:
     };
 
     MoveFuncDefRefactoringHelper(CppQuickFixOperation *operation, MoveType type,
-                                 const QString &fromFile, const QString &toFile)
+                                 const FilePath &fromFile, const FilePath &toFile)
         : m_operation(operation), m_type(type), m_changes(m_operation->snapshot())
     {
-        m_fromFile = m_changes.file(Utils::FilePath::fromString(fromFile));
-        m_toFile = (m_type == MoveOutside) ? m_fromFile
-                                           : m_changes.file(Utils::FilePath::fromString(toFile));
+        m_fromFile = m_changes.file(fromFile);
+        m_toFile = (m_type == MoveOutside) ? m_fromFile : m_changes.file(toFile);
     }
 
     void performMove(FunctionDefinitionAST *funcAST)
@@ -6308,15 +6296,14 @@ public:
         // Determine file, insert position and scope
         InsertionLocation l = insertLocationForMethodDefinition(
                     funcAST->symbol, false, NamespaceHandling::Ignore,
-                    m_changes, m_toFile->filePath().toString());
+                    m_changes, m_toFile->filePath());
         const QString prefix = l.prefix();
         const QString suffix = l.suffix();
         const int insertPos = m_toFile->position(l.line(), l.column());
         Scope *scopeAtInsertPos = m_toFile->cppDocument()->scopeAt(l.line(), l.column());
 
         // construct definition
-        const QString funcDec = inlinePrefix(
-                    m_toFile->filePath().toString(), [this] { return m_type == MoveOutside; })
+        const QString funcDec = inlinePrefix(m_toFile->filePath(), [this] { return m_type == MoveOutside; })
                 + definitionSignature(m_operation, funcAST, m_fromFile, m_toFile,
                                       scopeAtInsertPos);
         QString funcDef = prefix + funcDec;
@@ -6372,28 +6359,27 @@ class MoveFuncDefOutsideOp : public CppQuickFixOperation
 public:
     MoveFuncDefOutsideOp(const CppQuickFixInterface &interface,
                          MoveFuncDefRefactoringHelper::MoveType type,
-                         FunctionDefinitionAST *funcDef, const QString &cppFileName)
+                         FunctionDefinitionAST *funcDef, const FilePath &cppFilePath)
         : CppQuickFixOperation(interface, 0)
         , m_funcDef(funcDef)
         , m_type(type)
-        , m_cppFileName(cppFileName)
-        , m_headerFileName(QString::fromUtf8(funcDef->symbol->fileName(),
-                                             funcDef->symbol->fileNameLength()))
+        , m_cppFilePath(cppFilePath)
+        , m_headerFilePath(funcDef->symbol->filePath())
     {
         if (m_type == MoveFuncDefRefactoringHelper::MoveOutside) {
             setDescription(QCoreApplication::translate("CppEditor::QuickFix",
                                                        "Move Definition Outside Class"));
         } else {
-            const QDir dir = QFileInfo(m_headerFileName).dir();
+            const FilePath resolved = m_cppFilePath.relativePathFrom(m_headerFilePath.parentDir());
             setDescription(QCoreApplication::translate("CppEditor::QuickFix",
                                                        "Move Definition to %1")
-                           .arg(dir.relativeFilePath(m_cppFileName)));
+                           .arg(resolved.displayName()));
         }
     }
 
     void perform() override
     {
-        MoveFuncDefRefactoringHelper helper(this, m_type, m_headerFileName, m_cppFileName);
+        MoveFuncDefRefactoringHelper helper(this, m_type, m_headerFilePath, m_cppFilePath);
         helper.performMove(m_funcDef);
         helper.applyChanges();
     }
@@ -6401,8 +6387,8 @@ public:
 private:
     FunctionDefinitionAST *m_funcDef;
     MoveFuncDefRefactoringHelper::MoveType m_type;
-    const QString m_cppFileName;
-    const QString m_headerFileName;
+    const FilePath m_cppFilePath;
+    const FilePath m_headerFilePath;
 };
 
 } // anonymous namespace
@@ -6446,8 +6432,7 @@ void MoveFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFixOp
         return;
 
     bool isHeaderFile = false;
-    const QString cppFileName = correspondingHeaderOrSource(interface.filePath().toString(),
-                                                            &isHeaderFile);
+    const FilePath cppFileName = correspondingHeaderOrSource(interface.filePath(), &isHeaderFile);
 
     if (isHeaderFile && !cppFileName.isEmpty()) {
         const MoveFuncDefRefactoringHelper::MoveType type = moveOutsideMemberDefinition
@@ -6458,7 +6443,7 @@ void MoveFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFixOp
 
     if (classAST)
         result << new MoveFuncDefOutsideOp(interface, MoveFuncDefRefactoringHelper::MoveOutside,
-                                           funcAST, QLatin1String(""));
+                                           funcAST, FilePath());
 
     return;
 }
@@ -6470,28 +6455,27 @@ class MoveAllFuncDefOutsideOp : public CppQuickFixOperation
 public:
     MoveAllFuncDefOutsideOp(const CppQuickFixInterface &interface,
                             MoveFuncDefRefactoringHelper::MoveType type,
-                            ClassSpecifierAST *classDef, const QString &cppFileName)
+                            ClassSpecifierAST *classDef, const FilePath &cppFileName)
         : CppQuickFixOperation(interface, 0)
         , m_type(type)
         , m_classDef(classDef)
-        , m_cppFileName(cppFileName)
-        , m_headerFileName(QString::fromUtf8(classDef->symbol->fileName(),
-                                             classDef->symbol->fileNameLength()))
+        , m_cppFilePath(cppFileName)
+        , m_headerFilePath(classDef->symbol->filePath())
     {
         if (m_type == MoveFuncDefRefactoringHelper::MoveOutside) {
             setDescription(QCoreApplication::translate("CppEditor::QuickFix", "Move All Function "
                                                        "Definitions Outside Class"));
         } else {
-            const QDir dir = QFileInfo(m_headerFileName).dir();
+            const FilePath resolved = m_cppFilePath.relativePathFrom(m_headerFilePath.parentDir());
             setDescription(QCoreApplication::translate("CppEditor::QuickFix",
                                                        "Move All Function Definitions to %1")
-                           .arg(dir.relativeFilePath(m_cppFileName)));
+                           .arg(resolved.displayName()));
         }
     }
 
     void perform() override
     {
-        MoveFuncDefRefactoringHelper helper(this, m_type, m_headerFileName, m_cppFileName);
+        MoveFuncDefRefactoringHelper helper(this, m_type, m_headerFilePath, m_cppFilePath);
         for (DeclarationListAST *it = m_classDef->member_specifier_list; it; it = it->next) {
             if (FunctionDefinitionAST *funcAST = it->value->asFunctionDefinition()) {
                 if (funcAST->symbol && !funcAST->symbol->isGenerated())
@@ -6504,8 +6488,8 @@ public:
 private:
     MoveFuncDefRefactoringHelper::MoveType m_type;
     ClassSpecifierAST *m_classDef;
-    const QString m_cppFileName;
-    const QString m_headerFileName;
+    const FilePath m_cppFilePath;
+    const FilePath m_headerFilePath;
 };
 
 } // anonymous namespace
@@ -6530,15 +6514,14 @@ void MoveAllFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFi
         return;
 
     bool isHeaderFile = false;
-    const QString cppFileName = correspondingHeaderOrSource(interface.filePath().toString(),
-                                                            &isHeaderFile);
+    const FilePath cppFileName = correspondingHeaderOrSource(interface.filePath(), &isHeaderFile);
     if (isHeaderFile && !cppFileName.isEmpty()) {
         result << new MoveAllFuncDefOutsideOp(interface,
                                               MoveFuncDefRefactoringHelper::MoveToCppFile,
                                               classAST, cppFileName);
     }
     result << new MoveAllFuncDefOutsideOp(interface, MoveFuncDefRefactoringHelper::MoveOutside,
-                                          classAST, QLatin1String(""));
+                                          classAST, FilePath());
 }
 
 namespace {
@@ -6547,34 +6530,34 @@ class MoveFuncDefToDeclOp : public CppQuickFixOperation
 {
 public:
     MoveFuncDefToDeclOp(const CppQuickFixInterface &interface,
-                        const QString &fromFileName, const QString &toFileName,
+                        const FilePath &fromFilePath, const FilePath &toFilePath,
                         FunctionDefinitionAST *funcDef, const QString &declText,
                         const ChangeSet::Range &fromRange,
                         const ChangeSet::Range &toRange)
         : CppQuickFixOperation(interface, 0)
-        , m_fromFileName(fromFileName)
-        , m_toFileName(toFileName)
+        , m_fromFilePath(fromFilePath)
+        , m_toFilePath(toFilePath)
         , m_funcAST(funcDef)
         , m_declarationText(declText)
         , m_fromRange(fromRange)
         , m_toRange(toRange)
     {
-        if (m_toFileName == m_fromFileName) {
+        if (m_toFilePath == m_fromFilePath) {
             setDescription(QCoreApplication::translate("CppEditor::QuickFix",
                                                        "Move Definition to Class"));
         } else {
-            const QDir dir = QFileInfo(m_fromFileName).dir();
+            const FilePath resolved = m_toFilePath.relativePathFrom(m_fromFilePath.parentDir());
             setDescription(QCoreApplication::translate("CppEditor::QuickFix",
                                                        "Move Definition to %1")
-                           .arg(dir.relativeFilePath(m_toFileName)));
+                           .arg(resolved.displayName()));
         }
     }
 
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr fromFile = refactoring.file(Utils::FilePath::fromString(m_fromFileName));
-        CppRefactoringFilePtr toFile = refactoring.file(Utils::FilePath::fromString(m_toFileName));
+        CppRefactoringFilePtr fromFile = refactoring.file(m_fromFilePath);
+        CppRefactoringFilePtr toFile = refactoring.file(m_toFilePath);
 
         const QString wholeFunctionText = m_declarationText
                 + fromFile->textOf(fromFile->endOf(m_funcAST->declarator),
@@ -6583,13 +6566,13 @@ public:
         // Replace declaration with function and delete old definition
         ChangeSet toTarget;
         toTarget.replace(m_toRange, wholeFunctionText);
-        if (m_toFileName == m_fromFileName)
+        if (m_toFilePath == m_fromFilePath)
             toTarget.remove(m_fromRange);
         toFile->setChangeSet(toTarget);
         toFile->appendIndentRange(m_toRange);
         toFile->setOpenEditor(true, m_toRange.start);
         toFile->apply();
-        if (m_toFileName != m_fromFileName) {
+        if (m_toFilePath != m_fromFilePath) {
             ChangeSet fromTarget;
             fromTarget.remove(m_fromRange);
             fromFile->setChangeSet(fromTarget);
@@ -6598,8 +6581,8 @@ public:
     }
 
 private:
-    const QString m_fromFileName;
-    const QString m_toFileName;
+    const FilePath m_fromFilePath;
+    const FilePath m_toFilePath;
     FunctionDefinitionAST *m_funcAST;
     const QString m_declarationText;
     const ChangeSet::Range m_fromRange;
@@ -6640,9 +6623,9 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
     const ChangeSet::Range defRange = defFile->range(completeDefAST);
 
     // Determine declaration (file, range, text);
-    QString declFileName;
     ChangeSet::Range declRange;
     QString declText;
+    FilePath declFilePath;
 
     Function *func = funcAST->symbol;
     if (Class *matchingClass = isMemberFunction(interface.context(), func)) {
@@ -6667,10 +6650,8 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                 continue;
             }
 
-            declFileName = QString::fromUtf8(matchingClass->fileName(),
-                                             matchingClass->fileNameLength());
-
-            const CppRefactoringFilePtr declFile = refactoring.file(Utils::FilePath::fromString(declFileName));
+            declFilePath = matchingClass->filePath();
+            const CppRefactoringFilePtr declFile = refactoring.file(declFilePath);
             ASTPath astPath(declFile->cppDocument());
             const QList<AST *> path = astPath(s->line(), s->column());
             for (int idx = path.size() - 1; idx > 0; --idx) {
@@ -6691,12 +6672,11 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
     } else if (Namespace *matchingNamespace = isNamespaceFunction(interface.context(), func)) {
         // Dealing with free functions
         bool isHeaderFile = false;
-        declFileName = correspondingHeaderOrSource(interface.filePath().toString(), &isHeaderFile);
+        declFilePath = correspondingHeaderOrSource(interface.filePath(), &isHeaderFile);
         if (isHeaderFile)
             return;
 
-        const CppRefactoringFilePtr declFile = refactoring.file(
-            Utils::FilePath::fromString(declFileName));
+        const CppRefactoringFilePtr declFile = refactoring.file(declFilePath);
         const LookupContext lc(declFile->cppDocument(), interface.snapshot());
         const QList<LookupItem> candidates = lc.lookup(func->name(), matchingNamespace);
         for (const LookupItem &candidate : candidates) {
@@ -6716,16 +6696,16 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
             }
 
             if (!declText.isEmpty()) {
-                declText.prepend(inlinePrefix(declFileName));
+                declText.prepend(inlinePrefix(declFilePath));
                 break;
             }
         }
     }
 
-    if (!declFileName.isEmpty() && !declText.isEmpty())
+    if (!declFilePath.isEmpty() && !declText.isEmpty())
         result << new MoveFuncDefToDeclOp(interface,
-                                          interface.filePath().toString(),
-                                          declFileName,
+                                          interface.filePath(),
+                                          declFilePath,
                                           funcAST, declText,
                                           defRange, declRange);
 }
@@ -8941,11 +8921,11 @@ private:
             const ClassSpecifierAST *m_classAST;
             InsertionPointLocator::AccessSpec m_accessSpec;
             GenerateConstructorRefactoringHelper(CppQuickFixOperation *operation,
-                                                 const QString &fileName,
+                                                 const FilePath &filePath,
                                                  Class *clazz,
                                                  const ClassSpecifierAST *classAST,
                                                  InsertionPointLocator::AccessSpec accessSpec)
-                : GetterSetterRefactoringHelper(operation, fileName, clazz)
+                : GetterSetterRefactoringHelper(operation, filePath, clazz)
                 , m_classAST(classAST)
                 , m_accessSpec(accessSpec)
             {}
@@ -8979,7 +8959,7 @@ private:
                                                                 false,
                                                                 NamespaceHandling::Ignore,
                                                                 m_changes,
-                                                                m_headerFile->filePath().toString(),
+                                                                m_headerFile->filePath(),
                                                                 &insertedNamespaces);
                     implFile = m_headerFile;
                     implCode = symbolAt(m_class, m_headerFile, implLoc);
@@ -9086,7 +9066,7 @@ private:
             }
         };
         GenerateConstructorRefactoringHelper helper(this,
-                                                    currentFile()->filePath().toString(),
+                                                    currentFile()->filePath(),
                                                     m_classAST->symbol,
                                                     m_classAST,
                                                     accessSpec);
