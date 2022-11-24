@@ -18,6 +18,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Tasking;
 
 namespace Qdb {
 namespace Internal {
@@ -27,60 +28,63 @@ namespace Internal {
 class QdbMakeDefaultAppService : public RemoteLinux::AbstractRemoteLinuxDeployService
 {
     Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbMakeDefaultAppService)
-
 public:
-    QdbMakeDefaultAppService()
-    {
-        connect(&m_process, &QtcProcess::done, this, [this] {
-            if (m_process.error() != QProcess::UnknownError)
-                emit errorMessage(tr("Remote process failed: %1").arg(m_process.errorString()));
-            else if (m_makeDefault)
-                emit progressMessage(tr("Application set as the default one."));
-            else
-                emit progressMessage(tr("Reset the default application."));
-
-            stopDeployment();
-        });
-        connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-            emit stdErrData(QString::fromUtf8(m_process.readAllStandardError()));
-        });
-    }
-
-    void setMakeDefault(bool makeDefault)
-    {
-        m_makeDefault = makeDefault;
-    }
+    void setMakeDefault(bool makeDefault) { m_makeDefault = makeDefault; }
 
 private:
     bool isDeploymentNecessary() const final { return true; }
 
     void doDeploy() final
     {
-        QString remoteExe;
+        QTC_ASSERT(!m_taskTree, return);
 
-        if (RunConfiguration *rc = target()->activeRunConfiguration()) {
-            if (auto exeAspect = rc->aspect<ExecutableAspect>())
-                remoteExe = exeAspect->executable().toString();
-        }
-
-        const QString args = m_makeDefault && !remoteExe.isEmpty()
-                ? QStringLiteral("--make-default ") + remoteExe
-                : QStringLiteral("--remove-default");
-        m_process.setCommand(
-                    {deviceConfiguration()->filePath(Constants::AppcontrollerFilepath), {args}});
-        m_process.start();
+        const auto setupHandler = [this](QtcProcess &process) {
+            QString remoteExe;
+            if (RunConfiguration *rc = target()->activeRunConfiguration()) {
+                if (auto exeAspect = rc->aspect<ExecutableAspect>())
+                    remoteExe = exeAspect->executable().toString();
+            }
+            const QString args = m_makeDefault && !remoteExe.isEmpty()
+                    ? QStringLiteral("--make-default ") + remoteExe
+                    : QStringLiteral("--remove-default");
+            process.setCommand({deviceConfiguration()->filePath(Constants::AppcontrollerFilepath),
+                                {args}});
+            QtcProcess *proc = &process;
+            connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
+                emit stdErrData(QString::fromUtf8(proc->readAllStandardError()));
+            });
+        };
+        const auto doneHandler = [this](const QtcProcess &) {
+            if (m_makeDefault)
+                emit progressMessage(tr("Application set as the default one."));
+            else
+                emit progressMessage(tr("Reset the default application."));
+        };
+        const auto errorHandler = [this](const QtcProcess &process) {
+            emit errorMessage(tr("Remote process failed: %1").arg(process.errorString()));
+        };
+        const auto endHandler = [this] {
+            m_taskTree.release()->deleteLater();
+            stopDeployment();
+        };
+        const Group root {
+            Process(setupHandler, doneHandler, errorHandler),
+            OnGroupDone(endHandler),
+            OnGroupError(endHandler)
+        };
+        m_taskTree.reset(new TaskTree(root));
+        m_taskTree->start();
     }
 
     void stopDeployment() final
     {
-        m_process.close();
+        m_taskTree.reset();
         handleDeploymentDone();
     }
 
     bool m_makeDefault = true;
-    QtcProcess m_process;
+    std::unique_ptr<TaskTree> m_taskTree;
 };
-
 
 // QdbMakeDefaultAppStep
 
