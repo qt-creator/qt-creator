@@ -46,6 +46,7 @@ public:
     IDevice::Ptr m_device;
     std::unique_ptr<TaskTree> m_taskTree;
     QStringList m_extraCommands;
+    QList<TaskItem> m_extraTests;
 };
 
 const QStringList s_commandsToTest = {"base64",
@@ -263,6 +264,11 @@ void GenericLinuxDeviceTester::setExtraCommandsToTest(const QStringList &extraCo
     d->m_extraCommands = extraCommands;
 }
 
+void GenericLinuxDeviceTester::setExtraTests(const QList<TaskItem> &extraTests)
+{
+    d->m_extraTests = extraTests;
+}
+
 void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguration)
 {
     QTC_ASSERT(!d->m_taskTree, return);
@@ -274,16 +280,19 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
         d->m_taskTree.release()->deleteLater();
     };
 
-    const Tasking::Group root {
+    QList<TaskItem> taskItems = {
         d->echoTask(),
         d->unameTask(),
         d->gathererTask(),
-        d->transferTasks(),
-        d->commandTasks(),
-        OnGroupDone(std::bind(allFinished, TestSuccess)),
-        OnGroupError(std::bind(allFinished, TestFailure))
+        d->transferTasks()
     };
-    d->m_taskTree.reset(new TaskTree(root));
+    if (!d->m_extraTests.isEmpty())
+        taskItems << Group { d->m_extraTests };
+    taskItems << d->commandTasks()
+              << OnGroupDone(std::bind(allFinished, TestSuccess))
+              << OnGroupError(std::bind(allFinished, TestFailure));
+
+    d->m_taskTree.reset(new TaskTree(taskItems));
     d->m_taskTree->start();
 }
 
