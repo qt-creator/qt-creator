@@ -127,7 +127,7 @@ static void checkSystemForClangdSuitability()
     if (ClangdSettings::hardwareFulfillsRequirements())
         return;
 
-    ClangdSettings::setUseClangd(false);
+    ClangdSettings::setUseClangdAndSave(false);
     const QString warnStr = ClangModelManagerSupport::tr("The use of clangd for the C/C++ "
             "code model was disabled, because it is likely that its memory requirements "
             "would be higher than what your system can handle.");
@@ -148,7 +148,7 @@ static void checkSystemForClangdSuitability()
         return label;
     });
     info.addCustomButton(ClangModelManagerSupport::tr("Enable Anyway"), [clangdWarningSetting] {
-        ClangdSettings::setUseClangd(true);
+        ClangdSettings::setUseClangdAndSave(true);
         Core::ICore::infoBar()->removeInfo(clangdWarningSetting);
     });
     Core::ICore::infoBar()->addInfo(info);

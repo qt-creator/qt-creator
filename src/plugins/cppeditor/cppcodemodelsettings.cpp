@@ -218,6 +218,12 @@ bool ClangdSettings::useClangd() const
 
 void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
 
+void ClangdSettings::setUseClangdAndSave(bool use)
+{
+    setUseClangd(use);
+    instance().saveSettings();
+}
+
 bool ClangdSettings::hardwareFulfillsRequirements()
 {
     instance().m_data.haveCheckedHardwareReqirements = true;
