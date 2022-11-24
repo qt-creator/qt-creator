@@ -3,10 +3,10 @@
 
 #include "idevice.h"
 
-#include "sshparameters.h"
-
+#include "devicemanager.h"
 #include "deviceprocesslist.h"
 #include "idevicefactory.h"
+#include "sshparameters.h"
 
 #include "../kit.h"
 #include "../kitinformation.h"
@@ -653,5 +653,34 @@ void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
 DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
 
 DeviceEnvironmentFetcher::DeviceEnvironmentFetcher() = default;
+
+void DeviceProcessKiller::start()
+{
+    m_signalOperation.reset();
+    m_errorString.clear();
+
+    const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_processPath);
+    if (!device) {
+        m_errorString = tr("No device for given path: \"%1\".").arg(m_processPath.toUserOutput());
+        emit done(false);
+        return;
+    }
+
+    m_signalOperation = device->signalOperation();
+    if (!m_signalOperation) {
+        m_errorString = tr("Device for path \"%1\" does not support killing processes.")
+                       .arg(m_processPath.toUserOutput());
+        emit done(false);
+        return;
+    }
+
+    connect(m_signalOperation.get(), &DeviceProcessSignalOperation::finished,
+            this, [this](const QString &errorMessage) {
+        m_errorString = errorMessage;
+        emit done(m_errorString.isEmpty());
+    });
+
+    m_signalOperation->killProcess(m_processPath.path());
+}
 
 } // namespace ProjectExplorer

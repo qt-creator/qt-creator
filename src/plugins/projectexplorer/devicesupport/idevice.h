@@ -257,7 +257,6 @@ private:
     friend class DeviceManager;
 };
 
-
 class PROJECTEXPLORER_EXPORT DeviceTester : public QObject
 {
     Q_OBJECT
@@ -275,6 +274,24 @@ signals:
 
 protected:
     explicit DeviceTester(QObject *parent = nullptr);
+};
+
+class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject
+{
+    Q_OBJECT
+
+public:
+    void setProcessPath(const Utils::FilePath &path) { m_processPath = path; }
+    void start();
+    QString errorString() const { return m_errorString; }
+
+signals:
+    void done(bool success);
+
+private:
+    Utils::FilePath m_processPath;
+    DeviceProcessSignalOperation::Ptr m_signalOperation;
+    QString m_errorString;
 };
 
 } // namespace ProjectExplorer
