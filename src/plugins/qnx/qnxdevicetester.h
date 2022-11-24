@@ -25,16 +25,12 @@ private:
     enum State {
         Inactive,
         GenericTest,
-        VarRunTest,
-        CommandsTest
+        VarRunTest
     };
 
     void handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult result);
-    void handleProcessDone();
     void handleVarRunDone();
-    void handleCommandDone();
 
-    void testNextCommand();
     void setFinished(ProjectExplorer::DeviceTester::TestResult result);
 
     QStringList versionSpecificCommandsToTest(int versionNumber) const;
@@ -44,9 +40,7 @@ private:
     ProjectExplorer::DeviceTester::TestResult m_result = TestSuccess;
     State m_state = Inactive;
 
-    int m_currentCommandIndex = 0;
-    QStringList m_commandsToTest;
-    Utils::QtcProcess m_process;
+    Utils::QtcProcess m_varRunProcess;
 };
 
 } // namespace Internal
