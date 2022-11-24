@@ -714,6 +714,9 @@ void StatesEditorView::modelAttached(Model *model)
 
     resetModel();
     resetStateGroups();
+
+    emit m_statesEditorModel->activeStateGroupChanged();
+    emit m_statesEditorModel->activeStateGroupIndexChanged();
 }
 
 void StatesEditorView::modelAboutToBeDetached(Model *model)
