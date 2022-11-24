@@ -6,6 +6,7 @@
 #include "cppeditorconstants.h"
 
 #include <coreplugin/icore.h>
+#include <utils/filepath.h>
 #include <utils/mimeutils.h>
 
 #include <QDebug>
@@ -123,6 +124,11 @@ bool ProjectFile::isHeader(ProjectFile::Kind kind)
     default:
         return false;
     }
+}
+
+bool ProjectFile::isHeader(const Utils::FilePath &fp)
+{
+    return isHeader(classify(fp.toString()));
 }
 
 bool ProjectFile::isSource(ProjectFile::Kind kind)
