@@ -18,7 +18,7 @@ public:
     static QString includeBaseDirectory();
     static QString globalQtCoreIncludePath();
     static QString globalIncludePath();
-    static QString directoryOfTestFile();
+    static Utils::FilePath directoryOfTestFile();
     static Utils::FilePath testFilePath(const QString &fileName = QLatin1String("file.cpp"));
 };
 

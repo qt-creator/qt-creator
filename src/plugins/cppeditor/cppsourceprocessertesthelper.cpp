@@ -27,14 +27,14 @@ QString TestIncludePaths::globalIncludePath()
     return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/global"));
 }
 
-QString TestIncludePaths::directoryOfTestFile()
+FilePath TestIncludePaths::directoryOfTestFile()
 {
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/local"));
+    return FilePath::fromString(QDir::cleanPath(includeBaseDirectory())) / "local";
 }
 
 FilePath TestIncludePaths::testFilePath(const QString &fileName)
 {
-    return FilePath::fromString(directoryOfTestFile()) / fileName;
+    return directoryOfTestFile() / fileName;
 }
 
 } // CppEditor::Tests::Internal
