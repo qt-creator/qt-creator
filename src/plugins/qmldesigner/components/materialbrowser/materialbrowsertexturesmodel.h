@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <modelnode.h>
+#include "modelnode.h"
 
 #include <QAbstractListModel>
 #include <QObject>
@@ -49,6 +49,7 @@ public:
     Q_INVOKABLE void deleteTexture(int idx);
     Q_INVOKABLE void applyToSelectedMaterial(qint64 internalId);
     Q_INVOKABLE void applyToSelectedModel(qint64 internalId);
+    Q_INVOKABLE void openTextureEditor();
 
 signals:
     void isEmptyChanged();

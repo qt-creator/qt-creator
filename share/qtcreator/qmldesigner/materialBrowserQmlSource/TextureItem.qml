@@ -34,6 +34,8 @@ Rectangle {
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
+
+        onDoubleClicked: materialBrowserTexturesModel.openTextureEditor();
     }
 
     Image {

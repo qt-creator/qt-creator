@@ -3,13 +3,12 @@
 
 #include "materialbrowsertexturesmodel.h"
 
-#include <bindingproperty.h>
-#include <designmodewidget.h>
-#include <qmldesignerplugin.h>
-#include <qmlobjectnode.h>
-#include <variantproperty.h>
-#include <qmltimelinekeyframegroup.h>
-#include "utils/qtcassert.h"
+#include "designmodewidget.h"
+#include "qmldesignerplugin.h"
+#include "qmlobjectnode.h"
+#include "variantproperty.h"
+
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -262,6 +261,11 @@ void MaterialBrowserTexturesModel::applyToSelectedModel(qint64 internalId)
         ModelNode tex = m_textureList.at(idx);
         emit applyToSelectedModelTriggered(tex);
     }
+}
+
+void MaterialBrowserTexturesModel::openTextureEditor()
+{
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("TextureEditor", true);
 }
 
 } // namespace QmlDesigner
