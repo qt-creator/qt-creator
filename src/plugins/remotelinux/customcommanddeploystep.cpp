@@ -16,48 +16,26 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Utils::Tasking;
 
 namespace RemoteLinux::Internal {
 
 class CustomCommandDeployService : public AbstractRemoteLinuxDeployService
 {
 public:
-    CustomCommandDeployService();
-
     void setCommandLine(const QString &commandLine);
-
-    bool isDeploymentNecessary() const override { return true; }
     CheckResult isDeploymentPossible() const override;
 
 protected:
     void doDeploy() override;
     void stopDeployment() override;
 
-    QString m_commandLine;
-    QtcProcess m_process;
-};
+private:
+    bool isDeploymentNecessary() const override { return true; }
 
-CustomCommandDeployService::CustomCommandDeployService()
-{
-    connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-        emit stdOutData(QString::fromUtf8(m_process.readAllStandardOutput()));
-    });
-    connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-        emit stdErrData(QString::fromUtf8(m_process.readAllStandardError()));
-    });
-    connect(&m_process, &QtcProcess::done, this, [this] {
-        if (m_process.error() != QProcess::UnknownError
-                || m_process.exitStatus() != QProcess::NormalExit) {
-            emit errorMessage(Tr::tr("Remote process failed: %1").arg(m_process.errorString()));
-        } else if (m_process.exitCode() != 0) {
-            emit errorMessage(Tr::tr("Remote process finished with exit code %1.")
-                .arg(m_process.exitCode()));
-        } else {
-            emit progressMessage(Tr::tr("Remote command finished successfully."));
-        }
-        stopDeployment();
-    });
-}
+    QString m_commandLine;
+    std::unique_ptr<TaskTree> m_taskTree;
+};
 
 void CustomCommandDeployService::setCommandLine(const QString &commandLine)
 {
@@ -74,15 +52,48 @@ CheckResult CustomCommandDeployService::isDeploymentPossible() const
 
 void CustomCommandDeployService::doDeploy()
 {
-    emit progressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
-    m_process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
-                             {"-c", m_commandLine}});
-    m_process.start();
+    QTC_ASSERT(!m_taskTree, return);
+
+    const auto setupHandler = [this](QtcProcess &process) {
+        emit progressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
+        process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
+                                 {"-c", m_commandLine}});
+        QtcProcess *proc = &process;
+        connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
+            emit stdOutData(QString::fromUtf8(proc->readAllStandardOutput()));
+        });
+        connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
+            emit stdErrData(QString::fromUtf8(proc->readAllStandardError()));
+        });
+    };
+    const auto doneHandler = [this](const QtcProcess &) {
+        emit progressMessage(Tr::tr("Remote command finished successfully."));
+    };
+    const auto errorHandler = [this](const QtcProcess &process) {
+        if (process.error() != QProcess::UnknownError
+                || process.exitStatus() != QProcess::NormalExit) {
+            emit errorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
+        } else if (process.exitCode() != 0) {
+            emit errorMessage(Tr::tr("Remote process finished with exit code %1.")
+                .arg(process.exitCode()));
+        }
+    };
+    const auto endHandler = [this] {
+        m_taskTree.release()->deleteLater();
+        stopDeployment();
+    };
+    const Group root {
+        Process(setupHandler, doneHandler, errorHandler),
+        OnGroupDone(endHandler),
+        OnGroupError(endHandler)
+    };
+    m_taskTree.reset(new TaskTree(root));
+    m_taskTree->start();
 }
 
 void CustomCommandDeployService::stopDeployment()
 {
-    m_process.close();
+    m_taskTree.reset();
     handleDeploymentDone();
 }
 
