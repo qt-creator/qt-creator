@@ -119,9 +119,9 @@ Section {
             text: qsTr("Render type quality")
             tooltip: qsTr("Overrides the default rendering type quality for this component.")
             blockedByTemplate: !root.isBackendValueAvailable("renderTypeQuality")
-            enabled: backendValues.renderType !== undefined
-                        ? backendValues.renderType.enumeration === "QtRendering"
-                        : false
+            enabled: root.isBackendValueAvailable("renderTypeQuality")
+                     && (backendValues.renderType.value === "QtRendering"
+                         || backendValues.renderType.enumeration === "QtRendering")
         }
 
         SecondColumnLayout {
@@ -134,7 +134,8 @@ Section {
                         "HighRenderTypeQuality", "VeryHighRenderTypeQuality"]
                 backendValue: backendValues.renderTypeQuality
                 enabled: root.isBackendValueAvailable("renderTypeQuality")
-                         && backendValues.renderType.enumeration === "QtRendering"
+                         && (backendValues.renderType.value === "QtRendering"
+                             || backendValues.renderType.enumeration === "QtRendering")
             }
 
             ExpandingSpacer {}
