@@ -683,4 +683,14 @@ void DeviceProcessKiller::start()
     m_signalOperation->killProcess(m_processPath.path());
 }
 
+KillerAdapter::KillerAdapter()
+{
+    connect(task(), &DeviceProcessKiller::done, this, &KillerAdapter::done);
+}
+
+void KillerAdapter::start()
+{
+    task()->start();
+}
+
 } // namespace ProjectExplorer

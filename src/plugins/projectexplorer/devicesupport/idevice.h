@@ -9,6 +9,7 @@
 #include <utils/id.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/tasktree.h>
 
 #include <QAbstractSocket>
 #include <QCoreApplication>
@@ -294,4 +295,13 @@ private:
     QString m_errorString;
 };
 
+class PROJECTEXPLORER_EXPORT KillerAdapter : public Utils::Tasking::TaskAdapter<DeviceProcessKiller>
+{
+public:
+    KillerAdapter();
+    void start() final;
+};
+
 } // namespace ProjectExplorer
+
+QTC_DECLARE_CUSTOM_TASK(Killer, ProjectExplorer::KillerAdapter);
