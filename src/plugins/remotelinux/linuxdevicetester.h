@@ -19,6 +19,7 @@ public:
     explicit GenericLinuxDeviceTester(QObject *parent = nullptr);
     ~GenericLinuxDeviceTester() override;
 
+    void setExtraCommandsToTest(const QStringList &extraCommands);
     void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) override;
     void stopTest() override;
 

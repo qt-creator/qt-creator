@@ -31,6 +31,8 @@ class GenericLinuxDeviceTesterPrivate
 public:
     GenericLinuxDeviceTesterPrivate(GenericLinuxDeviceTester *tester) : q(tester) {}
 
+    QStringList commandsToTest() const;
+
     TaskItem echoTask() const;
     TaskItem unameTask() const;
     TaskItem gathererTask() const;
@@ -43,6 +45,7 @@ public:
     GenericLinuxDeviceTester *q = nullptr;
     IDevice::Ptr m_device;
     std::unique_ptr<TaskTree> m_taskTree;
+    QStringList m_extraCommands;
 };
 
 const QStringList s_commandsToTest = {"base64",
@@ -78,6 +81,14 @@ const QStringList s_commandsToTest = {"base64",
 // "awk", "grep", "netstat", "print", "pidin", "sleep", "uname"
 
 static const char s_echoContents[] = "Hello Remote World!";
+
+QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
+{
+    QStringList commands = s_commandsToTest + m_extraCommands;
+    commands.removeDuplicates();
+    Utils::sort(commands);
+    return commands;
+}
 
 TaskItem GenericLinuxDeviceTesterPrivate::echoTask() const
 {
@@ -231,7 +242,7 @@ TaskItem GenericLinuxDeviceTesterPrivate::commandTasks() const
     tasks.append(OnGroupSetup([this] {
         emit q->progressMessage(Tr::tr("Checking if required commands are available..."));
     }));
-    for (const QString &commandName : s_commandsToTest)
+    for (const QString &commandName : commandsToTest())
         tasks.append(commandTask(commandName));
     return Tasking::Group {tasks};
 }
@@ -246,6 +257,11 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
 }
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester() = default;
+
+void GenericLinuxDeviceTester::setExtraCommandsToTest(const QStringList &extraCommands)
+{
+    d->m_extraCommands = extraCommands;
+}
 
 void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguration)
 {
