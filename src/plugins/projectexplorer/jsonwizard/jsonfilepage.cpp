@@ -36,7 +36,7 @@ bool JsonFilePage::validatePage()
         return false;
 
     const FilePath dir = filePath();
-    if (!dir.isDir())
+    if (dir.exists() && !dir.isDir())
         return false;
 
     const FilePath target = dir.resolvePath(fileName());

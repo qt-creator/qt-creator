@@ -52,6 +52,7 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d->m_nameLineEdit->setObjectName("nameLineEdit");
     d->m_pathLabel = new QLabel;
     d->m_pathChooser = new PathChooser;
+    d->m_pathChooser->setExpectedKind(PathChooser::Directory);
 
     d->m_nameLabel->setText(tr("File name:"));
     d->m_pathLabel->setText(tr("Path:"));
