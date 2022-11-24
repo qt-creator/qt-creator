@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include <utils/commandline.h>
+#include <utils/hostosinfo.h>
 
 #include <QObject>
 #include <QtTest>
@@ -31,6 +32,9 @@ private slots:
 
     void testAndComplex()
     {
+        if (HostOsInfo::isWindowsHost())
+            QSKIP("CommandLine does not produce useful escaping on windows.");
+
         CommandLine cmd("/tmp/space path/\"echo", {"foo", "long with space"});
         CommandLine cmd2("/tmp/space \"path/echo", {"bar\"", "blizz is 'great"});
 
@@ -46,6 +50,9 @@ private slots:
 
     void testAndAdd()
     {
+        if (HostOsInfo::isWindowsHost())
+            QSKIP("CommandLine does not produce useful escaping on windows.");
+
         CommandLine cmd("/tmp/space path/\"echo", {"foo", "long with space"});
         CommandLine cmd2("/tmp/space \"path/echo", {"bar\"", "blizz is 'great"});
         cmd.addCommandLineWithAnd(cmd2);
