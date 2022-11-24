@@ -90,7 +90,8 @@
 
     \image webinardemo-qb-fastblur.png "Settings for exporting blurEffect layer"
 
-    We want to apply the \l {FastBlur} effect to the \e smallPopup UI control.
+    We want to apply the \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-fastblur.html}
+    {Fast Blur} effect to the \e smallPopup UI control.
     In the artboard, we have a \e blurEffect layer that we want to export as a
     \e FastBlurItem component. In the \uicontrol Component field, we enter
     \e FastBlurItem.
