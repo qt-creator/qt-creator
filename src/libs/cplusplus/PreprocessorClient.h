@@ -5,12 +5,10 @@
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
+#include <utils/filepath.h>
+
 #include <QStringList>
 #include <QVector>
-
-QT_BEGIN_NAMESPACE
-class QByteArray;
-QT_END_NAMESPACE
 
 namespace CPlusPlus {
 
@@ -74,8 +72,7 @@ public:
 
   virtual void startExpandingMacro(int bytesOffset, int utf16charsOffset,
                                    int line, const Macro &macro,
-                                   const QVector<MacroArgumentReference> &actuals
-                                            = QVector<MacroArgumentReference>()) = 0;
+                                   const QVector<MacroArgumentReference> &actuals = {}) = 0;
   virtual void stopExpandingMacro(int bytesOffset, const Macro &macro) = 0; // TODO: ?!
 
   /// Mark the given macro name as the include guard for the current file.
@@ -85,8 +82,8 @@ public:
   virtual void startSkippingBlocks(int utf16charsOffset) = 0;
   virtual void stopSkippingBlocks(int utf16charsOffset) = 0;
 
-  virtual void sourceNeeded(int line, const QString &fileName, IncludeType mode,
-                            const QStringList &initialIncludes = QStringList()) = 0;
+  virtual void sourceNeeded(int line, const Utils::FilePath &fileName, IncludeType mode,
+                            const Utils::FilePaths &initialIncludes = {}) = 0;
 
   static inline bool isInjectedFile(const QString &fileName)
   {

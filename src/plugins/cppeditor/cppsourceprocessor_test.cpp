@@ -45,7 +45,7 @@ public:
                     CppModelManager::createSourceProcessor());
         sourceProcessor->setHeaderPaths({ProjectExplorer::HeaderPath::makeUser(
                                          TestIncludePaths::directoryOfTestFile())});
-        sourceProcessor->run(filePath.toString());
+        sourceProcessor->run(filePath);
 
         Document::Ptr document = m_cmm->document(filePath);
         return document;
@@ -180,7 +180,7 @@ void SourceProcessorTest::testIncludeNext()
 {
     const Core::Tests::TestDataDir data(
         _(SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next-data/"));
-    const QString mainFilePath = data.file(QLatin1String("main.cpp"));
+    const FilePath mainFilePath = data.filePath(QLatin1String("main.cpp"));
     const QString customHeaderPath = data.directory(QLatin1String("customIncludePath"));
     const QString systemHeaderPath = data.directory(QLatin1String("systemIncludePath"));
 

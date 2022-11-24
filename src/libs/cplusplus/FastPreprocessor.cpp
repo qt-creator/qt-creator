@@ -50,16 +50,15 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
     return preprocessed;
 }
 
-void FastPreprocessor::sourceNeeded(int line, const QString &fileName, IncludeType mode,
-                                    const QStringList &initialIncludes)
+void FastPreprocessor::sourceNeeded(int line, const FilePath &filePath, IncludeType mode,
+                                    const FilePaths &initialIncludes)
 {
     Q_UNUSED(initialIncludes)
     Q_ASSERT(_currentDoc);
-    FilePath filePath = FilePath::fromString(fileName);
     if (_addIncludesToCurrentDoc) {
         // CHECKME: Is that cleanPath needed?
         const FilePath cleanPath = filePath.cleanPath();
-        _currentDoc->addIncludeFile(Document::Include(fileName, cleanPath, line, mode));
+        _currentDoc->addIncludeFile(Document::Include(filePath.toString(), cleanPath, line, mode));
     }
     mergeEnvironment(filePath);
 }

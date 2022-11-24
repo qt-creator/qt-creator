@@ -36,8 +36,8 @@ public:
                    bool mergeDefinedMacrosOfDocument = false);
 
     // CPlusPlus::Client
-    virtual void sourceNeeded(int line, const QString &fileName, IncludeType mode,
-                              const QStringList &initialIncludes = QStringList());
+    virtual void sourceNeeded(int line, const Utils::FilePath &filePath, IncludeType mode,
+                              const Utils::FilePaths &initialIncludes = {});
 
     virtual void macroAdded(const Macro &);
 

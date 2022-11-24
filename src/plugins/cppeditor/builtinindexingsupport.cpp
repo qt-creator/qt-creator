@@ -200,9 +200,9 @@ void index(QFutureInterface<void> &indexingFuture,
 
         const bool isSourceFile = i < sourceCount;
         if (isSourceFile) {
-            (void) sourceProcessor->run(conf.path());
+            sourceProcessor->run(conf);
         } else if (!processingHeaders) {
-            (void) sourceProcessor->run(conf.path());
+            sourceProcessor->run(conf);
 
             processingHeaders = true;
         }
@@ -212,7 +212,7 @@ void index(QFutureInterface<void> &indexingFuture,
                 ? fallbackHeaderPaths
                 : parts.first()->headerPaths;
         sourceProcessor->setHeaderPaths(headerPaths);
-        sourceProcessor->run(fileName);
+        sourceProcessor->run(FilePath::fromString(fileName));
 
         indexingFuture.setProgressValue(files.size() - sourceProcessor->todo().size());
 

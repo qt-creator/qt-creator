@@ -187,18 +187,18 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         sourceProcessor.setWorkingCopy(workingCopy);
         sourceProcessor.setHeaderPaths(state.headerPaths);
         sourceProcessor.setLanguageFeatures(features);
-        sourceProcessor.run(configurationFileName.path());
+        sourceProcessor.run(configurationFileName);
         if (baseConfig.usePrecompiledHeaders) {
             for (const QString &precompiledHeader : std::as_const(state.precompiledHeaders))
-                sourceProcessor.run(precompiledHeader);
+                sourceProcessor.run(FilePath::fromString(precompiledHeader));
         }
         if (!baseState.editorDefines.isEmpty())
-            sourceProcessor.run(CppModelManager::editorConfigurationFileName().path());
+            sourceProcessor.run(CppModelManager::editorConfigurationFileName());
         QStringList includedFiles = state.includedFiles;
         if (baseConfig.usePrecompiledHeaders)
             includedFiles << state.precompiledHeaders;
         includedFiles.removeDuplicates();
-        sourceProcessor.run(filePath().toString(), includedFiles);
+        sourceProcessor.run(filePath(), transform(includedFiles, &FilePath::fromString));
         state.snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = state.snapshot.simplified(state.snapshot.document(filePath()));
         for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end(); i != ei; ++i) {

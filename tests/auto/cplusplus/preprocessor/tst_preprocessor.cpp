@@ -152,12 +152,12 @@ public:
     virtual void stopSkippingBlocks(int utf16charsOffset)
     { m_skippedBlocks.last().end = utf16charsOffset; }
 
-    virtual void sourceNeeded(int line, const QString &includedFileName, IncludeType mode,
-                              const QStringList &initialIncludes = QStringList())
+    virtual void sourceNeeded(int line, const Utils::FilePath &includedFileName, IncludeType mode,
+                              const Utils::FilePaths &initialIncludes = {})
     {
         Q_UNUSED(initialIncludes)
 #if 1
-        m_recordedIncludes.append(Include(includedFileName, mode, line));
+        m_recordedIncludes.append(Include(includedFileName.toString(), mode, line));
         Q_UNUSED(m_env)
         Q_UNUSED(m_includeDepth)
 #else

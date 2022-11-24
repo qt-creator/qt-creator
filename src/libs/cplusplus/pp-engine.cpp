@@ -1687,7 +1687,7 @@ void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
 
     if (m_client) {
         QString inc = QString::fromUtf8(included.constData() + 1, included.size() - 2);
-        m_client->sourceNeeded(line, inc, mode);
+        m_client->sourceNeeded(line, FilePath::fromString(inc), mode);
     }
 }
 
