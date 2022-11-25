@@ -3,6 +3,7 @@
 
 #include "taskprogress.h"
 
+#include "futureprogress.h"
 #include "progressmanager.h"
 
 #include <utils/qtcassert.h>
@@ -38,7 +39,11 @@ public:
     QTimer m_timer;
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_futureInterface;
+    QPointer<FutureProgress> m_futureProgress;
     QString m_displayName;
+    FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
+    bool m_isSubtitleVisibleInStatusBar = false;
+    QString m_subtitle;
 };
 
 TaskProgressPrivate::TaskProgressPrivate(TaskProgress *progress, TaskTree *taskTree)
@@ -109,7 +114,11 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
         d->advanceProgress(0);
 
         const auto id = Id::fromString(d->m_displayName + ".action");
-        ProgressManager::addTask(d->m_futureInterface.future(), d->m_displayName, id);
+        d->m_futureProgress = ProgressManager::addTask(d->m_futureInterface.future(),
+                                                       d->m_displayName, id);
+        d->m_futureProgress->setKeepOnFinish(d->m_keep);
+        d->m_futureProgress->setSubtitleVisibleInStatusBar(d->m_isSubtitleVisibleInStatusBar);
+        d->m_futureProgress->setSubtitle(d->m_subtitle);
         d->m_timer.start();
     });
     connect(d->m_taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
@@ -129,6 +138,29 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
 void TaskProgress::setDisplayName(const QString &name)
 {
     d->m_displayName = name;
+    if (d->m_futureProgress)
+        d->m_futureProgress->setTitle(d->m_displayName);
+}
+
+void TaskProgress::setKeepOnFinish(FutureProgress::KeepOnFinishType keepType)
+{
+    d->m_keep = keepType;
+    if (d->m_futureProgress)
+        d->m_futureProgress->setKeepOnFinish(d->m_keep);
+}
+
+void TaskProgress::setSubtitleVisibleInStatusBar(bool visible)
+{
+    d->m_isSubtitleVisibleInStatusBar = visible;
+    if (d->m_futureProgress)
+        d->m_futureProgress->setSubtitleVisibleInStatusBar(d->m_isSubtitleVisibleInStatusBar);
+}
+
+void TaskProgress::setSubtitle(const QString &subtitle)
+{
+    d->m_subtitle = subtitle;
+    if (d->m_futureProgress)
+        d->m_futureProgress->setSubtitle(d->m_subtitle);
 }
 
 } // namespace Core

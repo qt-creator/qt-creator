@@ -5,6 +5,8 @@
 
 #include <coreplugin/core_global.h>
 
+#include "futureprogress.h" // TODO: just because of KeepOnFinishType enum - move it outside
+
 #include <QObject>
 
 namespace Utils { class TaskTree; }
@@ -19,6 +21,9 @@ public:
     TaskProgress(Utils::TaskTree *taskTree); // Makes TaskProgress a child of task tree
 
     void setDisplayName(const QString &name);
+    void setKeepOnFinish(FutureProgress::KeepOnFinishType keepType);
+    void setSubtitleVisibleInStatusBar(bool visible);
+    void setSubtitle(const QString &subtitle);
 
 private:
     TaskProgressPrivate *d;
