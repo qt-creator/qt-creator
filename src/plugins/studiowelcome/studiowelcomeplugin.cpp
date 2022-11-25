@@ -72,6 +72,16 @@ static bool useNewWelcomePage()
     return settings->value(newWelcomePageEntry, false).toBool();
 }
 
+static void openOpenProjectDialog()
+{
+    const FilePath path = Core::DocumentManager::useProjectsDirectory()
+                              ? Core::DocumentManager::projectsDirectory()
+                              : FilePath();
+    const FilePaths files = Core::DocumentManager::getOpenFileNames("*.qmlproject", path);
+    if (!files.isEmpty())
+        Core::ICore::openFiles(files, Core::ICore::None);
+}
+
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
 const char DETAILED_USAGE_STATISTICS[] = "DetailedUsageStatistics";
@@ -194,16 +204,14 @@ public:
 
     Q_INVOKABLE void createProject()
     {
-        QTimer::singleShot(0, []() {
+        QTimer::singleShot(0, this, []() {
             ProjectExplorer::ProjectExplorerPlugin::openNewProjectDialog();
         });
     }
 
     Q_INVOKABLE void openProject()
     {
-        QTimer::singleShot(0, []() {
-            ProjectExplorer::ProjectExplorerPlugin::openOpenProjectDialog();
-        });
+        QTimer::singleShot(0, this, []() { openOpenProjectDialog(); });
     }
 
     Q_INVOKABLE void openProjectAt(int row)
