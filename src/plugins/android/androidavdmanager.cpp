@@ -234,6 +234,23 @@ QString AndroidAvdManager::startAvd(const QString &name) const
     return QString();
 }
 
+static bool is32BitUserSpace()
+{
+    // Do a similar check as android's emulator is doing:
+    if (HostOsInfo::isLinuxHost()) {
+        if (QSysInfo::WordSize == 32) {
+            QtcProcess proc;
+            proc.setTimeoutS(3);
+            proc.setCommand({"getconf", {"LONG_BIT"}});
+            proc.runBlocking();
+            if (proc.result() != ProcessResult::FinishedWithSuccess)
+                return true;
+            return proc.allOutput().trimmed() == "32";
+        }
+    }
+    return false;
+}
+
 bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 {
     const FilePath emulator = m_config.emulatorToolPath();
@@ -267,7 +284,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 
     // start the emulator
     CommandLine cmd(m_config.emulatorToolPath());
-    if (AndroidConfigurations::force32bitEmulator())
+    if (is32BitUserSpace())
         cmd.addArg("-force-32bit");
 
     cmd.addArgs(m_config.emulatorArgs(), CommandLine::Raw);

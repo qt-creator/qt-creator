@@ -123,30 +123,6 @@ namespace {
     {
         return Core::ICore::installerResourcePath("android.xml").toString();
     }
-
-    static bool is32BitUserSpace()
-    {
-        // Do the exact same check as android's emulator is doing:
-        if (HostOsInfo::isLinuxHost()) {
-            if (QSysInfo::WordSize == 32 ) {
-                Environment env = Environment::systemEnvironment();
-                FilePath executable = env.searchInPath("file");
-                QString shell = env.value(QLatin1String("SHELL"));
-                if (executable.isEmpty() || shell.isEmpty())
-                    return true; // we can't detect, but creator is 32bit so assume 32bit
-
-                QtcProcess proc;
-                proc.setProcessChannelMode(QProcess::MergedChannels);
-                proc.setTimeoutS(30);
-                proc.setCommand({executable, {shell}});
-                proc.runBlocking();
-                if (proc.result() != ProcessResult::FinishedWithSuccess)
-                    return true;
-                return !proc.allOutput().contains("x86-64");
-            }
-        }
-        return false;
-    }
 }
 
 //////////////////////////////////
@@ -1403,11 +1379,6 @@ void AndroidConfigurations::updateAutomaticKitList()
         KitManager::deregisterKit(k);
 }
 
-bool AndroidConfigurations::force32bitEmulator()
-{
-    return m_instance->m_force32bit;
-}
-
 Environment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
 {
     Environment env = Environment::systemEnvironment();
@@ -1449,7 +1420,6 @@ AndroidConfigurations::AndroidConfigurations()
     connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
             this, &AndroidConfigurations::updateAndroidDevice);
 
-    m_force32bit = is32BitUserSpace();
     m_instance = this;
 }
 

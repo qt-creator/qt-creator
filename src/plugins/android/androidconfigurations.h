@@ -215,7 +215,6 @@ private:
     static AndroidConfigurations *m_instance;
     AndroidConfig m_config;
     std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
-    bool m_force32bit;
 };
 
 } // namespace Android
