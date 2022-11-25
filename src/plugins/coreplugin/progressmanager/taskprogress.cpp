@@ -6,12 +6,12 @@
 #include "futureprogress.h"
 #include "progressmanager.h"
 
+#include <utils/mathutils.h>
 #include <utils/qtcassert.h>
 #include <utils/tasktree.h>
 
 #include <QFutureWatcher>
 #include <QTimer>
-#include <QtMath>
 
 using namespace Utils;
 
@@ -80,13 +80,11 @@ void TaskProgressPrivate::advanceProgress(int newValue)
 
 void TaskProgressPrivate::updateProgress()
 {
-    // This maps expectation to atan(1) to Pi/4 ~= 0.78, i.e. snaps
-    // from 78% to 100% when expectations are met at the time the
-    // future finishes. That's not bad for a random choice.
-    const double mapped = atan2(double(m_currentTick) * TimerInterval / 1000.0,
-                                double(m_expectedTime));
-    const double progress = ProgressResolution * 2 * mapped / M_PI;
-    m_futureInterface.setProgressValue(ProgressResolution * m_currentProgress + progress);
+    const int halfLife = qRound(1000.0 * m_expectedTime / TimerInterval);
+    const int pMin = ProgressResolution * m_currentProgress;
+    const int pMax = ProgressResolution * (m_currentProgress + 1);
+    const int newValue = MathUtils::interpolateTangential(m_currentTick, halfLife, pMin, pMax);
+    m_futureInterface.setProgressValue(newValue);
 }
 
 /*!

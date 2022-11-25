@@ -11,6 +11,7 @@ Project {
         "fsengine/fsengine.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",
         "indexedcontainerproxyconstiterator/indexedcontainerproxyconstiterator.qbs",
+        "mathutils/mathutils.qbs",
         "multicursor/multicursor.qbs",
         "persistentsettings/persistentsettings.qbs",
         "qtcprocess/qtcprocess.qbs",

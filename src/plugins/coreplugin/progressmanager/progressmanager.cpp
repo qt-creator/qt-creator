@@ -13,6 +13,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>
+#include <utils/mathutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -27,7 +28,6 @@
 #include <QStyle>
 #include <QStyleOption>
 #include <QTimer>
-#include <QtMath>
 #include <QVariant>
 
 static const char kSettingsGroup[] = "Progress";
@@ -779,13 +779,8 @@ ProgressTimer::ProgressTimer(const QFutureInterfaceBase &futureInterface,
 void ProgressTimer::handleTimeout()
 {
     ++m_currentTime;
-
-    // This maps expectation to atan(1) to Pi/4 ~= 0.78, i.e. snaps
-    // from 78% to 100% when expectations are met at the time the
-    // future finishes. That's not bad for a random choice.
-    const double mapped = atan2(double(m_currentTime) * TimerInterval / 1000.0,
-                                double(m_expectedTime));
-    const double progress = 100 * 2 * mapped / M_PI;
-    m_futureInterface.setProgressValue(int(progress));
+    const int halfLife = qRound(1000.0 * m_expectedTime / TimerInterval);
+    const int progress = MathUtils::interpolateTangential(m_currentTime, halfLife, 0, 100);
+    m_futureInterface.setProgressValue(progress);
 }
 

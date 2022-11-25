@@ -365,7 +365,7 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
         diffText[RightSide].replace('\r', ' ');
         output.side[LeftSide].diffText += diffText[LeftSide];
         output.side[RightSide].diffText += diffText[RightSide];
-        fi.setProgressValue(MathUtils::interpolate(++i, 0, count, progressMin, progressMax));
+        fi.setProgressValue(MathUtils::interpolateLinear(++i, 0, count, progressMin, progressMax));
         if (fi.isCanceled())
             return {};
     }
@@ -952,7 +952,7 @@ void SideBySideDiffEditorWidget::showDiff()
                 const QString package = output.side[side].diffText.mid(currentPos, packageSize);
                 cursor.insertText(package);
                 currentPos += package.size();
-                fi.setProgressValue(MathUtils::interpolate(currentPos, 0, diffSize, progressMin, progressMax));
+                fi.setProgressValue(MathUtils::interpolateLinear(currentPos, 0, diffSize, progressMin, progressMax));
                 if (fi.isCanceled())
                     return;
             }
