@@ -356,6 +356,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Animates changes in property values.")
         }
     }
 
@@ -375,6 +376,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Provides a pause between animations.")
         }
     }
 
@@ -393,6 +395,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Runs animations one after the other.")
         }
     }
 
@@ -411,6 +414,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Runs animations together at the same time.")
         }
     }
 
@@ -430,6 +434,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Provides an immediate property change during animations.")
         }
     }
 
@@ -449,6 +454,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Runs a script during animation.")
         }
     }
 
@@ -468,6 +474,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Animates the color of an item.")
         }
     }
 
@@ -489,6 +496,7 @@ MetaInfo {
             version: "2.0"
             Property { name: "to"; type: "int"; value: 0; }
             Property { name: "from"; type: "int"; value: 0; }
+            toolTip: qsTr("Animates a numerical property of an item.")
         }
     }
 
@@ -508,6 +516,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/timer-24px.png"
             version: "2.0"
+            toolTip: qsTr(" Triggers an action at a given time.")
         }
     }
 
