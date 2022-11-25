@@ -435,6 +435,10 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         int idx = m_widget->materialBrowserModel()->materialIndex(nodeList.first());
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
+    } else if (identifier == "selected_texture_changed") {
+        int idx = m_widget->materialBrowserTexturesModel()->textureIndex(nodeList.first());
+        if (idx != -1)
+            m_widget->materialBrowserTexturesModel()->selectTexture(idx);
     } else if (identifier == "refresh_material_browser") {
         QTimer::singleShot(0, model(), [this]() {
             refreshModel(true);

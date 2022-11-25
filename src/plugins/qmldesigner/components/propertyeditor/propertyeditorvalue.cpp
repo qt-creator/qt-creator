@@ -500,18 +500,28 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
         m_modelNode.view()->executeInTransaction(__FUNCTION__, [&] {
             QmlDesigner::ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
             if (!texture || !texture.metaInfo().isQtQuick3DTexture()) {
-                // create a texture node
-                QmlDesigner::NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo("QtQuick3D.Texture");
-                texture = m_modelNode.view()->createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
-                                                                                   metaInfo.minorVersion());
-                texture.validId();
-                m_modelNode.view()->materialLibraryNode().defaultNodeListProperty().reparentHere(texture);
-
-                // set texture source
                 Utils::FilePath imagePath = Utils::FilePath::fromString(dropData);
                 Utils::FilePath currFilePath = QmlDesigner::DocumentManager::currentFilePath();
+                QString sourceVal = imagePath.relativePathFrom(currFilePath).toString();
+                texture = m_modelNode.view()->getTextureDefaultInstance(sourceVal);
+
+                if (!texture.isValid()) {
+                    // create a texture node
+                    QmlDesigner::NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo("QtQuick3D.Texture");
+                    texture = m_modelNode.view()->createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
+                                                                                       metaInfo.minorVersion());
+                    texture.validId();
+                    m_modelNode.view()->materialLibraryNode().defaultNodeListProperty().reparentHere(texture);
+                }
+
+                // set texture source
                 QmlDesigner::VariantProperty srcProp = texture.variantProperty("source");
-                srcProp.setValue(imagePath.relativePathFrom(currFilePath).toString());
+                srcProp.setValue(sourceVal);
+
+                QTimer::singleShot(0, this, [this, texture]() {
+                    if (m_modelNode.isValid() && texture.isValid() && m_modelNode.view())
+                        m_modelNode.view()->emitCustomNotification("selected_texture_changed", {texture});
+                });
             }
 
             // assign the texture to the property

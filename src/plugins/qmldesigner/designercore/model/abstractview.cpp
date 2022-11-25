@@ -915,6 +915,30 @@ void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const Mod
     modelMatsProp.setExpression(newMaterialNode.id());
 }
 
+ModelNode AbstractView::getTextureDefaultInstance(const QString &source)
+{
+    ModelNode matLib = materialLibraryNode();
+    if (!matLib.isValid())
+        return {};
+
+    const QList <ModelNode> matLibNodes = matLib.directSubModelNodes();
+    for (const ModelNode &tex : matLibNodes) {
+        if (tex.isValid() && tex.metaInfo().isQtQuick3DTexture()) {
+            const QList<AbstractProperty> props = tex.properties();
+            if (props.size() != 1)
+                continue;
+            const AbstractProperty &prop = props[0];
+            if (prop.name() == "source" && prop.isVariantProperty()
+                    && prop.toVariantProperty().value().toString() == source) {
+                return tex;
+            }
+        }
+    }
+
+    return {};
+}
+
+
 ModelNode AbstractView::currentStateNode() const
 {
     if (model())

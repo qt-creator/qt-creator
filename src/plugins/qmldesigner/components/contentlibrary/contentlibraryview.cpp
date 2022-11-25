@@ -75,20 +75,29 @@ WidgetInfo ContentLibraryView::widgetInfo()
                     return;
 
                 NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.Texture");
-                ModelNode newTexNode = createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
-                                                                            metaInfo.minorVersion());
-                newTexNode.validId();
-                VariantProperty sourceProp = newTexNode.variantProperty("source");
-                sourceProp.setValue(QLatin1String("images/%1").arg(texPath.split('/').last()));
-                matLib.defaultNodeListProperty().reparentHere(newTexNode);
+
+                QString sourceVal = QLatin1String("images/%1").arg(texPath.split('/').last());
+                ModelNode texNode = getTextureDefaultInstance(sourceVal);
+                if (!texNode.isValid()) {
+                    texNode = createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
+                                              metaInfo.minorVersion());
+                    texNode.validId();
+                    VariantProperty sourceProp = texNode.variantProperty("source");
+                    sourceProp.setValue(sourceVal);
+                    matLib.defaultNodeListProperty().reparentHere(texNode);
+                }
 
                 // assign the texture as scene environment's light probe
                 if (mode == ContentLibraryWidget::AddTextureMode::LightProbe && m_activeSceneEnv.isValid()) {
                     BindingProperty lightProbeProp = m_activeSceneEnv.bindingProperty("lightProbe");
-                    lightProbeProp.setExpression(newTexNode.id());
+                    lightProbeProp.setExpression(texNode.id());
                     VariantProperty bgModeProp = m_activeSceneEnv.variantProperty("backgroundMode");
                     bgModeProp.setValue(QVariant::fromValue(Enumeration("SceneEnvironment", "SkyBox")));
                 }
+                QTimer::singleShot(0, this, [this, texNode]() {
+                    if (model() && texNode.isValid())
+                        emitCustomNotification("selected_texture_changed", {texNode});
+                });
             });
         });
 
