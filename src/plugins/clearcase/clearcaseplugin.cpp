@@ -274,7 +274,6 @@ private:
     void diffGraphical(const QString &file1, const QString &file2 = QString());
     QString diffExternal(QString file1, QString file2 = QString(), bool keep = false);
     QString getFile(const QString &nativeFile, const QString &prefix);
-    static void rmdir(const QString &path);
     QString runExtDiff(const FilePath &workingDir, const QStringList &arguments, int timeOutS,
                        QTextCodec *outputCodec = nullptr);
     static QString getDriveLetterOfPath(const QString &directory);
@@ -1207,20 +1206,6 @@ QStringList ClearCasePluginPrivate::ccGetActivityVersions(const FilePath &workin
     return versions;
 }
 
-void ClearCasePluginPrivate::rmdir(const QString &path)
-{
-    QDir dir(path);
-    const auto fileInfoList = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
-    for (QFileInfo fi : fileInfoList) {
-        if (fi.isDir()) {
-            rmdir(fi.canonicalFilePath());
-            dir.rmdir(fi.baseName());
-        } else {
-            QFile::remove(fi.canonicalFilePath());
-        }
-    }
-}
-
 void ClearCasePluginPrivate::diffActivity()
 {
     using FileVerIt = QMap<QString, QStringPair>::Iterator;
@@ -1270,8 +1255,8 @@ void ClearCasePluginPrivate::diffActivity()
         diffGraphical(pair.first, pair.second);
         return;
     }
-    rmdir(TemporaryDirectory::masterDirectoryPath() + QLatin1String("/ccdiff/") + activity);
-    QDir(TemporaryDirectory::masterDirectoryPath()).rmpath(QLatin1String("ccdiff/") + activity);
+    TemporaryDirectory::masterDirectoryFilePath().pathAppended("ccdiff").pathAppended(activity)
+            .removeRecursively();
     m_diffPrefix = activity;
     const FileVerIt fend = filever.end();
     for (FileVerIt it = filever.begin(); it != fend; ++it) {
