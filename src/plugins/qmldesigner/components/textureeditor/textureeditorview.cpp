@@ -854,6 +854,7 @@ void TextureEditorView::dragStarted(QMimeData *mimeData)
 void TextureEditorView::dragEnded()
 {
     highlightSupportedProperties(false);
+    m_qmlBackEnd->contextObject()->setActiveDragSuffix("");
 }
 
 // from model to texture editor
