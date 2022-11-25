@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "addtexture.h"
+#include "createtexture.h"
 
 #include <QFrame>
 #include <QPointer>

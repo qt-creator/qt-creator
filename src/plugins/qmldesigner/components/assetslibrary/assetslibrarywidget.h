@@ -4,8 +4,9 @@
 #pragma once
 
 #include <previewtooltip/previewtooltipbackend.h>
-#include "addtexture.h"
+
 #include "assetslibrarymodel.h"
+#include "createtexture.h"
 
 #include <QFileIconProvider>
 #include <QFrame>

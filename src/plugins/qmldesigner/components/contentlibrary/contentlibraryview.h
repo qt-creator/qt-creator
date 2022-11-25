@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "createtexture.h"
 #include "abstractview.h"
 #include "nodemetainfo.h"
 
@@ -47,7 +48,6 @@ private:
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const NodeMetaInfo &metaInfo = {});
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
     ModelNode createMaterial(const NodeMetaInfo &metaInfo);
-    ModelNode resolveSceneEnv();
 
     QPointer<ContentLibraryWidget> m_widget;
     QList<ModelNode> m_bundleMaterialTargets;
@@ -57,6 +57,7 @@ private:
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     qint32 m_sceneId = -1;
+    CreateTexture m_createTexture;
 };
 
 } // namespace QmlDesigner

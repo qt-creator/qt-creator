@@ -4,7 +4,7 @@
 #pragma once
 
 #include "abstractview.h"
-#include "addtexture.h"
+#include "createtexture.h"
 
 #include <QPointer>
 #include <QSet>

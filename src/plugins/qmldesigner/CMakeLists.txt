@@ -588,7 +588,7 @@ extend_qtc_plugin(QmlDesigner
   PUBLIC_INCLUDES components
   DEFINES QMLDESIGNERCOMPONENTS_LIBRARY
   SOURCES
-    addtexture.h
+    createtexture.cpp createtexture.h
     qmldesignercomponents_global.h
 )
 

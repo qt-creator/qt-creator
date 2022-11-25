@@ -4,7 +4,9 @@
 #include "assetslibraryview.h"
 
 #include "assetslibrarywidget.h"
+#include "createtexture.h"
 #include "qmldesignerplugin.h"
+
 #include <asynchronousimagecache.h>
 #include <bindingproperty.h>
 #include <coreplugin/icore.h>
@@ -44,6 +46,7 @@ public:
 
 AssetsLibraryView::AssetsLibraryView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
+    , m_createTextures{this, false}
 {}
 
 AssetsLibraryView::~AssetsLibraryView()
@@ -62,9 +65,9 @@ WidgetInfo AssetsLibraryView::widgetInfo()
 
         connect(m_widget, &AssetsLibraryWidget::addTexturesRequested, this,
         [&] (const QStringList &filePaths, AddTextureMode mode) {
-            // to MaterialBrowserView
-            emitCustomNotification("add_textures", {}, {"AssetsLibraryView::widgetInfo",
-                                                        filePaths, QVariant::fromValue(mode), false});
+            executeInTransaction("AssetsLibraryView::widgetInfo", [&]() {
+                m_createTextures.execute(filePaths, mode, m_sceneId);
+            });
         });
     }
 
@@ -109,6 +112,11 @@ AssetsLibraryView::ImageCacheData *AssetsLibraryView::imageCacheData()
     std::call_once(imageCacheFlag,
                    [this]() { m_imageCacheData = std::make_unique<ImageCacheData>(); });
     return m_imageCacheData.get();
+}
+
+void AssetsLibraryView::active3DSceneChanged(qint32 sceneId)
+{
+    m_sceneId = sceneId;
 }
 
 } // namespace QmlDesigner
