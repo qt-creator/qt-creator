@@ -1051,7 +1051,11 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
     QStringList removeList;
     for (const QString &fileName : fileNames) {
         const QString targetFile = directory + "/" + QFileInfo(fileName).fileName();
-        if (QFileInfo::exists(targetFile)) {
+        Utils::FilePath srcFilePath = Utils::FilePath::fromString(fileName);
+        Utils::FilePath targetFilePath = Utils::FilePath::fromString(targetFile);
+        if (targetFilePath.exists()) {
+            if (srcFilePath.lastModified() == targetFilePath.lastModified())
+                continue;
             const QString title = QCoreApplication::translate(
                         "ModelNodeOperations", "Overwrite Existing File?");
             const QString question = QCoreApplication::translate(
