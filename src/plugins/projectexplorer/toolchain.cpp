@@ -192,7 +192,7 @@ bool ToolChain::isValid() const
     return d->m_isValid.value_or(false);
 }
 
-QStringList ToolChain::includedFiles(const QStringList &flags, const QString &directory) const
+FilePaths ToolChain::includedFiles(const QStringList &flags, const FilePath &directory) const
 {
     Q_UNUSED(flags)
     Q_UNUSED(directory)
@@ -466,12 +466,12 @@ Utils::LanguageVersion ToolChain::languageVersion(const Utils::Id &language, con
     }
 }
 
-QStringList ToolChain::includedFiles(const QString &option,
-                                     const QStringList &flags,
-                                     const QString &directoryPath,
-                                     PossiblyConcatenatedFlag possiblyConcatenated)
+FilePaths ToolChain::includedFiles(const QString &option,
+                                   const QStringList &flags,
+                                   const FilePath &directoryPath,
+                                   PossiblyConcatenatedFlag possiblyConcatenated)
 {
-    QStringList result;
+    FilePaths result;
 
     for (int i = 0; i < flags.size(); ++i) {
         QString includeFile;
@@ -484,11 +484,8 @@ QStringList ToolChain::includedFiles(const QString &option,
         if (includeFile.isEmpty() && flag == option && i + 1 < flags.size())
             includeFile = flags[++i];
 
-        if (!includeFile.isEmpty()) {
-            if (!QFileInfo(includeFile).isAbsolute())
-                includeFile = directoryPath + "/" + includeFile;
-            result.append(QDir::cleanPath(includeFile));
-        }
+        if (!includeFile.isEmpty())
+            result.append(directoryPath.resolvePath(includeFile));
     }
 
     return result;

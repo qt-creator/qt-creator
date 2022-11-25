@@ -102,7 +102,7 @@ public:
 
     virtual Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const = 0;
     virtual Utils::WarningFlags warningFlags(const QStringList &cflags) const = 0;
-    virtual QStringList includedFiles(const QStringList &flags, const QString &directory) const;
+    virtual Utils::FilePaths includedFiles(const QStringList &flags, const Utils::FilePath &directory) const;
     virtual QString sysRoot() const;
 
     QString explicitCodeModelTargetTriple() const;
@@ -184,10 +184,10 @@ protected:
     virtual bool fromMap(const QVariantMap &data);
 
     enum class PossiblyConcatenatedFlag { No, Yes };
-    static QStringList includedFiles(const QString &option,
-                                     const QStringList &flags,
-                                     const QString &directoryPath,
-                                     PossiblyConcatenatedFlag possiblyConcatenated);
+    static Utils::FilePaths includedFiles(const QString &option,
+                                          const QStringList &flags,
+                                          const Utils::FilePath &directoryPath,
+                                          PossiblyConcatenatedFlag possiblyConcatenated);
 
 private:
     ToolChain(const ToolChain &) = delete;

@@ -337,7 +337,7 @@ void QmakeBuildSystem::updateCppCodeModel()
             rpp.setBuildTargetType(BuildTargetType::Unknown);
             break;
         }
-        const QString includeFileBaseDir = pro->sourceDir().toString();
+        const FilePath includeFileBaseDir = pro->sourceDir();
 
         QStringList cxxArgs = pro->variableValue(Variable::CppFlags);
         QStringList cArgs = pro->variableValue(Variable::CFlags);

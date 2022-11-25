@@ -569,7 +569,7 @@ WarningFlags GccToolChain::warningFlags(const QStringList &cflags) const
     return flags;
 }
 
-QStringList GccToolChain::includedFiles(const QStringList &flags, const QString &directoryPath) const
+FilePaths GccToolChain::includedFiles(const QStringList &flags, const FilePath &directoryPath) const
 {
     return ToolChain::includedFiles("-include", flags, directoryPath, PossiblyConcatenatedFlag::No);
 }

@@ -601,7 +601,7 @@ void CMakeBuildSystem::updateProjectData()
     for (RawProjectPart &rpp : rpps) {
         rpp.setQtVersion(
                     kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
-        const QString includeFileBaseDir = buildConfiguration()->buildDirectory().toString();
+        const FilePath includeFileBaseDir = buildConfiguration()->buildDirectory();
         QStringList cxxFlags = rpp.flagsForCxx.commandLineFlags;
         QStringList cFlags = rpp.flagsForC.commandLineFlags;
         addTargetFlagForIos(cxxFlags, cFlags, this, [this] {

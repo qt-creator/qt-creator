@@ -14,6 +14,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
 
@@ -140,7 +141,7 @@ void AutotoolsBuildSystem::updateCppCodeModel()
     if (cxxflags.isEmpty())
         cxxflags = cflags;
 
-    const QString includeFileBaseDir = projectDirectory().toString();
+    const FilePath includeFileBaseDir = projectDirectory();
     rpp.setFlagsForC({kitInfo.cToolChain, cflags, includeFileBaseDir});
     rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxflags, includeFileBaseDir});
 

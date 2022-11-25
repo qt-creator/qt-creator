@@ -182,7 +182,7 @@ std::vector<DbEntry> CompilationDbParser::readJsonObjects() const
         const Utils::FilePath filePath = jsonObjectFilePath(object);
         const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
                                                      filePath.fileName());
-        result.push_back({flags, filePath, object["directory"].toString()});
+        result.push_back({flags, filePath, FilePath::fromUserInput(object["directory"].toString())});
 
         objectStart = m_projectFileContents.indexOf('{', objectEnd + 1);
         objectEnd = m_projectFileContents.indexOf('}', objectStart + 1);

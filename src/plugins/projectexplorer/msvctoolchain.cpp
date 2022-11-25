@@ -1124,8 +1124,8 @@ WarningFlags MsvcToolChain::warningFlags(const QStringList &cflags) const
     return flags;
 }
 
-QStringList MsvcToolChain::includedFiles(const QStringList &flags,
-                                         const QString &directoryPath) const
+FilePaths MsvcToolChain::includedFiles(const QStringList &flags,
+                                       const FilePath &directoryPath) const
 {
     return ToolChain::includedFiles("/FI", flags, directoryPath, PossiblyConcatenatedFlag::Yes);
 }

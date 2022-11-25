@@ -22,15 +22,6 @@ using namespace Utils;
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
-static QString updatedPathFlag(const QString &pathStr, const QString &workingDir)
-{
-    QString result = pathStr;
-    if (QDir(pathStr).isRelative())
-        result = workingDir + "/" + pathStr;
-
-    return result;
-}
-
 static CppEditor::ProjectFile::Kind fileKindFromString(QString flag)
 {
     using namespace CppEditor;
@@ -86,13 +77,13 @@ QStringList filterFromFileName(const QStringList &flags, QString fileName)
     return result;
 }
 
-void filteredFlags(const QString &fileName,
-                   const QString &workingDir,
+void filteredFlags(const FilePath &filePath,
+                   const FilePath &workingDir,
                    QStringList &flags,
                    HeaderPaths &headerPaths,
                    Macros &macros,
                    CppEditor::ProjectFile::Kind &fileKind,
-                   Utils::FilePath &sysRoot)
+                   FilePath &sysRoot)
 {
     if (flags.empty())
         return;
@@ -113,7 +104,7 @@ void filteredFlags(const QString &fileName,
         }
 
         if (includePathType) {
-            const QString pathStr = updatedPathFlag(flag, workingDir);
+            const QString pathStr = workingDir.resolvePath(flag).toString();
             headerPaths.append({pathStr, includePathType.value()});
             includePathType.reset();
             continue;
@@ -152,7 +143,7 @@ void filteredFlags(const QString &fileName,
             return flag.startsWith(opt) && flag != opt;
         });
         if (!includeOpt.isEmpty()) {
-            const QString pathStr = updatedPathFlag(flag.mid(includeOpt.length()), workingDir);
+            const QString pathStr = workingDir.resolvePath(flag.mid(includeOpt.length())).toString();
             headerPaths.append({pathStr, userIncludeFlags.contains(includeOpt)
                                 ? HeaderPathType::User : HeaderPathType::System});
             continue;
@@ -182,14 +173,14 @@ void filteredFlags(const QString &fileName,
 
         if (flag.startsWith("--sysroot=")) {
             if (sysRoot.isEmpty())
-                sysRoot = FilePath::fromUserInput(updatedPathFlag(flag.mid(10), workingDir));
+                sysRoot = workingDir.resolvePath(flag.mid(10));
             continue;
         }
 
         if ((flag.startsWith("-std=") || flag.startsWith("/std:"))
                 && fileKind == CppEditor::ProjectFile::Unclassified) {
             const bool cpp = (flag.contains("c++") || flag.contains("gnu++"));
-            if (CppEditor::ProjectFile::isHeader(CppEditor::ProjectFile::classify(fileName)))
+            if (CppEditor::ProjectFile::isHeader(CppEditor::ProjectFile::classify(filePath.path())))
                 fileKind = cpp ? CppEditor::ProjectFile::CXXHeader : CppEditor::ProjectFile::CHeader;
             else
                 fileKind = cpp ? CppEditor::ProjectFile::CXXSource : CppEditor::ProjectFile::CSource;
@@ -203,7 +194,7 @@ void filteredFlags(const QString &fileName,
     }
 
     if (fileKind == CppEditor::ProjectFile::Unclassified)
-        fileKind = CppEditor::ProjectFile::classify(fileName);
+        fileKind = CppEditor::ProjectFile::classify(filePath.path());
 
     flags = filtered;
 }
