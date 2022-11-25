@@ -492,6 +492,22 @@ struct SlotEntry
     std::function<void(SignalHandlerProperty)> action;
 };
 
+QList<ModelNode> stateGroups(const ModelNode &node)
+{
+    if (!node.view()->isAttached())
+        return {};
+
+    const auto groupMetaInfo = node.view()->model()->qtQuickStateGroupMetaInfo();
+
+    return node.view()->allModelNodesOfType(groupMetaInfo);
+}
+
+QStringList stateGroupsNames(const ModelNode &node)
+{
+    return Utils::transform(stateGroups(node),
+                            [](const ModelNode &node) { return node.displayName(); });
+}
+
 QList<SlotEntry> getSlotsLists(const ModelNode &node)
 {
     if (!node.isValid())
@@ -526,6 +542,32 @@ QList<SlotEntry> getSlotsLists(const ModelNode &node)
                            }};
 
         resultList.push_back(entry);
+    }
+
+    const auto sg = stateGroups(node);
+
+    for (const auto &stateGroup : sg) {
+        QmlObjectNode stateGroupObjectNode(stateGroup);
+        const QString stateGroupCategory = QString("Change State Group") + " "
+                                           + stateGroup.displayName();
+
+        const SlotEntry defaultGroupState = {stateGroupCategory,
+                                        (stateGroupCategory + " to " + "Default State"),
+                                        [stateGroup](SignalHandlerProperty signalHandler) {
+                                            signalHandler.setSource(
+                                                QString("%1.state = \"\"").arg(stateGroup.id()));
+                                        }};
+        resultList.push_back(defaultGroupState);
+
+        for (const auto &stateName : stateGroupObjectNode.states().names()) {
+            SlotEntry entry = {stateGroupCategory,
+                               (stateGroupCategory + " to " + stateName),
+                               [stateGroup, stateName](SignalHandlerProperty signalHandler) {
+                                   signalHandler.setSource(
+                                       QString("%1.state = \"%2\"").arg(stateGroup.id(), stateName));
+                               }};
+            resultList.push_back(entry);
+        }
     }
 
     return resultList;
