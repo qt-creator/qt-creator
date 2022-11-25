@@ -4,14 +4,12 @@
 #include "edit3dview.h"
 
 #include "backgroundcolorselection.h"
-#include "bindingproperty.h"
 #include "designersettings.h"
 #include "designmodecontext.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dviewconfig.h"
 #include "edit3dwidget.h"
-#include "materialbrowserwidget.h"
 #include "metainfo.h"
 #include "nodehints.h"
 #include "nodeinstanceview.h"
@@ -19,7 +17,6 @@
 #include "qmldesignericons.h"
 #include "qmldesignerplugin.h"
 #include "seekerslider.h"
-#include "variantproperty.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -31,15 +28,6 @@
 #include <QToolButton>
 
 namespace QmlDesigner {
-
-static QString propertyEditorResourcesPath()
-{
-#ifdef SHARE_QML_PATH
-    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
-#endif
-    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
-}
 
 Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
