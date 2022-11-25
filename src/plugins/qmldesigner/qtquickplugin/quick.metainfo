@@ -232,6 +232,8 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 400; }
+
+            toolTip: qsTr("Organizes items in a column.")
         }
     }
 
@@ -244,6 +246,7 @@ MetaInfo {
             category: "c.Qt Quick - Positioner"
             libraryIcon: ":/qtquickplugin/images/row-positioner-icon.png"
             version: "2.0"
+            toolTip: qsTr("Organizes items in a row.")
 
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 400; }
@@ -262,6 +265,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 400; }
             Property { name: "height"; type: "int"; value: 400; }
+            toolTip: qsTr("Organizes items in a fixed grid.")
         }
     }
 
@@ -277,6 +281,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 400; }
             Property { name: "height"; type: "int"; value: 400; }
+            toolTip: qsTr("Organizes items in free-flowing rows.")
         }
     }
 
