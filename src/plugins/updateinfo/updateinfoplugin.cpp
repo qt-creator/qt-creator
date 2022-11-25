@@ -124,14 +124,13 @@ void UpdateInfoPlugin::startCheckForUpdates()
         return; // do not trigger while update task is already running
 
     QFutureInterface<void> futureIf;
-    FutureProgress *futureProgress
-        = ProgressManager::addTimedTask(futureIf,
-                                        tr("Checking for Updates"),
-                                        Id("UpdateInfo.CheckingForUpdates"),
-                                        60);
-    futureProgress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
-    futureProgress->setSubtitleVisibleInStatusBar(true);
-    connect(futureProgress, &FutureProgress::canceled, this, [this, futureIf]() mutable {
+    d->m_progress = ProgressManager::addTimedTask(futureIf,
+                                                  tr("Checking for Updates"),
+                                                  Id("UpdateInfo.CheckingForUpdates"),
+                                                  60);
+    d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
+    d->m_progress->setSubtitleVisibleInStatusBar(true);
+    connect(d->m_progress, &FutureProgress::canceled, this, [this, futureIf]() mutable {
         futureIf.reportCanceled();
         futureIf.reportFinished();
         stopCheckForUpdates();
