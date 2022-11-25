@@ -105,6 +105,8 @@ void StatesEditorView::setActiveStatesGroupNode(const ModelNode &modelNode)
     m_activeStatesGroupNode = modelNode;
     resetModel();
 
+    checkForStatesAvailability();
+
     emit m_statesEditorModel->activeStateGroupChanged();
     emit m_statesEditorModel->activeStateGroupIndexChanged();
 }
@@ -430,8 +432,10 @@ void StatesEditorView::resetStateGroups()
 void StatesEditorView::checkForStatesAvailability()
 {
     if (m_statesEditorWidget) {
-        const bool isVisual = QmlVisualNode::isValidQmlVisualNode(activeStatesGroupNode());
-        m_statesEditorWidget->showAddNewStatesButton(isVisual);
+        const bool isVisual = activeStatesGroupNode().metaInfo().isBasedOn(
+            model()->qtQuickItemMetaInfo(), model()->qtQuick3DNodeMetaInfo());
+        const bool isRoot = activeStatesGroupNode().isRootNode();
+        m_statesEditorWidget->showAddNewStatesButton(isVisual || !isRoot);
     }
 }
 

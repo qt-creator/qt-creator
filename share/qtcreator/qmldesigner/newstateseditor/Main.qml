@@ -863,6 +863,7 @@ Rectangle {
 
         Item {
             id: addWrapper
+            visible: canAddNewStates
 
             Canvas {
                 id: addCanvas
