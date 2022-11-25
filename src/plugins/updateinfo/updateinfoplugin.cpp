@@ -173,49 +173,60 @@ void UpdateInfoPlugin::checkForUpdatesStopped()
     emit checkForUpdatesRunningChanged(false);
 }
 
-static void showUpdateInfo(const QList<Update> &updates, const std::function<void()> &startUpdater)
+static QString infoTitle(const QList<Update> &updates, const std::optional<QtPackage> &newQt)
 {
-    InfoBarEntry info(InstallUpdates,
-                      UpdateInfoPlugin::tr("New updates are available. Start the update?"));
-    info.addCustomButton(UpdateInfoPlugin::tr("Start Update"), [startUpdater] {
-        ICore::infoBar()->removeInfo(InstallUpdates);
-        startUpdater();
-    });
-    info.setDetailsWidgetCreator([updates]() -> QWidget * {
-        const QString updateText = Utils::transform(updates, [](const Update &u) {
-                                       return u.version.isEmpty()
-                                                  ? u.name
-                                                  : UpdateInfoPlugin::tr("%1 (%2)",
-                                                                         "Package name and version")
-                                                        .arg(u.name, u.version);
-                                   }).join("</li><li>");
-        auto label = new QLabel;
-        label->setText("<qt><p>" + UpdateInfoPlugin::tr("Available updates:") + "<ul><li>"
-                       + updateText + "</li></ul></p></qt>");
-        label->setContentsMargins(0, 0, 0, 8);
-        return label;
-    });
-    ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
-    ICore::infoBar()->unsuppressInfo(InstallUpdates);
-    ICore::infoBar()->addInfo(info);
+    static QString blogUrl("href=\"https://www.qt.io/blog/tag/releases\"");
+    if (!updates.isEmpty() && newQt) {
+        return UpdateInfoPlugin::tr(
+                   "%1 and other updates are available. Check the <a %2>Qt blog</a> for details.")
+            .arg(newQt->displayName, blogUrl);
+    } else if (newQt) {
+        return UpdateInfoPlugin::tr("%1 is available. Check the <a %2>Qt blog</a> for details.")
+            .arg(newQt->displayName, blogUrl);
+    }
+    return UpdateInfoPlugin::tr("New updates are available. Start the update?");
 }
 
-static void showQtUpdateInfo(const QtPackage &package,
-                             const std::function<void()> &startPackageManager)
+static void showUpdateInfo(const QList<Update> &updates,
+                           const std::optional<QtPackage> &newQt,
+                           const std::function<void()> &startUpdater,
+                           const std::function<void()> &startPackageManager)
 {
-    InfoBarEntry info(InstallQtUpdates, UpdateInfoPlugin::tr(
-        "%1 is available. Check the <a %2>Qt blog</a> for details.")
-        .arg(package.displayName, QString("href=\"https://www.qt.io/blog/tag/releases\"")));
-    info.addCustomButton(UpdateInfoPlugin::tr("Start Package Manager"), [startPackageManager] {
-        ICore::infoBar()->removeInfo(InstallQtUpdates);
-        startPackageManager();
-    });
+    InfoBarEntry info(InstallUpdates, infoTitle(updates, newQt));
     info.addCustomButton(UpdateInfoPlugin::tr("Open Settings"), [] {
         ICore::infoBar()->removeInfo(InstallQtUpdates);
         ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID);
     });
-    ICore::infoBar()->removeInfo(InstallQtUpdates); // remove any existing notifications
-    ICore::infoBar()->unsuppressInfo(InstallQtUpdates);
+    if (newQt) {
+        info.addCustomButton(UpdateInfoPlugin::tr("Start Package Manager"), [startPackageManager] {
+            ICore::infoBar()->removeInfo(InstallQtUpdates);
+            startPackageManager();
+        });
+    } else {
+        info.addCustomButton(UpdateInfoPlugin::tr("Start Update"), [startUpdater] {
+            ICore::infoBar()->removeInfo(InstallUpdates);
+            startUpdater();
+        });
+    }
+    if (!updates.isEmpty()) {
+        info.setDetailsWidgetCreator([updates, newQt] {
+            const QString qtText = newQt ? (newQt->displayName + "</li><li>") : QString();
+            const QStringList packageNames = Utils::transform(updates, [](const Update &u) {
+                if (u.version.isEmpty())
+                    return u.name;
+                return UpdateInfoPlugin::tr("%1 (%2)", "Package name and version")
+                    .arg(u.name, u.version);
+            });
+            const QString updateText = packageNames.join("</li><li>");
+            auto label = new QLabel;
+            label->setText("<qt><p>" + UpdateInfoPlugin::tr("Available updates:") + "<ul><li>"
+                           + qtText + updateText + "</li></ul></p></qt>");
+            label->setContentsMargins(0, 0, 0, 8);
+            return label;
+        });
+    }
+    ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
+    ICore::infoBar()->unsuppressInfo(InstallUpdates);
     ICore::infoBar()->addInfo(info);
 }
 
@@ -249,10 +260,8 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
         if (d->m_progress)
             d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
-        if (!updates.isEmpty())
-            showUpdateInfo(updates, [this] { startUpdater(); });
-        if (qtToNag)
-            showQtUpdateInfo(*qtToNag, [this] { startPackageManager(); });
+        showUpdateInfo(
+            updates, qtToNag, [this] { startUpdater(); }, [this] { startPackageManager(); });
     } else {
         if (d->m_progress)
             d->m_progress->setSubtitle(tr("No updates found."));
