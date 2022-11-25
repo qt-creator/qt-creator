@@ -1,3 +1,18 @@
+add_qtc_plugin(QmlDesigner
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
+  DEPENDS
+    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
+    Qt5::QuickWidgets Qt5::CorePrivate Sqlite Qt5::Xml Qt5::Svg
+  PLUGIN_DEPENDS
+    Core ProjectExplorer QmlJSEditor QmlProjectManager
+    QtSupport
+  PLUGIN_RECOMMENDS QmlPreview
+)
+qtc_plugin_enabled(_qmlDesignerEnabled QmlDesigner)
+if (NOT _qmlDesignerEnabled)
+  return()
+endif()
+
 set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
 if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
@@ -390,11 +405,7 @@ extend_qtc_library(QmlDesignerCore
 file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
 set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
-add_qtc_plugin(QmlDesigner
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
-  DEPENDS
-    QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
-    Qt5::QuickWidgets Qt5::CorePrivate Sqlite Qt5::Xml Qt5::Svg
+extend_qtc_plugin(QmlDesigner
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
@@ -418,10 +429,6 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}
   PUBLIC_DEPENDS
     QmlDesignerCore
-  PLUGIN_DEPENDS
-    Core ProjectExplorer QmlJSEditor QmakeProjectManager QmlProjectManager
-    QtSupport
-  PLUGIN_RECOMMENDS QmlPreview
   SOURCES
     designmodecontext.cpp designmodecontext.h
     designmodewidget.cpp designmodewidget.h

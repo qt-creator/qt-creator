@@ -39,11 +39,13 @@ add_qtc_executable(qml2puppet
     qmlpuppet.qrc
 )
 
-if (NOT "$ENV{QDS_PUPPET_VERSION}" STREQUAL "")
-  set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-$ENV{QDS_PUPPET_VERSION})
-else()
-  set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-${IDE_VERSION})
+set(qml2puppet_suffix $ENV{QDS_PUPPET_VERSION})
+if (NOT qml2puppet_suffix)
+  set(qml2puppet_suffix ${IDE_VERSION})
 endif()
+extend_qtc_executable(qml2puppet
+  PROPERTIES OUTPUT_NAME qml2puppet-${qml2puppet_suffix}
+)
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
