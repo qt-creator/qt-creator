@@ -268,7 +268,7 @@ void InfoBarDisplay::update()
 {
     for (QWidget *widget : std::as_const(m_infoWidgets)) {
         widget->disconnect(this); // We want no destroyed() signal now
-        delete widget;
+        widget->deleteLater();
     }
     m_infoWidgets.clear();
 
