@@ -13,6 +13,7 @@ Item {
 
     property alias minimumValue: spinBox.realFrom
     property alias maximumValue: spinBox.realTo
+    property alias value: spinBox.realValue
     property alias stepSize: spinBox.realStepSize
 
     property alias backendValue: spinBox.backendValue
