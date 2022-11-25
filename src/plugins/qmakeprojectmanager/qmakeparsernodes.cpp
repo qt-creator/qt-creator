@@ -2035,8 +2035,8 @@ FilePath QmakeProFile::sourceDir() const
 }
 
 FilePaths QmakeProFile::generatedFiles(const FilePath &buildDir,
-                                          const FilePath &sourceFile,
-                                          const FileType &sourceFileType) const
+                                       const FilePath &sourceFile,
+                                       const FileType &sourceFileType) const
 {
     // The mechanism for finding the file names is rather crude, but as we
     // cannot parse QMAKE_EXTRA_COMPILERS and qmake has facilities to put
@@ -2055,7 +2055,7 @@ FilePaths QmakeProFile::generatedFiles(const FilePath &buildDir,
         location = location.pathAppended("ui_"
                                          + sourceFile.completeBaseName()
                                          + singleVariableValue(Variable::HeaderExtension));
-        return { FilePath::fromString(QDir::cleanPath(location.toString())) };
+        return {location.cleanPath()};
     } else if (sourceFileType == FileType::StateChart) {
         if (buildDir.isEmpty())
             return { };
@@ -2065,7 +2065,7 @@ FilePaths QmakeProFile::generatedFiles(const FilePath &buildDir,
             location.stringAppended(singleVariableValue(Variable::CppExtension))
         };
     }
-    return { };
+    return {};
 }
 
 QList<ExtraCompiler *> QmakeProFile::extraCompilers() const
