@@ -21,10 +21,10 @@ void tst_AvdManagerOutputParser::parse_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<AndroidDeviceInfoList>("output");
-    QTest::addColumn<QStringList>("errorPaths");
+    QTest::addColumn<Utils::FilePaths>("errorPaths");
 
     QTest::newRow("none") << "Available Android Virtual Devices:\n"
-                          << AndroidDeviceInfoList() << QStringList();
+                          << AndroidDeviceInfoList() << Utils::FilePaths();
 
     QTest::newRow("one") << "Available Android Virtual Devices:\n"
                             "    Name: Test\n"
@@ -40,7 +40,7 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     IDevice::DeviceConnected,
                                                     IDevice::Emulator,
                                                     Utils::FilePath::fromString(":/Test.avd")}})
-                         << QStringList();
+                         << Utils::FilePaths();
 
     QTest::newRow("two") << "Available Android Virtual Devices:\n"
                             "    Name: Test\n"
@@ -71,16 +71,16 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     IDevice::Emulator,
                                                     Utils::FilePath::fromString(":/TestTablet.avd")}}
                                                   )
-                         << QStringList();
+                         << Utils::FilePaths();
 }
 
 void tst_AvdManagerOutputParser::parse()
 {
     QFETCH(QString, input);
     QFETCH(AndroidDeviceInfoList, output);
-    QFETCH(QStringList, errorPaths);
+    QFETCH(Utils::FilePaths, errorPaths);
 
-    QStringList avdErrorPaths;
+    Utils::FilePaths avdErrorPaths;
     const auto result = parseAvdList(input, &avdErrorPaths);
     QCOMPARE(result, output);
     QCOMPARE(avdErrorPaths, errorPaths);

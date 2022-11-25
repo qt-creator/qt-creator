@@ -86,19 +86,19 @@ static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
     return {};
 }
 
-AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorPaths)
+AndroidDeviceInfoList parseAvdList(const QString &output, Utils::FilePaths *avdErrorPaths)
 {
     QTC_CHECK(avdErrorPaths);
     AndroidDeviceInfoList avdList;
     QStringList avdInfo;
-    using ErrorPath = QString;
+    using ErrorPath = Utils::FilePath;
     using AvdResult = std::variant<std::monostate, AndroidDeviceInfo, ErrorPath>;
     const auto parseAvdInfo = [](const QStringList &avdInfo) {
         if (!avdInfo.filter(avdManufacturerError).isEmpty()) {
             for (const QString &line : avdInfo) {
                 QString value;
                 if (valueForKey(avdInfoPathKey, line, &value))
-                    return AvdResult(value); // error path
+                    return AvdResult(Utils::FilePath::fromString(value)); // error path
             }
         } else if (std::optional<AndroidDeviceInfo> avd = parseAvd(avdInfo)) {
             // armeabi-v7a devices can also run armeabi code

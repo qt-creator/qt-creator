@@ -158,29 +158,30 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-static void avdConfigEditManufacturerTag(const QString &avdPathStr, bool recoverMode = false)
+static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMode = false)
 {
-    const FilePath avdPath = FilePath::fromString(avdPathStr);
-    if (avdPath.exists()) {
-        const QString configFilePath = avdPath.pathAppended("config.ini").toString();
-        QFile configFile(configFilePath);
-        if (configFile.open(QIODevice::ReadWrite | QIODevice::Text)) {
-            QString newContent;
-            QTextStream textStream(&configFile);
-            while (!textStream.atEnd()) {
-                QString line = textStream.readLine();
-                if (!line.contains("hw.device.manufacturer"))
-                    newContent.append(line + "\n");
-                else if (recoverMode)
-                    newContent.append(line.replace("#", "") + "\n");
-                else
-                    newContent.append("#" + line + "\n");
-            }
-            configFile.resize(0);
-            textStream << newContent;
-            configFile.close();
+    if (!avdPath.exists())
+        return;
+
+    const FilePath configFilePath = avdPath / "config.ini";
+    FileReader reader;
+    if (!reader.fetch(configFilePath, QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    FileSaver saver(configFilePath);
+    QTextStream textStream(reader.data());
+    while (!textStream.atEnd()) {
+        QString line = textStream.readLine();
+        if (line.contains("hw.device.manufacturer")) {
+            if (recoverMode)
+                line.replace("#", "");
+            else
+                line.prepend("#");
         }
+        line.append("\n");
+        saver.write(line.toUtf8());
     }
+    saver.finalize();
 }
 
 static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
@@ -195,8 +196,8 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
         otherwise, Android Studio would give an error during parsing also. So this fix
         aim to keep support for Qt Creator and Android Studio.
     */
-    QStringList allAvdErrorPaths;
-    QStringList avdErrorPaths;
+    FilePaths allAvdErrorPaths;
+    FilePaths avdErrorPaths;
 
     do {
         if (!AndroidAvdManager::avdManagerCommand(config, {"list", "avd"}, &output)) {
@@ -208,12 +209,12 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
         avdErrorPaths.clear();
         avdList = parseAvdList(output, &avdErrorPaths);
         allAvdErrorPaths << avdErrorPaths;
-        for (const QString &avdPathStr : std::as_const(avdErrorPaths))
-            avdConfigEditManufacturerTag(avdPathStr); // comment out manufacturer tag
-    } while (!avdErrorPaths.isEmpty());               // try again
+        for (const FilePath &avdPath : std::as_const(avdErrorPaths))
+            avdConfigEditManufacturerTag(avdPath); // comment out manufacturer tag
+    } while (!avdErrorPaths.isEmpty());            // try again
 
-    for (const QString &avdPathStr : std::as_const(allAvdErrorPaths))
-        avdConfigEditManufacturerTag(avdPathStr, true); // re-add manufacturer tag
+    for (const FilePath &avdPath : std::as_const(allAvdErrorPaths))
+        avdConfigEditManufacturerTag(avdPath, true); // re-add manufacturer tag
 
     return avdList;
 }
