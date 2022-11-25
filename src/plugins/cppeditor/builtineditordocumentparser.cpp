@@ -60,8 +60,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     CppModelManager *modelManager = CppModelManager::instance();
     QByteArray configFile = modelManager->codeModelConfiguration();
     ProjectExplorer::HeaderPaths headerPaths;
-    QStringList includedFiles;
-    QStringList precompiledHeaders;
+    FilePaths includedFiles;
+    FilePaths precompiledHeaders;
     QString projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
@@ -86,9 +86,9 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
             configFile += ProjectPart::readProjectConfigFile(part->projectConfigFile);
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;
-        includedFiles = part->includedFiles;
+        includedFiles = Utils::transform(part->includedFiles, &FilePath::fromString);
         if (baseConfig.usePrecompiledHeaders)
-            precompiledHeaders = part->precompiledHeaders;
+            precompiledHeaders = Utils::transform(part->precompiledHeaders, &FilePath::fromString);
         features = part->languageFeatures;
     }
 
@@ -190,16 +190,16 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         sourceProcessor.setLanguageFeatures(features);
         sourceProcessor.run(configurationFileName);
         if (baseConfig.usePrecompiledHeaders) {
-            for (const QString &precompiledHeader : std::as_const(state.precompiledHeaders))
-                sourceProcessor.run(FilePath::fromString(precompiledHeader));
+            for (const FilePath &precompiledHeader : std::as_const(state.precompiledHeaders))
+                sourceProcessor.run(precompiledHeader);
         }
         if (!baseState.editorDefines.isEmpty())
             sourceProcessor.run(CppModelManager::editorConfigurationFileName());
-        QStringList includedFiles = state.includedFiles;
+        FilePaths includedFiles = state.includedFiles;
         if (baseConfig.usePrecompiledHeaders)
             includedFiles << state.precompiledHeaders;
-        includedFiles.removeDuplicates();
-        sourceProcessor.run(filePath(), transform(includedFiles, &FilePath::fromString));
+        FilePath::removeDuplicates(includedFiles);
+        sourceProcessor.run(filePath(), includedFiles);
         state.snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = state.snapshot.simplified(state.snapshot.document(filePath()));
         for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end();

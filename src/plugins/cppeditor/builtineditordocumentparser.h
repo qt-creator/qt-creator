@@ -8,8 +8,6 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <QString>
-
 namespace CppEditor {
 
 class CPPEDITOR_EXPORT BuiltinEditorDocumentParser : public BaseEditorDocumentParser
@@ -47,8 +45,8 @@ private:
 
         ProjectExplorer::HeaderPaths headerPaths;
         QString projectConfigFile;
-        QStringList includedFiles;
-        QStringList precompiledHeaders;
+        Utils::FilePaths includedFiles;
+        Utils::FilePaths precompiledHeaders;
 
         CPlusPlus::Snapshot snapshot;
         bool forceSnapshotInvalidation = false;
@@ -62,4 +60,4 @@ private:
     const int m_fileSizeLimitInMb = -1;
 };
 
-} // namespace CppEditor
+} // CppEditor
