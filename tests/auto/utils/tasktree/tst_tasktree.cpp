@@ -480,14 +480,21 @@ void tst_TaskTree::processTree()
     processTree.start();
     QCOMPARE(processTree.isRunning(), runningAfterStart);
 
-    QTimer timer;
-    connect(&timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit);
-    timer.setInterval(1000);
-    timer.setSingleShot(true);
-    timer.start();
-    eventLoop.exec();
+    if (runningAfterStart) {
+        QTimer timer;
+        bool timedOut = false;
+        connect(&timer, &QTimer::timeout, &eventLoop, [&eventLoop, &timedOut] {
+            timedOut = true;
+            eventLoop.quit();
+        });
+        timer.setInterval(1000);
+        timer.setSingleShot(true);
+        timer.start();
+        eventLoop.exec();
+        QCOMPARE(timedOut, false);
+        QCOMPARE(processTree.isRunning(), false);
+    }
 
-    QVERIFY(!processTree.isRunning());
     QCOMPARE(processTree.progressValue(), taskCount);
     QCOMPARE(m_log, expectedLog);
 
