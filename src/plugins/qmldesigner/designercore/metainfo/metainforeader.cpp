@@ -266,6 +266,8 @@ void MetaInfoReader::readItemLibraryEntryProperty(const QString &name, const QVa
         setVersion(value.toString());
     } else if (name == QStringLiteral("requiredImport")) {
         m_currentEntry.setRequiredImport(value.toString());
+    } else if (name == QStringLiteral("toolTip")) {
+        m_currentEntry.setToolTip(value.toString());
     } else {
         addError(::QmlDesigner::Internal::MetaInfoReader::tr(
                      "Unknown property for ItemLibraryEntry %1")

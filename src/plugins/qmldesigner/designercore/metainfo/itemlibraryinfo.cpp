@@ -3,6 +3,7 @@
 
 #include "itemlibraryinfo.h"
 #include "nodemetainfo.h"
+#include "qregularexpression.h"
 
 #include <invalidmetainfoexception.h>
 
@@ -32,6 +33,7 @@ public:
     QHash<QString, QString> hints;
     QString customComponentSource;
     QStringList extraFilePaths;
+    QString toolTip;
 };
 
 } // namespace Internal
@@ -94,6 +96,11 @@ QString ItemLibraryEntry::customComponentSource() const
 QStringList ItemLibraryEntry::extraFilePaths() const
 {
     return m_data->extraFilePaths;
+}
+
+QString ItemLibraryEntry::toolTip() const
+{
+    return m_data->toolTip;
 }
 
 int ItemLibraryEntry::majorVersion() const
@@ -163,6 +170,16 @@ void ItemLibraryEntry::setQmlPath(const QString &qml)
 void ItemLibraryEntry::setRequiredImport(const QString &requiredImport)
 {
     m_data->requiredImport = requiredImport;
+}
+
+void ItemLibraryEntry::setToolTip(const QString &tooltip)
+{
+    static QRegularExpression regularExpressionPattern(QLatin1String("^qsTr\\(\"(.*)\"\\)$"));
+    const QRegularExpressionMatch match = regularExpressionPattern.match(tooltip);
+    if (match.hasMatch())
+        m_data->toolTip = match.captured(1);
+    else
+        m_data->toolTip = tooltip;
 }
 
 void ItemLibraryEntry::addHints(const QHash<QString, QString> &hints)
