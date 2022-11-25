@@ -440,7 +440,7 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
             refreshModel(true);
         });
     } else if (identifier == "delete_selected_material") {
-        m_widget->materialBrowserModel()->deleteSelectedMaterial();
+        m_widget->deleteSelectedItem();
     } else if (identifier == "apply_texture_to_model3D") {
         applyTextureToModel3D(nodeList.at(0), nodeList.at(1));
     } else if (identifier == "apply_texture_to_material") {

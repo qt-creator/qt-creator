@@ -191,6 +191,16 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F8), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &MaterialBrowserWidget::reloadQmlSource);
 
+    connect(m_materialBrowserModel, &MaterialBrowserModel::isEmptyChanged, this, [&] {
+        if (m_materialBrowserModel->isEmpty())
+            focusMaterialSection(false);
+    });
+
+    connect(m_materialBrowserTexturesModel, &MaterialBrowserTexturesModel::isEmptyChanged, this, [&] {
+        if (m_materialBrowserTexturesModel->isEmpty())
+            focusMaterialSection(true);
+    });
+
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_MATERIALBROWSER_TIME);
 
     reloadQmlSource();
@@ -202,6 +212,14 @@ void MaterialBrowserWidget::updateMaterialPreview(const ModelNode &node, const Q
     int idx = m_materialBrowserModel->materialIndex(node);
     if (idx != -1)
         QMetaObject::invokeMethod(m_quickWidget->rootObject(), "refreshPreview", Q_ARG(QVariant, idx));
+}
+
+void MaterialBrowserWidget::deleteSelectedItem()
+{
+    if (m_materialSectionFocused)
+        m_materialBrowserModel->deleteSelectedMaterial();
+    else
+        m_materialBrowserTexturesModel->deleteSelectedTexture();
 }
 
 QList<QToolButton *> MaterialBrowserWidget::createToolBarWidgets()
@@ -245,6 +263,14 @@ void MaterialBrowserWidget::acceptBundleMaterialDrop()
 void MaterialBrowserWidget::acceptBundleTextureDrop()
 {
     m_materialBrowserView->emitCustomNotification("drop_bundle_texture", {}, {}); // To ContentLibraryView
+}
+
+void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)
+{
+    if (focusMatSec != m_materialSectionFocused) {
+        m_materialSectionFocused = focusMatSec;
+        emit materialSectionFocusedChanged();
+    }
 }
 
 QString MaterialBrowserWidget::qmlSourcesPath()

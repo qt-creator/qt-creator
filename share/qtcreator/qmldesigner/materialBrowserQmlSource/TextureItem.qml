@@ -13,7 +13,8 @@ Rectangle {
     visible: textureVisible
 
     color: "transparent"
-    border.width: materialBrowserTexturesModel.selectedIndex === index ? 1 : 0
+    border.width: materialBrowserTexturesModel.selectedIndex === index
+                        ? !rootView.materialSectionFocused ? 3 : 1 : 0
     border.color: materialBrowserTexturesModel.selectedIndex === index
                         ? StudioTheme.Values.themeControlOutlineInteraction
                         : "transparent"
@@ -27,6 +28,7 @@ Rectangle {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
+            rootView.focusMaterialSection(false)
             materialBrowserTexturesModel.selectTexture(index)
 
             if (mouse.button === Qt.LeftButton)

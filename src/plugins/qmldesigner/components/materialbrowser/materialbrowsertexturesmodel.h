@@ -41,6 +41,8 @@ public:
     bool hasSingleModelSelection() const;
     void setHasSingleModelSelection(bool b);
 
+    bool isEmpty() const { return m_isEmpty; }
+
     void resetModel();
 
     Q_INVOKABLE void selectTexture(int idx, bool force = false);

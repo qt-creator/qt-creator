@@ -34,6 +34,8 @@ class MaterialBrowserWidget : public QFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool materialSectionFocused MEMBER m_materialSectionFocused NOTIFY materialSectionFocusedChanged)
+
 public:
     MaterialBrowserWidget(class AsynchronousImageCache &imageCache, MaterialBrowserView *view);
     ~MaterialBrowserWidget() = default;
@@ -47,16 +49,21 @@ public:
     QPointer<MaterialBrowserModel> materialBrowserModel() const;
     QPointer<MaterialBrowserTexturesModel> materialBrowserTexturesModel() const;
     void updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap);
+    void deleteSelectedItem();
 
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(int index, const QPointF &mousePos);
     Q_INVOKABLE void acceptBundleMaterialDrop();
     Q_INVOKABLE void acceptBundleTextureDrop();
+    Q_INVOKABLE void focusMaterialSection(bool focusMatSec);
 
     QQuickWidget *quickWidget() const;
 
     void clearPreviewCache();
+
+signals:
+    void materialSectionFocusedChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -80,6 +87,8 @@ private:
     ModelNode m_materialToDrag;
     ModelNode m_textureToDrag;
     QPoint m_dragStartPoint;
+
+    bool m_materialSectionFocused = true;
 };
 
 } // namespace QmlDesigner

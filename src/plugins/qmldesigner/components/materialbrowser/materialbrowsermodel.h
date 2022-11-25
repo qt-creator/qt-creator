@@ -47,6 +47,8 @@ public:
     bool hasMaterialLibrary() const;
     void setHasMaterialLibrary(bool b);
 
+    bool isEmpty() const { return m_isEmpty; }
+
     QString copiedMaterialType() const;
     void setCopiedMaterialType(const QString &matType);
 

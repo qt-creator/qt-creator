@@ -36,7 +36,7 @@ Rectangle {
         mouseArea.forceActiveFocus()
     }
 
-    border.width: materialBrowserModel.selectedIndex === index ? 1 : 0
+    border.width: materialBrowserModel.selectedIndex === index ? rootView.materialSectionFocused ? 3 : 1 : 0
     border.color: materialBrowserModel.selectedIndex === index
                         ? StudioTheme.Values.themeControlOutlineInteraction
                         : "transparent"
@@ -50,6 +50,7 @@ Rectangle {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
+            rootView.focusMaterialSection(true)
             materialBrowserModel.selectMaterial(index)
 
             if (mouse.button === Qt.LeftButton)
@@ -116,7 +117,10 @@ Rectangle {
 
                 anchors.fill: parent
 
-                onClicked: materialBrowserModel.selectMaterial(index)
+                onClicked: {
+                    rootView.focusMaterialSection(true)
+                    materialBrowserModel.selectMaterial(index)
+                }
                 onDoubleClicked: root.startRename()
             }
         }
