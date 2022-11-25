@@ -243,6 +243,9 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
     std::optional<QtPackage> qtToNag = qtToNagAbout(qtPackages, &d->m_lastMaxQtVersion);
 
     if (!updates.isEmpty() || qtToNag) {
+        // progress details are shown until user interaction for the "no updates" case,
+        // so we can show the "No updates found" text, but if we have updates we don't
+        // want to keep it around
         if (d->m_progress)
             d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
