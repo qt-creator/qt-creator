@@ -8,7 +8,6 @@
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"
 #include "../icontext.h"
-#include "../coreconstants.h"
 #include "../icore.h"
 #include "../statusbarmanager.h"
 
@@ -28,9 +27,8 @@
 #include <QStyle>
 #include <QStyleOption>
 #include <QTimer>
+#include <QtMath>
 #include <QVariant>
-
-#include <math.h>
 
 static const char kSettingsGroup[] = "Progress";
 static const char kDetailsPinned[] = "DetailsPinned";
@@ -787,7 +785,7 @@ void ProgressTimer::handleTimeout()
     // future finishes. That's not bad for a random choice.
     const double mapped = atan2(double(m_currentTime) * TimerInterval / 1000.0,
                                 double(m_expectedTime));
-    const double progress = 100 * 2 * mapped / 3.14;
+    const double progress = 100 * 2 * mapped / M_PI;
     m_futureInterface.setProgressValue(int(progress));
 }
 

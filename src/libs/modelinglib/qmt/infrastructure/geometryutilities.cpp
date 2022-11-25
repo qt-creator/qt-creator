@@ -219,7 +219,7 @@ double GeometryUtilities::calcAngle(const QLineF &line)
 {
     QVector2D directionVector(line.p2() - line.p1());
     directionVector.normalize();
-    double angle = qAcos(directionVector.x()) * 180.0 / 3.1415926535;
+    double angle = qAcos(directionVector.x()) * 180.0 / M_PI;
     if (directionVector.y() > 0.0)
         angle = -angle;
     return angle;
