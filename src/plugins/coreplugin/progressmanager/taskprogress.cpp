@@ -9,10 +9,15 @@
 #include <utils/tasktree.h>
 
 #include <QFutureWatcher>
+#include <QTimer>
+#include <QtMath>
 
 using namespace Utils;
 
 namespace Core {
+
+static const int ProgressResolution = 100; // 100 discrete values
+static const int TimerInterval = 100; // 100 ms
 
 class TaskProgressPrivate : public QObject
 {
@@ -20,7 +25,17 @@ public:
     explicit TaskProgressPrivate(TaskProgress *progress, TaskTree *taskTree);
     ~TaskProgressPrivate();
 
+    void advanceTick();
+    void advanceProgress(int newValue);
+    void updateProgress();
+
+    int m_currentTick = 0;
+    int m_expectedTime = 1; // 1 second
+
+    int m_currentProgress = 0; // from TaskTree (max value = task count)
+
     TaskTree *m_taskTree = nullptr;
+    QTimer m_timer;
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_futureInterface;
     QString m_displayName;
@@ -29,7 +44,10 @@ public:
 TaskProgressPrivate::TaskProgressPrivate(TaskProgress *progress, TaskTree *taskTree)
     : QObject(progress)
     , m_taskTree(taskTree)
+    , m_timer(progress)
 {
+    m_timer.setInterval(TimerInterval);
+    connect(&m_timer, &QTimer::timeout, &m_timer, [this] { advanceTick(); });
 }
 
 TaskProgressPrivate::~TaskProgressPrivate()
@@ -40,6 +58,30 @@ TaskProgressPrivate::~TaskProgressPrivate()
         // TODO: should we stop the process? Or just mark the process canceled?
         // What happens to task in progress manager?
     }
+}
+
+void TaskProgressPrivate::advanceTick()
+{
+    ++m_currentTick;
+    updateProgress();
+}
+
+void TaskProgressPrivate::advanceProgress(int newValue)
+{
+    m_currentProgress = newValue;
+    m_currentTick = 0;
+    updateProgress();
+}
+
+void TaskProgressPrivate::updateProgress()
+{
+    // This maps expectation to atan(1) to Pi/4 ~= 0.78, i.e. snaps
+    // from 78% to 100% when expectations are met at the time the
+    // future finishes. That's not bad for a random choice.
+    const double mapped = atan2(double(m_currentTick) * TimerInterval / 1000.0,
+                                double(m_expectedTime));
+    const double progress = ProgressResolution * 2 * mapped / M_PI;
+    m_futureInterface.setProgressValue(ProgressResolution * m_currentProgress + progress);
 }
 
 /*!
@@ -60,20 +102,25 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
     });
     connect(d->m_taskTree, &TaskTree::started, this, [this] {
         d->m_futureInterface = QFutureInterface<void>();
-        d->m_futureInterface.setProgressRange(0, d->m_taskTree->progressMaximum());
+        d->m_futureInterface.setProgressRange(
+                    0, d->m_taskTree->progressMaximum() * ProgressResolution);
         d->m_watcher.setFuture(d->m_futureInterface.future());
         d->m_futureInterface.reportStarted();
+        d->advanceProgress(0);
 
         const auto id = Id::fromString(d->m_displayName + ".action");
         ProgressManager::addTask(d->m_futureInterface.future(), d->m_displayName, id);
+        d->m_timer.start();
     });
     connect(d->m_taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
-        d->m_futureInterface.setProgressValue(value);
+        d->advanceProgress(value);
     });
     connect(d->m_taskTree, &TaskTree::done, this, [this] {
+        d->m_timer.stop();
         d->m_futureInterface.reportFinished();
     });
     connect(d->m_taskTree, &TaskTree::errorOccurred, this, [this] {
+        d->m_timer.stop();
         d->m_futureInterface.reportCanceled();
         d->m_futureInterface.reportFinished();
     });
