@@ -6,7 +6,6 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorplugin.h"
-#include "diffutils.h"
 
 #include <QMenu>
 #include <QPainter>
@@ -22,6 +21,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/asynctask.h>
+#include <utils/mathutils.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -436,7 +436,7 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                     output.diffData.m_chunkInfo.setChunkIndex(oldBlock, blockNumber - oldBlock, j);
             }
         }
-        fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
+        fi.setProgressValue(MathUtils::interpolate(++i, 0, count, progressMin, progressMax));
         if (fi.isCanceled())
             return {};
     }
@@ -511,7 +511,7 @@ void UnifiedDiffEditorWidget::showDiff()
             const QString package = output.diffText.mid(currentPos, packageSize);
             cursor.insertText(package);
             currentPos += package.size();
-            fi.setProgressValue(DiffUtils::interpolate(currentPos, 0, diffSize, firstPartMax, progressMax));
+            fi.setProgressValue(MathUtils::interpolate(currentPos, 0, diffSize, firstPartMax, progressMax));
             if (futureInterface.isCanceled())
                 return;
         }

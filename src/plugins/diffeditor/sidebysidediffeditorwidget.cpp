@@ -6,7 +6,6 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorplugin.h"
-#include "diffutils.h"
 
 #include <QMenu>
 #include <QPainter>
@@ -26,6 +25,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/asynctask.h>
+#include <utils/mathutils.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -365,7 +365,7 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
         diffText[RightSide].replace('\r', ' ');
         output.side[LeftSide].diffText += diffText[LeftSide];
         output.side[RightSide].diffText += diffText[RightSide];
-        fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
+        fi.setProgressValue(MathUtils::interpolate(++i, 0, count, progressMin, progressMax));
         if (fi.isCanceled())
             return {};
     }
@@ -952,7 +952,7 @@ void SideBySideDiffEditorWidget::showDiff()
                 const QString package = output.side[side].diffText.mid(currentPos, packageSize);
                 cursor.insertText(package);
                 currentPos += package.size();
-                fi.setProgressValue(DiffUtils::interpolate(currentPos, 0, diffSize, progressMin, progressMax));
+                fi.setProgressValue(MathUtils::interpolate(currentPos, 0, diffSize, progressMin, progressMax));
                 if (fi.isCanceled())
                     return;
             }

@@ -151,8 +151,6 @@ public:
     static QList<FileData> readPatch(const QString &patch,
                                      bool *ok = nullptr,
                                      QFutureInterfaceBase *jobController = nullptr);
-    // For progress reporting
-    static int interpolate(int x, int x1, int x2, int y1, int y2);
 };
 
 } // namespace DiffEditor

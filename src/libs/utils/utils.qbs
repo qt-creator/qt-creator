@@ -187,6 +187,8 @@ Project {
             "macroexpander.cpp",
             "macroexpander.h",
             "mapreduce.h",
+            "mathutils.cpp",
+            "mathutils.h",
             "mimeutils.h",
             "minimizableinfobars.cpp",
             "minimizableinfobars.h",
