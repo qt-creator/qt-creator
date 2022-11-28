@@ -426,7 +426,7 @@ void CompilerOptionsBuilder::addMacros(const Macros &macros)
 
 void CompilerOptionsBuilder::updateFileLanguage(ProjectFile::Kind fileKind)
 {
-    if (isClStyle()) {
+    if (isClStyle() && !ProjectFile::isObjC(fileKind)) {
         QString option;
         if (ProjectFile::isC(fileKind))
             option = "/TC";

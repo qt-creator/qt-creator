@@ -43,6 +43,7 @@ public:
     static bool isCxx(Kind kind);
     static bool isAmbiguousHeader(const QString &filePath);
     static bool isObjC(const QString &filePath);
+    static bool isObjC(Kind kind);
 
     bool isHeader() const;
     bool isSource() const;

@@ -67,7 +67,11 @@ bool ProjectFile::isAmbiguousHeader(const QString &filePath)
 
 bool ProjectFile::isObjC(const QString &filePath)
 {
-    const Kind kind = classify(filePath);
+    return isObjC(classify(filePath));
+}
+
+bool ProjectFile::isObjC(Kind kind)
+{
     switch (kind) {
     case CppEditor::ProjectFile::ObjCHeader:
     case CppEditor::ProjectFile::ObjCXXHeader:

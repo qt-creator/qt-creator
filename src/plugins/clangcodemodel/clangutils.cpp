@@ -119,10 +119,12 @@ static QJsonObject createFileObject(const FilePath &buildDir,
         const ProjectFile::Kind kind = ProjectFile::classify(projFile.path);
         if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                 || projectPart.toolchainType == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-            if (ProjectFile::isC(kind))
-                args.append("/TC");
-            else if (ProjectFile::isCxx(kind))
-                args.append("/TP");
+            if (!ProjectFile::isObjC(kind)) {
+                if (ProjectFile::isC(kind))
+                    args.append("/TC");
+                else if (ProjectFile::isCxx(kind))
+                    args.append("/TP");
+            }
         } else {
             QStringList langOption
                     = createLanguageOptionGcc(projectPart.language, kind,
