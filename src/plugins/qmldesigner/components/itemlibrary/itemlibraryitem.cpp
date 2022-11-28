@@ -51,6 +51,11 @@ QString ItemLibraryItem::componentSource() const
     return m_itemLibraryEntry.customComponentSource();
 }
 
+QString ItemLibraryItem::toolTip() const
+{
+    return m_itemLibraryEntry.toolTip();
+}
+
 bool ItemLibraryItem::setVisible(bool isVisible)
 {
     if (isVisible != m_isVisible) {
