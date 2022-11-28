@@ -29,9 +29,6 @@
 #include <utils/url.h>
 
 #include <QDate>
-#include <QDir>
-#include <QDirIterator>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QScopeGuard>
 #include <QRegularExpression>
@@ -172,14 +169,18 @@ static FilePath debugServer(bool useLldb, const Target *target)
         // The new, built-in LLDB.
         const QDir::Filters dirFilter = HostOsInfo::isWindowsHost() ? QDir::Files
                                                                     : QDir::Files|QDir::Executable;
-        QDirIterator it(prebuilt.toString(), dirFilter, QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            it.next();
-            const QString filePath = it.filePath();
-            if (filePath.endsWith(abiNeedle + "/lldb-server")) {
-                return FilePath::fromString(filePath);
+        FilePath lldbServer;
+        const auto handleLldbServerCandidate = [&abiNeedle, &lldbServer] (const FilePath &path) {
+            if (path.parentDir().fileName() == abiNeedle) {
+                lldbServer = path;
+                return false;
             }
-        }
+            return true;
+        };
+        prebuilt.iterateDirectory(handleLldbServerCandidate,
+                                  {{"lldb-server"}, dirFilter, QDirIterator::Subdirectories});
+        if (!lldbServer.isEmpty())
+            return lldbServer;
 
         // Older: Find LLDB version. sdk_definitions.json contains something like  "lldb;3.1". Use that.
         const QStringList packages = config.defaultEssentials();
@@ -281,7 +282,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     for (const QString &shellCmd : postFinishCmdList.toStringList())
         m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 
-    m_debugServerPath = debugServer(m_useLldb, target).toString();
+    m_debugServerPath = debugServer(m_useLldb, target);
     qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << m_deviceSerialNumber
                                            << ", API level:" << m_apiLevel
                                            << ", Extra Start Args:" << m_amStartExtraArgs
@@ -339,7 +340,7 @@ bool AndroidRunnerWorker::uploadDebugServer(const QString &debugServerFileName)
     });
 
     // Copy gdbserver to temp location
-    if (!runAdb({"push", m_debugServerPath , tempDebugServerPath})) {
+    if (!runAdb({"push", m_debugServerPath.toString(), tempDebugServerPath})) {
         qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed";
         return false;
     }
@@ -545,7 +546,7 @@ void AndroidRunnerWorker::asyncStartHelper()
         // e.g. on Android 8 with NDK 10e
         runAdb({"shell", "run-as", m_packageName, "chmod", "a+x", packageDir.trimmed()});
 
-        if (!QFileInfo::exists(m_debugServerPath)) {
+        if (!m_debugServerPath.exists()) {
             QString msg = Tr::tr("Cannot find C++ debug server in NDK installation.");
             if (m_useLldb)
                 msg += "\n" + Tr::tr("The lldb-server binary has not been found.");
