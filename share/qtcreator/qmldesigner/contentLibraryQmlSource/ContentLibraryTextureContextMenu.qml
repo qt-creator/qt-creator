@@ -15,6 +15,7 @@ StudioControls.Menu {
     function popupMenu(targetTexture = null)
     {
         this.targetTexture = targetTexture
+        rootView.updateSceneEnvState();
         popup()
     }
 

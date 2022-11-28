@@ -43,15 +43,16 @@ private:
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const NodeMetaInfo &metaInfo = {});
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
     ModelNode createMaterial(const NodeMetaInfo &metaInfo);
+    ModelNode resolveSceneEnv();
 
     QPointer<ContentLibraryWidget> m_widget;
     QList<ModelNode> m_bundleMaterialTargets;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
     ContentLibraryTexture *m_draggedBundleTexture = nullptr;
-    ModelNode m_activeSceneEnv;
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
+    qint32 m_sceneId = -1;
 };
 
 } // namespace QmlDesigner

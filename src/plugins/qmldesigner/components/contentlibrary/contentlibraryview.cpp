@@ -3,7 +3,6 @@
 
 #include "contentlibraryview.h"
 
-#include "bindingproperty.h"
 #include "contentlibrarybundleimporter.h"
 #include "contentlibrarywidget.h"
 #include "contentlibrarymaterial.h"
@@ -88,11 +87,14 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 }
 
                 // assign the texture as scene environment's light probe
-                if (mode == ContentLibraryWidget::AddTextureMode::LightProbe && m_activeSceneEnv.isValid()) {
-                    BindingProperty lightProbeProp = m_activeSceneEnv.bindingProperty("lightProbe");
-                    lightProbeProp.setExpression(texNode.id());
-                    VariantProperty bgModeProp = m_activeSceneEnv.variantProperty("backgroundMode");
-                    bgModeProp.setValue(QVariant::fromValue(Enumeration("SceneEnvironment", "SkyBox")));
+                if (mode == ContentLibraryWidget::AddTextureMode::LightProbe && m_sceneId != -1) {
+                    QmlObjectNode sceneEnv = resolveSceneEnv();
+                    if (sceneEnv.isValid()) {
+                        sceneEnv.setBindingProperty("lightProbe", texNode.id());
+                        sceneEnv.setVariantProperty("backgroundMode",
+                                                    QVariant::fromValue(Enumeration("SceneEnvironment",
+                                                                                    "SkyBox")));
+                    }
                 }
                 QTimer::singleShot(0, this, [this, texNode]() {
                     if (model() && texNode.isValid())
@@ -100,6 +102,9 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 });
             });
         });
+
+        connect(m_widget, &ContentLibraryWidget::updateSceneEnvStateRequested,
+                this, &ContentLibraryView::resolveSceneEnv);
 
         ContentLibraryMaterialsModel *materialsModel = m_widget->materialsModel().data();
 
@@ -187,30 +192,7 @@ void ContentLibraryView::importsChanged(const QList<Import> &addedImports, const
 
 void ContentLibraryView::active3DSceneChanged(qint32 sceneId)
 {
-    m_activeSceneEnv = {};
-    bool sceneEnvExists = false;
-    if (sceneId != -1) {
-        ModelNode activeScene = active3DSceneNode();
-        if (activeScene.isValid()) {
-            ModelNode view3D;
-            if (activeScene.metaInfo().isQtQuick3DView3D()) {
-                view3D = activeScene;
-            } else {
-                ModelNode sceneParent = activeScene.parentProperty().parentModelNode();
-                if (sceneParent.metaInfo().isQtQuick3DView3D())
-                    view3D = sceneParent;
-            }
-
-            if (view3D.isValid()) {
-                m_activeSceneEnv = modelNodeForId(view3D.bindingProperty("environment").expression());
-                if (m_activeSceneEnv.isValid())
-                    sceneEnvExists = true;
-            }
-        }
-    }
-
-    m_widget->texturesModel()->setHasSceneEnv(sceneEnvExists);
-    m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);
+    m_sceneId = sceneId;
 }
 
 void ContentLibraryView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
@@ -359,6 +341,33 @@ ModelNode ContentLibraryView::createMaterial(const NodeMetaInfo &metaInfo)
     objNameProp.setValue(newName);
 
     return newMatNode;
+}
+
+ModelNode ContentLibraryView::resolveSceneEnv()
+{
+    ModelNode activeSceneEnv;
+
+    if (m_sceneId != -1) {
+        ModelNode activeScene = active3DSceneNode();
+        if (activeScene.isValid()) {
+            QmlObjectNode view3D;
+            if (activeScene.metaInfo().isQtQuick3DView3D()) {
+                view3D = activeScene;
+            } else {
+                ModelNode sceneParent = activeScene.parentProperty().parentModelNode();
+                if (sceneParent.metaInfo().isQtQuick3DView3D())
+                    view3D = sceneParent;
+            }
+            if (view3D.isValid())
+                activeSceneEnv = modelNodeForId(view3D.expression("environment"));
+        }
+    }
+
+    const bool sceneEnvExists = activeSceneEnv.isValid();
+    m_widget->texturesModel()->setHasSceneEnv(sceneEnvExists);
+    m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);
+
+    return activeSceneEnv;
 }
 
 void ContentLibraryView::updateBundleMaterialsImportedState()

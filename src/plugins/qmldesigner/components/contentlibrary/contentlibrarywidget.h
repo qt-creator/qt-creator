@@ -44,6 +44,7 @@ public:
     Q_INVOKABLE void addImage(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void addTexture(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
+    Q_INVOKABLE void updateSceneEnvState();
 
     enum class AddTextureMode { Image, Texture, LightProbe };
 
@@ -51,6 +52,7 @@ signals:
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
     void bundleTextureDragStarted(QmlDesigner::ContentLibraryTexture *bundleTex);
     void addTextureRequested(const QString texPath, QmlDesigner::ContentLibraryWidget::AddTextureMode mode);
+    void updateSceneEnvStateRequested();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

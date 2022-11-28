@@ -221,6 +221,11 @@ void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
     emit addTextureRequested(tex->path(), AddTextureMode::LightProbe);
 }
 
+void ContentLibraryWidget::updateSceneEnvState()
+{
+    emit updateSceneEnvStateRequested();
+}
+
 QPointer<ContentLibraryMaterialsModel> ContentLibraryWidget::materialsModel() const
 {
     return m_materialsModel;
