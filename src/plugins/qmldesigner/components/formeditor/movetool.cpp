@@ -47,7 +47,8 @@ void MoveTool::clear()
     m_contentNotEditableIndicator.clear();
 
     AbstractFormEditorTool::clear();
-    view()->formEditorWidget()->graphicsView()->viewport()->unsetCursor();
+    if (view()->formEditorWidget()->graphicsView())
+        view()->formEditorWidget()->graphicsView()->viewport()->unsetCursor();
 }
 
 void MoveTool::start()
