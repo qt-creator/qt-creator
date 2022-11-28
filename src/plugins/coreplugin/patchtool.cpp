@@ -83,8 +83,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
         args << ("-p" + QString::number(strip));
     if (patchAction == PatchAction::Revert)
         args << "-R";
-    if (withCrlf)
-        args << "--binary";
+    args << "--binary";
     MessageManager::writeDisrupting(Tr::tr("Running in %1: %2 %3")
             .arg(workingDirectory.toUserOutput(), patch.toUserOutput(), args.join(' ')));
     patchProcess.setCommand({patch, args});
