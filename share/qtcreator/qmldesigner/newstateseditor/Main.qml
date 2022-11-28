@@ -553,7 +553,7 @@ Rectangle {
                 baseState: true
                 defaultChecked: !statesEditorModel.baseState.modelHasDefaultState // TODO Make this one a model property
                 isChecked: root.currentStateInternalId === 0
-                thumbnailImageSource: statesEditorModel.baseState.stateImageSource // TODO Get rid of the QVariantMap
+                thumbnailImageSource: statesEditorModel.baseState.stateImageSource ?? "" // TODO Get rid of the QVariantMap
                 isTiny: root.tinyMode
 
                 onFocusSignal: root.currentStateInternalId = 0
