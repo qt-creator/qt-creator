@@ -1298,7 +1298,7 @@ bool QmakeProFile::isFileFromWildcard(const QString &filePath) const
 QmakeEvalInput QmakeProFile::evalInput() const
 {
     QmakeEvalInput input;
-    input.projectDir = directoryPath().toString();
+    input.projectDir = directoryPath().toFSPathString();
     input.projectFilePath = filePath();
     input.buildDirectory = m_buildSystem->buildDir(m_filePath);
     input.sysroot = FilePath::fromString(m_buildSystem->qmakeSysroot());
@@ -1347,9 +1347,8 @@ static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
         // We don't increase/decrease m_qmakeGlobalsRefCnt here, because the outer profilereaders keep m_qmakeGlobals alive anyway
         auto bpReader = new QtSupport::ProFileReader(input.qmakeGlobals, input.qmakeVfs); // needs to access m_qmakeGlobals, m_qmakeVfs
 
-        // FIXME: Currently intentional.
         // Core parts of the ProParser hard-assert on non-local items.
-        bpReader->setOutputDir(input.buildDirectory.path());
+        bpReader->setOutputDir(input.buildDirectory.toFSPathString());
         bpReader->setCumulative(cumulative);
         bpReader->setExtraVars(basevars);
         bpReader->setExtraConfigs(basecfgs);
@@ -1369,7 +1368,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     QtSupport::ProFileReader *exactBuildPassReader = nullptr;
     QtSupport::ProFileReader *cumulativeBuildPassReader = nullptr;
     ProFile *pro;
-    if ((pro = input.readerExact->parsedProFile(input.projectFilePath.toString()))) {
+    if ((pro = input.readerExact->parsedProFile(input.projectFilePath.toFSPathString()))) {
         bool exactOk = evaluateOne(input, pro, input.readerExact, false, &exactBuildPassReader);
         bool cumulOk = evaluateOne(input, pro, input.readerCumulative, true, &cumulativeBuildPassReader);
         pro->deref();
@@ -1473,9 +1472,9 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     QHash<QString, QVector<ProFileEvaluator::SourceFile>> cumulativeSourceFiles;
 
     const QStringList baseVPathsExact
-            = baseVPaths(exactReader, input.projectDir, input.buildDirectory.toString());
+            = baseVPaths(exactReader, input.projectDir, input.buildDirectory.toFSPathString());
     const QStringList baseVPathsCumulative
-            = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory.toString());
+            = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory.toFSPathString());
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         const auto type = static_cast<FileType>(i);
@@ -1504,8 +1503,10 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     // - The project tree, in which case we also want exact values to avoid recursively
     //   watching bogus paths. However, we accept the values even if the evaluation
     //   failed, to at least have a best-effort result.
-    result->installsList = installsList(exactBuildPassReader, input.projectFilePath.toString(),
-                                        input.projectDir, input.buildDirectory.toString());
+    result->installsList = installsList(exactBuildPassReader,
+                                        input.projectFilePath.toFSPathString(),
+                                        input.projectDir,
+                                        input.buildDirectory.toFSPathString());
     extractInstalls(proToResult, &result->includedFiles.result, result->installsList);
 
     if (result->state == QmakeEvalResult::EvalOk) {
@@ -1534,7 +1535,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         result->newVarValues[Variable::CumulativeResource] = fileListForVar(cumulativeSourceFiles, QLatin1String("RESOURCES"));
         result->newVarValues[Variable::PkgConfig] = exactReader->values(QLatin1String("PKGCONFIG"));
         result->newVarValues[Variable::PrecompiledHeader] = ProFileEvaluator::sourcesToFiles(exactReader->fixifiedValues(
-                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory.toString(), false));
+                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory.toFSPathString(), false));
         result->newVarValues[Variable::LibDirectories] = libDirectories(exactReader);
         result->newVarValues[Variable::Config] = exactReader->values(QLatin1String("CONFIG"));
         result->newVarValues[Variable::QmlImportPath] = exactReader->absolutePathValues(
@@ -1782,7 +1783,7 @@ QString QmakeProFile::uiDirPath(QtSupport::ProFileReader *reader, const FilePath
 {
     QString path = reader->value(QLatin1String("UI_DIR"));
     if (QFileInfo(path).isRelative())
-        path = QDir::cleanPath(buildDir.toString() + QLatin1Char('/') + path);
+        path = QDir::cleanPath(buildDir.toFSPathString() + QLatin1Char('/') + path);
     return path;
 }
 
@@ -1790,7 +1791,7 @@ QString QmakeProFile::mocDirPath(QtSupport::ProFileReader *reader, const FilePat
 {
     QString path = reader->value(QLatin1String("MOC_DIR"));
     if (QFileInfo(path).isRelative())
-        path = QDir::cleanPath(buildDir.toString() + QLatin1Char('/') + path);
+        path = QDir::cleanPath(buildDir.toFSPathString() + QLatin1Char('/') + path);
     return path;
 }
 
@@ -1835,10 +1836,11 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
     const QString uiDir = uiDirPath(reader, buildDir);
 
     const QVector<ProFileEvaluator::SourceFile> elList = reader->fixifiedValues(
-                QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString(), false);
+                QLatin1String("INCLUDEPATH"), projectDir, buildDir.toFSPathString(), false);
     for (const ProFileEvaluator::SourceFile &el : elList) {
-        const QString sysrootifiedPath = sysrootify(el.fileName, sysroot.toString(), projectDir,
-                                                    buildDir.toString());
+        const QString sysrootifiedPath = sysrootify(el.fileName, sysroot.toFSPathString(),
+                                                    projectDir,
+                                                    buildDir.toFSPathString());
         if (IoUtils::isAbsolutePath(sysrootifiedPath)
                 && (IoUtils::exists(sysrootifiedPath) || sysrootifiedPath == mocDir
                     || sysrootifiedPath == uiDir)) {

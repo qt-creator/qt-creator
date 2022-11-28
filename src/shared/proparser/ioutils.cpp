@@ -24,24 +24,28 @@ QT_BEGIN_NAMESPACE
 
 using namespace QMakeInternal;
 
+static bool isGenericPath(const QStringView fileName)
+{
+    static const QString specialRoot = QDir::rootPath() + "__qtc_devices__/";
+    return fileName.startsWith(specialRoot);
+}
+
 IoUtils::FileType IoUtils::fileType(const QString &fileName)
 {
-    // FIXME:
-    if (fileName.startsWith("docker:/")) {
-        if (!fileName.startsWith("docker://"))
-            qWarning("File name not canonical");
-        int pos = fileName.indexOf('/', 10);
-        if (pos == 0) {
-            qWarning("File name not canonical");
-            return FileNotFound;
-        }
-        return fileType(fileName.mid(pos));
+    if (isGenericPath(fileName)) {
+        QFileInfo fi(fileName);
+        if (fi.isDir())
+            return FileIsDir;
+        if (fi.isFile())
+            return FileIsRegular;
+        return FileNotFound;
     }
 
-    if (!QFileInfo::exists(fileName)) // FIXME make pro parser work with non-local
+    if (!QFileInfo::exists(fileName))
         return FileNotFound;
 
     Q_ASSERT(fileName.isEmpty() || isAbsolutePath(fileName));
+
 #ifdef Q_OS_WIN
     DWORD attr = GetFileAttributesW((WCHAR*)fileName.utf16());
     if (attr == INVALID_FILE_ATTRIBUTES)
@@ -61,6 +65,10 @@ bool IoUtils::isRelativePath(const QString &path)
     if (path.startsWith(QLatin1String(":/")))
         return false;
 #endif
+
+    if (isGenericPath(path))
+        return QFileInfo(path).isRelative();
+
 #ifdef Q_OS_WIN
     // Unlike QFileInfo, this considers only paths with both a drive prefix and
     // a subsequent (back-)slash absolute:
@@ -95,6 +103,10 @@ QString IoUtils::resolvePath(const QString &baseDir, const QString &fileName)
 {
     if (fileName.isEmpty())
         return QString();
+
+    if (isGenericPath(fileName))
+        return baseDir + '/' + fileName;
+
     if (isAbsolutePath(fileName))
         return QDir::cleanPath(fileName);
 #ifdef Q_OS_WIN // Add drive to otherwise-absolute path:

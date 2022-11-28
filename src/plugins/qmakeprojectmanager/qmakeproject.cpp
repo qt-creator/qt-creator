@@ -801,14 +801,31 @@ static FileNode *fileNodeOf(FolderNode *in, const FilePath &fileName)
 
 FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
 {
-    const QDir srcDirRoot = QDir(projectDirectory().toString());
-    const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toString());
     const FilePath buildConfigBuildDir = buildConfiguration()->buildDirectory();
-    FilePath buildDir = buildConfigBuildDir.isEmpty()
+    const FilePath buildDir = buildConfigBuildDir.isEmpty()
                                  ? projectDirectory()
                                  : buildConfigBuildDir;
-    // FIXME: Convoluted.
-    return buildDir.withNewPath(QDir::cleanPath(QDir(buildDir.path()).absoluteFilePath(relativeDir)));
+
+    // The remote version below is actually generic, but I don't dare to touch
+    // the convoluted existing local version for now.
+    // For starters, compute a 'new' version to check what it would look like,
+    // but don't use it.
+    if (!proFilePath.needsDevice()) {
+        // This branch should not exist.
+        const QDir srcDirRoot = QDir(projectDirectory().toString());
+        const QString relativeDir = srcDirRoot.relativeFilePath(proFilePath.parentDir().toString());
+        // FIXME: Convoluted. Try to migrate to newRes once we feel confident enough.
+        const FilePath oldResult = buildDir.withNewPath(
+                    QDir::cleanPath(QDir(buildDir.path()).absoluteFilePath(relativeDir)));
+        const FilePath newResult = buildDir.resolvePath(relativeDir);
+        QTC_ASSERT(oldResult == newResult,
+                   qDebug() << "New build dir construction failed. Not equal:"
+                            << oldResult.toString() << newResult.toString());
+        return oldResult;
+    }
+
+    const FilePath relativeDir = proFilePath.parentDir().relativePathFrom(projectDirectory());
+    return buildDir.resolvePath(relativeDir).canonicalPath();
 }
 
 void QmakeBuildSystem::proFileParseError(const QString &errorMessage, const FilePath &filePath)
@@ -837,17 +854,19 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
         m_qmakeSysroot = SysRootKitAspect::sysRoot(k).toString();
 
         if (qtVersion && qtVersion->isValid()) {
-            m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeFilePath().toString());
+            m_qmakeGlobals->qmake_abslocation =
+                    QDir::cleanPath(qtVersion->qmakeFilePath().toString());
             qtVersion->applyProperties(m_qmakeGlobals.get());
         }
-        m_qmakeGlobals->setDirectories(rootProFile()->sourceDir().toString(),
-                                       buildDir(rootProFile()->filePath()).toString());
+
+        QString rootProFileName = buildDir(rootProFile()->filePath()).toFSPathString();
+        m_qmakeGlobals->setDirectories(rootProFile()->sourceDir().toFSPathString(), rootProFileName);
 
         Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
             m_qmakeGlobals->environment.insert(env.key(eit), env.expandedValueForKey(env.key(eit)));
 
-        m_qmakeGlobals->setCommandLineArguments(buildDir(rootProFile()->filePath()).toString(), qmakeArgs);
+        m_qmakeGlobals->setCommandLineArguments(rootProFileName, qmakeArgs);
         m_qmakeGlobals->runSystemFunction = bc->runSystemFunction();
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
@@ -870,9 +889,8 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
 
     auto reader = new QtSupport::ProFileReader(m_qmakeGlobals.get(), m_qmakeVfs);
 
-    // FIXME: Currently intentional.
     // Core parts of the ProParser hard-assert on non-local items
-    reader->setOutputDir(buildDir(qmakeProFile->filePath()).path());
+    reader->setOutputDir(buildDir(qmakeProFile->filePath()).toFSPathString());
 
     return reader;
 }
