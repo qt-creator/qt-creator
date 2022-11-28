@@ -25,8 +25,7 @@
 
 using namespace CPlusPlus;
 using namespace TextEditor;
-
-using Link = Utils::Link;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -188,7 +187,7 @@ Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snaps
         for (const Macro &macro : doc->definedMacros()) {
             if (macro.name() == name) {
                 Link link;
-                link.targetFilePath = Utils::FilePath::fromString(macro.fileName());
+                link.targetFilePath = macro.filePath();
                 link.targetLine = macro.line();
                 return link;
             }
@@ -648,12 +647,12 @@ void FollowSymbolUnderCursor::findLink(
         if (macro->name() == name)
             return processLinkCallback(link); //already on definition!
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
-        const QString fileName = use->macro().fileName();
-        if (fileName == CppModelManager::editorConfigurationFileName()) {
+        const FilePath filePath = use->macro().filePath();
+        if (filePath.path() == CppModelManager::editorConfigurationFileName()) {
             editorWidget->showPreProcessorWidget();
-        } else if (fileName != CppModelManager::configurationFileName().path()) {
+        } else if (filePath.path() != CppModelManager::configurationFileName().path()) {
             const Macro &macro = use->macro();
-            link.targetFilePath = Utils::FilePath::fromString(macro.fileName());
+            link.targetFilePath = macro.filePath();
             link.targetLine = macro.line();
             link.linkTextStart = use->utf16charsBegin();
             link.linkTextEnd = use->utf16charsEnd();
@@ -866,4 +865,4 @@ void FollowSymbolUnderCursor::setVirtualFunctionAssistProvider(
     m_virtualFunctionAssistProvider = provider;
 }
 
-} // namespace CppEditor
+} // CppEditor

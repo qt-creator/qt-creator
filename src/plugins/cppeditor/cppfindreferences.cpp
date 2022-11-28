@@ -650,7 +650,7 @@ restart_search:
         for (const CPlusPlus::Document::MacroUse &use : doc->macroUses()) {
             const CPlusPlus::Macro &useMacro = use.macro();
 
-            if (useMacro.fileName() == macro.fileName()) { // Check if this is a match, but possibly against an outdated document.
+            if (useMacro.filePath() == macro.filePath()) { // Check if this is a match, but possibly against an outdated document.
                 if (source.isEmpty())
                     source = getSource(fileName, workingCopy);
 
@@ -752,13 +752,12 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
 
     // add the macro definition itself
     {
-        const QByteArray &source = getSource(Utils::FilePath::fromString(macro.fileName()),
-                                             workingCopy);
+        const QByteArray &source = getSource(macro.filePath(), workingCopy);
         unsigned column;
         const QString line = FindMacroUsesInFile::matchingLine(macro.bytesOffset(), source,
                                                                &column);
         SearchResultItem item;
-        const Utils::FilePath filePath = Utils::FilePath::fromString(macro.fileName());
+        const FilePath filePath = macro.filePath();
         item.setFilePath(filePath);
         item.setLineText(line);
         item.setMainRange(macro.line(), column, macro.nameToQString().length());

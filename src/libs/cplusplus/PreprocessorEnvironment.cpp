@@ -29,6 +29,8 @@
 
 #include <cstring>
 
+using namespace Utils;
+
 namespace CPlusPlus {
 
 static unsigned hashCode(const char *str, int length)
@@ -116,7 +118,7 @@ Macro *Environment::remove(const ByteArrayRef &name)
     Macro macro;
     macro.setName(name.toByteArray());
     macro.setHidden(true);
-    macro.setFileName(currentFile);
+    macro.setFilePath(FilePath::fromString(currentFile));
     macro.setLine(currentLine);
     return bind(macro);
 }
@@ -246,4 +248,4 @@ void Environment::dump() const
     }
 }
 
-} // namespace CPlusPlus
+} // CPlusPlus

@@ -254,7 +254,7 @@ bool isMacroUseOf(const Document::MacroUse &marcoUse, const Macro &macro)
     return candidate.line() == macro.line()
         && candidate.utf16CharOffset() == macro.utf16CharOffset()
         && candidate.length() == macro.length()
-        && candidate.fileName() == macro.fileName();
+        && candidate.filePath() == macro.filePath();
 }
 
 bool handleMacroCase(const Document::Ptr document,
