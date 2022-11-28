@@ -259,7 +259,7 @@ int Position::toPositionInDocument(const QTextDocument *doc) const
     if (!block.isValid())
         return -1;
     if (block.length() <= character())
-        return block.position() + block.length();
+        return block.position() + block.length() - 1;
     return block.position() + character();
 }
 
