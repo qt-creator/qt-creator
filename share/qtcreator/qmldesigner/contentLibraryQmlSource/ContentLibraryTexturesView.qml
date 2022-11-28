@@ -10,6 +10,7 @@ HelperWidgets.ScrollView {
     id: root
 
     clip: true
+    interactive: !ctxMenu.opened
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 100
