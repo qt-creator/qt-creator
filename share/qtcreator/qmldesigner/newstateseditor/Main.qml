@@ -264,7 +264,10 @@ Rectangle {
 
     Connections {
         target: statesEditorModel
-        onModelReset: root.menuOpen = 0
+        function onModelReset() {
+            root.menuOpen = 0
+            editDialog.close()
+        }
     }
 
     // This timer is used to delay the current state animation as it didn't work due to the
