@@ -70,8 +70,8 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
         if (base.isEmpty())
             continue;
         const FilePath suspect = base / "cmake";
-        if (suspect.refersToExecutableFile(FilePath::WithAnySuffix))
-            suspects << suspect;
+        if (std::optional<FilePath> foundExe = suspect.refersToExecutableFile(FilePath::WithAnySuffix))
+            suspects << *foundExe;
     }
 
     std::vector<std::unique_ptr<CMakeTool>> found;

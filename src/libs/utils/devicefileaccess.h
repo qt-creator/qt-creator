@@ -47,7 +47,7 @@ protected:
     virtual qint64 bytesAvailable(const FilePath &filePath) const;
     virtual QByteArray fileId(const FilePath &filePath) const;
 
-    virtual bool refersToExecutableFile(
+    virtual std::optional<FilePath> refersToExecutableFile(
             const FilePath &filePath,
             FilePath::MatchScope matchScope) const;
 
@@ -118,7 +118,7 @@ protected:
     qint64 bytesAvailable(const FilePath &filePath) const override;
     QByteArray fileId(const FilePath &filePath) const override;
 
-    bool refersToExecutableFile(
+    std::optional<FilePath> refersToExecutableFile(
             const FilePath &filePath,
             FilePath::MatchScope matchScope) const override;
 

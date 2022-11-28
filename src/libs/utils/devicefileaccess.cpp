@@ -250,12 +250,14 @@ QByteArray DeviceFileAccess::fileId(const FilePath &filePath) const
     return {};
 }
 
-bool DeviceFileAccess::refersToExecutableFile(
+std::optional<FilePath> DeviceFileAccess::refersToExecutableFile(
         const FilePath &filePath,
         FilePath::MatchScope matchScope) const
 {
     Q_UNUSED(matchScope)
-    return isExecutableFile(filePath);
+    if (isExecutableFile(filePath))
+        return filePath;
+    return {};
 }
 
 void DeviceFileAccess::asyncFileContents(
@@ -301,38 +303,42 @@ bool DesktopDeviceFileAccess::isExecutableFile(const FilePath &filePath) const
     return fi.isExecutable() && !fi.isDir();
 }
 
-static bool isWindowsExecutableHelper(const FilePath &filePath, const QStringView suffix)
+static std::optional<FilePath> isWindowsExecutableHelper
+    (const FilePath &filePath, const QStringView suffix)
 {
     const QFileInfo fi(filePath.path().append(suffix));
-    return fi.isExecutable() && !fi.isDir();
+    if (!fi.isExecutable() || fi.isDir())
+        return {};
+
+    return filePath.withNewPath(FileUtils::normalizedPathName(fi.filePath()));
 }
 
-bool DesktopDeviceFileAccess::refersToExecutableFile(
+std::optional<FilePath> DesktopDeviceFileAccess::refersToExecutableFile(
         const FilePath &filePath,
         FilePath::MatchScope matchScope) const
 {
     if (isExecutableFile(filePath))
-        return true;
+        return filePath;
 
     if (HostOsInfo::isWindowsHost()) {
         if (matchScope == FilePath::WithExeSuffix || matchScope == FilePath::WithExeOrBatSuffix) {
-            if (isWindowsExecutableHelper(filePath, u".exe"))
-                return true;
+            if (auto res = isWindowsExecutableHelper(filePath, u".exe"))
+                return res;
         }
         if (matchScope == FilePath::WithBatSuffix || matchScope == FilePath::WithExeOrBatSuffix) {
-            if (isWindowsExecutableHelper(filePath, u".bat"))
-                return true;
+            if (auto res = isWindowsExecutableHelper(filePath, u".bat"))
+                return res;
         }
         if (matchScope == FilePath::WithAnySuffix) {
             // That's usually  .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH,
-            static const QStringList exts = qtcEnvironmentVariable("PATHEXT").split(';');
+            static const QStringList exts = qtcEnvironmentVariable("PATHEXT").toLower().split(';');
             for (const QString &ext : exts) {
-                if (isWindowsExecutableHelper(filePath, ext))
-                    return true;
+                if (auto res = isWindowsExecutableHelper(filePath, ext))
+                    return res;
             }
         }
     }
-    return false;
+    return {};
 }
 
 bool DesktopDeviceFileAccess::isReadableFile(const FilePath &filePath) const

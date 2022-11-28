@@ -419,7 +419,7 @@ bool FilePath::isExecutableFile() const
 ///
 /// This is equivalent to \c isExecutableFile() in general.
 /// On Windows, it will check appending various suffixes, too.
-bool FilePath::refersToExecutableFile(MatchScope matchScope) const
+std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) const
 {
     return fileAccess()->refersToExecutableFile(*this,  matchScope);
 }

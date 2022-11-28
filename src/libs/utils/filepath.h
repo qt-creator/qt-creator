@@ -184,7 +184,7 @@ public:
 
     enum MatchScope { ExactMatchOnly, WithExeSuffix, WithBatSuffix,
                       WithExeOrBatSuffix, WithAnySuffix };
-    bool refersToExecutableFile(MatchScope considerScript) const;
+    std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
