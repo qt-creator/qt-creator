@@ -74,7 +74,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     m_qmlViewerAspect = addAspect<StringAspect>();
     m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(commandLine().executable().toString());
-    m_qmlViewerAspect->setDisplayStyle(StringAspect::LineEditDisplay);
+    m_qmlViewerAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
 
     auto argumentAspect = addAspect<ArgumentsAspect>(macroExpander());
@@ -157,9 +157,10 @@ QString QmlProjectRunConfiguration::disabledReason() const
 
 FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 {
-    const QString qmlViewer = m_qmlViewerAspect->value();
+    // Give precedence to the manual override.
+    const FilePath qmlViewer = m_qmlViewerAspect->filePath();
     if (!qmlViewer.isEmpty())
-        return FilePath::fromString(qmlViewer);
+        return qmlViewer;
 
     Kit *kit = target()->kit();
     QtVersion *version = QtKitAspect::qtVersion(kit);
