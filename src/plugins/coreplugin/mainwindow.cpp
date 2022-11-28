@@ -11,6 +11,7 @@
 #include "externaltoolmanager.h"
 #include "fancytabwidget.h"
 #include "generalsettings.h"
+#include "helpmanager.h"
 #include "icore.h"
 #include "idocumentfactory.h"
 #include "jsexpander.h"
@@ -1510,8 +1511,17 @@ void MainWindow::changeLog()
             return;
         const FilePath file = versionedFiles.at(index).second;
         QString contents = QString::fromUtf8(file.fileContents().value_or(QByteArray()));
-        contents.replace(QRegularExpression("(QT(CREATOR)?BUG-[0-9]+)"),
-                         "[\\1](https://bugreports.qt.io/browse/\\1)");
+        static const QRegularExpression bugexpr("(QT(CREATOR)?BUG-[0-9]+)");
+        contents.replace(bugexpr, "[\\1](https://bugreports.qt.io/browse/\\1)");
+        static const QRegularExpression docexpr("https://doc[.]qt[.]io/qtcreator/([.a-zA-Z/_-]*)");
+        QList<QRegularExpressionMatch> matches;
+        for (const QRegularExpressionMatch &m : docexpr.globalMatch(contents))
+            matches.append(m);
+        Utils::reverseForeach(matches, [&contents](const QRegularExpressionMatch &match) {
+            const QString qthelpUrl = "qthelp://org.qt-project.qtcreator/doc/" + match.captured(1);
+            if (!HelpManager::fileData(qthelpUrl).isEmpty())
+                contents.replace(match.capturedStart(), match.capturedLength(), qthelpUrl);
+        });
         textEdit->setMarkdown(contents);
     };
     connect(versionCombo, &QComboBox::currentIndexChanged, textEdit, showLog);

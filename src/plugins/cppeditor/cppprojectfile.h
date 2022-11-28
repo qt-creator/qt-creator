@@ -7,6 +7,8 @@
 
 #include <QString>
 
+namespace Utils { class FilePath; }
+
 namespace CppEditor {
 
 class CPPEDITOR_EXPORT ProjectFile
@@ -39,6 +41,7 @@ public:
 
     static bool isSource(Kind kind);
     static bool isHeader(Kind kind);
+    static bool isHeader(const Utils::FilePath &fp);
     static bool isC(Kind kind);
     static bool isCxx(Kind kind);
     static bool isAmbiguousHeader(const QString &filePath);

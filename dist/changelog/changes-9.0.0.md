@@ -120,7 +120,8 @@ Projects
 * Turned `Package manager auto setup` off by default
 * Added support for CMake configure and build presets, including conditions and
   toolchain files (QTCREATORBUG-24555)
-  ([CMake Documentation](https://cmake.org/cmake/help/v3.21/manual/cmake-presets.7.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-build-settings-cmake.html#cmake-presets),
+  [CMake Documentation](https://cmake.org/cmake/help/v3.21/manual/cmake-presets.7.html))
 * Added option for changing environment for configure step
 * Added option for hiding subfolders in source groups (QTCREATORBUG-27432)
 * Added support for `Build File` also from header files (QTCREATORBUG-26164)
@@ -187,7 +188,7 @@ Test Integration
 ----------------
 
 * Added support for Squish
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-9.0/creator-squish.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-squish.html))
 * Catch 2
     * Fixed handling of exceptions (QTCREATORBUG-28131)
     * Fixed crash (QTCREATORBUG-28269)

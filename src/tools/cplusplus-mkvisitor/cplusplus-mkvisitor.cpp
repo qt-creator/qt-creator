@@ -44,7 +44,7 @@ class MkVisitor: protected SymbolVisitor
     bool isMiscNode(ClassOrNamespace *b) const
     {
         for (const ClassOrNamespace *u : b->usings()) {
-            if (oo(u->symbols().first()->name()) == QLatin1String("AST"))
+            if (oo.prettyName(u->symbols().first()->name()) == QLatin1String("AST"))
                 return true;
         }
 
@@ -58,7 +58,7 @@ class MkVisitor: protected SymbolVisitor
         retType->clear();
 
         if (interfaces.contains(b) || isMiscNode(b)) {
-            QString className = oo(b->symbols().first()->name());
+            QString className = oo.prettyName(b->symbols().first()->name());
 
             if (className.endsWith(QLatin1String("AST"))) {
                 className.chop(3);
@@ -114,7 +114,7 @@ public:
 
             Q_ASSERT(klass != 0);
 
-            QString className = oo(klass->name());
+            QString className = oo.prettyName(klass->name());
             if (className == QLatin1String("AST"))
                 continue;
 
@@ -162,7 +162,7 @@ public:
                 Q_ASSERT(klass != 0);
 
                 QString retTy ;
-                QString className = oo(klass->name());
+                QString className = oo.prettyName(klass->name());
                 std::cout << "    void " << qPrintable(getAcceptFunctionName(b, &retTy)) << "(" << qPrintable(className) << " *ast);" << std::endl;
             }
         }
@@ -170,7 +170,8 @@ public:
         std::cout << std::endl;
 
         for (ClassOrNamespace *iface : std::as_const(interfaces)) {
-            std::cout << "    // " << qPrintable(oo(iface->symbols().first()->name())) << std::endl;
+            std::cout << "    // " << qPrintable(oo.prettyName(iface->symbols().first()->name()))
+                      << std::endl;
             const QList<ClassOrNamespace *> values = implements.value(iface);
             for (ClassOrNamespace *b : values) {
                 Class *klass = 0;
@@ -180,7 +181,7 @@ public:
 
                 Q_ASSERT(klass != 0);
 
-                QString className = oo(klass->name());
+                QString className = oo.prettyName(klass->name());
                 std::cout << "    virtual bool visit(" << qPrintable(className) << " *ast);" << std::endl;
             }
             std::cout << std::endl;
@@ -197,7 +198,7 @@ public:
 
             Q_ASSERT(klass != 0);
 
-            QString className = oo(klass->name());
+            QString className = oo.prettyName(klass->name());
             if (className == QLatin1String("AST"))
                 continue;
 
@@ -230,7 +231,7 @@ public:
 
             Q_ASSERT(klass != 0);
 
-            QString className = oo(klass->name());
+            QString className = oo.prettyName(klass->name());
             if (className == QLatin1String("AST"))
                 continue;
 
@@ -256,7 +257,7 @@ public:
         }
 
         for (ClassOrNamespace *iface : std::as_const(interfaces)) {
-            std::cout << "// " << qPrintable(oo(iface->symbols().first()->name())) << std::endl;
+            std::cout << "// " << qPrintable(oo.prettyName(iface->symbols().first()->name())) << std::endl;
             const QList<ClassOrNamespace *> values = implements.value(iface);
             for (ClassOrNamespace *b : values) {
                 Class *klass = 0;
@@ -266,7 +267,7 @@ public:
 
                 Q_ASSERT(klass != 0);
 
-                QString className = oo(klass->name());
+                QString className = oo.prettyName(klass->name());
                 std::cout << "bool Semantic::visit(" << qPrintable(className) << " *ast)" << std::endl
                           << "{" << std::endl;
 
@@ -293,12 +294,12 @@ public:
                     Declaration *decl = klass->memberAt(i)->asDeclaration();
                     if (! decl)
                         continue;
-                    if (decl->type()->isFunctionType())
+                    if (decl->type()->asFunctionType())
                         continue;
-                    const QString declName = oo(decl->name());
+                    const QString declName = oo.prettyName(decl->name());
                     if (PointerType *ptrTy = decl->type()->asPointerType()) {
                         if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
-                            const QString eltTyName = oo(namedTy->name());
+                            const QString eltTyName = oo.prettyName(namedTy->name());
                             if (eltTyName.endsWith(QLatin1String("ListAST"))) {
                                 QString name = eltTyName;
                                 name.chop(7);
@@ -327,7 +328,7 @@ public:
                             }
 
                             if (ClassOrNamespace *ty = context.lookupType(namedTy->name(), klass)) {
-                                QString className = oo(ty->symbols().first()->name());
+                                QString className = oo.prettyName(ty->symbols().first()->name());
                                 QString baseClassName = className;
                                 if (baseClassName.endsWith(QLatin1String("AST"))) {
                                     baseClassName.chop(3);
@@ -370,7 +371,7 @@ protected:
     }
 
     virtual bool visit(Class *klass) {
-        const QString className = oo(klass->name());
+        const QString className = oo.prettyName(klass->name());
         if (! className.endsWith(QLatin1String("AST")))
             return false;
 

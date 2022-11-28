@@ -42519,22 +42519,22 @@ Are you sure?</source>
     </message>
     <message>
         <source>[Source: %1]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Quelle: %1]</translation>
     </message>
 </context>
 <context>
     <name>ClangCodeModel</name>
     <message>
         <source>Component</source>
-        <translation type="unfinished">Komponente</translation>
+        <translation>Komponente</translation>
     </message>
     <message>
         <source>Total Memory</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamtspeicher</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">Aktualisieren</translation>
+        <translation>Aktualisieren</translation>
     </message>
 </context>
 <context>
@@ -42590,7 +42590,7 @@ Ausgabe:
     </message>
     <message>
         <source>Documentation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokumentation:</translation>
     </message>
 </context>
 <context>
@@ -42616,11 +42616,11 @@ Ausgabe:
     </message>
     <message>
         <source>Filter for This Diagnostic Kind</source>
-        <translation>Nach dieser Art von Einträgen filtern</translation>
+        <translation>Nach dieser Art von Meldungen filtern</translation>
     </message>
     <message>
         <source>Filter out This Diagnostic Kind</source>
-        <translation>Diese Art von Einträgen herausfiltern</translation>
+        <translation>Diese Art von Meldungen herausfiltern</translation>
     </message>
     <message>
         <source>Web Page</source>
@@ -42628,19 +42628,19 @@ Ausgabe:
     </message>
     <message>
         <source>Suppress Selected Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Meldungen unterdrücken</translation>
     </message>
     <message>
         <source>Suppress This Diagnostic</source>
-        <translation>Diese Art von Einträgen nicht anzeigen</translation>
+        <translation>Diese Art von Meldungen nicht anzeigen</translation>
     </message>
     <message>
         <source>Disable These Checks</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Checks deaktivieren</translation>
     </message>
     <message>
         <source>Disable This Check</source>
-        <translation type="unfinished"></translation>
+        <translation>Diesen Check deaktivieren</translation>
     </message>
 </context>
 <context>
@@ -43132,7 +43132,7 @@ Was soll %1 tun?</translation>
     <name>ClangFormat::ClangFormatConfigWidget</name>
     <message>
         <source>Clang-Format Style</source>
-        <translation type="unfinished"></translation>
+        <translation>Clang-Format-Stil</translation>
     </message>
 </context>
 <context>
@@ -43150,7 +43150,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>The ClangFormat plugin has been built against an unmodified Clang. You might experience formatting glitches in certain circumstances. See https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md for more information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ClangFormat-Plugin wurde gegen ein unmodifiziertes Clang gebaut. Unter Umständen werden Sie Mängel beim Formatieren feststellen. Unter https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md können Sie mehr erfahren.</translation>
     </message>
 </context>
 <context>
@@ -44729,11 +44729,11 @@ You might find further explanations in the Application Output view.</source>
     </message>
     <message>
         <source>Filters</source>
-        <translation type="unfinished">Filter</translation>
+        <translation>Filter</translation>
     </message>
     <message>
         <source>Reset Topic Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Themenfilter zurücksetzen</translation>
     </message>
     <message>
         <source>Checks</source>
@@ -44746,7 +44746,8 @@ You might find further explanations in the Application Output view.</source>
     <message>
         <source>Could not query the supported checks from the clazy-standalone executable.
 Set a valid executable first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die von clazy-standalone unterstützten Überprüfungen nicht abfragen.
+Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Enable lower levels automatically</source>
@@ -44761,19 +44762,19 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle auswählen</translation>
     </message>
     <message>
         <source>Select All with Fixits</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle mit Korrekturen auswählen</translation>
     </message>
     <message>
         <source>Clear Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl löschen</translation>
     </message>
     <message>
         <source>Select the diagnostics to display.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die anzuzeigenden Meldungen.</translation>
     </message>
 </context>
 <context>
@@ -44784,11 +44785,11 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Analyze open files</source>
-        <translation type="unfinished"></translation>
+        <translation>Offene Dateien analysieren</translation>
     </message>
     <message>
         <source>Run Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungseinstellungen</translation>
     </message>
     <message>
         <source>Parallel jobs:</source>
@@ -44812,7 +44813,8 @@ Set a valid executable first.</source>
     <message>
         <source>Could not query the supported checks from the clang-tidy executable.
 Set a valid executable first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die von clang-tidy unterstützten Überprüfungen nicht abfragen.
+Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
 </context>
 <context>
@@ -45701,11 +45703,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <name>ClangTools::Internal::ClangTool</name>
     <message>
         <source>Analyze Project...</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt analysieren...</translation>
     </message>
     <message>
         <source>Analyze Current File</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Datei analysieren</translation>
     </message>
     <message>
         <source>Go to previous diagnostic.</source>
@@ -45717,7 +45719,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Load diagnostics from YAML files exported with &quot;-export-fixes&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldungen, die mit &quot;-export-fixes&quot; exportiert wurden, aus YAML-Datei laden.</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -45725,11 +45727,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <source>Filter Diagnostics</source>
@@ -45773,119 +45775,119 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Cannot analyze current file: No files open.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann aktuelle Datei nicht analysieren: Keine Dateien geöffnet.</translation>
     </message>
     <message>
         <source>Cannot analyze current file: &quot;%1&quot; is not a known source file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann aktuelle Datei nicht analysieren: &quot;%1&quot; ist keine bekannte Quelldatei.</translation>
     </message>
     <message>
         <source>Select YAML Files with Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie YAML-Datei mit Meldungen</translation>
     </message>
     <message>
         <source>YAML Files (*.yml *.yaml);;All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>YAML-Dateien (*.yml *.yaml);;Alle Dateien (*)</translation>
     </message>
     <message>
         <source>Error Loading Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden der Meldungen</translation>
     </message>
     <message>
         <source>Set a valid Clang-Tidy executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine gültige ausführbare Datei für Clang-Tidy.</translation>
     </message>
     <message>
         <source>Set a valid Clazy-Standalone executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine gültige ausführbare Datei für Clazy-Standalone.</translation>
     </message>
     <message>
         <source>Project &quot;%1&quot; is not a C/C++ project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt &quot;%1&quot; ist kein C/C++-Projekt.</translation>
     </message>
     <message>
         <source>Open a C/C++ project to start analyzing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen Sie ein C/C++-Projekt, um mit der Analyse zu beginnen.</translation>
     </message>
     <message>
         <source>Failed to build the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Failed to start the analyzer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Analyse-Werkzeug konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Dateien</translation>
     </message>
     <message>
         <source>Opened Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Geöffnete Dateien</translation>
     </message>
     <message>
         <source>Edited Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeitete Dateien</translation>
     </message>
     <message numerus="yes">
         <source>Failed to analyze %n file(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Eine Datei konnte nicht analysiert werden.</numerusform>
+            <numerusform>%n Dateien konnten nicht analysiert werden.</numerusform>
         </translation>
     </message>
     <message>
         <source>Analyzing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysiere...</translation>
     </message>
     <message numerus="yes">
         <source>Analyzing... %1 of %n file(s) processed.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Analysiere... %1 von einer Datei verarbeitet.</numerusform>
+            <numerusform>Analysiere... %1 von %n Dateien verarbeitet.</numerusform>
         </translation>
     </message>
     <message>
         <source>Analysis stopped by user.</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse durch den Benutzer gestoppt.</translation>
     </message>
     <message numerus="yes">
         <source>Finished processing %n file(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Verarbeitung einer Datei abgeschlossen.</numerusform>
+            <numerusform>Verarbeitung von %n Dateien abgeschlossen.</numerusform>
         </translation>
     </message>
     <message>
         <source>Diagnostics imported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldungen importiert.</translation>
     </message>
     <message>
         <source>%1 diagnostics. %2 fixits, %3 selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Meldung(en). %2 Korrektur(en), %3 ausgewählt.</translation>
     </message>
     <message>
         <source>No diagnostics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Meldungen.</translation>
     </message>
     <message>
         <source>In general, the project should be built before starting the analysis to ensure that the code to analyze is valid.&lt;br/&gt;&lt;br/&gt;Building the project might also run code generators that update the source files as necessary.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Allgemeinen sollte das Projekt vor der Analyse gebaut werden, um sicherzustellen, dass der zu analysierende Code gültig ist.&lt;br/&gt;&lt;br/&gt;Beim Erstellen des Projekts werden möglicherweise auch Code-Generatoren ausgeführt, die Quelldateien nach Bedarf aktualisieren.</translation>
     </message>
     <message>
         <source>Info About Build the Project Before Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Information über das Erstellen des Projekts vor der Analyse</translation>
     </message>
 </context>
 <context>
     <name>ClangTools::Internal::ClangToolRunWorker</name>
     <message>
         <source>Failed to build the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Projekt konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>No code model data available for project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für das Projekt sind keine Codemodell-Daten vorhanden.</translation>
     </message>
     <message>
         <source>The project configuration changed since the start of the %1. Please re-run with current configuration.</source>
@@ -45893,11 +45895,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Failed to create temporary directory: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das temporäre Verzeichnis konnte nicht erstellt werden: %1.</translation>
     </message>
     <message>
         <source>Running %1 on %2 with configuration &quot;%3&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe %1 auf %2 mit der Konfiguration &quot;%3&quot; aus.</translation>
     </message>
     <message>
         <source>Analyzing</source>
@@ -45905,11 +45907,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Analyzing &quot;%1&quot; [%2].</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysiere &quot;%1&quot; [%2].</translation>
     </message>
     <message>
         <source>Failed to start runner &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Werkzeug &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Failed to analyze &quot;%1&quot;: %2</source>
@@ -45917,14 +45919,14 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message numerus="yes">
         <source>Error: Failed to analyze %n files.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Fehler: Eine Datei konnte nicht analysiert werden.</numerusform>
+            <numerusform>Fehler: %n Dateien konnten nicht analysiert werden.</numerusform>
         </translation>
     </message>
     <message>
         <source>Note: You might need to build the project to generate or update source files. To build automatically, enable &quot;Build the project before analysis&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Möglicherweise müssen Sie das Projekt erstellen, um Quelldateien zu generieren oder aktualisieren. Aktivieren Sie &quot;Projekt vor der Analyse erstellen&quot;, um das Projekt automatisch zu erstellen.</translation>
     </message>
     <message>
         <source>%1 finished: Processed %2 files successfully, %3 failed.</source>
@@ -45973,11 +45975,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Clang-Tidy Checks</source>
-        <translation type="unfinished"></translation>
+        <translation>Clang-Tidy Checks</translation>
     </message>
     <message>
         <source>Clazy Checks</source>
-        <translation type="unfinished"></translation>
+        <translation>Clazy Checks</translation>
     </message>
     <message>
         <source>Edit Checks as String...</source>
@@ -52413,43 +52415,43 @@ in &quot;%2&quot; aus.
     <name>ClangCodeModel::Internal::ClangdClient</name>
     <message>
         <source>clangd</source>
-        <translation type="unfinished"></translation>
+        <translation>clangd</translation>
     </message>
     <message>
         <source>Indexing %1 with clangd</source>
-        <translation type="unfinished"></translation>
+        <translation>Indiziere %1 mit clangd</translation>
     </message>
     <message>
         <source>Indexing session with clangd</source>
-        <translation type="unfinished"></translation>
+        <translation>Indiziere Sitzung mit clangd</translation>
     </message>
     <message>
         <source>Memory Usage</source>
-        <translation type="unfinished">Speicherverbrauch</translation>
+        <translation>Speicherverbrauch</translation>
     </message>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
-        <translation type="unfinished">Pfad: %1</translation>
+        <translation>Pfad: %1</translation>
     </message>
     <message>
         <source>collecting overrides ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche überschriebene Methoden ...</translation>
     </message>
     <message>
         <source>&lt;base declaration&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Basisdeklaration&gt;</translation>
     </message>
 </context>
 <context>
     <name>ClangCodeModel::Internal::ClangdFindReferences</name>
     <message>
         <source>C++ Usages:</source>
-        <translation type="unfinished"></translation>
+        <translation>C++ Referenzen:</translation>
     </message>
     <message numerus="yes">
         <source>Re&amp;name %n files</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Eine Datei umbe&amp;nennen</numerusform>
             <numerusform>%n Dateien umbe&amp;nennen</numerusform>
         </translation>
@@ -52457,7 +52459,7 @@ in &quot;%2&quot; aus.
     <message>
         <source>Files:
 %1</source>
-        <translation type="unfinished">Dateien:
+        <translation>Dateien:
 %1</translation>
     </message>
 </context>
@@ -52465,233 +52467,234 @@ in &quot;%2&quot; aus.
     <name>ClangCodeModel::Internal::ClangModelManagerSupport</name>
     <message>
         <source>The use of clangd for the C/C++ code model was disabled, because it is likely that its memory requirements would be higher than what your system can handle.</source>
-        <translation type="unfinished"></translation>
+        <translation>Clangd wurde für das C/C++-Codemodell deaktiviert, da dessen Speicheranforderung wahrscheinlich die Leistungsfähigkeit Ihres Systems übersteigt.</translation>
     </message>
     <message>
         <source>With clangd enabled, Qt Creator fully supports modern C++ when highlighting code, completing symbols and so on.&lt;br&gt;This comes at a higher cost in terms of CPU load and memory usage compared to the built-in code model, which therefore might be the better choice on older machines and/or with legacy code.&lt;br&gt;You can enable/disable and fine-tune clangd &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Clangd aktiviert ist, unterstützt Qt Creator semantische Hervorhebung, Symbolvervollständigung und so weiter für Code, der modernes C++ nutzt.&lt;br/&gt;Das wirkt sich nachteilig auf CPU-Last und Speicherverbrauch im Vergleich zum eingebauten Codemodell aus, das deshalb eine bessere Wahl für ältere Maschinen und/oder für Legacy Code sein kann.&lt;br/&gt;Sie können Clangd &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; aktivieren/deaktivieren und anpassen.</translation>
     </message>
     <message>
         <source>Enable Anyway</source>
-        <translation type="unfinished"></translation>
+        <translation>Trotzdem aktivieren</translation>
     </message>
     <message>
         <source>Cannot use clangd: Failed to generate compilation database:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann Clangd nicht nutzen: Erstellen der Kompilierungsdatenbank fehlgeschlagen:
+%1</translation>
     </message>
 </context>
 <context>
     <name>ClangdTextMark</name>
     <message>
         <source>Code Model Error</source>
-        <translation type="unfinished">Codemodell-Fehler</translation>
+        <translation>Codemodell-Fehler</translation>
     </message>
     <message>
         <source>Code Model Warning</source>
-        <translation type="unfinished">Codemodell-Warnung</translation>
+        <translation>Codemodell-Warnung</translation>
     </message>
     <message>
         <source>Copy to Clipboard</source>
         <comment>Clang Code Model Marks</comment>
-        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Disable Diagnostic in Current Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldung für aktuelles Projekt deaktivieren</translation>
     </message>
 </context>
 <context>
     <name>ClangUtils</name>
     <message>
         <source>Could not retrieve build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Verzeichnis konnte nicht abgefragt werden.</translation>
     </message>
     <message>
         <source>Could not create &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte &quot;%1&quot; nicht erzeugen: %2</translation>
     </message>
 </context>
 <context>
     <name>ClangFormat::ClangFormatGlobalConfigWidget</name>
     <message>
         <source>Formatting mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formatierungsart:</translation>
     </message>
     <message>
         <source>Format while typing</source>
-        <translation type="unfinished">Bei der Eingabe formatieren</translation>
+        <translation>Bei der Eingabe formatieren</translation>
     </message>
     <message>
         <source>Format edited code on file save</source>
-        <translation type="unfinished">Bearbeiteten Quelltext beim Speichern der Datei formatieren</translation>
+        <translation>Bearbeiteten Quelltext beim Speichern der Datei formatieren</translation>
     </message>
     <message>
         <source>Override Clang Format configuration file</source>
-        <translation type="unfinished">Clang-Format-Konfigurationsdatei überschreiben</translation>
+        <translation>Clang-Format-Konfigurationsdatei überschreiben</translation>
     </message>
     <message>
         <source>ClangFormat global setting:</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Einstellungen für ClangFormat:</translation>
     </message>
     <message>
         <source>Indenting only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Einrückung</translation>
     </message>
     <message>
         <source>Full formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>Komplette Formatierung</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished">Deaktivieren</translation>
+        <translation>Deaktivieren</translation>
     </message>
     <message>
         <source>The current project has its own .clang-format file which can be overridden by the settings below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das aktuelle Projekt hat ihre eigene .clang-format-Datei, die in den untenstehenden Einstellungen überschrieben werden kann.</translation>
     </message>
     <message>
         <source>Override Clang Format configuration file with the chosen configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Clang-Format-Konfigurationsdatei mit der gewählten Konfiguration überschreiben.</translation>
     </message>
 </context>
 <context>
     <name>ClangFormatStyleFactory</name>
     <message>
         <source>ClangFormat</source>
-        <translation type="unfinished">ClangFormat</translation>
+        <translation>ClangFormat</translation>
     </message>
 </context>
 <context>
     <name>ClangTools::Internal::ClangToolsProjectSettingsWidget</name>
     <message>
         <source>Restore Global Settings</source>
-        <translation type="unfinished">Globale Einstellungen wiederherstellen</translation>
+        <translation>Globale Einstellungen wiederherstellen</translation>
     </message>
     <message>
         <source>Go to Analyzer</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Analyzer wechseln</translation>
     </message>
     <message>
         <source>Remove Selected</source>
-        <translation type="unfinished">Ausgewählte entfernen</translation>
+        <translation>Ausgewählte entfernen</translation>
     </message>
     <message>
         <source>Remove All</source>
-        <translation type="unfinished">Alle entfernen</translation>
+        <translation>Alle entfernen</translation>
     </message>
     <message>
         <source>Suppressed diagnostics</source>
-        <translation type="unfinished">Unterdrückte Diagnosemeldungen</translation>
+        <translation>Unterdrückte Meldungen</translation>
     </message>
 </context>
 <context>
     <name>ClangToolsDiagnosticModel</name>
     <message>
         <source>No Fixits</source>
-        <translation type="unfinished">Keine Korrekturen</translation>
+        <translation>Keine Korrekturen</translation>
     </message>
     <message>
         <source>Not Scheduled</source>
-        <translation type="unfinished">nicht eingeplant</translation>
+        <translation>Nicht eingeplant</translation>
     </message>
     <message>
         <source>Invalidated</source>
-        <translation type="unfinished">Ungültig</translation>
+        <translation>Ungültig</translation>
     </message>
     <message>
         <source>Scheduled</source>
-        <translation type="unfinished">eingeplant</translation>
+        <translation>Eingeplant</translation>
     </message>
     <message>
         <source>Failed to Apply</source>
-        <translation type="unfinished">Konnte nicht angewendet werden</translation>
+        <translation>Konnte nicht angewendet werden</translation>
     </message>
     <message>
         <source>Applied</source>
-        <translation type="unfinished">Angewendet</translation>
+        <translation>Angewendet</translation>
     </message>
 </context>
 <context>
     <name>ClangTools::Internal::TidyOptionsDialog</name>
     <message>
         <source>Options for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für %1</translation>
     </message>
     <message>
         <source>Option</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellung</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <source>Add Option</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellung hinzufügen</translation>
     </message>
     <message>
         <source>Remove Option</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellung entfernen</translation>
     </message>
     <message>
         <source>&lt;new option&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Neue Einstellung&gt;</translation>
     </message>
 </context>
 <context>
     <name>ClangTools::Internal::TidyChecksTreeModel</name>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Einstellungen</translation>
+        <translation>Einstellungen</translation>
     </message>
 </context>
 <context>
     <name>Clang Tools</name>
     <message>
         <source>Custom Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Konfiguration</translation>
     </message>
 </context>
 <context>
     <name>ClangTools::Internal::DiagnosticMark</name>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Disable Diagnostic</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldung deaktivieren</translation>
     </message>
 </context>
 <context>
     <name>ClangTools::Internal::FilterChecksModel</name>
     <message>
         <source>Check</source>
-        <translation type="unfinished"></translation>
+        <translation>Check</translation>
     </message>
 </context>
 <context>
     <name>ClangTools::Internal::SettingsWidget</name>
     <message>
         <source>Clang-Tidy Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Clang-Tidy</translation>
     </message>
     <message>
         <source>Clazy Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Clazy</translation>
     </message>
     <message>
         <source>Executables</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Dateien</translation>
     </message>
     <message>
         <source>Clang-Tidy:</source>
-        <translation type="unfinished"></translation>
+        <translation>Clang-Tidy:</translation>
     </message>
     <message>
         <source>Clazy-Standalone:</source>
-        <translation type="unfinished"></translation>
+        <translation>Clazy-Standalone:</translation>
     </message>
 </context>
 <context>

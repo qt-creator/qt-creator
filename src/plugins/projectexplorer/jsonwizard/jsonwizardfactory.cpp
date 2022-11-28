@@ -480,7 +480,8 @@ JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &dat
     if (!factory->initialize(data, baseDir, errorMessage)) {
         delete factory;
         factory = nullptr;
-        Core::MessageManager::writeDisrupting(*errorMessage);
+        if (verbose())
+            Core::MessageManager::writeDisrupting(*errorMessage);
     }
     return factory;
 }
@@ -513,6 +514,9 @@ FilePaths &JsonWizardFactory::searchPaths()
                          Core::ICore::resourcePath(WIZARD_PATH)};
         for (const QString &environmentTemplateDirName : environmentTemplatesPaths())
             m_searchPaths << FilePath::fromString(environmentTemplateDirName);
+        m_searchPaths << Utils::transform(
+            Core::ICore::settings()->value("Wizards/SearchPaths").toStringList(),
+            [](const QString &s) { return FilePath::fromUserInput(s); });
     }
 
     return m_searchPaths;

@@ -392,7 +392,8 @@
     Typically, this component should be a shader effect with a source texture
     specified. You can use the effects in \uicontrol Components >
     \uicontrol {Qt Quick Studio Effects} that are based on the components in the
-    \l {Qt Graphical Effects} module.
+    \l {https://doc.qt.io/qt-5/qtgraphicaleffects-index.html}
+    {Qt Graphical Effects} module.
 
     To enable the component to pass the layer's offscreen surface to the effect
     correctly, the \uicontrol {Sampler name} field is set to the source

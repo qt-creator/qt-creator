@@ -47,6 +47,7 @@ function(setup_dependencies_component)
           \"\${_ide_app_target}\"
           \"${_qmake_binary}\"
           COMMAND_ECHO STDOUT
+          \${QTC_COMMAND_ERROR_IS_FATAL}
           )
       "
       COMPONENT Dependencies

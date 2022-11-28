@@ -280,9 +280,9 @@ protected:
     virtual bool visit(Declaration *symbol) {
         out << _id[symbol].constData() << " [label=\"";
         out << "Declaration\\n";
-        out << qPrintable(o(symbol->name()));
+        out << qPrintable(o.prettyName(symbol->name()));
         out << ": ";
-        out << qPrintable(o(symbol->type()));
+        out << qPrintable(o.prettyType(symbol->type()));
         if (symbol->isDeprecated())
             out << "\\n(deprecated)";
         if (Function *funTy = symbol->type()->asFunctionType()) {
@@ -308,7 +308,7 @@ protected:
 
     virtual bool visit(BaseClass *symbol) {
         out << _id[symbol].constData() << " [label=\"BaseClass\\n";
-        out << qPrintable(o(symbol->name()));
+        out << qPrintable(o.prettyName(symbol->name()));
         if (symbol->isDeprecated())
             out << "\\n(deprecated)";
         out << "\"];" << std::endl;

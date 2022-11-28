@@ -478,10 +478,10 @@ function(get_and_add_as_subdirectory name repository git_tag build_dir source_di
     )
     execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" "${build_dir}/${name}"
         WORKING_DIRECTORY "${build_dir}/${name}"
-        COMMAND_ERROR_IS_FATAL ANY
+        ${QTC_COMMAND_ERROR_IS_FATAL}
     )
     execute_process(COMMAND "${CMAKE_COMMAND}" --build "${build_dir}/${name}"
-        COMMAND_ERROR_IS_FATAL ANY
+        ${QTC_COMMAND_ERROR_IS_FATAL}
     )
     add_subdirectory(${source_dir}/${name}/${source_subdir} ${name})
 endfunction()
