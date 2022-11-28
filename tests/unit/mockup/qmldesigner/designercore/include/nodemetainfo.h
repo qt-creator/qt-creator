@@ -77,6 +77,7 @@ public:
     bool isQtQuick3DMaterial() const { return {}; }
     bool isQtQuickLoader() const { return {}; }
     bool isQtQuickItem() const { return {}; }
+    bool isQtQuick3DTexture() const { return {}; }
 
     QString importDirectoryPath() const { return {}; }
 
