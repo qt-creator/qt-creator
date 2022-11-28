@@ -10,8 +10,6 @@
 
 #include <QCoreApplication>
 #include <QDebug>
-#include <QDir>
-#include <QString>
 
 using namespace Utils;
 
@@ -34,9 +32,8 @@ class GeneratedFilePrivate : public QSharedData
 {
 public:
     GeneratedFilePrivate() = default;
-    explicit GeneratedFilePrivate(const Utils::FilePath &path);
-    explicit GeneratedFilePrivate(const QString &path);
-    Utils::FilePath path;
+    explicit GeneratedFilePrivate(const FilePath &path);
+    FilePath path;
     QByteArray contents;
     Id editorId;
     bool binary = false;
@@ -58,13 +55,7 @@ QDebug &operator<<(QDebug &debug, const Core::GeneratedFile &file)
     return debug;
 }
 
-GeneratedFilePrivate::GeneratedFilePrivate(const QString &path) : // FIXME Don't use - Remove when possible
-    path(FilePath::fromString(path).cleanPath()),
-    attributes({})
-{
-}
-
-GeneratedFilePrivate::GeneratedFilePrivate(const Utils::FilePath &path) :
+GeneratedFilePrivate::GeneratedFilePrivate(const FilePath &path) :
     path(path.cleanPath()),
     attributes({})
 {
@@ -75,12 +66,7 @@ GeneratedFile::GeneratedFile() :
 {
 }
 
-GeneratedFile::GeneratedFile(const QString &path) : // FIXME Don't use - Remove when possible
-    m_d(new GeneratedFilePrivate(path))
-{
-}
-
-GeneratedFile::GeneratedFile(const Utils::FilePath &path) :
+GeneratedFile::GeneratedFile(const FilePath &path) :
     m_d(new GeneratedFilePrivate(path))
 {
 }
@@ -101,7 +87,7 @@ FilePath GeneratedFile::filePath() const
     return m_d->path;
 }
 
-void GeneratedFile::setFilePath(const Utils::FilePath &p)
+void GeneratedFile::setFilePath(const FilePath &p)
 {
     m_d->path = p;
 }

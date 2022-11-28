@@ -36,7 +36,6 @@ public:
 
     GeneratedFile();
     explicit GeneratedFile(const Utils::FilePath &path);
-    explicit GeneratedFile(const QString &path);
     GeneratedFile(const GeneratedFile &);
     GeneratedFile &operator=(const GeneratedFile &);
     ~GeneratedFile();
