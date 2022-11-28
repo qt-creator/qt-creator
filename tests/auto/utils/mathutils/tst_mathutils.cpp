@@ -16,6 +16,8 @@ private slots:
     void interpolateLinear();
     void interpolateTangential_data();
     void interpolateTangential();
+    void interpolateExponential_data();
+    void interpolateExponential();
 };
 
 void tst_MathUtils::interpolateLinear_data()
@@ -69,6 +71,31 @@ void tst_MathUtils::interpolateTangential()
     QFETCH(int, result);
 
     const int y = MathUtils::interpolateTangential(x, xHalfLife, y1, y2);
+    QCOMPARE(y, result);
+}
+
+void tst_MathUtils::interpolateExponential_data()
+{
+    QTest::addColumn<int>("x");
+    QTest::addColumn<int>("xHalfLife");
+    QTest::addColumn<int>("y1");
+    QTest::addColumn<int>("y2");
+    QTest::addColumn<int>("result");
+
+    QTest::newRow("zero") << 0 << 8 << 10 << 20 << 10;
+    QTest::newRow("halfLife") << 8 << 8 << 10 << 20 << 15;
+    QTest::newRow("approxInfinity") << 1000 << 8 << 10 << 20 << 20;
+}
+
+void tst_MathUtils::interpolateExponential()
+{
+    QFETCH(int, x);
+    QFETCH(int, xHalfLife);
+    QFETCH(int, y1);
+    QFETCH(int, y2);
+    QFETCH(int, result);
+
+    const int y = MathUtils::interpolateExponential(x, xHalfLife, y1, y2);
     QCOMPARE(y, result);
 }
 

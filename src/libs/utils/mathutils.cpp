@@ -39,9 +39,26 @@ int interpolateTangential(int x, int xHalfLife, int y1, int y2)
         return y1;
     if (y1 == y2)
         return y1;
-    const double mapped = atan2(double(x), double(xHalfLife));
-    const double progress = y1 + (y2 - y1) * mapped * 2 / M_PI;
-    return qRound(progress);
+    const double angle = atan2((double)x, (double)xHalfLife);
+    const double result = y1 + (y2 - y1) * angle * 2 / M_PI;
+    return qRound(result);
 }
 
-} // namespace Utils::Math
+/*!
+    Exponential interpolation:
+    For x = 0 it returns y1.
+    For x = xHalfLife it returns 50 % of the distance between y1 and y2.
+    For x = infinity it returns y2.
+*/
+int interpolateExponential(int x, int xHalfLife, int y1, int y2)
+{
+    if (x == 0)
+        return y1;
+    if (y1 == y2)
+        return y1;
+    const double exponent = pow(0.5, (double)x / xHalfLife);
+    const double result = y1 + (y2 - y1) * (1.0 - exponent);
+    return qRound(result);
+}
+
+} // namespace Utils::MathUtils

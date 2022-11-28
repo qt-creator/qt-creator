@@ -9,5 +9,6 @@ namespace Utils::MathUtils {
 
 QTCREATOR_UTILS_EXPORT int interpolateLinear(int x, int x1, int x2, int y1, int y2);
 QTCREATOR_UTILS_EXPORT int interpolateTangential(int x, int xHalfLife, int y1, int y2);
+QTCREATOR_UTILS_EXPORT int interpolateExponential(int x, int xHalfLife, int y1, int y2);
 
-} // namespace Utils::Math
+} // namespace Utils::MathUtils
