@@ -249,8 +249,18 @@ void DebuggerKitAspect::fix(Kit *k)
             setup(k);
             return;
         }
-        const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
-        if (item->matchTarget(tcAbi) != DebuggerItem::DoesNotMatch)
+
+        Abi kitAbi;
+        if (ToolChainKitAspect::toolChains(k).isEmpty()) {
+            if (DeviceTypeKitAspect::deviceTypeId(k)
+                    != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+                return;
+            }
+            kitAbi = Abi(Abi::UnknownArchitecture, Abi::hostAbi().os());
+        } else {
+            kitAbi = ToolChainKitAspect::targetAbi(k);
+        }
+        if (item->matchTarget(kitAbi) != DebuggerItem::DoesNotMatch)
             return;
         k->setValue(DebuggerKitAspect::id(), QVariant());
         setup(k);
