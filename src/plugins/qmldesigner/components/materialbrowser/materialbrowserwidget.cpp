@@ -300,6 +300,7 @@ void MaterialBrowserWidget::reloadQmlSource()
 void MaterialBrowserWidget::updateSearch()
 {
     m_materialBrowserModel->setSearchText(m_filterText);
+    m_materialBrowserTexturesModel->setSearchText(m_filterText);
     m_quickWidget->update();
 }
 

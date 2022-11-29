@@ -194,7 +194,7 @@ Item {
                             color: StudioTheme.Values.themeTextColor
                             font.pixelSize: StudioTheme.Values.baseFontSize
                             leftPadding: 10
-                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && materialBrowserModel.hasMaterialLibrary
+                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty()
                         }
 
                         Text {
@@ -277,7 +277,7 @@ Item {
                             color: StudioTheme.Values.themeTextColor
                             font.pixelSize: StudioTheme.Values.baseFontSize
                             leftPadding: 10
-                            visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && materialBrowserModel.hasMaterialLibrary
+                            visible: materialBrowserTexturesModel.isEmpty && !searchBox.isEmpty()
                         }
 
                         Text {

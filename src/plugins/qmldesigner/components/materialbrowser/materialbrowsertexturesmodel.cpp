@@ -54,7 +54,7 @@ bool MaterialBrowserTexturesModel::isTextureVisible(int idx) const
     if (!isValidIndex(idx))
         return false;
 
-    return m_searchText.isEmpty() || m_textureList.at(idx).variantProperty("objectName")
+    return m_searchText.isEmpty() || m_textureList.at(idx).variantProperty("source")
             .value().toString().contains(m_searchText, Qt::CaseInsensitive);
 }
 
