@@ -2255,12 +2255,12 @@ BaseAspect *AspectContainer::aspect(Id id) const
 
 AspectContainer::const_iterator AspectContainer::begin() const
 {
-    return d->m_items.begin();
+    return d->m_items.cbegin();
 }
 
 AspectContainer::const_iterator AspectContainer::end() const
 {
-    return d->m_items.end();
+    return d->m_items.cend();
 }
 
 const QList<BaseAspect *> &AspectContainer::aspects() const

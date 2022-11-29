@@ -657,11 +657,11 @@ void TreeItem::insertChild(int pos, TreeItem *item)
         m_model->beginInsertRows(idx, pos, pos);
         item->m_parent = this;
         item->propagateModel(m_model);
-        m_children.insert(m_children.begin() + pos, item);
+        m_children.insert(m_children.cbegin() + pos, item);
         m_model->endInsertRows();
     } else {
         item->m_parent = this;
-        m_children.insert(m_children.begin() + pos, item);
+        m_children.insert(m_children.cbegin() + pos, item);
     }
 }
 

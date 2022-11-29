@@ -388,8 +388,8 @@ QString VersionUpgrader::backupExtension() const
 QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMap map) const
 {
     for (const Change &change : changes) {
-        QVariantMap::iterator oldSetting = map.find(change.first);
-        if (oldSetting != map.end()) {
+        const auto oldSetting = map.constFind(change.first);
+        if (oldSetting != map.constEnd()) {
             map.insert(change.second, oldSetting.value());
             map.erase(oldSetting);
         }

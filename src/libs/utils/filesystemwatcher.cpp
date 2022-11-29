@@ -111,7 +111,6 @@ bool WatchEntry::trigger(const QString &fileName)
 }
 
 using WatchEntryMap = QHash<QString, WatchEntry>;
-using WatchEntryMapIterator = WatchEntryMap::iterator;
 
 class FileSystemWatcherPrivate
 {
@@ -300,8 +299,8 @@ void FileSystemWatcher::removeFiles(const QStringList &files)
         qDebug() << this << d->m_id << "removeFiles " << files;
     QStringList toRemove;
     for (const QString &file : files) {
-        WatchEntryMapIterator it = d->m_files.find(file);
-        if (it == d->m_files.end()) {
+        const auto it = d->m_files.constFind(file);
+        if (it == d->m_files.constEnd()) {
             qWarning("FileSystemWatcher: File %s is not watched.", qPrintable(file));
             continue;
         }
@@ -392,8 +391,8 @@ void FileSystemWatcher::removeDirectories(const QStringList &directories)
 
     QStringList toRemove;
     for (const QString &directory : directories) {
-        WatchEntryMapIterator it = d->m_directories.find(directory);
-        if (it == d->m_directories.end()) {
+        const auto it = d->m_directories.constFind(directory);
+        if (it == d->m_directories.constEnd()) {
             qWarning("FileSystemWatcher: Directory %s is not watched.", qPrintable(directory));
             continue;
         }
@@ -416,7 +415,7 @@ QStringList FileSystemWatcher::directories() const
 
 void FileSystemWatcher::slotFileChanged(const QString &path)
 {
-    const WatchEntryMapIterator it = d->m_files.find(path);
+    const auto it = d->m_files.find(path);
     if (it != d->m_files.end() && it.value().trigger(path)) {
         if (debug)
             qDebug() << this << "triggers on file " << path
@@ -428,7 +427,7 @@ void FileSystemWatcher::slotFileChanged(const QString &path)
 
 void FileSystemWatcher::slotDirectoryChanged(const QString &path)
 {
-    const WatchEntryMapIterator it = d->m_directories.find(path);
+    const auto it = d->m_directories.find(path);
     if (it != d->m_directories.end() && it.value().trigger(path)) {
         if (debug)
             qDebug() << this << "triggers on dir " << path
