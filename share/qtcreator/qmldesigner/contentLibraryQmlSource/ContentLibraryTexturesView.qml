@@ -33,7 +33,7 @@ HelperWidgets.ScrollView {
         for (let i = 0; i < categoryRepeater.count; ++i) {
             let cat = categoryRepeater.itemAt(i)
             if (cat.visible && !cat.expanded)
-                cat.expanded = true
+                cat.expandSection()
         }
     }
     Column {
@@ -57,6 +57,10 @@ HelperWidgets.ScrollView {
                 expanded: bundleCategoryExpanded
                 expandOnClick: false
                 onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
+
+                function expandSection() {
+                    bundleCategoryExpanded = true
+                }
 
                 Grid {
                     width: root.width

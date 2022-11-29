@@ -42,6 +42,8 @@ Item {
 
                 // make sure categories with matches are expanded
                 materialsView.expandVisibleSections()
+                texturesView.expandVisibleSections()
+                environmentsView.expandVisibleSections()
             }
         }
 
