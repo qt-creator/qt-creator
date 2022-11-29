@@ -70,6 +70,7 @@ Project {
         "qtsupport/qtsupport.qbs",
         "remotelinux/remotelinux.qbs",
         "resourceeditor/resourceeditor.qbs",
+        "saferenderer/saferenderer.qbs",
         "scxmleditor/scxmleditor.qbs",
         "serialterminal/serialterminal.qbs",
         "silversearcher/silversearcher.qbs",
