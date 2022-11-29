@@ -6869,6 +6869,28 @@ void QuickfixTest::testMoveFuncDefOutsideTemplate()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+void QuickfixTest::testMoveFuncDefOutsideMemberFunctionTemplate()
+{
+    const QByteArray original = R"(
+struct S {
+    template<typename In>
+    void @foo(In in) { (void)in; }
+};
+)";
+    const QByteArray expected = R"(
+struct S {
+    template<typename In>
+    void foo(In in);
+};
+
+template<typename In>
+void S::foo(In in) { (void)in; }
+)";
+
+    MoveFuncDefOutside factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 void QuickfixTest::testMoveFuncDefOutsideTemplateSpecializedClass()
 {
     QByteArray original = R"(

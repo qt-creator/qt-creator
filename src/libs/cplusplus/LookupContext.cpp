@@ -189,6 +189,8 @@ LookupContext &LookupContext::operator=(const LookupContext &other)
 
 QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol, InlineNamespacePolicy policy)
 {
+    if (symbol->asTypenameArgument())
+        return {symbol->name()};
     QList<const Name *> qualifiedName = path(symbol->enclosingScope(), policy);
     addNames(symbol->name(), &qualifiedName, /*add all names*/ true);
     return qualifiedName;

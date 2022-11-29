@@ -169,6 +169,7 @@ private slots:
     void testMoveFuncDefOutsideRespectWsInOperatorNames2();
     void testMoveFuncDefOutsideMacroUses();
     void testMoveFuncDefOutsideTemplate();
+    void testMoveFuncDefOutsideMemberFunctionTemplate();
     void testMoveFuncDefOutsideTemplateSpecializedClass();
     void testMoveFuncDefOutsideUnnamedTemplate();
     void testMoveFuncDefOutsideMemberFuncToCppStatic();
