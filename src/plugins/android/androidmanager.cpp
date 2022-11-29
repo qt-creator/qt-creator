@@ -650,8 +650,8 @@ static bool mergeGradleProperties(const QString &path, GradleProperties properti
             QByteArray line(oldFile.readLine());
             QList<QByteArray> prop(line.split('='));
             if (prop.size() > 1) {
-                GradleProperties::iterator it = properties.find(prop.at(0).trimmed());
-                if (it != properties.end()) {
+                const auto it = properties.constFind(prop.at(0).trimmed());
+                if (it != properties.constEnd()) {
                     file.write(it.key() + '=' + it.value() + '\n');
                     properties.erase(it);
                     continue;

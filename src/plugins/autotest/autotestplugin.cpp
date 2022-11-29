@@ -149,8 +149,8 @@ AutotestPluginPrivate::AutotestPluginPrivate()
 
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
             this, [] (ProjectExplorer::Project *project) {
-        auto it = s_projectSettings.find(project);
-        if (it != s_projectSettings.end()) {
+        const auto it = s_projectSettings.constFind(project);
+        if (it != s_projectSettings.constEnd()) {
             delete it.value();
             s_projectSettings.erase(it);
         }
