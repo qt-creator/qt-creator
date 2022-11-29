@@ -115,11 +115,11 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
-        arguments << bc->subNodeBuild()->filePath().toUserOutput();
+        arguments << bc->subNodeBuild()->filePath().nativePath();
     else if (flags & ArgumentFlag::OmitProjectPath)
         arguments << project()->projectFilePath().fileName();
     else
-        arguments << project()->projectFilePath().toUserOutput();
+        arguments << project()->projectFilePath().nativePath();
 
     if (v->qtVersion() < QVersionNumber(5, 0, 0))
         arguments << "-r";
@@ -415,10 +415,10 @@ QString QMakeStep::effectiveQMakeCall() const
     QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
     FilePath qmake = qtVersion ? qtVersion->qmakeFilePath() : FilePath();
     if (qmake.isEmpty())
-        qmake = FilePath::fromString(Tr::tr("<no Qt version>"));
+        qmake = FilePath::fromPathPart(Tr::tr("<no Qt version>"));
     FilePath make = makeCommand();
     if (make.isEmpty())
-        make = FilePath::fromString(Tr::tr("<no Make step found>"));
+        make = FilePath::fromPathPart(Tr::tr("<no Make step found>"));
 
     QString result = qmake.toString();
     if (qtVersion) {
