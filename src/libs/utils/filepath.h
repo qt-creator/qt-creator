@@ -234,9 +234,10 @@ public:
     [[nodiscard]] static int rootLength(const QStringView path); // Assumes no scheme and host
     [[nodiscard]] static int schemeAndHostLength(const QStringView path);
 
+    static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
+
 private:
     friend class ::tst_fileutils;
-    static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
     void setPath(QStringView path);
     void setFromString(const QString &filepath);
     DeviceFileAccess *fileAccess() const;

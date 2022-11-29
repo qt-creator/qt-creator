@@ -8,9 +8,7 @@
 #include <QObject>
 #include <QSet>
 
-namespace Core {
-
-namespace Internal {
+namespace Core::Internal {
 
 class UtilsJsExtension : public QObject
 {
@@ -59,5 +57,4 @@ public:
     Q_INVOKABLE QString qtQuickVersion(const QString &filePath) const;
 };
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

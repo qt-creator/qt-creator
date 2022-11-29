@@ -16,8 +16,9 @@
 #include <QVariant>
 #include <QVersionNumber>
 
-namespace Core {
-namespace Internal {
+using namespace Utils;
+
+namespace Core::Internal {
 
 QString UtilsJsExtension::qtVersion() const
 {
@@ -83,7 +84,9 @@ QString UtilsJsExtension::absoluteFilePath(const QString &in) const
 
 QString UtilsJsExtension::relativeFilePath(const QString &path, const QString &base) const
 {
-    return QDir(base).relativeFilePath(path);
+    const FilePath basePath = FilePath::fromString(base).cleanPath();
+    const FilePath filePath = FilePath::fromString(path).cleanPath();
+    return FilePath::calcRelativePath(filePath.toFSPathString(), basePath.toFSPathString());
 }
 
 bool UtilsJsExtension::exists(const QString &in) const
@@ -175,5 +178,4 @@ QString UtilsJsExtension::qtQuickVersion(const QString &filePath) const
     return QLatin1String("2.15");
 }
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal
