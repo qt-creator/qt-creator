@@ -208,6 +208,8 @@ Project {
             "navigationtreeview.h",
             "networkaccessmanager.cpp",
             "networkaccessmanager.h",
+            "optionpushbutton.h",
+            "optionpushbutton.cpp",
             "osspecificaspects.h",
             "outputformat.h",
             "outputformatter.cpp",
