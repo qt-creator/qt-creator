@@ -6430,6 +6430,10 @@ void MoveFuncDefOutside::match(const CppQuickFixInterface &interface, QuickFixOp
                     if (path.at(idx - 2)->asNamespace())  // normal function in namespace
                         break;
                 }
+                if (idx > 2 && path.at(idx - 1)->asTemplateDeclaration()) {
+                    if ((classAST = path.at(idx - 3)->asSimpleDeclaration())) // member template
+                        break;
+                }
             }
             funcAST = nullptr;
         }
