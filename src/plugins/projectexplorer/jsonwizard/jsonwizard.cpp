@@ -39,7 +39,7 @@ namespace ProjectExplorer {
 
 namespace Internal {
 
-class ProjectFileTreeItem : public Utils::TreeItem
+class ProjectFileTreeItem : public TreeItem
 {
 public:
     ProjectFileTreeItem(JsonWizard::GeneratorFile *candidate) : m_candidate(candidate)
@@ -64,7 +64,7 @@ private:
     JsonWizard::GeneratorFile * const m_candidate;
 };
 
-class ProjectFilesModel : public Utils::TreeModel<Utils::TreeItem, ProjectFileTreeItem>
+class ProjectFilesModel : public TreeModel<TreeItem, ProjectFileTreeItem>
 {
 public:
     ProjectFilesModel(const QList<JsonWizard::GeneratorFile *> &candidates, QObject *parent)
@@ -80,13 +80,13 @@ class ProjectFileChooser : public QDialog
 {
 public:
     ProjectFileChooser(const QList<JsonWizard::GeneratorFile *> &candidates, QWidget *parent)
-        : QDialog(parent), m_view(new Utils::TreeView(this))
+        : QDialog(parent), m_view(new TreeView(this))
     {
         setWindowTitle(QCoreApplication::translate("ProjectExplorer::JsonWizard",
                                                    "Choose Project File"));
         const auto model = new ProjectFilesModel(candidates, this);
-        m_view->setSelectionMode(Utils::TreeView::ExtendedSelection);
-        m_view->setSelectionBehavior(Utils::TreeView::SelectRows);
+        m_view->setSelectionMode(TreeView::ExtendedSelection);
+        m_view->setSelectionBehavior(TreeView::SelectRows);
         m_view->setModel(model);
         const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
         const auto updateOkButton = [buttonBox, this] {
@@ -118,13 +118,13 @@ private:
         QDialog::accept();
     }
 
-    Utils::TreeView * const m_view;
+    TreeView * const m_view;
 };
 
 } // namespace Internal
 
 JsonWizard::JsonWizard(QWidget *parent)
-    : Utils::Wizard(parent)
+    : Wizard(parent)
 {
     setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
@@ -157,7 +157,7 @@ void JsonWizard::addGenerator(JsonWizardGenerator *gen)
     m_generators.append(gen);
 }
 
-Utils::MacroExpander *JsonWizard::expander()
+MacroExpander *JsonWizard::expander()
 {
     return &m_expander;
 }
@@ -167,16 +167,16 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
     QString errorMessage;
     GeneratorFiles list;
 
-    const Utils::FilePath targetPath =
-            Utils::FilePath::fromString(stringValue(QLatin1String("TargetPath")));
+    const FilePath targetPath =
+            FilePath::fromString(stringValue(QLatin1String("TargetPath")));
     if (targetPath.isEmpty())
         errorMessage = tr("Could not determine target path. \"TargetPath\" was not set on any page.");
 
     if (m_files.isEmpty() && errorMessage.isEmpty()) {
         emit preGenerateFiles();
         for (JsonWizardGenerator *gen : std::as_const(m_generators)) {
-            const Utils::FilePath wizardDir =
-                    Utils::FilePath::fromString(stringValue(QLatin1String("WizardDir")));
+            const FilePath wizardDir =
+                    FilePath::fromString(stringValue(QLatin1String("WizardDir")));
             const Core::GeneratedFiles tmp =
                     gen->fileList(&m_expander, wizardDir, targetPath, &errorMessage);
             if (!errorMessage.isEmpty())
@@ -274,7 +274,7 @@ QVariant JsonWizard::value(const QString &n) const
     return QVariant();
 }
 
-bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expander)
+bool JsonWizard::boolFromVariant(const QVariant &v, MacroExpander *expander)
 {
     if (v.type() == QVariant::String) {
         const QString tmp = expander->expand(v.toString());
@@ -283,7 +283,7 @@ bool JsonWizard::boolFromVariant(const QVariant &v, Utils::MacroExpander *expand
     return v.toBool();
 }
 
-QString JsonWizard::stringListToArrayString(const QStringList &list, const Utils::MacroExpander *expander)
+QString JsonWizard::stringListToArrayString(const QStringList &list, const MacroExpander *expander)
 {
     // Todo: Handle ' embedded in the strings better.
     if (list.isEmpty())
@@ -322,11 +322,11 @@ QHash<QString, QVariant> JsonWizard::variables() const
 
 void JsonWizard::accept()
 {
-    auto page = qobject_cast<Utils::WizardPage *>(currentPage());
+    auto page = qobject_cast<WizardPage *>(currentPage());
     if (page && page->handleAccept())
         return;
 
-    Utils::Wizard::accept();
+    Wizard::accept();
 
     QString errorMessage;
     if (m_files.isEmpty()) {
@@ -387,20 +387,20 @@ void JsonWizard::accept()
 
 void JsonWizard::reject()
 {
-    auto page = qobject_cast<Utils::WizardPage *>(currentPage());
+    auto page = qobject_cast<WizardPage *>(currentPage());
     if (page && page->handleReject())
         return;
 
-    Utils::Wizard::reject();
+    Wizard::reject();
 }
 
 void JsonWizard::handleNewPages(int pageId)
 {
-    auto wp = qobject_cast<Utils::WizardPage *>(page(pageId));
+    auto wp = qobject_cast<WizardPage *>(page(pageId));
     if (!wp)
         return;
 
-    connect(wp, &Utils::WizardPage::reportError, this, &JsonWizard::handleError);
+    connect(wp, &WizardPage::reportError, this, &JsonWizard::handleError);
 }
 
 void JsonWizard::handleError(const QString &message)
@@ -484,8 +484,6 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
 
 void JsonWizard::openProjectForNode(Node *node)
 {
-    using namespace Utils;
-
     const ProjectNode *projNode = node->asProjectNode();
     if (!projNode) {
         if (ContainerNode * const cn = node->asContainerNode())
@@ -505,14 +503,14 @@ void JsonWizard::openProjectForNode(Node *node)
     }
 }
 
-QString JsonWizard::OptionDefinition::value(Utils::MacroExpander &expander) const
+QString JsonWizard::OptionDefinition::value(MacroExpander &expander) const
 {
     if (JsonWizard::boolFromVariant(m_evaluate, &expander))
         return expander.expand(m_value);
     return m_value;
 }
 
-bool JsonWizard::OptionDefinition::condition(Utils::MacroExpander &expander) const
+bool JsonWizard::OptionDefinition::condition(MacroExpander &expander) const
 {
     return JsonWizard::boolFromVariant(m_condition, &expander);
 }
