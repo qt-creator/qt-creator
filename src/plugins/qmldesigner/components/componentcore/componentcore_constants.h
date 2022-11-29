@@ -19,6 +19,7 @@ const char editCategory[] = "Edit";
 const char anchorsCategory[] = "Anchors";
 const char positionCategory[] = "Position";
 const char groupCategory[] = "Group";
+const char snappingCategory[] = "Snapping";
 const char layoutCategory[] = "Layout";
 const char flowCategory[] = "Flow";
 const char flowEffectCategory[] = "FlowEffect";

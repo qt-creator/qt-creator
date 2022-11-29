@@ -1529,11 +1529,16 @@ void DesignerActionManager::createDefaultDesignerActions()
                           priorityPositionCategory,
                           &positionOptionVisible));
 
-    addDesignerAction(new ActionGroup(
-                          layoutCategoryDisplayName,
-                          layoutCategory,
-                          priorityLayoutCategory,
-                          &layoutOptionVisible));
+    addDesignerAction(new ActionGroup(layoutCategoryDisplayName,
+                                      layoutCategory,
+                                      priorityLayoutCategory,
+                                      &layoutOptionVisible));
+
+    addDesignerAction(new ActionGroup("Snapping",
+                                      snappingCategory,
+                                      priorityLayoutCategory + 10,
+                                      &selectionEnabled,
+                                      &selectionEnabled));
 
     addDesignerAction(new ActionGroup(groupCategoryDisplayName,
                                       groupCategory,
