@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "modelnodeoperations.h"
+#include "coreplugin/coreplugintr.h"
 #include "designmodewidget.h"
 #include "modelnodecontextmenu_helper.h"
 #include "addimagesdialog.h"
 #include "layoutingridlayout.h"
 #include "findimplementation.h"
-
 
 #include "addsignalhandlerdialog.h"
 
@@ -1702,6 +1702,33 @@ QString getEffectIcon(const QString &effectPath)
     Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir + "/" + effectName + ".qml");
 
     return effectResPath.exists() ? QString("effectExported") : QString("effectClass");
+}
+
+bool useLayerEffect()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString layerEffectEntry = "QML/Designer/UseLayerEffect";
+
+    return settings->value(layerEffectEntry, true).toBool();
+}
+
+bool validateEffect(const QString &effectPath)
+{
+    const QString effectName = QFileInfo(effectPath).baseName();
+    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsDirectory();
+    Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
+    if (!qmlPath.exists()) {
+        QMessageBox msgBox;
+        msgBox.setText(QObject::tr("Effect %1 not complete").arg(effectName));
+        msgBox.setInformativeText(QObject::tr("Do you want to edit %1?").arg(effectName));
+        msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        msgBox.setIcon(QMessageBox::Question);
+        if (msgBox.exec() == QMessageBox::Yes)
+            ModelNodeOperations::openEffectMaker(effectName);
+        return false;
+    }
+    return true;
 }
 
 } // namespace ModelNodeOperations

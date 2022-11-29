@@ -122,6 +122,8 @@ void updateImported3DAsset(const SelectionContext &selectionContext);
 QMLDESIGNERCORE_EXPORT Utils::FilePath getEffectsDirectory();
 void openEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
+bool useLayerEffect();
+bool validateEffect(const QString &effectPath);
 
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);

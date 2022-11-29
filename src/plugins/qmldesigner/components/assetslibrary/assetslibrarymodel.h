@@ -63,8 +63,6 @@ public:
     static const QStringList &supportedEffectMakerSuffixes();
     static const QSet<QString> &supportedSuffixes();
 
-    static bool isEffectQmlExist(const QString &effectName);
-
 signals:
     void directoryLoaded(const QString &path);
     void rootPathChanged();

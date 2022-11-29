@@ -42,13 +42,6 @@ void AssetsLibraryModel::createBackendModel()
                      });
 }
 
-bool AssetsLibraryModel::isEffectQmlExist(const QString &effectName)
-{
-    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsDirectory();
-    Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
-    return qmlPath.exists();
-}
-
 void AssetsLibraryModel::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                        [[maybe_unused]] const QList<int> &roles)
 {
