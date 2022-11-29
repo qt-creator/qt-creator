@@ -20,7 +20,7 @@ TreeStorageBase::TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor
 TreeStorageBase::StorageData::~StorageData()
 {
     QTC_CHECK(m_storageHash.isEmpty());
-    for (void *ptr : m_storageHash)
+    for (void *ptr : std::as_const(m_storageHash))
         m_destructor(ptr);
 }
 
@@ -47,8 +47,8 @@ void TreeStorageBase::deleteStorage(int id)
     QTC_ASSERT(m_storageData->m_constructor, return); // TODO: add isValid()?
     QTC_ASSERT(m_storageData->m_destructor, return);
     QTC_ASSERT(m_storageData->m_activeStorage == 0, return); // TODO: should be allowed?
-    const auto it = m_storageData->m_storageHash.find(id);
-    QTC_ASSERT(it != m_storageData->m_storageHash.end(), return);
+    const auto it = m_storageData->m_storageHash.constFind(id);
+    QTC_ASSERT(it != m_storageData->m_storageHash.constEnd(), return);
     m_storageData->m_destructor(it.value());
     m_storageData->m_storageHash.erase(it);
 }

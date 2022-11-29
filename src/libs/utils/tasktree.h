@@ -266,7 +266,7 @@ public:
                     wrapEnd(done), wrapEnd(error)}) {}
 
 private:
-    static TaskSetupHandler wrapSetup(SetupHandler handler) {
+    static TaskSetupHandler wrapSetup(const SetupHandler &handler) {
         if (!handler)
             return {};
         return [handler](TaskInterface &taskInterface) {
@@ -274,7 +274,7 @@ private:
             handler(*adapter.task());
         };
     };
-    static TaskEndHandler wrapEnd(EndHandler handler) {
+    static TaskEndHandler wrapEnd(const EndHandler &handler) {
         if (!handler)
             return {};
         return [handler](const TaskInterface &taskInterface) {
