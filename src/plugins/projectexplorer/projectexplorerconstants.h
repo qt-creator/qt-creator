@@ -219,6 +219,8 @@ const char SETTINGS_MENU_HIDE_BUILD[] = "Menu/HideBuild";
 const char SETTINGS_MENU_HIDE_DEBUG[] = "Menu/HideDebug";
 const char SETTINGS_MENU_HIDE_ANALYZE[] = "Menu/HideAnalyze";
 const char SESSION_TASKFILE_KEY[] = "TaskList.File";
+const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.ClearSystemEnvironment";
+const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.UserEnvironmentChanges";
 
 // UI texts
 PROJECTEXPLORER_EXPORT QString msgAutoDetected();
