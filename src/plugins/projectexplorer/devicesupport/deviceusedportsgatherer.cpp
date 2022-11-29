@@ -183,8 +183,9 @@ namespace Internal {
 class SubChannelProvider : public RunWorker
 {
 public:
-    SubChannelProvider(RunControl *runControl)
+    SubChannelProvider(RunControl *runControl, PortsGatherer *portsGatherer)
         : RunWorker(runControl)
+        , m_portGatherer(portsGatherer)
     {
         setId("SubChannelProvider");
     }
@@ -243,9 +244,10 @@ ChannelProvider::ChannelProvider(RunControl *runControl, int requiredChannels)
    : RunWorker(runControl)
 {
     setId("ChannelProvider");
+    auto portsGatherer = new PortsGatherer(runControl);
 
     for (int i = 0; i < requiredChannels; ++i) {
-        auto channelProvider = new Internal::SubChannelProvider(runControl);
+        auto channelProvider = new Internal::SubChannelProvider(runControl, portsGatherer);
         m_channelProviders.append(channelProvider);
         addStartDependency(channelProvider);
     }
