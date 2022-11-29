@@ -487,9 +487,14 @@ QStringList getSignalsList(const ModelNode &node)
 
 struct SlotEntry
 {
-    QString category;
     QString name;
     std::function<void(SignalHandlerProperty)> action;
+};
+
+struct SlotList
+{
+    QString categoryName;
+    QList<SlotEntry> slotEntries;
 };
 
 QList<ModelNode> stateGroups(const ModelNode &node)
@@ -502,13 +507,7 @@ QList<ModelNode> stateGroups(const ModelNode &node)
     return node.view()->allModelNodesOfType(groupMetaInfo);
 }
 
-QStringList stateGroupsNames(const ModelNode &node)
-{
-    return Utils::transform(stateGroups(node),
-                            [](const ModelNode &node) { return node.displayName(); });
-}
-
-QList<SlotEntry> getSlotsLists(const ModelNode &node)
+QList<SlotList> getSlotsLists(const ModelNode &node)
 {
     if (!node.isValid())
         return {};
@@ -516,58 +515,52 @@ QList<SlotEntry> getSlotsLists(const ModelNode &node)
     if (!node.view()->rootModelNode().isValid())
         return {};
 
-    QList<SlotEntry> resultList;
+    QList<SlotList> resultList;
 
     ModelNode rootNode = node.view()->rootModelNode();
     QmlObjectNode rootObjectNode(rootNode);
 
-    const QString stateCategory = "Change State";
+    const QString changeStateStr = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Change State");
+    const QString changeStateGroupStr = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                          "Change State Group");
+    const QString defaultStateStr = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Default State");
+    auto createStateChangeSlot =
+        [](const ModelNode &node, const QString &stateName, const QString &displayName) {
+            return SlotEntry({displayName, [node, stateName](SignalHandlerProperty signalHandler) {
+                                  signalHandler.setSource(
+                                      QString("%1.state = \"%2\"").arg(node.id(), stateName));
+                              }});
+        };
 
-    //For now we are using category as part of the state name
-    //We should change it, once we extend number of categories
-    const SlotEntry defaultState = {stateCategory,
-                                    (stateCategory + " to " + "Default State"),
-                                    [rootNode](SignalHandlerProperty signalHandler) {
-                                        signalHandler.setSource(
-                                            QString("%1.state = \"\"").arg(rootNode.id()));
-                                    }};
-    resultList.push_back(defaultState);
+    {
+        SlotList states = {changeStateStr, {}};
 
-    for (const auto &stateName : rootObjectNode.states().names()) {
-        SlotEntry entry = {stateCategory,
-                           (stateCategory + " to " + stateName),
-                           [rootNode, stateName](SignalHandlerProperty signalHandler) {
-                               signalHandler.setSource(
-                                   QString("%1.state = \"%2\"").arg(rootNode.id(), stateName));
-                           }};
+        const SlotEntry defaultState = createStateChangeSlot(rootNode, "", defaultStateStr);
+        states.slotEntries.push_back(defaultState);
 
-        resultList.push_back(entry);
+        for (const auto &stateName : rootObjectNode.states().names()) {
+            const SlotEntry entry = createStateChangeSlot(rootNode, stateName, stateName);
+
+            states.slotEntries.push_back(entry);
+        }
+
+        resultList.push_back(states);
     }
 
-    const auto sg = stateGroups(node);
-
-    for (const auto &stateGroup : sg) {
+    const QList<ModelNode> groups = stateGroups(node);
+    for (const auto &stateGroup : groups) {
         QmlObjectNode stateGroupObjectNode(stateGroup);
-        const QString stateGroupCategory = QString("Change State Group") + " "
-                                           + stateGroup.displayName();
+        SlotList stateGroupCategory = {changeStateGroupStr + " " + stateGroup.displayName(), {}};
 
-        const SlotEntry defaultGroupState = {stateGroupCategory,
-                                        (stateGroupCategory + " to " + "Default State"),
-                                        [stateGroup](SignalHandlerProperty signalHandler) {
-                                            signalHandler.setSource(
-                                                QString("%1.state = \"\"").arg(stateGroup.id()));
-                                        }};
-        resultList.push_back(defaultGroupState);
+        const SlotEntry defaultGroupState = createStateChangeSlot(stateGroup, "", defaultStateStr);
+        stateGroupCategory.slotEntries.push_back(defaultGroupState);
 
         for (const auto &stateName : stateGroupObjectNode.states().names()) {
-            SlotEntry entry = {stateGroupCategory,
-                               (stateGroupCategory + " to " + stateName),
-                               [stateGroup, stateName](SignalHandlerProperty signalHandler) {
-                                   signalHandler.setSource(
-                                       QString("%1.state = \"%2\"").arg(stateGroup.id(), stateName));
-                               }};
-            resultList.push_back(entry);
+            const SlotEntry entry = createStateChangeSlot(stateGroup, stateName, stateName);
+            stateGroupCategory.slotEntries.push_back(entry);
         }
+
+        resultList.push_back(stateGroupCategory);
     }
 
     return resultList;
@@ -577,10 +570,8 @@ QList<SlotEntry> getSlotsLists(const ModelNode &node)
 ModelNode createNewConnection(ModelNode targetNode)
 {
     NodeMetaInfo connectionsMetaInfo = targetNode.view()->model()->metaInfo("QtQuick.Connections");
-    ModelNode newConnectionNode = targetNode.view()
-                                      ->createModelNode("QtQuick.Connections",
-                                                        connectionsMetaInfo.majorVersion(),
-                                                        connectionsMetaInfo.minorVersion());
+    ModelNode newConnectionNode = targetNode.view()->createModelNode(
+        "QtQuick.Connections", connectionsMetaInfo.majorVersion(), connectionsMetaInfo.minorVersion());
     if (QmlItemNode::isValidQmlItemNode(targetNode))
         targetNode.nodeAbstractProperty("data").reparentHere(newConnectionNode);
 
@@ -606,9 +597,7 @@ void removeSignal(SignalHandlerProperty signalHandler)
 class ConnectionsModelNodeActionGroup : public ActionGroup
 {
 public:
-    ConnectionsModelNodeActionGroup(const QString &displayName,
-                                    const QByteArray &menuId,
-                                    int priority)
+    ConnectionsModelNodeActionGroup(const QString &displayName, const QByteArray &menuId, int priority)
         : ActionGroup(displayName,
                       menuId,
                       priority,
@@ -638,7 +627,7 @@ public:
         QmlObjectNode currentObjectNode(currentNode);
 
         QStringList signalsList = getSignalsList(currentNode);
-        QList<SlotEntry> slotsList = getSlotsLists(currentNode);
+        QList<SlotList> slotsLists = getSlotsLists(currentNode);
 
         if (!currentNode.hasId()) {
             menu()->setEnabled(false);
@@ -654,7 +643,9 @@ public:
 
                     QMenu *activeSignalHandlerGroup = new QMenu(propertyName, menu());
 
-                    QMenu *editSignalGroup = new QMenu("Change Signal", menu());
+                    QMenu *editSignalGroup = new QMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                         "Change Signal"),
+                                                       menu());
 
                     for (const auto &signalStr : signalsList) {
                         if (prependSignal(signalStr).toUtf8() == signalHandler.name())
@@ -680,40 +671,60 @@ public:
 
                     activeSignalHandlerGroup->addMenu(editSignalGroup);
 
-                    if (!slotsList.isEmpty()) {
-                        QMenu *editSlotGroup = new QMenu("Change Slot", menu());
+                    if (!slotsLists.isEmpty()) {
+                        QMenu *editSlotGroup = new QMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                           "Change Slot"),
+                                                         menu());
 
-                        for (const auto &slot : slotsList) {
-                            ActionTemplate *newSlotAction = new ActionTemplate(
-                                (slot.name + "Id").toLatin1(),
-                                slot.name,
-                                [slot, signalHandler](const SelectionContext &) {
-                                    signalHandler.parentModelNode()
-                                        .view()
-                                        ->executeInTransaction("ConnectionsModelNodeActionGroup::"
-                                                               "changeSlot",
-                                                               [slot, signalHandler]() {
-                                                                   slot.action(signalHandler);
-                                                               });
-                                });
-                            editSlotGroup->addAction(newSlotAction);
+                        if (slotsLists.size() == 1) {
+                            for (const auto &slot : slotsLists.at(0).slotEntries) {
+                                ActionTemplate *newSlotAction = new ActionTemplate(
+                                    (slot.name + "Id").toLatin1(),
+                                    (slotsLists.at(0).categoryName
+                                     + (QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                          " to ")) //context: Change State _to_ state1
+                                     + slot.name),
+                                    [slot, signalHandler](const SelectionContext &) {
+                                        signalHandler.parentModelNode().view()->executeInTransaction(
+                                            "ConnectionsModelNodeActionGroup::"
+                                            "changeSlot",
+                                            [slot, signalHandler]() { slot.action(signalHandler); });
+                                    });
+                                editSlotGroup->addAction(newSlotAction);
+                            }
+                        } else {
+                            for (const auto &slotCategory : slotsLists) {
+                                QMenu *slotCategoryMenu = new QMenu(slotCategory.categoryName, menu());
+                                for (const auto &slot : slotCategory.slotEntries) {
+                                    ActionTemplate *newSlotAction = new ActionTemplate(
+                                        (slot.name + "Id").toLatin1(),
+                                        slot.name,
+                                        [slot, signalHandler](const SelectionContext &) {
+                                            signalHandler.parentModelNode().view()->executeInTransaction(
+                                                "ConnectionsModelNodeActionGroup::"
+                                                "changeSlot",
+                                                [slot, signalHandler]() {
+                                                    slot.action(signalHandler);
+                                                });
+                                        });
+                                    slotCategoryMenu->addAction(newSlotAction);
+                                }
+                                editSlotGroup->addMenu(slotCategoryMenu);
+                            }
                         }
                         activeSignalHandlerGroup->addMenu(editSlotGroup);
                     }
 
                     ActionTemplate *openEditorAction = new ActionTemplate(
                         (propertyName + "OpenEditorId").toLatin1(),
-                        QString(
-                            QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
+                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
                         [=](const SelectionContext &) {
-                            signalHandler.parentModelNode()
-                                .view()
-                                ->executeInTransaction("ConnectionsModelNodeActionGroup::"
-                                                       "openConnectionsEditor",
-                                                       [signalHandler]() {
-                                                           ActionEditor::invokeEditor(signalHandler,
-                                                                                      removeSignal);
-                                                       });
+                            signalHandler.parentModelNode().view()->executeInTransaction(
+                                "ConnectionsModelNodeActionGroup::"
+                                "openConnectionsEditor",
+                                [signalHandler]() {
+                                    ActionEditor::invokeEditor(signalHandler, removeSignal);
+                                });
                         });
 
                     activeSignalHandlerGroup->addAction(openEditorAction);
@@ -725,9 +736,7 @@ public:
                             signalHandler.parentModelNode().view()->executeInTransaction(
                                 "ConnectionsModelNodeActionGroup::"
                                 "removeSignalHandler",
-                                [signalHandler]() {
-                                    removeSignal(signalHandler);
-                                });
+                                [signalHandler]() { removeSignal(signalHandler); });
                         });
 
                     activeSignalHandlerGroup->addAction(removeSignalHandlerAction);
@@ -745,19 +754,46 @@ public:
         for (const auto &signalStr : signalsList) {
             QMenu *newSignal = new QMenu(signalStr, addConnection);
 
-            for (const auto &slot : slotsList) {
-                ActionTemplate *newSlot = new ActionTemplate(
-                    QString(signalStr + slot.name + "Id").toLatin1(),
-                    slot.name,
-                    [=](const SelectionContext &) {
-                        currentNode.view()->executeInTransaction(
-                            "ConnectionsModelNodeActionGroup::addConnection", [=]() {
-                                ModelNode newConnectionNode = createNewConnection(currentNode);
-                                slot.action(newConnectionNode.signalHandlerProperty(
-                                    prependSignal(signalStr).toLatin1()));
+            if (!slotsLists.isEmpty()) {
+                if (slotsLists.size() == 1) {
+                    for (const auto &slot : slotsLists.at(0).slotEntries) {
+                        ActionTemplate *newSlot = new ActionTemplate(
+                            QString(signalStr + slot.name + "Id").toLatin1(),
+                            (slotsLists.at(0).categoryName
+                             + (QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                  " to ")) //context: Change State _to_ state1
+                             + slot.name),
+                            [=](const SelectionContext &) {
+                                currentNode.view()->executeInTransaction(
+                                    "ConnectionsModelNodeActionGroup::addConnection", [=]() {
+                                        ModelNode newConnectionNode = createNewConnection(currentNode);
+                                        slot.action(newConnectionNode.signalHandlerProperty(
+                                            prependSignal(signalStr).toLatin1()));
+                                    });
                             });
-                    });
-                newSignal->addAction(newSlot);
+                        newSignal->addAction(newSlot);
+                    }
+                } else {
+                    for (const auto &slotCategory : slotsLists) {
+                        QMenu *slotCategoryMenu = new QMenu(slotCategory.categoryName, menu());
+                        for (const auto &slot : slotCategory.slotEntries) {
+                            ActionTemplate *newSlot = new ActionTemplate(
+                                QString(signalStr + slot.name + "Id").toLatin1(),
+                                slot.name,
+                                [=](const SelectionContext &) {
+                                    currentNode.view()->executeInTransaction(
+                                        "ConnectionsModelNodeActionGroup::addConnection", [=]() {
+                                            ModelNode newConnectionNode = createNewConnection(
+                                                currentNode);
+                                            slot.action(newConnectionNode.signalHandlerProperty(
+                                                prependSignal(signalStr).toLatin1()));
+                                        });
+                                });
+                            slotCategoryMenu->addAction(newSlot);
+                        }
+                        newSignal->addMenu(slotCategoryMenu);
+                    }
+                }
             }
 
             ActionTemplate *openEditorAction = new ActionTemplate(
@@ -770,9 +806,8 @@ public:
                         [=]() {
                             ModelNode newConnectionNode = createNewConnection(currentNode);
 
-                            SignalHandlerProperty newHandler
-                                = newConnectionNode.signalHandlerProperty(
-                                    prependSignal(signalStr).toLatin1());
+                            SignalHandlerProperty newHandler = newConnectionNode.signalHandlerProperty(
+                                prependSignal(signalStr).toLatin1());
 
                             newHandler.setSource(
                                 QString("console.log(\"%1.%2\")").arg(currentNode.id(), signalStr));
