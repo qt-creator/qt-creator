@@ -2872,6 +2872,56 @@ static void formatCdbBreakPointResponse(int modelId, const QString &responseId, 
     str << '\n';
 }
 
+
+// Helper to retrieve an int child from GDBMI
+static inline std::optional<int> gdbmiChildToInt(const GdbMi &parent, const char *childName)
+{
+    const GdbMi childBA = parent[childName];
+    if (childBA.isValid()) {
+        bool ok;
+        const int v = childBA.data().toInt(&ok);
+        if (ok)
+            return v;
+    }
+    return std::nullopt;
+}
+
+// Helper to retrieve an bool child from GDBMI
+static inline std::optional<bool> gdbmiChildToBool(const GdbMi &parent, const char *childName)
+{
+    const GdbMi childBA = parent[childName];
+    return childBA.isValid() ? std::make_optional(childBA.data() == "true") : std::nullopt;
+}
+
+// Parse extension command listing breakpoints.
+// Note that not all fields are returned, since file, line, function are encoded
+// in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
+BreakpointParameters CdbEngine::parseBreakPoint(const GdbMi &gdbmi)
+{
+    BreakpointParameters result;
+    result.enabled = gdbmiChildToBool(gdbmi, "enabled").value_or(result.enabled);
+    result.pending = gdbmiChildToBool(gdbmi, "deferred").value_or(result.pending);
+    const GdbMi moduleG = gdbmi["module"];
+    if (moduleG.isValid())
+        result.module = moduleG.data();
+    const GdbMi sourceFileName = gdbmi["srcfile"];
+    if (sourceFileName.isValid()) {
+        NormalizedSourceFileName mappedFile = sourceMapNormalizeFileNameFromDebugger(
+            sourceFileName.data());
+        result.fileName = Utils::FilePath::fromUserInput(mappedFile.fileName);
+        const GdbMi lineNumber = gdbmi["srcline"];
+        if (lineNumber.isValid())
+            result.lineNumber = lineNumber.data().toULongLong(nullptr, 0);
+    }
+    const GdbMi addressG = gdbmi["address"];
+    if (addressG.isValid())
+        result.address = addressG.data().toULongLong(nullptr, 0);
+    if (const std::optional<int> ignoreCount = gdbmiChildToInt(gdbmi, "passcount"))
+        result.ignoreCount = *ignoreCount - 1;
+    result.threadSpec = gdbmiChildToInt(gdbmi, "thread").value_or(result.threadSpec);
+    return result;
+}
+
 void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
 {
     if (debugBreakpoints) {
@@ -2897,8 +2947,7 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
     for (const GdbMi &breakPointG : response.data) {
         // Might not be valid if there is not id
         const QString responseId = breakPointG["id"].data();
-        BreakpointParameters reportedResponse;
-        parseBreakPoint(breakPointG, &reportedResponse);
+        BreakpointParameters reportedResponse = parseBreakPoint(breakPointG);
         if (debugBreakpoints)
             qDebug("  Parsed %s: pending=%d %s\n", qPrintable(responseId),
                 reportedResponse.pending,
