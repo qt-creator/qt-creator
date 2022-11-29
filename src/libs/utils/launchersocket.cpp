@@ -534,8 +534,8 @@ void LauncherSocket::unregisterHandle(quintptr token)
 {
     QTC_ASSERT(!isCalledFromLaunchersThread(), return);
     QMutexLocker locker(&m_mutex);
-    auto it = m_handles.find(token);
-    if (it == m_handles.end())
+    auto it = m_handles.constFind(token);
+    if (it == m_handles.constEnd())
         return; // TODO: issue a warning
 
     LauncherHandle *launcherHandle = it.value();
