@@ -148,6 +148,7 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
         AddResourceOperation import3DModelOperation = [this](const QStringList &fileNames,
                                                              const QString &defaultDir,
                                                              bool showDialog) -> AddFilesResult {
+            Q_UNUSED(showDialog)
             auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir,
                                                               m_importableExtensions3DMap,
                                                               m_importOptions3DMap, {}, {},

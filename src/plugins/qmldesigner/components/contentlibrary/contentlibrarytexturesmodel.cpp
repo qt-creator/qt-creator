@@ -179,6 +179,7 @@ void ContentLibraryTexturesModel::resetModel()
 
 void ContentLibraryTexturesModel::addToProject(const QString &mat)
 {
+    Q_UNUSED(mat)
     // TODO: import asset
 }
 
