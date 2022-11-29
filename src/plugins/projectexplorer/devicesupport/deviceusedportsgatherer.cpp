@@ -181,11 +181,6 @@ ChannelForwarder::ChannelForwarder(RunControl *runControl)
     : RunWorker(runControl)
 {}
 
-void ChannelForwarder::setFromUrlGetter(const UrlGetter &urlGetter)
-{
-    m_fromUrlGetter = urlGetter;
-}
-
 namespace Internal {
 
 // SubChannelProvider
@@ -221,9 +216,6 @@ public:
                 m_channelForwarder = qobject_cast<ChannelForwarder *>(forwarder);
                 if (m_channelForwarder) {
                     m_channelForwarder->addStartDependency(m_portGatherer);
-                    m_channelForwarder->setFromUrlGetter([this] {
-                        return m_portGatherer->findEndPoint();
-                    });
                     addStartDependency(m_channelForwarder);
                 }
             }

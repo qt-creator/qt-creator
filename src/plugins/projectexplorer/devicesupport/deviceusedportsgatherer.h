@@ -77,14 +77,10 @@ class PROJECTEXPLORER_EXPORT ChannelForwarder : public RunWorker
 public:
     explicit ChannelForwarder(RunControl *runControl);
 
-    using UrlGetter = std::function<QUrl()>;
-    void setFromUrlGetter(const UrlGetter &urlGetter);
-
     QUrl fromUrl() const { return m_fromUrl; }
     QUrl toUrl() const { return m_toUrl; }
 
 private:
-    UrlGetter m_fromUrlGetter;
     QUrl m_fromUrl;
     QUrl m_toUrl;
 };
