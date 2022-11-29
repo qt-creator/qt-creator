@@ -11,6 +11,7 @@
 #include "contentlibrarytexturesmodel.h"
 #include "modelnodeoperations.h"
 #include "nodelistproperty.h"
+#include "qmldesignerconstants.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
@@ -161,15 +162,18 @@ void ContentLibraryView::modelAttached(Model *model)
 
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
-    m_widget->materialsModel()->setHasMaterialRoot(rootModelNode().metaInfo().isQtQuick3DMaterial());
-    m_widget->materialsModel()->setHasQuick3DImport(m_hasQuick3DImport);
-
     updateBundleMaterialsQuick3DVersion();
     updateBundleMaterialsImportedState();
+
+    const bool hasLibrary = materialLibraryNode().isValid();
+    m_widget->setHasMaterialLibrary(hasLibrary);
+    m_widget->setHasQuick3DImport(m_hasQuick3DImport);
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)
 {
+    m_widget->setHasMaterialLibrary(false);
+    m_widget->setHasQuick3DImport(false);
 
     AbstractView::modelAboutToBeDetached(model);
 }
@@ -187,7 +191,7 @@ void ContentLibraryView::importsChanged(const QList<Import> &addedImports, const
         return;
 
     m_hasQuick3DImport = hasQuick3DImport;
-    m_widget->materialsModel()->setHasQuick3DImport(m_hasQuick3DImport);
+    m_widget->setHasQuick3DImport(m_hasQuick3DImport);
 }
 
 void ContentLibraryView::active3DSceneChanged(qint32 sceneId)
@@ -242,6 +246,21 @@ void ContentLibraryView::customNotification(const AbstractView *view, const QStr
 
         m_draggedBundleTexture = nullptr;
     }
+}
+
+void ContentLibraryView::nodeReparented(const ModelNode &node,
+                                        [[maybe_unused]] const NodeAbstractProperty &newPropertyParent,
+                                        [[maybe_unused]] const NodeAbstractProperty &oldPropertyParent,
+                                        [[maybe_unused]] PropertyChangeFlags propertyChange)
+{
+    if (node.id() == Constants::MATERIAL_LIB_ID)
+        m_widget->setHasMaterialLibrary(true);
+}
+
+void ContentLibraryView::nodeAboutToBeRemoved(const ModelNode &removedNode)
+{
+    if (removedNode.id() == Constants::MATERIAL_LIB_ID)
+        m_widget->setHasMaterialLibrary(false);
 }
 
 void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundleMat,

@@ -53,7 +53,7 @@ HelperWidgets.ScrollView {
                 caption: bundleCategoryName
                 addTopPadding: false
                 sectionBackgroundColor: "transparent"
-                visible: bundleCategoryVisible
+                visible: bundleCategoryVisible && !root.model.isEmpty
                 expanded: bundleCategoryExpanded
                 expandOnClick: false
                 onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
@@ -87,10 +87,12 @@ HelperWidgets.ScrollView {
         Text {
             id: infoText
             text: {
-                if (!searchBox.isEmpty())
+                if (!root.model.texBundleExists)
+                    qsTr("<b>Content Library</b> textures are not installed.")
+                else if (!searchBox.isEmpty())
                     qsTr("No match found.")
                 else
-                    qsTr("Texture library is not installed.")
+                    ""
             }
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize

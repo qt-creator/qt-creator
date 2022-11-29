@@ -6,7 +6,10 @@
 #include "contentlibrarybundleimporter.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
+#include "contentlibrarywidget.h"
 #include "qmldesignerconstants.h"
+
+#include "utils/algorithm.h"
 #include "utils/qtcassert.h"
 
 #include <QCoreApplication>
@@ -16,8 +19,9 @@
 
 namespace QmlDesigner {
 
-ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(QObject *parent)
+ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(ContentLibraryWidget *parent)
     : QAbstractListModel(parent)
+    , m_widget(parent)
 {
     loadMaterialBundle();
 }
@@ -59,6 +63,22 @@ bool ContentLibraryMaterialsModel::isValidIndex(int idx) const
     return idx > -1 && idx < rowCount();
 }
 
+void ContentLibraryMaterialsModel::updateIsEmpty()
+{
+    const bool anyCatVisible = Utils::anyOf(m_bundleCategories,
+                                            [&](ContentLibraryMaterialsCategory *cat) {
+        return cat->visible();
+    });
+
+    const bool newEmpty = !anyCatVisible || m_bundleCategories.isEmpty()
+            || !m_widget->hasMaterialLibrary() || !hasRequiredQuick3DImport();
+
+    if (newEmpty != m_isEmpty) {
+        m_isEmpty = newEmpty;
+        emit isEmptyChanged();
+    }
+}
+
 QHash<int, QByteArray> ContentLibraryMaterialsModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
@@ -72,7 +92,7 @@ QHash<int, QByteArray> ContentLibraryMaterialsModel::roleNames() const
 
 void ContentLibraryMaterialsModel::loadMaterialBundle()
 {
-    if (m_matBundleLoaded || m_probeMatBundleDir)
+    if (m_matBundleExists || m_probeMatBundleDir)
         return;
 
     QDir matBundleDir(qEnvironmentVariable("MATERIAL_BUNDLE_PATH"));
@@ -108,7 +128,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
         }
     }
 
-    m_matBundleLoaded = true;
+    m_matBundleExists = true;
 
     QString bundleId = m_matBundleObj.value("id").toString();
 
@@ -163,43 +183,17 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
         emit bundleMaterialUnimported(metaInfo);
     });
 
-    if (m_bundleCategories.isEmpty() != m_isEmpty) {
-        m_isEmpty = m_bundleCategories.isEmpty();
-        emit isEmptyChanged();
-    }
+    updateIsEmpty();
 }
 
-bool ContentLibraryMaterialsModel::hasQuick3DImport() const
+bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const
 {
-    return m_hasQuick3DImport;
-}
-
-void ContentLibraryMaterialsModel::setHasQuick3DImport(bool b)
-{
-    if (b == m_hasQuick3DImport)
-        return;
-
-    m_hasQuick3DImport = b;
-    emit hasQuick3DImportChanged();
-}
-
-bool ContentLibraryMaterialsModel::hasMaterialRoot() const
-{
-    return m_hasMaterialRoot;
-}
-
-void ContentLibraryMaterialsModel::setHasMaterialRoot(bool b)
-{
-    if (m_hasMaterialRoot == b)
-        return;
-
-    m_hasMaterialRoot = b;
-    emit hasMaterialRootChanged();
+    return m_widget->hasQuick3DImport() && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
 }
 
 bool ContentLibraryMaterialsModel::matBundleExists() const
 {
-    return m_matBundleLoaded && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
+    return m_matBundleExists;
 }
 
 Internal::ContentLibraryBundleImporter *ContentLibraryMaterialsModel::bundleImporter() const
@@ -216,18 +210,11 @@ void ContentLibraryMaterialsModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
-    bool anyCatVisible = false;
     bool catVisibilityChanged = false;
-
-    for (ContentLibraryMaterialsCategory *cat : std::as_const(m_bundleCategories)) {
+    for (ContentLibraryMaterialsCategory *cat : std::as_const(m_bundleCategories))
         catVisibilityChanged |= cat->filter(m_searchText);
-        anyCatVisible |= cat->visible();
-    }
 
-    if (anyCatVisible == m_isEmpty) {
-        m_isEmpty = !anyCatVisible;
-        emit isEmptyChanged();
-    }
+    updateIsEmpty();
 
     if (catVisibilityChanged)
         resetModel();
@@ -245,13 +232,19 @@ void ContentLibraryMaterialsModel::updateImportedState(const QStringList &import
 
 void ContentLibraryMaterialsModel::setQuick3DImportVersion(int major, int minor)
 {
-    bool bundleExisted = matBundleExists();
+    bool oldRequiredImport = hasRequiredQuick3DImport();
 
     m_quick3dMajorVersion = major;
     m_quick3dMinorVersion = minor;
 
-    if (bundleExisted != matBundleExists())
-        emit matBundleExistsChanged();
+    bool newRequiredImport = hasRequiredQuick3DImport();
+
+    if (oldRequiredImport == newRequiredImport)
+        return;
+
+    emit hasRequiredQuick3DImportChanged();
+
+    updateIsEmpty();
 }
 
 void ContentLibraryMaterialsModel::resetModel()

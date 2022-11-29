@@ -157,6 +157,44 @@ void ContentLibraryWidget::clearSearchFilter()
     QMetaObject::invokeMethod(m_quickWidget->rootObject(), "clearSearchFilter");
 }
 
+bool ContentLibraryWidget::hasQuick3DImport() const
+{
+    return m_hasQuick3DImport;
+}
+
+void ContentLibraryWidget::setHasQuick3DImport(bool b)
+{
+    if (b == m_hasQuick3DImport)
+        return;
+
+    const bool oldRequired = m_materialsModel->hasRequiredQuick3DImport();
+    m_hasQuick3DImport = b;
+    const bool newRequired = m_materialsModel->hasRequiredQuick3DImport();
+
+    if (oldRequired != newRequired)
+        emit m_materialsModel->hasRequiredQuick3DImportChanged();
+
+    emit hasQuick3DImportChanged();
+
+    m_materialsModel->updateIsEmpty();
+}
+
+bool ContentLibraryWidget::hasMaterialLibrary() const
+{
+    return m_hasMaterialLibrary;
+}
+
+void ContentLibraryWidget::setHasMaterialLibrary(bool b)
+{
+    if (m_hasMaterialLibrary == b)
+        return;
+
+    m_hasMaterialLibrary = b;
+    emit hasMaterialLibraryChanged();
+
+    m_materialsModel->updateIsEmpty();
+}
+
 void ContentLibraryWidget::reloadQmlSource()
 {
     const QString materialBrowserQmlPath = qmlSourcesPath() + "/ContentLibrary.qml";

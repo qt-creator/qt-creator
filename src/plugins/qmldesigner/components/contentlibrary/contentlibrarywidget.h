@@ -23,6 +23,9 @@ class ContentLibraryWidget : public QFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport  NOTIFY hasQuick3DImportChanged)
+    Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+
 public:
     ContentLibraryWidget();
 
@@ -30,6 +33,12 @@ public:
 
     static QString qmlSourcesPath();
     void clearSearchFilter();
+
+    bool hasQuick3DImport() const;
+    void setHasQuick3DImport(bool b);
+
+    bool hasMaterialLibrary() const;
+    void setHasMaterialLibrary(bool b);
 
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
 
@@ -53,6 +62,8 @@ signals:
     void bundleTextureDragStarted(QmlDesigner::ContentLibraryTexture *bundleTex);
     void addTextureRequested(const QString texPath, QmlDesigner::ContentLibraryWidget::AddTextureMode mode);
     void updateSceneEnvStateRequested();
+    void hasQuick3DImportChanged();
+    void hasMaterialLibraryChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -74,6 +85,9 @@ private:
     ContentLibraryMaterial *m_materialToDrag = nullptr;
     ContentLibraryTexture *m_textureToDrag = nullptr;
     QPoint m_dragStartPoint;
+
+    bool m_hasMaterialLibrary = false;
+    bool m_hasQuick3DImport = false;
 };
 
 } // namespace QmlDesigner

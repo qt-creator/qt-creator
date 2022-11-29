@@ -12,6 +12,8 @@ StudioControls.Menu {
     property var targetTexture: null
     property bool hasSceneEnv: false
 
+    property bool canUse3D: targetTexture && rootView.hasQuick3DImport && rootView.hasMaterialLibrary
+
     function popupMenu(targetTexture = null)
     {
         this.targetTexture = targetTexture
@@ -29,13 +31,13 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Add texture")
-        enabled: root.targetTexture
+        enabled: canUse3D
         onTriggered: rootView.addTexture(root.targetTexture)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Add light probe")
-        enabled: root.hasSceneEnv && root.targetTexture
+        enabled: root.hasSceneEnv && canUse3D
         onTriggered: rootView.addLightProbe(root.targetTexture)
     }
 }

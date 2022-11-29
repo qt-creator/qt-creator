@@ -4,6 +4,8 @@
 #include "contentlibrarytexturesmodel.h"
 
 #include "contentlibrarytexturescategory.h"
+
+#include "utils/algorithm.h"
 #include "utils/qtcassert.h"
 
 #include <QCoreApplication>
@@ -55,6 +57,21 @@ bool ContentLibraryTexturesModel::isValidIndex(int idx) const
     return idx > -1 && idx < rowCount();
 }
 
+void ContentLibraryTexturesModel::updateIsEmpty()
+{
+    const bool anyCatVisible = Utils::anyOf(m_bundleCategories,
+                                            [&](ContentLibraryTexturesCategory *cat) {
+        return cat->visible();
+    });
+
+    const bool newEmpty = !anyCatVisible || m_bundleCategories.isEmpty();
+
+    if (newEmpty != m_isEmpty) {
+        m_isEmpty = newEmpty;
+        emit isEmptyChanged();
+    }
+}
+
 QHash<int, QByteArray> ContentLibraryTexturesModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
@@ -74,7 +91,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath)
         return;
     }
 
-    if (m_texBundleLoaded)
+    if (!m_bundleCategories.isEmpty())
         return;
 
     const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -86,38 +103,12 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath)
         m_bundleCategories.append(category);
     }
 
-    if (m_bundleCategories.isEmpty() != m_isEmpty) {
-        m_isEmpty = m_bundleCategories.isEmpty();
-        emit isEmptyChanged();
-    }
+    updateIsEmpty();
 }
 
-bool ContentLibraryTexturesModel::hasQuick3DImport() const
+bool ContentLibraryTexturesModel::texBundleExists() const
 {
-    return m_hasQuick3DImport;
-}
-
-void ContentLibraryTexturesModel::setHasQuick3DImport(bool b)
-{
-    if (b == m_hasQuick3DImport)
-        return;
-
-    m_hasQuick3DImport = b;
-    emit hasQuick3DImportChanged();
-}
-
-bool ContentLibraryTexturesModel::hasMaterialRoot() const
-{
-    return m_hasMaterialRoot;
-}
-
-void ContentLibraryTexturesModel::setHasMaterialRoot(bool b)
-{
-    if (m_hasMaterialRoot == b)
-        return;
-
-    m_hasMaterialRoot = b;
-    emit hasMaterialRootChanged();
+    return !m_bundleCategories.isEmpty();
 }
 
 bool ContentLibraryTexturesModel::hasSceneEnv() const
@@ -134,11 +125,6 @@ void ContentLibraryTexturesModel::setHasSceneEnv(bool b)
     emit hasSceneEnvChanged();
 }
 
-bool ContentLibraryTexturesModel::matBundleExists() const
-{
-    return m_texBundleLoaded && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
-}
-
 void ContentLibraryTexturesModel::setSearchText(const QString &searchText)
 {
     QString lowerSearchText = searchText.toLower();
@@ -148,57 +134,21 @@ void ContentLibraryTexturesModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
-    bool anyCatVisible = false;
     bool catVisibilityChanged = false;
 
-    for (ContentLibraryTexturesCategory *cat : std::as_const(m_bundleCategories)) {
+    for (ContentLibraryTexturesCategory *cat : std::as_const(m_bundleCategories))
         catVisibilityChanged |= cat->filter(m_searchText);
-        anyCatVisible |= cat->visible();
-    }
 
-    if (anyCatVisible == m_isEmpty) {
-        m_isEmpty = !anyCatVisible;
-        emit isEmptyChanged();
-    }
+    updateIsEmpty();
 
     if (catVisibilityChanged)
         resetModel();
-}
-
-void ContentLibraryTexturesModel::setQuick3DImportVersion(int major, int minor)
-{
-    bool bundleExisted = matBundleExists();
-
-    m_quick3dMajorVersion = major;
-    m_quick3dMinorVersion = minor;
-
-    if (bundleExisted != matBundleExists())
-        emit matBundleExistsChanged();
 }
 
 void ContentLibraryTexturesModel::resetModel()
 {
     beginResetModel();
     endResetModel();
-}
-
-void ContentLibraryTexturesModel::addToProject(const QString &mat)
-{
-    // TODO: import asset
-}
-
-bool ContentLibraryTexturesModel::hasModelSelection() const
-{
-    return m_hasModelSelection;
-}
-
-void ContentLibraryTexturesModel::setHasModelSelection(bool b)
-{
-    if (b == m_hasModelSelection)
-        return;
-
-    m_hasModelSelection = b;
-    emit hasModelSelectionChanged();
 }
 
 } // namespace QmlDesigner

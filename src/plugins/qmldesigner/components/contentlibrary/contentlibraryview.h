@@ -36,6 +36,10 @@ public:
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
+                        const NodeAbstractProperty &oldPropertyParent,
+                        AbstractView::PropertyChangeFlags propertyChange) override;
+    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
 
 private:
     void updateBundleMaterialsImportedState();
