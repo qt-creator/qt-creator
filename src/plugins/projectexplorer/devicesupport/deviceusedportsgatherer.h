@@ -77,12 +77,6 @@ class PROJECTEXPLORER_EXPORT ChannelForwarder : public RunWorker
 public:
     explicit ChannelForwarder(RunControl *runControl);
 
-    QUrl fromUrl() const { return m_fromUrl; }
-    QUrl toUrl() const { return m_toUrl; }
-
-private:
-    QUrl m_fromUrl;
-    QUrl m_toUrl;
 };
 
 class PROJECTEXPLORER_EXPORT ChannelProvider : public RunWorker
