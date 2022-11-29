@@ -81,13 +81,18 @@ HelperWidgets.ScrollView {
         }
 
         Text {
-            id: noMatchText
-            text: qsTr("No match found.");
+            id: infoText
+            text: {
+                if (!searchBox.isEmpty())
+                    qsTr("No match found.")
+                else
+                    qsTr("Texture library is not installed.")
+            }
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
-            visible: root.model.isEmpty && !searchBox.isEmpty() && !root.model.hasMaterialRoot
+            visible: root.model.isEmpty
         }
     }
 }
