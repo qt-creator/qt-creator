@@ -84,8 +84,10 @@ private slots:
 
     void bytesAvailableFromDF_data();
     void bytesAvailableFromDF();
+
     void rootLength_data();
     void rootLength();
+
     void schemeAndHostLength_data();
     void schemeAndHostLength();
 
@@ -852,6 +854,8 @@ void tst_fileutils::resolvePath_data()
     QTest::newRow("s4") << FilePath("/a") << FilePath("/b") << FilePath("/b");
     QTest::newRow("s5") << FilePath("a") << FilePath("/b") << FilePath("/b");
     QTest::newRow("s6") << FilePath("/a") << FilePath("b") << FilePath("/a/b");
+    QTest::newRow("s7") << FilePath("/a") << FilePath(".") << FilePath("/a");
+    QTest::newRow("s8") << FilePath("/a") << FilePath("./b") << FilePath("/a/b");
 }
 
 void tst_fileutils::resolvePath()

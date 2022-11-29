@@ -1263,9 +1263,8 @@ FilePath FilePath::pathAppended(const QString &path) const
 
     FilePath other = FilePath::fromString(path);
 
-    if (isEmpty()) {
+    if (isEmpty())
         return other;
-    }
 
     QString p = this->path();
     join(p, other.path());
@@ -1549,7 +1548,7 @@ bool FilePath::isRelativePath() const
 FilePath FilePath::resolvePath(const FilePath &tail) const
 {
     if (tail.isRelativePath())
-        return pathAppended(tail.path());
+        return pathAppended(tail.path()).cleanPath();
     return tail;
 }
 
