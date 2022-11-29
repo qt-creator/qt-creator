@@ -855,7 +855,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
 
         if (qtVersion && qtVersion->isValid()) {
             m_qmakeGlobals->qmake_abslocation =
-                    QDir::cleanPath(qtVersion->qmakeFilePath().toString());
+                    QDir::cleanPath(qtVersion->qmakeFilePath().toFSPathString());
             qtVersion->applyProperties(m_qmakeGlobals.get());
         }
 
@@ -925,7 +925,7 @@ void QmakeBuildSystem::destroyProFileReader(QtSupport::ProFileReader *reader)
 
 void QmakeBuildSystem::deregisterFromCacheManager()
 {
-    QString dir = projectFilePath().toString();
+    QString dir = projectFilePath().toFSPathString();
     if (!dir.endsWith(QLatin1Char('/')))
         dir += QLatin1Char('/');
     QtSupport::ProFileCacheManager::instance()->discardFiles(dir, qmakeVfs());
