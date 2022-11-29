@@ -58,6 +58,12 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     showSourceSubFolders.setDefaultValue(true);
     showSourceSubFolders.setLabelText(
                 ::CMakeProjectManager::Tr::tr("Show subfolders inside source group folders"));
+
+    registerAspect(&showAdvancedOptionsByDefault);
+    showAdvancedOptionsByDefault.setSettingsKey("ShowAdvancedOptionsByDefault");
+    showAdvancedOptionsByDefault.setDefaultValue(false);
+    showAdvancedOptionsByDefault.setLabelText(
+                ::CMakeProjectManager::Tr::tr("Show advanced options by default"));
 }
 
 // CMakeSpecificSettingsPage
@@ -82,6 +88,7 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
             s.packageManagerAutoSetup,
             s.askBeforeReConfigureInitialParams,
             s.showSourceSubFolders,
+            s.showAdvancedOptionsByDefault,
             st
         }.attachTo(widget);
     });

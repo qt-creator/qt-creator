@@ -299,6 +299,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
 
     m_showAdvancedCheckBox = new QCheckBox(Tr::tr("Advanced"));
 
+    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    m_showAdvancedCheckBox->setChecked(settings->showAdvancedOptionsByDefault.value());
+
     connect(m_configView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this](const QItemSelection &, const QItemSelection &) {
                 updateSelection();

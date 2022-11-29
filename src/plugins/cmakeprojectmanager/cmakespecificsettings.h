@@ -25,6 +25,7 @@ public:
     Utils::BoolAspect packageManagerAutoSetup;
     Utils::BoolAspect askBeforeReConfigureInitialParams;
     Utils::BoolAspect showSourceSubFolders;
+    Utils::BoolAspect showAdvancedOptionsByDefault;
 };
 
 class CMakeSpecificSettingsPage final : public Core::IOptionsPage
