@@ -79,7 +79,7 @@ int DocumentModelPrivate::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
+DocumentModel::Entry *DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
 {
     const Utils::FilePath filePath = entry->fileName();
 
@@ -95,9 +95,8 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
                     this, [this, document = previousEntry->document] { itemChanged(document); });
         }
         delete entry;
-        entry = nullptr;
         disambiguateDisplayNames(previousEntry);
-        return;
+        return nullptr;
     }
 
     auto positions = positionEntry(m_entries, entry);
@@ -115,6 +114,7 @@ void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
         itemChanged(document);
     });
     endInsertRows();
+    return entry;
 }
 
 bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
@@ -411,8 +411,7 @@ DocumentModel::Entry *DocumentModelPrivate::addSuspendedDocument(const FilePath 
         entry->document->setPreferredDisplayName(displayName);
     entry->document->setId(id);
     entry->isSuspended = true;
-    d->addEntry(entry);
-    return entry;
+    return d->addEntry(entry);
 }
 
 DocumentModel::Entry *DocumentModelPrivate::firstSuspendedEntry()
