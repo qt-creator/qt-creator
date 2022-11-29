@@ -139,7 +139,7 @@ FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetI
     if (deployedAppFilePath.isEmpty())
         return appInBuildDir;
 
-    const FilePath appInLocalInstallDir = deploymentData.localInstallRoot() + deployedAppFilePath;
+    const FilePath appInLocalInstallDir = deploymentData.localInstallRoot() / deployedAppFilePath;
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
 }
 
