@@ -524,13 +524,14 @@ QList<SlotList> getSlotsLists(const ModelNode &node)
     const QString changeStateGroupStr = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                           "Change State Group");
     const QString defaultStateStr = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Default State");
-    auto createStateChangeSlot =
-        [](const ModelNode &node, const QString &stateName, const QString &displayName) {
-            return SlotEntry({displayName, [node, stateName](SignalHandlerProperty signalHandler) {
-                                  signalHandler.setSource(
-                                      QString("%1.state = \"%2\"").arg(node.id(), stateName));
-                              }});
-        };
+    auto createStateChangeSlot = [](ModelNode node,
+                                    const QString &stateName,
+                                    const QString &displayName) {
+        return SlotEntry(
+            {displayName, [node, stateName](SignalHandlerProperty signalHandler) mutable {
+                 signalHandler.setSource(QString("%1.state = \"%2\"").arg(node.validId(), stateName));
+             }});
+    };
 
     {
         SlotList states = {changeStateStr, {}};
