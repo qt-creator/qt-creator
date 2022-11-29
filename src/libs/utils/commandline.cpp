@@ -1490,7 +1490,7 @@ void CommandLine::addCommandLineWithAnd(const CommandLine &cmd)
     }
 
     addArgs("&&", Raw);
-    addCommandLineAsArgs(cmd);
+    addCommandLineAsArgs(cmd, Raw);
 }
 
 void CommandLine::addArgs(const QString &inArgs, RawType)
