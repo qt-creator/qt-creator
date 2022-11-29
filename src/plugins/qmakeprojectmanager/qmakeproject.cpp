@@ -851,7 +851,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
             qmakeArgs = bc->configCommandLineArguments();
 
         QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(k);
-        m_qmakeSysroot = SysRootKitAspect::sysRoot(k).toString();
+        m_qmakeSysroot = SysRootKitAspect::sysRoot(k);
 
         if (qtVersion && qtVersion->isValid()) {
             m_qmakeGlobals->qmake_abslocation =
@@ -905,7 +905,7 @@ QMakeVfs *QmakeBuildSystem::qmakeVfs()
     return m_qmakeVfs;
 }
 
-QString QmakeBuildSystem::qmakeSysroot()
+const FilePath &QmakeBuildSystem::qmakeSysroot()
 {
     return m_qmakeSysroot;
 }

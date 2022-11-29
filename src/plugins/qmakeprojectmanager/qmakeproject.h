@@ -118,7 +118,7 @@ public:
     /// \internal
     QMakeVfs *qmakeVfs();
     /// \internal
-    QString qmakeSysroot();
+    const Utils::FilePath &qmakeSysroot();
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
     void deregisterFromCacheManager();
@@ -177,7 +177,7 @@ private:
     int m_qmakeGlobalsRefCnt = 0;
     bool m_invalidateQmakeVfsContents = false;
 
-    QString m_qmakeSysroot;
+    Utils::FilePath m_qmakeSysroot;
 
     std::unique_ptr<QFutureInterface<void>> m_asyncUpdateFutureInterface;
     int m_pendingEvaluateFuturesCount = 0;

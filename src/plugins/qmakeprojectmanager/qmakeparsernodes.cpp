@@ -1301,7 +1301,7 @@ QmakeEvalInput QmakeProFile::evalInput() const
     input.projectDir = directoryPath().toFSPathString();
     input.projectFilePath = filePath();
     input.buildDirectory = m_buildSystem->buildDir(m_filePath);
-    input.sysroot = FilePath::fromString(m_buildSystem->qmakeSysroot());
+    input.sysroot = m_buildSystem->qmakeSysroot();
     input.readerExact = m_readerExact;
     input.readerCumulative = m_readerCumulative;
     input.qmakeGlobals = m_buildSystem->qmakeGlobals();

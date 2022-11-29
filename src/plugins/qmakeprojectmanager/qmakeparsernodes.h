@@ -21,10 +21,7 @@
 
 #include <memory>
 
-namespace ProjectExplorer {
-class BuildConfiguration;
-class ExtraCompilerFactory;
-} // ProjectExplorer
+namespace ProjectExplorer { class ExtraCompilerFactory; }
 
 namespace Utils {
 class FilePath;
