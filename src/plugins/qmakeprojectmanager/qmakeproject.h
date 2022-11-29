@@ -114,11 +114,11 @@ public:
     /// \internal
     QtSupport::ProFileReader *createProFileReader(const QmakeProFile *qmakeProFile);
     /// \internal
-    QMakeGlobals *qmakeGlobals();
+    QMakeGlobals *qmakeGlobals() const;
     /// \internal
-    QMakeVfs *qmakeVfs();
+    QMakeVfs *qmakeVfs() const;
     /// \internal
-    const Utils::FilePath &qmakeSysroot();
+    const Utils::FilePath &qmakeSysroot() const;
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
     void deregisterFromCacheManager();

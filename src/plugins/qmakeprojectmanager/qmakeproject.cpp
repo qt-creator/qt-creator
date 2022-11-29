@@ -895,17 +895,17 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
     return reader;
 }
 
-QMakeGlobals *QmakeBuildSystem::qmakeGlobals()
+QMakeGlobals *QmakeBuildSystem::qmakeGlobals() const
 {
     return m_qmakeGlobals.get();
 }
 
-QMakeVfs *QmakeBuildSystem::qmakeVfs()
+QMakeVfs *QmakeBuildSystem::qmakeVfs() const
 {
     return m_qmakeVfs;
 }
 
-const FilePath &QmakeBuildSystem::qmakeSysroot()
+const FilePath &QmakeBuildSystem::qmakeSysroot() const
 {
     return m_qmakeSysroot;
 }
