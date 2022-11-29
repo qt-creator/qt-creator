@@ -162,25 +162,6 @@ void PortsGatherer::stop()
     reportStopped();
 }
 
-
-// ChannelForwarder
-
-/*!
-    \class ProjectExplorer::ChannelForwarder
-
-    \internal
-
-    \brief The class provides a \c RunWorker handling the forwarding
-    from one device to another.
-
-    Both endpoints are specified by \c{QUrl}s, typically with
-    a "tcp" or "socket" scheme.
-*/
-
-ChannelForwarder::ChannelForwarder(RunControl *runControl)
-    : RunWorker(runControl)
-{}
-
 namespace Internal {
 
 // SubChannelProvider
@@ -194,9 +175,6 @@ namespace Internal {
     use port forwarding for one SubChannel in the ChannelProvider
     implementation.
 
-    A device implementation can provide a  "ChannelForwarder"
-    RunWorker non-trivial implementation if needed.
-
     By default it is assumed that no forwarding is needed, i.e.
     end points provided by the shared endpoint resource provider
     are directly accessible.
@@ -205,30 +183,17 @@ namespace Internal {
 class SubChannelProvider : public RunWorker
 {
 public:
-    SubChannelProvider(RunControl *runControl, RunWorker *sharedEndpointGatherer)
+    SubChannelProvider(RunControl *runControl)
         : RunWorker(runControl)
     {
         setId("SubChannelProvider");
-
-        m_portGatherer = qobject_cast<PortsGatherer *>(sharedEndpointGatherer);
-        if (m_portGatherer) {
-            if (auto forwarder = runControl->createWorker("ChannelForwarder")) {
-                m_channelForwarder = qobject_cast<ChannelForwarder *>(forwarder);
-                if (m_channelForwarder) {
-                    m_channelForwarder->addStartDependency(m_portGatherer);
-                    addStartDependency(m_channelForwarder);
-                }
-            }
-        }
     }
 
     void start() final
     {
         m_channel.setScheme(urlTcpScheme());
         m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
-        if (m_channelForwarder)
-            m_channel.setPort(m_channelForwarder->recordedData("LocalPort").toUInt());
-        else if (m_portGatherer)
+        if (m_portGatherer)
             m_channel.setPort(m_portGatherer->findEndPoint().port());
         reportStarted();
     }
@@ -238,7 +203,6 @@ public:
 private:
     QUrl m_channel;
     PortsGatherer *m_portGatherer = nullptr;
-    ChannelForwarder *m_channelForwarder = nullptr;
 };
 
 } // Internal
@@ -280,14 +244,8 @@ ChannelProvider::ChannelProvider(RunControl *runControl, int requiredChannels)
 {
     setId("ChannelProvider");
 
-    RunWorker *sharedEndpoints = runControl->createWorker("SharedEndpointGatherer");
-    if (!sharedEndpoints) {
-        // null is a legit value indicating 'no need to share'.
-        sharedEndpoints = new PortsGatherer(runControl);
-    }
-
     for (int i = 0; i < requiredChannels; ++i) {
-        auto channelProvider = new Internal::SubChannelProvider(runControl, sharedEndpoints);
+        auto channelProvider = new Internal::SubChannelProvider(runControl);
         m_channelProviders.append(channelProvider);
         addStartDependency(channelProvider);
     }

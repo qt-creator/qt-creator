@@ -70,15 +70,6 @@ private:
     Utils::PortList m_portList;
 };
 
-class PROJECTEXPLORER_EXPORT ChannelForwarder : public RunWorker
-{
-    Q_OBJECT
-
-public:
-    explicit ChannelForwarder(RunControl *runControl);
-
-};
-
 class PROJECTEXPLORER_EXPORT ChannelProvider : public RunWorker
 {
     Q_OBJECT
