@@ -174,8 +174,7 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
         return unknownFileIcon();
 
     // Check if its one of the virtual devices directories
-    if (filePath.path().startsWith(
-            FilePath::specialPath(FilePath::SpecialPathComponent::RootPath))) {
+    if (filePath.path().startsWith(FilePath::specialRootPath())) {
         // If the filepath does not need a device, it is a virtual device directory
         if (!filePath.needsDevice())
             return dirIcon();
@@ -221,7 +220,7 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
         return unknownFileIcon();
 
     // Check if its one of the virtual devices directories
-    if (filePath.path().startsWith(FilePath::specialPath(FilePath::SpecialPathComponent::RootPath))) {
+    if (filePath.path().startsWith(FilePath::specialRootPath())) {
         // If the filepath does not need a device, it is a virtual device directory
         if (!filePath.needsDevice())
             return dirIcon();

@@ -200,8 +200,8 @@ QString FilePath::toString() const
         return path();
 
     if (isRelativePath())
-        return scheme() + "://" + encodedHost() + "/./" + path();
-    return scheme() + "://" + encodedHost() +  path();
+        return scheme() + "://" + encodedHost() + "/./" + pathView();
+    return scheme() + "://" + encodedHost() + pathView();
 }
 
 QString FilePath::toFSPathString() const
@@ -210,8 +210,8 @@ QString FilePath::toFSPathString() const
         return path();
 
     if (isRelativePath())
-        return specialPath(SpecialPathComponent::RootPath) + "/" + scheme() + "/" + encodedHost() + "/./" + path();
-    return specialPath(SpecialPathComponent::RootPath) + "/" + scheme() + "/" + encodedHost() +  path();
+        return specialRootPath() + '/' + scheme() + '/' + encodedHost() + "/./" + pathView();
+    return specialRootPath() + '/' + scheme() + '/' + encodedHost() + pathView();
 }
 
 QUrl FilePath::toUrl() const
@@ -710,25 +710,28 @@ FilePath FilePath::absoluteFilePath() const
     return FilePath::currentWorkingPath().resolvePath(*this);
 }
 
-QString FilePath::specialPath(SpecialPathComponent component)
+const QString &FilePath::specialRootName()
 {
-    switch (component) {
-    case SpecialPathComponent::RootName:
-        return QLatin1String("__qtc_devices__");
-    case SpecialPathComponent::RootPath:
-        return (QDir::rootPath() + "__qtc_devices__");
-    case SpecialPathComponent::DeviceRootName:
-        return QLatin1String("device");
-    case SpecialPathComponent::DeviceRootPath:
-        return QDir::rootPath() + "__qtc_devices__/device";
-    }
-
-    QTC_ASSERT(false, return {});
+    static const QString rootName = "__qtc_devices__";
+    return rootName;
 }
 
-FilePath FilePath::specialFilePath(SpecialPathComponent component)
+const QString &FilePath::specialRootPath()
 {
-    return FilePath::fromString(specialPath(component));
+    static const QString rootPath = QDir::rootPath() + u"__qtc_devices__";
+    return rootPath;
+}
+
+const QString &FilePath::specialDeviceRootName()
+{
+    static const QString deviceRootName = "device";
+    return deviceRootName;
+}
+
+const QString &FilePath::specialDeviceRootPath()
+{
+    static const QString deviceRootPath =  QDir::rootPath() + u"__qtc_devices__/device";
+    return deviceRootPath;
 }
 
 FilePath FilePath::normalizedPathName() const

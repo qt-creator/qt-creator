@@ -223,15 +223,10 @@ public:
     [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info);
 
     // Support for FSEngine. Do not use unless needed.
-    enum class SpecialPathComponent {
-        RootName,
-        RootPath,
-        DeviceRootName,
-        DeviceRootPath,
-    };
-
-    [[nodiscard]] static QString specialPath(SpecialPathComponent component);
-    [[nodiscard]] static FilePath specialFilePath(SpecialPathComponent component);
+    [[nodiscard]] static const QString &specialRootName();
+    [[nodiscard]] static const QString &specialRootPath();
+    [[nodiscard]] static const QString &specialDeviceRootName();
+    [[nodiscard]] static const QString &specialDeviceRootPath();
 
     [[nodiscard]] bool ensureReachable(const FilePath &other) const;
 

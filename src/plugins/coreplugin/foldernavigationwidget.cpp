@@ -138,10 +138,8 @@ bool FolderSortProxyModel::filterAcceptsRow(int source_row, const QModelIndex &s
     if (static_cast<QFileSystemModel *>(sourceModel())->rootPath().isEmpty()) {
         QModelIndex sourceIndex = sourceModel()->index(source_row, 0, source_parent);
         while (sourceIndex.isValid()) {
-            if (sourceIndex.data().toString()
-                == FilePath::specialPath(FilePath::SpecialPathComponent::RootName)) {
+            if (sourceIndex.data().toString() == FilePath::specialRootName())
                 return false;
-            }
 
             sourceIndex = sourceIndex.parent();
         }

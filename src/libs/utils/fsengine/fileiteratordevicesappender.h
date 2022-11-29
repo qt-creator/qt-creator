@@ -74,7 +74,7 @@ public:
     QString currentFileName() const override
     {
         if (m_status == State::Ended)
-            return FilePath::specialPath(FilePath::SpecialPathComponent::RootPath);
+            return FilePath::specialRootPath();
 
         setPath();
         checkStatus();
@@ -83,7 +83,7 @@ public:
     QFileInfo currentFileInfo() const override
     {
         if (m_status == State::Ended)
-            return QFileInfo(FilePath::specialPath(FilePath::SpecialPathComponent::RootPath));
+            return QFileInfo(FilePath::specialRootPath());
         setPath();
         checkStatus();
         return m_baseIterator->currentFileInfo();
