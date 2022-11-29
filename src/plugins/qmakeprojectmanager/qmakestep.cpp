@@ -420,8 +420,6 @@ QString QMakeStep::effectiveQMakeCall() const
     if (make.isEmpty())
         make = FilePath::fromString(Tr::tr("<no Make step found>"));
 
-    CommandLine cmd(qmake, {});
-
     QString result = qmake.toString();
     if (qtVersion) {
         QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
