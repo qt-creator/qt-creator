@@ -220,7 +220,7 @@ QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolP
     const QString dynamicVersion = queryVersion(clangToolPath, QueryFailMode::Noisy);
     if (dynamicResourceDir.isEmpty() || dynamicVersion.isEmpty())
         return {FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION)};
-    return {dynamicResourceDir + "/include", dynamicVersion};
+    return {dynamicResourceDir / "include", dynamicVersion};
 }
 
 QHash<Utils::FilePath, QPair<QDateTime, ClazyStandaloneInfo>> ClazyStandaloneInfo::cache;

@@ -624,7 +624,7 @@ void PerfProfilerTool::showSaveTraceDialog()
     if (filePath.isEmpty())
         return;
     if (!filePath.endsWith(".ptq"))
-        filePath = filePath + ".ptq";
+        filePath = filePath.stringAppended(".ptq");
 
     setToolActionsEnabled(false);
     m_traceManager->saveToTraceFile(filePath.toString());

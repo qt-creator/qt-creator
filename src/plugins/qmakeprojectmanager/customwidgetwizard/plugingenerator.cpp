@@ -293,7 +293,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
     const QString proFileContents = processTemplate(p.templatePath + QLatin1String("/tpl_plugin.pro"), sm, errorMessage);
     if (proFileContents.isEmpty())
         return QList<Core::GeneratedFile>();
-    Core::GeneratedFile proFile(baseDir / p.fileName + QLatin1String(".pro"));
+    Core::GeneratedFile proFile(baseDir.pathAppended(p.fileName + ".pro"));
     proFile.setContents(proFileContents);
     proFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     rc.push_back(proFile);

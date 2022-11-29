@@ -761,13 +761,13 @@ static FilePath getUserFilePath(const QString &proposalFileName)
     const FilePath newFilePath = externalToolsDir / proposal.baseName();
 
     int count = 0;
-    FilePath tryPath = newFilePath + suffix;
+    FilePath tryPath = newFilePath.stringAppended(suffix);
     while (tryPath.exists()) {
         if (++count > 15)
             return {};
         // add random number
         const int number = QRandomGenerator::global()->generate() % 1000;
-        tryPath = newFilePath + QString::number(number) + suffix;
+        tryPath = newFilePath.stringAppended(QString::number(number) + suffix);
     }
     return tryPath;
 }

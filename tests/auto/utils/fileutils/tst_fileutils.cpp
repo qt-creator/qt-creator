@@ -96,8 +96,8 @@ private slots:
     void onDevice_data();
     void onDevice();
 
-    void plus();
-    void plus_data();
+    void stringAppended();
+    void stringAppended_data();
     void url();
     void url_data();
 
@@ -995,7 +995,7 @@ void tst_fileutils::onDevice()
     QCOMPARE(path.onDevice(templatePath), expected);
 }
 
-void tst_fileutils::plus_data()
+void tst_fileutils::stringAppended_data()
 {
     QTest::addColumn<FilePath>("left");
     QTest::addColumn<QString>("right");
@@ -1011,13 +1011,13 @@ void tst_fileutils::plus_data()
     QTest::newRow("slash-trailing-slash") << FilePath::fromString("/a/") << QString("b/") << FilePath("/a/b/");
 }
 
-void tst_fileutils::plus()
+void tst_fileutils::stringAppended()
 {
     QFETCH(FilePath, left);
     QFETCH(QString, right);
     QFETCH(FilePath, expected);
 
-    const FilePath result = left + right;
+    const FilePath result = left.stringAppended(right);
 
     QCOMPARE(expected, result);
 }

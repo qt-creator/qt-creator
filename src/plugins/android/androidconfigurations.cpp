@@ -246,7 +246,7 @@ void AndroidConfig::parseDependenciesJson()
     }
 
     if (sdkConfigFile.lastModified() > sdkConfigUserFile.lastModified()) {
-        const FilePath oldUserFile = sdkConfigUserFile + ".old";
+        const FilePath oldUserFile = sdkConfigUserFile.stringAppended(".old");
         oldUserFile.removeFile();
         sdkConfigUserFile.renameFile(oldUserFile);
         sdkConfigFile.copyFile(sdkConfigUserFile);

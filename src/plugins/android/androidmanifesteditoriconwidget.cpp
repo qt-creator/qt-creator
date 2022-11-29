@@ -137,7 +137,7 @@ void AndroidManifestEditorIconWidget::setIconFromPath(const FilePath &iconPath)
         }
     }
     copyIcon();
-    FilePath iconFile = baseDir + m_targetIconPath + m_targetIconFileName;
+    FilePath iconFile = baseDir / m_targetIconPath / m_targetIconFileName;
     m_button->setIcon(QIcon(iconFile.toString()));
 }
 

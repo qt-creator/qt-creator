@@ -44,7 +44,7 @@ void VirtualFileSystemOverlay::update()
             QString error;
             saved.path = m_root.filePath(doc->filePath().fileName() + ".auto");
             while (saved.path.exists())
-                saved.path = saved.path + ".1";
+                saved.path = saved.path.stringAppended(".1");
             if (!doc->save(&error, saved.path, true)) {
                 qCDebug(LOG) << error;
                 continue;

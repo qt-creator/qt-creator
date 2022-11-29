@@ -396,9 +396,9 @@ void GeneralSettingsPage::exportBookmarks()
 
     QLatin1String suffix(".xbel");
     if (!filePath.endsWith(suffix))
-        filePath = filePath + suffix;
+        filePath = filePath.stringAppended(suffix);
 
-    Utils::FileSaver saver(filePath);
+    FileSaver saver(filePath);
     if (!saver.hasError()) {
         XbelWriter writer(LocalHelpManager::bookmarkManager().treeBookmarkModel());
         writer.writeToFile(saver.file());

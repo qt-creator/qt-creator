@@ -482,4 +482,14 @@ QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c)
     return str;
 }
 
+QTCREATOR_UTILS_EXPORT QString appendHelper(const QString &base, int n)
+{
+    return base + QString::number(n);
+}
+
+QTCREATOR_UTILS_EXPORT FilePath appendHelper(const FilePath &base, int n)
+{
+    return base.stringAppended(QString::number(n));
+}
+
 } // namespace Utils

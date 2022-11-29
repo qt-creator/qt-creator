@@ -1376,7 +1376,8 @@ void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentDa
                 targetFileName += QLatin1Char('.');
                 while (!versionComponents.isEmpty()) {
                     const QString versionString = versionComponents.join(QLatin1Char('.'));
-                    deploymentData.addFile(destDirFor(ti) / targetFileName + versionString,
+                    deploymentData.addFile(destDirFor(ti).pathAppended(targetFileName
+                                                                       + versionString),
                                            targetPath);
                     versionComponents.removeLast();
                 }

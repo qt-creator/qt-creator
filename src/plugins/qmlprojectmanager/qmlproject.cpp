@@ -125,7 +125,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
                                   });
                               } else {
                                   Utils::FilePaths uiFiles = getUiQmlFilesForFolder(projectDirectory()
-                                                                                    + "/content");
+                                                                                    / "content");
                                   if (uiFiles.isEmpty())
                                       uiFiles = getUiQmlFilesForFolder(projectDirectory());
 

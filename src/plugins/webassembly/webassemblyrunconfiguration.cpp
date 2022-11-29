@@ -45,7 +45,7 @@ static CommandLine emrunCommand(const Target *target,
         const FilePath emrun = env.searchInPath("emrun");
         const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
         const FilePath targetPath = bc->buildSystem()->buildTarget(buildKey).targetFilePath;
-        const FilePath html = targetPath.absolutePath() / targetPath.baseName() + ".html";
+        const FilePath html = targetPath.absolutePath() / (targetPath.baseName() + ".html");
 
         QStringList args(emrunPy.path());
         if (!browser.isEmpty()) {

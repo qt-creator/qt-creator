@@ -320,8 +320,8 @@ FilePath AndroidQmlPreviewWorker::createQmlrcFile(const FilePath &workFolder,
     const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(m_rc->kit());
     const FilePath rccBinary = qtVersion->rccFilePath();
     QtcProcess rccProcess;
-    FilePath qrcPath = FilePath::fromString(basename) + ".qrc4viewer";
-    const FilePath qmlrcPath = FilePath::fromString(QDir::tempPath()) / basename + packageSuffix;
+    FilePath qrcPath = FilePath::fromString(basename + ".qrc4viewer");
+    const FilePath qmlrcPath = FilePath::fromString(QDir::tempPath()) / (basename + packageSuffix);
 
     rccProcess.setWorkingDirectory(workFolder);
 

@@ -256,7 +256,7 @@ void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::createKey()
 
 void GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::deployKey()
 {
-    PublicKeyDeploymentDialog dlg(d->device, privateKeyFilePath() + ".pub", this);
+    PublicKeyDeploymentDialog dlg(d->device, privateKeyFilePath().stringAppended(".pub"), this);
     d->iconLabel.setPixmap((dlg.exec() == QDialog::Accepted ? Icons::OK : Icons::BROKEN).pixmap());
 }
 

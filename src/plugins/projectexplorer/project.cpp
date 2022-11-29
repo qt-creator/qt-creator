@@ -1056,12 +1056,12 @@ bool Project::isEditModePreferred() const
 
 #if defined(WITH_TESTS)
 
-static FilePath constructTestPath(const char *basePath)
+static FilePath constructTestPath(const QString &basePath)
 {
     FilePath drive;
     if (HostOsInfo::isWindowsHost())
         drive = "C:";
-    return drive + QLatin1String(basePath);
+    return drive.stringAppended(basePath);
 }
 
 const FilePath TEST_PROJECT_PATH = constructTestPath("/tmp/foobar/baz.project");

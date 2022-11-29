@@ -262,11 +262,11 @@ public:
         Q_UNUSED(explicitQmlproject)
         Q_UNUSED(tempFile)
         Q_UNUSED(completeBaseName)
-        const Utils::FilePath projectFile = Core::ICore::resourcePath("examples")
-                                            / example / example + ".qmlproject";
+        const FilePath projectFile = Core::ICore::resourcePath("examples")
+                / example / (example + ".qmlproject");
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
-        const Utils::FilePath qmlFile = Core::ICore::resourcePath("examples")
-                                            / example / formFile;
+        const FilePath qmlFile = Core::ICore::resourcePath("examples")
+                / example / formFile;
 
         Core::EditorManager::openEditor(qmlFile);
     }

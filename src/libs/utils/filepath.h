@@ -137,7 +137,6 @@ public:
     bool operator<=(const FilePath &other) const;
     bool operator>(const FilePath &other) const;
     bool operator>=(const FilePath &other) const;
-    [[nodiscard]] FilePath operator+(const QString &s) const;
     [[nodiscard]] FilePath operator/(const QString &str) const;
 
     Qt::CaseSensitivity caseSensitivity() const;

@@ -2260,7 +2260,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
                     .searchInPath(gitBinary, gitSearchPaths);
             if (!fullGitPath.isEmpty()) {
                 searchPaths << fullGitPath.parentDir()
-                            << fullGitPath.parentDir().parentDir() + "/usr/bin";
+                            << fullGitPath.parentDir().parentDir().pathAppended("usr/bin");
             }
         }
         return searchPaths;

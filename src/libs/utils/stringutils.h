@@ -16,6 +16,8 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class FilePath;
+
 // Create a usable settings key from a category,
 // for example Editor|C++ -> Editor_C__
 QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category);
@@ -68,15 +70,18 @@ QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExp
 
 QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line);
 
+QTCREATOR_UTILS_EXPORT QString appendHelper(const QString &base, int n);
+QTCREATOR_UTILS_EXPORT FilePath appendHelper(const FilePath &base, int n);
+
 template<typename T>
 T makeUniquelyNumbered(const T &preferred, const std::function<bool(const T &)> &isOk)
 {
     if (isOk(preferred))
         return preferred;
     int i = 2;
-    T tryName = preferred + QString::number(i);
+    T tryName = appendHelper(preferred, i);
     while (!isOk(tryName))
-        tryName = preferred + QString::number(++i);
+        tryName = appendHelper(preferred, ++i);
     return tryName;
 }
 

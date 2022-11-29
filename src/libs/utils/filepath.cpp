@@ -586,7 +586,7 @@ static FilePaths appendExeExtensions(const Environment &env, const FilePath &exe
             const QStringList extensions = env.expandedValueForKey("PATHEXT").split(';');
 
             for (const QString &ext : extensions)
-                execs << executable + ext.toLower();
+                execs << executable.stringAppended(ext.toLower());
         }
     }
     return execs;
@@ -969,11 +969,6 @@ bool FilePath::operator>(const FilePath &other) const
 bool FilePath::operator>=(const FilePath &other) const
 {
     return !(*this < other);
-}
-
-FilePath FilePath::operator+(const QString &s) const
-{
-    return stringAppended(s);
 }
 
 /// \returns whether FilePath is a child of \a s

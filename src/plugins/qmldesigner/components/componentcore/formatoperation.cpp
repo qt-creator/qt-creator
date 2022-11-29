@@ -37,7 +37,7 @@ void readFormatConfiguration(){
 
     if (copyableProperties.isEmpty()){
         QString source = "formatconfiguration.json";
-        Utils::FilePath path = Core::ICore::resourcePath() + "/qmldesigner/" + source;
+        Utils::FilePath path = Core::ICore::resourcePath("qmldesigner") / source;
         QString errorString;
         Utils::FileReader reader;
 

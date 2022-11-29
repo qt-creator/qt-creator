@@ -587,7 +587,7 @@ void QmlProfilerTool::showSaveDialog()
                 Tr::tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
     if (!filePath.isEmpty()) {
         if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
-            filePath = filePath + zFile;
+            filePath = filePath.stringAppended(zFile);
         saveLastTraceFile(filePath);
         Debugger::enableMainWindow(false);
         Core::ProgressManager::addTask(d->m_profilerModelManager->save(filePath.toString()),
