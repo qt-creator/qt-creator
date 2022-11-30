@@ -848,7 +848,7 @@ void CppEditorWidget::followSymbolToType(bool inNextSplit)
     CppModelManager::followSymbolToType(cursor, callback, inNextSplit);
 }
 
-bool CppEditorWidget::followQrcUrl(const QTextCursor &cursor,
+bool CppEditorWidget::followUrl(const QTextCursor &cursor,
                                    const Utils::LinkHandler &processLinkCallback)
 {
     if (!isSemanticInfoValidExceptLocalUses())
@@ -869,6 +869,15 @@ bool CppEditorWidget::followQrcUrl(const QTextCursor &cursor,
     if (!literal)
         return false;
     const QString theString = QString::fromUtf8(literal->chars(), literal->size());
+
+    if (theString.startsWith("https:/") || theString.startsWith("http:/")) {
+        Utils::Link link = FilePath::fromPathPart(theString);
+        link.linkTextStart = d->m_lastSemanticInfo.doc->translationUnit()->getTokenPositionInDocument(literalAst->literal_token, document());
+        link.linkTextEnd = d->m_lastSemanticInfo.doc->translationUnit()->getTokenEndPositionInDocument(literalAst->literal_token, document());
+        processLinkCallback(link);
+        return true;
+    }
+
     if (!theString.startsWith("qrc:/") && !theString.startsWith(":/"))
         return false;
 
@@ -897,7 +906,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (!d->m_modelManager)
         return processLinkCallback(Utils::Link());
 
-    if (followQrcUrl(cursor, processLinkCallback))
+    if (followUrl(cursor, processLinkCallback))
         return;
 
     const Utils::FilePath &filePath = textDocument()->filePath();

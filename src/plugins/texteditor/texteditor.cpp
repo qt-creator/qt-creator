@@ -72,6 +72,7 @@
 #include <QCoreApplication>
 #include <QComboBox>
 #include <QDebug>
+#include <QDesktopServices>
 #include <QFutureWatcher>
 #include <QGridLayout>
 #include <QKeyEvent>
@@ -6340,6 +6341,12 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
 
     if (!link.hasValidTarget())
         return false;
+
+    QString url = link.targetFilePath.toString();
+    if (url.startsWith(u"https://"_qs) || url.startsWith(u"http://"_qs)) {
+        QDesktopServices::openUrl(url);
+        return true;
+    }
 
     if (!inNextSplit && textDocument()->filePath() == link.targetFilePath) {
         EditorManager::addCurrentPositionToNavigationHistory();

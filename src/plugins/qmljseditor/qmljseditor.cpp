@@ -789,6 +789,15 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                 }
             }
         }
+
+        if (text.startsWith("https:/") || text.startsWith("http:/")) {
+            Link link = Link::fromFilePath(FilePath::fromPathPart(text));
+            link.linkTextStart = literal->literalToken.begin();
+            link.linkTextEnd = literal->literalToken.end();
+            processLinkCallback(link);
+            return;
+        }
+
         Utils::Link link;
         link.linkTextStart = literal->literalToken.begin();
         link.linkTextEnd = literal->literalToken.end();
