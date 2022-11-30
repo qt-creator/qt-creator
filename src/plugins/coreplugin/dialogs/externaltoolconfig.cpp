@@ -752,7 +752,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 static FilePath getUserFilePath(const QString &proposalFileName)
 {
     const FilePath resourceDir(ICore::userResourcePath());
-    const FilePath externalToolsDir = resourceDir / "externalTools";
+    const FilePath externalToolsDir = resourceDir / "externaltools";
     if (!externalToolsDir.isDir())
         externalToolsDir.createDir();
 
