@@ -31,7 +31,7 @@ public:
     void setDisplayRect(const QRect &rect) override;
     void setIsSynchronized(bool isSync) override;
 
-    void updateModel(ProposalModelPtr model);
+    void updateModel(ProposalModelPtr model, const QString &prefix);
 
     void showProposal(const QString &prefix) override;
     void filterProposal(const QString &prefix) override;

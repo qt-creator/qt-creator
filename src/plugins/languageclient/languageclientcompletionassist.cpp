@@ -285,11 +285,11 @@ public:
         return static_cast<LanguageClientCompletionModel *>(model().data())->isComplete(prefix);
     }
 
-    void setProposal(IAssistProposal *proposal)
+    void setProposal(IAssistProposal *proposal, const QString &prefix)
     {
         if (!proposal)
             return;
-        updateModel(proposal->model());
+        updateModel(proposal->model(), prefix);
         delete proposal;
     }
 
@@ -303,7 +303,10 @@ public:
         auto processor = m_provider->createProcessor(interface.get());
         QTC_ASSERT(processor, return);
 
-        processor->setAsyncCompletionAvailableHandler([this, processor](IAssistProposal *proposal) {
+        const QString prefix = interface->textAt(m_basePosition,
+                                                 interface->position() - m_basePosition);
+
+        processor->setAsyncCompletionAvailableHandler([this, processor, prefix](IAssistProposal *proposal) {
             QTC_ASSERT(processor == m_processor, return);
             if (!processor->running()) {
                 // do not delete this processor directly since this function is called from within the processor
@@ -313,10 +316,10 @@ public:
                     Qt::QueuedConnection);
                 m_processor = nullptr;
             }
-            setProposal(proposal);
+            setProposal(proposal, prefix);
         });
 
-        setProposal(processor->start(std::move(interface)));
+        setProposal(processor->start(std::move(interface)), prefix);
         if (processor->running())
             m_processor = processor;
         else

@@ -392,7 +392,7 @@ void GenericProposalWidget::setIsSynchronized(bool isSync)
     d->m_isSynchronized = isSync;
 }
 
-void GenericProposalWidget::updateModel(ProposalModelPtr model)
+void GenericProposalWidget::updateModel(ProposalModelPtr model, const QString &prefix)
 {
     QString currentText;
     if (d->m_explicitlySelected)
@@ -403,16 +403,15 @@ void GenericProposalWidget::updateModel(ProposalModelPtr model)
     d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
     connect(d->m_completionListView->selectionModel(), &QItemSelectionModel::currentChanged,
             &d->m_infoTimer, QOverload<>::of(&QTimer::start));
-    int currentRow = -1;
     if (!currentText.isEmpty()) {
-        currentRow = d->m_model->indexOf(
+        const int currentRow = d->m_model->indexOf(
             Utils::equal(&AssistProposalItemInterface::text, currentText));
+        if (currentRow < 0)
+            d->m_explicitlySelected = false;
+        else
+            d->m_completionListView->selectRow(currentRow);
     }
-    if (currentRow >= 0)
-        d->m_completionListView->selectRow(currentRow);
-    else
-        d->m_explicitlySelected = false;
-    updatePositionAndSize();
+    updateAndCheck(prefix);
 }
 
 void GenericProposalWidget::showProposal(const QString &prefix)
