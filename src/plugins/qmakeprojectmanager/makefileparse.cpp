@@ -252,7 +252,7 @@ MakeFileParse::MakeFileParse(const FilePath &makefile, Mode mode) : m_mode(mode)
     project = project.trimmed();
 
     // Src Pro file
-    m_srcProFile = makefile.parentDir().resolvePath(project).cleanPath();
+    m_srcProFile = makefile.parentDir().resolvePath(project);
     qCDebug(logging()) << "  source .pro file:" << m_srcProFile;
 
     QString command = findQMakeLine(makefile, QLatin1String("# Command:")).trimmed();

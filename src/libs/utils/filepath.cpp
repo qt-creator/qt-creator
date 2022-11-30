@@ -1559,8 +1559,7 @@ FilePath FilePath::resolvePath(const FilePath &tail) const
 */
 FilePath FilePath::resolvePath(const QString &tail) const
 {
-   FilePath tailPath = FilePath::fromString(doCleanPath(tail));
-   return resolvePath(tailPath);
+   return resolvePath(FilePath::fromString(tail));
 }
 
 // Cleans path part similar to QDir::cleanPath()

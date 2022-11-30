@@ -464,7 +464,7 @@ FilePath directorySourceDir(const Configuration &c, const FilePath &sourceDir, i
     const size_t di = static_cast<size_t>(directoryIndex);
     QTC_ASSERT(di < c.directories.size(), return FilePath());
 
-    return sourceDir.resolvePath(c.directories[di].sourcePath).cleanPath();
+    return sourceDir.resolvePath(c.directories[di].sourcePath);
 }
 
 FilePath directoryBuildDir(const Configuration &c, const FilePath &buildDir, int directoryIndex)
@@ -472,7 +472,7 @@ FilePath directoryBuildDir(const Configuration &c, const FilePath &buildDir, int
     const size_t di = static_cast<size_t>(directoryIndex);
     QTC_ASSERT(di < c.directories.size(), return FilePath());
 
-    return buildDir.resolvePath(c.directories[di].buildPath).cleanPath();
+    return buildDir.resolvePath(c.directories[di].buildPath);
 }
 
 void addProjects(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
@@ -542,7 +542,7 @@ void addCompileGroups(ProjectNode *targetRoot,
     std::vector<std::vector<std::unique_ptr<FileNode>>> sourceGroupFileNodes{td.sourceGroups.size()};
 
     for (const SourceInfo &si : td.sources) {
-        const FilePath sourcePath = topSourceDirectory.resolvePath(si.path).cleanPath();
+        const FilePath sourcePath = topSourceDirectory.resolvePath(si.path);
 
         // Filter out already known files:
         const int count = alreadyListed.count();

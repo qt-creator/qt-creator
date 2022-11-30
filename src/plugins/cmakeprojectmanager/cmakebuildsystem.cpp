@@ -306,8 +306,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 
     if (sourceFile.suffix() == "ui") {
         generatedFilePath = generatedFilePath
-                                .pathAppended("ui_" + sourceFile.completeBaseName() + ".h")
-                                .cleanPath();
+                                .pathAppended("ui_" + sourceFile.completeBaseName() + ".h");
         return {generatedFilePath};
     }
     if (sourceFile.suffix() == "scxml") {
