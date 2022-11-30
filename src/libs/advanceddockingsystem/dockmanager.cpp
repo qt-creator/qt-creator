@@ -106,13 +106,15 @@ namespace ADS
         void hideFloatingWidgets()
         {
             // Hide updates of floating widgets from user
-            for (auto floatingWidget : std::as_const(m_floatingWidgets))
-                floatingWidget->hide();
+            for (const auto &floatingWidget : std::as_const(m_floatingWidgets)) {
+                if (floatingWidget)
+                    floatingWidget->hide();
+            }
         }
 
         void markDockWidgetsDirty()
         {
-            for (auto dockWidget : std::as_const(m_dockWidgetsMap))
+            for (const auto &dockWidget : std::as_const(m_dockWidgetsMap))
                 dockWidget->setProperty("dirty", true);
         }
 
@@ -328,18 +330,11 @@ namespace ADS
 
         // Using a temporal vector since the destructor of
         // FloatingDockWidgetContainer alters d->m_floatingWidgets.
-        std::vector<FloatingDockContainer *> aboutToDeletes;
-        for (auto floatingWidget : std::as_const(d->m_floatingWidgets)) {
+        const auto copy = d->m_floatingWidgets;
+        for (const auto &floatingWidget : copy) {
             if (floatingWidget)
-                aboutToDeletes.push_back(floatingWidget);
+                delete floatingWidget.get();
         }
-
-        for (auto del : aboutToDeletes) {
-            delete del;
-        }
-
-        d->m_floatingWidgets.clear();
-
         delete d;
     }
 
