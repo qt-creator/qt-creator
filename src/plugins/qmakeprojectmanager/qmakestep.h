@@ -141,7 +141,6 @@ protected:
     bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
 
 private:
-    void doCancel() override;
     void finish(bool success) override;
 
     void startOneCommand(const Utils::CommandLine &command);

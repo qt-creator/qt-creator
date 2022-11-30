@@ -309,11 +309,6 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     return result;
 }
 
-void QMakeStep::doCancel()
-{
-    AbstractProcessStep::doCancel();
-}
-
 void QMakeStep::finish(bool success)
 {
     m_wasSuccess = success;
