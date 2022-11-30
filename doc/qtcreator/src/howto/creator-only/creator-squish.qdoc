@@ -8,8 +8,8 @@
 
     \title Using Squish
 
-    \l{https://doc.froglogic.com/squish/latest/}{Squish} is an automated GUI
-    testing framework for testing Android, iOS, Java, Qt, Tk, Windows, and
+    \l{https://www.qt.io/product/quality-assurance/squish}{Squish} is an automated GUI
+    testing framework for testing Android, iOS, Java, \macos, Qt, Tk, Windows, and
     XView applications, as well as HTML-based web applications running in
     browsers, such as Apple Safari, Mozilla Firefox, Google Chrome, and
     Microsoft Internet Explorer and Edge.
