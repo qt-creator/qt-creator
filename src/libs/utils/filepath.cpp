@@ -625,7 +625,7 @@ FilePath FilePath::withExecutableSuffix() const
 
 static bool startsWithWindowsDriveLetterAndSlash(QStringView path)
 {
-    return path.size() > 2 && (path[1] == ':' && path[2] == '/' && isWindowsDriveLetter(path[0]));
+    return path.size() > 2 && path[1] == ':' && path[2] == '/' && isWindowsDriveLetter(path[0]);
 }
 
 int FilePath::rootLength(const QStringView path)
@@ -1533,7 +1533,7 @@ bool FilePath::isRelativePath() const
     const QStringView p = pathView();
     if (p.startsWith('/'))
         return false;
-    if (p.size() > 1 && isWindowsDriveLetter(p[0]) && p.at(1) == ':')
+    if (startsWithWindowsDriveLetterAndSlash(p))
         return false;
     if (p.startsWith(u":/")) // QRC
         return false;

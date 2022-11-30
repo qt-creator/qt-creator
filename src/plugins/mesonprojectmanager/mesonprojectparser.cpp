@@ -81,9 +81,7 @@ QStringList toAbsolutePath(const Utils::FilePath &refPath, QStringList &pathList
                    std::cend(pathList),
                    std::back_inserter(allAbs),
                    [refPath](const QString &path) {
-                       if (Utils::FileUtils::isAbsolutePath(path))
-                           return path;
-                       return refPath.pathAppended(path).toString();
+                        return refPath.resolvePath(path).toString();
                    });
     return allAbs;
 }

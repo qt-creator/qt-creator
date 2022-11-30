@@ -758,27 +758,6 @@ QString FileUtils::normalizedPathName(const QString &name)
 #endif
 }
 
-bool isRelativePathHelper(const QString &path, OsType osType)
-{
-    if (path.startsWith('/'))
-        return false;
-    if (osType == OsType::OsTypeWindows) {
-        if (path.startsWith('\\'))
-            return false;
-        // Unlike QFileInfo, this won't accept a relative path with a drive letter.
-        // Such paths result in a royal mess anyway ...
-        if (path.length() >= 3 && path.at(1) == ':' && path.at(0).isLetter()
-                && (path.at(2) == '/' || path.at(2) == '\\'))
-            return false;
-    }
-    return true;
-}
-
-bool FileUtils::isRelativePath(const QString &path)
-{
-    return isRelativePathHelper(path, HostOsInfo::hostOs());
-}
-
 FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &filePath)
 {
     FilePath newCommonPath = oldCommonPath;

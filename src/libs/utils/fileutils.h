@@ -77,8 +77,6 @@ public:
     static bool makeWritable(const FilePath &path);
     static QString normalizedPathName(const QString &name);
 
-    static bool isRelativePath(const QString &fileName);
-    static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static FilePath commonPath(const FilePaths &paths);
     static FilePath homePath();
