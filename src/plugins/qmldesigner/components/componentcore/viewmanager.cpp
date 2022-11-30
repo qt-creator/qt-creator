@@ -219,7 +219,6 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->itemLibraryView,
                                   &d->navigatorView,
                                   &d->propertyEditorView,
-                                  &d->contentLibraryView,
                                   &d->materialEditorView,
                                   &d->materialBrowserView,
                                   &d->textureEditorView,
@@ -237,6 +236,13 @@ QList<AbstractView *> ViewManager::standardViews() const
             .value(DesignerSettingsKey::ENABLE_DEBUGVIEW)
             .toBool())
         list.append(&d->debugView);
+
+#ifdef CHECK_LICENSE
+    if (checkLicense() == FoundLicense::enterprise)
+        list.append(&d->contentLibraryView);
+#else
+    list.append(&d->contentLibraryView);
+#endif
 
     return list;
 }
@@ -401,7 +407,6 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->itemLibraryView.widgetInfo());
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
-    widgetInfoList.append(d->contentLibraryView.widgetInfo());
     widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
     widgetInfoList.append(d->textureEditorView.widgetInfo());
@@ -409,6 +414,13 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
         widgetInfoList.append(d->statesEditorView.widgetInfo());
     else
         widgetInfoList.append(d->newStatesEditorView.widgetInfo());
+
+#ifdef CHECK_LICENSE
+    if (checkLicense() == FoundLicense::enterprise)
+        widgetInfoList.append(d->contentLibraryView.widgetInfo());
+#else
+    widgetInfoList.append(d->contentLibraryView.widgetInfo());
+#endif
 
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
