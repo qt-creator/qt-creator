@@ -32,7 +32,11 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
+#include <cplusplus/Overview.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
@@ -405,10 +409,33 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
     // check whether we have been triggered on a test function definition
     const int line = currentEditor->currentLine();
     const Utils::FilePath &filePath = currentEditor->textDocument()->filePath();
-    const QList<ITestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](ITestTreeItem *it){
+    QList<ITestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](ITestTreeItem *it){
         return it->line() == line && it->filePath() == filePath;
     });
 
+    if (filteredItems.size() == 0 && testsItems.size() > 1) {
+        const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+        const CPlusPlus::Document::Ptr doc = snapshot.document(filePath);
+        if (!doc.isNull()) {
+            CPlusPlus::Scope *scope = doc->scopeAt(line, currentEditor->currentColumn());
+            if (scope->asClass()) {
+                const QList<const CPlusPlus::Name *> fullName
+                        = CPlusPlus::LookupContext::fullyQualifiedName(scope);
+                const QString className = CPlusPlus::Overview().prettyName(fullName);
+
+                filteredItems = Utils::filtered(testsItems,
+                                                [&text, &className](ITestTreeItem *it){
+                    return it->name() == text
+                            && static_cast<ITestTreeItem *>(it->parent())->name() == className;
+                });
+            }
+        }
+    }
+    if ((filteredItems.size() != 1 && testsItems.size() > 1)
+            && (mode == TestRunMode::Debug || mode == TestRunMode::DebugWithoutDeploy)) {
+        MessageManager::writeFlashing(Tr::tr("Cannot debug multiple tests at once."));
+        return;
+    }
     const QList<ITestConfiguration *> testsToRun = testItemsToTestConfigurations(
                 filteredItems.size() == 1 ? filteredItems : testsItems, mode);
 
