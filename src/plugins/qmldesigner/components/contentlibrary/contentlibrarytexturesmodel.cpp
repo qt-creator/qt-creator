@@ -85,6 +85,11 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath)
             category->addTexture(tex);
         m_bundleCategories.append(category);
     }
+
+    if (m_bundleCategories.isEmpty() != m_isEmpty) {
+        m_isEmpty = m_bundleCategories.isEmpty();
+        emit isEmptyChanged();
+    }
 }
 
 bool ContentLibraryTexturesModel::hasQuick3DImport() const

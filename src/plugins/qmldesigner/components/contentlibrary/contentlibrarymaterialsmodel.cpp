@@ -162,6 +162,11 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
         emit importerRunningChanged();
         emit bundleMaterialUnimported(metaInfo);
     });
+
+    if (m_bundleCategories.isEmpty() != m_isEmpty) {
+        m_isEmpty = m_bundleCategories.isEmpty();
+        emit isEmptyChanged();
+    }
 }
 
 bool ContentLibraryMaterialsModel::hasQuick3DImport() const
