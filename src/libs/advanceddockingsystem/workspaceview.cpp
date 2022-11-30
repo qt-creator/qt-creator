@@ -60,25 +60,19 @@ WorkspaceView::WorkspaceView(DockManager *manager, QWidget *parent)
                             m_workspaceModel.index(0, m_workspaceModel.columnCount() - 1));
     selectionModel()->select(firstRow, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
 
-    connect(this, &Utils::TreeView::activated, [this](const QModelIndex &index) {
+    connect(this, &Utils::TreeView::activated, this, [this](const QModelIndex &index) {
         emit workspaceActivated(m_workspaceModel.workspaceAt(index.row()));
     });
-    connect(selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
+    connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
         emit workspacesSelected(selectedWorkspaces());
     });
 
-    connect(&m_workspaceModel,
-            &WorkspaceModel::workspaceSwitched,
-            this,
-            &WorkspaceView::workspaceSwitched);
-    connect(&m_workspaceModel,
-            &WorkspaceModel::modelReset,
-            this,
-            &WorkspaceView::selectActiveWorkspace);
-    connect(&m_workspaceModel,
-            &WorkspaceModel::workspaceCreated,
-            this,
-            &WorkspaceView::selectWorkspace);
+    connect(&m_workspaceModel, &WorkspaceModel::workspaceSwitched,
+            this, &WorkspaceView::workspaceSwitched);
+    connect(&m_workspaceModel, &WorkspaceModel::modelReset,
+            this, &WorkspaceView::selectActiveWorkspace);
+    connect(&m_workspaceModel, &WorkspaceModel::workspaceCreated,
+            this, &WorkspaceView::selectWorkspace);
 }
 
 void WorkspaceView::createNewWorkspace()

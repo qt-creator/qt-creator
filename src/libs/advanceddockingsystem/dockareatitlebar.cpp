@@ -222,7 +222,7 @@ namespace ADS
             floatingWidget = floatingDockContainer = new FloatingDockContainer(m_dockArea);
         } else {
             auto w = new FloatingDragPreview(m_dockArea);
-            QObject::connect(w, &FloatingDragPreview::draggingCanceled, [=]() {
+            QObject::connect(w, &FloatingDragPreview::draggingCanceled, q, [this] {
                 m_dragState = DraggingInactive;
             });
             floatingWidget = w;
