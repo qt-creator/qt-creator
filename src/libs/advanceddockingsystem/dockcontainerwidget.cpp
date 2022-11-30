@@ -1215,7 +1215,7 @@ namespace ADS
         }
 
         window()->activateWindow();
-        d->m_dockManager->notifyWidgetOrAreaRelocation(widget);
+        d->m_dockManager->notifyWidgetOrAreaRelocation(dockWidget);
     }
 
     QList<DockAreaWidget *> DockContainerWidget::openedDockAreas() const
