@@ -45,6 +45,7 @@ namespace QmlDesigner {
 
 Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
     : NodeInstanceServer(nodeInstanceClient)
+    , m_designerSupport(new QQuickDesignerSupport)
 {
     if (!ViewConfig::isParticleViewMode())
         QQuickDesignerSupport::activateDesignerMode();
