@@ -24,7 +24,10 @@
 
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljstoolsconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -767,6 +770,25 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     // string literals that could refer to a file link to them
     if (auto literal = cast<const StringLiteral *>(node)) {
         const QString &text = literal->value.toString();
+        if (text.startsWith("qrc:/")) {
+            const ProjectExplorer::Project * const project = ProjectExplorer::ProjectTree::currentProject();
+            if (project && project->rootProjectNode()) {
+                const ProjectExplorer::Node * const nodeForPath = project->rootProjectNode()->findNode(
+                            [qrcPath = text.mid(text.indexOf(':') + 1)](ProjectExplorer::Node *n) {
+                    if (!n->asFileNode())
+                        return false;
+                    const auto qrcNode = dynamic_cast<ProjectExplorer::ResourceFileNode *>(n);
+                    return qrcNode && qrcNode->qrcPath() == qrcPath;
+                });
+                if (nodeForPath) {
+                    Link link(nodeForPath->filePath());
+                    link.linkTextStart = literal->firstSourceLocation().begin();
+                    link.linkTextEnd = literal->lastSourceLocation().end();
+                    processLinkCallback(link);
+                    return;
+                }
+            }
+        }
         Utils::Link link;
         link.linkTextStart = literal->literalToken.begin();
         link.linkTextEnd = literal->literalToken.end();

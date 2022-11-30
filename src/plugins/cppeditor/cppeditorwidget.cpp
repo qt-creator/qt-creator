@@ -882,7 +882,10 @@ bool CppEditorWidget::followQrcUrl(const QTextCursor &cursor,
     if (!nodeForPath)
         return false;
 
-    processLinkCallback(Link(nodeForPath->filePath()));
+    Link link(nodeForPath->filePath());
+    link.linkTextStart = d->m_lastSemanticInfo.doc->translationUnit()->getTokenPositionInDocument(literalAst->literal_token, document());
+    link.linkTextEnd = d->m_lastSemanticInfo.doc->translationUnit()->getTokenEndPositionInDocument(literalAst->literal_token, document());
+    processLinkCallback(link);
     return true;
 }
 
