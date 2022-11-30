@@ -225,6 +225,20 @@ void QMakeGlobals::setDirectories(const QString &input_dir, const QString &outpu
     }
 }
 
+QString QMakeGlobals::deviceRoot() const
+{
+    static const QString specialRoot = QDir::rootPath() + "__qtc_devices__/";
+    if (!build_root.startsWith(specialRoot))
+        return {};
+    int pos = build_root.indexOf('/', specialRoot.size());
+    if (pos == -1)
+        return {};
+    pos = build_root.indexOf('/', pos + 1);
+    if (pos == -1)
+        return {};
+    return build_root.left(pos + 1);
+}
+
 QString QMakeGlobals::shadowedPath(const QString &fileName) const
 {
     if (source_root.isEmpty())

@@ -1480,8 +1480,9 @@ void QMakeEvaluator::updateMkspecPaths()
     if (!m_sourceRoot.isEmpty())
         ret << m_sourceRoot + concat;
 
-    ret << m_option->propertyValue(ProKey("QT_HOST_DATA/get")) + concat;
-    ret << m_option->propertyValue(ProKey("QT_HOST_DATA/src")) + concat;
+    const QString root = m_option->deviceRoot();
+    ret << root + m_option->propertyValue(ProKey("QT_HOST_DATA/get")) + concat;
+    ret << root + m_option->propertyValue(ProKey("QT_HOST_DATA/src")) + concat;
 
     ret.removeDuplicates();
     m_mkspecPaths = ret;

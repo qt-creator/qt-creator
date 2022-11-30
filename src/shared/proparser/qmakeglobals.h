@@ -120,6 +120,7 @@ public:
     QString expandEnvVars(const QString &str) const;
     QString shadowedPath(const QString &fileName) const;
     QStringList splitPathList(const QString &value) const;
+    QString deviceRoot() const;
 
 private:
     QString getEnv(const QString &) const;
