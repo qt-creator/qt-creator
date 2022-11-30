@@ -7,6 +7,8 @@
 
 #include <model.h>
 
+#include <app/app_version.h>
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <utils/algorithm.h>
@@ -40,7 +42,9 @@ Utils::FilePath pathForBinPuppet(ProjectExplorer::Target *target)
     QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
 
     if (currentQtVersion)
-        return currentQtVersion->binPath().pathAppended("qml2puppet").withExecutableSuffix();
+        return currentQtVersion->binPath()
+            .pathAppended(QString{"qml2puppet-"} + Core::Constants::IDE_VERSION_LONG)
+            .withExecutableSuffix();
 
     return {};
 }
