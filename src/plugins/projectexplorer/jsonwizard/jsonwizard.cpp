@@ -35,8 +35,9 @@
 #include "jsonwizard_test.cpp"
 #endif
 
-namespace ProjectExplorer {
+using namespace Utils;
 
+namespace ProjectExplorer {
 namespace Internal {
 
 class ProjectFileTreeItem : public TreeItem
