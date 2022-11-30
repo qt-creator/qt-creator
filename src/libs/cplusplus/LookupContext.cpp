@@ -229,11 +229,11 @@ static bool isInlineNamespace(ClassOrNamespace *con, const Name *name)
 const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control)
 {
     const Name *n = nullptr;
+    std::optional<QList<const Name *>> minimal;
     QList<const Name *> names = LookupContext::fullyQualifiedName(symbol);
-    ClassOrNamespace *current = target;
 
     const auto getNameFromItems = [symbol, target, control](const QList<LookupItem> &items,
-            const QList<const Name *> &names) -> const Name * {
+            const QList<const Name *> &names) -> std::optional<QList<const Name *>> {
         for (const LookupItem &item : items) {
             if (!symbol->asUsingDeclaration() && !symbolIdentical(item.declaration(), symbol))
                 continue;
@@ -246,41 +246,54 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
                     minimal.removeAt(i);
             }
 
-            return control->toName(minimal);
+            return minimal;
         }
-
-        return nullptr;
+        return {};
     };
 
-    for (int i = names.size() - 1; i >= 0; --i) {
-        if (! n)
-            n = names.at(i);
-        else
-            n = control->qualifiedNameId(names.at(i), n);
+    do {
+        ClassOrNamespace *current = target;
+        n = nullptr;
 
-        // once we're qualified enough to get the same symbol, break
-        if (target) {
-            const Name * const minimal = getNameFromItems(target->lookup(n), names.mid(i));
-            if (minimal)
-                return minimal;
-        }
-        if (current) {
-            const ClassOrNamespace * const nested = current->getNested(names.last());
-            if (nested) {
-                const QList<const Name *> nameList
-                        = names.mid(0, names.size() - i - 1) << names.last();
-                const QList<ClassOrNamespace *> usings = nested->usings();
-                for (ClassOrNamespace * const u : usings) {
-                    const Name * const minimal = getNameFromItems(u->lookup(symbol->name()),
-                                                                  nameList);
-                    if (minimal)
-                        return minimal;
+        for (int i = names.size() - 1; i >= 0; --i) {
+            if (! n)
+                n = names.at(i);
+            else
+                n = control->qualifiedNameId(names.at(i), n);
+
+            if (target) {
+                const auto candidate = getNameFromItems(target->lookup(n), names.mid(i));
+                if (candidate && (!minimal || minimal->size() > candidate->size())) {
+                    minimal = candidate;
+                    if (minimal && minimal->size() == 1)
+                        return control->toName(*minimal);
                 }
             }
-            current = current->getNested(names.at(names.size() - i - 1));
-        }
-    }
 
+            if (current) {
+                const ClassOrNamespace * const nested = current->getNested(names.last());
+                if (nested) {
+                    const QList<const Name *> nameList
+                            = names.mid(0, names.size() - i - 1) << names.last();
+                    const QList<ClassOrNamespace *> usings = nested->usings();
+                    for (ClassOrNamespace * const u : usings) {
+                        const auto candidate = getNameFromItems(u->lookup(symbol->name()), nameList);
+                        if (candidate && (!minimal || minimal->size() > candidate->size())) {
+                            minimal = candidate;
+                            if (minimal && minimal->size() == 1)
+                                return control->toName(*minimal);
+                        }
+                    }
+                }
+                current = current->getNested(names.at(names.size() - i - 1));
+            }
+        }
+        if (target)
+            target = target->parent();
+    } while (target);
+
+    if (minimal)
+        return control->toName(*minimal);
     return n;
 }
 

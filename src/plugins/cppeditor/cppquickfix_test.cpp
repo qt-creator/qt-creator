@@ -4555,6 +4555,39 @@ D::D()
 )";
     testDocuments << CppTestDocument::create("file.cpp", original, expected);
     QuickFixOperationTest(testDocuments, &factory);
+
+    testDocuments.clear();
+    original = R"(
+namespace ns1 { template<typename T> class span {}; }
+
+namespace ns {
+using ns1::span;
+class foo
+{
+    void @bar(ns::span<int>);
+};
+}
+)";
+    expected = R"(
+namespace ns1 { template<typename T> class span {}; }
+
+namespace ns {
+using ns1::span;
+class foo
+{
+    void bar(ns::span<int>);
+};
+
+void foo::bar(ns::span<int>)
+{
+
+}
+
+}
+)";
+    // TODO: Unneeded namespace gets inserted in RewriteName::visit(const QualifiedNameId *)
+    testDocuments << CppTestDocument::create("file.cpp", original, expected);
+    QuickFixOperationTest(testDocuments, &factory);
 }
 
 /// Find right implementation file. (QTCREATORBUG-10728)
