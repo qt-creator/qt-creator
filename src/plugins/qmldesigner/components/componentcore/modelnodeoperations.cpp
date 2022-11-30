@@ -1646,7 +1646,7 @@ void openEffectMaker(const QString &filePath)
 
     const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (baseQtVersion) {
-        auto effectMakerPath = baseQtVersion->binPath().pathAppended("QQEffectMaker").withExecutableSuffix();
+        auto effectMakerPath = baseQtVersion->binPath().pathAppended("qqem").withExecutableSuffix();
         if (!effectMakerPath.exists()) {
             qWarning() << __FUNCTION__ << "Cannot find EffectMaker app";
             return;
