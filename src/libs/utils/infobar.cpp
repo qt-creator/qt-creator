@@ -374,8 +374,10 @@ void InfoBarDisplay::update()
             if (infoWidgetCloseButton)
                 hbox->addWidget(infoWidgetCloseButton);
         } else {
-            infoWidgetCloseButton->setText(info.m_cancelButtonText);
-            hbox->addWidget(infoWidgetCloseButton);
+            if (infoWidgetCloseButton) {
+                infoWidgetCloseButton->setText(info.m_cancelButtonText);
+                hbox->addWidget(infoWidgetCloseButton);
+            }
             if (infoWidgetSuppressButton)
                 hbox->addWidget(infoWidgetSuppressButton);
         }
