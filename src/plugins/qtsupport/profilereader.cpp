@@ -170,14 +170,14 @@ void ProFileCacheManager::clear()
     m_cache = nullptr;
 }
 
-void ProFileCacheManager::discardFiles(const QString &prefix, QMakeVfs *vfs)
+void ProFileCacheManager::discardFiles(const QString &device, const QString &prefix, QMakeVfs *vfs)
 {
     if (m_cache)
-        m_cache->discardFiles(prefix, vfs);
+        m_cache->discardFiles(device, prefix, vfs);
 }
 
-void ProFileCacheManager::discardFile(const QString &fileName, QMakeVfs *vfs)
+void ProFileCacheManager::discardFile(const QString &device, const QString &fileName, QMakeVfs *vfs)
 {
     if (m_cache)
-        m_cache->discardFile(fileName, vfs);
+        m_cache->discardFile(device, fileName, vfs);
 }

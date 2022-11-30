@@ -207,20 +207,20 @@ QMakeVfs::ReadResult QMakeVfs::readFile(int id, QString *contents, QString *errS
     return ReadOk;
 }
 
-bool QMakeVfs::exists(const QString &fn, VfsFlags flags)
+bool QMakeVfs::exists(const QString &device, const QString &fn, VfsFlags flags)
 {
 #ifndef PROEVALUATOR_FULL
 # ifdef PROEVALUATOR_THREAD_SAFE
     QMutexLocker locker(&m_mutex);
 # endif
-    int id = idForFileName(fn, flags);
+    int id = idForFileName(device + fn, flags);
     auto it = m_files.constFind(id);
     if (it != m_files.constEnd())
         return it->constData() != m_magicMissing.constData();
 #else
     Q_UNUSED(flags)
 #endif
-    bool ex = IoUtils::fileType(fn) == IoUtils::FileIsRegular;
+    bool ex = IoUtils::fileType(device, fn) == IoUtils::FileIsRegular;
 #ifndef PROEVALUATOR_FULL
     m_files[id] = ex ? m_magicExisting : m_magicMissing;
 #endif

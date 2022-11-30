@@ -164,17 +164,17 @@ static void createTree(QmakeBuildSystem *buildSystem,
                                            || type == FileType::Form);
 
             if (type == FileType::Resource) {
-                for (const auto &file : newFilePaths) {
+                for (const SourceFile &file : newFilePaths) {
                     auto vfs = buildSystem->qmakeVfs();
                     QString contents;
                     QString errorMessage;
                     // Prefer the cumulative file if it's non-empty, based on the assumption
                     // that it contains more "stuff".
-                    int cid = vfs->idForFileName(file.first.toString(), QMakeVfs::VfsCumulative);
+                    int cid = vfs->idForFileName(file.first.toFSPathString(), QMakeVfs::VfsCumulative);
                     vfs->readFile(cid, &contents, &errorMessage);
                     // If the cumulative evaluation botched the file too much, try the exact one.
                     if (contents.isEmpty()) {
-                        int eid = vfs->idForFileName(file.first.toString(), QMakeVfs::VfsExact);
+                        int eid = vfs->idForFileName(file.first.toFSPathString(), QMakeVfs::VfsExact);
                         vfs->readFile(eid, &contents, &errorMessage);
                     }
                     auto topLevel = std::make_unique<ResourceEditor::ResourceTopLevelNode>

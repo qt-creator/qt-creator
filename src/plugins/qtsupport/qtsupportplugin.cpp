@@ -27,9 +27,12 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <proparser/qmakeevaluator.h>
+
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcprocess.h>
 
 using namespace Core;
 using namespace Utils;
@@ -65,8 +68,28 @@ QtSupportPlugin::~QtSupportPlugin()
     delete d;
 }
 
+static void processRunnerCallback(ProcessData *data)
+{
+    FilePath rootPath = FilePath::fromString(data->deviceRoot);
+
+    QtcProcess proc;
+    proc.setProcessChannelMode(data->processChannelMode);
+    proc.setCommand({rootPath.withNewPath("/bin/sh"), {QString("-c"), data->command}});
+    proc.setWorkingDirectory(FilePath::fromString(data->workingDirectory));
+    proc.setEnvironment(Environment(data->environment.toStringList(), OsTypeLinux));
+
+    proc.runBlocking();
+
+    data->exitCode = proc.exitCode();
+    data->exitStatus = proc.exitStatus();
+    data->stdErr = proc.readAllStandardError();
+    data->stdOut = proc.readAllStandardOutput();
+}
+
 bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    theProcessRunner() = processRunnerCallback;
+
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
     QMakeParser::initialize();

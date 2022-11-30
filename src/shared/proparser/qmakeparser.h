@@ -67,8 +67,8 @@ public:
 
     enum SubGrammar { FullGrammar, TestGrammar, ValueGrammar };
     // fileName is expected to be absolute and cleanPath()ed.
-    ProFile *parsedProFile(const QString &fileName, ParseFlags flags = ParseDefault);
-    ProFile *parsedProBlock(QStringView contents, int id, const QString &name, int line = 0,
+    ProFile *parsedProFile(const QString &device, const QString &fileName, ParseFlags flags = ParseDefault);
+    ProFile *parsedProBlock(const QString &device, QStringView contents, int id, const QString &name, int line = 0,
                             SubGrammar grammar = FullGrammar);
 
     void discardFileFromCache(int id);
@@ -179,8 +179,8 @@ public:
     ~ProFileCache();
 
     void discardFile(int id);
-    void discardFile(const QString &fileName, QMakeVfs *vfs);
-    void discardFiles(const QString &prefix, QMakeVfs *vfs);
+    void discardFile(const QString &device, const QString &fileName, QMakeVfs *vfs);
+    void discardFiles(const QString &device, const QString &prefix, QMakeVfs *vfs);
 
 private:
     struct Entry {

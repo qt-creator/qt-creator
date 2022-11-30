@@ -78,7 +78,7 @@ QString QMakeGlobals::cleanSpec(QMakeCmdLineParserState &state, const QString &s
 {
     QString ret = QDir::cleanPath(spec);
     if (ret.contains(QLatin1Char('/'))) {
-        QString absRet = IoUtils::resolvePath(state.pwd, ret);
+        QString absRet = IoUtils::resolvePath(device_root, state.pwd, ret);
         if (QFile::exists(absRet))
             ret = absRet;
     }
@@ -108,10 +108,10 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
             user_template_prefix = arg;
             break;
         case ArgCache:
-            cachefile = args[*pos] = IoUtils::resolvePath(state.pwd, arg);
+            cachefile = args[*pos] = IoUtils::resolvePath(device_root, state.pwd, arg);
             break;
         case ArgQtConf:
-            qtconf = args[*pos] = IoUtils::resolvePath(state.pwd, arg);
+            qtconf = args[*pos] = IoUtils::resolvePath(device_root, state.pwd, arg);
             break;
         default:
             if (arg.startsWith(QLatin1Char('-'))) {
@@ -204,8 +204,9 @@ void QMakeGlobals::setCommandLineArguments(const QString &pwd, const QStringList
     useEnvironment();
 }
 
-void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir)
+void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir, const QString &device_root)
 {
+    this->device_root = device_root;
     if (input_dir != output_dir && !output_dir.isEmpty()) {
         QString srcpath = input_dir;
         if (!srcpath.endsWith(QLatin1Char('/')))
@@ -223,20 +224,6 @@ void QMakeGlobals::setDirectories(const QString &input_dir, const QString &outpu
         source_root = srcpath.left(srcLen + lastSl);
         build_root = dstpath.left(dstLen + lastSl);
     }
-}
-
-QString QMakeGlobals::deviceRoot() const
-{
-    static const QString specialRoot = QDir::rootPath() + "__qtc_devices__/";
-    if (!build_root.startsWith(specialRoot))
-        return {};
-    int pos = build_root.indexOf('/', specialRoot.size());
-    if (pos == -1)
-        return {};
-    pos = build_root.indexOf('/', pos + 1);
-    if (pos == -1)
-        return {};
-    return build_root.left(pos + 1);
 }
 
 QString QMakeGlobals::shadowedPath(const QString &fileName) const
@@ -259,7 +246,7 @@ QStringList QMakeGlobals::splitPathList(const QString &val) const
         const QStringList vals = val.split(dirlist_sep);
         ret.reserve(vals.length());
         for (const QString &it : vals)
-            ret << IoUtils::resolvePath(cwd, it);
+            ret << IoUtils::resolvePath(device_root, cwd, it);
     }
     return ret;
 }

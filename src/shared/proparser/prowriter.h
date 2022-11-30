@@ -52,9 +52,9 @@ public:
             VarLocations *removedLocations = nullptr);
 
 private:
-    static bool locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,
+    static bool locateVarValues(const QString &device, const ushort *tokPtr, const ushort *tokPtrEnd,
                                 const QString &scope, const QString &var, int *scopeStart, int *bestLine);
-    static QString compileScope(const QString &scope);
+    static QString compileScope(const QString &device, const QString &scope);
 };
 
 } // namespace Internal

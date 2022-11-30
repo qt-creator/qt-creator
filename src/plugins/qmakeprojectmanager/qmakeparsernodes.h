@@ -115,8 +115,10 @@ public:
     virtual ~QmakePriFile();
 
     void finishInitialization(QmakeBuildSystem *buildSystem, QmakeProFile *qmakeProFile);
-    Utils::FilePath filePath() const;
+
+    const Utils::FilePath &filePath() const { return m_filePath; }
     Utils::FilePath directoryPath() const;
+    QString deviceRoot() const;
     virtual QString displayName() const;
 
     QmakePriFile *parent() const;
@@ -205,13 +207,6 @@ private:
     Utils::FilePaths formResources(const Utils::FilePath &formFile) const;
     static QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir, const QString &buildDir);
     static QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, const QString &qmakeVariable, const QString &projectDir);
-    static void extractSources(QHash<int, Internal::QmakePriFileEvalResult *> proToResult,
-            Internal::QmakePriFileEvalResult *fallback,
-            QVector<ProFileEvaluator::SourceFile> sourceFiles, ProjectExplorer::FileType type, bool cumulative);
-    static void extractInstalls(
-            QHash<int, Internal::QmakePriFileEvalResult *> proToResult,
-            Internal::QmakePriFileEvalResult *fallback,
-            const InstallsList &installList);
     static void processValues(Internal::QmakePriFileEvalResult &result);
     void watchFolders(const QSet<Utils::FilePath> &folders);
 

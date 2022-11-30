@@ -154,12 +154,12 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     return nullptr;
 }
 
-QString ProWriter::compileScope(const QString &scope)
+QString ProWriter::compileScope(const QString &device, const QString &scope)
 {
     if (scope.isEmpty())
         return QString();
     QMakeParser parser(nullptr, nullptr, nullptr);
-    ProFile *includeFile = parser.parsedProBlock(QStringView(scope), 0, "no-file", 1);
+    ProFile *includeFile = parser.parsedProBlock(device, QStringView(scope), 0, "no-file", 1);
     if (!includeFile)
         return QString();
     const QString result = includeFile->items();
@@ -181,7 +181,7 @@ static bool startsWithTokens(const ushort *that, const ushort *thatEnd, const us
     return true;
 }
 
-bool ProWriter::locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,
+bool ProWriter::locateVarValues(const QString &device, const ushort *tokPtr, const ushort *tokPtrEnd,
     const QString &scope, const QString &var, int *scopeStart, int *bestLine)
 {
     const bool inScope = scope.isEmpty();
@@ -190,7 +190,7 @@ bool ProWriter::locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,
     const ushort *lastXpr = nullptr;
     bool fresh = true;
 
-    QString compiledScope = compileScope(scope);
+    QString compiledScope = compileScope(device, scope);
     const ushort *cTokPtr = reinterpret_cast<const ushort *>(compiledScope.constData());
 
     while (ushort tok = *tokPtr++) {
@@ -206,7 +206,7 @@ bool ProWriter::locateVarValues(const ushort *tokPtr, const ushort *tokPtrEnd,
                     && startsWithTokens(tokPtr - 1, tokPtrEnd, cTokPtr, cTokPtr + compiledScope.size())
                     && *(tokPtr -1 + compiledScope.size()) == TokBranch) {
                 *scopeStart = lineNo - 1;
-                if (locateVarValues(tokPtr + compiledScope.size() + 2, tokPtrEnd,
+                if (locateVarValues(device, tokPtr + compiledScope.size() + 2, tokPtrEnd,
                                     QString(), var, scopeStart, bestLine))
                     return true;
             }
@@ -298,7 +298,7 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
         return !ci.indent.isEmpty() ? ci.indent : continuationIndent + indent;
     };
     int scopeStart = -1, lineNo;
-    if (locateVarValues(profile->tokPtr(), profile->tokPtrEnd(), scope, var, &scopeStart, &lineNo)) {
+    if (locateVarValues(profile->device(), profile->tokPtr(), profile->tokPtrEnd(), scope, var, &scopeStart, &lineNo)) {
         if (flags & ReplaceValues) {
             // remove continuation lines with old values
             const ContinuationInfo contInfo = skipContLines(lines, lineNo, false);

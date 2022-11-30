@@ -81,6 +81,7 @@ public:
 #ifdef PROEVALUATOR_SETENV
     QProcessEnvironment environment;
 #endif
+    QString device_root;
     QString qmake_abslocation;
     QStringList qmake_args, qmake_extra_args;
 
@@ -102,7 +103,8 @@ public:
     void commitCommandLineArguments(QMakeCmdLineParserState &state);
     void setCommandLineArguments(const QString &pwd, const QStringList &args);
     void useEnvironment();
-    void setDirectories(const QString &input_dir, const QString &output_dir);
+    void setDirectories(const QString &input_dir, const QString &output_dir,
+                        const QString &device_root);
 #ifdef QT_BUILD_QMAKE
     void setQMakeProperty(QMakeProperty *prop) { property = prop; }
     void reloadProperties() { property->reload(); }
@@ -120,7 +122,6 @@ public:
     QString expandEnvVars(const QString &str) const;
     QString shadowedPath(const QString &fileName) const;
     QStringList splitPathList(const QString &value) const;
-    QString deviceRoot() const;
 
 private:
     QString getEnv(const QString &) const;

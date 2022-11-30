@@ -113,6 +113,8 @@ public:
     void warnOnToolChainMismatch(const QmakeProFile *pro) const;
     void testToolChain(ProjectExplorer::ToolChain *tc, const Utils::FilePath &path) const;
 
+    QString deviceRoot() const;
+
     /// \internal
     QtSupport::ProFileReader *createProFileReader(const QmakeProFile *qmakeProFile);
     /// \internal

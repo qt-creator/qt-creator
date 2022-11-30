@@ -24,16 +24,27 @@ QT_BEGIN_NAMESPACE
 
 using namespace QMakeInternal;
 
-static bool isGenericPath(const QStringView fileName)
+static bool startsWithSpecialRoot(const QStringView fileName)
 {
     static const QString specialRoot = QDir::rootPath() + "__qtc_devices__/";
     return fileName.startsWith(specialRoot);
 }
 
-IoUtils::FileType IoUtils::fileType(const QString &fileName)
+static std::optional<QString> genericPath(const QString &device, const QString &fileName)
 {
-    if (isGenericPath(fileName)) {
-        QFileInfo fi(fileName);
+    if (!device.isEmpty())
+        return device + fileName;
+
+    if (startsWithSpecialRoot(fileName))
+        return fileName;
+
+    return {};
+}
+
+IoUtils::FileType IoUtils::fileType(const QString &device, const QString &fileName)
+{
+    if (std::optional<QString> devPath = genericPath(device, fileName)) {
+        QFileInfo fi(*devPath);
         if (fi.isDir())
             return FileIsDir;
         if (fi.isFile())
@@ -41,10 +52,10 @@ IoUtils::FileType IoUtils::fileType(const QString &fileName)
         return FileNotFound;
     }
 
-    if (!QFileInfo::exists(fileName))
+    if (!QFileInfo::exists(device + fileName))
         return FileNotFound;
 
-    Q_ASSERT(fileName.isEmpty() || isAbsolutePath(fileName));
+    Q_ASSERT(fileName.isEmpty() || isAbsolutePath(device, fileName));
 
 #ifdef Q_OS_WIN
     DWORD attr = GetFileAttributesW((WCHAR*)fileName.utf16());
@@ -59,33 +70,40 @@ IoUtils::FileType IoUtils::fileType(const QString &fileName)
 #endif
 }
 
-bool IoUtils::isRelativePath(const QString &path)
+static bool isWindows(const QString &device)
+{
+    if (!device.isEmpty())
+        return false;
+#ifdef Q_OS_WIN
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool IoUtils::isRelativePath(const QString &device, const QString &path)
 {
 #ifdef QMAKE_BUILTIN_PRFS
     if (path.startsWith(QLatin1String(":/")))
         return false;
 #endif
 
-    if (isGenericPath(path))
-        return QFileInfo(path).isRelative();
-
-#ifdef Q_OS_WIN
-    // Unlike QFileInfo, this considers only paths with both a drive prefix and
-    // a subsequent (back-)slash absolute:
-    if (path.length() >= 3 && path.at(1) == QLatin1Char(':') && path.at(0).isLetter()
-        && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\'))) {
-        return false;
-    }
-    // ... unless, of course, they're UNC:
-    if (path.length() >= 2
-        && (path.at(0).unicode() == '\\' || path.at(0).unicode() == '/')
-        && path.at(1) == path.at(0)) {
+    if (isWindows(device)) {
+        // Unlike QFileInfo, this considers only paths with both a drive prefix and
+        // a subsequent (back-)slash absolute:
+        if (path.length() >= 3 && path.at(1) == QLatin1Char(':') && path.at(0).isLetter()
+            && (path.at(2) == QLatin1Char('/') || path.at(2) == QLatin1Char('\\'))) {
             return false;
-    }
-#else
-    if (path.startsWith(QLatin1Char('/')))
+        }
+        // ... unless, of course, they're UNC:
+        if (path.length() >= 2
+            && (path.at(0).unicode() == '\\' || path.at(0).unicode() == '/')
+            && path.at(1) == path.at(0)) {
+                return false;
+        }
+    } else if (path.startsWith(QLatin1Char('/'))) {
         return false;
-#endif // Q_OS_WIN
+    }
     return true;
 }
 
@@ -99,22 +117,28 @@ QStringView IoUtils::fileName(const QString &fileName)
     return QStringView(fileName).mid(fileName.lastIndexOf(QLatin1Char('/')) + 1);
 }
 
-QString IoUtils::resolvePath(const QString &baseDir, const QString &fileName)
+QString IoUtils::resolvePath(const QString &device, const QString &baseDir, const QString &fileName)
 {
     if (fileName.isEmpty())
         return QString();
 
-    if (isGenericPath(fileName))
-        return baseDir + '/' + fileName;
+    if (startsWithSpecialRoot(fileName))
+        return fileName;
 
-    if (isAbsolutePath(fileName))
+    if (isAbsolutePath(device, fileName))
         return QDir::cleanPath(fileName);
-#ifdef Q_OS_WIN // Add drive to otherwise-absolute path:
-    if (fileName.at(0).unicode() == '/' || fileName.at(0).unicode() == '\\') {
-        return isAbsolutePath(baseDir) ? QDir::cleanPath(baseDir.left(2) + fileName)
-                                       : QDir::cleanPath(fileName);
+
+    if (isWindows(device)) {
+        // Add drive to otherwise-absolute path:
+        if (fileName.at(0).unicode() == '/' || fileName.at(0).unicode() == '\\') {
+            return isAbsolutePath(device, baseDir) ? QDir::cleanPath(baseDir.left(2) + fileName)
+                                                   : QDir::cleanPath(fileName);
+        }
+    } else {
+        if (fileName.at(0).unicode() == '/' || fileName.at(0).unicode() == '\\')
+            return fileName;
     }
-#endif // Q_OS_WIN
+
     return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
 }
 

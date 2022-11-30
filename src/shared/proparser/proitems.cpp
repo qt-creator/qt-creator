@@ -443,16 +443,21 @@ bool ProStringList::contains(const char *str, Qt::CaseSensitivity cs) const
     return false;
 }
 
-ProFile::ProFile(int id, const QString &fileName)
+ProFile::ProFile(const QString &device, int id, const QString &fileName)
     : m_refCount(1),
       m_fileName(fileName),
+      m_device(device),
       m_id(id),
       m_ok(true),
       m_hostBuild(false)
 {
-    if (!fileName.startsWith(QLatin1Char('(')))
-        m_directoryName = QFileInfo( // qmake sickness: canonicalize only the directory!
-                fileName.left(fileName.lastIndexOf(QLatin1Char('/')))).canonicalFilePath();
+    if (!fileName.startsWith(QLatin1Char('('))) {
+        m_directoryName = fileName.left(fileName.lastIndexOf(QLatin1Char('/')));
+        if (device.isEmpty()) {
+            // qmake sickness: canonicalize only the directory!
+            m_directoryName = QFileInfo(m_directoryName).canonicalFilePath();
+        }
+    }
 }
 
 ProFile::~ProFile()

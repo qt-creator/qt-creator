@@ -416,6 +416,7 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
                                                      project()->files(Project::HiddenRccFolders));
 
     const QList<QmakeProFile *> proFiles = rootProFile()->allProFiles();
+    const QString device = rootProFile()->deviceRoot();
 
     projectInfo.importPaths.clear();
 
@@ -433,7 +434,7 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
             projectInfo.activeResourceFiles.append(rcPath);
             projectInfo.allResourceFiles.append(rcPath);
             QString contents;
-            int id = m_qmakeVfs->idForFileName(rc, QMakeVfs::VfsExact);
+            int id = m_qmakeVfs->idForFileName(device + rc, QMakeVfs::VfsExact);
             if (m_qmakeVfs->readFile(id, &contents, &errorMessage) == QMakeVfs::ReadOk)
                 projectInfo.resourceFileContents[rcPath] = contents;
         }
@@ -441,7 +442,7 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
             FilePath rcPath = FilePath::fromString(rc);
             projectInfo.allResourceFiles.append(rcPath);
             QString contents;
-            int id = m_qmakeVfs->idForFileName(rc, QMakeVfs::VfsCumulative);
+            int id = m_qmakeVfs->idForFileName(device + rc, QMakeVfs::VfsCumulative);
             if (m_qmakeVfs->readFile(id, &contents, &errorMessage) == QMakeVfs::ReadOk)
                 projectInfo.resourceFileContents[rcPath] = contents;
         }
@@ -856,12 +857,14 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
 
         if (qtVersion && qtVersion->isValid()) {
             m_qmakeGlobals->qmake_abslocation =
-                    QDir::cleanPath(qtVersion->qmakeFilePath().toFSPathString());
+                QDir::cleanPath(qtVersion->qmakeFilePath().path());
             qtVersion->applyProperties(m_qmakeGlobals.get());
         }
 
-        QString rootProFileName = buildDir(rootProFile()->filePath()).toFSPathString();
-        m_qmakeGlobals->setDirectories(rootProFile()->sourceDir().toFSPathString(), rootProFileName);
+        QString rootProFileName = buildDir(rootProFile()->filePath()).path();
+        m_qmakeGlobals->setDirectories(rootProFile()->sourceDir().path(),
+                                       rootProFileName,
+                                       deviceRoot());
 
         Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
@@ -891,7 +894,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
     auto reader = new QtSupport::ProFileReader(m_qmakeGlobals.get(), m_qmakeVfs);
 
     // Core parts of the ProParser hard-assert on non-local items
-    reader->setOutputDir(buildDir(qmakeProFile->filePath()).toFSPathString());
+    reader->setOutputDir(buildDir(qmakeProFile->filePath()).path());
 
     return reader;
 }
@@ -926,10 +929,10 @@ void QmakeBuildSystem::destroyProFileReader(QtSupport::ProFileReader *reader)
 
 void QmakeBuildSystem::deregisterFromCacheManager()
 {
-    QString dir = projectFilePath().toFSPathString();
+    QString dir = projectFilePath().path();
     if (!dir.endsWith(QLatin1Char('/')))
         dir += QLatin1Char('/');
-    QtSupport::ProFileCacheManager::instance()->discardFiles(dir, qmakeVfs());
+    QtSupport::ProFileCacheManager::instance()->discardFiles(deviceRoot(), dir, qmakeVfs());
     QtSupport::ProFileCacheManager::instance()->decRefCount();
 }
 
@@ -947,7 +950,7 @@ static void notifyChangedHelper(const FilePath &fileName, QmakeProFile *file)
 {
     if (file->filePath() == fileName) {
         QtSupport::ProFileCacheManager::instance()->discardFile(
-                    fileName.toString(), file->buildSystem()->qmakeVfs());
+            file->deviceRoot(), fileName.path(), file->buildSystem()->qmakeVfs());
         file->scheduleUpdate(QmakeProFile::ParseNow);
     }
 
@@ -1437,6 +1440,13 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
                             .arg(expected.toUserOutput())
                             .arg(kit()->displayName())));
     m_toolChainWarnings.insert(pair);
+}
+
+QString QmakeBuildSystem::deviceRoot() const
+{
+    if (projectFilePath().needsDevice())
+        return projectFilePath().withNewPath("/").toFSPathString();
+    return {};
 }
 
 void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const

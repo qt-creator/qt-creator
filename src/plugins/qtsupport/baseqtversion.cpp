@@ -1123,12 +1123,11 @@ void QtVersion::ensureMkSpecParsed() const
     Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     option.environment = env.toProcessEnvironment();
+    option.device_root = d->m_qmakeCommand.withNewPath("/").toFSPathString();
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
     ProFileEvaluator evaluator(&option, &parser, &vfs, &msgHandler);
-    // FIXME: toString() would be better, but the pro parser Q_ASSERTs on anything
-    // non-local.
     evaluator.loadNamedSpec(mkspecPath().path(), false);
 
     parseMkSpec(&evaluator);
@@ -1165,7 +1164,7 @@ void QtVersion::setId(int id)
 QString QtVersion::mkspec() const
 {
     d->updateMkspec();
-    return d->m_mkspec.toString();
+    return d->m_mkspec.toFSPathString();
 }
 
 QString QtVersion::mkspecFor(ToolChain *tc) const

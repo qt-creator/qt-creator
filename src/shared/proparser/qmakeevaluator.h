@@ -29,6 +29,26 @@
 
 #include <list>
 
+class ProcessData
+{
+public:
+    QString deviceRoot;
+
+    QString command;
+    QString workingDirectory;
+    QProcessEnvironment environment;
+    QProcess::ProcessChannelMode processChannelMode = QProcess::SeparateChannels;
+
+    QProcess::ExitStatus exitStatus = QProcess::NormalExit;
+    QByteArray stdOut;
+    QByteArray stdErr;
+    int exitCode = 0;
+};
+
+QMAKE_EXPORT std::function<void(ProcessData *data)> &theProcessRunner();
+QMAKE_EXPORT QString removeHostAndScheme(const QString &remotePath);
+
+
 QT_BEGIN_NAMESPACE
 
 class QMakeGlobals;
@@ -159,8 +179,7 @@ public:
     QString currentDirectory() const;
     ProFile *currentProFile() const;
     int currentFileId() const;
-    QString resolvePath(const QString &fileName) const
-        { return QMakeInternal::IoUtils::resolvePath(currentDirectory(), fileName); }
+    QString resolvePath(const QString &fileName) const;
 
     VisitReturn evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                              LoadFlags flags);
@@ -217,6 +236,7 @@ public:
 #ifndef QT_BOOTSTRAPPED
     void runProcess(QProcess *proc, const QString &command) const;
 #endif
+    void runProcessHelper(ProcessData *processData) const;
     QByteArray getCommandOutput(const QString &args, int *exitCode) const;
 
     QMakeEvaluator *m_caller;
@@ -229,6 +249,7 @@ public:
 #endif
 
     static QString quoteValue(const ProString &val);
+    const QString &deviceRoot() const;
 
 #ifdef PROEVALUATOR_DEBUG
     void debugMsgInternal(int level, const char *fmt, ...) const;

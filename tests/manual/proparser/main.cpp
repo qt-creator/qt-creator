@@ -58,9 +58,9 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
 #endif
     visitor.setOutputDir(out_pwd);
 
-    ProFile *pro;
-    if (!(pro = parser->parsedProFile(fileName))) {
-        if (!QFile::exists(fileName)) {
+    ProFile *pro = parser->parsedProFile(option->device_root, fileName);
+    if (!pro) {
+        if (!QFileInfo::exists(option->device_root + fileName)) {
             qCritical("Input file %s does not exist.", qPrintable(fileName));
             return 3;
         }
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
     option.useEnvironment();
     if (out_pwd.isEmpty())
         out_pwd = in_pwd;
-    option.setDirectories(in_pwd, out_pwd);
+    option.setDirectories(in_pwd, out_pwd, {});
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &evalHandler);

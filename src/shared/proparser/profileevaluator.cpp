@@ -62,12 +62,13 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
         bool expandWildcards) const
 {
     QVector<SourceFile> result;
+    QString deviceRoot = d->deviceRoot();
     const ProStringList values = d->values(ProKey(variable));
     for (const ProString &str : values) {
         const QString &el = d->m_option->expandEnvVars(str.toQString());
-        const QString fn = IoUtils::isAbsolutePath(el)
+        const QString fn = IoUtils::isAbsolutePath(deviceRoot, el)
                 ? QDir::cleanPath(el) : QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
-        if (IoUtils::exists(fn)) {
+        if (IoUtils::exists(deviceRoot, fn)) {
             result << SourceFile{fn, str.sourceFile()};
             continue;
         }
@@ -86,7 +87,7 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
                 result << SourceFile({fullFilePath, str.sourceFile()});
             }
         } else {
-            if (IoUtils::isAbsolutePath(el)) {
+            if (IoUtils::isAbsolutePath(deviceRoot, el)) {
                 result << SourceFile{fn, str.sourceFile()};
             } else {
                 result << SourceFile{QDir::cleanPath(buildDirectory + QLatin1Char('/') + el),
@@ -118,8 +119,8 @@ QStringList ProFileEvaluator::absolutePathValues(
     QStringList result;
     const QStringList valueList = values(variable);
     for (const QString &el : valueList) {
-        QString absEl = IoUtils::resolvePath(baseDirectory, el);
-        if (IoUtils::fileType(absEl) == IoUtils::FileIsDir)
+        QString absEl = IoUtils::resolvePath(d->deviceRoot(), baseDirectory, el);
+        if (IoUtils::fileType(d->deviceRoot(), absEl) == IoUtils::FileIsDir)
             result << absEl;
     }
     return result;
@@ -139,9 +140,9 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
         seen = true;
         const QString &el = d->m_option->expandEnvVars(str.toQString());
         QString absEl;
-        if (IoUtils::isAbsolutePath(el)) {
+        if (IoUtils::isAbsolutePath(d->deviceRoot(), el)) {
             QString fn = QDir::cleanPath(el);
-            if (m_vfs->exists(fn, flags)) {
+            if (m_vfs->exists(d->deviceRoot(), fn, flags)) {
                 result << SourceFile{ fn, str.sourceFile() };
                 goto next;
             }
@@ -149,7 +150,7 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
         } else {
             for (const QString &dir : searchDirs) {
                 QString fn = QDir::cleanPath(dir + QLatin1Char('/') + el);
-                if (m_vfs->exists(fn, flags)) {
+                if (m_vfs->exists(d->deviceRoot(), fn, flags)) {
                     result << SourceFile{fn, str.sourceFile()};
                     goto next;
                 }
@@ -165,7 +166,7 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
                 goto next;
             }
             QString absDir = d->m_tmp1.setRawData(absEl.constData(), nameOff);
-            if (IoUtils::exists(absDir)) {
+            if (IoUtils::exists(d->deviceRoot(), absDir)) {
                 QString wildcard = d->m_tmp2.setRawData(absEl.constData() + nameOff + 1,
                                                         absEl.length() - nameOff - 1);
                 if (wildcard.contains(QLatin1Char('*')) || wildcard.contains(QLatin1Char('?'))) {
