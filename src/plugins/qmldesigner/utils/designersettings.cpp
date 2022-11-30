@@ -86,6 +86,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::SMOOTH_RENDERING, false);
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUG_SETTINGS, false);
     restoreValue(settings, DesignerSettingsKey::OLD_STATES_EDITOR, false);
+    restoreValue(settings, DesignerSettingsKey::EDITOR_ZOOM_FACTOR, 1.0);
 
     settings->endGroup();
     settings->endGroup();

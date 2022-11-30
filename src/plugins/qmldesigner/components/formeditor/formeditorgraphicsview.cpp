@@ -5,6 +5,7 @@
 #include "formeditoritem.h"
 #include "formeditorwidget.h"
 #include "navigation2d.h"
+#include <utils/hostosinfo.h>
 
 #include <QAction>
 #include <QCoreApplication>
@@ -44,9 +45,11 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent)
     connect(filter, &Navigation2dFilter::zoomIn, this, &FormEditorGraphicsView::zoomIn);
     connect(filter, &Navigation2dFilter::zoomOut, this, &FormEditorGraphicsView::zoomOut);
 
-    connect(filter, &Navigation2dFilter::panChanged, [this](const QPointF &direction) {
-        Navigation2dFilter::scroll(direction, horizontalScrollBar(), verticalScrollBar());
-    });
+    if (Utils::HostOsInfo::isMacHost()) {
+        connect(filter, &Navigation2dFilter::panChanged, [this](const QPointF &direction) {
+            Navigation2dFilter::scroll(direction, horizontalScrollBar(), verticalScrollBar());
+        });
+    }
 
     auto zoomChanged = &Navigation2dFilter::zoomChanged;
     connect(filter, zoomChanged, [this](double s, const QPointF &/*pos*/) {
