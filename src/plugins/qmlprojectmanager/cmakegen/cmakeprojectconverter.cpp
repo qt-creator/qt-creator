@@ -13,6 +13,8 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+
 #include <QAction>
 #include <QMessageBox>
 #include <QRegularExpression>
@@ -24,7 +26,7 @@ namespace QmlProjectManager {
 namespace GenerateCmake {
 
 const QString MENU_ITEM_CONVERT = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
-                                                      "Export as Latest Project Format");
+                                                              "Export as Latest Project Format...");
 const QString ERROR_TITLE = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
                                                         "Creating Project");
 const QString SUCCESS_TITLE = QCoreApplication::translate("QmlDesigner::CmakeProjectConverter",
@@ -36,12 +38,12 @@ const QString SUCCESS_TEXT = QCoreApplication::translate("QmlDesigner::CmakeProj
 
 void CmakeProjectConverter::generateMenuEntry(QObject *parent)
 {
-    Core::ActionContainer *menu =
-            Core::ActionManager::actionContainer(Core::Constants::M_FILE);
+    Core::ActionContainer *exportMenu = Core::ActionManager::actionContainer(
+        QmlProjectManager::Constants::EXPORT_MENU);
     auto action = new QAction(MENU_ITEM_CONVERT, parent);
     QObject::connect(action, &QAction::triggered, CmakeProjectConverter::onConvertProject);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.ConvertToCmakeProject");
-    menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
+    exportMenu->addAction(cmd, QmlProjectManager::Constants::G_EXPORT_CONVERT);
 
     action->setEnabled(isProjectConvertable(ProjectExplorer::SessionManager::startupProject()));
     QObject::connect(ProjectExplorer::SessionManager::instance(),

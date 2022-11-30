@@ -19,6 +19,8 @@
 #include <coreplugin/coreconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
+#include <qmlprojectmanager/qmlprojectmanagerconstants.h>
+
 #include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
@@ -38,16 +40,16 @@
 namespace QmlDesigner {
 
 ShortCutManager::ShortCutManager()
-    : QObject(),
-    m_exportAsImageAction(tr("Export as &Image...")),
-    m_undoAction(tr("&Undo")),
-    m_redoAction(tr("&Redo")),
-    m_deleteAction(tr("Delete")),
-    m_cutAction(tr("Cu&t")),
-    m_copyAction(tr("&Copy")),
-    m_pasteAction(tr("&Paste")),
-    m_selectAllAction(tr("Select &All")),
-    m_escapeAction(this)
+    : QObject()
+    , m_exportAsImageAction(tr("Export as Image..."))
+    , m_undoAction(tr("&Undo"))
+    , m_redoAction(tr("&Redo"))
+    , m_deleteAction(tr("Delete"))
+    , m_cutAction(tr("Cu&t"))
+    , m_copyAction(tr("&Copy"))
+    , m_pasteAction(tr("&Paste"))
+    , m_selectAllAction(tr("Select &All"))
+    , m_escapeAction(this)
 {
 
 }
@@ -101,7 +103,11 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     connect(&m_exportAsImageAction, &QAction::triggered, [] {
         QmlDesignerPlugin::instance()->viewManager().exportAsImage();
     });
-    fileMenu->addAction(command, Core::Constants::G_FILE_SAVE);
+
+    Core::ActionContainer *exportMenu = Core::ActionManager::actionContainer(
+        QmlProjectManager::Constants::EXPORT_MENU);
+
+    exportMenu->addAction(command, QmlProjectManager::Constants::G_EXPORT_CONVERT);
 
     //Close Editor
     Core::ActionManager::registerAction(&m_closeCurrentEditorAction, Core::Constants::CLOSE, qmlDesignerMainContext);

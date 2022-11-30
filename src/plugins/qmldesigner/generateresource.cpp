@@ -182,7 +182,8 @@ void GenerateResource::generateMenuEntry(QObject *parent)
     const Core::Context projectContext(QmlProjectManager::Constants::QML_PROJECT_ID);
     // ToDo: move this to QtCreator and add tr to the string then
     auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                          "Generate QRC Resource File"), parent);
+                                                          "Generate QRC Resource File..."),
+                              parent);
     action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
     // todo make it more intelligent when it gets enabled
     QObject::connect(ProjectExplorer::SessionManager::instance(),
@@ -331,7 +332,8 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 
     // ToDo: move this to QtCreator and add tr to the string then
     auto rccAction = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
-                                                             "Generate Deployable Package"), parent);
+                                                             "Generate Deployable Package..."),
+                                 parent);
     rccAction->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
     QObject::connect(ProjectExplorer::SessionManager::instance(),
         &ProjectExplorer::SessionManager::startupProjectChanged, [rccAction]() {
@@ -340,7 +342,7 @@ void GenerateResource::generateMenuEntry(QObject *parent)
 
     Core::Command *cmd2 = Core::ActionManager::registerAction(rccAction,
                                          "QmlProject.CreateRCCResource");
-    QObject::connect(rccAction, &QAction::triggered, [] () {
+    QObject::connect(rccAction, &QAction::triggered, []() {
         auto currentProject = ProjectExplorer::SessionManager::startupProject();
         QTC_ASSERT(currentProject, return);
         const FilePath projectPath = currentProject->projectFilePath().parentDir();
@@ -558,8 +560,11 @@ void GenerateResource::generateMenuEntry(QObject *parent)
                                         "Successfully generated deployable package\n %1")
                 .arg(resourceFileName.toString()));
     });
-    menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
-    menu->addAction(cmd2, Core::Constants::G_FILE_EXPORT);
+
+    Core::ActionContainer *exportMenu = Core::ActionManager::actionContainer(
+        QmlProjectManager::Constants::EXPORT_MENU);
+    exportMenu->addAction(cmd, QmlProjectManager::Constants::G_EXPORT_GENERATE);
+    exportMenu->addAction(cmd2, QmlProjectManager::Constants::G_EXPORT_GENERATE);
 }
 
 } // namespace QmlDesigner

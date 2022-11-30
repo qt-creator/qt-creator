@@ -16,5 +16,9 @@ const char USE_MULTILANGUAGE_KEY[] = "QmlProjectManager.QmlRunConfiguration.UseM
 const char LAST_USED_LANGUAGE[] = "QmlProjectManager.QmlRunConfiguration.LastUsedLanguage";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "QmlProjectManager.QmlRunConfiguration.UserEnvironmentChanges";
 
+const char EXPORT_MENU[] = "QmlDesigner.ExportMenu";
+const char G_EXPORT_GENERATE[] = "QmlDesigner.Group.GenerateProject";
+const char G_EXPORT_CONVERT[] = "QmlDesigner.Group.ConvertProject";
+
 } // namespace Constants
 } // namespace QmlProjectManager
