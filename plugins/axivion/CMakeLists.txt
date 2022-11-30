@@ -7,6 +7,7 @@ if (TARGET QtCreator::LicenseChecker)
 endif()
 
 add_qtc_plugin(Axivion
+  BUILD_DEFAULT OFF
   PLUGIN_DEPENDS
     QtCreator::Core QtCreator::ProjectExplorer
     ${LICENSECHECKER_DEPENDS}
