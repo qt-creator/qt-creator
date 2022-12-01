@@ -1067,14 +1067,24 @@ const QList<QPair<Id, QString>> Project::allGenerators() const
     QList<QPair<Id, QString>> generators;
     for (auto it = d->m_generators.cbegin(); it != d->m_generators.cend(); ++it)
         generators << qMakePair(it.key(), it.value().first);
+    if (const Target * const t = activeTarget()) {
+        if (const BuildSystem * const bs = t->buildSystem())
+            generators += bs->generators();
+    }
     return generators;
 }
 
 void Project::runGenerator(Utils::Id id)
 {
     const auto it = d->m_generators.constFind(id);
-    if (it != d->m_generators.constEnd())
+    if (it != d->m_generators.constEnd()) {
         it.value().second();
+        return;
+    }
+    if (const Target * const t = activeTarget()) {
+        if (BuildSystem * const bs = t->buildSystem())
+            bs->runGenerator(id);
+    }
 }
 
 #if defined(WITH_TESTS)

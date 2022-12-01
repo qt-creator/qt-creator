@@ -86,6 +86,8 @@ public:
 
     virtual Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const;
     virtual QVariant additionalData(Utils::Id id) const;
+    virtual QList<QPair<Utils::Id, QString>> generators() const { return {}; }
+    virtual void runGenerator(Utils::Id) {}
 
     void setDeploymentData(const DeploymentData &deploymentData);
     DeploymentData deploymentData() const;
