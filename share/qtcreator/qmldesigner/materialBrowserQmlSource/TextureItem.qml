@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuickDesignerTheme
 import HelperWidgets
@@ -26,6 +27,7 @@ Rectangle {
 
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
+        hoverEnabled: true
 
         onPressed: (mouse) => {
             rootView.focusMaterialSection(false)
@@ -38,6 +40,14 @@ Rectangle {
         }
 
         onDoubleClicked: materialBrowserTexturesModel.openTextureEditor();
+    }
+
+    ToolTip {
+        property bool hasSource: textureSource.slice(-1) !== "/"
+
+        visible: mouseArea.containsMouse
+        text: hasSource ? textureSource : qsTr("Texture has no source image.")
+        delay: 1000
     }
 
     Image {
