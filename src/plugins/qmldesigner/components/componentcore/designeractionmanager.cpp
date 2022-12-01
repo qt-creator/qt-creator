@@ -570,7 +570,7 @@ QList<SlotList> getSlotsLists(const ModelNode &node)
 //creates connection without signalHandlerProperty
 ModelNode createNewConnection(ModelNode targetNode)
 {
-    NodeMetaInfo connectionsMetaInfo = targetNode.view()->model()->metaInfo("QtQuick.Connections");
+    NodeMetaInfo connectionsMetaInfo = targetNode.view()->model()->qtQuickConnectionsMetaInfo();
     ModelNode newConnectionNode = targetNode.view()->createModelNode(
         "QtQuick.Connections", connectionsMetaInfo.majorVersion(), connectionsMetaInfo.minorVersion());
     if (QmlItemNode::isValidQmlItemNode(targetNode))
