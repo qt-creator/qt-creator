@@ -254,7 +254,7 @@ public:
         const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/" + formFile;
 
         // This timer should be replaced with a signal send from project loading
-        QTimer::singleShot(1000, [qmlFile](){
+        QTimer::singleShot(1000, this, [qmlFile]() {
             Core::EditorManager::openEditor(Utils::FilePath::fromString(qmlFile));
         });
     }
