@@ -63,7 +63,6 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     Q_UNUSED(qmlDesignerMaterialBrowserContext)
 
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
-    Core::ActionContainer *fileMenu = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
 
     connect(&m_undoAction, &QAction::triggered, this, &ShortCutManager::undo);
 

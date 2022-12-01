@@ -85,7 +85,7 @@ namespace Internal {
 class EnterpriseFeatureProvider : public Core::IFeatureProvider
 {
 public:
-    QSet<Utils::Id> availableFeatures(Utils::Id id) const override
+    QSet<Utils::Id> availableFeatures(Utils::Id) const override
     {
         return {"QmlDesigner.Wizards.Enterprise"};
     }

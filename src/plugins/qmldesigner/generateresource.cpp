@@ -176,9 +176,6 @@ QList<GenerateResource::ResourceFile> getFilesFromQrc(QFile *file, bool inProjec
 
 void GenerateResource::generateMenuEntry(QObject *parent)
 {
-    Core::ActionContainer *menu =
-            Core::ActionManager::actionContainer(Core::Constants::M_FILE);
-
     const Core::Context projectContext(QmlProjectManager::Constants::QML_PROJECT_ID);
     // ToDo: move this to QtCreator and add tr to the string then
     auto action = new QAction(QCoreApplication::translate("QmlDesigner::GenerateResource",
