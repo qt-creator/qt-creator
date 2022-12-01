@@ -45,7 +45,7 @@ void EventListPluginView::registerActions()
 
     designerActionManager.addDesignerAction(new ActionGroup(tr("Event List"),
                                                             ComponentCoreConstants::eventListCategory,
-                                                            ComponentCoreConstants::priorityEventListCategory,
+                                                            ComponentCoreConstants::Priorities::EventListCategory,
                                                             &SelectionContextFunctors::always,
                                                             &SelectionContextFunctors::always));
     auto eventListAction = new EventListAction();

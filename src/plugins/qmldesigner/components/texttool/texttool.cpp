@@ -28,56 +28,8 @@
 
 namespace QmlDesigner {
 
-class TextToolAction : public AbstractAction
-{
-public:
-    TextToolAction() : AbstractAction(QCoreApplication::translate("TextToolAction","Edit Text")) {}
-
-    QByteArray category() const override
-    {
-        return QByteArray();
-    }
-
-    QByteArray menuId() const override
-    {
-        return "TextTool";
-    }
-
-    int priority() const override
-    {
-        return CustomActionsPriority;
-    }
-
-    Type type() const override
-    {
-        return ContextMenuAction;
-    }
-
-protected:
-    bool isVisible(const SelectionContext &selectionContext) const override
-    {
-        if (selectionContext.scenePosition().isNull())
-            return false;
-
-        if (selectionContext.singleNodeIsSelected())
-            return selectionContext.currentSingleSelectedNode().metaInfo().hasProperty("text");
-
-        return false;
-    }
-
-    bool isEnabled(const SelectionContext &selectionContext) const override
-    {
-        return isVisible(selectionContext);
-    }
-};
-
 TextTool::TextTool()
 {
-    auto textToolAction = new TextToolAction;
-    QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);
-    connect(textToolAction->action(), &QAction::triggered, [=]() {
-        view()->changeCurrentToolTo(this);
-    });
 }
 
 TextTool::~TextTool() = default;

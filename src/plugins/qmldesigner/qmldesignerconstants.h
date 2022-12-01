@@ -8,6 +8,7 @@ namespace Constants {
 
 const char C_BACKSPACE[] = "QmlDesigner.Backspace";
 const char C_DELETE[]    = "QmlDesigner.Delete";
+const char C_DUPLICATE[] = "QmlDesigner.Duplicate";
 
 // Context
 const char C_QMLDESIGNER[]        = "QmlDesigner::QmlDesignerMain";

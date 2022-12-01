@@ -258,7 +258,7 @@ void ViewManager::registerNanotraceActions()
                                                         QObject::tr("Start Nanotrace"),
                                                         ComponentCoreConstants::eventListCategory,
                                                         QKeySequence(),
-                                                        220,
+                                                        22,
                                                         handleShutdownNanotraceAction);
 
         QObject::connect(startNanotraceAction->defaultAction(), &QAction::triggered, [&]() {
@@ -273,7 +273,7 @@ void ViewManager::registerNanotraceActions()
                                                            QObject::tr("Shut Down Nanotrace"),
                                                            ComponentCoreConstants::eventListCategory,
                                                            QKeySequence(),
-                                                           220,
+                                                           23,
                                                            handleShutdownNanotraceAction);
 
         QObject::connect(shutDownNanotraceAction->defaultAction(), &QAction::triggered, [&]() {

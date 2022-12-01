@@ -73,7 +73,7 @@ DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) con
     });
 
     Utils::sort(categories, [](ActionInterface *l, ActionInterface *r) {
-        return l->priority() > r->priority();
+        return l->priority() < r->priority();
     });
 
     for (auto *categoryAction : std::as_const(categories)) {
@@ -82,7 +82,7 @@ DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) con
         });
 
         Utils::sort(actions, [](ActionInterface *l, ActionInterface *r) {
-            return l->priority() > r->priority();
+            return l->priority() < r->priority();
         });
 
         bool addSeparator = false;
@@ -142,7 +142,7 @@ QGraphicsWidget *DesignerActionManager::createFormEditorToolBar(QGraphicsItem *p
     });
 
     Utils::sort(actions, [](ActionInterface *l, ActionInterface *r) {
-        return l->priority() > r->priority();
+        return l->priority() < r->priority();
     });
 
     QGraphicsWidget *toolbar = new QGraphicsWidget(parent);
@@ -401,8 +401,7 @@ public:
                 if (!ModelNode::isThisOrAncestorLocked(parentNode)) {
                     ActionTemplate *selectionAction = new ActionTemplate("SELECTION", {}, &ModelNodeOperations::select);
                     selectionAction->setParent(menu());
-                    selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select parent: %1")).arg(
-                                                 captionForModelNode(parentNode)));
+                    selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Parent")));
 
                     SelectionContext nodeSelectionContext = selectionContext();
                     nodeSelectionContext.setTargetNode(parentNode);
@@ -1341,18 +1340,20 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new SelectionModelNodeAction(
                           selectionCategoryDisplayName,
                           selectionCategory,
-                          prioritySelectionCategory));
+                          Priorities::SelectionCategory));
 
     addDesignerAction(new ConnectionsModelNodeActionGroup(
                           connectionsCategoryDisplayName,
                           connectionsCategory,
-                          priorityConnectionsCategory));
+                          Priorities::ConnectionsCategory));
 
     addDesignerAction(new ActionGroup(
                           arrangeCategoryDisplayName,
                           arrangeCategory,
-                          priorityStackCategory,
+                          Priorities::ArrangeCategory,
                           &selectionNotEmpty));
+
+    addDesignerAction(new SeperatorDesignerAction(arrangeCategory, 10));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           toFrontCommandId,
@@ -1360,7 +1361,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           arrangeCategory,
                           QKeySequence(),
-                          200,
+                          1,
                           &toFront,
                           &raiseAvailable));
 
@@ -1370,7 +1371,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
                           arrangeCategory,
                           QKeySequence(),
-                          180,
+                          11,
                           &raise,
                           &raiseAvailable));
 
@@ -1380,7 +1381,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
                           arrangeCategory,
                           QKeySequence(),
-                          160,
+                          12,
                           &lower,
                           &lowerAvailable));
 
@@ -1390,9 +1391,11 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           arrangeCategory,
                           QKeySequence(),
-                          140,
+                          2,
                           &toBack,
                           &lowerAvailable));
+
+    addDesignerAction(new SeperatorDesignerAction(arrangeCategory, 20));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           reverseCommandId,
@@ -1400,13 +1403,13 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           arrangeCategory,
                           QKeySequence(),
-                          100,
+                          21,
                           &reverse,
                           &multiSelectionAndHasSameParent));
 
-    addDesignerAction(new ActionGroup(editCategoryDisplayName, editCategory, priorityEditCategory, &selectionNotEmpty));
+    addDesignerAction(new ActionGroup(editCategoryDisplayName, editCategory, Priorities::EditCategory, &selectionNotEmpty));
 
-    addDesignerAction(new SeperatorDesignerAction(editCategory, 220));
+    addDesignerAction(new SeperatorDesignerAction(editCategory, 30));
 
     addDesignerAction(
         new ModelNodeAction(resetPositionCommandId,
@@ -1418,7 +1421,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                             resetPositionTooltip,
                             editCategory,
                             QKeySequence("Ctrl+d"),
-                            200,
+                            32,
                             &resetPosition,
                             &selectionNotEmptyAndHasXorYProperty));
 
@@ -1456,7 +1459,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                           copyFormatTooltip,
                                           editCategory,
                                           QKeySequence(),
-                                          120,
+                                          41,
                                           &copyFormat,
                                           &propertiesCopyable));
 
@@ -1466,7 +1469,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                           applyFormatTooltip,
                                           editCategory,
                                           QKeySequence(),
-                                          120,
+                                          42,
                                           &applyFormat,
                                           &propertiesApplyable));
 
@@ -1478,24 +1481,24 @@ void DesignerActionManager::createDefaultDesignerActions()
                           resetSizeToolTip,
                           editCategory,
                           QKeySequence("shift+s"),
-                          180,
+                          31,
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
 
-    addDesignerAction(new SeperatorDesignerAction(editCategory, 170));
+    addDesignerAction(new SeperatorDesignerAction(editCategory, 40));
 
     addDesignerAction(new VisiblityModelNodeAction(
                           visiblityCommandId,
                           visibilityDisplayName,
-                          editCategory,
+                          rootCategory,
                           QKeySequence("Ctrl+g"),
-                          160,
+                          Priorities::Visibility,
                           &setVisible,
                           &singleSelectedItem));
 
     addDesignerAction(new ActionGroup(anchorsCategoryDisplayName,
                                       anchorsCategory,
-                                      priorityAnchorsCategory,
+                                      Priorities::AnchorsCategory,
                                       &anchorsMenuEnabled));
 
     addDesignerAction(new ModelNodeAction(
@@ -1505,7 +1508,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           anchorsFillToolTip,
                           anchorsCategory,
                           QKeySequence(QKeySequence("shift+f")),
-                          200,
+                          2,
                           &anchorsFill,
                           &singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot));
 
@@ -1517,46 +1520,49 @@ void DesignerActionManager::createDefaultDesignerActions()
                           anchorsResetToolTip,
                           anchorsCategory,
                           QKeySequence(QKeySequence("Ctrl+Shift+r")),
-                          180,
+                          1,
                           &anchorsReset,
                           &singleSelectionItemIsAnchored));
 
-    addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 170));
+    addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 10));
 
     addDesignerAction(new ActionGroup(
-                          positionCategoryDisplayName,
-                          positionCategory,
-                          priorityPositionCategory,
+                          positionerCategoryDisplayName,
+                          positionerCategory,
+                          Priorities::PositionCategory,
                           &positionOptionVisible));
 
-    addDesignerAction(new ActionGroup(layoutCategoryDisplayName,
-                                      layoutCategory,
-                                      priorityLayoutCategory,
-                                      &layoutOptionVisible));
-
-    addDesignerAction(new ActionGroup("Snapping",
-                                      snappingCategory,
-                                      priorityLayoutCategory + 10,
-                                      &selectionEnabled,
-                                      &selectionEnabled));
-
-    addDesignerAction(new ActionGroup(groupCategoryDisplayName,
-                                      groupCategory,
-                                      priorityGroupCategory,
-                                      &studioComponentsAvailableAndSelectionCanBeLayouted));
+    addDesignerAction(new ActionGroup(
+                          layoutCategoryDisplayName,
+                          layoutCategory,
+                          Priorities::LayoutCategory,
+                          &layoutOptionVisible));
 
     addDesignerAction(new ActionGroup(
-        flowCategoryDisplayName,
-        flowCategory,
-        priorityFlowCategory,
-        &isFlowTargetOrTransition,
-        &flowOptionVisible));
+                          snappingCategoryDisplayName,
+                          snappingCategory,
+                          Priorities::SnappingCategory,
+                          &selectionEnabled,
+                          &selectionEnabled));
+
+    addDesignerAction(new ActionGroup(
+                          groupCategoryDisplayName,
+                          groupCategory,
+                          Priorities::Group,
+                          &studioComponentsAvailableAndSelectionCanBeLayouted));
+
+    addDesignerAction(new ActionGroup(
+                          flowCategoryDisplayName,
+                          flowCategory,
+                          Priorities::FlowCategory,
+                          &isFlowTargetOrTransition,
+                          &flowOptionVisible));
 
 
     auto effectMenu = new ActionGroup(
                 flowEffectCategoryDisplayName,
                 flowEffectCategory,
-                priorityFlowCategory,
+                Priorities::FlowCategory,
                 &isFlowTransitionItem,
                 &flowOptionVisible);
 
@@ -1570,7 +1576,7 @@ void DesignerActionManager::createDefaultDesignerActions()
         addFlowActionToolTip,
         flowCategory,
         {},
-        priorityFirst,
+        1,
         &createFlowActionArea,
         &isFlowItem,
         &flowOptionVisible));
@@ -1580,7 +1586,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           setFlowStartDisplayName,
                           {},
                           flowCategory,
-                          priorityFirst,
+                          2,
                           {},
                           &setFlowStartItem,
                           &isFlowItem,
@@ -1589,7 +1595,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new FlowActionConnectAction(
         flowConnectionCategoryDisplayName,
         flowConnectionCategory,
-        priorityFlowCategory));
+        Priorities::FlowCategory));
 
 
     const QList<TypeName> transitionTypes = {"FlowFadeEffect",
@@ -1608,23 +1614,23 @@ void DesignerActionManager::createDefaultDesignerActions()
         {},
         flowCategory,
         {},
-        priorityFlowCategory,
+        2,
         &selectFlowEffect,
         &isFlowTransitionItemWithEffect));
 
     addDesignerAction(new ActionGroup(
                           stackedContainerCategoryDisplayName,
                           stackedContainerCategory,
-                          priorityStackedContainerCategory,
+                          Priorities::StackedContainerCategory,
                           &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           removePositionerCommandId,
                           removePositionerDisplayName,
                           {},
-                          positionCategory,
+                          positionerCategory,
                           QKeySequence("Ctrl+Shift+p"),
-                          210,
+                          1,
                           &removePositioner,
                           &isPositioner,
                           &isPositioner));
@@ -1633,9 +1639,9 @@ void DesignerActionManager::createDefaultDesignerActions()
                           layoutRowPositionerCommandId,
                           layoutRowPositionerDisplayName,
                           {},
-                          positionCategory,
+                          positionerCategory,
                           QKeySequence(),
-                          200,
+                          2,
                           &layoutRowPositioner,
                           &selectionCanBeLayouted,
                           &selectionCanBeLayouted));
@@ -1644,9 +1650,9 @@ void DesignerActionManager::createDefaultDesignerActions()
                           layoutColumnPositionerCommandId,
                           layoutColumnPositionerDisplayName,
                           {},
-                          positionCategory,
+                          positionerCategory,
                           QKeySequence(),
-                          180,
+                          3,
                           &layoutColumnPositioner,
                           &selectionCanBeLayouted,
                           &selectionCanBeLayouted));
@@ -1655,9 +1661,9 @@ void DesignerActionManager::createDefaultDesignerActions()
                           layoutGridPositionerCommandId,
                           layoutGridPositionerDisplayName,
                           {},
-                          positionCategory,
+                          positionerCategory,
                           QKeySequence(),
-                          160,
+                          4,
                           &layoutGridPositioner,
                           &selectionCanBeLayouted,
                           &selectionCanBeLayouted));
@@ -1666,14 +1672,14 @@ void DesignerActionManager::createDefaultDesignerActions()
                           layoutFlowPositionerCommandId,
                           layoutFlowPositionerDisplayName,
                           {},
-                          positionCategory,
+                          positionerCategory,
                           QKeySequence("Ctrl+m"),
-                          140,
+                          5,
                           &layoutFlowPositioner,
                           &selectionCanBeLayouted,
                           &selectionCanBeLayouted));
 
-    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 120));
+    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 0));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           removeLayoutCommandId,
@@ -1681,7 +1687,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           layoutCategory,
                           QKeySequence(),
-                          110,
+                          1,
                           &removeLayout,
                           &isLayout,
                           &isLayout));
@@ -1691,7 +1697,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      {},
                                                      groupCategory,
                                                      QKeySequence("Ctrl+Shift+g"),
-                                                     110,
+                                                     1,
                                                      &addToGroupItem,
                                                      &selectionCanBeLayouted));
 
@@ -1700,7 +1706,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      {},
                                                      groupCategory,
                                                      QKeySequence(),
-                                                     110,
+                                                     2,
                                                      &removeGroup,
                                                      &isGroup));
 
@@ -1710,7 +1716,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                     addItemToStackedContainerToolTip,
                                                     stackedContainerCategory,
                                                     QKeySequence("Ctrl+Shift+a"),
-                                                    110,
+                                                    1,
                                                     &addItemToStackedContainer,
                                                     &isStackedContainer,
                                                     &isStackedContainer));
@@ -1721,7 +1727,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+t"),
-                          100,
+                          2,
                           &addTabBarToStackedContainer,
                           &isStackedContainerWithoutTabBar,
                           &isStackedContainer));
@@ -1733,7 +1739,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           decreaseIndexOfStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+Left"),
-                          80,
+                          3,
                           &decreaseIndexOfStackedContainer,
                           &isStackedContainerAndIndexCanBeDecreased,
                           &isStackedContainer));
@@ -1745,7 +1751,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           increaseIndexOfStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+Right"),
-                          80,
+                          4,
                           &increaseIndexOfStackedContainer,
                           &isStackedContainerAndIndexCanBeIncreased,
                           &isStackedContainer));
@@ -1757,7 +1763,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           layoutRowLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+u"),
-                          100,
+                          2,
                           &layoutRowLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossible));
 
@@ -1768,7 +1774,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           layoutColumnLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+l"),
-                          80,
+                          3,
                           &layoutColumnLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossible));
 
@@ -1779,18 +1785,18 @@ void DesignerActionManager::createDefaultDesignerActions()
                           layoutGridLayoutToolTip,
                           layoutCategory,
                           QKeySequence("shift+g"),
-                          60,
+                          4,
                           &layoutGridLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU));
 
-    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 50));
+    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 10));
 
     addDesignerAction(new FillWidthModelNodeAction(
                           layoutFillWidthCommandId,
                           layoutFillWidthDisplayName,
                           layoutCategory,
                           QKeySequence(),
-                          40,
+                          11,
                           &setFillWidth,
                           &singleSelectionAndInQtQuickLayout,
                           &singleSelectionAndInQtQuickLayout));
@@ -1800,30 +1806,35 @@ void DesignerActionManager::createDefaultDesignerActions()
                           layoutFillHeightDisplayName,
                           layoutCategory,
                           QKeySequence(),
-                          20,
+                          12,
                           &setFillHeight,
                           &singleSelectionAndInQtQuickLayout,
                           &singleSelectionAndInQtQuickLayout));
 
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, priorityTopLevelSeperator));
+    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::ModifySection));
+    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::PositionSection));
+    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::EventSection));
+    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::AdditionsSection));
+    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::ViewOprionsSection));
+    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::CustomActionsSection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           goIntoComponentCommandId,
-                          goIntoComponentDisplayName,
+                          enterComponentDisplayName,
                           {},
                           rootCategory,
                           QKeySequence(Qt::Key_F2),
-                          priorityGoIntoComponent,
+                          Priorities::ComponentActions + 2,
                           &goIntoComponentOperation,
                           &selectionIsComponent));
 
     addDesignerAction(new ModelNodeContextMenuAction(
-                          editAnnotationCommandId,
-                          editAnnotationDisplayName,
+                          editAnnotationsCommandId,
+                          editAnnotationsDisplayName,
                           {},
                           rootCategory,
                           QKeySequence(),
-                          (priorityLast+6),
+                          Priorities::EditAnnotations,
                           &editAnnotation,
                           &singleSelection,
                           &singleSelection));
@@ -1834,7 +1845,7 @@ void DesignerActionManager::createDefaultDesignerActions()
         {},
         rootCategory,
         QKeySequence(),
-        (priorityLast+7),
+        Priorities::AddMouseArea,
         &addMouseAreaFill,
         &addMouseAreaFillCheck,
         &singleSelection));
@@ -1863,12 +1874,12 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelectedAndUiFile));
 
     addDesignerAction(new ModelNodeContextMenuAction(
-                          moveToComponentCommandId,
-                          moveToComponentDisplayName,
+                          makeComponentCommandId,
+                          makeComponentDisplayName,
                           {},
                           rootCategory,
                           QKeySequence(),
-                          44,
+                          Priorities::ComponentActions + 1,
                           &moveToComponent,
                           &singleSelection,
                           &singleSelection));
@@ -1889,14 +1900,14 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      {},
                                                      rootCategory,
                                                      {},
-                                                     50,
+                                                     Priorities::MergeWithTemplate,
                                                      [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
                                                      &SelectionContextFunctors::always));
 
     addDesignerAction(new ActionGroup(
                           "",
                           genericToolBarCategory,
-                          priorityGenericToolBar));
+                          Priorities::GenericToolBar));
 
     addDesignerAction(new ChangeStyleAction());
 
@@ -1908,7 +1919,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           rootCategory,
                           QKeySequence(),
-                          66,
+                          Priorities::SignalsDialog,
                           &openSignalDialog,
                           &singleSelectionAndHasSlotTrigger));
 
@@ -1918,7 +1929,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           rootCategory,
                           QKeySequence(),
-                          priorityGenericToolBar,
+                          Priorities::GenericToolBar,
                           &updateImported3DAsset,
                           &selectionIsImported3DAsset,
                           &selectionIsImported3DAsset));
@@ -2048,7 +2059,7 @@ void DesignerActionManager::addTransitionEffectAction(const TypeName &typeName)
         {},
         ComponentCoreConstants::flowEffectCategory,
         {},
-        typeName == "None" ? 100 : 140,
+        typeName == "None" ? 11 : 1,
         [typeName](const SelectionContext &context)
         { ModelNodeOperations::addFlowEffect(context, typeName); },
     &isFlowTransitionItem));
@@ -2062,7 +2073,7 @@ void DesignerActionManager::addCustomTransitionEffectAction()
         {},
         ComponentCoreConstants::flowEffectCategory,
         {},
-        80,
+        21,
         &ModelNodeOperations::addCustomFlowEffect,
     &isFlowTransitionItem));
 }

@@ -68,7 +68,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     auto layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(true);
 
-    m_noSnappingAction = layoutActionGroup->addAction(tr("No snapping"));
+    m_noSnappingAction = layoutActionGroup->addAction(tr("No Snapping"));
     m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);
@@ -77,7 +77,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                             Constants::FORMEDITOR_NO_SNAPPING,
                             QKeySequence(Qt::Key_T),
                             ComponentCoreConstants::snappingCategory,
-                            40);
+                            1);
 
     m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap with Anchors"));
     m_snappingAndAnchoringAction->setCheckable(true);
@@ -87,9 +87,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                             Constants::FORMEDITOR_NO_SNAPPING_AND_ANCHORING,
                             QKeySequence(Qt::Key_W),
                             ComponentCoreConstants::snappingCategory,
-                            10);
+                            2);
 
-    m_snappingAction = layoutActionGroup->addAction(tr("Snap without anchors"));
+    m_snappingAction = layoutActionGroup->addAction(tr("Snap without Anchors"));
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
 
@@ -97,18 +97,18 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                             Constants::FORMEDITOR_SNAPPING,
                             QKeySequence(Qt::Key_E),
                             ComponentCoreConstants::snappingCategory,
-                            20);
+                            3);
 
     addActions(layoutActionGroup->actions());
 
-    m_showBoundingRectAction = new QAction(tr("Show bounds"), this);
+    m_showBoundingRectAction = new QAction(tr("Show Bounds"), this);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(false);
     registerActionAsCommand(m_showBoundingRectAction,
                             Constants::FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE,
                             QKeySequence(Qt::Key_A),
                             ComponentCoreConstants::rootCategory,
-                            10);
+                            ComponentCoreConstants::Priorities::ShowBoundingRect);
 
     addAction(m_showBoundingRectAction.data());
 
@@ -273,7 +273,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                             Constants::FORMEDITOR_REFRESH,
                             QKeySequence(Qt::Key_R),
                             ComponentCoreConstants::rootCategory,
-                            0);
+                            ComponentCoreConstants::Priorities::ResetView);
 
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());

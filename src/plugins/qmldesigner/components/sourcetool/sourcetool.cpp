@@ -40,59 +40,8 @@ bool modelNodeHasUrlSource(const QmlDesigner::ModelNode &modelNode)
 
 namespace QmlDesigner {
 
-class SourceToolAction : public AbstractAction
-{
-public:
-    SourceToolAction() : AbstractAction(QCoreApplication::translate("SourceToolAction","Change Source URL..."))
-    {
-        const Utils::Icon prevIcon({
-                {":/utils/images/fileopen.png", Utils::Theme::OutputPanes_NormalMessageTextColor}}, Utils::Icon::MenuTintedStyle);
-
-        action()->setIcon(prevIcon.icon());
-    }
-
-    QByteArray category() const override
-    {
-        return QByteArray();
-    }
-
-    QByteArray menuId() const override
-    {
-        return "SourceTool";
-    }
-
-    int priority() const override
-    {
-        return CustomActionsPriority;
-    }
-
-    Type type() const override
-    {
-        return FormEditorAction;
-    }
-
-protected:
-    bool isVisible(const SelectionContext &selectionContext) const override
-    {
-        if (selectionContext.singleNodeIsSelected())
-            return modelNodeHasUrlSource(selectionContext.currentSingleSelectedNode());
-        return false;
-    }
-
-    bool isEnabled(const SelectionContext &selectionContext) const override
-    {
-        return isVisible(selectionContext);
-    }
-};
-
-
 SourceTool::SourceTool()
 {
-    auto sourceToolAction = new SourceToolAction;
-    QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(sourceToolAction);
-    connect(sourceToolAction->action(), &QAction::triggered, [=]() {
-        view()->changeCurrentToolTo(this);
-    });
 }
 
 SourceTool::~SourceTool() = default;
