@@ -121,10 +121,11 @@ public:
         : SimpleTargetRunner(runControl)
     {
         setStartModifier([this] {
-            CommandLine plain = commandLine();
-            CommandLine cmd;
-            cmd.setExecutable(plain.executable().withNewPath(Constants::AppcontrollerFilepath));
-            cmd.addCommandLineAsArgs(plain);
+            const CommandLine remoteCommand = commandLine();
+            const FilePath remoteExe = remoteCommand.executable();
+            CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
+            cmd.addArg(remoteExe.nativePath());
+            cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
             setCommandLine(cmd);
         });
     }

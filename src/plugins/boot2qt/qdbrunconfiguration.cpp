@@ -8,6 +8,8 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -15,6 +17,7 @@
 #include <remotelinux/remotelinuxenvironmentaspect.h>
 
 #include <utils/commandline.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -90,8 +93,9 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
         const BuildTargetInfo bti = buildTargetInfo();
         const FilePath localExecutable = bti.targetFilePath;
         const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
-
-        exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
+        IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
+        QTC_ASSERT(dev, return);
+        exeAspect->setExecutable(dev->filePath(depFile.remoteFilePath()));
         symbolsAspect->setFilePath(localExecutable);
     });
 
