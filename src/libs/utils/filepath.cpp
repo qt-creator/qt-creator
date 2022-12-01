@@ -1588,6 +1588,16 @@ FilePath FilePath::resolvePath(const QString &tail) const
    return resolvePath(FilePath::fromString(tail));
 }
 
+expected_str<FilePath> FilePath::localSource() const
+{
+    if (!needsDevice())
+        return *this;
+
+    QTC_ASSERT(s_deviceHooks.localSource,
+               return make_unexpected(Tr::tr("No 'localSource' device hook set.")));
+    return s_deviceHooks.localSource(*this);
+}
+
 // Cleans path part similar to QDir::cleanPath()
 //  - directory separators normalized (that is, platform-native
 //    separators converted to "/") and redundant ones removed, and "."s and ".."s

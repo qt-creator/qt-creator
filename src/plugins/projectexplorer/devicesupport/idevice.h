@@ -7,6 +7,7 @@
 #include "idevicefwd.h"
 
 #include <utils/id.h>
+#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/tasktree.h>
@@ -215,6 +216,7 @@ public:
     virtual void aboutToBeRemoved() const {}
 
     virtual bool ensureReachable(const Utils::FilePath &other) const;
+    virtual Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const;
 
     virtual bool prepareForBuild(const Target *target);
     virtual std::optional<Utils::FilePath> clangdExecutable() const;

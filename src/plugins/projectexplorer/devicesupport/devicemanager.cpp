@@ -4,6 +4,7 @@
 #include "devicemanager.h"
 
 #include "idevicefactory.h"
+#include "projectexplorertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -412,6 +413,13 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         auto rightDevice = DeviceManager::deviceForPath(right);
 
         return leftDevice == rightDevice;
+    };
+
+    deviceHooks.localSource = [](const FilePath &file) -> expected_str<FilePath> {
+        auto device = DeviceManager::deviceForPath(file);
+        if (!device)
+            return make_unexpected(Tr::tr("No device for path \"%1\"").arg(file.toUserOutput()));
+        return device->localSource(file);
     };
 
     deviceHooks.fileAccess = [](const FilePath &filePath) -> DeviceFileAccess * {

@@ -10,10 +10,10 @@
 
 #include "../kit.h"
 #include "../kitinformation.h"
+#include "../projectexplorertr.h"
+#include "../target.h"
 
 #include <coreplugin/icore.h>
-
-#include <projectexplorer/target.h>
 
 #include <utils/devicefileaccess.h>
 #include <utils/displayname.h>
@@ -628,6 +628,12 @@ QString IDevice::defaultPublicKeyFilePath()
 bool IDevice::ensureReachable(const FilePath &other) const
 {
     return handlesFile(other); // Some first approximation.
+}
+
+expected_str<FilePath> IDevice::localSource(const Utils::FilePath &other) const
+{
+    Q_UNUSED(other);
+    return make_unexpected(Tr::tr("localSource() not implemented for this device type."));
 }
 
 bool IDevice::prepareForBuild(const Target *target)

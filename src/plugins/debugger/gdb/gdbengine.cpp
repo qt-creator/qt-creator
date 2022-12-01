@@ -1165,7 +1165,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         showMessage("INVALID STOPPED REASON", LogWarning);
     }
 
-    const FilePath fileName = FilePath::fromString(fullName);
+    const FilePath onDevicePath = FilePath::fromString(fullName).onDevice(
+        runParameters().debugger.command.executable());
+    const FilePath fileName = onDevicePath.localSource().value_or(onDevicePath);
 
     if (!nr.isEmpty() && frame.isValid()) {
         // Use opportunity to update the breakpoint marker position.
