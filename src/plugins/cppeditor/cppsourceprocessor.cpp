@@ -19,7 +19,6 @@
 #include <QCryptographicHash>
 #include <QDir>
 #include <QLoggingCategory>
-#include <QTextCodec>
 
 /*!
  * \class CppEditor::Internal::CppSourceProcessor
@@ -33,6 +32,7 @@
  */
 
 using namespace CPlusPlus;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 using Message = Document::DiagnosticMessage;
@@ -41,9 +41,7 @@ namespace CppEditor::Internal {
 
 static Q_LOGGING_CATEGORY(log, "qtc.cppeditor.sourceprocessor", QtWarningMsg)
 
-namespace {
-
-inline QByteArray generateFingerPrint(const QList<CPlusPlus::Macro> &definedMacros,
+static QByteArray generateFingerPrint(const QList<CPlusPlus::Macro> &definedMacros,
                                       const QByteArray &code)
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);
@@ -65,20 +63,20 @@ inline QByteArray generateFingerPrint(const QList<CPlusPlus::Macro> &definedMacr
     return hash.result();
 }
 
-inline Message messageNoSuchFile(Document::Ptr &document, const FilePath &filePath, unsigned line)
+static Message messageNoSuchFile(Document::Ptr &document, const FilePath &filePath, unsigned line)
 {
     const QString text = Tr::tr("%1: No such file or directory").arg(filePath.displayName());
     return Message(Message::Warning, document->filePath(), line, /*column =*/ 0, text);
 }
 
-inline Message messageNoFileContents(Document::Ptr &document, const FilePath &filePath,
+static Message messageNoFileContents(Document::Ptr &document, const FilePath &filePath,
                                      unsigned line)
 {
     const QString text = Tr::tr("%1: Could not get file contents").arg(filePath.displayName());
     return Message(Message::Warning, document->filePath(), line, /*column =*/ 0, text);
 }
 
-inline const CPlusPlus::Macro revision(const WorkingCopy &workingCopy,
+static const CPlusPlus::Macro revision(const WorkingCopy &workingCopy,
                                        const CPlusPlus::Macro &macro)
 {
     CPlusPlus::Macro newMacro(macro);
@@ -86,8 +84,6 @@ inline const CPlusPlus::Macro revision(const WorkingCopy &workingCopy,
         newMacro.setFileRevision(entry->second);
     return newMacro;
 }
-
-} // anonymous namespace
 
 CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallback documentFinished)
     : m_snapshot(snapshot),
@@ -109,9 +105,8 @@ void CppSourceProcessor::setCancelChecker(const CppSourceProcessor::CancelChecke
 void CppSourceProcessor::setWorkingCopy(const WorkingCopy &workingCopy)
 { m_workingCopy = workingCopy; }
 
-void CppSourceProcessor::setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths)
+void CppSourceProcessor::setHeaderPaths(const HeaderPaths &headerPaths)
 {
-    using ProjectExplorer::HeaderPathType;
     m_headerPaths.clear();
 
     for (const auto &path : headerPaths) {
@@ -134,15 +129,14 @@ void CppSourceProcessor::setLanguageFeatures(const LanguageFeatures languageFeat
 // has private frameworks in:
 //  <framework-path>/ApplicationServices.framework/Frameworks
 // if the "Frameworks" folder exists inside the top level framework.
-void CppSourceProcessor::addFrameworkPath(const ProjectExplorer::HeaderPath &frameworkPath)
+void CppSourceProcessor::addFrameworkPath(const HeaderPath &frameworkPath)
 {
-    QTC_ASSERT(frameworkPath.type == ProjectExplorer::HeaderPathType::Framework, return);
+    QTC_ASSERT(frameworkPath.type == HeaderPathType::Framework, return);
 
     // The algorithm below is a bit too eager, but that's because we're not getting
     // in the frameworks we're linking against. If we would have that, then we could
     // add only those private frameworks.
-    const auto cleanFrameworkPath = ProjectExplorer::HeaderPath::makeFramework(
-                frameworkPath.path);
+    const HeaderPath cleanFrameworkPath = HeaderPath::makeFramework(frameworkPath.path);
     if (!m_headerPaths.contains(cleanFrameworkPath))
         m_headerPaths.append(cleanFrameworkPath);
 
@@ -155,8 +149,7 @@ void CppSourceProcessor::addFrameworkPath(const ProjectExplorer::HeaderPath &fra
         const QFileInfo privateFrameworks(framework.absoluteFilePath(),
                                           QLatin1String("Frameworks"));
         if (privateFrameworks.exists() && privateFrameworks.isDir())
-            addFrameworkPath(ProjectExplorer::HeaderPath::makeFramework(
-                                 privateFrameworks.absoluteFilePath()));
+            addFrameworkPath(HeaderPath::makeFramework(privateFrameworks.absoluteFilePath()));
     }
 }
 
@@ -266,7 +259,7 @@ FilePath CppSourceProcessor::resolveFile(const FilePath &filePath, IncludeType t
 }
 
 FilePath CppSourceProcessor::resolveFile_helper(const FilePath &filePath,
-                                                ProjectExplorer::HeaderPaths::Iterator headerPathsIt)
+                                                HeaderPaths::Iterator headerPathsIt)
 {
     const QString fileName = filePath.path();
     auto headerPathsEnd = m_headerPaths.end();
@@ -274,7 +267,7 @@ FilePath CppSourceProcessor::resolveFile_helper(const FilePath &filePath,
     for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
         if (!headerPathsIt->path.isNull()) {
             FilePath path;
-            if (headerPathsIt->type == ProjectExplorer::HeaderPathType::Framework) {
+            if (headerPathsIt->type == HeaderPathType::Framework) {
                 if (index == -1)
                     continue;
                 path = FilePath::fromString(headerPathsIt->path).pathAppended(fileName.left(index)
