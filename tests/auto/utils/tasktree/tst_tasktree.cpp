@@ -487,7 +487,7 @@ void tst_TaskTree::processTree()
             timedOut = true;
             eventLoop.quit();
         });
-        timer.setInterval(1000);
+        timer.setInterval(2000);
         timer.setSingleShot(true);
         timer.start();
         eventLoop.exec();
@@ -624,7 +624,7 @@ void tst_TaskTree::storage()
 
     QTimer timer;
     connect(&timer, &QTimer::timeout, &eventLoop, &QEventLoop::quit);
-    timer.setInterval(1000);
+    timer.setInterval(2000);
     timer.setSingleShot(true);
     timer.start();
     eventLoop.exec();
