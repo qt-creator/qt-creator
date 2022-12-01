@@ -111,10 +111,12 @@ void McuSdkRepository::expandVariablesAndWildcards()
                 continue;
             }
             // drop empty_split_entry(linux)|root(windows)
-            pathComponents.pop_front();
+            QString root = pathComponents.takeFirst();
+            if (root.isEmpty()) // Linux
+                root = "/";
 
             package->setPath(
-                expandWildcards(FilePath::fromString(QDir::rootPath()),
+                expandWildcards(FilePath::fromString(root),
                                 {pathComponents.constBegin(), pathComponents.constEnd()})
                     .first);
         }
