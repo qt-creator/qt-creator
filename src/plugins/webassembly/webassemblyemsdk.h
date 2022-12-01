@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
-
 #include <QCache>
 #include <QVersionNumber>
 
 namespace Utils {
 class Environment;
+class FilePath;
 }
 
 namespace WebAssembly {

@@ -17,7 +17,6 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
-#include <QFileInfo>
 #include <QVersionNumber>
 
 using namespace QtSupport;
