@@ -68,15 +68,6 @@ void ClangCodeModelPlugin::generateCompilationDB()
     m_generatorWatcher.setFuture(task);
 }
 
-static bool isDBGenerationEnabled(ProjectExplorer::Project *project)
-{
-    using namespace CppEditor;
-    if (!project)
-        return false;
-    const ProjectInfo::ConstPtr projectInfo = CppModelManager::instance()->projectInfo(project);
-    return projectInfo && !projectInfo->projectParts().isEmpty();
-}
-
 ClangCodeModelPlugin::~ClangCodeModelPlugin()
 {
     m_generatorWatcher.waitForFinished();
@@ -98,31 +89,25 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     CppEditor::CppModelManager::instance()->activateClangCodeModel(
                 std::make_unique<ClangModelManagerSupport>());
 
-    createCompilationDBButton();
+    createCompilationDBAction();
 
     return true;
 }
 
-void ClangCodeModelPlugin::createCompilationDBButton()
+void ClangCodeModelPlugin::createCompilationDBAction()
 {
-    Core::ActionContainer *mbuild =
-            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
     // generate compile_commands.json
     m_generateCompilationDBAction = new ParameterAction(
                 tr("Generate Compilation Database"),
                 tr("Generate Compilation Database for \"%1\""),
                 ParameterAction::AlwaysEnabled, this);
-
     ProjectExplorer::Project *startupProject = ProjectExplorer::SessionManager::startupProject();
-    m_generateCompilationDBAction->setEnabled(isDBGenerationEnabled(startupProject));
     if (startupProject)
         m_generateCompilationDBAction->setParameter(startupProject->displayName());
-
     Core::Command *command = Core::ActionManager::registerAction(m_generateCompilationDBAction,
                                                                  Constants::GENERATE_COMPILATION_DB);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_generateCompilationDBAction->text());
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
 
     connect(&m_generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             this, [this] {
@@ -135,13 +120,28 @@ void ClangCodeModelPlugin::createCompilationDBButton()
             message = tr("Generating Clang compilation database failed: %1").arg(result.error);
         }
         Core::MessageManager::writeFlashing(message);
-        m_generateCompilationDBAction->setEnabled(
-                    isDBGenerationEnabled(ProjectExplorer::SessionManager::startupProject()));
+        m_generateCompilationDBAction->setEnabled(true);
     });
     connect(m_generateCompilationDBAction, &QAction::triggered, this, [this] {
-        if (!m_generateCompilationDBAction->isEnabled())
+        if (!m_generateCompilationDBAction->isEnabled()) {
+            Core::MessageManager::writeDisrupting("Cannot generate compilation database: "
+                                                  "Generator is already running.");
             return;
-
+        }
+        ProjectExplorer::Project * const project
+                = ProjectExplorer::SessionManager::startupProject();
+        if (!project) {
+            Core::MessageManager::writeDisrupting("Cannot generate compilation database: "
+                                                  "No active project.");
+            return;
+        }
+        const CppEditor::ProjectInfo::ConstPtr projectInfo = CppEditor::CppModelManager::instance()
+                ->projectInfo(project);
+        if (!projectInfo || projectInfo->projectParts().isEmpty()) {
+            Core::MessageManager::writeDisrupting("Cannot generate compilation database: "
+                                                  "Project has no C/C++ project parts.");
+            return;
+        }
         m_generateCompilationDBAction->setEnabled(false);
         generateCompilationDB();
     });
@@ -150,16 +150,12 @@ void ClangCodeModelPlugin::createCompilationDBButton()
         if (project != ProjectExplorer::SessionManager::startupProject())
             return;
         m_generateCompilationDBAction->setParameter(project->displayName());
-        if (!m_generatorWatcher.isRunning())
-            m_generateCompilationDBAction->setEnabled(isDBGenerationEnabled(project));
     });
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::startupProjectChanged,
             this,
             [this](ProjectExplorer::Project *project) {
         m_generateCompilationDBAction->setParameter(project ? project->displayName() : "");
-        if (!m_generatorWatcher.isRunning())
-            m_generateCompilationDBAction->setEnabled(isDBGenerationEnabled(project));
     });
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::projectDisplayNameChanged,
@@ -168,6 +164,13 @@ void ClangCodeModelPlugin::createCompilationDBButton()
         if (project != ProjectExplorer::SessionManager::startupProject())
             return;
         m_generateCompilationDBAction->setParameter(project->displayName());
+    });
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::projectAdded, this,
+            [this](ProjectExplorer::Project *project) {
+        project->registerGenerator(Constants::GENERATE_COMPILATION_DB,
+                                   m_generateCompilationDBAction->text(),
+                                   [this] { m_generateCompilationDBAction->trigger(); });
     });
 }
 

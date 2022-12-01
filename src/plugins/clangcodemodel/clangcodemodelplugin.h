@@ -28,7 +28,7 @@ private:
 
 private:
     void generateCompilationDB();
-    void createCompilationDBButton();
+    void createCompilationDBAction();
 
     Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
     QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;

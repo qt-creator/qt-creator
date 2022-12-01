@@ -40,6 +40,7 @@
 #include <utils/stringutils.h>
 
 #include <QFileDialog>
+#include <QHash>
 
 #include <limits>
 
@@ -178,6 +179,7 @@ public:
     Context m_projectLanguages;
     QVariantMap m_pluginSettings;
     std::unique_ptr<Internal::UserFileAccessor> m_accessor;
+    QHash<Id, QPair<QString, std::function<void()>>> m_generators;
 
     QString m_displayName;
 
@@ -1052,6 +1054,27 @@ bool Project::isModified() const
 bool Project::isEditModePreferred() const
 {
     return true;
+}
+
+void Project::registerGenerator(Utils::Id id, const QString &displayName,
+                                const std::function<void ()> &runner)
+{
+    d->m_generators.insert(id, qMakePair(displayName, runner));
+}
+
+const QList<QPair<Id, QString>> Project::allGenerators() const
+{
+    QList<QPair<Id, QString>> generators;
+    for (auto it = d->m_generators.cbegin(); it != d->m_generators.cend(); ++it)
+        generators << qMakePair(it.key(), it.value().first);
+    return generators;
+}
+
+void Project::runGenerator(Utils::Id id)
+{
+    const auto it = d->m_generators.constFind(id);
+    if (it != d->m_generators.constEnd())
+        it.value().second();
 }
 
 #if defined(WITH_TESTS)

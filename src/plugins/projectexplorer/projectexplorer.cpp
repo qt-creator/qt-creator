@@ -239,6 +239,7 @@ const int  P_ACTION_BUILDPROJECT   = 80;
 const char M_RECENTPROJECTS[]     = "ProjectExplorer.Menu.Recent";
 const char M_UNLOADPROJECTS[]     = "ProjectExplorer.Menu.Unload";
 const char M_SESSION[]            = "ProjectExplorer.Menu.Session";
+const char M_GENERATORS[]         = "ProjectExplorer.Menu.Generators";
 
 const char RUNMENUCONTEXTMENU[]   = "Project.RunMenu";
 const char FOLDER_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.F.OpenLocation.CtxMenu";
@@ -1338,6 +1339,24 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_buildForRunConfigAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_BUILD);
+
+    // Generators
+    ActionContainer * const generatorContainer
+            = ActionManager::createMenu(Id(Constants::M_GENERATORS));
+    generatorContainer->setOnAllDisabledBehavior(ActionContainer::Show);
+    generatorContainer->menu()->setTitle(tr("Run Generator"));
+    mbuild->addMenu(generatorContainer, Constants::G_BUILD_BUILD);
+    connect(generatorContainer->menu(), &QMenu::aboutToShow, [menu = generatorContainer->menu()] {
+        menu->clear();
+        if (Project * const project = SessionManager::startupProject()) {
+            for (const auto &generator : project->allGenerators()) {
+                menu->addAction(generator.second, [project, id = generator.first] {
+                    project->runGenerator(id);
+                });
+                menu->show();
+            }
+        }
+    });
 
     // deploy action
     dd->m_deployAction = new QAction(tr("Deploy"), this);

@@ -162,6 +162,11 @@ public:
 
     virtual bool isEditModePreferred() const;
 
+    void registerGenerator(Utils::Id id, const QString &displayName,
+                           const std::function<void()> &runner);
+    const QList<QPair<Utils::Id, QString>> allGenerators() const;
+    void runGenerator(Utils::Id id);
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 
