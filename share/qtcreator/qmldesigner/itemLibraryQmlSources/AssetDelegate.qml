@@ -12,7 +12,7 @@ TreeViewDelegate {
     required property Item assetsRoot
 
     property bool hasChildWithDropHover: false
-    property bool isHoveringDrop: false
+    property bool isHighlighted: false
     readonly property string suffix: model.fileName.substr(-4)
     readonly property bool isFont: root.suffix === ".ttf" || root.suffix === ".otf"
     readonly property bool isEffect: root.suffix === ".qep"
@@ -74,7 +74,7 @@ TreeViewDelegate {
         id: bg
 
         color: {
-            if (root.__isDirectory && (root.isHoveringDrop || root.hasChildWithDropHover))
+            if (root.__isDirectory && (root.isHighlighted || root.hasChildWithDropHover))
                 return StudioTheme.Values.themeInteraction
 
             if (!root.__isDirectory && root.assetsView.selectedAssets[root.__itemPath])
@@ -117,40 +117,6 @@ TreeViewDelegate {
                        ? model.display.toUpperCase()
                        : model.display.toUpperCase() + qsTr(" (empty)"))
                     : model.display
-        }
-    }
-
-    DropArea {
-        id: treeDropArea
-
-        enabled: true
-        anchors.fill: parent
-
-        onEntered: (drag) => {
-            root.assetsRoot.updateDropExtFiles(drag)
-            root.isHoveringDrop = drag.accepted && root.assetsRoot.dropSimpleExtFiles.length > 0
-            if (root.isHoveringDrop)
-                root.assetsView.startDropHoverOver(root.__currentRow)
-        }
-
-        onDropped: (drag) => {
-            root.isHoveringDrop = false
-            root.assetsView.endDropHover(root.__currentRow)
-
-            let dirPath = root.__isDirectory
-                       ? model.filePath
-                       : assetsModel.parentDirPath(model.filePath);
-
-            rootView.emitExtFilesDrop(root.assetsRoot.dropSimpleExtFiles,
-                                      root.assetsRoot.dropComplexExtFiles,
-                                      dirPath)
-        }
-
-        onExited: {
-            if (root.isHoveringDrop) {
-                root.isHoveringDrop = false
-                root.assetsView.endDropHover(root.__currentRow)
-            }
         }
     }
 
@@ -246,6 +212,14 @@ TreeViewDelegate {
 
         }
     } // MouseArea
+
+    function getDirPath()
+    {
+        if (root.__isDirectory)
+            return model.filePath
+        else
+            return assetsModel.parentDirPath(model.filePath)
+    }
 
     function __openContextMenuForCurrentRow()
     {

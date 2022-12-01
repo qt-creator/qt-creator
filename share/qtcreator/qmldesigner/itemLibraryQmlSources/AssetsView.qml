@@ -250,8 +250,12 @@ TreeView {
     function startDropHoverOver(row)
     {
         let index = root.__modelIndex(row)
-        if (assetsModel.isDirectory(index))
+        if (assetsModel.isDirectory(index)) {
+            let item = root.__getDelegateItemForIndex(index)
+            if (item)
+                item.isHighlighted = true
             return
+        }
 
         let parentItem = root.__getDelegateParentForIndex(index)
         if (parentItem)
@@ -261,8 +265,12 @@ TreeView {
     function endDropHover(row)
     {
         let index = root.__modelIndex(row)
-        if (assetsModel.isDirectory(index))
+        if (assetsModel.isDirectory(index)) {
+            let item = root.__getDelegateItemForIndex(index)
+            if (item)
+                item.isHighlighted = false
             return
+        }
 
         let parentItem = root.__getDelegateParentForIndex(index)
         if (parentItem)
@@ -292,6 +300,12 @@ TreeView {
         return root.itemAtCell(parentCell)
     }
 
+    function __getDelegateItemForIndex(index)
+    {
+        let cell = root.cellAtIndex(index)
+        return root.itemAtCell(cell)
+    }
+
     function __modelIndex(row)
     {
         // The modelIndex() function exists since 6.3. In Qt 6.3, this modelIndex() function was a
@@ -301,6 +315,76 @@ TreeView {
             return root.modelIndex(0, row)
         else
             return root.modelIndex(row, 0)
+    }
+
+    DropArea {
+        id: dropArea
+        enabled: true
+        anchors.fill: parent
+
+        property bool __isHoveringDrop: false
+        property int __rowHoveringOver: -1
+
+        function __rowAndItem(drag)
+        {
+            let pos = dropArea.mapToItem(root, drag.x, drag.y)
+            let cell = root.cellAtPos(pos.x, pos.y, true)
+            let item = root.itemAtCell(cell)
+
+            return [cell.y, item]
+        }
+
+        onEntered: (drag) => {
+            root.assetsRoot.updateDropExtFiles(drag)
+
+            let [row, item] = dropArea.__rowAndItem(drag)
+            dropArea.__isHoveringDrop = drag.accepted && root.assetsRoot.dropSimpleExtFiles.length > 0
+
+            if (item && dropArea.__isHoveringDrop)
+                root.startDropHoverOver(row)
+
+            dropArea.__rowHoveringOver = row
+        }
+
+        onDropped: (drag) => {
+            let [row, item] = dropArea.__rowAndItem(drag)
+
+            if (item) {
+               root.endDropHover(row)
+
+               let dirPath = item.getDirPath()
+
+               rootView.emitExtFilesDrop(root.assetsRoot.dropSimpleExtFiles,
+                                         root.assetsRoot.dropComplexExtFiles,
+                                         dirPath)
+            }
+
+            dropArea.__isHoveringDrop = false
+            dropArea.__rowHoveringOver = -1
+        }
+
+        onPositionChanged: (drag) => {
+            let [row, item] = dropArea.__rowAndItem(drag)
+
+            if (dropArea.__rowHoveringOver !== row && dropArea.__rowHoveringOver > -1) {
+                root.endDropHover(dropArea.__rowHoveringOver)
+
+                if (item)
+                    root.startDropHoverOver(row)
+            }
+
+            dropArea.__rowHoveringOver = row
+        }
+
+        onExited: {
+            if (!dropArea.__isHoveringDrop || dropArea.__rowHoveringOver === -1)
+                return
+
+            root.endDropHover(dropArea.__rowHoveringOver)
+
+            dropArea.__isHoveringDrop = false
+            dropArea.__rowHoveringOver = -1
+        }
     }
 
     delegate: AssetDelegate {
