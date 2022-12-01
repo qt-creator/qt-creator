@@ -4,7 +4,6 @@
 #include "qmakeproject.h"
 
 #include "qmakebuildconfiguration.h"
-#include "qmakebuildinfo.h"
 #include "qmakenodes.h"
 #include "qmakenodetreebuilder.h"
 #include "qmakeprojectimporter.h"
@@ -24,6 +23,7 @@
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
@@ -45,6 +45,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -1512,6 +1513,82 @@ QVariant QmakeBuildSystem::additionalData(Id id) const
     if (id == "QmlDesignerImportPath")
         return m_rootProFile->variableValue(Variable::QmlDesignerImportPath);
     return BuildSystem::additionalData(id);
+}
+
+static const Id xcodeGeneratorId() { return "QMAKE_GENERATOR_XCODE"; }
+static const Id vsGeneratorId() { return "QMAKE_GENERATOR_VS"; }
+
+QList<QPair<Id, QString>> QmakeBuildSystem::generators() const
+{
+    if (HostOsInfo::isMacHost())
+        return {{xcodeGeneratorId(), Tr::tr("Generate Xcode project (via qmake)")}};
+    if (HostOsInfo::isWindowsHost())
+        return {{vsGeneratorId(), Tr::tr("Generate Visual Studio project (via qmake)")}};
+    return {};
+}
+
+void QmakeBuildSystem::runGenerator(Utils::Id id)
+{
+    QTC_ASSERT(buildConfiguration(), return);
+    const auto showError = [](const QString &detail) {
+        Core::MessageManager::writeDisrupting(Tr::tr("qmake generator failed: %1.").arg(detail));
+    };
+    const QtVersion * const qtVersion = QtKitAspect::qtVersion(kit());
+    if (!qtVersion) {
+        showError(Tr::tr("No Qt in kit"));
+        return;
+    }
+    const FilePath qmake = qtVersion->qmakeFilePath();
+    if (!qmake.isExecutableFile()) {
+        showError(Tr::tr("No valid qmake executable"));
+        return;
+    }
+    const QMakeStep * const step = buildConfiguration()->buildSteps()->firstOfType<QMakeStep>();
+    if (!step) {
+        showError(Tr::tr("No qmake step in active build configuration"));
+        return;
+    }
+    FilePath outDir = buildConfiguration()->buildDirectory();
+    CommandLine cmdLine(qmake, {"-r"});
+    cmdLine.addArgs(step->allArguments(qtVersion), CommandLine::Raw);
+    if (id == xcodeGeneratorId()) {
+        QStringList args = cmdLine.splitArguments();
+        for (auto it = args.begin(); it != args.end(); ++it) {
+            if (*it == "-spec") {
+                it = args.erase(it);
+                if (it != args.end())
+                    args.erase(it);
+                break;
+            }
+        }
+        args << "-spec" << "macx-xcode";
+        cmdLine.setArguments({});
+        cmdLine.addArgs(args);
+        outDir = outDir / "qtcgen_xcode";
+    } else if (id == vsGeneratorId()) {
+        cmdLine.addArgs({"-tp", "vc"});
+        outDir = outDir / "qtcgen_vs";
+    } else {
+        QTC_ASSERT(false, return);
+    }
+    if (!outDir.ensureWritableDir()) {
+        showError(Tr::tr("Cannot create output directory \"%1\"").arg(outDir.toUserOutput()));
+        return;
+    }
+    const auto proc = new QtcProcess(this);
+    connect(proc, &QtcProcess::done, proc, &QtcProcess::deleteLater);
+    connect(proc, &QtcProcess::readyReadStandardOutput, this, [proc] {
+        Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllStandardOutput()));
+    });
+    connect(proc, &QtcProcess::readyReadStandardError, this, [proc] {
+        Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllStandardError()));
+    });
+    proc->setWorkingDirectory(outDir);
+    proc->setEnvironment(buildConfiguration()->environment());
+    proc->setCommand(cmdLine);
+    Core::MessageManager::writeFlashing(Tr::tr("Running in %1: %2")
+                                        .arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
+    proc->start();
 }
 
 void QmakeBuildSystem::buildHelper(Action action, bool isFileBuild, QmakeProFileNode *profile,
