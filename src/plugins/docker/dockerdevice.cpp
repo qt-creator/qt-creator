@@ -34,6 +34,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
+#include <utils/expected.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
@@ -542,23 +543,37 @@ QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
     return QStringList{"--mount", mountArg};
 }
 
-bool isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
+expected_str<void> isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
 {
     if (mi.path.needsDevice())
-        return false;
+        return make_unexpected(QString("Path \"%1\" is not local").arg(mi.path.toUserOutput()));
 
-    if (mi.path.isEmpty() || mi.containerPath.isEmpty())
-        return false;
-    if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath())
-        return false;
+    if (mi.path.isEmpty() && mi.containerPath.isEmpty())
+        return make_unexpected(QString("Both paths are empty"));
+
+    if (mi.path.isEmpty()) {
+        return make_unexpected(QString("Local path is empty, container path is \"%1\"")
+                                   .arg(mi.containerPath.toUserOutput()));
+    }
+
+    if (mi.containerPath.isEmpty()) {
+        return make_unexpected(
+            QString("Container path is empty, local path is \"%1\"").arg(mi.path.toUserOutput()));
+    }
+
+    if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath()) {
+        return make_unexpected(QString("Path \"%1\" or \"%2\" is not absolute")
+                                   .arg(mi.path.toUserOutput())
+                                   .arg(mi.containerPath.toUserOutput()));
+    }
 
     if (mi.containerPath.isRootPath())
-        return false;
+        return make_unexpected(QString("Path \"%1\" is root").arg(mi.containerPath.toUserOutput()));
 
     if (!mi.path.exists())
-        return false;
+        return make_unexpected(QString("Path \"%1\" does not exist").arg(mi.path.toUserOutput()));
 
-    return true;
+    return {};
 }
 
 QStringList DockerDevicePrivate::createMountArgs() const
@@ -1098,7 +1113,8 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
 
     const TemporaryMountInfo newMount{path, containerPath};
 
-    QTC_ASSERT(isValidMountInfo(newMount), return false);
+    const expected_str<void> result = isValidMountInfo(newMount);
+    QTC_ASSERT_EXPECTED(result, return false);
 
     qCDebug(dockerDeviceLog) << "Adding temporary mount:" << path;
     m_temporaryMounts.append(newMount);
