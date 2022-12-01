@@ -45,7 +45,6 @@ class StudioWelcomePlugin final : public ExtensionSystem::IPlugin
 
 public slots:
     void closeSplashScreen();
-    void showSystemSettings();
 
 public:
     StudioWelcomePlugin();
