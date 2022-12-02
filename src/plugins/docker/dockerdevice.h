@@ -39,6 +39,8 @@ public:
         return repo + ':' + tag;
     }
 
+    QString repoAndTagEncoded() const { return repoAndTag().replace(':', '.'); }
+
     QString imageId;
     QString repo;
     QString tag;

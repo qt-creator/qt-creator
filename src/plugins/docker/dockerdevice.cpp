@@ -150,6 +150,7 @@ public:
     DockerSettings *settings() { return m_settings; }
 
     QString repoAndTag() const { return m_data.repoAndTag(); }
+    QString repoAndTagEncoded() const { return m_data.repoAndTagEncoded(); }
     QString dockerImageId() const { return m_data.imageId; }
 
     Environment environment();
@@ -770,7 +771,7 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
     }
 
     return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
-                               d->repoAndTag(),
+                               d->repoAndTagEncoded(),
                                pathOnDevice.path());
 
 // The following would work, but gives no hint on repo and tag
@@ -784,7 +785,7 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 
 Utils::FilePath DockerDevice::rootPath() const
 {
-    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, d->repoAndTag(), u"/");
+    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, d->repoAndTagEncoded(), u"/");
 }
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const
@@ -797,7 +798,10 @@ bool DockerDevice::handlesFile(const FilePath &filePath) const
     if (isDockerScheme && filePath.host() == d->dockerImageId())
         return true;
 
-    if (isDockerScheme && filePath.host() == QString(d->repoAndTag()))
+    if (isDockerScheme && filePath.host() == d->repoAndTagEncoded())
+        return true;
+
+    if (isDockerScheme && filePath.host() == d->repoAndTag())
         return true;
 
     return false;
