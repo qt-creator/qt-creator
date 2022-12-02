@@ -3,7 +3,9 @@
 
 #include "cpplocatordata.h"
 
-#include "stringtable.h"
+#include <utils/stringtable.h>
+
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -57,7 +59,7 @@ void CppLocatorData::onAboutToRemoveFiles(const QStringList &files)
         }
     }
 
-    Internal::StringTable::scheduleGC();
+    StringTable::scheduleGC();
     flushPendingDocument(false);
 }
 
@@ -70,7 +72,7 @@ void CppLocatorData::flushPendingDocument(bool force) const
         return;
 
     for (CPlusPlus::Document::Ptr doc : std::as_const(m_pendingDocuments))
-        m_infosByFile.insert(Internal::StringTable::insert(doc->filePath()), m_search(doc));
+        m_infosByFile.insert(StringTable::insert(doc->filePath().toString()), m_search(doc));
 
     m_pendingDocuments.clear();
     m_pendingDocuments.reserve(MaxPendingDocuments);

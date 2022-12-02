@@ -156,6 +156,7 @@ add_qtc_library(Utils
     sortfiltermodel.h
     span.h
     statuslabel.cpp statuslabel.h
+    stringtable.cpp stringtable.h
     stringutils.cpp stringutils.h
     styledbar.cpp styledbar.h
     stylehelper.cpp stylehelper.h

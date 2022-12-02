@@ -229,8 +229,6 @@ QtcPlugin {
         "semantichighlighter.h",
         "senddocumenttracker.cpp",
         "senddocumenttracker.h",
-        "stringtable.cpp",
-        "stringtable.h",
         "symbolfinder.cpp",
         "symbolfinder.h",
         "symbolsfindfilter.cpp",

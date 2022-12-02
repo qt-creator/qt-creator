@@ -3,28 +3,27 @@
 
 #include "stringtable.h"
 
-#include <utils/qtcassert.h>
-#include <utils/runextensions.h>
+#include "runextensions.h"
 
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QMutex>
 #include <QSet>
-#include <QThreadPool>
 #include <QTimer>
 
-#ifdef WITH_TESTS
-#include <extensionsystem/pluginmanager.h>
-#endif
+// FIXME: Re-create in better location?
+//#ifdef WITH_TESTS
+//#include <extensionsystem/pluginmanager.h>
+//#endif
 
-namespace CppEditor::Internal {
+namespace Utils::StringTable {
 
 enum {
     GCTimeOut = 10 * 1000 // 10 seconds
 };
 
 enum {
-    DebugStringTable = 0
+    DebugStringTable = 1
 };
 
 class StringTablePrivate : public QObject
@@ -44,7 +43,11 @@ public:
     QTimer m_gcCountDown;
 };
 
-static StringTablePrivate *m_instance = nullptr;
+static StringTablePrivate &stringTable()
+{
+    static StringTablePrivate theStringTable;
+    return theStringTable;
+}
 
 StringTablePrivate::StringTablePrivate()
 {
@@ -56,14 +59,9 @@ StringTablePrivate::StringTablePrivate()
     connect(&m_gcCountDown, &QTimer::timeout, this, &StringTablePrivate::startGC);
 }
 
-QString StringTable::insert(const Utils::FilePath &path)
+QTCREATOR_UTILS_EXPORT QString insert(const QString &string)
 {
-    return m_instance->insert(path.path());
-}
-
-QString StringTable::insert(const QString &string)
-{
-    return m_instance->insert(string);
+    return stringTable().insert(string);
 }
 
 void StringTablePrivate::cancelAndWait()
@@ -96,39 +94,37 @@ void StringTablePrivate::startGC()
     m_future = Utils::runAsync(&StringTablePrivate::GC, this);
 }
 
-void StringTable::scheduleGC()
+QTCREATOR_UTILS_EXPORT void scheduleGC()
 {
-    QMetaObject::invokeMethod(&m_instance->m_gcCountDown, QOverload<>::of(&QTimer::start),
+    QMetaObject::invokeMethod(&stringTable().m_gcCountDown, QOverload<>::of(&QTimer::start),
                               Qt::QueuedConnection);
 }
 
-StringTable::StringTable()
-{
-    m_instance = new StringTablePrivate;
-}
-
-StringTable::~StringTable()
-{
-    delete m_instance;
-    m_instance = nullptr;
-}
+static int bytesSaved = 0;
 
 static inline bool isQStringInUse(const QString &string)
 {
-    auto data_ptr = const_cast<QString&>(string).data_ptr();
+    QStringPrivate data_ptr = const_cast<QString&>(string).data_ptr();
+    if (DebugStringTable) {
+        const int ref = data_ptr->d_ptr()->ref_;
+        bytesSaved += (ref - 1) * string.size();
+        if (ref > 10)
+            qDebug() << ref << string.size() << string.left(50);
+    }
     return data_ptr->isShared() || !data_ptr->isMutable() /* QStringLiteral ? */;
 }
 
 void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
 {
-#ifdef WITH_TESTS
-    if (ExtensionSystem::PluginManager::isScenarioRunning("TestStringTable")) {
-        if (ExtensionSystem::PluginManager::finishScenario())
-            QThread::sleep(5);
-    }
-#endif
+//#ifdef WITH_TESTS
+//    if (ExtensionSystem::PluginManager::isScenarioRunning("TestStringTable")) {
+//        if (ExtensionSystem::PluginManager::finishScenario())
+//            QThread::sleep(5);
+//    }
+//#endif
 
     int initialSize = 0;
+    bytesSaved = 0;
     QElapsedTimer timer;
     if (DebugStringTable) {
         initialSize = m_strings.size();
@@ -149,8 +145,9 @@ void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
     if (DebugStringTable) {
         const int currentSize = m_strings.size();
         qDebug() << "StringTable::GC removed" << initialSize - currentSize
-                 << "strings in" << timer.elapsed() << "ms, size is now" << currentSize;
+                 << "strings in" << timer.elapsed() << "ms, size is now" << currentSize
+                 << "saved: " << bytesSaved << "bytes";
     }
 }
 
-} // CppEditor::Internal
+} // Utils::StringTable

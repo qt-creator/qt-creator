@@ -27,7 +27,6 @@
 #include "cpptypehierarchy.h"
 #include "projectinfo.h"
 #include "resourcepreviewhoverhandler.h"
-#include "stringtable.h"
 
 #ifdef WITH_TESTS
 #include "compileroptionsbuilder_test.h"
@@ -87,6 +86,7 @@
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringtable.h>
 #include <utils/theme/theme.h>
 
 #include <QAction>
@@ -186,7 +186,6 @@ public:
     CppIncludeHierarchyFactory m_cppIncludeHierarchyFactory;
     CppEditorFactory m_cppEditorFactory;
 
-    StringTable stringTable;
     CppModelManager modelManager;
     CppCodeModelSettings m_codeModelSettings;
     CppToolsSettings settings;

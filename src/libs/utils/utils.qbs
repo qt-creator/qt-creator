@@ -287,6 +287,8 @@ Project {
             "../3rdparty/span/span.hpp",
             "statuslabel.cpp",
             "statuslabel.h",
+            "stringtable.cpp",
+            "stringtable.h",
             "stringutils.cpp",
             "stringutils.h",
             "styledbar.cpp",

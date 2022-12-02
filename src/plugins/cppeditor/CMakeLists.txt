@@ -109,7 +109,6 @@ add_qtc_plugin(CppEditor
     searchsymbols.cpp searchsymbols.h
     semantichighlighter.cpp semantichighlighter.h
     senddocumenttracker.cpp senddocumenttracker.h
-    stringtable.cpp stringtable.h
     symbolfinder.cpp symbolfinder.h
     symbolsfindfilter.cpp symbolsfindfilter.h
     typehierarchybuilder.cpp typehierarchybuilder.h
