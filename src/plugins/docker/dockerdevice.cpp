@@ -68,6 +68,7 @@
 #include <QToolButton>
 
 #include <numeric>
+#include <optional>
 
 #ifdef Q_OS_UNIX
 #include <sys/types.h>
@@ -167,6 +168,13 @@ public:
     void startContainer();
     void stopCurrentContainer();
     void fetchSystemEnviroment();
+
+    std::optional<FilePath> clangdExecutable() const
+    {
+        if (m_data.clangdExecutable.isEmpty())
+            return std::nullopt;
+        return m_data.clangdExecutable;
+    }
 
     bool addTemporaryMount(const FilePath &path, const FilePath &containerPath);
 
@@ -1158,6 +1166,11 @@ void DockerDevicePrivate::setData(const DockerDeviceData &data)
 bool DockerDevice::prepareForBuild(const Target *target)
 {
     return d->prepareForBuild(target);
+}
+
+std::optional<FilePath> DockerDevice::clangdExecutable() const
+{
+    return d->clangdExecutable();
 }
 
 } // namespace Docker::Internal

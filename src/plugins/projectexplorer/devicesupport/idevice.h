@@ -235,6 +235,7 @@ public:
     virtual bool ensureReachable(const Utils::FilePath &other) const;
 
     virtual bool prepareForBuild(const Target *target);
+    virtual std::optional<Utils::FilePath> clangdExecutable() const;
 
 protected:
     IDevice();

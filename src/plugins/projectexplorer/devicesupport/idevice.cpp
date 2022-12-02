@@ -650,6 +650,11 @@ bool IDevice::prepareForBuild(const Target *target)
     return true;
 }
 
+std::optional<Utils::FilePath> IDevice::clangdExecutable() const
+{
+    return std::nullopt;
+}
+
 void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
 {
     m_debuggerCommand = cmd;

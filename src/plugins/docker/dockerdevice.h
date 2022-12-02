@@ -99,6 +99,7 @@ public:
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
+    std::optional<Utils::FilePath> clangdExecutable() const override;
 
 protected:
     void fromMap(const QVariantMap &map) final;
