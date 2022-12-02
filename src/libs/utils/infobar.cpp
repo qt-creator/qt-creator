@@ -361,26 +361,21 @@ void InfoBarDisplay::update()
             });
         }
 
-        if (info.m_cancelButtonText.isEmpty()) {
-            if (infoWidgetCloseButton) {
+        if (infoWidgetCloseButton) {
+            if (info.m_cancelButtonText.isEmpty()) {
                 infoWidgetCloseButton->setAutoRaise(true);
                 infoWidgetCloseButton->setIcon(Icons::CLOSE_FOREGROUND.icon());
                 infoWidgetCloseButton->setToolTip(tr("Close"));
-            }
-
-            if (infoWidgetSuppressButton)
-                hbox->addWidget(infoWidgetSuppressButton);
-
-            if (infoWidgetCloseButton)
-                hbox->addWidget(infoWidgetCloseButton);
-        } else {
-            if (infoWidgetCloseButton) {
+            } else {
                 infoWidgetCloseButton->setText(info.m_cancelButtonText);
-                hbox->addWidget(infoWidgetCloseButton);
             }
-            if (infoWidgetSuppressButton)
-                hbox->addWidget(infoWidgetSuppressButton);
         }
+
+        if (infoWidgetSuppressButton)
+            hbox->addWidget(infoWidgetSuppressButton);
+
+        if (infoWidgetCloseButton)
+            hbox->addWidget(infoWidgetCloseButton);
 
         connect(infoWidget, &QObject::destroyed, this, [this, infoWidget] {
             m_infoWidgets.removeOne(infoWidget);
