@@ -21,8 +21,8 @@ public:
     {
         return imageId == other.imageId && repo == other.repo && tag == other.tag
                && useLocalUidGid == other.useLocalUidGid && mounts == other.mounts
-               && keepEntryPoint == other.keepEntryPoint
-               && enableLldbFlags == other.enableLldbFlags;
+               && keepEntryPoint == other.keepEntryPoint && enableLldbFlags == other.enableLldbFlags
+               && clangdExecutable == other.clangdExecutable;
     }
 
     bool operator!=(const DockerDeviceData &other) const { return !(*this == other); }
@@ -49,6 +49,7 @@ public:
     QStringList mounts = {Core::DocumentManager::projectsDirectory().toString()};
     bool keepEntryPoint = false;
     bool enableLldbFlags = false;
+    Utils::FilePath clangdExecutable;
 };
 
 class DockerDevice : public ProjectExplorer::IDevice

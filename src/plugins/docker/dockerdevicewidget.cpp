@@ -11,6 +11,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -100,6 +101,19 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         dockerDevice->setData(m_data);
     });
 
+    auto clangDLabel = new QLabel(Tr::tr("Clangd Executable:"));
+
+    m_clangdExecutable = new PathChooser();
+    m_clangdExecutable->setExpectedKind(PathChooser::ExistingCommand);
+    m_clangdExecutable->setHistoryCompleter("Docker.ClangdExecutable.History");
+    m_clangdExecutable->setAllowPathFromDevice(true);
+    m_clangdExecutable->setFilePath(m_data.clangdExecutable);
+
+    connect(m_clangdExecutable, &PathChooser::rawPathChanged, this, [this, dockerDevice]() {
+        m_data.clangdExecutable = m_clangdExecutable->filePath();
+        dockerDevice->setData(m_data);
+    });
+
     auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
     pathListLabel->setAdditionalToolTip(Tr::tr("Source directory list should not be empty."));
 
@@ -163,6 +177,10 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         logView->clear();
         dockerDevice->updateContainerAccess();
 
+        const FilePath clangdPath = dockerDevice->rootPath().withNewPath("clangd").searchInPath();
+        if (!clangdPath.isEmpty())
+            m_clangdExecutable->setFilePath(clangdPath);
+
         m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
 
         if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
@@ -193,6 +211,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         m_runAsOutsideUser, br,
         m_keepEntryPoint, br,
         m_enableLldbFlags, br,
+        clangDLabel, m_clangdExecutable, br,
         Column {
             pathListLabel,
             m_pathsListEdit,

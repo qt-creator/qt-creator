@@ -10,6 +10,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
+#include <utils/pathchooser.h>
 #include <utils/pathlisteditor.h>
 
 QT_BEGIN_NAMESPACE
@@ -38,6 +39,7 @@ private:
     QCheckBox *m_runAsOutsideUser;
     QCheckBox *m_keepEntryPoint;
     QCheckBox *m_enableLldbFlags;
+    Utils::PathChooser *m_clangdExecutable;
 
     Utils::PathListEditor *m_pathsListEdit;
     KitDetector m_kitItemDetector;

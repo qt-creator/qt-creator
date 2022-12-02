@@ -682,6 +682,7 @@ const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
 const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
 const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
 const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
+const char DockerDeviceClangDExecutable[] = "DockerDeviceClangDExecutable";
 
 void DockerDevice::fromMap(const QVariantMap &map)
 {
@@ -696,6 +697,7 @@ void DockerDevice::fromMap(const QVariantMap &map)
     data.mounts = map.value(DockerDeviceMappedPaths).toStringList();
     data.keepEntryPoint = map.value(DockerDeviceKeepEntryPoint).toBool();
     data.enableLldbFlags = map.value(DockerDeviceEnableLldbFlags).toBool();
+    data.clangdExecutable = FilePath::fromUrl(map.value(DockerDeviceClangDExecutable).toUrl());
     d->setData(data);
 }
 
@@ -712,6 +714,7 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceMappedPaths, data.mounts);
     map.insert(DockerDeviceKeepEntryPoint, data.keepEntryPoint);
     map.insert(DockerDeviceEnableLldbFlags, data.enableLldbFlags);
+    map.insert(DockerDeviceClangDExecutable, data.clangdExecutable.toUrl());
     return map;
 }
 
