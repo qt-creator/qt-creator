@@ -140,13 +140,10 @@ static FilePath searchInDirectory(const QStringList &execs,
     if (directory.isEmpty() || alreadyChecked.count() == checkedCount)
         return FilePath();
 
-    const QString dir = directory.toString();
-
-    QFileInfo fi;
     for (const QString &exec : execs) {
-        fi.setFile(dir, exec);
-        if (fi.isFile() && fi.isExecutable())
-            return FilePath::fromString(fi.absoluteFilePath());
+        const FilePath filePath = directory.pathAppended(exec);
+        if (filePath.isExecutableFile())
+            return filePath;
     }
     return FilePath();
 }

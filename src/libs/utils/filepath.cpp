@@ -1172,7 +1172,7 @@ FilePath FilePath::withNewPath(const QString &newPath) const
 }
 
 /*!
-    Searched a binary corresponding to this object in the PATH of
+    Search for a binary corresponding to this object in the PATH of
     the device implied by this object's scheme and host.
 
     Example usage:
@@ -1186,25 +1186,26 @@ FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
 {
     if (isAbsolutePath())
         return *this;
-    // FIXME: Ramp down use.
-    QTC_ASSERT(!needsDevice(), return {});
-    return Environment::systemEnvironment().searchInDirectories(path(), dirs);
+    return deviceEnvironment().searchInDirectories(path(), dirs);
 }
 
 FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending amending) const
 {
     if (isAbsolutePath())
         return *this;
-    // FIXME: Ramp down use.
     FilePaths directories = deviceEnvironment().path();
+    if (needsDevice()) {
+        directories = Utils::transform(directories, [this](const FilePath &path) {
+            return path.onDevice(*this);
+        });
+    }
     if (!additionalDirs.isEmpty()) {
         if (amending == AppendToPath)
             directories.append(additionalDirs);
         else
             directories = additionalDirs + directories;
     }
-    QTC_ASSERT(!needsDevice(), return {});
-    return Environment::systemEnvironment().searchInDirectories(path(), directories);
+    return searchInDirectories(directories);
 }
 
 Environment FilePath::deviceEnvironment() const
