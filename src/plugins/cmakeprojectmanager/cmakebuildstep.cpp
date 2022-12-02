@@ -716,10 +716,10 @@ QString CMakeBuildStep::baseEnvironmentText() const
         return Tr::tr("System Environment");
 }
 
-void CMakeBuildStep::processFinished(int exitCode, QProcess::ExitStatus status)
+void CMakeBuildStep::processFinished(bool success)
 {
-    AbstractProcessStep::processFinished(exitCode, status);
-    emit progress(100, QString());
+    Q_UNUSED(success)
+    emit progress(100, {});
 }
 
 // CMakeBuildStepFactory

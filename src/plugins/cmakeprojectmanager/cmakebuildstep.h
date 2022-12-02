@@ -77,7 +77,7 @@ signals:
 private:
     Utils::CommandLine cmakeCommand() const;
 
-    void processFinished(int exitCode, QProcess::ExitStatus status) override;
+    void processFinished(bool success) override;
     bool fromMap(const QVariantMap &map) override;
 
     bool init() override;

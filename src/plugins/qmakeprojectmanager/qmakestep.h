@@ -138,10 +138,10 @@ public:
 protected:
     bool fromMap(const QVariantMap &map) override;
     void processStartupFailed() override;
-    bool processSucceeded(int exitCode, QProcess::ExitStatus status) override;
 
 private:
     void finish(bool success) override;
+    void processFinished(bool success) override;
 
     void startOneCommand(const Utils::CommandLine &command);
     void runNextCommand();

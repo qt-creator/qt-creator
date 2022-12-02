@@ -62,7 +62,7 @@ private:
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QWidget *createConfigWidget() override;
     void processStarted() override;
-    void processFinished(int exitCode, QProcess::ExitStatus status) override;
+    void processFinished(bool success) override;
     bool verifyKeystorePassword();
     bool verifyCertificatePassword();
 

@@ -45,13 +45,12 @@ protected:
 
     virtual void finish(bool success);
     virtual void processStarted();
-    virtual void processFinished(int exitCode, QProcess::ExitStatus status);
     virtual void processStartupFailed();
-    virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
     virtual void stdOutput(const QString &output);
     virtual void stdError(const QString &output);
 
 private:
+    virtual void processFinished(bool success);
     void processReadyReadStdOutput();
     void processReadyReadStdError();
     void handleProcessDone();

@@ -613,10 +613,9 @@ QWidget *AndroidBuildApkStep::createConfigWidget()
     return new AndroidBuildApkWidget(this);
 }
 
-void AndroidBuildApkStep::processFinished(int exitCode, QProcess::ExitStatus status)
+void AndroidBuildApkStep::processFinished(bool success)
 {
-    AbstractProcessStep::processFinished(exitCode, status);
-    if (m_openPackageLocationForRun && status == QProcess::NormalExit && exitCode == 0)
+    if (m_openPackageLocationForRun && success)
         QTimer::singleShot(0, this, &AndroidBuildApkStep::showInGraphicalShell);
 }
 

@@ -4,13 +4,9 @@
 #include "abstractprocessstep.h"
 #include "buildconfiguration.h"
 #include "buildstep.h"
-#include "ioutputparser.h"
 #include "processparameters.h"
-#include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
-#include "target.h"
-#include "task.h"
 
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
@@ -262,14 +258,25 @@ bool AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
 
 void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus status)
 {
-    // The process has finished, leftover data was read in handleProcessDone
-    q->processFinished(exitCode, status);
-    const bool returnValue = q->processSucceeded(exitCode, status) || m_ignoreReturnValue;
+    const QString command = m_param.effectiveCommand().toUserOutput();
+    if (status == QProcess::NormalExit && exitCode == 0) {
+        emit q->addOutput(tr("The process \"%1\" exited normally.").arg(command),
+                          BuildStep::OutputFormat::NormalMessage);
+    } else if (status == QProcess::NormalExit) {
+        emit q->addOutput(tr("The process \"%1\" exited with code %2.")
+                          .arg(command, QString::number(exitCode)),
+                          BuildStep::OutputFormat::ErrorMessage);
+    } else {
+        emit q->addOutput(tr("The process \"%1\" crashed.").arg(command),
+                          BuildStep::OutputFormat::ErrorMessage);
+    }
 
+    const bool success = exitCode == 0 && status == QProcess::NormalExit
+            && !outputFormatter->hasFatalErrors();
+    q->processFinished(success);
     if (m_process)
         m_process.release()->deleteLater();
-
-    q->finish(returnValue);
+    q->finish(success || m_ignoreReturnValue);
 }
 
 /*!
@@ -293,19 +300,9 @@ void AbstractProcessStep::processStarted()
     The default implementation adds a line to the output window.
 */
 
-void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
+void AbstractProcessStep::processFinished(bool success)
 {
-    const QString command = d->m_param.effectiveCommand().toUserOutput();
-    if (status == QProcess::NormalExit && exitCode == 0) {
-        emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
-                       BuildStep::OutputFormat::NormalMessage);
-    } else if (status == QProcess::NormalExit) {
-        emit addOutput(tr("The process \"%1\" exited with code %2.")
-                       .arg(command, QString::number(exitCode)),
-                       BuildStep::OutputFormat::ErrorMessage);
-    } else {
-        emit addOutput(tr("The process \"%1\" crashed.").arg(command), BuildStep::OutputFormat::ErrorMessage);
-    }
+    Q_UNUSED(success)
 }
 
 /*!
@@ -325,18 +322,6 @@ void AbstractProcessStep::processStartupFailed()
     if (!err.isEmpty())
         emit addOutput(err, OutputFormat::ErrorMessage);
     finish(false);
-}
-
-/*!
-    Called to test whether a process succeeded or not.
-*/
-
-bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
-{
-    if (d->outputFormatter->hasFatalErrors())
-        return false;
-
-    return exitCode == 0 && status == QProcess::NormalExit;
 }
 
 void AbstractProcessStep::processReadyReadStdOutput()

@@ -300,13 +300,11 @@ void QMakeStep::processStartupFailed()
     AbstractProcessStep::processStartupFailed();
 }
 
-bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
+void QMakeStep::processFinished(bool success)
 {
-    bool result = AbstractProcessStep::processSucceeded(exitCode, status);
-    if (!result)
+    if (!success)
         m_needToRunQMake = true;
     emit buildConfiguration()->buildDirectoryInitialized();
-    return result;
 }
 
 void QMakeStep::finish(bool success)
