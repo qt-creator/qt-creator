@@ -352,7 +352,8 @@ void CMakeBuildStep::handleProjectWasParsed(bool success)
     } else if (success) {
         runImpl();
     } else {
-        AbstractProcessStep::stdError(Tr::tr("Project did not parse successfully, cannot build."));
+        emit addOutput(Tr::tr("Project did not parse successfully, cannot build."),
+                       OutputFormat::ErrorMessage);
         emit finished(false);
     }
 }
