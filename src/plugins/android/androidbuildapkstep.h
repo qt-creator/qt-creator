@@ -52,8 +52,6 @@ public:
     QString buildTargetSdk() const;
     void setBuildTargetSdk(const QString &sdk);
 
-    void stdError(const QString &output) override;
-
     QVariant data(Utils::Id id) const override;
 
 private:
@@ -67,6 +65,7 @@ private:
     bool verifyCertificatePassword();
 
     void doRun() override;
+    void stdError(const QString &output);
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
 

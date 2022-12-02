@@ -205,10 +205,12 @@ void AbstractProcessStep::doRun()
         d->m_process->setLowPriority();
 
     connect(d->m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
-        stdOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()));
+        emit addOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()),
+                       OutputFormat::Stdout, DontAppendNewline);
     });
     connect(d->m_process.get(), &QtcProcess::readyReadStandardError, this, [this] {
-        stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
+        emit addOutput(d->stderrStream->toUnicode(d->m_process->readAllStandardError()),
+                       OutputFormat::Stderr, DontAppendNewline);
     });
     connect(d->m_process.get(), &QtcProcess::started, this, [this] {
         ProcessParameters *params = displayedParameters();
@@ -324,28 +326,6 @@ void AbstractProcessStep::processStartupFailed()
     if (!err.isEmpty())
         emit addOutput(err, OutputFormat::ErrorMessage);
     finish(false);
-}
-
-/*!
-    Called for each line of output on stdOut().
-
-    The default implementation adds the line to the application output window.
-*/
-
-void AbstractProcessStep::stdOutput(const QString &output)
-{
-    emit addOutput(output, OutputFormat::Stdout, DontAppendNewline);
-}
-
-/*!
-    Called for each line of output on StdErrror().
-
-    The default implementation adds the line to the application output window.
-*/
-
-void AbstractProcessStep::stdError(const QString &output)
-{
-    emit addOutput(output, OutputFormat::Stderr, DontAppendNewline);
 }
 
 void AbstractProcessStep::finish(bool success)

@@ -456,6 +456,11 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
 {
     setImmutable(true);
     setDisplayName(Tr::tr("Build Android APK"));
+
+    connect(this, &BuildStep::addOutput, this, [this](const QString &string, OutputFormat format) {
+        if (format == OutputFormat::Stderr)
+            stdError(string);
+    });
 }
 
 bool AndroidBuildApkStep::init()
@@ -872,8 +877,6 @@ void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 
 void AndroidBuildApkStep::stdError(const QString &output)
 {
-    AbstractProcessStep::stdError(output);
-
     QString newOutput = output;
     newOutput.remove(QRegularExpression("^(\\n)+"));
 

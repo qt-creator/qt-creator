@@ -115,6 +115,13 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     const MakeInstallCommand cmd = buildSystem()->makeInstallCommand(rootPath);
     QTC_ASSERT(!cmd.command.isEmpty(), return);
     makeAspect->setExecutable(cmd.command.executable());
+
+    connect(this, &BuildStep::addOutput, this, [this](const QString &string, OutputFormat format) {
+        // When using Makefiles: "No rule to make target 'install'"
+        // When using ninja: "ninja: error: unknown target 'install'"
+        if (format == OutputFormat::Stderr && string.contains("target 'install'"))
+            m_noInstallTarget = true;
+    });
 }
 
 Utils::Id MakeInstallStep::stepId()
@@ -213,15 +220,6 @@ void MakeInstallStep::finish(bool success)
                    "to your CMakeLists.txt file for deployment to work.")));
     }
     MakeStep::finish(success);
-}
-
-void MakeInstallStep::stdError(const QString &line)
-{
-    // When using Makefiles: "No rule to make target 'install'"
-    // When using ninja: "ninja: error: unknown target 'install'"
-    if (line.contains("target 'install'"))
-        m_noInstallTarget = true;
-    MakeStep::stdError(line);
 }
 
 FilePath MakeInstallStep::installRoot() const

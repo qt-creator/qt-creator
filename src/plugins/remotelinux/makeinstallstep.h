@@ -24,7 +24,6 @@ private:
     QWidget *createConfigWidget() override;
     bool init() override;
     void finish(bool success) override;
-    void stdError(const QString &line) override;
     bool isJobCountSupported() const override { return false; }
 
     Utils::FilePath installRoot() const;
