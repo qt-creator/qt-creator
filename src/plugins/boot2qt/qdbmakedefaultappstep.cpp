@@ -40,7 +40,7 @@ private:
             QString remoteExe;
             if (RunConfiguration *rc = target()->activeRunConfiguration()) {
                 if (auto exeAspect = rc->aspect<ExecutableAspect>())
-                    remoteExe = exeAspect->executable().toString();
+                    remoteExe = exeAspect->executable().nativePath();
             }
             const QString args = m_makeDefault && !remoteExe.isEmpty()
                     ? QStringLiteral("--make-default ") + remoteExe
