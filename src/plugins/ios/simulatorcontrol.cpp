@@ -72,7 +72,11 @@ static bool runCommand(const CommandLine &command, QString *stdOutput, QString *
 static bool runSimCtlCommand(QStringList args, QString *output, QString *allOutput = nullptr)
 {
     args.prepend("simctl");
-    return runCommand({"xcrun", args}, output, allOutput);
+
+    // Cache xcrun's path, as this function will be called often.
+    static FilePath xcrun = FilePath::fromString("xcrun").searchInPath();
+    QTC_ASSERT(!xcrun.isEmpty() && xcrun.isExecutableFile(), xcrun.clear(); return false);
+    return runCommand({xcrun, args}, output, allOutput);
 }
 
 static bool launchSimulator(const QString &simUdid) {
