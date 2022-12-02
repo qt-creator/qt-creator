@@ -193,8 +193,11 @@ HeaderPaths GccToolChain::gccHeaderPaths(const FilePath &gcc,
                     thisHeaderKind = HeaderPathType::Framework;
                 }
 
-                const QString headerPath = QFileInfo(QFile::decodeName(line)).canonicalFilePath();
-                builtInHeaderPaths.append({headerPath, thisHeaderKind});
+                const FilePath headerPath
+                    = FilePath::fromString(QString::fromUtf8(line)).onDevice(gcc).canonicalPath();
+
+                if (!headerPath.isEmpty())
+                    builtInHeaderPaths.append({headerPath, thisHeaderKind});
             } else if (line.startsWith("End of search list.")) {
                 break;
             } else {

@@ -25,7 +25,8 @@ public:
     HeaderPath(const QString &path, HeaderPathType type) : path(path), type(type) { }
     HeaderPath(const char *path, HeaderPathType type) : HeaderPath(QLatin1String(path), type) {}
     HeaderPath(const Utils::FilePath &path, HeaderPathType type)
-        : HeaderPath(path.toString(), type) { }
+        : HeaderPath(path.path(), type)
+    {}
 
     bool operator==(const HeaderPath &other) const
     {

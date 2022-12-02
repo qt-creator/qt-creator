@@ -124,7 +124,7 @@ void HeaderPathFilter::tweakHeaderPaths()
     auto split = resourceIterator(builtInHeaderPaths);
 
     if (!clangIncludeDirectory.isEmpty())
-        builtInHeaderPaths.insert(split, HeaderPath::makeBuiltIn(clangIncludeDirectory));
+        builtInHeaderPaths.insert(split, HeaderPath::makeBuiltIn(clangIncludeDirectory.path()));
 }
 
 void HeaderPathFilter::addPreIncludesPath()
