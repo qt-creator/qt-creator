@@ -294,12 +294,6 @@ void QMakeStep::setForced(bool b)
     m_forced = b;
 }
 
-void QMakeStep::processStartupFailed()
-{
-    m_needToRunQMake = true;
-    AbstractProcessStep::processStartupFailed();
-}
-
 void QMakeStep::processFinished(bool success)
 {
     if (!success)
@@ -309,6 +303,8 @@ void QMakeStep::processFinished(bool success)
 
 void QMakeStep::finish(bool success)
 {
+    if (!success)
+        m_needToRunQMake = true;
     m_wasSuccess = success;
     runNextCommand();
 }

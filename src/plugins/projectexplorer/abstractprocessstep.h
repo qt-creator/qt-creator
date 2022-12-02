@@ -45,11 +45,11 @@ protected:
     void setDisplayedParameters(ProcessParameters *params);
 
     virtual void finish(bool success);
-    virtual void processStartupFailed();
     virtual void stdOutput(const QString &output);
     virtual void stdError(const QString &output);
 
 private:
+    void processStartupFailed();
     ProcessParameters *displayedParameters() const;
     virtual void processFinished(bool success);
     void handleProcessDone();

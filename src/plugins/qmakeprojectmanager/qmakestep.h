@@ -137,7 +137,6 @@ public:
 
 protected:
     bool fromMap(const QVariantMap &map) override;
-    void processStartupFailed() override;
 
 private:
     void finish(bool success) override;
