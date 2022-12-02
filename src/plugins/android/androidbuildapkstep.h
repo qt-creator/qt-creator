@@ -7,6 +7,7 @@
 #include "android_global.h"
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/processparameters.h>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -61,7 +62,6 @@ private:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QWidget *createConfigWidget() override;
-    void processStarted() override;
     void processFinished(bool success) override;
     bool verifyKeystorePassword();
     bool verifyCertificatePassword();
@@ -84,8 +84,7 @@ private:
     QString m_certificatePasswd;
     Utils::FilePath m_packagePath;
 
-    Utils::FilePath m_command;
-    QString m_argumentsPasswordConcealed;
+    ProjectExplorer::ProcessParameters m_concealedParams;
     bool m_skipBuilding = false;
     Utils::FilePath m_inputFile;
 };

@@ -42,14 +42,15 @@ protected:
     void doRun() override;
     void doCancel() override;
     void setLowPriority();
+    void setDisplayedParameters(ProcessParameters *params);
 
     virtual void finish(bool success);
-    virtual void processStarted();
     virtual void processStartupFailed();
     virtual void stdOutput(const QString &output);
     virtual void stdError(const QString &output);
 
 private:
+    ProcessParameters *displayedParameters() const;
     virtual void processFinished(bool success);
     void handleProcessDone();
 

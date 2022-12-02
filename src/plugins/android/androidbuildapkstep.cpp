@@ -578,12 +578,9 @@ bool AndroidBuildApkStep::init()
     processParameters()->setCommandLine({command, arguments});
 
     // Generate arguments with keystore password concealed
-    ProjectExplorer::ProcessParameters pp2;
-    setupProcessParameters(&pp2);
-    pp2.setCommandLine({command, argumentsPasswordConcealed});
-    m_command = pp2.effectiveCommand();
-    m_argumentsPasswordConcealed = pp2.prettyArguments();
-
+    setupProcessParameters(&m_concealedParams);
+    m_concealedParams.setCommandLine({command, argumentsPasswordConcealed});
+    setDisplayedParameters(&m_concealedParams);
     return true;
 }
 
@@ -834,13 +831,6 @@ void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::Tas
     qCDebug(buildapkstepLog) << message;
     emit addOutput(message, OutputFormat::ErrorMessage);
     TaskHub::addTask(BuildSystemTask(type, message));
-}
-
-void AndroidBuildApkStep::processStarted()
-{
-    emit addOutput(Tr::tr("Starting: \"%1\" %2")
-                   .arg(m_command.toUserOutput(), m_argumentsPasswordConcealed),
-                   BuildStep::OutputFormat::NormalMessage);
 }
 
 bool AndroidBuildApkStep::fromMap(const QVariantMap &map)

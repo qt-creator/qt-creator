@@ -76,6 +76,7 @@ public:
     AbstractProcessStep *q;
     std::unique_ptr<QtcProcess> m_process;
     ProcessParameters m_param;
+    ProcessParameters *m_displayedParams = &m_param;
     std::function<CommandLine()> m_commandLineProvider;
     std::function<FilePath()> m_workingDirectoryProvider;
     std::function<void(Environment &)> m_environmentModifier;
@@ -100,7 +101,7 @@ AbstractProcessStep::~AbstractProcessStep()
 void AbstractProcessStep::emitFaultyConfigurationMessage()
 {
     emit addOutput(tr("Configuration is faulty. Check the Issues view for details."),
-                   BuildStep::OutputFormat::NormalMessage);
+                   OutputFormat::NormalMessage);
 }
 
 bool AbstractProcessStep::ignoreReturnValue() const
@@ -172,7 +173,7 @@ void AbstractProcessStep::doRun()
     if (!wd.exists()) {
         if (!wd.createDir()) {
             emit addOutput(tr("Could not create directory \"%1\"").arg(wd.toUserOutput()),
-                           BuildStep::OutputFormat::ErrorMessage);
+                           OutputFormat::ErrorMessage);
             finish(false);
             return;
         }
@@ -209,8 +210,12 @@ void AbstractProcessStep::doRun()
     connect(d->m_process.get(), &QtcProcess::readyReadStandardError, this, [this] {
         stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
     });
-    connect(d->m_process.get(), &QtcProcess::started,
-            this, &AbstractProcessStep::processStarted);
+    connect(d->m_process.get(), &QtcProcess::started, this, [this] {
+        ProcessParameters *params = displayedParameters();
+        emit addOutput(tr("Starting: \"%1\" %2")
+                       .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
+                       OutputFormat::NormalMessage);
+    });
     connect(d->m_process.get(), &QtcProcess::done,
             this, &AbstractProcessStep::handleProcessDone);
 
@@ -258,19 +263,29 @@ bool AbstractProcessStep::setupProcessParameters(ProcessParameters *params) cons
     return true;
 }
 
+ProcessParameters *AbstractProcessStep::displayedParameters() const
+{
+    return d->m_displayedParams;
+}
+
+void AbstractProcessStep::setDisplayedParameters(ProcessParameters *params)
+{
+    d->m_displayedParams = params;
+}
+
 void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus status)
 {
-    const QString command = m_param.effectiveCommand().toUserOutput();
+    const QString command = q->displayedParameters()->effectiveCommand().toUserOutput();
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit q->addOutput(tr("The process \"%1\" exited normally.").arg(command),
-                          BuildStep::OutputFormat::NormalMessage);
+                          OutputFormat::NormalMessage);
     } else if (status == QProcess::NormalExit) {
         emit q->addOutput(tr("The process \"%1\" exited with code %2.")
                           .arg(command, QString::number(exitCode)),
-                          BuildStep::OutputFormat::ErrorMessage);
+                          OutputFormat::ErrorMessage);
     } else {
         emit q->addOutput(tr("The process \"%1\" crashed.").arg(command),
-                          BuildStep::OutputFormat::ErrorMessage);
+                          OutputFormat::ErrorMessage);
     }
 
     const bool success = exitCode == 0 && status == QProcess::NormalExit
@@ -279,21 +294,6 @@ void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus st
     if (m_process)
         m_process.release()->deleteLater();
     q->finish(success || m_ignoreReturnValue);
-}
-
-/*!
-    Called after the process is started.
-
-    The default implementation adds a process-started message to the output
-    message.
-*/
-
-void AbstractProcessStep::processStarted()
-{
-    emit addOutput(tr("Starting: \"%1\" %2")
-                   .arg(d->m_param.effectiveCommand().toUserOutput(),
-                        d->m_param.prettyArguments()),
-                   BuildStep::OutputFormat::NormalMessage);
 }
 
 /*!
@@ -315,9 +315,9 @@ void AbstractProcessStep::processFinished(bool success)
 
 void AbstractProcessStep::processStartupFailed()
 {
+    ProcessParameters *params = displayedParameters();
     emit addOutput(tr("Could not start process \"%1\" %2.")
-                   .arg(d->m_param.effectiveCommand().toUserOutput(),
-                        d->m_param.prettyArguments()),
+                   .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
                    OutputFormat::ErrorMessage);
 
     QString err = d->m_process ? d->m_process->errorString() : QString();
@@ -334,7 +334,7 @@ void AbstractProcessStep::processStartupFailed()
 
 void AbstractProcessStep::stdOutput(const QString &output)
 {
-    emit addOutput(output, BuildStep::OutputFormat::Stdout, BuildStep::DontAppendNewline);
+    emit addOutput(output, OutputFormat::Stdout, DontAppendNewline);
 }
 
 /*!
@@ -345,7 +345,7 @@ void AbstractProcessStep::stdOutput(const QString &output)
 
 void AbstractProcessStep::stdError(const QString &output)
 {
-    emit addOutput(output, BuildStep::OutputFormat::Stderr, BuildStep::DontAppendNewline);
+    emit addOutput(output, OutputFormat::Stderr, DontAppendNewline);
 }
 
 void AbstractProcessStep::finish(bool success)
