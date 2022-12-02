@@ -294,18 +294,15 @@ void QMakeStep::setForced(bool b)
     m_forced = b;
 }
 
-void QMakeStep::processFinished(bool success)
+void QMakeStep::finish(ProcessResult result)
 {
-    if (!success)
-        m_needToRunQMake = true;
-    emit buildConfiguration()->buildDirectoryInitialized();
-}
+    if (result != ProcessResult::StartFailed)
+        emit buildConfiguration()->buildDirectoryInitialized();
 
-void QMakeStep::finish(bool success)
-{
-    if (!success)
+    if (result != ProcessResult::FinishedWithSuccess)
         m_needToRunQMake = true;
-    m_wasSuccess = success;
+
+    m_wasSuccess = isSuccess(result);
     runNextCommand();
 }
 

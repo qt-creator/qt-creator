@@ -174,7 +174,7 @@ void AbstractProcessStep::doRun()
         if (!wd.createDir()) {
             emit addOutput(tr("Could not create directory \"%1\"").arg(wd.toUserOutput()),
                            OutputFormat::ErrorMessage);
-            finish(false);
+            finish(ProcessResult::StartFailed);
             return;
         }
     }
@@ -290,23 +290,12 @@ void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus st
                           OutputFormat::ErrorMessage);
     }
 
-    const bool success = exitCode == 0 && status == QProcess::NormalExit
-            && !outputFormatter->hasFatalErrors();
-    q->processFinished(success);
     if (m_process)
         m_process.release()->deleteLater();
-    q->finish(success || m_ignoreReturnValue);
-}
-
-/*!
-    Called after the process is finished.
-
-    The default implementation adds a line to the output window.
-*/
-
-void AbstractProcessStep::processFinished(bool success)
-{
-    Q_UNUSED(success)
+    const ProcessResult result = (status == QProcess::NormalExit && exitCode == 0
+                                  && !outputFormatter->hasFatalErrors())
+            ? ProcessResult::FinishedWithSuccess : ProcessResult::FinishedWithError;
+    q->finish(result);
 }
 
 /*!
@@ -325,12 +314,18 @@ void AbstractProcessStep::processStartupFailed()
     QString err = d->m_process ? d->m_process->errorString() : QString();
     if (!err.isEmpty())
         emit addOutput(err, OutputFormat::ErrorMessage);
-    finish(false);
+    finish(ProcessResult::StartFailed);
 }
 
-void AbstractProcessStep::finish(bool success)
+bool AbstractProcessStep::isSuccess(ProcessResult result) const
 {
-    emit finished(success);
+    return result == ProcessResult::FinishedWithSuccess
+            || (result == ProcessResult::FinishedWithError && d->m_ignoreReturnValue);
+}
+
+void AbstractProcessStep::finish(ProcessResult result)
+{
+    emit finished(isSuccess(result));
 }
 
 void AbstractProcessStep::handleProcessDone()

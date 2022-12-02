@@ -40,7 +40,7 @@ public:
     QmakeMakeStep(BuildStepList *bsl, Id id);
 
 private:
-    void finish(bool success) override;
+    void finish(ProcessResult result) override;
     bool init() override;
     void setupOutputFormatter(OutputFormatter *formatter) override;
     void doRun() override;
@@ -219,15 +219,15 @@ void QmakeMakeStep::doRun()
     AbstractProcessStep::doRun();
 }
 
-void QmakeMakeStep::finish(bool success)
+void QmakeMakeStep::finish(ProcessResult result)
 {
-    if (!success && !isCanceled() && m_unalignedBuildDir
+    if (!isSuccess(result) && !isCanceled() && m_unalignedBuildDir
             && QmakeSettings::warnAgainstUnalignedBuildDir()) {
         const QString msg = Tr::tr("The build directory is not at the same level as the source "
                                "directory, which could be the reason for the build failure.");
         emit addTask(BuildSystemTask(Task::Warning, msg));
     }
-    MakeStep::finish(success);
+    MakeStep::finish(result);
 }
 
 QStringList QmakeMakeStep::displayArguments() const

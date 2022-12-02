@@ -190,9 +190,9 @@ bool MakeInstallStep::init()
     return true;
 }
 
-void MakeInstallStep::finish(bool success)
+void MakeInstallStep::finish(ProcessResult result)
 {
-    if (success) {
+    if (isSuccess(result)) {
         const FilePath rootDir = installRoot().onDevice(makeCommand());
 
         m_deploymentData = DeploymentData();
@@ -219,7 +219,7 @@ void MakeInstallStep::finish(bool success)
         emit addTask(DeploymentTask(Task::Warning, Tr::tr("You need to add an install statement "
                    "to your CMakeLists.txt file for deployment to work.")));
     }
-    MakeStep::finish(success);
+    MakeStep::finish(result);
 }
 
 FilePath MakeInstallStep::installRoot() const

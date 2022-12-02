@@ -9,6 +9,7 @@
 
 namespace Utils {
 class CommandLine;
+enum class ProcessResult;
 }
 
 namespace ProjectExplorer {
@@ -43,13 +44,13 @@ protected:
     void doCancel() override;
     void setLowPriority();
     void setDisplayedParameters(ProcessParameters *params);
+    bool isSuccess(Utils::ProcessResult result) const;
 
-    virtual void finish(bool success);
+    virtual void finish(Utils::ProcessResult result);
 
 private:
     void processStartupFailed();
     ProcessParameters *displayedParameters() const;
-    virtual void processFinished(bool success);
     void handleProcessDone();
 
     class Private;

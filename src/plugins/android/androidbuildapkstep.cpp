@@ -615,10 +615,11 @@ QWidget *AndroidBuildApkStep::createConfigWidget()
     return new AndroidBuildApkWidget(this);
 }
 
-void AndroidBuildApkStep::processFinished(bool success)
+void AndroidBuildApkStep::finish(ProcessResult result)
 {
-    if (m_openPackageLocationForRun && success)
+    if (m_openPackageLocationForRun && isSuccess(result))
         QTimer::singleShot(0, this, &AndroidBuildApkStep::showInGraphicalShell);
+    AbstractProcessStep::finish(result);
 }
 
 bool AndroidBuildApkStep::verifyKeystorePassword()

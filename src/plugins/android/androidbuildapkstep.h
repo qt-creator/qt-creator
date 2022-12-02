@@ -60,7 +60,7 @@ private:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QWidget *createConfigWidget() override;
-    void processFinished(bool success) override;
+    void finish(Utils::ProcessResult result) override;
     bool verifyKeystorePassword();
     bool verifyCertificatePassword();
 

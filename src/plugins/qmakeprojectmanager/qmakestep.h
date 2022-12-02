@@ -139,8 +139,7 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
 private:
-    void finish(bool success) override;
-    void processFinished(bool success) override;
+    void finish(Utils::ProcessResult result) override;
 
     void startOneCommand(const Utils::CommandLine &command);
     void runNextCommand();

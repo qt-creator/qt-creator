@@ -682,10 +682,10 @@ QString CMakeBuildStep::baseEnvironmentText() const
         return Tr::tr("System Environment");
 }
 
-void CMakeBuildStep::processFinished(bool success)
+void CMakeBuildStep::finish(ProcessResult result)
 {
-    Q_UNUSED(success)
     emit progress(100, {});
+    AbstractProcessStep::finish(result);
 }
 
 // CMakeBuildStepFactory

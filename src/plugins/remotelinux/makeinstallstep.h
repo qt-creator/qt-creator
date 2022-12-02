@@ -23,7 +23,7 @@ private:
     bool fromMap(const QVariantMap &map) override;
     QWidget *createConfigWidget() override;
     bool init() override;
-    void finish(bool success) override;
+    void finish(Utils::ProcessResult result) override;
     bool isJobCountSupported() const override { return false; }
 
     Utils::FilePath installRoot() const;
