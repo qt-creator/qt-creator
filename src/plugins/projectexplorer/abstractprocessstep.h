@@ -51,8 +51,6 @@ protected:
 
 private:
     virtual void processFinished(bool success);
-    void processReadyReadStdOutput();
-    void processReadyReadStdError();
     void handleProcessDone();
 
     class Private;

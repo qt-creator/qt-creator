@@ -203,10 +203,12 @@ void AbstractProcessStep::doRun()
     if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
         d->m_process->setLowPriority();
 
-    connect(d->m_process.get(), &QtcProcess::readyReadStandardOutput,
-            this, &AbstractProcessStep::processReadyReadStdOutput);
-    connect(d->m_process.get(), &QtcProcess::readyReadStandardError,
-            this, &AbstractProcessStep::processReadyReadStdError);
+    connect(d->m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
+        stdOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()));
+    });
+    connect(d->m_process.get(), &QtcProcess::readyReadStandardError, this, [this] {
+        stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
+    });
     connect(d->m_process.get(), &QtcProcess::started,
             this, &AbstractProcessStep::processStarted);
     connect(d->m_process.get(), &QtcProcess::done,
@@ -324,12 +326,6 @@ void AbstractProcessStep::processStartupFailed()
     finish(false);
 }
 
-void AbstractProcessStep::processReadyReadStdOutput()
-{
-    QTC_ASSERT(d->m_process.get(), return);
-    stdOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()));
-}
-
 /*!
     Called for each line of output on stdOut().
 
@@ -339,12 +335,6 @@ void AbstractProcessStep::processReadyReadStdOutput()
 void AbstractProcessStep::stdOutput(const QString &output)
 {
     emit addOutput(output, BuildStep::OutputFormat::Stdout, BuildStep::DontAppendNewline);
-}
-
-void AbstractProcessStep::processReadyReadStdError()
-{
-    QTC_ASSERT(d->m_process.get(), return);
-    stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
 }
 
 /*!
@@ -371,8 +361,6 @@ void AbstractProcessStep::handleProcessDone()
         d->m_process.release()->deleteLater();
         return;
     }
-    stdError(d->stderrStream->toUnicode(d->m_process->readAllStandardError()));
-    stdOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()));
     d->cleanUp(d->m_process->exitCode(), d->m_process->exitStatus());
 }
 
