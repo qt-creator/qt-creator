@@ -35,11 +35,21 @@ add_qtc_executable(qml2puppet
     Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
     QmlPuppetCommunication
   SOURCES
-    qml2puppet/qml2puppetmain.cpp
+    qml2puppet/main.cpp
     qmlpuppet.qrc
 )
 
 set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-${IDE_VERSION})
+
+execute_process(
+    COMMAND git describe --tags --always --dirty=+
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    RESULT_VARIABLE GIT_SHA_RESULT
+    OUTPUT_VARIABLE GIT_SHA_OUTPUT
+    ERROR_VARIABLE GIT_SHA_ERROR
+)
+
+add_definitions( -D GIT_SHA=${GIT_SHA_OUTPUT} )
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
@@ -167,6 +177,16 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
+  DEPENDS app_version
+  SOURCES_PREFIX qml2puppet/runner
+  SOURCES
+    runtime/qmlruntime.h runtime/qmlruntime.cpp
+    runtime/qmlconfiguration.h runtime/loadwatcher.h
+    puppet/qmlpuppet.h puppet/qmlpuppet.cpp puppet/configcrashpad.h
+    qmlbase.h appmetadata.h
+)
+
+extend_qtc_executable(qml2puppet
   SOURCES_PREFIX qmlprivategate
   SOURCES
     qmlprivategate.cpp qmlprivategate.h
@@ -187,8 +207,18 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
+PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qml2puppet/runner/runtime
+)
+
+extend_qtc_executable(qml2puppet
   CONDITION TARGET Nanotrace
   DEPENDS Nanotrace
+)
+
+# Turn the tool into its own self-contained qml module
+qt6_add_qml_module(qml2puppet
+    URI QmlRuntime.QmlConfiguration
+    VERSION 1.0
 )
 
 if (QTC_STATIC_BUILD AND Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0)
