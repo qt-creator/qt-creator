@@ -35,6 +35,7 @@ public:
     { return first.m_storageData == second.m_storageData; }
     friend bool operator!=(const TreeStorageBase &first, const TreeStorageBase &second)
     { return first.m_storageData != second.m_storageData; }
+    size_t hash(uint seed) const;
 
 protected:
     using StorageConstructor = std::function<void *(void)>;
@@ -59,6 +60,11 @@ private:
     QSharedPointer<StorageData> m_storageData;
     friend TaskContainer;
 };
+
+inline size_t qHash(const TreeStorageBase &storage, uint seed = 0)
+{
+    return storage.hash(seed);
+}
 
 template <typename StorageStruct>
 class TreeStorage : public TreeStorageBase

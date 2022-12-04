@@ -14,6 +14,11 @@ bool TreeStorageBase::isValid() const
     return m_storageData && m_storageData->m_constructor && m_storageData->m_destructor;
 }
 
+size_t TreeStorageBase::hash(uint seed) const
+{
+    return size_t(m_storageData.get()) ^ seed;
+}
+
 TreeStorageBase::TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor)
     : m_storageData(new StorageData{ctor, dtor}) { }
 
