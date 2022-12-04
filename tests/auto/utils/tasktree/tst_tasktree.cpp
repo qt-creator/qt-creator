@@ -14,6 +14,7 @@
 #include <fstream>
 
 using namespace Utils;
+using namespace Utils::Tasking;
 
 enum class Handler {
     Setup,
@@ -38,6 +39,7 @@ private slots:
     void processTree();
     void storage_data();
     void storage();
+    void storageOperators();
     void storageDestructor();
 
     void cleanupTestCase();
@@ -65,8 +67,6 @@ void tst_TaskTree::cleanupTestCase()
 
 void tst_TaskTree::validConstructs()
 {
-    using namespace Tasking;
-
     const Group process {
         parallel,
         Process([](QtcProcess &) {}, [](const QtcProcess &) {}),
@@ -107,7 +107,6 @@ static const char s_processIdProperty[] = "__processId";
 
 void tst_TaskTree::processTree_data()
 {
-    using namespace Tasking;
     using namespace std::placeholders;
 
     QTest::addColumn<Group>("root");
@@ -462,7 +461,6 @@ void tst_TaskTree::processTree_data()
 void tst_TaskTree::processTree()
 {
     m_log = {};
-    using namespace Tasking;
 
     QFETCH(Group, root);
     QFETCH(Log, expectedLog);
@@ -519,7 +517,6 @@ static Log s_log;
 
 void tst_TaskTree::storage_data()
 {
-    using namespace Tasking;
     using namespace std::placeholders;
 
     QTest::addColumn<Group>("root");
@@ -599,8 +596,6 @@ void tst_TaskTree::storage_data()
 
 void tst_TaskTree::storage()
 {
-    using namespace Tasking;
-
     QFETCH(Group, root);
     QFETCH(TreeStorage<CustomStorage>, storageLog);
     QFETCH(Log, expectedLog);
@@ -639,10 +634,19 @@ void tst_TaskTree::storage()
     QCOMPARE(errorCount, expectedErrorCount);
 }
 
+void tst_TaskTree::storageOperators()
+{
+    TreeStorageBase storage1 = TreeStorage<CustomStorage>();
+    TreeStorageBase storage2 = TreeStorage<CustomStorage>();
+    TreeStorageBase storage3 = storage1;
+
+    QVERIFY(storage1 == storage3);
+    QVERIFY(storage1 != storage2);
+    QVERIFY(storage2 != storage3);
+}
+
 void tst_TaskTree::storageDestructor()
 {
-    using namespace Tasking;
-
     QCOMPARE(CustomStorage::instanceCount(), 0);
     {
         const auto setupProcess = [this](QtcProcess &process) {

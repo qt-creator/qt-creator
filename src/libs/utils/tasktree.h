@@ -31,6 +31,10 @@ class QTCREATOR_UTILS_EXPORT TreeStorageBase
 {
 public:
     bool isValid() const;
+    friend bool operator==(const TreeStorageBase &first, const TreeStorageBase &second)
+    { return first.m_storageData == second.m_storageData; }
+    friend bool operator!=(const TreeStorageBase &first, const TreeStorageBase &second)
+    { return first.m_storageData != second.m_storageData; }
 
 protected:
     using StorageConstructor = std::function<void *(void)>;
