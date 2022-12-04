@@ -151,6 +151,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
     });
     connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, doCleanup);
     d->m_progress = new TaskProgress(d->m_taskTree.get());
+    d->m_progress->setHalfLifeTimePerTask(30000); // 30 seconds
     d->m_progress->setDisplayName(tr("Checking for Updates"));
     d->m_progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
     d->m_progress->setSubtitleVisibleInStatusBar(true);

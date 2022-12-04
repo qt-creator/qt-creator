@@ -20,6 +20,7 @@ class CORE_EXPORT TaskProgress : public QObject
 public:
     TaskProgress(Utils::TaskTree *taskTree); // Makes TaskProgress a child of task tree
 
+    void setHalfLifeTimePerTask(int msecs); // Default is 1000 ms
     void setDisplayName(const QString &name);
     void setKeepOnFinish(FutureProgress::KeepOnFinishType keepType);
     void setSubtitleVisibleInStatusBar(bool visible);

@@ -24,7 +24,7 @@ int interpolateLinear(int x, int x1, int x2, int y1, int y2)
         return y2;
     const int numerator = (y2 - y1) * x + x2 * y1 - x1 * y2;
     const int denominator = x2 - x1;
-    return qRound((double)numerator / denominator);
+    return qRound(double(numerator) / denominator);
 }
 
 /*!
@@ -39,7 +39,7 @@ int interpolateTangential(int x, int xHalfLife, int y1, int y2)
         return y1;
     if (y1 == y2)
         return y1;
-    const double angle = atan2((double)x, (double)xHalfLife);
+    const double angle = atan2(double(x), double(xHalfLife));
     const double result = y1 + (y2 - y1) * angle * 2 / M_PI;
     return qRound(result);
 }
@@ -56,7 +56,7 @@ int interpolateExponential(int x, int xHalfLife, int y1, int y2)
         return y1;
     if (y1 == y2)
         return y1;
-    const double exponent = pow(0.5, (double)x / xHalfLife);
+    const double exponent = pow(0.5, double(x) / xHalfLife);
     const double result = y1 + (y2 - y1) * (1.0 - exponent);
     return qRound(result);
 }

@@ -18,7 +18,7 @@ using namespace Utils;
 namespace Core {
 
 static const int ProgressResolution = 100; // 100 discrete values
-static const int TimerInterval = 100; // 100 ms
+static const int TimerInterval = 20; // 20 ms = 50 Hz
 
 class TaskProgressPrivate : public QObject
 {
@@ -31,7 +31,6 @@ public:
     void updateProgress();
 
     int m_currentTick = 0;
-    int m_expectedTime = 1; // 1 second
 
     int m_currentProgress = 0; // from TaskTree (max value = task count)
 
@@ -40,6 +39,7 @@ public:
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_futureInterface;
     QPointer<FutureProgress> m_futureProgress;
+    int m_halfLifeTimePerTask = 1000; // 1000 ms
     QString m_displayName;
     FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
     bool m_isSubtitleVisibleInStatusBar = false;
@@ -60,8 +60,6 @@ TaskProgressPrivate::~TaskProgressPrivate()
     if (m_futureInterface.isRunning()) {
         m_futureInterface.reportCanceled();
         m_futureInterface.reportFinished();
-        // TODO: should we stop the process? Or just mark the process canceled?
-        // What happens to task in progress manager?
     }
 }
 
@@ -80,10 +78,10 @@ void TaskProgressPrivate::advanceProgress(int newValue)
 
 void TaskProgressPrivate::updateProgress()
 {
-    const int halfLife = qRound(1000.0 * m_expectedTime / TimerInterval);
+    const int halfLife = qRound(double(m_halfLifeTimePerTask) / TimerInterval);
     const int pMin = ProgressResolution * m_currentProgress;
     const int pMax = ProgressResolution * (m_currentProgress + 1);
-    const int newValue = MathUtils::interpolateTangential(m_currentTick, halfLife, pMin, pMax);
+    const int newValue = MathUtils::interpolateExponential(m_currentTick, halfLife, pMin, pMax);
     m_futureInterface.setProgressValue(newValue);
 }
 
@@ -131,6 +129,11 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
         d->m_futureInterface.reportCanceled();
         d->m_futureInterface.reportFinished();
     });
+}
+
+void TaskProgress::setHalfLifeTimePerTask(int msecs)
+{
+    d->m_halfLifeTimePerTask = msecs;
 }
 
 void TaskProgress::setDisplayName(const QString &name)
