@@ -23,6 +23,7 @@ public:
     bool read();
     bool write();
 
+    QString suiteName() const;
     QString aut() const { return m_aut; }
     void setAut(const QString &aut) { m_aut = aut; }
     QString arguments() const { return m_arguments; }

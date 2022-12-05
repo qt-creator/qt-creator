@@ -173,6 +173,13 @@ bool SuiteConf::write()
     return writeSuiteConfContent(m_filePath, suiteConf);
 }
 
+QString SuiteConf::suiteName() const
+{
+    if (!m_filePath.exists())
+        return {};
+    return m_filePath.parentDir().fileName();
+}
+
 QString SuiteConf::langParameter() const
 {
     switch (m_language) {
