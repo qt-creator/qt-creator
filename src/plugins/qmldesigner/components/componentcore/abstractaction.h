@@ -38,8 +38,11 @@ public:
 
 protected:
     virtual void updateContext();
+    virtual bool isChecked(const SelectionContext &selectionContext) const;
     virtual bool isVisible(const SelectionContext &selectionContext) const = 0;
     virtual bool isEnabled(const SelectionContext &selectionContext) const = 0;
+
+    void setCheckable(bool checkable);
     SelectionContext selectionContext() const;
 
 private:

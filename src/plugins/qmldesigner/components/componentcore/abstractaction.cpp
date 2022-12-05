@@ -38,7 +38,19 @@ void AbstractAction::updateContext()
     if (m_selectionContext.isValid()) {
         m_defaultAction->setEnabled(isEnabled(m_selectionContext));
         m_defaultAction->setVisible(isVisible(m_selectionContext));
+        if (m_defaultAction->isCheckable())
+            m_defaultAction->setChecked(isChecked(m_selectionContext));
     }
+}
+
+bool AbstractAction::isChecked(const SelectionContext &) const
+{
+    return false;
+}
+
+void AbstractAction::setCheckable(bool checkable)
+{
+    m_defaultAction->setCheckable(checkable);
 }
 
 DefaultAction *AbstractAction::defaultAction() const
