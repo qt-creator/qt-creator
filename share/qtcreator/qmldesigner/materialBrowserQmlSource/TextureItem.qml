@@ -43,10 +43,8 @@ Rectangle {
     }
 
     ToolTip {
-        property bool hasSource: textureSource.slice(-1) !== "/"
-
         visible: mouseArea.containsMouse
-        text: hasSource ? textureSource : qsTr("Texture has no source image.")
+        text: textureSource ? textureSource : qsTr("Texture has no source image.")
         delay: 1000
     }
 

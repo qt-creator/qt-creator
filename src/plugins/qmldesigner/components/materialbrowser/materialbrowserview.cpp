@@ -450,85 +450,7 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         applyTextureToModel3D(nodeList.at(0), nodeList.at(1));
     } else if (identifier == "apply_texture_to_material") {
         applyTextureToMaterial({nodeList.at(0)}, nodeList.at(1));
-    } else if (identifier == "add_textures") {
-        if (data.size() != 4) {
-            qWarning() << "Wrong number of arguments passed to add_textures: " << data.size();
-            return;
-        }
-
-        QByteArray identifier = data.at(0).toByteArray();
-        QStringList filePaths = data.at(1).toStringList();
-        AddTextureMode mode = data.at(2).value<AddTextureMode>();
-        bool addToProject = data.at(3).toBool();
-
-        executeInTransaction(identifier, [&] {
-            addTextures(filePaths, mode, addToProject);
-        });
-    } else if (identifier == "add_texture") {
-        if (data.size() != 4) {
-            qWarning() << "Wrong number of arguments passed to add_texture: " << data.size();
-            return;
-        }
-
-        QByteArray identifier = data.at(0).toByteArray();
-        QString filePath = data.at(1).toString();
-        AddTextureMode mode = data.at(2).value<AddTextureMode>();
-        bool addToProject = data.at(3).toBool();
-
-        executeInTransaction(identifier, [&] {
-            addOneTexture(filePath, mode, addToProject);
-        });
     }
-}
-
-void MaterialBrowserView::addOneTexture(const QString &texPath, AddTextureMode mode, bool addToProject)
-{
-    if (addToProject) {
-        // copy image to project
-        AddFilesResult result = ModelNodeOperations::addImageToProject({texPath}, "images", false);
-
-        if (result.status() == AddFilesResult::Failed) {
-            Core::AsynchronousMessageBox::warning(tr("Failed to Add Texture"),
-                                                  tr("Could not add %1 to project.").arg(texPath));
-            return;
-        }
-    }
-
-    if (mode == AddTextureMode::Image)
-        return;
-
-    // create a texture from the image
-    ModelNode matLib = materialLibraryNode();
-    if (!matLib.isValid())
-        return;
-
-    NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.Texture");
-
-    QString sourceVal = QLatin1String("images/%1").arg(texPath.split('/').last());
-    ModelNode texNode = getTextureDefaultInstance(sourceVal);
-    if (!texNode.isValid()) {
-        texNode = createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
-                                  metaInfo.minorVersion());
-        texNode.validId();
-        VariantProperty sourceProp = texNode.variantProperty("source");
-        sourceProp.setValue(sourceVal);
-        matLib.defaultNodeListProperty().reparentHere(texNode);
-    }
-
-    // assign the texture as scene environment's light probe
-    if (mode == AddTextureMode::LightProbe && m_sceneId != -1) {
-        QmlObjectNode sceneEnv = resolveSceneEnv();
-        if (sceneEnv.isValid()) {
-            sceneEnv.setBindingProperty("lightProbe", texNode.id());
-            sceneEnv.setVariantProperty("backgroundMode",
-                                        QVariant::fromValue(Enumeration("SceneEnvironment",
-                                                                        "SkyBox")));
-        }
-    }
-    QTimer::singleShot(0, this, [this, texNode]() {
-        if (model() && texNode.isValid())
-            emitCustomNotification("selected_texture_changed", {texNode});
-    });
 }
 
 void MaterialBrowserView::active3DSceneChanged(qint32 sceneId)
@@ -557,12 +479,6 @@ ModelNode MaterialBrowserView::resolveSceneEnv()
     }
 
     return activeSceneEnv;
-}
-
-void MaterialBrowserView::addTextures(const QStringList &filePaths, AddTextureMode mode, bool addToProject)
-{
-    for (const QString &texPath : filePaths)
-        addOneTexture(texPath, mode, addToProject);
 }
 
 void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completedNodeList)

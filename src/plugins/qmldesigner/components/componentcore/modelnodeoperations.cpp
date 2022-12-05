@@ -1731,6 +1731,13 @@ bool validateEffect(const QString &effectPath)
     return true;
 }
 
+Utils::FilePath getImagesDefaultDirectory()
+{
+    return Utils::FilePath::fromString(
+                getAssetDefaultDirectory(
+        "images", QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString()));
+}
+
 } // namespace ModelNodeOperations
 
 } //QmlDesigner
