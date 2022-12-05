@@ -3,13 +3,13 @@
 
 #pragma once
 
+#include "squishconstants.h"
+
 #include <utils/qtcprocess.h>
 
 #include <QObject>
 
 namespace Squish::Internal {
-
-enum SquishProcessState { Idle, Starting, Started, StartFailed, Stopped, StopFailed };
 
 class SquishProcessBase : public QObject
 {

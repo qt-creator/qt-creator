@@ -238,9 +238,15 @@ void SquishPerspective::initPerspective()
     addWindow(mainWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
 
     connect(m_pausePlayAction, &QAction::triggered, this, &SquishPerspective::onPausePlayTriggered);
-    connect(m_stepInAction, &QAction::triggered, this, [this] { emit runRequested(StepIn); });
-    connect(m_stepOverAction, &QAction::triggered, this, [this] { emit runRequested(StepOver); });
-    connect(m_stepOutAction, &QAction::triggered, this, [this] { emit runRequested(StepOut); });
+    connect(m_stepInAction, &QAction::triggered, this, [this] {
+        emit runRequested(StepMode::StepIn);
+    });
+    connect(m_stepOverAction, &QAction::triggered, this, [this] {
+        emit runRequested(StepMode::StepOver);
+    });
+    connect(m_stepOutAction, &QAction::triggered, this, [this] {
+        emit runRequested(StepMode::StepOut);
+    });
     connect(m_stopAction, &QAction::triggered, this, &SquishPerspective::onStopTriggered);
     connect(m_stopRecordAction, &QAction::triggered,
             this, &SquishPerspective::onStopRecordTriggered);
@@ -279,7 +285,7 @@ void SquishPerspective::onStopRecordTriggered()
 void SquishPerspective::onPausePlayTriggered()
 {
     if (m_mode == Interrupted)
-        emit runRequested(Continue);
+        emit runRequested(StepMode::Continue);
     else if (m_mode == Running)
         emit interruptRequested();
     else

@@ -48,20 +48,6 @@ public:
         RunnerStopped
     };
 
-    enum class RunnerState {
-        None,
-        Starting,
-        Running,
-        RunRequested,
-        Interrupted,
-        InterruptRequested,
-        Canceling,
-        Canceled,
-        CancelRequested,
-        CancelRequestedWhileInterrupted,
-        Finished
-    };
-
     using QueryCallback = std::function<void(const QString &, const QString &)>;
 
     State state() const { return m_state; }
@@ -129,7 +115,7 @@ private:
     void restoreQtCreatorWindows();
     void updateLocationMarker(const Utils::FilePath &file, int line);
     void clearLocationMarker();
-    void onRunnerRunRequested(SquishPerspective::StepMode step);
+    void onRunnerRunRequested(StepMode step);
     void interruptRunner();
     void terminateRunner();
     bool isValidToStartRunner();

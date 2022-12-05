@@ -43,20 +43,20 @@ using namespace Utils;
 namespace Squish {
 namespace Internal {
 
-static QString runnerStateName(SquishTools::RunnerState state)
+static QString runnerStateName(RunnerState state)
 {
     switch (state) {
-    case SquishTools::RunnerState::None: return "None";
-    case SquishTools::RunnerState::Starting: return "Starting";
-    case SquishTools::RunnerState::Running: return "Running";
-    case SquishTools::RunnerState::RunRequested: return "RunRequested";
-    case SquishTools::RunnerState::Interrupted: return "Interrupted";
-    case SquishTools::RunnerState::InterruptRequested: return "InterruptedRequested";
-    case SquishTools::RunnerState::Canceling: return "Canceling";
-    case SquishTools::RunnerState::Canceled: return "Canceled";
-    case SquishTools::RunnerState::CancelRequested: return "CancelRequested";
-    case SquishTools::RunnerState::CancelRequestedWhileInterrupted: return "CancelRequestedWhileInterrupted";
-    case SquishTools::RunnerState::Finished: return "Finished";
+    case RunnerState::None: return "None";
+    case RunnerState::Starting: return "Starting";
+    case RunnerState::Running: return "Running";
+    case RunnerState::RunRequested: return "RunRequested";
+    case RunnerState::Interrupted: return "Interrupted";
+    case RunnerState::InterruptRequested: return "InterruptedRequested";
+    case RunnerState::Canceling: return "Canceling";
+    case RunnerState::Canceled: return "Canceled";
+    case RunnerState::CancelRequested: return "CancelRequested";
+    case RunnerState::CancelRequestedWhileInterrupted: return "CancelRequestedWhileInterrupted";
+    case RunnerState::Finished: return "Finished";
     }
     return "ThouShallNotBeHere";
 }
@@ -78,7 +78,7 @@ static QString toolsStateName(SquishTools::State state)
     return "UnexpectedState";
 }
 
-static void logRunnerStateChange(SquishTools::RunnerState from, SquishTools::RunnerState to)
+static void logRunnerStateChange(RunnerState from, RunnerState to)
 {
     qCInfo(LOG) << "Runner state change:" << runnerStateName(from) << ">" << runnerStateName(to);
 }
@@ -995,7 +995,7 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
         switch (m_squishRunnerState) {
         case RunnerState::Starting:
             setupAndStartRecorder();
-            onRunnerRunRequested(SquishPerspective::Continue);
+            onRunnerRunRequested(StepMode::Continue);
             break;
         case RunnerState::CancelRequested:
         case RunnerState::CancelRequestedWhileInterrupted:
@@ -1016,7 +1016,7 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
     case RunnerState::Starting: {
         const Utils::Links setBPs = setBreakpoints();
         if (!setBPs.contains({Utils::FilePath::fromString(fileName), line})) {
-            onRunnerRunRequested(SquishPerspective::Continue);
+            onRunnerRunRequested(StepMode::Continue);
         } else {
             m_perspective.setPerspectiveMode(SquishPerspective::Interrupted);
             logRunnerStateChange(m_squishRunnerState, RunnerState::Interrupted);
@@ -1180,7 +1180,7 @@ void SquishTools::clearLocationMarker()
     m_locationMarker = nullptr;
 }
 
-void SquishTools::onRunnerRunRequested(SquishPerspective::StepMode step)
+void SquishTools::onRunnerRunRequested(StepMode step)
 {
     if (m_requestVarsTimer) {
         delete m_requestVarsTimer;
@@ -1189,13 +1189,13 @@ void SquishTools::onRunnerRunRequested(SquishPerspective::StepMode step)
     logRunnerStateChange(m_squishRunnerState, RunnerState::RunRequested);
     m_squishRunnerState = RunnerState::RunRequested;
 
-    if (step == SquishPerspective::Continue)
+    if (step == StepMode::Continue)
         m_runnerProcess.write("continue\n");
-    else if (step == SquishPerspective::StepIn)
+    else if (step == StepMode::StepIn)
         m_runnerProcess.write("step\n");
-    else if (step == SquishPerspective::StepOver)
+    else if (step == StepMode::StepOver)
         m_runnerProcess.write("next\n");
-    else if (step == SquishPerspective::StepOut)
+    else if (step == StepMode::StepOut)
         m_runnerProcess.write("return\n");
 
     clearLocationMarker();

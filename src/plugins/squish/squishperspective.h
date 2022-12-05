@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "squishconstants.h"
+
 #include <debugger/debuggermainwindow.h>
 
 #include <utils/treemodel.h>
@@ -29,7 +31,6 @@ class SquishPerspective : public Utils::Perspective
     Q_OBJECT
 public:
     enum PerspectiveMode { NoMode, Interrupted, Running, Recording, Querying };
-    enum StepMode { Continue, StepIn, StepOver, StepOut };
 
     SquishPerspective();
     void initPerspective();
@@ -45,7 +46,7 @@ signals:
     void stopRequested();
     void stopRecordRequested();
     void interruptRequested();
-    void runRequested(SquishPerspective::StepMode mode);
+    void runRequested(StepMode mode);
 
 private:
     void onStopTriggered();
