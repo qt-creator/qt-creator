@@ -315,15 +315,8 @@ Rectangle {
         standardButtons: Dialog.Apply | Dialog.Cancel
         x: editButton.x - Math.max(0, editButton.x + editDialog.width - root.width)
         y: toolBar.height
-        closePolicy: Popup.NoAutoClose
-
         width: Math.min(300, root.width)
-
-        function apply() {
-            let renamed = statesEditorModel.renameActiveStateGroup(editTextField.text)
-            if (renamed)
-                editDialog.close()
-        }
+        closePolicy: Popup.NoAutoClose
 
         onApplied: editDialog.accept()
 
