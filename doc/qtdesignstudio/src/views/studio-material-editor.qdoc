@@ -10,11 +10,13 @@
     \title Material Editor and Browser
 
     In the \uicontrol {Material Editor} and \uicontrol {Material Browser} views,
-    you create and manage materials.
+    you create and manage materials and textures.
 
     \image material-editor-browser.webp "Material Editor and Browser"
 
-    \section1 Creating a Material
+    \section1 Working with Materials
+
+    \section2 Creating a Material
 
     To create a new material, do one of the following:
 
@@ -25,7 +27,7 @@
       .
     \endlist
 
-    \section1 Editing a Material
+    \section2 Editing a Material
 
     To edit a material, select it in \uicontrol{Material Browser} and edit its
     properties in \uicontrol{Material Editor}. If \uicontrol {Material Editor}
@@ -37,7 +39,7 @@
       \li In \uicontrol{Material Browser}, double-click a material.
     \endlist
 
-    \section1 Assigning a Material to an Object
+    \section2 Assigning a Material to an Object
 
     To assign a material to a 3D object in your project, drag the material from
     \uicontrol {Material Browser} to the object in the \uicontrol Navigator or
@@ -57,7 +59,7 @@
       . This replaces any material already assigned to the object.
     \endlist
 
-    \section1 Removing a Material from an Object
+    \section2 Removing a Material from an Object
 
     To remove an assigned material from an object:
     \list 1
@@ -68,7 +70,7 @@
       \image materials-remove-material.png
     \endlist
 
-   \section1 Copying and Pasting Material Properties
+   \section2 Copying and Pasting Material Properties
 
     You can copy properties from one material to another. You can choose if you
     want to copy all properties or certain property groups.
@@ -88,7 +90,7 @@
     \note You can't copy material properties between materials of different
     material types.
 
-    \section1 Using Texture Maps
+    \section2 Using Texture Maps
 
     In \QDS you can add many different texture maps to your material.
 
@@ -100,7 +102,7 @@
       the image to \uicontrol{Diffuse Map} in \uicontrol{Material Editor}.
     \endlist
 
-    \section2 Using a Reflection Map for Environmental Mapping
+    \section3 Using a Reflection Map for Environmental Mapping
 
     To use a texture for environmental mapping, you need to set the mapping
     mode to \e {environment}.
@@ -122,7 +124,7 @@
       \uicontrol {Environment}.
     \endlist
 
-    \section1 Blending Colors
+    \section2 Blending Colors
 
     To determine how the colors of a model blend with the colors of the models
     behind it, set the \uicontrol {Blend mode} property. To make opaque objects
@@ -144,7 +146,7 @@
     For a result with higher contrast, select \uicontrol Overlay, which is a mix
     of the multiply and screen modes.
 
-    \section1 Lighting Materials
+    \section2 Lighting Materials
 
     To set the lighting method for generating a material, use the
     \uicontrol Lighting property. Select \uicontrol {Fragment lighting} to
@@ -164,7 +166,7 @@
     the opacity of the material independently of the model as the value of the
     \uicontrol Opacity property.
 
-    \section1 Self-Illuminating Materials
+    \section2 Self-Illuminating Materials
 
     To set the color and amount of self-illumination for a material, use the
     \uicontrol {Emissive color} and \uicontrol {Emissive factor} properties. In
@@ -177,7 +179,7 @@
     image does not affect the color of the result, while using a color image
     produces glowing regions with the color affected by the emissive map.
 
-    \section1 Using Highlights and Reflections
+    \section2 Using Highlights and Reflections
 
     You can control the highlights and reflections on a material by setting the
     properties in the \uicontrol Specular group. You can use the color picker
@@ -221,7 +223,7 @@
     highlights and blurring reflections. To control the specular roughness of
     the material using a Texture, set the \uicontrol {Roughness map property}.
 
-    \section1 Simulating Geometry Displacement
+    \section2 Simulating Geometry Displacement
 
     Specify the properties in the \uicontrol {Bump/Normal} group to simulate
     fine geometry displacement across the surface of the material. Set the
@@ -240,7 +242,7 @@
     of the material. The \uicontrol {Displacement amount} property specifies the
     offset amount.
 
-    \section1 Specifying Material Translucency
+    \section2 Specifying Material Translucency
 
     Set the properties in the \uicontrol Translucency group to control how much
     light can pass through the material from behind. To use a grayscale texture,
@@ -254,7 +256,7 @@
     the angle of the normals of the object to the light source, set
     the \uicontrol {Translucency falloff} property.
 
-    \section1 Culling Faces
+    \section2 Culling Faces
 
     Set the \uicontrol {Culling mode} property to determine whether the front
     and back faces of a model are rendered. Culling modes check whether the
@@ -265,4 +267,32 @@
     is not rendered. Culling makes rendering objects quicker and more efficient
     by reducing the number of polygons to draw.
 
+    \section1 Working with Textures
+
+    \target creating texture material browser
+
+    \section2 Creating a Texture
+
+    To create a new texture, do one of the following in
+    \uicontrol {Material Browser}:
+    \list
+      \li Select \inlineimage icons/plus.png
+      in the \uicontrol Textures section.
+      \li Right-click anywhere in the \uicontrol Textures section and select
+      \uicontrol {Create new texture}.
+    \endlist
+
+    \note You can also create textures from the \l {Assets} or
+    \l {Texture Editor} views.
+
+    \section2 Applying a Texture to a Material
+
+    To apply a texture to a material, select the material in
+    \uicontrol {Material Browser} and do one of the following:
+    \list
+      \li Right-click the texture and select
+      \uicontrol {Apply to selected material}.
+      \li Drag the texture to a supported property in the
+      \uicontrol {Material Editor}
+    \endlist
 */
