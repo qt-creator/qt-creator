@@ -513,14 +513,13 @@ private:
 };
 
 int CustomStorage::s_count = 0;
-static Log s_log;
 
 void tst_TaskTree::storage_data()
 {
     using namespace std::placeholders;
 
     QTest::addColumn<Group>("root");
-    QTest::addColumn<TreeStorage<CustomStorage>>("storageLog");
+    QTest::addColumn<TreeStorage<CustomStorage>>("storage");
     QTest::addColumn<Log>("expectedLog");
     QTest::addColumn<bool>("runningAfterStart");
     QTest::addColumn<bool>("success");
@@ -548,7 +547,6 @@ void tst_TaskTree::storage_data()
     };
     const auto rootDone = [storageLog] {
         storageLog->m_log.append({-1, Handler::GroupDone});
-        s_log = storageLog->m_log;
     };
 
     const Log expectedLog{{1, Handler::GroupSetup},
@@ -597,18 +595,21 @@ void tst_TaskTree::storage_data()
 void tst_TaskTree::storage()
 {
     QFETCH(Group, root);
-    QFETCH(TreeStorage<CustomStorage>, storageLog);
+    QFETCH(TreeStorage<CustomStorage>, storage);
     QFETCH(Log, expectedLog);
     QFETCH(bool, runningAfterStart);
     QFETCH(bool, success);
 
-    s_log.clear();
-
-    QVERIFY(storageLog.isValid());
+    QVERIFY(storage.isValid());
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
+    Log actualLog;
     QEventLoop eventLoop;
     TaskTree processTree(root);
+    auto collectLog = [&actualLog](CustomStorage *storage){
+        actualLog = storage->m_log;
+    };
+    processTree.onStorageDone(storage, collectLog);
     int doneCount = 0;
     int errorCount = 0;
     connect(&processTree, &TaskTree::done, this, [&doneCount, &eventLoop] { ++doneCount; eventLoop.quit(); });
@@ -625,7 +626,7 @@ void tst_TaskTree::storage()
     eventLoop.exec();
 
     QVERIFY(!processTree.isRunning());
-    QCOMPARE(s_log, expectedLog);
+    QCOMPARE(actualLog, expectedLog);
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
     const int expectedDoneCount = success ? 1 : 0;

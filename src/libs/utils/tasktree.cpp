@@ -227,6 +227,11 @@ public:
         QTC_ASSERT(m_root, return);
         m_progressValue = 0;
         emitStartedAndProgress();
+        // TODO: check storage handlers for not existing storages in tree
+        for (auto it = m_storageHandlers.cbegin(); it != m_storageHandlers.cend(); ++it) {
+            QTC_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
+                       "exist in task tree. Its handlers will never be called."));
+        }
         m_root->start();
     }
     void stop() {
@@ -278,12 +283,36 @@ public:
         }
         return addedStorages;
     }
+    void callSetupHandler(TreeStorageBase storage, int storageId) {
+        callStorageHandler(storage, storageId, &StorageHandler::m_setupHandler);
+    }
+    void callDoneHandler(TreeStorageBase storage, int storageId) {
+        callStorageHandler(storage, storageId, &StorageHandler::m_doneHandler);
+    }
+    struct StorageHandler {
+        TaskTree::StorageVoidHandler m_setupHandler = {};
+        TaskTree::StorageVoidHandler m_doneHandler = {};
+    };
+    typedef TaskTree::StorageVoidHandler StorageHandler::*HandlerPtr; // ptr to class member
+    void callStorageHandler(TreeStorageBase storage, int storageId, HandlerPtr ptr)
+    {
+        const auto it = m_storageHandlers.constFind(storage);
+        if (it == m_storageHandlers.constEnd())
+            return;
+        GuardLocker locker(m_guard);
+        const StorageHandler storageHandler = *it;
+        storage.activateStorage(storageId);
+        if (storageHandler.*ptr)
+            (storageHandler.*ptr)(storage.activeStorageVoid());
+        storage.activateStorage(0);
+    }
 
     TaskTree *q = nullptr;
-    std::unique_ptr<TaskNode> m_root = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
     QSet<TreeStorageBase> m_storages;
+    QHash<TreeStorageBase, StorageHandler> m_storageHandlers;
+    std::unique_ptr<TaskNode> m_root = nullptr; // Keep me last in order to destruct first
 };
 
 TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *parentContainer,
@@ -481,27 +510,29 @@ void TaskContainer::updateSuccessBit(bool success)
 
 void TaskContainer::createStorages()
 {
-    // TODO: Don't create new storage for already created storages with the same shared pointer.
     QTC_CHECK(m_storageIdList.isEmpty());
 
-    for (int i = 0; i < m_storageList.size(); ++i)
-        m_storageIdList << m_storageList[i].createStorage();
+    for (int i = 0; i < m_storageList.size(); ++i) {
+        TreeStorageBase storage = m_storageList[i];
+        const int storageId = storage.createStorage();
+        m_storageIdList << storageId;
+        m_taskTreePrivate->callSetupHandler(storage, storageId);
+    }
 }
 
 void TaskContainer::deleteStorages()
 {
-    // TODO: Do the opposite
-
-    for (int i = 0; i < m_storageIdList.size(); ++i) // iterate in reverse order?
-        m_storageList[i].deleteStorage(m_storageIdList.value(i));
-
+    for (int i = 0; i < m_storageIdList.size(); ++i) { // iterate in reverse order?
+        TreeStorageBase storage = m_storageList[i];
+        const int storageId = m_storageIdList.value(i);
+        m_taskTreePrivate->callDoneHandler(storage, storageId);
+        storage.deleteStorage(storageId);
+    }
     m_storageIdList.clear();
 }
 
 void TaskContainer::activateStorages()
 {
-    // TODO: check if the same shared storage was already activated. Don't activate recursively.
-
     if (m_parentContainer)
         m_parentContainer->activateStorages();
 
@@ -511,8 +542,6 @@ void TaskContainer::activateStorages()
 
 void TaskContainer::deactivateStorages()
 {
-    // TODO: Do the opposite
-
     for (int i = 0; i < m_storageList.size(); ++i) // iterate in reverse order?
         m_storageList[i].activateStorage(0);
 
@@ -689,6 +718,27 @@ int TaskTree::taskCount() const
 int TaskTree::progressValue() const
 {
     return d->m_progressValue;
+}
+
+void TaskTree::setupStorageHandler(const Tasking::TreeStorageBase &storage,
+                                   StorageVoidHandler setupHandler,
+                                   StorageVoidHandler doneHandler)
+{
+    auto it = d->m_storageHandlers.find(storage);
+    if (it == d->m_storageHandlers.end()) {
+        d->m_storageHandlers.insert(storage, {setupHandler, doneHandler});
+        return;
+    }
+    if (setupHandler) {
+        QTC_ASSERT(!it->m_setupHandler,
+                   qWarning("The storage has its setup handler defined, overriding..."));
+        it->m_setupHandler = setupHandler;
+    }
+    if (doneHandler) {
+        QTC_ASSERT(!it->m_doneHandler,
+                   qWarning("The storage has its done handler defined, overriding..."));
+        it->m_doneHandler = doneHandler;
+    }
 }
 
 TaskTreeAdapter::TaskTreeAdapter()

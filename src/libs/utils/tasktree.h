@@ -13,6 +13,8 @@ namespace Utils {
 
 class TaskContainer;
 
+class TaskTreePrivate;
+
 namespace Tasking {
 
 class QTCREATOR_UTILS_EXPORT TaskInterface : public QObject
@@ -59,6 +61,7 @@ private:
     };
     QSharedPointer<StorageData> m_storageData;
     friend TaskContainer;
+    friend TaskTreePrivate;
 };
 
 inline size_t qHash(const TreeStorageBase &storage, uint seed = 0)
@@ -312,9 +315,21 @@ public:
     void start();
     void stop();
     bool isRunning() const;
+
     int taskCount() const;
     int progressMaximum() const { return taskCount(); }
     int progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
+
+    template <typename StorageStruct, typename StorageHandler>
+    void onStorageSetup(const Tasking::TreeStorage<StorageStruct> &storage,
+                        const StorageHandler &handler) {
+        setupStorageHandler(storage, wrapHandler<StorageStruct>(handler), {});
+    }
+    template <typename StorageStruct, typename StorageHandler>
+    void onStorageDone(const Tasking::TreeStorage<StorageStruct> &storage,
+                       const StorageHandler &handler) {
+        setupStorageHandler(storage, {}, wrapHandler<StorageStruct>(handler));
+    }
 
 signals:
     void started();
@@ -323,6 +338,21 @@ signals:
     void progressValueChanged(int value); // updated whenever task finished / skipped / stopped
 
 private:
+    using StorageVoidHandler = std::function<void(void *)>;
+    void setupStorageHandler(const Tasking::TreeStorageBase &storage,
+                             StorageVoidHandler setupHandler,
+                             StorageVoidHandler doneHandler);
+    template <typename StorageStruct>
+    StorageVoidHandler wrapHandler(const std::function<void(StorageStruct *)> &handler) {
+        if (!handler)
+            return {};
+        return [handler](void *voidStruct) {
+            StorageStruct *storageStruct = static_cast<StorageStruct *>(voidStruct);
+            handler(storageStruct);
+        };
+    }
+
+    friend class TaskTreePrivate;
     TaskTreePrivate *d;
 };
 
