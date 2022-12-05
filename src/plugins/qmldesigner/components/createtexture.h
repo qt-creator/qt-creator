@@ -17,12 +17,11 @@ public:
     CreateTexture(AbstractView *view, bool importFiles = false);
     void execute(const QString &filePath, AddTextureMode mode, int sceneId);
     ModelNode resolveSceneEnv(int sceneId);
+    void assignTextureAsLightProbe(const ModelNode &texture, int sceneId);
 
 private:
     bool addFileToProject(const QString &filePath);
     ModelNode createTextureFromImage(const QString &assetPath, AddTextureMode mode);
-
-    void assignTextureAsLightProbe(const ModelNode &texture, int sceneId);
 
 private:
     AbstractView *m_view = nullptr;

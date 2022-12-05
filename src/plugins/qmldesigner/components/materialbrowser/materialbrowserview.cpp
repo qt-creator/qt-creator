@@ -4,6 +4,7 @@
 #include "materialbrowserview.h"
 
 #include "bindingproperty.h"
+#include "createtexture.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserwidget.h"
@@ -185,6 +186,19 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         connect(texturesModel, &MaterialBrowserTexturesModel::addNewTextureTriggered, this, [&] {
             emitCustomNotification("add_new_texture");
+        });
+
+        connect(texturesModel, &MaterialBrowserTexturesModel::updateSceneEnvStateRequested, this, [&]() {
+            ModelNode activeSceneEnv = CreateTexture(this).resolveSceneEnv(m_sceneId);
+            const bool sceneEnvExists = activeSceneEnv.isValid();
+            m_widget->materialBrowserTexturesModel()->setHasSceneEnv(sceneEnvExists);
+        });
+
+        connect(texturesModel, &MaterialBrowserTexturesModel::applyAsLightProbeRequested, this,
+                [&] (const ModelNode &texture) {
+            executeInTransaction(__FUNCTION__, [&] {
+                CreateTexture(this).assignTextureAsLightProbe(texture, m_sceneId);
+            });
         });
     }
 
@@ -456,29 +470,6 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
 void MaterialBrowserView::active3DSceneChanged(qint32 sceneId)
 {
     m_sceneId = sceneId;
-}
-
-ModelNode MaterialBrowserView::resolveSceneEnv()
-{
-    ModelNode activeSceneEnv;
-
-    if (m_sceneId != -1) {
-        ModelNode activeScene = active3DSceneNode();
-        if (activeScene.isValid()) {
-            QmlObjectNode view3D;
-            if (activeScene.metaInfo().isQtQuick3DView3D()) {
-                view3D = activeScene;
-            } else {
-                ModelNode sceneParent = activeScene.parentProperty().parentModelNode();
-                if (sceneParent.metaInfo().isQtQuick3DView3D())
-                    view3D = sceneParent;
-            }
-            if (view3D.isValid())
-                activeSceneEnv = modelNodeForId(view3D.expression("environment"));
-        }
-    }
-
-    return activeSceneEnv;
 }
 
 void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completedNodeList)

@@ -18,6 +18,7 @@ class MaterialBrowserTexturesModel : public QAbstractListModel
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
     Q_PROPERTY(bool hasSingleModelSelection READ hasSingleModelSelection
                WRITE setHasSingleModelSelection NOTIFY hasSingleModelSelectionChanged)
+    Q_PROPERTY(bool hasSceneEnv READ hasSceneEnv NOTIFY hasSceneEnvChanged)
 
 public:
     MaterialBrowserTexturesModel(QObject *parent = nullptr);
@@ -41,6 +42,9 @@ public:
     bool hasSingleModelSelection() const;
     void setHasSingleModelSelection(bool b);
 
+    bool hasSceneEnv() const;
+    void setHasSceneEnv(bool b);
+
     bool isEmpty() const { return m_isEmpty; }
 
     void resetModel();
@@ -52,6 +56,8 @@ public:
     Q_INVOKABLE void applyToSelectedMaterial(qint64 internalId);
     Q_INVOKABLE void applyToSelectedModel(qint64 internalId);
     Q_INVOKABLE void openTextureEditor();
+    Q_INVOKABLE void updateSceneEnvState();
+    Q_INVOKABLE void applyAsLightProbe(qint64 internalId);
 
 signals:
     void isEmptyChanged();
@@ -61,6 +67,9 @@ signals:
     void applyToSelectedMaterialTriggered(const QmlDesigner::ModelNode &texture);
     void applyToSelectedModelTriggered(const QmlDesigner::ModelNode &texture);
     void addNewTextureTriggered();
+    void updateSceneEnvStateRequested();
+    void hasSceneEnvChanged();
+    void applyAsLightProbeRequested(const QmlDesigner::ModelNode &texture);
 
 private:
     bool isTextureVisible(int idx) const;
@@ -74,6 +83,7 @@ private:
     int m_selectedIndex = 0;
     bool m_isEmpty = true;
     bool m_hasSingleModelSelection = false;
+    bool m_hasSceneEnv = false;
 };
 
 } // namespace QmlDesigner

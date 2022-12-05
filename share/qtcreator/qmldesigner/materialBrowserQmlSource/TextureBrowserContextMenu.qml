@@ -15,6 +15,7 @@ StudioControls.Menu {
     function popupMenu(targetTexture = null)
     {
         this.targetTexture = targetTexture
+        materialBrowserTexturesModel.updateSceneEnvState()
         popup()
     }
 
@@ -30,6 +31,12 @@ StudioControls.Menu {
         text: qsTr("Apply to selected material")
         enabled: root.targetTexture && materialBrowserModel.selectedIndex >= 0
         onTriggered: materialBrowserTexturesModel.applyToSelectedMaterial(root.targetTexture.textureInternalId)
+    }
+
+    StudioControls.MenuItem {
+        text: qsTr("Apply as light probe")
+        enabled: root.targetTexture && materialBrowserTexturesModel.hasSceneEnv
+        onTriggered: materialBrowserTexturesModel.applyAsLightProbe(root.targetTexture.textureInternalId)
     }
 
     StudioControls.MenuSeparator {}

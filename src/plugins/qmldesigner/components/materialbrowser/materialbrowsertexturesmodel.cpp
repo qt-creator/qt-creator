@@ -214,6 +214,20 @@ void MaterialBrowserTexturesModel::setHasSingleModelSelection(bool b)
     emit hasSingleModelSelectionChanged();
 }
 
+bool MaterialBrowserTexturesModel::hasSceneEnv() const
+{
+    return m_hasSceneEnv;
+}
+
+void MaterialBrowserTexturesModel::setHasSceneEnv(bool b)
+{
+    if (b == m_hasSceneEnv)
+        return;
+
+    m_hasSceneEnv = b;
+    emit hasSceneEnvChanged();
+}
+
 void MaterialBrowserTexturesModel::resetModel()
 {
     beginResetModel();
@@ -271,6 +285,20 @@ void MaterialBrowserTexturesModel::applyToSelectedModel(qint64 internalId)
 void MaterialBrowserTexturesModel::openTextureEditor()
 {
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("TextureEditor", true);
+}
+
+void MaterialBrowserTexturesModel::updateSceneEnvState()
+{
+    emit updateSceneEnvStateRequested();
+}
+
+void MaterialBrowserTexturesModel::applyAsLightProbe(qint64 internalId)
+{
+    int idx = m_textureIndexHash.value(internalId);
+    if (idx != -1) {
+        ModelNode tex = m_textureList.at(idx);
+        emit applyAsLightProbeRequested(tex);
+    }
 }
 
 } // namespace QmlDesigner

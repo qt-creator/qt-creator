@@ -99,8 +99,11 @@ void CreateTexture::assignTextureAsLightProbe(const ModelNode &texture, int scen
 ModelNode CreateTexture::resolveSceneEnv(int sceneId)
 {
     ModelNode activeSceneEnv;
+    ModelNode selectedNode = m_view->firstSelectedModelNode();
 
-    if (sceneId != -1) {
+    if (selectedNode.metaInfo().isQtQuick3DSceneEnvironment()) {
+        activeSceneEnv = selectedNode;
+    } else if (sceneId != -1) {
         ModelNode activeScene = m_view->active3DSceneNode();
         if (activeScene.isValid()) {
             QmlObjectNode view3D;
