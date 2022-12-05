@@ -66,8 +66,8 @@ static QString toolsStateName(SquishTools::State state)
     switch (state) {
     case SquishTools::Idle: return "Idle";
     case SquishTools::ServerStarting: return "ServerStarting";
-    case SquishTools::ServerStarted: return "ServerStartFailed";
-    case SquishTools::ServerStartFailed: return "ServerStopped";
+    case SquishTools::ServerStarted: return "ServerStarted";
+    case SquishTools::ServerStartFailed: return "ServerStartFailed";
     case SquishTools::ServerStopped: return "ServerStopped";
     case SquishTools::ServerStopFailed: return "ServerStopFailed";
     case SquishTools::RunnerStarting: return "RunnerStarting";
