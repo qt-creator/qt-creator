@@ -268,11 +268,22 @@ public:
         GuardLocker locker(m_guard);
         emit q->errorOccurred();
     }
+    QList<TreeStorageBase> addStorages(const QList<TreeStorageBase> &storages) {
+        QList<TreeStorageBase> addedStorages;
+        for (const TreeStorageBase &storage : storages) {
+            QTC_ASSERT(!m_storages.contains(storage), qWarning("Can't add the same storage into "
+                       "one TaskTree twice, skipping..."); continue);
+            addedStorages << storage;
+            m_storages << storage;
+        }
+        return addedStorages;
+    }
 
     TaskTree *q = nullptr;
     std::unique_ptr<TaskNode> m_root = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
+    QSet<TreeStorageBase> m_storages;
 };
 
 TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *parentContainer,
@@ -282,7 +293,7 @@ TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *pa
     , m_executeMode(task.executeMode())
     , m_workflowPolicy(task.workflowPolicy())
     , m_groupHandler(task.groupHandler())
-    , m_storageList(task.storageList())
+    , m_storageList(taskTreePrivate->addStorages(task.storageList()))
 {
     const QList<TaskItem> &children = task.children();
     for (const TaskItem &child : children) {
