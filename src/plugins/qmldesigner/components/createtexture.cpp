@@ -4,6 +4,7 @@
 #include "createtexture.h"
 
 #include "abstractview.h"
+#include "documentmanager.h"
 #include "modelnodeoperations.h"
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
@@ -41,7 +42,8 @@ void CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sc
 
 bool CreateTexture::addFileToProject(const QString &filePath)
 {
-    AddFilesResult result = ModelNodeOperations::addImageToProject({filePath}, "images", false);
+    AddFilesResult result = ModelNodeOperations::addImageToProject(
+                {filePath}, ModelNodeOperations::getImagesDefaultDirectory().toString(), false);
 
     if (result.status() == AddFilesResult::Failed) {
         Core::AsynchronousMessageBox::warning(QObject::tr("Failed to Add Texture"),
@@ -63,12 +65,16 @@ ModelNode CreateTexture::createTextureFromImage(const QString &assetPath, AddTex
 
     NodeMetaInfo metaInfo = m_view->model()->qtQuick3DTextureMetaInfo();
 
-    QString sourceVal = QLatin1String("images/%1").arg(assetPath.split('/').last());
+    Utils::FilePath imagePath = ModelNodeOperations::getImagesDefaultDirectory()
+            .pathAppended(Utils::FilePath::fromString(assetPath).fileName());
+    QString sourceVal = imagePath.relativePathFrom(
+            QmlDesigner::DocumentManager::currentFilePath()).toString();
+
     ModelNode newTexNode = m_view->getTextureDefaultInstance(sourceVal);
     if (!newTexNode.isValid()) {
         newTexNode = m_view->createModelNode("QtQuick3D.Texture",
-                                            metaInfo.majorVersion(),
-                                            metaInfo.minorVersion());
+                                             metaInfo.majorVersion(),
+                                             metaInfo.minorVersion());
         newTexNode.validId();
         VariantProperty sourceProp = newTexNode.variantProperty("source");
         sourceProp.setValue(sourceVal);

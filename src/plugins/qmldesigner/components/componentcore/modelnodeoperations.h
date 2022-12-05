@@ -125,6 +125,8 @@ QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();
 bool validateEffect(const QString &effectPath);
 
+Utils::FilePath getImagesDefaultDirectory();
+
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);
 QVariant previewImageDataForImageNode(const ModelNode &modelNode);

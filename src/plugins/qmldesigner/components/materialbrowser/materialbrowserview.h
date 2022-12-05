@@ -69,9 +69,6 @@ private:
     void requestPreviews();
     ModelNode resolveSceneEnv();
 
-    void addOneTexture(const QString &filePath, AddTextureMode mode, bool addToProject);
-    void addTextures(const QStringList &texturePaths, AddTextureMode mode, bool addToProject);
-
     AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
