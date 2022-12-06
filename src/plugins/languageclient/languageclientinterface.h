@@ -9,6 +9,7 @@
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
+#include <utils/temporaryfile.h>
 
 #include <QBuffer>
 
@@ -50,7 +51,7 @@ class LANGUAGECLIENT_EXPORT StdIOClientInterface : public BaseClientInterface
 {
     Q_OBJECT
 public:
-    StdIOClientInterface() = default;
+    StdIOClientInterface();
     ~StdIOClientInterface() override;
 
     StdIOClientInterface(const StdIOClientInterface &) = delete;
@@ -75,6 +76,8 @@ protected:
 private:
     void readError();
     void readOutput();
+
+    Utils::TemporaryFile m_logFile;
 };
 
 } // namespace LanguageClient

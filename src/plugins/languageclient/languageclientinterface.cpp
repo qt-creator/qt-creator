@@ -3,8 +3,6 @@
 
 #include "languageclientinterface.h"
 
-#include "languageclientsettings.h"
-
 #include <QLoggingCategory>
 
 using namespace LanguageServerProtocol;
@@ -77,6 +75,13 @@ void BaseClientInterface::parseCurrentMessage()
     m_currentMessage = BaseMessage();
 }
 
+StdIOClientInterface::StdIOClientInterface()
+    : m_logFile("lspclient.XXXXXX.log")
+{
+    m_logFile.setAutoRemove(false);
+    m_logFile.open();
+}
+
 StdIOClientInterface::~StdIOClientInterface()
 {
     delete m_process;
@@ -96,10 +101,14 @@ void StdIOClientInterface::startImpl()
             this, &StdIOClientInterface::readOutput);
     connect(m_process, &QtcProcess::started, this, &StdIOClientInterface::started);
     connect(m_process, &QtcProcess::done, this, [this] {
+        m_logFile.flush();
         if (m_process->result() != ProcessResult::FinishedWithSuccess)
-            emit error(m_process->exitMessage());
+            emit error(QString("%1 (see logs in \"%2\")")
+                           .arg(m_process->exitMessage())
+                           .arg(m_logFile.fileName()));
         emit finished();
     });
+    m_logFile.write(QString("Starting server: %1\nOutput:\n\n").arg(m_cmd.toUserOutput()).toUtf8());
     m_process->setCommand(m_cmd);
     m_process->setWorkingDirectory(m_workingDirectory);
     if (m_env.isValid())
@@ -137,8 +146,12 @@ void StdIOClientInterface::sendData(const QByteArray &data)
 void StdIOClientInterface::readError()
 {
     QTC_ASSERT(m_process, return);
+
+    const QByteArray stdErr = m_process->readAllStandardError();
+    m_logFile.write(stdErr);
+
     qCDebug(LOGLSPCLIENTV) << "StdIOClient std err:\n";
-    qCDebug(LOGLSPCLIENTV).noquote() << m_process->readAllStandardError();
+    qCDebug(LOGLSPCLIENTV).noquote() << stdErr;
 }
 
 void StdIOClientInterface::readOutput()
