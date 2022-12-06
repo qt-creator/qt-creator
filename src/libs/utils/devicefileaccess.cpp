@@ -120,7 +120,6 @@ bool DeviceFileAccess::createDirectory(const FilePath &filePath) const
 bool DeviceFileAccess::exists(const FilePath &filePath) const
 {
     Q_UNUSED(filePath)
-    QTC_CHECK(false);
     return false;
 }
 

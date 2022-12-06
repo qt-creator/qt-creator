@@ -939,9 +939,9 @@ DeviceFileAccess *FilePath::fileAccess() const
     }
 
     static DeviceFileAccess dummy;
-    DeviceFileAccess *access = s_deviceHooks.fileAccess(*this);
-    QTC_ASSERT(access, qDebug() << toString(); return &dummy);
-    return access;
+    const expected_str<DeviceFileAccess *> access = s_deviceHooks.fileAccess(*this);
+    QTC_ASSERT_EXPECTED(access, return &dummy);
+    return *access ? *access : &dummy;
 }
 
 /*!

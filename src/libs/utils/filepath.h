@@ -269,7 +269,7 @@ class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 public:
     static DeviceFileHooks &instance();
 
-    std::function<DeviceFileAccess *(const FilePath &)> fileAccess;
+    std::function<expected_str<DeviceFileAccess *>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
     std::function<Environment(const FilePath &)> environment;
