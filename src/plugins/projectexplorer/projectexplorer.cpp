@@ -4175,6 +4175,7 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     auto *ag = new QActionGroup(m_sessionMenu);
     connect(ag, &QActionGroup::triggered, this, &ProjectExplorerPluginPrivate::setSession);
     const QString activeSession = SessionManager::activeSession();
+    const bool isDefaultVirgin = SessionManager::isDefaultVirgin();
 
     QStringList sessions = SessionManager::sessions();
     std::sort(std::next(sessions.begin()), sessions.end(), [](const QString &s1, const QString &s2) {
@@ -4189,7 +4190,7 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
         QAction *act = ag->addAction(actionText);
         act->setData(session);
         act->setCheckable(true);
-        if (session == activeSession)
+        if (session == activeSession && !isDefaultVirgin)
             act->setChecked(true);
     }
     m_sessionMenu->addActions(ag->actions());
@@ -4198,9 +4199,7 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
 
 void ProjectExplorerPluginPrivate::setSession(QAction *action)
 {
-    QString session = action->data().toString();
-    if (session != SessionManager::activeSession())
-        SessionManager::loadSession(session);
+    SessionManager::loadSession(action->data().toString());
 }
 
 void ProjectExplorerPlugin::setProjectExplorerSettings(const ProjectExplorerSettings &pes)

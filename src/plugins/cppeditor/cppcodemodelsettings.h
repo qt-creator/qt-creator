@@ -133,6 +133,7 @@ public:
     static ClangdSettings &instance();
     bool useClangd() const;
     static void setUseClangd(bool use);
+    static void setUseClangdAndSave(bool use);
 
     static bool hardwareFulfillsRequirements();
     static bool haveCheckedHardwareRequirements();

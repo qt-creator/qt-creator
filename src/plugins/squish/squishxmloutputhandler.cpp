@@ -92,7 +92,7 @@ void SquishXmlOutputHandler::mergeResultFiles(const Utils::FilePaths &reportFile
                     // and finally write test tag (case name) - the prolog tag (for test case)
                     // will be written outside the if
                     const QXmlStreamAttributes testAttributes = reader.attributes();
-                    QXmlStreamReader::TokenType token;
+                    QXmlStreamReader::TokenType token = QXmlStreamReader::NoToken;
                     while (!reader.atEnd()) {
                         token = reader.readNext();
                         if (token != QXmlStreamReader::Characters)

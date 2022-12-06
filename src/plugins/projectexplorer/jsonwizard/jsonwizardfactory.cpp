@@ -480,7 +480,8 @@ JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &dat
     if (!factory->initialize(data, baseDir, errorMessage)) {
         delete factory;
         factory = nullptr;
-        Core::MessageManager::writeDisrupting(*errorMessage);
+        if (verbose())
+            Core::MessageManager::writeDisrupting(*errorMessage);
     }
     return factory;
 }

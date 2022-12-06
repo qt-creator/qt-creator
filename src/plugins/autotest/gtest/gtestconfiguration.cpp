@@ -60,8 +60,12 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
     }
 
     const QStringList &testSets = testCases();
-    if (!testSets.isEmpty())
-        arguments << "--gtest_filter=\"" + testSets.join(':') + '"';
+    if (!testSets.isEmpty()) {
+        if (isDebugRunMode()) // debugger does its own special quoting
+            arguments << "--gtest_filter=" + testSets.join(':');
+        else
+            arguments << "--gtest_filter=\"" + testSets.join(':') + '"';
+    }
 
     auto gSettings = static_cast<GTestSettings *>(framework()->testSettings());
     if (!gSettings)
