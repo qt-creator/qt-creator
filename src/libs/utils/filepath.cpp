@@ -1109,7 +1109,7 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
         if (!splits2.at(j).isEmpty()) {
             if (addslash)
                 relativePath += '/';
-            relativePath += "..";
+            relativePath += u"..";
             addslash = true;
         }
         ++j;
