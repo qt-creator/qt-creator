@@ -203,6 +203,23 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     using namespace Layouting;
 
     // clang-format off
+    Column detectionControls {
+        Space(20),
+        Row {
+            Tr::tr("Search Locations:"),
+            searchDirsComboBox,
+            searchDirsLineEdit
+        },
+        Row {
+            autoDetectButton,
+            undoAutoDetectButton,
+            listAutoDetectedButton,
+            st,
+        },
+        Tr::tr("Detection log:"),
+        logView
+    };
+
     Form {
         repoLabel, m_repoLineEdit, br,
         tagLabel, m_tagLineEdit, br,
@@ -216,22 +233,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             pathListLabel,
             m_pathsListEdit,
         }, br,
-        Column {
-            Space(20),
-            Row {
-                Tr::tr("Search Locations:"),
-                searchDirsComboBox,
-                searchDirsLineEdit
-            },
-            Row {
-                autoDetectButton,
-                undoAutoDetectButton,
-                listAutoDetectedButton,
-                st,
-            },
-            Tr::tr("Detection log:"),
-            logView
-        }
+        (dockerDevice->isAutoDetected() ? Column {} : std::move(detectionControls)),
     }.attachTo(this, WithoutMargins);
     // clang-format on
 
