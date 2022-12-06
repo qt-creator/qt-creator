@@ -55,7 +55,7 @@ class QTCREATOR_UTILS_EXPORT FilePath
 public:
     FilePath();
 
-    template <size_t N> FilePath(const char (&literal)[N]) { setFromString(literal); }
+    template <size_t N> FilePath(const char (&literal)[N]) { setFromString(QString::fromUtf8(literal)); }
 
     [[nodiscard]] static FilePath fromString(const QString &filepath);
     [[nodiscard]] static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
@@ -239,7 +239,7 @@ public:
 private:
     friend class ::tst_fileutils;
     void setPath(QStringView path);
-    void setFromString(const QString &filepath);
+    void setFromString(QStringView filepath);
     DeviceFileAccess *fileAccess() const;
 
     [[nodiscard]] QString encodedHost() const;

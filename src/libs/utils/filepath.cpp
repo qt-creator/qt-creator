@@ -810,17 +810,16 @@ void FilePath::setPath(QStringView path)
     setParts(scheme(), host(), path);
 }
 
-void FilePath::setFromString(const QString &fileName)
+void FilePath::setFromString(const QStringView fileNameView)
 {
     static const QStringView qtcDevSlash(u"__qtc_devices__/");
     static const QStringView colonSlashSlash(u"://");
 
     const QChar slash('/');
-    const QStringView fileNameView(fileName);
 
     bool startsWithQtcSlashDev = false;
     QStringView withoutQtcDeviceRoot = fileNameView;
-    if (fileNameView.startsWith('/') && fileNameView.mid(1).startsWith(qtcDevSlash)) {
+    if (fileNameView.startsWith(slash) && fileNameView.mid(1).startsWith(qtcDevSlash)) {
         startsWithQtcSlashDev = true;
         withoutQtcDeviceRoot = withoutQtcDeviceRoot.mid(1 + qtcDevSlash.size());
     } else if (fileNameView.size() > 3 && isWindowsDriveLetter(fileNameView.at(0))
@@ -847,22 +846,23 @@ void FilePath::setFromString(const QString &fileName)
             return;
         }
 
-        setParts({}, {}, fileName);
+        setParts({}, {}, fileNameView);
         return;
     }
 
-    const int firstSlash = fileName.indexOf(slash);
-    const int schemeEnd = fileName.indexOf(colonSlashSlash);
+    const int firstSlash = fileNameView.indexOf(slash);
+    const int schemeEnd = fileNameView.indexOf(colonSlashSlash);
     if (schemeEnd != -1 && schemeEnd < firstSlash) {
         // This is a pseudo Url, we can't use QUrl here sadly.
-        const QString scheme = fileName.left(schemeEnd);
-        const int hostEnd = fileName.indexOf(slash, schemeEnd + 3);
-        const QString host = decodeHost(fileName.mid(schemeEnd + 3, hostEnd - schemeEnd - 3));
-        setParts(scheme, host, hostEnd != -1 ? QStringView(fileName).mid(hostEnd) : QStringView());
+        const QStringView scheme = fileNameView.left(schemeEnd);
+        const int hostEnd = fileNameView.indexOf(slash, schemeEnd + 3);
+        const QString host = decodeHost(
+                    fileNameView.mid(schemeEnd + 3, hostEnd - schemeEnd - 3).toString());
+        setParts(scheme, host, hostEnd != -1 ? fileNameView.mid(hostEnd) : QStringView());
         return;
     }
 
-    setParts({}, {}, fileName);
+    setParts({}, {}, fileNameView);
 }
 
 DeviceFileAccess *FilePath::fileAccess() const
