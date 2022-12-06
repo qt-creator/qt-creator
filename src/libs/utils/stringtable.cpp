@@ -23,7 +23,7 @@ enum {
 };
 
 enum {
-    DebugStringTable = 1
+    DebugStringTable = 0
 };
 
 class StringTablePrivate : public QObject
