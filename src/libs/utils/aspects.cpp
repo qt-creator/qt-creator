@@ -1102,6 +1102,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         if (d->m_validator)
             d->m_lineEditDisplay->setValidationFunction(d->m_validator);
         d->m_lineEditDisplay->setTextKeepingActiveCursor(displayedString);
+        d->m_lineEditDisplay->setReadOnly(isReadOnly());
         d->updateWidgetFromCheckStatus(this, d->m_lineEditDisplay.data());
         addLabeledItem(builder, d->m_lineEditDisplay);
         useMacroExpander(d->m_lineEditDisplay);
@@ -1143,6 +1144,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_textEditDisplay->setAcceptRichText(d->m_acceptRichText);
         d->m_textEditDisplay->setTextInteractionFlags(Qt::TextEditorInteraction);
         d->m_textEditDisplay->setText(displayedString);
+        d->m_textEditDisplay->setReadOnly(isReadOnly());
         d->updateWidgetFromCheckStatus(this, d->m_textEditDisplay.data());
         addLabeledItem(builder, d->m_textEditDisplay);
         useMacroExpander(d->m_textEditDisplay);
