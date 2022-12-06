@@ -899,6 +899,8 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     int bottomMargin = 9;
     int heightWithoutKitArea = 0;
 
+    QRect newGeometry;
+
     if (!onlySummary) {
         // list widget height
         int maxItemCount = m_projectListWidget->maxCount();
@@ -959,7 +961,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         m_listWidgets[RUN]->setColumnWidth(1, runColumnWidth);
         m_summaryLabel->resize(x - 1, summaryLabelHeight);
         m_kitAreaWidget->resize(x - 1, kitAreaHeight);
-        setFixedSize(x, heightWithoutKitArea + kitAreaHeight);
+        newGeometry.setSize({x, heightWithoutKitArea + kitAreaHeight});
     } else {
         if (keepSize)
             heightWithoutKitArea = height() - oldSummaryLabelY + 1;
@@ -967,12 +969,13 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
             heightWithoutKitArea = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
         m_summaryLabel->resize(m_summaryLabel->sizeHint().width(), heightWithoutKitArea - bottomMargin);
         m_kitAreaWidget->resize(m_kitAreaWidget->sizeHint());
-        setFixedSize(m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight); //1 extra pixel for the border
+        newGeometry.setSize({m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight});
     }
 
-    QPoint moveTo = statusBar->mapToGlobal(QPoint(0, 0));
-    moveTo -= QPoint(0, height());
-    move(moveTo);
+    newGeometry.translate(statusBar->mapToGlobal(QPoint{0, 0}));
+    newGeometry.translate(QPoint{0, -newGeometry.height()});
+    repaint();
+    setGeometry(newGeometry);
 }
 
 void MiniProjectTargetSelector::projectAdded(Project *project)
@@ -1543,7 +1546,10 @@ void MiniProjectTargetSelector::updateSummary()
                 summary.append(QLatin1String("<br/>"));
         }
     }
-    m_summaryLabel->setText(summary);
+    if (summary != m_summaryLabel->text()) {
+        m_summaryLabel->setText(summary);
+        doLayout(false);
+    }
 }
 
 void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
