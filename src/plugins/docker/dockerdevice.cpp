@@ -805,6 +805,9 @@ bool DockerDevice::handlesFile(const FilePath &filePath) const
 
 bool DockerDevice::ensureReachable(const FilePath &other) const
 {
+    if (other.isEmpty())
+        return false;
+
     if (other.isSameDevice(rootPath()))
         return true;
 
