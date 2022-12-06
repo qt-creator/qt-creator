@@ -75,6 +75,7 @@ public:
 
     AbstractProcessStep *q;
     std::unique_ptr<QtcProcess> m_process;
+    std::unique_ptr<TaskTree> m_taskTree;
     ProcessParameters m_param;
     ProcessParameters *m_displayedParams = &m_param;
     std::function<CommandLine()> m_commandLineProvider;
@@ -146,7 +147,7 @@ void AbstractProcessStep::setWorkingDirectoryProvider(const std::function<FilePa
 
 bool AbstractProcessStep::init()
 {
-    if (d->m_process)
+    if (d->m_process || d->m_taskTree)
         return false;
 
     if (!setupProcessParameters(processParameters()))
@@ -169,59 +170,91 @@ void AbstractProcessStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AbstractProcessStep::doRun()
 {
+    if (!checkWorkingDirectory())
+        return;
+
+    if (!d->m_param.effectiveCommand().isExecutableFile()) {
+        processStartupFailed();
+        return;
+    }
+
+    setupStreams();
+
+    d->m_process.reset(new QtcProcess);
+    setupProcess(d->m_process.get());
+    connect(d->m_process.get(), &QtcProcess::done, this, &AbstractProcessStep::handleProcessDone);
+    d->m_process->start();
+}
+
+bool AbstractProcessStep::checkWorkingDirectory()
+{
     const FilePath wd = d->m_param.effectiveWorkingDirectory();
     if (!wd.exists()) {
         if (!wd.createDir()) {
             emit addOutput(tr("Could not create directory \"%1\"").arg(wd.toUserOutput()),
                            OutputFormat::ErrorMessage);
             finish(ProcessResult::StartFailed);
-            return;
+            return false;
         }
     }
+    return true;
+}
 
-    const CommandLine effectiveCommand(d->m_param.effectiveCommand(),
-                                       d->m_param.effectiveArguments(),
-                                       CommandLine::Raw);
-    if (!effectiveCommand.executable().isExecutableFile()) {
-        processStartupFailed();
-        return;
-    }
-
+void AbstractProcessStep::setupStreams()
+{
     d->stdoutStream = std::make_unique<QTextDecoder>(buildEnvironment().hasKey("VSLANG")
             ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
     d->stderrStream = std::make_unique<QTextDecoder>(QTextCodec::codecForLocale());
+}
 
-    d->m_process.reset(new QtcProcess);
-    d->m_process->setUseCtrlCStub(HostOsInfo::isWindowsHost());
-    d->m_process->setWorkingDirectory(wd);
+void AbstractProcessStep::setupProcess(QtcProcess *process)
+{
+    process->setUseCtrlCStub(HostOsInfo::isWindowsHost());
+    process->setWorkingDirectory(d->m_param.effectiveWorkingDirectory());
     // Enforce PWD in the environment because some build tools use that.
     // PWD can be different from getcwd in case of symbolic links (getcwd resolves symlinks).
     // For example Clang uses PWD for paths in debug info, see QTCREATORBUG-23788
     Environment envWithPwd = d->m_param.environment();
-    envWithPwd.set("PWD", d->m_process->workingDirectory().path());
-    d->m_process->setEnvironment(envWithPwd);
-    d->m_process->setCommand(effectiveCommand);
+    envWithPwd.set("PWD", process->workingDirectory().path());
+    process->setEnvironment(envWithPwd);
+    process->setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
+                        CommandLine::Raw});
     if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
-        d->m_process->setLowPriority();
+        process->setLowPriority();
 
-    connect(d->m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
-        emit addOutput(d->stdoutStream->toUnicode(d->m_process->readAllStandardOutput()),
+    connect(process, &QtcProcess::readyReadStandardOutput, this, [this, process] {
+        emit addOutput(d->stdoutStream->toUnicode(process->readAllStandardOutput()),
                        OutputFormat::Stdout, DontAppendNewline);
     });
-    connect(d->m_process.get(), &QtcProcess::readyReadStandardError, this, [this] {
-        emit addOutput(d->stderrStream->toUnicode(d->m_process->readAllStandardError()),
+    connect(process, &QtcProcess::readyReadStandardError, this, [this, process] {
+        emit addOutput(d->stderrStream->toUnicode(process->readAllStandardError()),
                        OutputFormat::Stderr, DontAppendNewline);
     });
-    connect(d->m_process.get(), &QtcProcess::started, this, [this] {
+    connect(process, &QtcProcess::started, this, [this] {
         ProcessParameters *params = displayedParameters();
         emit addOutput(tr("Starting: \"%1\" %2")
                        .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
                        OutputFormat::NormalMessage);
     });
-    connect(d->m_process.get(), &QtcProcess::done,
-            this, &AbstractProcessStep::handleProcessDone);
+}
 
-    d->m_process->start();
+void AbstractProcessStep::runTaskTree(const Tasking::Group &recipe)
+{
+    setupStreams();
+
+    d->m_taskTree.reset(new TaskTree(recipe));
+    connect(d->m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
+        emit progress(qRound(double(value) * 100 / d->m_taskTree->progressMaximum()), {});
+    });
+    connect(d->m_taskTree.get(), &TaskTree::done, this, [this] {
+        emit finished(true);
+        d->m_taskTree.release()->deleteLater();
+    });
+    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
+        emit finished(false);
+        d->m_taskTree.release()->deleteLater();
+    });
+    d->m_taskTree->start();
 }
 
 void AbstractProcessStep::setLowPriority()
@@ -231,7 +264,14 @@ void AbstractProcessStep::setLowPriority()
 
 void AbstractProcessStep::doCancel()
 {
-    d->cleanUp(-1, QProcess::CrashExit);
+    if (d->m_process) {
+        d->cleanUp(-1, QProcess::CrashExit);
+    }
+    if (d->m_taskTree) {
+        d->m_taskTree.reset();
+        emit addOutput(tr("The build step was ended forcefully."), OutputFormat::ErrorMessage);
+        emit finished(false);
+    }
 }
 
 ProcessParameters *AbstractProcessStep::processParameters()
@@ -311,7 +351,7 @@ void AbstractProcessStep::processStartupFailed()
                    .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
                    OutputFormat::ErrorMessage);
 
-    QString err = d->m_process ? d->m_process->errorString() : QString();
+    const QString err = d->m_process ? d->m_process->errorString() : QString();
     if (!err.isEmpty())
         emit addOutput(err, OutputFormat::ErrorMessage);
     finish(ProcessResult::StartFailed);

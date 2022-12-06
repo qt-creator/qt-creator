@@ -10,6 +10,8 @@
 namespace Utils {
 class CommandLine;
 enum class ProcessResult;
+class QtcProcess;
+namespace Tasking { class Group; }
 }
 
 namespace ProjectExplorer {
@@ -48,9 +50,14 @@ protected:
 
     virtual void finish(Utils::ProcessResult result);
 
-private:
-    void processStartupFailed();
+    bool checkWorkingDirectory();
+    void setupProcess(Utils::QtcProcess *process);
+    void runTaskTree(const Utils::Tasking::Group &recipe);
     ProcessParameters *displayedParameters() const;
+
+private:
+    void setupStreams();
+    void processStartupFailed();
     void handleProcessDone();
 
     class Private;
