@@ -482,6 +482,7 @@ static ClientCapabilities generateClientCapabilities()
     tokens.setTokenModifiers({"declaration", "definition"});
     tokens.setFormats({"relative"});
     documentCapabilities.setSemanticTokens(tokens);
+    documentCapabilities.setCallHierarchy(allowDynamicRegistration);
     capabilities.setTextDocument(documentCapabilities);
 
     WindowClientClientCapabilities window;

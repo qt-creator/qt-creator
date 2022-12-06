@@ -2,6 +2,7 @@ add_qtc_library(LanguageServerProtocol
   DEPENDS Utils
   SOURCES
     basemessage.cpp basemessage.h
+    callhierarchy.cpp callhierarchy.h
     client.cpp client.h
     clientcapabilities.cpp clientcapabilities.h
     completion.cpp completion.h

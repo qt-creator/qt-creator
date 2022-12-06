@@ -504,6 +504,12 @@ public:
     std::optional<SemanticTokensClientCapabilities> semanticTokens() const;
     void setSemanticTokens(const SemanticTokensClientCapabilities &semanticTokens);
     void clearSemanticTokens() { remove(semanticTokensKey); }
+
+    std::optional<DynamicRegistrationCapabilities> callHierarchy() const
+    { return optionalValue<DynamicRegistrationCapabilities>(callHierarchyKey); }
+    void setCallHierarchy(const DynamicRegistrationCapabilities &callHierarchy)
+    { insert(callHierarchyKey, callHierarchy); }
+    void clearCallHierarchy() { remove(callHierarchyKey); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensWorkspaceClientCapabilities : public JsonObject

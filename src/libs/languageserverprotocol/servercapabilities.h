@@ -328,6 +328,10 @@ public:
     void setSemanticTokensProvider(const SemanticTokensOptions &semanticTokensProvider);
     void clearSemanticTokensProvider() { remove(semanticTokensProviderKey); }
 
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> callHierarchyProvider() const;
+    void setCallHierarchyProvider(const std::variant<bool, WorkDoneProgressOptions> &callHierarchyProvider);
+    void clearCallHierarchyProvider() { remove(callHierarchyProviderKey); }
+
     // The server provides workspace symbol support.
     std::optional<std::variant<bool, WorkDoneProgressOptions>> workspaceSymbolProvider() const;
     void setWorkspaceSymbolProvider(std::variant<bool, WorkDoneProgressOptions> workspaceSymbolProvider);
