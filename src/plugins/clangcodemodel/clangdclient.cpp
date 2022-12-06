@@ -11,10 +11,10 @@
 #include "clangdlocatorfilters.h"
 #include "clangdmemoryusagewidget.h"
 #include "clangdquickfixes.h"
+#include "clangdsemantichighlighting.h"
 #include "clangdswitchdecldef.h"
 #include "clangtextmark.h"
 #include "clangutils.h"
-#include "clangdsemantichighlighting.h"
 #include "tasktimers.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -40,9 +40,13 @@
 #include <languageclient/languageclientutils.h>
 #include <languageserverprotocol/clientcapabilities.h>
 #include <languageserverprotocol/progresssupport.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -66,6 +70,7 @@
 
 #include <cmath>
 #include <new>
+#include <optional>
 #include <set>
 #include <unordered_map>
 #include <utility>
@@ -138,6 +143,23 @@ void setupClangdConfigFile()
     }
 }
 
+std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Project *project)
+{
+    if (!project)
+        return std::nullopt;
+
+    if (ProjectExplorer::Target *target = project->activeTarget()) {
+        if (ProjectExplorer::BuildConfiguration *bc = target->activeBuildConfiguration()) {
+            if (const ProjectExplorer::IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(
+                    target->kit())) {
+                return buildDevice->clangdExecutable();
+            }
+        }
+    }
+
+    return std::nullopt;
+}
+
 static BaseClientInterface *clientInterface(Project *project, const Utils::FilePath &jsonDbDir)
 {
     using CppEditor::ClangdSettings;
@@ -150,7 +172,9 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
-    Utils::CommandLine cmd{settings.clangdFilePath(),
+    const Utils::FilePath clangdExePath = clangdExecutableFromBuildDevice(project).value_or(
+        settings.clangdFilePath());
+    Utils::CommandLine cmd{clangdExePath,
                            {indexingOption,
                             headerInsertionOption,
                             limitResults,
