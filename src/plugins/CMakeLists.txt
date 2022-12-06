@@ -27,6 +27,7 @@ add_subdirectory(help)
 add_subdirectory(resourceeditor)
 add_subdirectory(nim)
 add_subdirectory(conan)
+add_subdirectory(vcpkg)
 
 # Level 4: (only depends on Level 3 and below)
 add_subdirectory(classview)

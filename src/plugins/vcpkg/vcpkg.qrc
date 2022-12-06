@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/vcpkg">
+        <file>wizards/manifest/vcpkg.json.tpl</file>
+        <file>wizards/manifest/wizard.json</file>
+    </qresource>
+</RCC>

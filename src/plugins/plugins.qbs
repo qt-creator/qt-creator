@@ -84,6 +84,7 @@ Project {
         "todo/todo.qbs",
         "updateinfo/updateinfo.qbs",
         "valgrind/valgrind.qbs",
+        "vcpkg/vcpkg.qbs",
         "vcsbase/vcsbase.qbs",
         "webassembly/webassembly.qbs",
         "welcome/welcome.qbs",
