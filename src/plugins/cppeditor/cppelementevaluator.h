@@ -3,14 +3,14 @@
 
 #pragma once
 
+#include "typehierarchybuilder.h"
+
 #include <coreplugin/helpitem.h>
+#include <cplusplus/CppDocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/utilsicons.h>
 
-#include <cplusplus/CppDocument.h>
-
 #include <QFuture>
-#include <QIcon>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
@@ -19,6 +19,7 @@
 #include <functional>
 
 namespace CPlusPlus {
+class ClassOrNamespace;
 class LookupItem;
 class LookupContext;
 }
@@ -96,9 +97,15 @@ public:
     void lookupDerived(QFutureInterfaceBase &futureInterface,
                        CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);
 
-public:
     QList<CppClass> bases;
     QList<CppClass> derived;
+
+private:
+    void addBaseHierarchy(QFutureInterfaceBase &futureInterface,
+                          const CPlusPlus::LookupContext &context,
+                          CPlusPlus::ClassOrNamespace *hierarchy,
+                          QSet<CPlusPlus::ClassOrNamespace *> *visited);
+    void addDerivedHierarchy(const TypeHierarchy &hierarchy);
 };
 
 } // namespace Internal

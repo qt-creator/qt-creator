@@ -433,7 +433,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
 {
     QList<LookupItem> candidates;
 
-    if (! name)
+    if (!name)
         return candidates;
 
     for (; scope; scope = scope->enclosingScope()) {
