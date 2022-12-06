@@ -40,6 +40,7 @@
 #include <QImageReader>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QScopeGuard>
 
 #include <exception>
 
@@ -610,30 +611,28 @@ public:
     {
         menu()->clear();
 
-        menu()->setEnabled(true);
-
         const auto selection = selectionContext();
+
+        bool showMenu = false;
+        auto cleanup = qScopeGuard([&]{ menu()->setEnabled(showMenu); });
+
         if (!selection.isValid())
             return;
         if (!selection.singleNodeIsSelected())
-            return;
-        if (!action()->isEnabled())
             return;
 
         ModelNode currentNode = selection.currentSingleSelectedNode();
 
         if (!currentNode.isValid())
             return;
+        if (!currentNode.hasId())
+            return;
+        showMenu = true;
 
         QmlObjectNode currentObjectNode(currentNode);
 
         QStringList signalsList = getSignalsList(currentNode);
         QList<SlotList> slotsLists = getSlotsLists(currentNode);
-
-        if (!currentNode.hasId()) {
-            menu()->setEnabled(false);
-            return;
-        }
 
         for (const ModelNode &connectionNode : currentObjectNode.getAllConnections()) {
             for (const AbstractProperty &property : connectionNode.properties()) {
