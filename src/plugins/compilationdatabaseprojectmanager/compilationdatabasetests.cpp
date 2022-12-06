@@ -164,8 +164,8 @@ void CompilationDatabaseTests::testFilterArguments()
                                       {"RELATIVE_PLUGIN_PATH", "\"../lib/qtcreator/plugins\""},
                                       {"QT_CREATOR", "1"}}));
     QCOMPARE(testData.fileKind, CppEditor::ProjectFile::Kind::CXXSource);
-    QCOMPARE(testData.sysRoot.toString(), HostOsInfo::isWindowsHost() ? QString("C:\\sysroot\\embedded")
-                                                                      : QString("/opt/sysroot/embedded"));
+    QCOMPARE(testData.sysRoot.toUserOutput(), HostOsInfo::isWindowsHost()
+             ? QString("C:\\sysroot\\embedded") : QString("/opt/sysroot/embedded"));
 }
 
 static QString kCmakeCommand
