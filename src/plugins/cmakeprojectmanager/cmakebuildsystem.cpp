@@ -19,6 +19,7 @@
 #include <android/androidconstants.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cppeditor/cppeditorconstants.h>
@@ -1333,6 +1334,92 @@ MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installR
 
     cmd.environment.set("DESTDIR", installRoot.nativePath());
     return cmd;
+}
+
+QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
+{
+    if (!buildConfiguration())
+        return {};
+    const CMakeTool * const cmakeTool
+            = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
+    if (!cmakeTool)
+        return {};
+    QList<QPair<Id, QString>> result;
+    const QList<CMakeTool::Generator> &generators = cmakeTool->supportedGenerators();
+    for (const CMakeTool::Generator &generator : generators) {
+        result << qMakePair(Id::fromSetting(generator.name),
+                            Tr::tr("%1 (via cmake)").arg(generator.name));
+        for (const QString &extraGenerator : generator.extraGenerators) {
+            const QString displayName = extraGenerator + " - " + generator.name;
+            result << qMakePair(Id::fromSetting(displayName),
+                                Tr::tr("%1 (via cmake)").arg(displayName));
+        }
+    }
+    return result;
+}
+
+void CMakeBuildSystem::runGenerator(Utils::Id id)
+{
+    QTC_ASSERT(cmakeBuildConfiguration(), return);
+    const auto showError = [](const QString &detail) {
+        Core::MessageManager::writeDisrupting(Tr::tr("cmake generator failed: %1.").arg(detail));
+    };
+    const CMakeTool * const cmakeTool
+            = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
+    if (!cmakeTool) {
+        showError(Tr::tr("Kit does not have a cmake binary set"));
+        return;
+    }
+    const QString generator = id.toSetting().toString();
+    const FilePath outDir = buildConfiguration()->buildDirectory()
+            / ("qtc_" + FileUtils::fileSystemFriendlyName(generator));
+    if (!outDir.ensureWritableDir()) {
+        showError(Tr::tr("Cannot create output directory \"%1\"").arg(outDir.toString()));
+        return;
+    }
+    CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()->target()
+                        ->project()->projectDirectory().toUserOutput(), "-G", generator});
+    if (!cmdLine.executable().isExecutableFile()) {
+        showError(Tr::tr("No valid cmake executable"));
+        return;
+    }
+    const auto itemFilter = [](const CMakeConfigItem &item) {
+        return !item.isNull()
+                && item.type != CMakeConfigItem::STATIC
+                && item.type != CMakeConfigItem::INTERNAL
+                && !item.key.contains("GENERATOR");
+    };
+    QList<CMakeConfigItem> configItems = Utils::filtered(m_configurationChanges.toList(),
+                                                         itemFilter);
+    const QList<CMakeConfigItem> initialConfigItems
+            = Utils::filtered(initialCMakeConfiguration().toList(), itemFilter);
+    for (const CMakeConfigItem &item : std::as_const(initialConfigItems)) {
+        if (!Utils::contains(configItems, [&item](const CMakeConfigItem &existingItem) {
+            return existingItem.key == item.key;
+        })) {
+            configItems << item;
+        }
+    }
+    for (const CMakeConfigItem &item : std::as_const(configItems))
+        cmdLine.addArg(item.toArgument(buildConfiguration()->macroExpander()));
+    if (const auto optionsAspect = buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>();
+            optionsAspect && !optionsAspect->value().isEmpty()) {
+        cmdLine.addArgs(optionsAspect->value(), CommandLine::Raw);
+    }
+    const auto proc = new QtcProcess(this);
+    connect(proc, &QtcProcess::done, proc, &QtcProcess::deleteLater);
+    connect(proc, &QtcProcess::readyReadStandardOutput, this, [proc] {
+        Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllStandardOutput()));
+    });
+    connect(proc, &QtcProcess::readyReadStandardError, this, [proc] {
+        Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllStandardError()));
+    });
+    proc->setWorkingDirectory(outDir);
+    proc->setEnvironment(buildConfiguration()->environment());
+    proc->setCommand(cmdLine);
+    Core::MessageManager::writeFlashing(Tr::tr("Running in %1: %2")
+                                        .arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
+    proc->start();
 }
 
 } // CMakeProjectManager::Internal

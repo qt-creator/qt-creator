@@ -120,6 +120,9 @@ signals:
     void warningOccurred(const QString &message);
 
 private:
+    QList<QPair<Utils::Id, QString>> generators() const override;
+    void runGenerator(Utils::Id id) override;
+
     enum ForceEnabledChanged { False, True };
     void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);
 
