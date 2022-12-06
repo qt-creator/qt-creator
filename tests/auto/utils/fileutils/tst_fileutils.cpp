@@ -58,6 +58,9 @@ private slots:
     void fromString_data();
     void fromString();
 
+    void fromUserInput_data();
+    void fromUserInput();
+
     void toString_data();
     void toString();
 
@@ -205,7 +208,7 @@ void tst_fileutils::parentDir()
     QFETCH(QString, parentPath);
     QFETCH(QString, expectFailMessage);
 
-    FilePath result = FilePath::fromString(path).parentDir();
+    FilePath result = FilePath::fromUserInput(path).parentDir();
     if (!expectFailMessage.isEmpty())
         QEXPECT_FAIL("", expectFailMessage.toUtf8().constData(), Continue);
     QCOMPARE(result.toString(), parentPath);
@@ -245,8 +248,8 @@ void tst_fileutils::isChildOf()
     QFETCH(QString, childPath);
     QFETCH(bool, result);
 
-    const FilePath child = FilePath::fromString(childPath);
-    const FilePath parent = FilePath::fromString(path);
+    const FilePath child = FilePath::fromUserInput(childPath);
+    const FilePath parent = FilePath::fromUserInput(path);
 
     QCOMPARE(child.isChildOf(parent), result);
 }
@@ -576,8 +579,8 @@ void tst_fileutils::fromString_data()
     QTest::newRow("unix-folder-with-trailing-slash") << D("/tmp/", "", "", "/tmp/");
 
     QTest::newRow("windows-root") << D("c:", "", "", "c:");
-    QTest::newRow("windows-folder") << D("c:\\Windows", "", "", "c:/Windows");
-    QTest::newRow("windows-folder-with-trailing-slash") << D("c:\\Windows\\", "", "", "c:/Windows/");
+    QTest::newRow("windows-folder") << D("c:/Windows", "", "", "c:/Windows");
+    QTest::newRow("windows-folder-with-trailing-slash") << D("c:/Windows/", "", "", "c:/Windows/");
     QTest::newRow("windows-folder-slash") << D("C:/Windows", "", "", "C:/Windows");
 
     QTest::newRow("docker-root-url") << D("docker://1234/", "docker", "1234", "/");
@@ -616,6 +619,88 @@ void tst_fileutils::fromString()
     QFETCH(FromStringData, data);
 
     FilePath filePath = FilePath::fromString(data.input);
+
+    bool expectFail = ((data.expectedPass & FailOnLinux) && !HostOsInfo::isWindowsHost())
+                   || ((data.expectedPass & FailOnWindows) && HostOsInfo::isWindowsHost());
+
+    if (expectFail) {
+        QString actual = filePath.scheme() + '|' + filePath.host() + '|' + filePath.path();
+        QString expected = data.scheme + '|' + data.host + '|' + data.path;
+        QEXPECT_FAIL("", "", Continue);
+        QCOMPARE(actual, expected);
+        return;
+    }
+
+    QCOMPARE(filePath.scheme(), data.scheme);
+    QCOMPARE(filePath.host(), data.host);
+    QCOMPARE(filePath.path(), data.path);
+}
+
+void tst_fileutils::fromUserInput_data()
+{
+    using D = FromStringData;
+    QTest::addColumn<D>("data");
+
+    QTest::newRow("empty") << D("", "", "", "");
+    QTest::newRow("single-colon") << D(":", "", "", ":");
+    QTest::newRow("single-slash") << D("/", "", "", "/");
+    QTest::newRow("single-char") << D("a", "", "", "a");
+    QTest::newRow("relative") << D("./rel", "", "", "rel");
+    QTest::newRow("qrc") << D(":/test.txt", "", "", ":/test.txt");
+    QTest::newRow("qrc-no-slash") << D(":test.txt", "", "", ":test.txt");
+
+    QTest::newRow("unc-incomplete") << D("//", "", "", "//");
+    QTest::newRow("unc-incomplete-only-server") << D("//server", "", "", "//server");
+    QTest::newRow("unc-incomplete-only-server-2") << D("//server/", "", "", "//server/");
+    QTest::newRow("unc-server-and-share") << D("//server/share", "", "", "//server/share");
+    QTest::newRow("unc-server-and-share-2") << D("//server/share/", "", "", "//server/share");
+    QTest::newRow("unc-full") << D("//server/share/test.txt", "", "", "//server/share/test.txt");
+
+    QTest::newRow("unix-root") << D("/", "", "", "/");
+    QTest::newRow("unix-folder") << D("/tmp", "", "", "/tmp");
+    QTest::newRow("unix-folder-with-trailing-slash") << D("/tmp/", "", "", "/tmp");
+
+    QTest::newRow("windows-root") << D("c:", "", "", "c:");
+    QTest::newRow("windows-folder") << D("c:/Windows", "", "", "c:/Windows");
+    QTest::newRow("windows-folder-with-trailing-slash") << D("c:\\Windows\\", "", "", "c:/Windows");
+    QTest::newRow("windows-folder-slash") << D("C:/Windows", "", "", "C:/Windows");
+
+    QTest::newRow("docker-root-url") << D("docker://1234/", "docker", "1234", "/");
+    QTest::newRow("docker-root-url-special-linux") << D("/__qtc_devices__/docker/1234/", "docker", "1234", "/");
+    QTest::newRow("docker-root-url-special-win") << D("c:/__qtc_devices__/docker/1234/", "docker", "1234", "/");
+    QTest::newRow("docker-relative-path") << D("docker://1234/./rel", "docker", "1234", "rel", FailEverywhere);
+
+    QTest::newRow("qtc-dev-linux") << D("/__qtc_devices__", "", "", "/__qtc_devices__");
+    QTest::newRow("qtc-dev-win") << D("c:/__qtc_devices__", "", "", "c:/__qtc_devices__");
+    QTest::newRow("qtc-dev-type-linux") << D("/__qtc_devices__/docker", "", "", "/__qtc_devices__/docker");
+    QTest::newRow("qtc-dev-type-win") << D("c:/__qtc_devices__/docker", "", "", "c:/__qtc_devices__/docker");
+    QTest::newRow("qtc-dev-type-dev-linux") << D("/__qtc_devices__/docker/1234", "docker", "1234", "/");
+    QTest::newRow("qtc-dev-type-dev-win") << D("c:/__qtc_devices__/docker/1234", "docker", "1234", "/");
+
+    // "Remote Windows" is currently truly not supported.
+    QTest::newRow("cross-os-linux")
+        << D("/__qtc_devices__/docker/1234/c:/test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-win")
+        << D("c:/__qtc_devices__/docker/1234/c:/test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-unclean-linux")
+        << D("/__qtc_devices__/docker/1234/c:\\test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-unclean-win")
+        << D("c:/__qtc_devices__/docker/1234/c:\\test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+
+    QTest::newRow("unc-full-in-docker-linux")
+        << D("/__qtc_devices__/docker/1234//server/share/test.txt", "docker", "1234", "//server/share/test.txt", FailEverywhere);
+    QTest::newRow("unc-full-in-docker-win")
+        << D("c:/__qtc_devices__/docker/1234//server/share/test.txt", "docker", "1234", "//server/share/test.txt", FailEverywhere);
+
+    QTest::newRow("unc-dos-1") << D("//?/c:", "", "", "c:");
+    QTest::newRow("unc-dos-com") << D("//./com1", "", "", "//./com1");
+}
+
+void tst_fileutils::fromUserInput()
+{
+    QFETCH(FromStringData, data);
+
+    FilePath filePath = FilePath::fromUserInput(data.input);
 
     bool expectFail = ((data.expectedPass & FailOnLinux) && !HostOsInfo::isWindowsHost())
                    || ((data.expectedPass & FailOnWindows) && HostOsInfo::isWindowsHost());

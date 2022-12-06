@@ -810,14 +810,10 @@ void FilePath::setPath(QStringView path)
     setParts(scheme(), host(), path);
 }
 
-void FilePath::setFromString(const QString &unnormalizedFileName)
+void FilePath::setFromString(const QString &fileName)
 {
     static const QStringView qtcDevSlash(u"__qtc_devices__/");
     static const QStringView colonSlashSlash(u"://");
-
-    QString fileName = unnormalizedFileName;
-    if (fileName.contains('\\'))
-        fileName.replace('\\', '/');
 
     const QChar slash('/');
     const QStringView fileNameView(fileName);
@@ -926,7 +922,7 @@ FilePath FilePath::fromVariant(const QVariant &variant)
 {
     if (variant.type() == QVariant::Url)
         return FilePath::fromUrl(variant.toUrl());
-    return FilePath::fromString(variant.toString());
+    return FilePath::fromUserInput(variant.toString());
 }
 
 QVariant FilePath::toVariant() const
