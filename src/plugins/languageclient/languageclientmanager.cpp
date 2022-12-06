@@ -113,6 +113,8 @@ void LanguageClientManager::clientStarted(Client *client)
     qCDebug(Log) << "client started: " << client->name() << client;
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
+    if (client->state() != Client::Uninitialized) // do not proceed if we already received an error
+        return;
     if (g_shuttingDown) {
         clientFinished(client);
         return;
