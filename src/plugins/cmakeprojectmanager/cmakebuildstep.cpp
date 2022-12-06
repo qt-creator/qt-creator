@@ -319,22 +319,19 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 void CMakeBuildStep::doRun()
 {
     // Make sure CMake state was written to disk before trying to build:
-    m_waiting = false;
     auto bs = static_cast<CMakeBuildSystem *>(buildSystem());
+    QString message;
     if (bs->persistCMakeState()) {
-        emit addOutput(Tr::tr("Persisting CMake state..."), BuildStep::OutputFormat::NormalMessage);
-        m_waiting = true;
-    } else if (buildSystem()->isWaitingForParse()) {
-        emit addOutput(Tr::tr("Running CMake in preparation to build..."), BuildStep::OutputFormat::NormalMessage);
-        m_waiting = true;
-    }
-
-    if (m_waiting) {
-        m_runTrigger = connect(target(), &Target::parsingFinished,
-                               this, [this](bool success) { handleProjectWasParsed(success); });
+        message = Tr::tr("Persisting CMake state...");
+    } else if (bs->isWaitingForParse()) {
+        message = Tr::tr("Running CMake in preparation to build...");
     } else {
         runImpl();
+        return;
     }
+    emit addOutput(message, OutputFormat::NormalMessage);
+    m_runTrigger = connect(target(), &Target::parsingFinished,
+                           this, [this](bool success) { handleProjectWasParsed(success); });
 }
 
 void CMakeBuildStep::runImpl()
@@ -345,7 +342,6 @@ void CMakeBuildStep::runImpl()
 
 void CMakeBuildStep::handleProjectWasParsed(bool success)
 {
-    m_waiting = false;
     disconnect(m_runTrigger);
     if (isCanceled()) {
         emit finished(false);

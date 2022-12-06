@@ -102,7 +102,6 @@ private:
     Utils::StringAspect *m_cmakeArguments = nullptr;
     Utils::StringAspect *m_toolArguments = nullptr;
     Utils::BoolAspect *m_useiOSAutomaticProvisioningUpdates = nullptr;
-    bool m_waiting = false;
 
     QString m_allTarget = "all";
     QString m_installTarget = "install";
