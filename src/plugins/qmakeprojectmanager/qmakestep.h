@@ -139,11 +139,6 @@ protected:
     bool fromMap(const QVariantMap &map) override;
 
 private:
-    void finish(Utils::ProcessResult result) override;
-
-    void startOneCommand(const Utils::CommandLine &command);
-    void runNextCommand();
-
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
     void qmakeBuildConfigChanged();
@@ -171,9 +166,6 @@ private:
     QStringList m_extraParserArgs;
 
     // last values
-    enum class State { IDLE = 0, RUN_QMAKE, RUN_MAKE_QMAKE_ALL, POST_PROCESS };
-    bool m_wasSuccess = true;
-    State m_nextState = State::IDLE;
     bool m_forced = false;
     bool m_needToRunQMake = false; // set in init(), read in run()
 

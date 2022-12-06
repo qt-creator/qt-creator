@@ -178,7 +178,6 @@ bool QMakeStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    m_wasSuccess = true;
     QmakeBuildConfiguration *qmakeBc = qmakeBuildConfiguration();
     const QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
 
@@ -283,70 +282,70 @@ void QMakeStep::doRun()
         return;
     }
 
+    if (!checkWorkingDirectory())
+        return;
+
     m_needToRunQMake = false;
 
-    m_nextState = State::RUN_QMAKE;
-    runNextCommand();
+    using namespace Tasking;
+
+    const auto setupQMake = [this](QtcProcess &process) {
+        m_outputFormatter->setLineParsers({new QMakeParser});
+        ProcessParameters *pp = processParameters();
+        pp->setCommandLine(m_qmakeCommand);
+        setupProcess(&process);
+    };
+
+    const auto setupMakeQMake = [this](QtcProcess &process) {
+        auto *parser = new GnuMakeParser;
+        parser->addSearchDir(processParameters()->workingDirectory());
+        m_outputFormatter->setLineParsers({parser});
+        ProcessParameters *pp = processParameters();
+        pp->setCommandLine(m_makeCommand);
+        setupProcess(&process);
+    };
+
+    const auto onDone = [this](const QtcProcess &) {
+        const QString command = displayedParameters()->effectiveCommand().toUserOutput();
+        emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
+                       OutputFormat::NormalMessage);
+    };
+
+    const auto onError = [this](const QtcProcess &process) {
+        const QString command = displayedParameters()->effectiveCommand().toUserOutput();
+        if (process.result() == ProcessResult::FinishedWithError) {
+            emit addOutput(Tr::tr("The process \"%1\" exited with code %2.")
+                           .arg(command, QString::number(process.exitCode())),
+                           OutputFormat::ErrorMessage);
+        } else if (process.result() == ProcessResult::StartFailed) {
+            emit addOutput(Tr::tr("Could not start process \"%1\" %2.")
+                           .arg(command, displayedParameters()->prettyArguments()),
+                           OutputFormat::ErrorMessage);
+            const QString errorString = process.errorString();
+            if (!errorString.isEmpty())
+                emit addOutput(errorString, OutputFormat::ErrorMessage);
+        } else {
+            emit addOutput(Tr::tr("The process \"%1\" crashed.").arg(command),
+                           OutputFormat::ErrorMessage);
+        }
+        m_needToRunQMake = true;
+    };
+
+    const auto onGroupDone = [this] {
+        emit buildConfiguration()->buildDirectoryInitialized();
+    };
+
+    QList<TaskItem> processList = {Process(setupQMake, onDone, onError)};
+    if (m_runMakeQmake)
+        processList << Process(setupMakeQMake, onDone, onError);
+    processList << OnGroupDone(onGroupDone);
+
+    runTaskTree(Group(processList));
 }
 
 void QMakeStep::setForced(bool b)
 {
     m_forced = b;
-}
-
-void QMakeStep::finish(ProcessResult result)
-{
-    if (result != ProcessResult::StartFailed)
-        emit buildConfiguration()->buildDirectoryInitialized();
-
-    if (result != ProcessResult::FinishedWithSuccess)
-        m_needToRunQMake = true;
-
-    m_wasSuccess = isSuccess(result);
-    runNextCommand();
-}
-
-void QMakeStep::startOneCommand(const CommandLine &command)
-{
-    ProcessParameters *pp = processParameters();
-    pp->setCommandLine(command);
-
-    AbstractProcessStep::doRun();
-}
-
-void QMakeStep::runNextCommand()
-{
-    if (isCanceled())
-        m_wasSuccess = false;
-
-    if (!m_wasSuccess)
-        m_nextState = State::POST_PROCESS;
-
-    emit progress(static_cast<int>(m_nextState) * 100 / static_cast<int>(State::POST_PROCESS),
-                  QString());
-
-    switch (m_nextState) {
-    case State::IDLE:
-        return;
-    case State::RUN_QMAKE:
-        m_outputFormatter->setLineParsers({new QMakeParser});
-        m_nextState = (m_runMakeQmake ? State::RUN_MAKE_QMAKE_ALL : State::POST_PROCESS);
-        startOneCommand(m_qmakeCommand);
-        return;
-    case State::RUN_MAKE_QMAKE_ALL:
-        {
-            auto *parser = new GnuMakeParser;
-            parser->addSearchDir(processParameters()->workingDirectory());
-            m_outputFormatter->setLineParsers({parser});
-            m_nextState = State::POST_PROCESS;
-            startOneCommand(m_makeCommand);
-        }
-        return;
-    case State::POST_PROCESS:
-        m_nextState = State::IDLE;
-        emit finished(m_wasSuccess);
-        return;
-    }
 }
 
 void QMakeStep::setUserArguments(const QString &arguments)
