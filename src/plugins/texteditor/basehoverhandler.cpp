@@ -19,6 +19,11 @@ void BaseHoverHandler::showToolTip(TextEditorWidget *widget, const QPoint &point
     operateTooltip(widget, point);
 }
 
+bool BaseHoverHandler::lastHelpItemAppliesTo(const TextEditorWidget *widget) const
+{
+    return m_lastWidget == widget;
+}
+
 void BaseHoverHandler::checkPriority(TextEditorWidget *widget,
                                      int pos,
                                      ReportPriority report)
@@ -106,8 +111,12 @@ void BaseHoverHandler::process(TextEditorWidget *widget, int pos, ReportPriority
     m_toolTip.clear();
     m_priority = -1;
     m_lastHelpItemIdentified = Core::HelpItem();
+    m_lastWidget = nullptr;
 
-    identifyMatch(widget, pos, report);
+    identifyMatch(widget, pos, [this, widget, report](int priority) {
+        m_lastWidget = widget;
+        report(priority);
+    });
 }
 
 void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report)

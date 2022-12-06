@@ -294,7 +294,7 @@ public:
         // Does the last handler still applies?
         const int documentRevision = textCursor.document()->revision();
         const int position = Text::wordStartCursor(textCursor).position();
-        if (m_lastHandlerInfo.applies(documentRevision, position)) {
+        if (m_lastHandlerInfo.applies(documentRevision, position, m_widget)) {
             callback(m_widget, m_lastHandlerInfo.handler, position);
             return;
         }
@@ -399,9 +399,10 @@ private:
             , cursorPosition(cursorPosition)
         {}
 
-        bool applies(int documentRevision, int cursorPosition) const
+        bool applies(int documentRevision, int cursorPosition, TextEditorWidget *widget) const
         {
             return handler
+                && handler->lastHelpItemAppliesTo(widget)
                 && documentRevision == this->documentRevision
                 && cursorPosition == this->cursorPosition;
         }

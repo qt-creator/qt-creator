@@ -32,6 +32,7 @@ public:
     virtual void abort() {} // Implement for asynchronous priority reporter
 
     void showToolTip(TextEditorWidget *widget, const QPoint &point);
+    bool lastHelpItemAppliesTo(const TextEditorWidget *widget) const;
 
 protected:
     enum {
@@ -68,6 +69,7 @@ private:
     Core::HelpItem m_lastHelpItemIdentified;
     int m_priority = -1;
     bool m_isContextHelpRequest = false;
+    TextEditorWidget *m_lastWidget = nullptr;
 };
 
 } // namespace TextEditor
