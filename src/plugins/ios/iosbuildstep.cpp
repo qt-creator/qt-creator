@@ -113,7 +113,7 @@ QWidget *IosBuildStep::createConfigWidget()
         resetDefaultsButton->setEnabled(!m_useDefaultArguments);
     });
 
-    connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, [=] {
+    connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, this, [=] {
         setExtraArguments(ProcessArgs::splitArgs(extraArgumentsLineEdit->text()));
     });
 
