@@ -257,7 +257,7 @@ void FileSystemAccessTest::testFileTransfer()
 
     ProcessResultData result;
     QEventLoop loop;
-    connect(&fileTransfer, &FileTransfer::done, [&result, &loop]
+    connect(&fileTransfer, &FileTransfer::done, this, [&result, &loop]
             (const ProcessResultData &resultData) {
         result = resultData;
         loop.quit();

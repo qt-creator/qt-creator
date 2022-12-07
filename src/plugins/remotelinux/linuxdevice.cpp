@@ -164,7 +164,7 @@ void SshSharedConnection::connectToHost()
     SshParameters::setupSshEnvironment(m_masterProcess.get());
     m_timer.setSingleShot(true);
     connect(&m_timer, &QTimer::timeout, this, &SshSharedConnection::autoDestructRequested);
-    connect(m_masterProcess.get(), &QtcProcess::readyReadStandardOutput, [this] {
+    connect(m_masterProcess.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
         const QByteArray reply = m_masterProcess->readAllStandardOutput();
         if (reply == "\n")
             emitConnected();
@@ -172,7 +172,7 @@ void SshSharedConnection::connectToHost()
     });
     // TODO: in case of refused connection we are getting the following on stdErr:
     // ssh: connect to host 127.0.0.1 port 22: Connection refused\r\n
-    connect(m_masterProcess.get(), &QtcProcess::done, [this] {
+    connect(m_masterProcess.get(), &QtcProcess::done, this, [this] {
         const ProcessResult result = m_masterProcess->result();
         const ProcessResultData resultData = m_masterProcess->resultData();
         if (result == ProcessResult::StartFailed) {
@@ -959,7 +959,7 @@ LinuxDevice::LinuxDevice()
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
         QtcProcess * const proc = new QtcProcess;
         d->m_terminals.append(proc);
-        QObject::connect(proc, &QtcProcess::done, [this, proc] {
+        QObject::connect(proc, &QtcProcess::done, proc, [this, proc] {
             if (proc->error() != QProcess::UnknownError) {
                 const QString errorString = proc->errorString();
                 QString message;
