@@ -109,7 +109,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     m_clangdExecutable->setAllowPathFromDevice(true);
     m_clangdExecutable->setFilePath(m_data.clangdExecutable);
 
-    connect(m_clangdExecutable, &PathChooser::rawPathChanged, this, [this, dockerDevice]() {
+    connect(m_clangdExecutable, &PathChooser::rawPathChanged, this, [this, dockerDevice] {
         m_data.clangdExecutable = m_clangdExecutable->filePath();
         dockerDevice->setData(m_data);
     });

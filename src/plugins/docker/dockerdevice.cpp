@@ -929,7 +929,7 @@ public:
                 return m_model.index(source_row, 0, parent).data(Qt::DisplayRole) != "<none>";
             });
 
-        connect(showUnnamedContainers, &QCheckBox::toggled, this, [this]() {
+        connect(showUnnamedContainers, &QCheckBox::toggled, this, [this] {
             m_proxyModel->invalidate();
         });
 
@@ -981,7 +981,7 @@ public:
         m_process = new QtcProcess(this);
         m_process->setCommand(cmd);
 
-        connect(m_process, &QtcProcess::readyReadStandardOutput, [this] {
+        connect(m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
             const QString out = QString::fromUtf8(m_process->readAllStandardOutput().trimmed());
             m_log->append(out);
             for (const QString &line : out.split('\n')) {
@@ -1013,7 +1013,7 @@ public:
                 errorLabel->setVisible(true);
         });
 
-        connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
+        connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
             const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
             QTC_ASSERT(selectedRows.size() == 1, return);
             m_buttons->button(QDialogButtonBox::Ok)->setEnabled(selectedRows.size() == 1);
