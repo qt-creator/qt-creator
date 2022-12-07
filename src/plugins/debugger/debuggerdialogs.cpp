@@ -604,14 +604,10 @@ StartRemoteCdbDialog::StartRemoteCdbDialog(QWidget *parent) :
     m_okButton = box->button(QDialogButtonBox::Ok);
     m_okButton->setEnabled(false);
 
-    connect(m_lineEdit, &QLineEdit::textChanged,
-            this, &StartRemoteCdbDialog::textChanged);
-    connect(m_lineEdit, &QLineEdit::returnPressed,
-            [this] { m_okButton->animateClick(); });
-    connect(box, &QDialogButtonBox::accepted,
-            this, &StartRemoteCdbDialog::accept);
-    connect(box, &QDialogButtonBox::rejected,
-            this, &QDialog::reject);
+    connect(m_lineEdit, &QLineEdit::textChanged, this, &StartRemoteCdbDialog::textChanged);
+    connect(m_lineEdit, &QLineEdit::returnPressed, m_okButton, &QAbstractButton::animateClick);
+    connect(box, &QDialogButtonBox::accepted, this, &StartRemoteCdbDialog::accept);
+    connect(box, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 void StartRemoteCdbDialog::accept()

@@ -796,9 +796,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         vbox->insertWidget(0, label);
     };
 
-    const auto addFontSizeAdaptation = [](QWidget *widget) {
+    const auto addFontSizeAdaptation = [this](QWidget *widget) {
         QObject::connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-                [widget](const FontSettings &settings) {
+                         this, [widget](const FontSettings &settings) {
             if (!debuggerSettings()->fontSizeFollowsEditor.value())
                 return;
             qreal size = settings.fontZoom() * settings.fontSize() / 100.;
@@ -1148,7 +1148,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             DebuggerMainWindow::leaveDebugMode();
     });
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged, [](Id mode, Id oldMode) {
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
+            this, [](Id mode, Id oldMode) {
         QTC_ASSERT(mode != oldMode, return);
         if (mode == MODE_DEBUG) {
             DebuggerMainWindow::enterDebugMode();
@@ -1876,7 +1877,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             : Tr::tr("Set Breakpoint at Line %1").arg(lineNumber);
         auto act = menu->addAction(text);
         act->setEnabled(args.isValid());
-        connect(act, &QAction::triggered, [this, args] {
+        connect(act, &QAction::triggered, this, [this, args] {
             breakpointSetMarginActionTriggered(false, args);
         });
 
@@ -1886,7 +1887,7 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
             : Tr::tr("Set Message Tracepoint at Line %1...").arg(lineNumber);
         act = menu->addAction(tracePointText);
         act->setEnabled(args.isValid());
-        connect(act, &QAction::triggered, [this, args] {
+        connect(act, &QAction::triggered, this, [this, args] {
             breakpointSetMarginActionTriggered(true, args);
         });
     }

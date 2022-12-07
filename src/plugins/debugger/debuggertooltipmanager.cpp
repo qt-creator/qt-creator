@@ -771,7 +771,7 @@ DebuggerToolTipHolder::DebuggerToolTipHolder(const DebuggerToolTipContext &conte
 
     state = New;
 
-    QObject::connect(widget->pinButton, &QAbstractButton::clicked, [this] {
+    QObject::connect(widget->pinButton, &QAbstractButton::clicked, widget, [this] {
         if (widget->isPinned)
             widget->close();
         else
@@ -1194,7 +1194,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
             context.expression = localVariable->name;
         context.iname = localVariable->iname;
 
-        auto reusable = [context] (DebuggerToolTipHolder *tooltip) {
+        auto reusable = [context](DebuggerToolTipHolder *tooltip) {
             return tooltip->context.isSame(context);
         };
         DebuggerToolTipHolder *tooltip = Utils::findOrDefault(m_tooltips, reusable);
@@ -1215,7 +1215,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     } else {
 
         context.iname = "tooltip." + toHex(context.expression);
-        auto reusable = [context] (DebuggerToolTipHolder *tooltip) {
+        auto reusable = [context](DebuggerToolTipHolder *tooltip) {
             return tooltip->context.isSame(context);
         };
         DebuggerToolTipHolder *tooltip = Utils::findOrDefault(m_tooltips, reusable);

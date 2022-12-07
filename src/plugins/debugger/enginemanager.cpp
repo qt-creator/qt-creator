@@ -445,7 +445,7 @@ void EngineManager::deactivateDebugMode()
         // "previously active application"), doing the switch synchronously
         // leads to funny effects with floating dock widgets
         const Utils::Id mode = d->m_previousMode;
-        QTimer::singleShot(0, d, [mode]() { ModeManager::activateMode(mode); });
+        QTimer::singleShot(0, d, [mode] { ModeManager::activateMode(mode); });
         d->m_previousMode = Id();
     }
 }

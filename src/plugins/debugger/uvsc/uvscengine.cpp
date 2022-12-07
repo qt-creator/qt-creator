@@ -719,7 +719,7 @@ void UvscEngine::handleUpdateLocals(bool partial)
     watchHandler()->appendFormatRequests(&cmd);
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
-    auto enumerateExpandedINames = [&cmd]() {
+    auto enumerateExpandedINames = [&cmd] {
         QStringList inames;
         const QJsonArray array = cmd.args["expanded"].toArray();
         for (const QJsonValue &value : array)
@@ -727,7 +727,7 @@ void UvscEngine::handleUpdateLocals(bool partial)
         return inames;
     };
 
-    auto enumerateRootWatchers = [&cmd]() {
+    auto enumerateRootWatchers = [&cmd] {
         std::vector<std::pair<QString, QString>> inames;
         const QJsonArray array = cmd.args["watchers"].toArray();
         for (const QJsonValue &value : array) {

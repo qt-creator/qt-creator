@@ -38,7 +38,7 @@ LocalsAndInspectorWindow::LocalsAndInspectorWindow(QWidget *locals,
     // when debugger engine changes states.
     m_timer.setSingleShot(true);
     m_timer.setInterval(500); // TODO: remove the magic number!
-    connect(&m_timer, &QTimer::timeout, [this, localsAndInspector] {
+    connect(&m_timer, &QTimer::timeout, this, [this, localsAndInspector] {
         localsAndInspector->setCurrentIndex(m_showLocals ? LocalsIndex : InspectorIndex);
     });
 }

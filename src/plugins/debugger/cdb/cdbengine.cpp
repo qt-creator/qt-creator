@@ -948,9 +948,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
 
     QString cmd = dbgCmd.function + dbgCmd.argsToString();
     if (!m_accessible) {
-        doInterruptInferior([this, dbgCmd](){
-            runCommand(dbgCmd);
-        });
+        doInterruptInferior([this, dbgCmd] { runCommand(dbgCmd); });
         const QString msg = QString("Attempt to issue command \"%1\" to non-accessible session (%2)... interrupting")
                 .arg(cmd, stateName(state()));
         showMessage(msg, LogMisc);
@@ -1412,7 +1410,7 @@ void CdbEngine::fetchMemory(MemoryAgent *agent, quint64 address, quint64 length)
     StringInputStream str(args);
     str << address << ' ' << length;
     cmd.args = args;
-    cmd.callback = [=] (const DebuggerResponse &response) {
+    cmd.callback = [=](const DebuggerResponse &response) {
         if (!agent)
             return;
         if (response.resultClass == ResultDone) {
