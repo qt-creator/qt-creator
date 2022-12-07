@@ -352,7 +352,7 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files,
             connect(editor, &VcsBaseEditorWidget::diffChunkReverted,
                     paramWidget, &VcsBaseEditorConfig::executeCommand);
             connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=] { diff(workingDir, files, extraOptions); } );
+                    this, [=] { diff(workingDir, files, extraOptions); });
             editor->setEditorConfig(paramWidget);
         }
     }
@@ -392,8 +392,8 @@ void VcsBaseClient::log(const FilePath &workingDir,
         if (paramWidget) {
             paramWidget->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=] { this->log(workingDir, files, extraOptions, enableAnnotationContextMenu); } );
+            connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
+                [=] { this->log(workingDir, files, extraOptions, enableAnnotationContextMenu); });
             editor->setEditorConfig(paramWidget);
         }
     }

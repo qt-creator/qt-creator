@@ -95,7 +95,7 @@ public:
             Span(2, buttonBox)
         }.attachTo(this);
 
-        connect(m_nameEdit, &QLineEdit::textChanged, [this, buttonBox] {
+        connect(m_nameEdit, &QLineEdit::textChanged, this, [this, buttonBox] {
             buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_nameEdit->isValid());
         });
 

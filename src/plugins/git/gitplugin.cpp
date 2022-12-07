@@ -207,13 +207,13 @@ public:
             QAction *copyToClipboardAction = new QAction;
             copyToClipboardAction->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
             copyToClipboardAction->setToolTip(TextMark::tr("Copy SHA1 to Clipboard"));
-            QObject::connect(copyToClipboardAction, &QAction::triggered, [info]() {
+            QObject::connect(copyToClipboardAction, &QAction::triggered, [info] {
                 Utils::setClipboardAndSelection(info.sha1);
             });
             QAction *showAction = new QAction;
             showAction->setIcon(Utils::Icons::ZOOM.icon());
             showAction->setToolTip(TextMark::tr("Show Commit %1").arg(info.sha1.left(8)));
-            QObject::connect(showAction, &QAction::triggered, [info]() {
+            QObject::connect(showAction, &QAction::triggered, [info] {
                 GitClient::instance()->show(info.fileName, info.sha1);
             });
             return QList<QAction *>{copyToClipboardAction, showAction};
@@ -669,7 +669,7 @@ QAction *GitPluginPrivate::createRepositoryAction(ActionContainer *ac, const QSt
                                            const Context &context, bool addToLocator,
                                            GitClientMemberFunc func, const QKeySequence &keys)
 {
-    auto cb = [this, func]() -> void {
+    auto cb = [this, func] {
         QTC_ASSERT(currentState().hasTopLevel(), return);
         (m_gitClient.*func)(currentState().topLevel());
     };
@@ -1575,7 +1575,7 @@ void GitPluginPrivate::instantBlame()
     const VcsCommand *command = GitClient::instance()->vcsExec(
                 workingDirectory, {"blame", "-p", "-L", lineString, "--", filePath.toString()},
                 nullptr, false, RunFlags::NoOutput);
-    connect(command, &VcsCommand::done, this, [command, filePath, line, this]() {
+    connect(command, &VcsCommand::done, this, [command, filePath, line, this] {
         if (command->result() == ProcessResult::FinishedWithError &&
                 command->cleanedStdErr().contains("no such path")) {
             disconnect(m_blameCursorPosConn);

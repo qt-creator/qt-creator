@@ -250,7 +250,7 @@ void GerritPlugin::initialize(ActionContainer *ac)
 
     m_pushToGerritCommand =
         ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH);
-    connect(pushAction, &QAction::triggered, this, [this]() { push(); });
+    connect(pushAction, &QAction::triggered, this, [this] { push(); });
     ac->addAction(m_pushToGerritCommand);
 
     auto options = new GerritOptionsPage(m_parameters, this);

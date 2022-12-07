@@ -72,7 +72,7 @@ SubversionSettings::SubversionSettings()
     timeout.setLabelText(tr("Timeout:"));
     timeout.setSuffix(tr("s"));
 
-    QObject::connect(&useAuthentication, &BaseAspect::changed, [this] {
+    QObject::connect(&useAuthentication, &BaseAspect::changed, this, [this] {
         userName.setEnabled(useAuthentication.value());
         password.setEnabled(useAuthentication.value());
     });

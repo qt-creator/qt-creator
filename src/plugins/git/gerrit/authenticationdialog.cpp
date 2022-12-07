@@ -113,7 +113,7 @@ AuthenticationDialog::AuthenticationDialog(GerritServer *server)
     m_checkTimer = new QTimer(this);
     m_checkTimer->setSingleShot(true);
     connect(m_checkTimer, &QTimer::timeout, this, &AuthenticationDialog::checkCredentials);
-    connect(m_passwordLineEdit, &QLineEdit::textChanged, [this]() {
+    connect(m_passwordLineEdit, &QLineEdit::textChanged, this, [this] {
         if (QGuiApplication::clipboard()->text() == m_passwordLineEdit->text()) {
             checkCredentials();
             return;

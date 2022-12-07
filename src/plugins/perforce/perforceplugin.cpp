@@ -553,7 +553,7 @@ PerforcePluginPrivate::PerforcePluginPrivate()
     connect(m_filelogAction, &QAction::triggered, this, &PerforcePluginPrivate::filelogFile);
     perforceContainer->addAction(command);
 
-    QObject::connect(&m_settings, &AspectContainer::applied, [this] {
+    QObject::connect(&m_settings, &AspectContainer::applied, this, [this] {
         m_settings.clearTopLevel();
         applySettings();
     });

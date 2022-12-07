@@ -91,7 +91,7 @@ static void runCleanFiles(QFutureInterface<void> &futureInterface,
 
 static void handleError(const QString &errorMessage)
 {
-    QTimer::singleShot(0, VcsOutputWindow::instance(), [errorMessage]() {
+    QTimer::singleShot(0, VcsOutputWindow::instance(), [errorMessage] {
         VcsOutputWindow::instance()->appendSilently(errorMessage);
     });
 }

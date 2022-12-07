@@ -230,12 +230,12 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     contextMenu.addAction(Tr::tr("&Add..."), this, &BranchView::add);
     const std::optional<QString> remote = m_model->remoteName(index);
     if (remote.has_value()) {
-        contextMenu.addAction(Tr::tr("&Fetch"), this, [this, &remote]() {
+        contextMenu.addAction(Tr::tr("&Fetch"), this, [this, &remote] {
             GitClient::instance()->fetch(m_repository, *remote);
         });
         contextMenu.addSeparator();
         if (!remote->isEmpty()) {
-            contextMenu.addAction(Tr::tr("Remove &Stale Branches"), this, [this, &remote]() {
+            contextMenu.addAction(Tr::tr("Remove &Stale Branches"), this, [this, &remote] {
                 GitClient::instance()->removeStaleRemoteBranches(m_repository, *remote);
             });
             contextMenu.addSeparator();

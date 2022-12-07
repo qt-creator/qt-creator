@@ -131,7 +131,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
     if (!(m_flags & RunFlags::MergeOutputChannels) && (m_flags & RunFlags::ProgressiveOutput
                               || m_progressParser || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
-        connect(process, &QtcProcess::textOnStandardError, [this](const QString &text) {
+        connect(process, &QtcProcess::textOnStandardError, this, [this](const QString &text) {
             if (!(m_flags & RunFlags::SuppressStdErr))
                 VcsOutputWindow::appendError(text);
             if (m_flags & RunFlags::ProgressiveOutput)
@@ -141,7 +141,7 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
     if (m_progressParser || m_flags & RunFlags::ProgressiveOutput
                          || m_flags & RunFlags::ShowStdOut) {
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
-        connect(process, &QtcProcess::textOnStandardOutput, [this](const QString &text) {
+        connect(process, &QtcProcess::textOnStandardOutput, this, [this](const QString &text) {
             if (m_flags & RunFlags::ShowStdOut) {
                 if (m_flags & RunFlags::SilentOutput)
                     VcsOutputWindow::appendSilently(text);

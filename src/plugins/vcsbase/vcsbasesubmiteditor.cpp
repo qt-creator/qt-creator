@@ -207,7 +207,7 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
     connect(VcsPlugin::instance(), &VcsPlugin::settingsChanged,
             this, &VcsBaseSubmitEditor::slotUpdateEditorSettings);
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-            this, [this]() {
+            this, [this] {
                 if (Core::EditorManager::currentEditor() == this)
                     updateFileModel();
             });

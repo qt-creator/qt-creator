@@ -76,7 +76,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setActivationMode(Utils::DoubleClickActivation);
     connect(this, &LogChangeWidget::activated, this, &LogChangeWidget::emitCommitActivated);
-    QTimer::singleShot(0, [this] { setFocus(); });
+    QTimer::singleShot(0, this, [this] { setFocus(); });
 }
 
 bool LogChangeWidget::init(const FilePath &repository, const QString &commit, LogFlags flags)

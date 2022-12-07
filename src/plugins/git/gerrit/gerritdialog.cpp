@@ -114,10 +114,10 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_progressIndicator->attachToWidget(m_treeView->viewport());
     m_progressIndicator->hide();
 
-    m_displayButton = addActionButton(Git::Tr::tr("&Show"), [this]() { slotFetchDisplay(); });
-    m_cherryPickButton = addActionButton(Git::Tr::tr("Cherry &Pick"), [this]() { slotFetchCherryPick(); });
-    m_checkoutButton = addActionButton(Git::Tr::tr("C&heckout"), [this]() { slotFetchCheckout(); });
-    m_refreshButton = addActionButton(Git::Tr::tr("&Refresh"), [this]() { refresh(); });
+    m_displayButton = addActionButton(Git::Tr::tr("&Show"), [this] { slotFetchDisplay(); });
+    m_cherryPickButton = addActionButton(Git::Tr::tr("Cherry &Pick"), [this] { slotFetchCherryPick(); });
+    m_checkoutButton = addActionButton(Git::Tr::tr("C&heckout"), [this] { slotFetchCheckout(); });
+    m_refreshButton = addActionButton(Git::Tr::tr("&Refresh"), [this] { refresh(); });
     m_refreshButton->setDefault(true);
 
     using namespace Layouting;

@@ -40,15 +40,14 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
     setEditorActionHandlers(TextEditorActionHandler::None);
     setDuplicatedSupported(false);
 
-    setDocumentCreator([parameters]() -> TextDocument* {
+    setDocumentCreator([parameters] {
         auto document = new TextDocument(parameters->id);
- //  if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
         document->setMimeType(QLatin1String(parameters->mimeType));
         document->setSuspendAllowed(false);
         return document;
     });
 
-    setEditorWidgetCreator([parameters, editorWidgetCreator, describeFunc]() {
+    setEditorWidgetCreator([parameters, editorWidgetCreator, describeFunc] {
         auto widget = editorWidgetCreator();
         auto editorWidget = Aggregation::query<VcsBaseEditorWidget>(widget);
         editorWidget->setDescribeFunc(describeFunc);
@@ -56,7 +55,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
         return widget;
     });
 
-    setEditorCreator([]() { return new VcsBaseEditor(); });
+    setEditorCreator([] { return new VcsBaseEditor(); });
     setMarksVisible(false);
 }
 
