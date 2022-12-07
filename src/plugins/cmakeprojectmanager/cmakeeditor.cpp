@@ -223,8 +223,8 @@ CMakeEditorFactory::CMakeEditorFactory()
     addMimeType(Constants::CMAKE_MIMETYPE);
     addMimeType(Constants::CMAKE_PROJECT_MIMETYPE);
 
-    setEditorCreator([]() { return new CMakeEditor; });
-    setEditorWidgetCreator([]() { return new CMakeEditorWidget; });
+    setEditorCreator([] { return new CMakeEditor; });
+    setEditorWidgetCreator([] { return new CMakeEditorWidget; });
     setDocumentCreator(createCMakeDocument);
     setIndenterCreator([](QTextDocument *doc) { return new CMakeIndenter(doc); });
     setUseGenericHighlighter(true);
@@ -232,7 +232,7 @@ CMakeEditorFactory::CMakeEditorFactory()
     setCodeFoldingSupported(true);
 
     setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
-    setAutoCompleterCreator([]() { return new CMakeAutoCompleter; });
+    setAutoCompleterCreator([] { return new CMakeAutoCompleter; });
 
     setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor

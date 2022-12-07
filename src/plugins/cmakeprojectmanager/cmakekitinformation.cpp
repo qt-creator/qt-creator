@@ -203,11 +203,11 @@ CMakeKitAspect::CMakeKitAspect()
 
     //make sure the default value is set if a selected CMake is removed
     connect(CMakeToolManager::instance(), &CMakeToolManager::cmakeRemoved,
-            [this] { for (Kit *k : KitManager::kits()) fix(k); });
+            this, [this] { for (Kit *k : KitManager::kits()) fix(k); });
 
     //make sure the default value is set if a new default CMake is set
     connect(CMakeToolManager::instance(), &CMakeToolManager::defaultCMakeChanged,
-            [this] { for (Kit *k : KitManager::kits()) fix(k); });
+            this, [this] { for (Kit *k : KitManager::kits()) fix(k); });
 }
 
 Id CMakeKitAspect::id()
@@ -677,7 +677,7 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
         return g.matches("Ninja");
     });
     if (it != known.constEnd()) {
-        const bool hasNinja = [k, tool]() {
+        const bool hasNinja = [k, tool] {
             Internal::CMakeSpecificSettings *settings
                 = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
 
@@ -951,7 +951,7 @@ private:
 
         auto chooser = new VariableChooser(m_dialog);
         chooser->addSupportedWidget(m_editor);
-        chooser->addMacroExpanderProvider([this]() { return kit()->macroExpander(); });
+        chooser->addMacroExpanderProvider([this] { return kit()->macroExpander(); });
 
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
@@ -962,7 +962,7 @@ private:
 
         auto additionalChooser = new VariableChooser(m_dialog);
         additionalChooser->addSupportedWidget(m_additionalEditor);
-        additionalChooser->addMacroExpanderProvider([this]() { return kit()->macroExpander(); });
+        additionalChooser->addMacroExpanderProvider([this] { return kit()->macroExpander(); });
 
         auto additionalLayout = new QHBoxLayout();
         additionalLayout->addWidget(additionalLabel);

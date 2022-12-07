@@ -550,7 +550,7 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
         return dataItem->isUserNew ? "1" : "0";
     }
 
-    auto fontRole = [this]() -> QFont {
+    auto fontRole = [this] {
         QFont font;
         font.setBold((dataItem->isUserChanged || dataItem->isUserNew) && !dataItem->isUnset);
         font.setStrikeOut((!dataItem->inCMakeCache && !dataItem->isUserNew) || dataItem->isUnset);

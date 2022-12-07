@@ -56,7 +56,7 @@ CMakeManager::CMakeManager()
                                                                  globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_runCMakeAction, &QAction::triggered, [this]() {
+    connect(m_runCMakeAction, &QAction::triggered, this, [this] {
         runCMake(SessionManager::startupBuildSystem());
     });
 
@@ -65,7 +65,7 @@ CMakeManager::CMakeManager()
                                                   globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_clearCMakeCacheAction, &QAction::triggered, [this]() {
+    connect(m_clearCMakeCacheAction, &QAction::triggered, this, [this] {
         clearCMakeCache(SessionManager::startupBuildSystem());
     });
 
@@ -75,7 +75,7 @@ CMakeManager::CMakeManager()
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
-    connect(m_runCMakeActionContextMenu, &QAction::triggered, [this]() {
+    connect(m_runCMakeActionContextMenu, &QAction::triggered, this, [this] {
         runCMake(ProjectTree::currentBuildSystem());
     });
 
@@ -93,7 +93,7 @@ CMakeManager::CMakeManager()
                                                   globalContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_rescanProjectAction, &QAction::triggered, [this]() {
+    connect(m_rescanProjectAction, &QAction::triggered, this, [this] {
         rescanProject(ProjectTree::currentBuildSystem());
     });
 

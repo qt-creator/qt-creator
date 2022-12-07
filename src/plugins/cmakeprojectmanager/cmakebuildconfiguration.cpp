@@ -184,7 +184,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
 
     auto buildDirAspect = bc->buildDirectoryAspect();
     buildDirAspect->setAutoApplyOnEditingFinished(true);
-    connect(buildDirAspect, &BaseAspect::changed, this, [this]() {
+    connect(buildDirAspect, &BaseAspect::changed, this, [this] {
         m_configModel->flush(); // clear out config cache...;
     });
 
@@ -199,7 +199,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     });
 
     auto qmlDebugAspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
-    connect(qmlDebugAspect, &QtSupport::QmlDebuggingAspect::changed, this, [this]() {
+    connect(qmlDebugAspect, &QtSupport::QmlDebuggingAspect::changed, this, [this] {
         updateButtonState();
     });
 
@@ -216,7 +216,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     m_kitConfiguration = new QPushButton(Tr::tr("Kit Configuration"));
     m_kitConfiguration->setToolTip(Tr::tr("Edit the current kit's CMake configuration."));
     m_kitConfiguration->setFixedWidth(m_kitConfiguration->sizeHint().width());
-    connect(m_kitConfiguration, &QPushButton::clicked, this, [this]() { kitCMakeConfiguration(); });
+    connect(m_kitConfiguration, &QPushButton::clicked, this, [this] { kitCMakeConfiguration(); });
 
     m_filterEdit = new FancyLineEdit;
     m_filterEdit->setPlaceholderText(Tr::tr("Filter"));
@@ -238,7 +238,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     m_configTextFilterModel->setFilterKeyColumn(-1);
     m_configTextFilterModel->setNewItemRole(ConfigModel::ItemIsUserNew);
 
-    connect(m_configTextFilterModel, &QAbstractItemModel::layoutChanged, this, [this]() {
+    connect(m_configTextFilterModel, &QAbstractItemModel::layoutChanged, this, [this] {
         QModelIndex selectedIdx = m_configView->currentIndex();
         if (selectedIdx.isValid())
             m_configView->scrollTo(selectedIdx);
@@ -266,7 +266,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     m_progressIndicator->hide();
     m_showProgressTimer.setSingleShot(true);
     m_showProgressTimer.setInterval(50); // don't show progress for < 50ms tasks
-    connect(&m_showProgressTimer, &QTimer::timeout, [this]() { m_progressIndicator->show(); });
+    connect(&m_showProgressTimer, &QTimer::timeout, this, [this] { m_progressIndicator->show(); });
 
     m_addButton = new QPushButton(Tr::tr("&Add"));
     m_addButton->setToolTip(Tr::tr("Add a new configuration value."));
@@ -453,7 +453,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                                        QRegularExpression::CaseInsensitiveOption));
             });
 
-    connect(m_resetButton, &QPushButton::clicked, this, [this](){
+    connect(m_resetButton, &QPushButton::clicked, this, [this] {
         m_configModel->resetAllChanges(isInitialConfiguration());
     });
     connect(m_reconfigureButton, &QPushButton::clicked, this, [this] {
@@ -468,11 +468,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
             m_reconfigureButton->setEnabled(false);
         }
     });
-    connect(m_setButton, &QPushButton::clicked, this, [this]() { setVariableUnsetFlag(false); });
-    connect(m_unsetButton, &QPushButton::clicked, this, [this]() {
+    connect(m_setButton, &QPushButton::clicked, this, [this] { setVariableUnsetFlag(false); });
+    connect(m_unsetButton, &QPushButton::clicked, this, [this] {
         setVariableUnsetFlag(true);
     });
-    connect(m_editButton, &QPushButton::clicked, this, [this]() {
+    connect(m_editButton, &QPushButton::clicked, this, [this] {
         QModelIndex idx = m_configView->currentIndex();
         if (idx.column() != 1)
             idx = idx.sibling(idx.row(), 1);
@@ -1023,7 +1023,7 @@ QAction *CMakeBuildSettingsWidget::createForceAction(int type, const QModelIndex
     QAction *forceAction = new QAction(Tr::tr("Force to %1").arg(typeString), nullptr);
     forceAction->setEnabled(m_configModel->canForceTo(idx, t));
     connect(forceAction, &QAction::triggered,
-            this, [this, idx, t]() { m_configModel->forceTo(idx, t); });
+            this, [this, idx, t] { m_configModel->forceTo(idx, t); });
     return forceAction;
 }
 
@@ -1603,7 +1603,7 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
                               [](const CMakeConfigItem &c) { return !c.isNull(); });
 
     // TODO: Upgrade from Qt Creator < 4.13: Remove when no longer supported!
-    const QString buildTypeName = [this]() {
+    const QString buildTypeName = [this] {
         switch (buildType()) {
         case Debug:
             return QString("Debug");

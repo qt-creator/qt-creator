@@ -790,12 +790,12 @@ void CMakeBuildSystem::wireUpConnections()
     // trigger an initial parser run
 
     // Became active/inactive:
-    connect(target(), &Target::activeBuildConfigurationChanged, this, [this]() {
+    connect(target(), &Target::activeBuildConfigurationChanged, this, [this] {
         // Build configuration has changed:
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active BC changed";
         reparse(CMakeBuildSystem::REPARSE_DEFAULT);
     });
-    connect(project(), &Project::activeTargetChanged, this, [this]() {
+    connect(project(), &Project::activeTargetChanged, this, [this] {
         // Build configuration has changed:
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active target changed";
         reparse(CMakeBuildSystem::REPARSE_DEFAULT);

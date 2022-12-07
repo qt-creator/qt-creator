@@ -142,8 +142,8 @@ FilePaths CMakeProjectImporter::importCandidates()
             CMakePresets::Macros::expand(configPreset, env, projectDirectory(), binaryDir);
 
             const FilePath binaryFilePath = FilePath::fromString(binaryDir);
-            candidates.removeIf(
-                [&binaryFilePath] (const FilePath &path) { return path == binaryFilePath; });
+            candidates.removeIf([&binaryFilePath](const FilePath &path)
+                                { return path == binaryFilePath; });
         }
     }
 
