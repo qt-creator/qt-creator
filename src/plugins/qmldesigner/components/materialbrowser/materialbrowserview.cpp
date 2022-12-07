@@ -334,6 +334,14 @@ void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> 
     }
 }
 
+void MaterialBrowserView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
+{
+    for (const AbstractProperty &prop : propertyList) {
+        if (isTexture(prop.parentModelNode()) && prop.name() == "source")
+            m_widget->materialBrowserTexturesModel()->updateTextureSource(prop.parentModelNode());
+    }
+}
+
 void MaterialBrowserView::nodeReparented(const ModelNode &node,
                                          const NodeAbstractProperty &newPropertyParent,
                                          const NodeAbstractProperty &oldPropertyParent,

@@ -37,6 +37,7 @@ public:
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap) override;
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange) override;
+    void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;

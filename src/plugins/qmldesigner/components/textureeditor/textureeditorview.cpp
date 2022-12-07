@@ -555,7 +555,13 @@ void TextureEditorView::propertiesRemoved(const QList<AbstractProperty> &propert
             m_qmlBackEnd->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedTexture).isAliasExported());
 
         if (node == m_selectedTexture || QmlObjectNode(m_selectedTexture).propertyChangeForCurrentState() == node) {
-            setValue(m_selectedTexture, property.name(), QmlObjectNode(m_selectedTexture).instanceValue(property.name()));
+            // TODO: workaround for bug QDS-8539. To be removed once it is fixed.
+            if (node.metaInfo().property(property.name()).propertyType().isUrl()) {
+                resetPuppet();
+            } else {
+                setValue(m_selectedTexture, property.name(),
+                         QmlObjectNode(m_selectedTexture).instanceValue(property.name()));
+            }
         }
 
         if (property.name() == "materials" && (node == m_selectedModel
