@@ -513,11 +513,8 @@ GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
     const Utils::Environment buildEnv = buildConfig ? buildConfig->environment()
                                                     : Utils::Environment::systemEnvironment();
 
-    const Utils::MacroExpander *expander = project()->macroExpander();
-    if (buildConfig)
-        expander = buildConfig->macroExpander();
-    else
-        expander = target()->macroExpander();
+    const Utils::MacroExpander *expander = buildConfig ? buildConfig->macroExpander()
+                                                       : target()->macroExpander();
 
     const QDir projectDir(projectDirectory().toString());
 
