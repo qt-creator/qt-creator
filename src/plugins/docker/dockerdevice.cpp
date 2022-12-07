@@ -202,7 +202,7 @@ public:
 private:
     void start() override;
     qint64 write(const QByteArray &data) override;
-    void sendControlSignal(ControlSignal controlSignal) override;
+    void sendControlSignal(ControlSignal controlSignal) final;
 
 private:
     DockerDevicePrivate *m_devicePrivate = nullptr;

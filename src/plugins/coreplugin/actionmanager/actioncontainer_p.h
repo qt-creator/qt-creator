@@ -28,19 +28,19 @@ public:
     ActionContainerPrivate(Utils::Id id);
     ~ActionContainerPrivate() override = default;
 
-    void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior) override;
-    ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const override;
+    void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior) final;
+    ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const final;
 
-    QAction *insertLocation(Utils::Id groupId) const override;
-    void appendGroup(Utils::Id id) override;
-    void insertGroup(Utils::Id before, Utils::Id groupId) override;
-    void addAction(Command *action, Utils::Id group = {}) override;
-    void addMenu(ActionContainer *menu, Utils::Id group = {}) override;
-    void addMenu(ActionContainer *before, ActionContainer *menu) override;
-    Command *addSeparator(const Context &context, Utils::Id group = {}, QAction **outSeparator = nullptr) override;
-    void clear() override;
+    QAction *insertLocation(Utils::Id groupId) const final;
+    void appendGroup(Utils::Id id) final;
+    void insertGroup(Utils::Id before, Utils::Id groupId) final;
+    void addAction(Command *action, Utils::Id group = {}) final;
+    void addMenu(ActionContainer *menu, Utils::Id group = {}) final;
+    void addMenu(ActionContainer *before, ActionContainer *menu) final;
+    Command *addSeparator(const Context &context, Utils::Id group = {}, QAction **outSeparator = nullptr) final;
+    void clear() final;
 
-    Utils::Id id() const override;
+    Utils::Id id() const final;
 
     QMenu *menu() const override;
     QMenuBar *menuBar() const override;
