@@ -22,7 +22,7 @@ NameValueValidator::NameValueValidator(QWidget *parent,
 {
     m_hideTipTimer.setInterval(2000);
     m_hideTipTimer.setSingleShot(true);
-    connect(&m_hideTipTimer, &QTimer::timeout, this, []() { ToolTip::hide(); });
+    connect(&m_hideTipTimer, &QTimer::timeout, this, [] { ToolTip::hide(); });
 }
 
 QValidator::State NameValueValidator::validate(QString &in, int &pos) const

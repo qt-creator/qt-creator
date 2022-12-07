@@ -10,7 +10,7 @@ namespace Utils {
 class ExecuteOnDestruction
 {
 public:
-    ExecuteOnDestruction() noexcept : destructionCode([](){}) {}
+    ExecuteOnDestruction() noexcept : destructionCode([] {}) {}
     ExecuteOnDestruction(std::function<void()> code) : destructionCode(std::move(code)) {}
     ~ExecuteOnDestruction() { if (destructionCode) destructionCode(); }
 

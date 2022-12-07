@@ -300,7 +300,7 @@ void InfoBarDisplay::update()
             showDetailsButton->setCheckable(true);
             showDetailsButton->setChecked(m_isShowingDetailsWidget);
             showDetailsButton->setText(tr("&Show Details"));
-            connect(showDetailsButton, &QToolButton::clicked, [this, vbox, info] (bool) {
+            connect(showDetailsButton, &QToolButton::clicked, this, [this, vbox, info] (bool) {
                 QWidget *detailsWidget = vbox->count() == 2 ? vbox->itemAt(1)->widget() : nullptr;
                 if (!detailsWidget) {
                     detailsWidget = info.m_detailsWidgetCreator();
@@ -323,7 +323,7 @@ void InfoBarDisplay::update()
                 cb->addItem(comboInfo.displayText, comboInfo.data);
             if (info.m_combo.currentIndex >= 0 && info.m_combo.currentIndex < cb->count())
                 cb->setCurrentIndex(info.m_combo.currentIndex);
-            connect(cb, &QComboBox::currentIndexChanged, this, [cb, info]() {
+            connect(cb, &QComboBox::currentIndexChanged, this, [cb, info] {
                 info.m_combo.callback({cb->currentText(), cb->currentData()});
             }, Qt::QueuedConnection);
 
@@ -334,7 +334,7 @@ void InfoBarDisplay::update()
             auto infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(button.text);
             infoWidgetButton->setToolTip(button.tooltip);
-            connect(infoWidgetButton, &QAbstractButton::clicked, [button]() { button.callback(); });
+            connect(infoWidgetButton, &QAbstractButton::clicked, [button] { button.callback(); });
             hbox->addWidget(infoWidgetButton);
         }
 

@@ -72,7 +72,7 @@ static FilePath imageFileNameForIndicatorSize(ProgressIndicatorSize size)
 ProgressIndicatorPainter::ProgressIndicatorPainter(ProgressIndicatorSize size)
 {
     m_timer.setSingleShot(false);
-    QObject::connect(&m_timer, &QTimer::timeout, [this] {
+    QObject::connect(&m_timer, &QTimer::timeout, &m_timer, [this] {
         nextAnimationStep();
         if (m_callback)
             m_callback();

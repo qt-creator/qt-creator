@@ -31,7 +31,7 @@ public:
         auto widget = new ObjectToFieldWidgetConverter();
         widget->toVariantFunction = toVariantFunction;
         connect(sender, &QObject::destroyed, widget, &QObject::deleteLater);
-        connect(sender, member, widget, [widget]() { emit widget->valueChanged(widget->value()); });
+        connect(sender, member, widget, [widget] { emit widget->valueChanged(widget->value()); });
         return widget;
     }
 

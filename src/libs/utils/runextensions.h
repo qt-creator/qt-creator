@@ -594,7 +594,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future,
     QObject::connect(watcher,
                      &QFutureWatcherBase::finished,
                      receiver,
-                     [receiver, member, watcher]() { (receiver->*member)(watcher->future()); });
+                     [receiver, member, watcher] { (receiver->*member)(watcher->future()); });
     watcher->setFuture(future);
     return future;
 }
@@ -610,7 +610,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future, QObject *guard, Function 
 {
     auto watcher = new QFutureWatcher<T>();
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, guard, [f, watcher]() {
+    QObject::connect(watcher, &QFutureWatcherBase::finished, guard, [f, watcher] {
         f(watcher->future());
     });
     watcher->setFuture(future);
@@ -627,7 +627,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future, Function f)
 {
     auto watcher = new QFutureWatcher<T>();
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, [f, watcher]() {
+    QObject::connect(watcher, &QFutureWatcherBase::finished, [f, watcher] {
         f(watcher->future());
     });
     watcher->setFuture(future);

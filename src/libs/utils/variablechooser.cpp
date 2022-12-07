@@ -376,7 +376,7 @@ VariableChooser::VariableChooser(QWidget *parent) :
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_variableTree);
     setGeometry(QRect(0, 0, 400, 500));
-    addMacroExpanderProvider([]() { return globalMacroExpander(); });
+    addMacroExpanderProvider([] { return globalMacroExpander(); });
 }
 
 /*!

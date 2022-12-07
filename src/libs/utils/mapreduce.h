@@ -77,7 +77,7 @@ protected:
                && m_mapWatcher.size() < std::max(m_threadPool->maxThreadCount(), 1)) {
             didSchedule = true;
             auto watcher = new QFutureWatcher<MapResult>();
-            connect(watcher, &QFutureWatcher<MapResult>::finished, this, [this, watcher]() {
+            connect(watcher, &QFutureWatcher<MapResult>::finished, this, [this, watcher] {
                 mapFinished(watcher);
             });
             if (m_handleProgress) {

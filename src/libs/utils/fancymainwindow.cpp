@@ -248,7 +248,7 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
 
     connect(&m_timer, &QTimer::timeout, this, &DockWidget::handleMouseTimeout);
     connect(this, &QDockWidget::topLevelChanged, this, &DockWidget::handleToplevelChanged);
-    connect(toggleViewAction(), &QAction::triggered, [this] {
+    connect(toggleViewAction(), &QAction::triggered, this, [this] {
         if (isVisible())
             raise();
     });

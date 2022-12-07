@@ -360,7 +360,7 @@ void MacroExpander::registerIntVariable(const QByteArray &variable,
 {
     const MacroExpander::IntFunction valuecopy = value; // do not capture a reference in a lambda
     registerVariable(variable, description,
-        [valuecopy]() { return QString::number(valuecopy ? valuecopy() : 0); });
+        [valuecopy] { return QString::number(valuecopy ? valuecopy() : 0); });
 }
 
 /*!

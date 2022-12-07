@@ -45,7 +45,7 @@ void MinimizableInfoBars::createActions()
         auto action = new QAction(this);
         action->setToolTip(entry.text());
         action->setIcon(Icons::WARNING_TOOLBAR.pixmap());
-        connect(action, &QAction::triggered, this, [this, id]() {
+        connect(action, &QAction::triggered, this, [this, id] {
             setShowInInfoBar(id, true);
             updateInfo(id);
         });

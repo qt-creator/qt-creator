@@ -160,7 +160,7 @@ LauncherInterface::LauncherInterface()
     m_private->setPathToLauncher(s_pathToLauncher);
     const FilePath launcherFilePath = FilePath::fromString(m_private->launcherFilePath())
             .cleanPath().withExecutableSuffix();
-    auto launcherIsNotExecutable = [&launcherFilePath]() {
+    auto launcherIsNotExecutable = [&launcherFilePath] {
         qWarning() << "The Creator's process launcher"
                    << launcherFilePath << "is not executable.";
     };
