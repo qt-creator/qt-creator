@@ -50,7 +50,7 @@ ArtisticStyle::ArtisticStyle()
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     connect(&m_settings, &ArtisticStyleSettings::supportedMimeTypesChanged,
-            [this] { updateActions(Core::EditorManager::currentEditor()); });
+            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
 }
 
 QString ArtisticStyle::id() const

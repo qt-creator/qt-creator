@@ -35,7 +35,7 @@ class VersionUpdater
 public:
     VersionUpdater()
     {
-        QObject::connect(&m_process, &QtcProcess::done, [this] {
+        QObject::connect(&m_process, &QtcProcess::done, &m_process, [this] {
             if (m_process.result() != ProcessResult::FinishedWithSuccess)
                 return;
 

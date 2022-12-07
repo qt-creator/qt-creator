@@ -53,7 +53,7 @@ Uncrustify::Uncrustify()
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     connect(&m_settings, &UncrustifySettings::supportedMimeTypesChanged,
-            [this] { updateActions(Core::EditorManager::currentEditor()); });
+            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
 }
 
 QString Uncrustify::id() const

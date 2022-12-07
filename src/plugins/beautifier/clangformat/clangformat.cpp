@@ -66,7 +66,7 @@ ClangFormat::ClangFormat()
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
     connect(&m_settings, &ClangFormatSettings::supportedMimeTypesChanged,
-            [this] { updateActions(Core::EditorManager::currentEditor()); });
+            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
 }
 
 QString ClangFormat::id() const
