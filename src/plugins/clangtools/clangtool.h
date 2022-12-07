@@ -46,17 +46,11 @@ class DiagnosticView;
 class RunSettings;
 class SelectFixitsCheckBox;
 
-const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
-
 class ClangTool : public QObject
 {
     Q_OBJECT
 
 public:
-    static ClangTool *instance();
-
-    ClangTool();
-
     void selectPerspective();
 
     enum class FileSelectionType {
@@ -92,6 +86,9 @@ public:
 
 signals:
     void finished(const QString &errorText); // For testing.
+
+protected:
+    ClangTool(const QString &name, Utils::Id id);
 
 private:
     enum class State {
@@ -132,6 +129,7 @@ private:
     FileInfoProviders fileInfoProviders(ProjectExplorer::Project *project,
                                         const FileInfos &allFileInfos);
 
+    const QString m_name;
     ClangToolsDiagnosticModel *m_diagnosticModel = nullptr;
     ProjectExplorer::RunControl *m_runControl = nullptr;
     ClangToolRunWorker *m_runWorker = nullptr;
@@ -161,11 +159,27 @@ private:
     QAction *m_clear = nullptr;
     QAction *m_expandCollapse = nullptr;
 
-    Utils::Perspective m_perspective{ClangTidyClazyPerspectiveId,
-                                     ::ClangTools::Internal::ClangTool::tr("Clang-Tidy and Clazy")};
+    Utils::Perspective m_perspective;
+};
+
+class ClangTidyTool : public ClangTool
+{
+public:
+    ClangTidyTool();
+    static ClangTool *instance() { return m_instance; }
 
 private:
-    const QString m_name;
+    static inline ClangTool *m_instance = nullptr;
+};
+
+class ClazyTool : public ClangTool
+{
+public:
+    ClazyTool();
+    static ClangTool *instance() { return m_instance; }
+
+private:
+    static inline ClangTool *m_instance = nullptr;
 };
 
 } // namespace Internal

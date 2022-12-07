@@ -86,7 +86,8 @@ static ClangDiagnosticConfig configFor(const QString &tidyChecks,
 void ClangToolsUnitTests::testProject()
 {
     QFETCH(QString, projectFilePath);
-    QFETCH(int, expectedDiagCount);
+    QFETCH(int, expectedDiagCountClangTidy);
+    QFETCH(int, expectedDiagCountClazy);
     QFETCH(ClangDiagnosticConfig, diagnosticConfig);
     if (projectFilePath.contains("mingw")) {
         const auto toolchain = ToolChainKitAspect::cxxToolChain(m_kit);
@@ -98,71 +99,75 @@ void ClangToolsUnitTests::testProject()
     Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, true, m_kit));
 
-    // Run tool
-    ClangTool *tool = ClangTool::instance();
-    tool->startTool(ClangTool::FileSelectionType::AllFiles,
-                    ClangToolsSettings::instance()->runSettings(),
-                    diagnosticConfig);
-    QSignalSpy waitForFinishedTool(tool, &ClangTool::finished);
-    QVERIFY(waitForFinishedTool.wait(m_timeout));
+    // Run tools
+    for (ClangTool * const tool : {ClangTidyTool::instance(), ClazyTool::instance()}) {
+        tool->startTool(ClangTool::FileSelectionType::AllFiles,
+                        ClangToolsSettings::instance()->runSettings(),
+                        diagnosticConfig);
+        QSignalSpy waitForFinishedTool(tool, &ClangTool::finished);
+        QVERIFY(waitForFinishedTool.wait(m_timeout));
 
-    // Check for errors
-    const QString errorText = waitForFinishedTool.takeFirst().constFirst().toString();
-    const bool finishedSuccessfully = errorText.isEmpty();
-    if (!finishedSuccessfully)
-        qWarning("Error: %s", qPrintable(errorText));
-    QVERIFY(finishedSuccessfully);
-    QCOMPARE(tool->diagnostics().count(), expectedDiagCount);
+        // Check for errors
+        const QString errorText = waitForFinishedTool.takeFirst().constFirst().toString();
+        const bool finishedSuccessfully = errorText.isEmpty();
+        if (!finishedSuccessfully)
+            qWarning("Error: %s", qPrintable(errorText));
+        QVERIFY(finishedSuccessfully);
+        QCOMPARE(tool->diagnostics().count(), tool == ClangTidyTool::instance()
+                 ? expectedDiagCountClangTidy : expectedDiagCountClazy);
+    }
 }
 
 void ClangToolsUnitTests::testProject_data()
 {
     QTest::addColumn<QString>("projectFilePath");
-    QTest::addColumn<int>("expectedDiagCount");
+    QTest::addColumn<int>("expectedDiagCountClangTidy");
+    QTest::addColumn<int>("expectedDiagCountClazy");
     QTest::addColumn<ClangDiagnosticConfig>("diagnosticConfig");
 
     // Test simple C++ project.
     ClangDiagnosticConfig config = configFor("modernize-use-nullptr", QString());
-    addTestRow("simple/simple.qbs", 1, config);
-    addTestRow("simple/simple.pro", 1, config);
+    addTestRow("simple/simple.qbs", 1, 0, config);
+    addTestRow("simple/simple.pro", 1, 0, config);
 
     // Test simple Qt project.
     config = configFor("readability-static-accessed-through-instance", QString());
-    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 1, config);
-    addTestRow("qt-widgets-app/qt-widgets-app.pro", 1, config);
+    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 1, 0, config);
+    addTestRow("qt-widgets-app/qt-widgets-app.pro", 1, 0, config);
 
     // Test that libraries can be analyzed.
     config = configFor(QString(), QString());
-    addTestRow("simple-library/simple-library.qbs", 0, config);
-    addTestRow("simple-library/simple-library.pro", 0, config);
+    addTestRow("simple-library/simple-library.qbs", 0, 0, config);
+    addTestRow("simple-library/simple-library.pro", 0, 0, config);
 
     // Test that standard headers can be parsed.
-    addTestRow("stdc++11-includes/stdc++11-includes.qbs", 0, config);
-    addTestRow("stdc++11-includes/stdc++11-includes.pro", 0, config);
+    addTestRow("stdc++11-includes/stdc++11-includes.qbs", 0, 0, config);
+    addTestRow("stdc++11-includes/stdc++11-includes.pro", 0, 0, config);
 
     // Test that qt essential headers can be parsed.
-    addTestRow("qt-essential-includes/qt-essential-includes.qbs", 0, config);
-    addTestRow("qt-essential-includes/qt-essential-includes.pro", 0, config);
+    addTestRow("qt-essential-includes/qt-essential-includes.qbs", 0, 0, config);
+    addTestRow("qt-essential-includes/qt-essential-includes.pro", 0, 0, config);
 
     // Test that mingw includes can be parsed.
-    addTestRow("mingw-includes/mingw-includes.qbs", 0, config);
-    addTestRow("mingw-includes/mingw-includes.pro", 0, config);
+    addTestRow("mingw-includes/mingw-includes.qbs", 0, 0, config);
+    addTestRow("mingw-includes/mingw-includes.pro", 0, 0, config);
 
     // Test that tidy and clazy diagnostics are emitted for the same project.
     addTestRow("clangtidy_clazy/clangtidy_clazy.pro",
-               1 /*tidy*/ + 1 /*clazy*/,
-               configFor("misc-unconventional-assign-operator", "qgetenv"));
+               1, 1, configFor("misc-unconventional-assign-operator", "qgetenv"));
 }
 
 void ClangToolsUnitTests::addTestRow(const QByteArray &relativeFilePath,
-                                     int expectedDiagCount,
+                                     int expectedDiagCountClangTidy,
+                                     int expectedDiagCountClazy,
                                      const ClangDiagnosticConfig &diagnosticConfig)
 {
     const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
     const QString fileName = QFileInfo(absoluteFilePath).fileName();
 
     QTest::newRow(fileName.toUtf8().constData())
-        << absoluteFilePath << expectedDiagCount << diagnosticConfig;
+        << absoluteFilePath << expectedDiagCountClangTidy << expectedDiagCountClazy
+        << diagnosticConfig;
 }
 
 int ClangToolsUnitTests::getTimeout()

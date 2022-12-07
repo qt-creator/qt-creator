@@ -66,8 +66,6 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-static ClangTool *s_instance;
-
 static QString makeLink(const QString &text)
 {
     return QString("<a href=t>%1</a>").arg(text);
@@ -355,23 +353,17 @@ static RunSettings runSettings()
     return ClangToolsSettings::instance()->runSettings();
 }
 
-ClangTool *ClangTool::instance()
+ClangTool::ClangTool(const QString &name, Utils::Id id)
+    : m_name(name), m_perspective{id.toString(), name}
 {
-    return s_instance;
-}
-
-ClangTool::ClangTool()
-    : m_name("Clang-Tidy and Clazy")
-{
-    setObjectName("ClangTidyClazyTool");
-    s_instance = this;
+    setObjectName(name);
     m_diagnosticModel = new ClangToolsDiagnosticModel(this);
 
-    auto action = new QAction(tr("Analyze Project..."), this);
+    auto action = new QAction(tr("Analyze Project with %1...").arg(name), this);
     action->setIcon(Utils::Icons::RUN_SELECTED_TOOLBAR.icon());
     m_startAction = action;
 
-    action = new QAction(tr("Analyze Current File"), this);
+    action = new QAction(tr("Analyze Current File with %1").arg(name), this);
     action->setIcon(Utils::Icons::RUN_FILE.icon());
     m_startOnCurrentFileAction = action;
 
@@ -536,9 +528,9 @@ ClangTool::ClangTool()
 
     m_perspective.addWindow(mainWidget, Perspective::SplitVertical, nullptr);
 
-    action = new QAction(tr("Clang-Tidy and Clazy..."), this);
+    action = new QAction(name, this);
     action->setToolTip(toolTip);
-    menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
+    menu->addAction(ActionManager::registerAction(action, id),
                     Debugger::Constants::G_ANALYZER_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this] {
         startTool(FileSelectionType::AskUser);
@@ -645,12 +637,12 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
 
     // Run control
     m_runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
-    m_runControl->setDisplayName(tr("Clang-Tidy and Clazy"));
+    m_runControl->setDisplayName(m_name);
     m_runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     m_runControl->setTarget(project->activeTarget());
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
-        emit m_runControl->appendMessage(tr("Clang-Tidy and Clazy tool stopped by user."),
+        emit m_runControl->appendMessage(tr("%1 tool stopped by user.").arg(m_name),
                                          NormalMessageFormat);
         m_runControl->initiateStop();
         setState(State::StoppedByUser);
@@ -662,7 +654,8 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
                               || std::get<FileSelectionType>(fileSelection)
                                      == FileSelectionType::CurrentFile;
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
-    m_runWorker = new ClangToolRunWorker(m_runControl,
+    m_runWorker = new ClangToolRunWorker(this,
+                                         m_runControl,
                                          runSettings,
                                          diagnosticConfig,
                                          fileInfos,
@@ -1200,6 +1193,15 @@ void ClangTool::updateForCurrentState()
         diagText = tr("No diagnostics.");
     }
     m_infoBarWidget->setDiagText(diagText);
+}
+
+ClangTidyTool::ClangTidyTool() : ClangTool(tr("Clang-Tidy"), "ClangTidy.Perspective")
+{
+    m_instance = this;
+}
+ClazyTool::ClazyTool() : ClangTool(tr("Clazy"), "Clazy.Perspective")
+{
+    m_instance = this;
 }
 
 } // namespace Internal

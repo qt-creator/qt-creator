@@ -8,8 +8,10 @@ namespace Constants {
 
 const char PROJECT_PANEL_ID[] = "ClangTools";
 
-const char RUN_ON_PROJECT[] = "ClangTools.RunOnProject";
-const char RUN_ON_CURRENT_FILE[] = "ClangTools.RunOnCurrentFile";
+const char RUN_CLANGTIDY_ON_PROJECT[] = "ClangTools.ClangTidy.RunOnProject";
+const char RUN_CLAZY_ON_PROJECT[] = "ClangTools.Clazy.RunOnProject";
+const char RUN_CLANGTIDY_ON_CURRENT_FILE[] = "ClangTools.ClangTidy.RunOnCurrentFile";
+const char RUN_CLAZY_ON_CURRENT_FILE[] = "ClangTools.Clazy.RunOnCurrentFile";
 
 const char SETTINGS_PAGE_ID[] = "Analyzer.ClangTools.Settings";
 const char SETTINGS_ID[] = "ClangTools";

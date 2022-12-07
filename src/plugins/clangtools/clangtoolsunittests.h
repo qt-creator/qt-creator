@@ -30,7 +30,7 @@ private slots:
 
 private:
     void addTestRow(const QByteArray &relativeFilePath,
-                    int expectedDiagCount,
+                    int expectedDiagCountClangTidy, int expectedDiagCountClazy,
                     const CppEditor::ClangDiagnosticConfig &diagnosticConfig);
 
 private:

@@ -55,11 +55,6 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
 namespace ClangTools {
 namespace Internal {
 
-static ClangTool *tool()
-{
-    return ClangTool::instance();
-}
-
 class ProjectBuilder : public RunWorker
 {
 public:
@@ -138,12 +133,13 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 }
 
 
-ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
+ClangToolRunWorker::ClangToolRunWorker(ClangTool *tool, RunControl *runControl,
                                        const RunSettings &runSettings,
                                        const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
                                        const FileInfos &fileInfos,
                                        bool buildBeforeAnalysis)
     : RunWorker(runControl)
+    , m_tool(tool)
     , m_runSettings(runSettings)
     , m_diagnosticConfig(diagnosticConfig)
     , m_fileInfos(fileInfos)
@@ -174,15 +170,9 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
 
 QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
 {
-    QList<RunnerCreator> creators;
-
-    if (m_diagnosticConfig.isClangTidyEnabled())
-        creators << [this] { return createRunner<ClangTidyRunner>(); };
-
-    if (m_diagnosticConfig.isClazyEnabled())
-        creators << [this] { return createRunner<ClazyStandaloneRunner>(); };
-
-    return creators;
+    if (m_tool == ClangTidyTool::instance())
+        return {[this] { return createRunner<ClangTidyRunner>(); }};
+    return {[this] { return createRunner<ClazyStandaloneRunner>(); }};
 }
 
 void ClangToolRunWorker::start()
@@ -195,7 +185,7 @@ void ClangToolRunWorker::start()
         return;
     }
 
-    const QString &toolName = tool()->name();
+    const QString &toolName = m_tool->name();
     Project *project = runControl()->project();
     m_projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
     if (!m_projectInfo) {
@@ -334,7 +324,7 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(ClangToolRunner *runner,
     emit runnerFinished();
 
     QString errorMessage;
-    const Diagnostics diagnostics = tool()->read(runner->outputFileFormat(),
+    const Diagnostics diagnostics = m_tool->read(runner->outputFileFormat(),
                                                  outputFilePath,
                                                  m_projectFiles,
                                                  &errorMessage);
@@ -353,7 +343,7 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(ClangToolRunner *runner,
             // do not generate marks when we always analyze open files since marks from that
             // analysis should be more up to date
             const bool generateMarks = !m_runSettings.analyzeOpenFiles();
-            tool()->onNewDiagnosticsAvailable(diagnostics, generateMarks);
+            m_tool->onNewDiagnosticsAvailable(diagnostics, generateMarks);
         }
     }
 
@@ -401,7 +391,7 @@ void ClangToolRunWorker::updateProgressValue()
 
 void ClangToolRunWorker::finalize()
 {
-    const QString toolName = tool()->name();
+    const QString toolName = m_tool->name();
     if (m_filesNotAnalyzed.size() != 0) {
         appendMessage(tr("Error: Failed to analyze %n files.", nullptr, m_filesNotAnalyzed.size()),
                       ErrorMessageFormat);

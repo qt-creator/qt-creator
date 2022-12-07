@@ -54,8 +54,10 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
     setGlobalSettingsId(ClangTools::Constants::SETTINGS_PAGE_ID);
     m_restoreGlobal = new QPushButton(tr("Restore Global Settings"));
 
-    auto gotoAnalyzerModeLabel =
-            new QLabel("<a href=\"target\">" + tr("Go to Analyzer") + "</a>");
+    const auto gotoClangTidyModeLabel
+            = new QLabel("<a href=\"target\">" + tr("Go to Clang-Tidy") + "</a>");
+    const auto gotoClazyModeLabel
+            = new QLabel("<a href=\"target\">" + tr("Go to Clazy") + "</a>");
 
     m_runSettingsWidget = new ClangTools::Internal::RunSettingsWidget(this);
 
@@ -67,7 +69,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
 
     using namespace Utils::Layouting;
     Column {
-        Row { m_restoreGlobal, st, gotoAnalyzerModeLabel },
+        Row { m_restoreGlobal, st, gotoClangTidyModeLabel, gotoClazyModeLabel },
 
         m_runSettingsWidget,
 
@@ -96,8 +98,11 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
         m_runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings());
     });
 
-    connect(gotoAnalyzerModeLabel, &QLabel::linkActivated, [](const QString &) {
-        ClangTool::instance()->selectPerspective();
+    connect(gotoClangTidyModeLabel, &QLabel::linkActivated, [](const QString &) {
+        ClangTidyTool::instance()->selectPerspective();
+    });
+    connect(gotoClazyModeLabel, &QLabel::linkActivated, [](const QString &) {
+        ClazyTool::instance()->selectPerspective();
     });
 
     // Run options

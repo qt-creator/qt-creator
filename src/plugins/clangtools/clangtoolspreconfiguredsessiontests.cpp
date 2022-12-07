@@ -99,13 +99,15 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
 
     QVERIFY(switchToProjectAndTarget(project, target));
 
-    ClangTool::instance()->startTool(ClangTool::FileSelectionType::AllFiles);
-    QSignalSpy waitUntilAnalyzerFinished(ClangTool::instance(), SIGNAL(finished(bool)));
-    QVERIFY(waitUntilAnalyzerFinished.wait(30000));
-    const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
-    const bool analyzerFinishedSuccessfully = arguments.first().toBool();
-    QVERIFY(analyzerFinishedSuccessfully);
-    QCOMPARE(ClangTool::instance()->diagnostics().count(), 0);
+    for (ClangTool * const tool : {ClangTidyTool::instance(), ClazyTool::instance()}) {
+        tool->startTool(ClangTool::FileSelectionType::AllFiles);
+        QSignalSpy waitUntilAnalyzerFinished(tool, SIGNAL(finished(bool)));
+        QVERIFY(waitUntilAnalyzerFinished.wait(30000));
+        const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
+        const bool analyzerFinishedSuccessfully = arguments.first().toBool();
+        QVERIFY(analyzerFinishedSuccessfully);
+        QCOMPARE(tool->diagnostics().count(), 0);
+    }
 }
 
 static const QList<Project *> validProjects(const QList<Project *> projectsOfSession)

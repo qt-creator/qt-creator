@@ -19,7 +19,7 @@
 
 namespace ClangTools {
 namespace Internal {
-
+class ClangTool;
 class ClangToolRunner;
 class ProjectBuilder;
 
@@ -46,7 +46,8 @@ class ClangToolRunWorker : public ProjectExplorer::RunWorker
     Q_OBJECT
 
 public:
-    ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
+    ClangToolRunWorker(ClangTool *tool,
+                       ProjectExplorer::RunControl *runControl,
                        const RunSettings &runSettings,
                        const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
                        const FileInfos &fileInfos,
@@ -85,6 +86,7 @@ private:
     void finalize();
 
 private:
+    ClangTool * const m_tool;
     RunSettings m_runSettings;
     CppEditor::ClangDiagnosticConfig m_diagnosticConfig;
     FileInfos m_fileInfos;
