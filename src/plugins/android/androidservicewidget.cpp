@@ -331,14 +331,14 @@ AndroidServiceWidget::AndroidServiceWidget(QWidget *parent) : QWidget(parent),
     connect(m_removeButton, &QAbstractButton::clicked,
             this, &AndroidServiceWidget::removeService);
     connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged,
-            [this](const QItemSelection &selected, const QItemSelection &/*deselected*/) {
+            this, [this](const QItemSelection &selected) {
         if (!selected.isEmpty())
             m_removeButton->setEnabled(true);
     });
     connect(m_model.data(), &AndroidServiceWidget::AndroidServiceModel::validDataChanged,
-            [this] { emit servicesModified(); });
+            this, [this] { emit servicesModified(); });
     connect(m_model.data(), &AndroidServiceWidget::AndroidServiceModel::invalidDataChanged,
-            [this] { emit servicesInvalid(); });
+            this, [this] { emit servicesInvalid(); });
 }
 
 AndroidServiceWidget::~AndroidServiceWidget()

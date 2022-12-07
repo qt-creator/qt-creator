@@ -1021,11 +1021,11 @@ PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
     mainLayout->addWidget(warningLabel);
     mainLayout->addWidget(buttonBox);
 
-    connect(inputEdit, &QLineEdit::textChanged,[this](const QString &text) {
+    connect(inputEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
         buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!text.isEmpty());
     });
 
-    connect(buttonBox, &QDialogButtonBox::accepted, [this] {
+    connect(buttonBox, &QDialogButtonBox::accepted, this, [this] {
         if (verifyCallback(inputEdit->text())) {
             accept(); // Dialog accepted.
         } else {

@@ -381,7 +381,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::onSdkPathChanged);
 
     connect(m_ndkListWidget, &QListWidget::currentTextChanged,
-            [this, removeCustomNdkButton](const QString &ndk) {
+            this, [this, removeCustomNdkButton](const QString &ndk) {
         updateUI();
         removeCustomNdkButton->setEnabled(m_androidConfig.getCustomNdkList().contains(ndk));
     });

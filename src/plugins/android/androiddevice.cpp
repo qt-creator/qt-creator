@@ -455,7 +455,7 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
     const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.data());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
-    runAsync([this, name, device]() {
+    runAsync([this, name, device] {
         const QString serialNumber = m_avdManager.startAvd(name);
         // Mark the AVD as ReadyToUse once we know it's started
         if (!serialNumber.isEmpty()) {
@@ -480,7 +480,7 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
         return;
 
     qCDebug(androidDeviceLog) << QString("Erasing Android AVD \"%1\" from the system.").arg(name);
-    m_removeAvdFutureWatcher.setFuture(runAsync([this, name, device]() {
+    m_removeAvdFutureWatcher.setFuture(runAsync([this, name, device] {
         QPair<IDevice::ConstPtr, bool> pair;
         pair.first = device;
         pair.second = false;
@@ -512,7 +512,7 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
         return;
     }
 
-    QTimer::singleShot(2000, parent, [adbSelector, parent]() {
+    QTimer::singleShot(2000, parent, [adbSelector, parent] {
         // Get device IP address
         QStringList args = adbSelector;
         args.append({"shell", "ip", "route"});

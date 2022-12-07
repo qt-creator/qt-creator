@@ -451,7 +451,7 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
     bool collectingPackageData = false;
     MarkerTag currentPackageMarker = MarkerTag::None;
 
-    auto processCurrentPackage = [&]() {
+    auto processCurrentPackage = [&] {
         if (collectingPackageData) {
             collectingPackageData = false;
             parsePackageData(currentPackageMarker, packageData);

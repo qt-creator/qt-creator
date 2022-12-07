@@ -29,11 +29,11 @@ AndroidSdkModel::AndroidSdkModel(const AndroidConfig &config, AndroidSdkManager 
       m_sdkManager(sdkManager)
 {
     QTC_CHECK(m_sdkManager);
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadBegin, [this] {
+    connect(m_sdkManager, &AndroidSdkManager::packageReloadBegin, this, [this] {
         clearContainers();
         beginResetModel();
     });
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadFinished, [this] {
+    connect(m_sdkManager, &AndroidSdkManager::packageReloadFinished, this, [this] {
         refreshData();
         endResetModel();
     });

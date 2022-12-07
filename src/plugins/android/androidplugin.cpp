@@ -131,10 +131,10 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);
 
-    LanguageClient::LanguageClientSettings::registerClientType({Android::Constants::JLS_SETTINGS_ID,
-                                                                Tr::tr("Java Language Server"),
-                                                                []() { return new JLSSettings; }});
-
+    LanguageClient::LanguageClientSettings::registerClientType(
+        {Android::Constants::JLS_SETTINGS_ID,
+         Tr::tr("Java Language Server"),
+         [] { return new JLSSettings; }});
     return true;
 }
 
@@ -153,7 +153,7 @@ void AndroidPlugin::kitsRestored()
     AndroidConfigurations::registerNewToolChains();
     AndroidConfigurations::updateAutomaticKitList();
     connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::qtVersionsChanged,
-            AndroidConfigurations::instance(), []() {
+            AndroidConfigurations::instance(), [] {
         AndroidConfigurations::registerNewToolChains();
         AndroidConfigurations::updateAutomaticKitList();
     });
