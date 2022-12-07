@@ -189,64 +189,6 @@ QString cdbClearBreakpointCommand(const Breakpoint &bp)
     return "bc " + QString::number(firstBreakPoint) + '-' + QString::number(lastBreakPoint);
 }
 
-// Helper to retrieve an int child from GDBMI
-static inline bool gdbmiChildToInt(const GdbMi &parent, const char *childName, int *target)
-{
-    const GdbMi childBA = parent[childName];
-    if (childBA.isValid()) {
-        bool ok;
-        const int v = childBA.data().toInt(&ok);
-        if (ok) {
-            *target = v;
-            return  true;
-        }
-    }
-    return false;
-}
-
-// Helper to retrieve an bool child from GDBMI
-static inline bool gdbmiChildToBool(const GdbMi &parent, const char *childName, bool *target)
-{
-    const GdbMi childBA = parent[childName];
-    if (childBA.isValid()) {
-        *target = childBA.data() == "true";
-        return true;
-    }
-    return false;
-}
-
-// Parse extension command listing breakpoints.
-// Note that not all fields are returned, since file, line, function are encoded
-// in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
-void parseBreakPoint(const GdbMi &gdbmi, BreakpointParameters *r,
-                     QString *expression /*  = 0 */)
-{
-    gdbmiChildToBool(gdbmi, "enabled", &(r->enabled));
-    gdbmiChildToBool(gdbmi, "deferred", &(r->pending));
-    const GdbMi moduleG = gdbmi["module"];
-    if (moduleG.isValid())
-        r->module = moduleG.data();
-    const GdbMi sourceFileName = gdbmi["srcfile"];
-    if (sourceFileName.isValid()) {
-        r->fileName = Utils::FilePath::fromUserInput(
-            Utils::FileUtils::normalizedPathName(sourceFileName.data()));
-        const GdbMi lineNumber = gdbmi["srcline"];
-        if (lineNumber.isValid())
-            r->lineNumber = lineNumber.data().toULongLong(nullptr, 0);
-    }
-    if (expression) {
-        const GdbMi expressionG = gdbmi["expression"];
-        if (expressionG.isValid())
-            *expression = expressionG.data();
-    }
-    const GdbMi addressG = gdbmi["address"];
-    if (addressG.isValid())
-        r->address = addressG.data().toULongLong(nullptr, 0);
-    if (gdbmiChildToInt(gdbmi, "passcount", &(r->ignoreCount)))
-        r->ignoreCount--;
-    gdbmiChildToInt(gdbmi, "thread", &(r->threadSpec));
-}
-
 QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data)
 {
     QString cmd;

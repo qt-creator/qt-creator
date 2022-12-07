@@ -5889,7 +5889,7 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
 
-    int markWidth;
+    int markWidth = 0;
     extraAreaWidth(&markWidth);
     const bool inMarkArea = e->pos().x() <= markWidth && e->pos().x() >= 0;
 

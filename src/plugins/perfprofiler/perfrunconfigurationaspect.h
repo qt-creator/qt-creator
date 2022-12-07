@@ -14,6 +14,7 @@ namespace PerfProfiler {
 class PERFPROFILER_EXPORT PerfRunConfigurationAspect :
         public ProjectExplorer::GlobalOrProjectAspect
 {
+    Q_OBJECT
 public:
     PerfRunConfigurationAspect(ProjectExplorer::Target *target);
 };

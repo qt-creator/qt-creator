@@ -46,8 +46,6 @@ using namespace Utils;
 
 const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
-const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.ClearSystemEnvironment";
-const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.UserEnvironmentChanges";
 const char CUSTOM_PARSERS_KEY[] = "ProjectExplorer.BuildConfiguration.CustomParsers";
 const char PARSE_STD_OUT_KEY[] = "ProjectExplorer.BuildConfiguration.ParseStandardOutput";
 
@@ -378,8 +376,9 @@ QVariantMap BuildConfiguration::toMap() const
 {
     QVariantMap map = ProjectConfiguration::toMap();
 
-    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), d->m_clearSystemEnvironment);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(d->m_userEnvironmentChanges));
+    map.insert(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY), d->m_clearSystemEnvironment);
+    map.insert(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY),
+               EnvironmentItem::toStringList(d->m_userEnvironmentChanges));
 
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 2);
     map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(0), d->m_buildSteps.toMap());
@@ -393,8 +392,10 @@ QVariantMap BuildConfiguration::toMap() const
 
 bool BuildConfiguration::fromMap(const QVariantMap &map)
 {
-    d->m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
-    d->m_userEnvironmentChanges = EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    d->m_clearSystemEnvironment = map.value(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY))
+                                      .toBool();
+    d->m_userEnvironmentChanges = EnvironmentItem::fromStringList(
+        map.value(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
 
     updateCacheAndEmitEnvironmentChanged();
 

@@ -33,7 +33,7 @@ public:
     Qt::DropActions supportedDragActions() const override;
     QStringList mimeTypes() const override;
 
-    void addEntry(DocumentModel::Entry *entry);
+    DocumentModel::Entry *addEntry(DocumentModel::Entry *entry);
     void removeDocument(int idx);
 
     std::optional<int> indexOfFilePath(const Utils::FilePath &filePath) const;

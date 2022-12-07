@@ -21,7 +21,7 @@
             \li {3,1} Development Platform
         \header
             \li \l Linux
-            \li \l macOS
+            \li \l \macos
             \li \l Windows
         \row
             \li \l Android
@@ -50,7 +50,7 @@
             \li
         \row
             \li \l{Microcontroller Units (MCU)}{MCUs}
-            \li
+            \li \image ok.png
             \li
             \li \image ok.png
         \row

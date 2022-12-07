@@ -63,7 +63,7 @@ constexpr auto armgcc_mimxrt1064_evk_freertos_json = R"(
             "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
             "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
             "type": "file",
-            "defaultValue": "%{Qul_ROOT}//lib/cmake/Qul/toolchain/armgcc.cmake",
+            "defaultValue": "%{Qul_ROOT}/lib/cmake/Qul/toolchain/armgcc.cmake",
             "visible": false,
             "optional": false
         }

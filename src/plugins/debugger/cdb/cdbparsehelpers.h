@@ -38,10 +38,6 @@ QString cdbAddBreakpointCommand(const BreakpointParameters &d,
                                 const QList<QPair<QString, QString> > &sourcePathMapping,
                                 const QString &responseId = QString());
 QString cdbClearBreakpointCommand(const Breakpoint &bp);
-// Parse extension command listing breakpoints.
-// Note that not all fields are returned, since file, line, function are encoded
-// in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
-void parseBreakPoint(const GdbMi &gdbmi, BreakpointParameters *r, QString *expression = nullptr);
 
 // Write memory (f ...).
 QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
