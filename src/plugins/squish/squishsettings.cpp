@@ -90,8 +90,7 @@ SquishSettings::SquishSettings()
     minimizeIDE.setToolTip(Tr::tr("Minimize IDE automatically while running or recording test cases."));
     minimizeIDE.setDefaultValue(true);
 
-    connect(&local, &BoolAspect::volatileValueChanged,
-            this, [this] (bool checked) {
+    connect(&local, &BoolAspect::volatileValueChanged, this, [this](bool checked) {
         serverHost.setEnabled(!checked);
         serverPort.setEnabled(!checked);
     });
@@ -376,7 +375,7 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     auto edit = new QPushButton(Tr::tr("Edit"), this);
     auto remove = new QPushButton(Tr::tr("Remove"), this);
 
-    auto updateButtons = [add, edit, remove] (const QModelIndex &idx) {
+    auto updateButtons = [add, edit, remove](const QModelIndex &idx) {
         add->setEnabled(idx.isValid());
         bool enabled = idx.isValid() && idx.parent() != QModelIndex();
         edit->setEnabled(enabled);
@@ -419,7 +418,7 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
 
     // query settings
     SquishTools *squishTools = SquishTools::instance();
-    squishTools->queryServerSettings([this, progress] (const QString &out, const QString &) {
+    squishTools->queryServerSettings([this, progress](const QString &out, const QString &) {
         m_serverSettings.setFromXmlOutput(out);
         m_originalSettings.setFromXmlOutput(out);
         repopulateApplicationView();

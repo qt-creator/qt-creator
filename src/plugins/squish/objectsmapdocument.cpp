@@ -26,7 +26,7 @@ ObjectsMapDocument::ObjectsMapDocument()
 {
     setMimeType(Constants::SQUISH_OBJECTSMAP_MIMETYPE);
     setId(Constants::OBJECTSMAP_EDITOR_ID);
-    connect(m_contentModel, &ObjectsMapModel::modelChanged, this, [this]() { setModified(true); });
+    connect(m_contentModel, &ObjectsMapModel::modelChanged, this, [this] { setModified(true); });
 }
 
 Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,

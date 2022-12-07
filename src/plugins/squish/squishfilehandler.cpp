@@ -64,20 +64,17 @@ public:
 
         QPushButton *okButton = buttons->button(QDialogButtonBox::Ok);
         okButton->setEnabled(false);
-        connect(okButton, &QPushButton::clicked,
-                this, &QDialog::accept);
+        connect(okButton, &QPushButton::clicked, this, &QDialog::accept);
         connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
                 this, &QDialog::reject);
         connect(&aut, &QComboBox::currentIndexChanged,
-                this, [okButton] (int index) {
-            okButton->setEnabled(index > 0);
-        });
+                this, [okButton](int index) { okButton->setEnabled(index > 0); });
         setWindowTitle(Tr::tr("Recording Settings"));
 
         auto squishTools = SquishTools::instance();
         QApplication::setOverrideCursor(Qt::WaitCursor);
 
-        squishTools->queryServerSettings([this] (const QString &out, const QString &) {
+        squishTools->queryServerSettings([this](const QString &out, const QString &) {
             SquishServerSettings s;
             s.setFromXmlOutput(out);
             QApplication::restoreOverrideCursor();
@@ -522,12 +519,9 @@ void SquishFileHandler::updateSquishServerGlobalScripts()
     auto squishTools = SquishTools::instance();
     if (squishTools->state() != SquishTools::Idle) {
         // postpone - we can't queue this currently
-        QTimer::singleShot(1500, [this]() {
-            updateSquishServerGlobalScripts();
-        });
+        QTimer::singleShot(1500, this, [this] { updateSquishServerGlobalScripts(); });
         return;
     }
-
     squishTools->requestSetSharedFolders(m_sharedFolders);
 }
 

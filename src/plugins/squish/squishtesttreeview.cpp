@@ -197,7 +197,7 @@ void SquishTestTreeItemDelegate::setModelData(QWidget *editor, QAbstractItemMode
     auto sortModel = static_cast<SquishTestTreeSortModel *>(model);
     auto sourceModel = static_cast<SquishTestTreeModel *>(sortModel->sourceModel());
     auto lineEdit = static_cast<Utils::FancyLineEdit *>(editor);
-    auto removeFormerlyAdded = [sortModel, sourceModel, &index](){
+    auto removeFormerlyAdded = [sortModel, sourceModel, &index] {
         auto item = sourceModel->itemForIndex(sortModel->mapToSource(index));
         QTC_ASSERT(item, return);
         sourceModel->destroyItem(item);

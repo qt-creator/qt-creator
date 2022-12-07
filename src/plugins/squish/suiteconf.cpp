@@ -32,7 +32,7 @@ static QStringList parseHelper(const QStringView input)
     QStringList result;
     QString chunk;
 
-    auto appendChunk = [&]() {
+    auto appendChunk = [&] {
         if (!chunk.isEmpty())
             result.append(chunk);
         chunk.clear();

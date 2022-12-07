@@ -40,7 +40,7 @@ ObjectsMapEditorFactory::ObjectsMapEditorFactory()
     setId(Constants::OBJECTSMAP_EDITOR_ID);
     setDisplayName(Tr::tr("Squish Object Map Editor"));
     addMimeType(Constants::SQUISH_OBJECTSMAP_MIMETYPE);
-    setEditorCreator([]() {
+    setEditorCreator([] {
         return new ObjectsMapEditor(QSharedPointer<ObjectsMapDocument>(new ObjectsMapDocument));
     });
 }

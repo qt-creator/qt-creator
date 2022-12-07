@@ -174,21 +174,14 @@ SquishTestTreeModel::SquishTestTreeModel(QObject *parent)
     rootItem()->appendChild(m_squishSharedFolders);
     rootItem()->appendChild(m_squishSuitesRoot);
 
-    connect(m_squishFileHandler,
-            &SquishFileHandler::testTreeItemCreated,
-            this,
-            &SquishTestTreeModel::addTreeItem);
-    connect(m_squishFileHandler,
-            &SquishFileHandler::suiteTreeItemModified,
-            this,
-            &SquishTestTreeModel::onSuiteTreeItemModified);
-    connect(m_squishFileHandler,
-            &SquishFileHandler::suiteTreeItemRemoved,
-            this,
-            &SquishTestTreeModel::onSuiteTreeItemRemoved);
-    connect(m_squishFileHandler,
-            &SquishFileHandler::clearedSharedFolders,
-            this, [this]() { m_squishSharedFolders->removeChildren(); });
+    connect(m_squishFileHandler, &SquishFileHandler::testTreeItemCreated,
+            this, &SquishTestTreeModel::addTreeItem);
+    connect(m_squishFileHandler, &SquishFileHandler::suiteTreeItemModified,
+            this, &SquishTestTreeModel::onSuiteTreeItemModified);
+    connect(m_squishFileHandler, &SquishFileHandler::suiteTreeItemRemoved,
+            this, &SquishTestTreeModel::onSuiteTreeItemRemoved);
+    connect(m_squishFileHandler, &SquishFileHandler::clearedSharedFolders,
+            this, [this] { m_squishSharedFolders->removeChildren(); });
 
     m_instance = this;
 }

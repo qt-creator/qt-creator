@@ -84,7 +84,7 @@ SquishOutputPane::SquishOutputPane(QObject *parent)
     m_outputPane->addTab(m_outputWidget, Tr::tr("Test Results"));
     m_outputPane->addTab(m_runnerServerLog, Tr::tr("Runner/Server Log"));
 
-    connect(m_outputPane, &QTabWidget::currentChanged, this, [this]() { navigateStateChanged(); });
+    connect(m_outputPane, &QTabWidget::currentChanged, this, [this] { navigateStateChanged(); });
     connect(m_treeView, &Utils::TreeView::activated, this, &SquishOutputPane::onItemActivated);
     connect(header, &QHeaderView::sectionResized, this, &SquishOutputPane::onSectionResized);
     connect(m_model, &SquishResultModel::requestExpansion, this, [this](QModelIndex idx) {

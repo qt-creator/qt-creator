@@ -142,8 +142,7 @@ SquishTools::SquishTools(QObject *parent)
         if (m_runnerProcess.processId() != -1)
             interruptRunner();
     });
-    connect(&m_perspective, &SquishPerspective::stopRequested,
-            this, [this] () {
+    connect(&m_perspective, &SquishPerspective::stopRequested, this, [this] {
         bool interrupted = m_squishRunnerState == RunnerState::Interrupted;
         RunnerState state = interrupted ? RunnerState::CancelRequestedWhileInterrupted
                                         : RunnerState::CancelRequested;
@@ -1122,7 +1121,7 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
                 m_requestVarsTimer = new QTimer(this);
                 m_requestVarsTimer->setSingleShot(true);
                 m_requestVarsTimer->setInterval(1000);
-                connect(m_requestVarsTimer, &QTimer::timeout, this, [this]() {
+                connect(m_requestVarsTimer, &QTimer::timeout, this, [this] {
                     m_runnerProcess.write("print variables\n");
                 });
                 m_requestVarsTimer->start();
@@ -1174,7 +1173,7 @@ void SquishTools::onResultsDirChanged(const QString &filePath)
     } else {
         disconnect(m_resultsFileWatcher);
         // results.xml is created as soon some output has been opened - so try again in a second
-        QTimer::singleShot(1000, this, [this, filePath]() { onResultsDirChanged(filePath); });
+        QTimer::singleShot(1000, this, [this, filePath] { onResultsDirChanged(filePath); });
     }
 }
 
@@ -1201,7 +1200,7 @@ void SquishTools::minimizeQtCreatorWindows()
             window->showMinimized();
             if (!m_lastTopLevelWindows.contains(window)) {
                 m_lastTopLevelWindows.append(window);
-                connect(window, &QWindow::destroyed, this, [this, window]() {
+                connect(window, &QWindow::destroyed, this, [this, window] {
                     m_lastTopLevelWindows.removeOne(window);
                 });
             }
