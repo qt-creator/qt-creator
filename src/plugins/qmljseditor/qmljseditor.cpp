@@ -789,13 +789,18 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
         return;
     }
 
+    const ProjectExplorer::Project * const project = ProjectExplorer::ProjectTree::currentProject();
+    ProjectExplorer::ProjectNode* projectRootNode = nullptr;
+    if (project) {
+        projectRootNode = project->rootProjectNode();
+    }
+
     // string literals that could refer to a file link to them
     if (auto literal = cast<const StringLiteral *>(node)) {
         const QString &text = literal->value.toString();
         if (text.startsWith("qrc:/")) {
-            const ProjectExplorer::Project * const project = ProjectExplorer::ProjectTree::currentProject();
-            if (project && project->rootProjectNode()) {
-                const ProjectExplorer::Node * const nodeForPath = project->rootProjectNode()->findNode(
+            if (projectRootNode) {
+                const ProjectExplorer::Node * const nodeForPath = projectRootNode->findNode(
                             [qrcPath = text.mid(text.indexOf(':') + 1)](ProjectExplorer::Node *n) {
                     if (!n->asFileNode())
                         return false;
@@ -854,14 +859,33 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     if (auto q = AST::cast<const AST::UiQualifiedId *>(node)) {
         for (const AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
-            if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
-                link.linkTextStart = tail->identifierToken.begin();
-                link.linkTextEnd = tail->identifierToken.end();
+            if (tail->next || !(cursorPosition <= tail->identifierToken.end())) {
+                continue;
+            }
+
+            link.linkTextStart = tail->identifierToken.begin();
+            link.linkTextEnd = tail->identifierToken.end();
+
+            if (!value->asCppComponentValue() || !projectRootNode) {
                 processLinkCallback(link);
                 return;
             }
-        }
 
+            const ProjectExplorer::Node * const nodeForPath = projectRootNode->findNode(
+                [&fileName](ProjectExplorer::Node *n) {
+                    const auto fileNode = n->asFileNode();
+                    if (!fileNode)
+                        return false;
+                    Utils::FilePath filePath = n->filePath();
+                    return filePath.endsWith(fileName.toUserOutput());
+                });
+            if (nodeForPath) {
+                link.targetFilePath = nodeForPath->filePath();
+                processLinkCallback(link);
+                return;
+            }
+            // else we will process an empty link below to avoid an error dialog
+        }
     } else if (auto id = AST::cast<const AST::IdentifierExpression *>(node)) {
         link.linkTextStart = id->firstSourceLocation().begin();
         link.linkTextEnd = id->lastSourceLocation().end();

@@ -197,6 +197,8 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
             QString name = toString(script->qualifiedId);
             if (name == QLatin1String("name")) {
                 fmo->setClassName(readStringBinding(script));
+            } else if (name == QLatin1String("file")) {
+                fmo->setFilePath(readStringBinding(script));
             } else if (name == QLatin1String("prototype")) {
                 fmo->setSuperclassName(readStringBinding(script));
             } else if (name == QLatin1String("defaultProperty")) {
