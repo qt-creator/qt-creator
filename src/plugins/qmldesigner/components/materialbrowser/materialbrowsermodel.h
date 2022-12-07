@@ -37,6 +37,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
+    void refreshSearch();
 
     bool hasQuick3DImport() const;
     void setHasQuick3DImport(bool b);

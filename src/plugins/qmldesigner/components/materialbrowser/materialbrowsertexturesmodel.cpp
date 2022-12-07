@@ -94,6 +94,11 @@ void MaterialBrowserTexturesModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
+    refreshSearch();
+}
+
+void MaterialBrowserTexturesModel::refreshSearch()
+{
     bool isEmpty = false;
 
     // if selected texture goes invisible, select nearest one

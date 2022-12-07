@@ -244,7 +244,6 @@ void MaterialBrowserView::refreshModel(bool updateImages)
         }
     }
 
-    m_widget->clearSearchFilter();
     m_widget->materialBrowserModel()->setMaterials(materials, m_hasQuick3DImport);
     m_widget->materialBrowserTexturesModel()->setTextures(textures);
     m_widget->materialBrowserModel()->setHasMaterialLibrary(matLib.isValid());
@@ -366,9 +365,11 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
         }
         int idx = m_widget->materialBrowserModel()->materialIndex(node);
         m_widget->materialBrowserModel()->selectMaterial(idx);
+        m_widget->materialBrowserModel()->refreshSearch();
     } else { // is texture
         int idx = m_widget->materialBrowserTexturesModel()->textureIndex(node);
         m_widget->materialBrowserTexturesModel()->selectTexture(idx);
+        m_widget->materialBrowserTexturesModel()->refreshSearch();
     }
 }
 
@@ -452,8 +453,10 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
             m_widget->materialBrowserModel()->selectMaterial(idx);
     } else if (identifier == "selected_texture_changed") {
         int idx = m_widget->materialBrowserTexturesModel()->textureIndex(nodeList.first());
-        if (idx != -1)
+        if (idx != -1) {
             m_widget->materialBrowserTexturesModel()->selectTexture(idx);
+            m_widget->materialBrowserTexturesModel()->refreshSearch();
+        }
     } else if (identifier == "refresh_material_browser") {
         QTimer::singleShot(0, model(), [this]() {
             refreshModel(true);

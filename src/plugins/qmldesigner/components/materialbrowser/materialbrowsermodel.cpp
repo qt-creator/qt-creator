@@ -213,6 +213,11 @@ void MaterialBrowserModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
+    refreshSearch();
+}
+
+void MaterialBrowserModel::refreshSearch()
+{
     bool isEmpty = false;
 
     // if selected material goes invisible, select nearest material
@@ -256,9 +261,13 @@ void MaterialBrowserModel::setMaterials(const QList<ModelNode> &materials, bool 
         emit isEmptyChanged();
     }
 
-    setHasQuick3DImport(hasQuick3DImport);
+    if (!m_searchText.isEmpty())
+        refreshSearch();
+    else
+        resetModel();
+
     updateSelectedMaterial();
-    resetModel();
+    setHasQuick3DImport(hasQuick3DImport);
 }
 
 void MaterialBrowserModel::removeMaterial(const ModelNode &material)

@@ -29,6 +29,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
+    void refreshSearch();
 
     QList<ModelNode> textures() const;
     void setTextures(const QList<ModelNode> &textures);
