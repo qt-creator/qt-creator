@@ -71,15 +71,14 @@ TestRunner::TestRunner()
     s_instance = this;
 
     m_cancelTimer.setSingleShot(true);
-    connect(&m_cancelTimer, &QTimer::timeout, this, [this]() { cancelCurrent(Timeout); });
+    connect(&m_cancelTimer, &QTimer::timeout, this, [this] { cancelCurrent(Timeout); });
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::resultReadyAt,
             this, [this](int index) { emit testResultReady(m_futureWatcher.resultAt(index)); });
     connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::finished,
             this, &TestRunner::onFinished);
     connect(this, &TestRunner::requestStopTestRun,
             &m_futureWatcher, &QFutureWatcher<TestResultPtr>::cancel);
-    connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::canceled,
-            this, [this]() {
+    connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::canceled, this, [this] {
         cancelCurrent(UserCanceled);
         reportResult(ResultType::MessageFatal, Tr::tr("Test run canceled by user."));
     });
@@ -386,7 +385,7 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     }
 
     m_targetConnect = connect(project, &Project::activeTargetChanged,
-                              [this]() { cancelCurrent(KitChanged); });
+                              this, [this] { cancelCurrent(KitChanged); });
 
     if (projectExplorerSettings.buildBeforeDeploy == ProjectExplorer::Internal::BuildBeforeRunMode::Off
             || mode == TestRunMode::DebugWithoutDeploy
@@ -423,14 +422,14 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
 
     RunConfiguration *runConfig = nullptr;
     const QList<RunConfiguration *> runConfigurations
-            = Utils::filtered(target->runConfigurations(), [] (const RunConfiguration *rc) {
+            = Utils::filtered(target->runConfigurations(), [](const RunConfiguration *rc) {
         return !rc->runnable().command.isEmpty();
     });
 
     const ChoicePair oldChoice = AutotestPlugin::cachedChoiceFor(buildTargetKey);
     if (!oldChoice.executable.isEmpty()) {
         runConfig = Utils::findOrDefault(runConfigurations,
-                                  [&oldChoice] (const RunConfiguration *rc) {
+                                         [&oldChoice](const RunConfiguration *rc) {
             return oldChoice.matches(rc);
         });
         if (runConfig)
@@ -447,7 +446,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
             return nullptr;
         // run configuration has been selected - fill config based on this one..
         const FilePath exe = FilePath::fromString(dialog.executable());
-        runConfig = Utils::findOr(runConfigurations, nullptr, [&dName, &exe] (const RunConfiguration *rc) {
+        runConfig = Utils::findOr(runConfigurations, nullptr, [&dName, &exe](const RunConfiguration *rc) {
             if (rc->displayName() != dName)
                 return false;
             return rc->runnable().command.executable() == exe;
@@ -701,7 +700,7 @@ void TestRunner::runOrDebugTests()
         if (executablesEmpty()) {
             m_skipTargetsCheck = true;
             Target * target = SessionManager::startupTarget();
-            QTimer::singleShot(5000, this, [this, target = QPointer<Target>(target)]() {
+            QTimer::singleShot(5000, this, [this, target = QPointer<Target>(target)] {
                 if (target) {
                     disconnect(target, &Target::buildSystemUpdated,
                                this, &TestRunner::onBuildSystemUpdated);

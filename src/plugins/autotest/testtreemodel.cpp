@@ -70,7 +70,7 @@ void TestTreeModel::setupParsingConnections()
     m_parser->setState(TestCodeParser::Idle);
 
     SessionManager *sm = SessionManager::instance();
-    connect(sm, &SessionManager::startupProjectChanged, [this, sm](Project *project) {
+    connect(sm, &SessionManager::startupProjectChanged, this, [this, sm](Project *project) {
         synchronizeTestFrameworks(); // we might have project settings
         m_parser->onStartupProjectChanged(project);
         removeAllTestToolItems();
@@ -568,7 +568,7 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
 {
     TestTreeItem *parentNode = root;
     if (groupingEnabled && item->isGroupable()) {
-        parentNode = root->findFirstLevelChildItem([item] (const TestTreeItem *it) {
+        parentNode = root->findFirstLevelChildItem([item](const TestTreeItem *it) {
             return it->isGroupNodeFor(item);
         });
         if (!parentNode) {

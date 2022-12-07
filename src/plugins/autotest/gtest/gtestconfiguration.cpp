@@ -37,8 +37,8 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
                                                          "--gtest_print_time="
                                                          };
 
-    QStringList allowed = Utils::filtered(provided, [] (const QString &arg) {
-        return Utils::allOf(knownInterferingOptions, [&arg] (const QString &interfering) {
+    QStringList allowed = Utils::filtered(provided, [](const QString &arg) {
+        return Utils::allOf(knownInterferingOptions, [&arg](const QString &interfering) {
             return !arg.startsWith(interfering);
         });
     });

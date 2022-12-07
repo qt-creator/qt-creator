@@ -511,7 +511,7 @@ QSet<QString> internalTargets(const TestTreeItem &item)
         return cppMM->dependingInternalTargets(item.filePath());
     for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectParts) {
         if (Utils::FilePath::fromString(projectPart->projectFile) == item.proFile()
-                && Utils::anyOf(projectPart->files, [&file] (const CppEditor::ProjectFile &pf) {
+                && Utils::anyOf(projectPart->files, [&file](const CppEditor::ProjectFile &pf) {
                                 return pf.path == file;
         })) {
             result.insert(projectPart->buildSystemTarget);

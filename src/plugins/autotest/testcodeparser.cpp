@@ -46,7 +46,7 @@ TestCodeParser::TestCodeParser()
     connect(&m_futureWatcher, &QFutureWatcher<TestParseResultPtr>::finished,
             this, &TestCodeParser::onFinished);
     connect(&m_futureWatcher, &QFutureWatcher<TestParseResultPtr>::resultReadyAt,
-            this, [this] (int index) {
+            this, [this](int index) {
         emit testParseResultReady(m_futureWatcher.resultAt(index));
     });
     connect(this, &TestCodeParser::parsingFinished, this, &TestCodeParser::releaseParserInternals);
@@ -112,7 +112,7 @@ void TestCodeParser::emitUpdateTestTree(ITestParser *parser)
 
     qCDebug(LOG) << "adding singleShot";
     m_singleShotScheduled = true;
-    QTimer::singleShot(1000, this, [this]() { updateTestTree(m_updateParsers); });
+    QTimer::singleShot(1000, this, [this] { updateTestTree(m_updateParsers); });
 }
 
 void TestCodeParser::updateTestTree(const QSet<ITestParser *> &parsers)
@@ -310,7 +310,7 @@ void TestCodeParser::scanForTests(const Utils::FilePaths &fileList,
     TestTreeModel::instance()->updateCheckStateCache();
     if (isFullParse) {
         // remove qml files as they will be found automatically by the referencing cpp file
-        list = Utils::filtered(list, [] (const Utils::FilePath &fn) {
+        list = Utils::filtered(list, [](const Utils::FilePath &fn) {
             return !fn.endsWith(".qml");
         });
         if (!parsers.isEmpty()) {

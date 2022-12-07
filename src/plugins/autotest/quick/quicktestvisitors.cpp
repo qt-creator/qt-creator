@@ -27,7 +27,7 @@ TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &
 static bool documentImportsQtTest(const QmlJS::Document *doc)
 {
     if (const QmlJS::Bind *bind = doc->bind()) {
-        return Utils::anyOf(bind->imports(), [] (const QmlJS::ImportInfo &info) {
+        return Utils::anyOf(bind->imports(), [](const QmlJS::ImportInfo &info) {
             return info.isValid() && info.name() == "QtTest";
         });
     }

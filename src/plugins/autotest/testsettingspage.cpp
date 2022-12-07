@@ -366,7 +366,7 @@ void TestSettingsPage::apply()
         return;
     const TestSettings newSettings = m_widget->settings();
     const QList<Utils::Id> changedIds = Utils::filtered(newSettings.frameworksGrouping.keys(),
-                                                       [newSettings, this] (const Utils::Id &id) {
+                                                       [newSettings, this](const Utils::Id &id) {
         return newSettings.frameworksGrouping[id] != m_settings->frameworksGrouping[id];
     });
     *m_settings = newSettings;

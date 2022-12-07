@@ -86,8 +86,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
         m_projectSettings->setRunAfterBuild(RunAfterBuildMode(index));
     });
     m_syncTimer.setSingleShot(true);
-    connect(&m_syncTimer, &QTimer::timeout,
-            [this]() {
+    connect(&m_syncTimer, &QTimer::timeout, this, [this] {
         auto testTreeModel = TestTreeModel::instance();
         if (m_syncType & ITestBase::Framework)
             testTreeModel->synchronizeTestFrameworks();

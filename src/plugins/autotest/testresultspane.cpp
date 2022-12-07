@@ -135,10 +135,10 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             trd, &TestResultDelegate::currentChanged);
     connect(m_treeView, &Utils::TreeView::customContextMenuRequested,
             this, &TestResultsPane::onCustomContextMenuRequested);
-    connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, [this] () {
+    connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, this, [this] {
         onCopyItemTriggered(getTestResult(m_treeView->currentIndex()));
     });
-    connect(m_model, &TestResultModel::requestExpansion, [this] (const QModelIndex &idx) {
+    connect(m_model, &TestResultModel::requestExpansion, this, [this](const QModelIndex &idx) {
         m_treeView->expand(m_filterModel->mapFromSource(idx));
     });
     connect(TestRunner::instance(), &TestRunner::testRunStarted,
@@ -159,7 +159,7 @@ void TestResultsPane::createToolButtons()
     m_expandCollapse->setToolTip(Tr::tr("Expand All"));
     m_expandCollapse->setCheckable(true);
     m_expandCollapse->setChecked(false);
-    connect(m_expandCollapse, &QToolButton::clicked, [this] (bool checked) {
+    connect(m_expandCollapse, &QToolButton::clicked, this, [this](bool checked) {
         if (checked)
             m_treeView->expandAll();
         else
@@ -505,10 +505,10 @@ void TestResultsPane::initializeFilterMenu()
     m_filterMenu->addSeparator();
     QAction *action = new QAction(Tr::tr("Check All Filters"), m_filterMenu);
     m_filterMenu->addAction(action);
-    connect(action, &QAction::triggered, this, [this]() { TestResultsPane::checkAllFilter(true); });
+    connect(action, &QAction::triggered, this, [this] { TestResultsPane::checkAllFilter(true); });
     action = new QAction(Tr::tr("Uncheck All Filters"), m_filterMenu);
     m_filterMenu->addAction(action);
-    connect(action, &QAction::triggered, this, [this]() { TestResultsPane::checkAllFilter(false); });
+    connect(action, &QAction::triggered, this, [this] { TestResultsPane::checkAllFilter(false); });
 }
 
 void TestResultsPane::updateSummaryLabel()
@@ -617,7 +617,7 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     QAction *action = new QAction(Tr::tr("Copy"), &menu);
     action->setShortcut(QKeySequence(QKeySequence::Copy));
     action->setEnabled(resultsAvailable && clicked);
-    connect(action, &QAction::triggered, [this, clicked] () {
+    connect(action, &QAction::triggered, this, [this, clicked] {
        onCopyItemTriggered(clicked);
     });
     menu.addAction(action);

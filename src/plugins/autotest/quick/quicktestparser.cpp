@@ -83,20 +83,20 @@ static QString quickTestSrcDir(const CppEditor::CppModelManager *cppMM,
     const QList<CppEditor::ProjectPart::ConstPtr> parts = cppMM->projectPart(fileName);
     if (parts.size() > 0) {
         const ProjectExplorer::Macros &macros = parts.at(0)->projectMacros;
-        auto found = std::find_if(
-                    macros.cbegin(),
-                    macros.cend(),
-                    [] (const ProjectExplorer::Macro &macro) { return macro.key == "QUICK_TEST_SOURCE_DIR"; });
-       if (found != macros.cend())  {
-           QByteArray result = found->value;
-           if (result.startsWith('"'))
-               result.remove(result.length() - 1, 1).remove(0, 1);
-           if (result.startsWith("\\\""))
-               result.remove(result.length() - 2, 2).remove(0, 2);
-           return QLatin1String(result);
-       }
+        auto found = std::find_if(macros.cbegin(), macros.cend(),
+                                  [](const ProjectExplorer::Macro &macro) {
+            return macro.key == "QUICK_TEST_SOURCE_DIR";
+        });
+        if (found != macros.cend())  {
+            QByteArray result = found->value;
+            if (result.startsWith('"'))
+                result.remove(result.length() - 1, 1).remove(0, 1);
+            if (result.startsWith("\\\""))
+                result.remove(result.length() - 2, 2).remove(0, 2);
+            return QLatin1String(result);
+        }
     }
-    return QString();
+    return {};
 }
 
 QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) const
@@ -326,7 +326,7 @@ QuickTestParser::QuickTestParser(ITestFramework *framework)
     : CppParser(framework)
 {
     connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged, [this] {
+            &ProjectExplorer::SessionManager::startupProjectChanged, this, [this] {
         const QStringList &dirs = m_directoryWatcher.directories();
         if (!dirs.isEmpty())
             m_directoryWatcher.removePaths(dirs);

@@ -76,7 +76,7 @@ static bool qtTestLibDefined(const Utils::FilePath &fileName)
     const QList<CppEditor::ProjectPart::ConstPtr> parts =
             CppEditor::CppModelManager::instance()->projectPart(fileName);
     if (parts.size() > 0) {
-        return Utils::anyOf(parts.at(0)->projectMacros, [] (const ProjectExplorer::Macro &macro) {
+        return Utils::anyOf(parts.at(0)->projectMacros, [](const ProjectExplorer::Macro &macro) {
             return macro.key == "QT_TESTLIB_LIB";
         });
     }
@@ -218,7 +218,7 @@ static bool containsFunction(const QMap<QString, QtTestCodeLocationAndType> &tes
                              const QString &function)
 {
     const QString search = "::" + function;
-    return Utils::anyOf(testFunctions.keys(), [&search] (const QString &key) {
+    return Utils::anyOf(testFunctions.keys(), [&search](const QString &key) {
         return key.endsWith(search);
     });
 }

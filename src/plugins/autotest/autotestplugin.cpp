@@ -152,7 +152,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
             this, [this] { m_runconfigCache.clear(); });
 
     connect(sessionManager, &ProjectExplorer::SessionManager::aboutToRemoveProject,
-            this, [] (ProjectExplorer::Project *project) {
+            this, [](ProjectExplorer::Project *project) {
         const auto it = s_projectSettings.constFind(project);
         if (it != s_projectSettings.constEnd()) {
             delete it.value();

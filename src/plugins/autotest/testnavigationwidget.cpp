@@ -84,8 +84,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
             this, &TestNavigationWidget::onParsingFinished);
     connect(m_model->parser(), &TestCodeParser::parsingFailed,
             this, &TestNavigationWidget::onParsingFinished);
-    connect(m_model, &TestTreeModel::updatedActiveFrameworks,
-            this, [this] (int numberOfActive) {
+    connect(m_model, &TestTreeModel::updatedActiveFrameworks, this, [this](int numberOfActive) {
         m_missingFrameworksWidget->setVisible(numberOfActive == 0);
     });
     ProjectExplorer::SessionManager *sm = ProjectExplorer::SessionManager::instance();
@@ -122,14 +121,12 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             if (item->canProvideTestConfiguration()) {
                 runThisTest = new QAction(Tr::tr("Run This Test"), &menu);
                 runThisTest->setEnabled(enabled);
-                connect(runThisTest, &QAction::triggered,
-                        this, [this] () {
+                connect(runThisTest, &QAction::triggered, this, [this] {
                     onRunThisTestTriggered(TestRunMode::Run);
                 });
                 runWithoutDeploy = new QAction(Tr::tr("Run Without Deployment"), &menu);
                 runWithoutDeploy->setEnabled(enabled);
-                connect(runWithoutDeploy, &QAction::triggered,
-                        this, [this] () {
+                connect(runWithoutDeploy, &QAction::triggered, this, [this] {
                     onRunThisTestTriggered(TestRunMode::RunWithoutDeploy);
                 });
             }
@@ -139,14 +136,12 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
             if (ttitem && ttitem->canProvideDebugConfiguration()) {
                 debugThisTest = new QAction(Tr::tr("Debug This Test"), &menu);
                 debugThisTest->setEnabled(enabled);
-                connect(debugThisTest, &QAction::triggered,
-                        this, [this] () {
+                connect(debugThisTest, &QAction::triggered, this, [this] {
                     onRunThisTestTriggered(TestRunMode::Debug);
                 });
                 debugWithoutDeploy = new QAction(Tr::tr("Debug Without Deployment"), &menu);
                 debugWithoutDeploy->setEnabled(enabled);
-                connect(debugWithoutDeploy, &QAction::triggered,
-                        this, [this] () {
+                connect(debugWithoutDeploy, &QAction::triggered, this, [this] {
                     onRunThisTestTriggered(TestRunMode::DebugWithoutDeploy);
                 });
             }
@@ -216,13 +211,13 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     collapse->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
     collapse->setToolTip(Tr::tr("Collapse All"));
 
-    connect(expand, &QToolButton::clicked, m_view, [this]() {
+    connect(expand, &QToolButton::clicked, m_view, [this] {
         m_view->blockSignals(true);
         m_view->expandAll();
         m_view->blockSignals(false);
         updateExpandedStateCache();
     });
-    connect(collapse, &QToolButton::clicked, m_view, [this]() {
+    connect(collapse, &QToolButton::clicked, m_view, [this] {
         m_view->blockSignals(true);
         m_view->collapseAll();
         m_view->blockSignals(false);
