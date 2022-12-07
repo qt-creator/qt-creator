@@ -101,7 +101,7 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     disconnect(m_buildBeforeAnalysis, 0, 0, 0);
     m_buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
     m_buildBeforeAnalysis->setCheckState(s.buildBeforeAnalysis() ? Qt::Checked : Qt::Unchecked);
-    connect(m_buildBeforeAnalysis, &QCheckBox::toggled, [this](bool checked) {
+    connect(m_buildBeforeAnalysis, &QCheckBox::toggled, this, [this](bool checked) {
         if (!checked)
             showHintAboutBuildBeforeAnalysis();
         emit changed();

@@ -483,7 +483,7 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
         return;
     const auto generatorWatcher = new QFutureWatcher<GenerateCompilationDbResult>;
     connect(generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
-            [this, project, projectInfo, jsonDbDir, generatorWatcher] {
+            this, [this, project, projectInfo, jsonDbDir, generatorWatcher] {
         generatorWatcher->deleteLater();
         if (!isProjectDataUpToDate(project, projectInfo, jsonDbDir))
             return;
@@ -781,7 +781,7 @@ void addFixItsActionsToMenu(QMenu *menu, const TextEditor::QuickFixOperations &f
 {
     for (const TextEditor::QuickFixOperation::Ptr &fixItOperation : fixItOperations) {
         QAction *action = menu->addAction(fixItOperation->description());
-        QObject::connect(action, &QAction::triggered, [fixItOperation]() {
+        QObject::connect(action, &QAction::triggered, [fixItOperation] {
             fixItOperation->perform();
         });
     }

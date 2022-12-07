@@ -124,7 +124,7 @@ void ClangToolsPlugin::onCurrentEditorChanged()
         if (d->documentRunners.contains(document))
             continue;
         auto runner = new DocumentClangToolRunner(document);
-        connect(runner, &DocumentClangToolRunner::destroyed, this, [this, document]() {
+        connect(runner, &DocumentClangToolRunner::destroyed, this, [this, document] {
             d->documentRunners.remove(document);
         });
         d->documentRunners[document] = runner;
@@ -159,7 +159,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
         const QIcon icon = Utils::Icon({{":/debugger/images/debugger_singleinstructionmode.png",
                                          Utils::Theme::IconsBaseColor}})
                                .icon();
-        QAction *action = widget->toolBar()->addAction(icon, tr("Analyze File"), [this, editor]() {
+        QAction *action = widget->toolBar()->addAction(icon, tr("Analyze File"), [this, editor] {
             d->clangTool.startTool(editor->document()->filePath());
         });
         cmd->augmentActionWithShortcutToolTip(action);

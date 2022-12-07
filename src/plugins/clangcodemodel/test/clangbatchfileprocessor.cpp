@@ -704,7 +704,7 @@ bool runClangBatchFile(const QString &filePath)
     QTC_ASSERT(parser.parse(), return false);
     const QVector<Command::Ptr> commands = parser.commands();
 
-    Utils::ExecuteOnDestruction closeAllEditors([](){
+    Utils::ExecuteOnDestruction closeAllEditors([] {
         qWarning("ClangBatchFileProcessor: Finished, closing all documents.");
         QTC_CHECK(Core::EditorManager::closeAllEditors(/*askAboutModifiedEditors=*/ false));
     });

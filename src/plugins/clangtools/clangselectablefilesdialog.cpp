@@ -294,7 +294,7 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
     buttons->setStandardButtons(QDialogButtonBox::Cancel);
     buttons->addButton(analyzeButton, QDialogButtonBox::AcceptRole);
 
-    connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, [this, analyzeButton] {
+    connect(m_filesModel.get(), &QAbstractItemModel::dataChanged, this, [this, analyzeButton] {
         analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
     });
 

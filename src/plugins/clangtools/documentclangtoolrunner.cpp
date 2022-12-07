@@ -198,12 +198,12 @@ void DocumentClangToolRunner::run()
 
                     Environment env = projectBuildEnvironment(project);
                     if (config.isClangTidyEnabled()) {
-                        m_runnerCreators << [this, env, config]() {
+                        m_runnerCreators << [this, env, config] {
                             return createRunner<ClangTidyRunner>(config, env);
                         };
                     }
                     if (config.isClazyEnabled()) {
-                        m_runnerCreators << [this, env, config]() {
+                        m_runnerCreators << [this, env, config] {
                             return createRunner<ClazyStandaloneRunner>(config, env);
                         };
                     }

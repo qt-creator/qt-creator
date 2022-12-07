@@ -452,7 +452,7 @@ ClangTool::ClangTool()
     action->setCheckable(true);
     action->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
     action->setToolTip(tr("Expand All"));
-    connect(action, &QAction::toggled, [this](bool checked){
+    connect(action, &QAction::toggled, this, [this](bool checked){
         if (checked) {
             m_expandCollapse->setToolTip(tr("Collapse All"));
             m_diagnosticView->expandAll();
@@ -502,7 +502,7 @@ ClangTool::ClangTool()
 
                 updateForCurrentState();
             });
-    connect(m_applyFixitsButton, &QToolButton::clicked, [this] {
+    connect(m_applyFixitsButton, &QToolButton::clicked, this, [this] {
         QVector<DiagnosticItem *> diagnosticItems;
         m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item){
             diagnosticItems += item;
@@ -515,7 +515,7 @@ ClangTool::ClangTool()
     action = new QAction(this);
     action->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
     //action->setToolTip(tr("Open Project Settings")); // TODO: Uncomment in master.
-    connect(action, &QAction::triggered, []() {
+    connect(action, &QAction::triggered, [] {
         ProjectExplorerPlugin::activateProjectPanel(Constants::PROJECT_PANEL_ID);
     });
     m_openProjectSettings = action;
@@ -911,9 +911,8 @@ void ClangTool::updateForInitialState()
     switch (result.kind)
     case CheckResult::InvalidTidyExecutable: {
     case CheckResult::InvalidClazyExecutable:
-        m_infoBarWidget->setError(InfoBarWidget::Warning,
-                                  makeLink(result.errorText),
-                                  [](){ ICore::showOptionsDialog(Constants::SETTINGS_PAGE_ID); });
+        m_infoBarWidget->setError(InfoBarWidget::Warning, makeLink(result.errorText),
+                                  [] { ICore::showOptionsDialog(Constants::SETTINGS_PAGE_ID); });
         break;
     case CheckResult::ProjectNotSuitable:
     case CheckResult::ProjectNotOpen:

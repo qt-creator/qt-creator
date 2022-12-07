@@ -125,7 +125,7 @@ void ClangCodeModelPlugin::createCompilationDBButton()
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
 
     connect(&m_generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
-            this, [this] () {
+            this, [this] {
         const GenerateCompilationDbResult result = m_generatorWatcher.result();
         QString message;
         if (result.error.isEmpty()) {

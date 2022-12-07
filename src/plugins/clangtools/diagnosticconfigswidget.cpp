@@ -984,9 +984,8 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
         m_clazyChecks->topicsView->clearSelection();
     });
     m_clazyChecks->topicsView->setSelectionMode(QAbstractItemView::MultiSelection);
-    connect(m_clazyChecks->topicsView->selectionModel(),
-            &QItemSelectionModel::selectionChanged,
-            [this, topicsModel](const QItemSelection &, const QItemSelection &) {
+    connect(m_clazyChecks->topicsView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this, topicsModel](const QItemSelection &, const QItemSelection &) {
                 const auto indexes = m_clazyChecks->topicsView->selectionModel()->selectedIndexes();
                 const QStringList topics
                     = Utils::transform(indexes, [topicsModel](const QModelIndex &index) {
@@ -996,12 +995,11 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
                 this->syncClazyChecksGroupBox();
             });
 
-    connect(m_clazyChecks->checksView,
-            &QTreeView::clicked,
-            [model = m_clazySortFilterProxyModel](const QModelIndex &index) {
+    connect(m_clazyChecks->checksView, &QTreeView::clicked,
+            this, [model = m_clazySortFilterProxyModel](const QModelIndex &index) {
                 openUrl(model, index);
             });
-    connect(m_clazyChecks->enableLowerLevelsCheckBox, &QCheckBox::stateChanged, [this](int) {
+    connect(m_clazyChecks->enableLowerLevelsCheckBox, &QCheckBox::stateChanged, this, [this] {
         const bool enable = m_clazyChecks->enableLowerLevelsCheckBox->isChecked();
         m_clazyTreeModel->setEnableLowerLevels(enable);
         codeModelSettings()->setEnableLowerClazyLevels(enable);
@@ -1020,9 +1018,8 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     connect(m_tidyChecks->filterLineEdit, &Utils::FancyLineEdit::filterChanged, tidyFilterModel,
             qOverload<const QString &>(&QSortFilterProxyModel::setFilterRegularExpression));
 
-    connect(m_tidyChecks->checksPrefixesTree,
-            &QTreeView::clicked,
-            [this, tidyFilterModel](const QModelIndex &proxyIndex) {
+    connect(m_tidyChecks->checksPrefixesTree, &QTreeView::clicked,
+            this, [this, tidyFilterModel](const QModelIndex &proxyIndex) {
                 const QModelIndex index = tidyFilterModel->mapToSource(proxyIndex);
                 if (index.column() == 2) {
                     if (m_tidyTreeModel->hasChildren(index))
@@ -1070,7 +1067,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
             buttonsBox
         }.attachTo(&dialog);
 
-        QObject::connect(&dialog, &QDialog::accepted, [=, &initialChecks]() {
+        QObject::connect(&dialog, &QDialog::accepted, this, [=, &initialChecks] {
             const QString updatedChecks = textEdit->toPlainText();
             if (updatedChecks == initialChecks)
                 return;
