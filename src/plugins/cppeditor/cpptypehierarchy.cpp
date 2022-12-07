@@ -44,7 +44,7 @@ QStandardItem *itemForClass(const CppClass &cppClass)
     item->setData(cppClass.name, Qt::DisplayRole);
     if (cppClass.name != cppClass.qualifiedName)
         item->setData(cppClass.qualifiedName, AnnotationRole);
-    item->setData(cppClass.icon, Qt::DecorationRole);
+    item->setData(iconForType(cppClass.iconType), Qt::DecorationRole);
     QVariant link;
     link.setValue(Link(cppClass.link));
     item->setData(link, LinkRole);

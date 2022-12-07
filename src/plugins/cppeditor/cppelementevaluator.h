@@ -5,6 +5,7 @@
 
 #include <coreplugin/helpitem.h>
 #include <texteditor/texteditor.h>
+#include <utils/utilsicons.h>
 
 #include <cplusplus/CppDocument.h>
 
@@ -76,11 +77,10 @@ public:
     explicit CppDeclarableElement(CPlusPlus::Symbol *declaration);
 
 public:
-    CPlusPlus::Symbol *declaration;
+    Utils::CodeModelIcon::Type iconType;
     QString name;
     QString qualifiedName;
     QString type;
-    QIcon icon;
 };
 
 class CppClass : public CppDeclarableElement
@@ -88,8 +88,6 @@ class CppClass : public CppDeclarableElement
 public:
     CppClass();
     explicit CppClass(CPlusPlus::Symbol *declaration);
-
-    bool operator==(const CppClass &other);
 
     CppClass *toCppClass() final;
 

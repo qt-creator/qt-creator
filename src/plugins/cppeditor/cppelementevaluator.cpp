@@ -94,8 +94,7 @@ public:
 // CppDeclarableElement
 CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     : CppElement()
-    , declaration(declaration)
-    , icon(Icons::iconForSymbol(declaration))
+    , iconType(Icons::iconTypeForSymbol(declaration))
 {
     Overview overview;
     overview.showArgumentNames = true;
@@ -133,11 +132,6 @@ CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
 {
     helpCategory = Core::HelpItem::ClassOrNamespace;
     tooltip = qualifiedName;
-}
-
-bool CppClass::operator==(const CppClass &other)
-{
-    return this->declaration == other.declaration;
 }
 
 CppClass *CppClass::toCppClass()
