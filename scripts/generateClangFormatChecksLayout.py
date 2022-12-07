@@ -81,7 +81,7 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
     using namespace Layouting;
 
     Form {
-''' + layout_code + '''    }.attachTo(this, Layouting::WithoutMargins);
+''' + layout_code + '''    }.attachTo(this);
 }
 '''
 
