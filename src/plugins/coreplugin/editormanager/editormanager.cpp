@@ -3180,17 +3180,14 @@ void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
                                              OpenEditorFlags flags,
                                              bool *newEditor)
 {
-    if (item.path().empty()) {
+    const QStringList &path = item.path();
+    if (path.isEmpty()) {
         openEditor(FilePath::fromUserInput(item.lineText()), editorId, flags, newEditor);
         return;
     }
-
-    openEditorAt({FilePath::fromUserInput(item.path().first()),
-                  item.mainRange().begin.line,
-                  item.mainRange().begin.column},
-                 editorId,
-                 flags,
-                 newEditor);
+    const Search::TextPosition position = item.mainRange().begin;
+    openEditorAt({FilePath::fromUserInput(path.first()), position.line, position.column},
+                 editorId, flags, newEditor);
 }
 
 /*!

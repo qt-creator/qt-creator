@@ -484,7 +484,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text,
 
     QHash<FilePath, QList<SearchResultItem> > changes;
     for (const SearchResultItem &item : items)
-        changes[FilePath::fromUserInput(item.path().first())].append(item);
+        changes[FilePath::fromUserInput(item.path().constFirst())].append(item);
 
     // Checking for files without write permissions
     QSet<FilePath> roFiles;

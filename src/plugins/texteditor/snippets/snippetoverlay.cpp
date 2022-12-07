@@ -102,7 +102,7 @@ QTextCursor SnippetOverlay::nextSelectionCursor(const QTextCursor &cursor) const
             if (selections[selectionIndex].m_cursor_begin.position() > cursor.position())
                 return cursorForIndex(selectionIndex);
         }
-        return cursorForIndex(m_variables[nextVariableIndex].first());
+        return cursorForIndex(m_variables[nextVariableIndex].constFirst());
     }
     // currently not over a variable simply select the next available one
     for (const OverlaySelection &candidate : selections) {
@@ -128,7 +128,7 @@ QTextCursor SnippetOverlay::previousSelectionCursor(const QTextCursor &cursor) c
             if (selections.at(equivalents.at(i)).m_cursor_end.position() < cursor.position())
                 return cursorForIndex(equivalents.at(i));
         }
-        return cursorForIndex(m_variables[previousVariableIndex].last());
+        return cursorForIndex(m_variables[previousVariableIndex].constLast());
     }
     // currently not over a variable simply select the previous available one
     for (int i = selections.size() - 1; i >= 0; --i) {

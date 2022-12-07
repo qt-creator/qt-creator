@@ -268,7 +268,7 @@ void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const File
 
 void PyLSClient::closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler)
 {
-    const FilePath file = compiler->targets().first();
+    const FilePath file = compiler->targets().constFirst();
     m_extraCompilerOutputDir.pathAppended(file.fileName()).removeFile();
     compiler->disconnect(this);
 }
