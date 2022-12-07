@@ -862,7 +862,7 @@ bool FileSystemModel::remove(const QModelIndex &aindex)
     if (useFileSystemWatcher() && HostOsInfo::isWindowsHost())  {
         // QTBUG-65683: Remove file system watchers prior to deletion to prevent
         // failure due to locked files on Windows.
-        const QStringList watchedPaths = d->unwatchPathsAt(aindex);
+        d->unwatchPathsAt(aindex);
     }
     const bool success = (fileInfo.isFile() || fileInfo.isSymLink())
             ? QFile::remove(path) : QDir(path).removeRecursively();
@@ -2192,6 +2192,7 @@ void FileSystemModel::setNameFilters(const QStringList &filters)
         // update the bypass filter to only bypass the stuff that must be kept around
         d->bypassFilters.clear();
         // We guarantee that rootPath will stick around
+        // TODO: root looks unused - does it really guarantee anything?
         QPersistentModelIndex root(index(rootPath()));
         const QModelIndexList persistentList = persistentIndexList();
         for (const auto &persistentIndex : persistentList) {

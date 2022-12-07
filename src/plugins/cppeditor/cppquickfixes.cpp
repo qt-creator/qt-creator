@@ -8966,7 +8966,6 @@ private:
                 if (constructorLocation == CppQuickFixSettings::FunctionLocation::CppFile) {
                     implLoc = sourceLocationFor(m_class, &insertedNamespaces);
                     implFile = m_sourceFile;
-                    QString clazz = overview.prettyName(m_class->name());
                     if (m_settings->rewriteTypesinCppFile())
                         implCode = symbolAt(m_class, m_sourceFile, implLoc);
                     else
@@ -8997,7 +8996,6 @@ private:
                     if (!member->defaultValue.isEmpty())
                         inClassDeclaration += " = " + member->defaultValue;
                     inClassDeclaration += ", ";
-                    QString param = member->parameterName;
                     if (implFile) {
                         FullySpecifiedType type = typeAt(member->type,
                                                          m_class,

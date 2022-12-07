@@ -199,10 +199,8 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
                                             const QStringList &path,
                                             QList<const QMenu *> &processedMenus)
 {
-    QList<LocatorFilterEntry> entries;
     if (!m_enabledActions.contains(action))
         return;
-    const QString whatsThis = action->whatsThis();
     const QString text = actionText(action);
     if (QMenu *menu = action->menu()) {
         if (processedMenus.contains(menu))

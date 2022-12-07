@@ -296,7 +296,6 @@ bool QbsBuildSystem::renameFile(Node *context,
 QVariant QbsBuildSystem::additionalData(Id id) const
 {
     if (id == "QmlDesignerImportPath") {
-        QStringList designerImportPaths;
         const QJsonObject project = session()->projectData();
         QStringList paths;
         forAllProducts(project, [&paths](const QJsonObject &product) {

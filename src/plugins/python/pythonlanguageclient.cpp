@@ -260,7 +260,6 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
 
 void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const FilePath &file)
 {
-    const QString text = QString::fromUtf8(compiler->content(file));
     const FilePath target = m_extraCompilerOutputDir.pathAppended(file.fileName());
 
     target.writeFileContents(compiler->content(file));

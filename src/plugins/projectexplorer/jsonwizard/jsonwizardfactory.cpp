@@ -145,7 +145,6 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
         return {};
     }
 
-    QList <Core::IWizardFactory *> result;
     const Utils::FilePaths paths = searchPaths();
     for (const Utils::FilePath &path : paths) {
         if (path.isEmpty())
@@ -378,7 +377,6 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
 //loadDefaultValues() and loadDefaultValues()
 void JsonWizardFactory::createWizardFactories()
 {
-    QString errorMessage;
     QString verboseLog;
     const QString wizardFileName = QLatin1String("wizard.json");
 

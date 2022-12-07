@@ -201,12 +201,9 @@ void ICodeStylePreferences::fromSettings(const QString &category, QSettings *s)
 
 QVariantMap ICodeStylePreferences::toMap() const
 {
-    QVariantMap map;
     if (!currentDelegate())
         return d->m_tabSettings.toMap();
-    return {
-        {currentPreferencesKey, currentDelegateId()}
-    };
+    return {{currentPreferencesKey, currentDelegateId()}};
 }
 
 void ICodeStylePreferences::fromMap(const QVariantMap &map)

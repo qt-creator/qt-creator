@@ -162,7 +162,8 @@ void AndroidRunner::launchAVD()
     if (!m_target || !m_target->project())
         return;
 
-    QStringList androidAbis = AndroidManager::applicationAbis(m_target);
+    // TODO: is this still needed?
+    AndroidManager::applicationAbis(m_target);
 
     // Get AVD info
     const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());

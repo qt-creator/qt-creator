@@ -397,7 +397,6 @@ void QdsNewDialog::accept()
         .execute();
 
     std::shared_ptr<PresetItem> item = m_wizard.preset();
-    QString customSizeName = m_qmlCustomWidth + " x " + m_qmlCustomHeight;
 
     UserPresetData preset = currentUserPresetData(m_currentPreset->displayName());
     m_recentsStore.save(preset);

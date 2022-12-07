@@ -3321,7 +3321,6 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
             enableDeployActionsContextMenu = false;
     }
 
-    const QString projectName = project ? project->displayName() : QString();
     bool hasProjects = SessionManager::hasProjects();
 
     m_deployAction->setEnabled(enableDeployActions);

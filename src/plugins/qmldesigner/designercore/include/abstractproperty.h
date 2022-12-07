@@ -91,7 +91,6 @@ public:
     template<typename... TypeName>
     bool hasDynamicTypeName(const std::tuple<TypeName...> &typeNames) const
     {
-        auto dynamicTypeName_ = dynamicTypeName();
         return std::apply([&](auto... typeName) { return hasDynamicTypeName(typeName...); },
                           typeNames);
     }

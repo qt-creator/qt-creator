@@ -1751,8 +1751,6 @@ QStringList FileFilter::asFindArguments(const QString &path) const
     if (!(filters & QDir::Hidden))
         filterOptions << "!" << "-name" << ".*";
 
-    QStringList typesToList;
-
     QStringList filterFilesAndDirs;
     if (filters.testFlag(QDir::Dirs))
         filterFilesAndDirs << "-type" << "d";
