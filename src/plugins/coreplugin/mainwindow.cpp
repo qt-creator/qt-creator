@@ -567,7 +567,7 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(m_newAction, Constants::NEW);
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+Shift+N"));
     mfile->addAction(cmd, Constants::G_FILE_NEW);
-    connect(m_newAction, &QAction::triggered, this, []() {
+    connect(m_newAction, &QAction::triggered, this, [] {
         if (!ICore::isNewItemDialogRunning()) {
             ICore::showNewItemDialog(
                 tr("New Project", "Title of dialog"),
@@ -584,7 +584,7 @@ void MainWindow::registerDefaultActions()
     cmd = ActionManager::registerAction(action, Constants::NEW_FILE);
     cmd->setDefaultKeySequence(QKeySequence::New);
     mfile->addAction(cmd, Constants::G_FILE_NEW);
-    connect(action, &QAction::triggered, this, []() {
+    connect(action, &QAction::triggered, this, [] {
         if (!ICore::isNewItemDialogRunning()) {
             ICore::showNewItemDialog(tr("New File", "Title of dialog"),
                                      Utils::filtered(Core::IWizardFactory::allWizardFactories(),
@@ -1527,7 +1527,7 @@ void MainWindow::changeLog()
     connect(versionCombo, &QComboBox::currentIndexChanged, textEdit, showLog);
     showLog(versionCombo->currentIndex());
 
-    connect(showInExplorer, &QPushButton::clicked, [versionCombo, versionedFiles] {
+    connect(showInExplorer, &QPushButton::clicked, this, [versionCombo, versionedFiles] {
         const int index = versionCombo->currentIndex();
         if (index >= 0 && index < versionedFiles.size())
             FileUtils::showInGraphicalShell(ICore::dialogParent(), versionedFiles.at(index).second);

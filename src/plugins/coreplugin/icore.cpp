@@ -196,13 +196,15 @@ ICore::ICore(MainWindow *mainwindow)
     // Save settings once after all plugins are initialized:
     connect(PluginManager::instance(), &PluginManager::initializationDone,
             this, [] { ICore::saveSettings(ICore::InitializationDone); });
-    connect(PluginManager::instance(), &PluginManager::testsFinished, [this] (int failedTests) {
+    connect(PluginManager::instance(), &PluginManager::testsFinished,
+            this, [this](int failedTests) {
         emit coreAboutToClose();
         if (failedTests != 0)
             qWarning("Test run was not successful: %d test(s) failed.", failedTests);
         QCoreApplication::exit(failedTests);
     });
-    connect(PluginManager::instance(), &PluginManager::scenarioFinished, [this] (int exitCode) {
+    connect(PluginManager::instance(), &PluginManager::scenarioFinished,
+            this, [this](int exitCode) {
         emit coreAboutToClose();
         QCoreApplication::exit(exitCode);
     });

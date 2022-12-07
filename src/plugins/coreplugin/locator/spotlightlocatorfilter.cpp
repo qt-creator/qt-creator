@@ -68,14 +68,16 @@ SpotlightIterator::SpotlightIterator(const QStringList &command)
     m_process->setCommand({Environment::systemEnvironment().searchInPath(command.first()),
                            command.mid(1)});
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
-    QObject::connect(m_process.get(), &QtcProcess::done, [this, cmd = command.first()] {
+    QObject::connect(m_process.get(), &QtcProcess::done,
+                     m_process.get(), [this, cmd = command.first()] {
         if (m_process->result() != ProcessResult::FinishedWithSuccess) {
             MessageManager::writeFlashing(SpotlightLocatorFilter::tr(
                             "Locator: Error occurred when running \"%1\".").arg(cmd));
         }
         scheduleKillProcess();
     });
-    QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput, [this] {
+    QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput,
+                     m_process.get(), [this] {
         QString output = QString::fromUtf8(m_process->readAllStandardOutput());
         output.replace("\r\n", "\n");
         const QStringList items = output.split('\n');

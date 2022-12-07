@@ -84,13 +84,13 @@ FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *pa
     }.attachTo(this);
     // clang-format on
 
-    connect(m_readable, &QCheckBox::clicked, [this](bool checked) {
+    connect(m_readable, &QCheckBox::clicked, this, [this](bool checked) {
         setPermission(QFile::ReadUser | QFile::ReadOwner, checked);
     });
-    connect(m_writable, &QCheckBox::clicked, [this](bool checked) {
+    connect(m_writable, &QCheckBox::clicked, this, [this](bool checked) {
         setPermission(QFile::WriteUser | QFile::WriteOwner, checked);
     });
-    connect(m_executable, &QCheckBox::clicked, [this](bool checked) {
+    connect(m_executable, &QCheckBox::clicked, this, [this](bool checked) {
         setPermission(QFile::ExeUser | QFile::ExeOwner, checked);
     });
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);

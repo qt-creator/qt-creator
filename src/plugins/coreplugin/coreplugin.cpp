@@ -171,52 +171,52 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable("CurrentDate:ISO", tr("The current date (ISO)."),
-                               []() { return QDate::currentDate().toString(Qt::ISODate); });
+                               [] { return QDate::currentDate().toString(Qt::ISODate); });
     expander->registerVariable("CurrentTime:ISO", tr("The current time (ISO)."),
-                               []() { return QTime::currentTime().toString(Qt::ISODate); });
+                               [] { return QTime::currentTime().toString(Qt::ISODate); });
     expander->registerVariable("CurrentDate:RFC", tr("The current date (RFC2822)."),
-                               []() { return QDate::currentDate().toString(Qt::RFC2822Date); });
+                               [] { return QDate::currentDate().toString(Qt::RFC2822Date); });
     expander->registerVariable("CurrentTime:RFC", tr("The current time (RFC2822)."),
-                               []() { return QTime::currentTime().toString(Qt::RFC2822Date); });
+                               [] { return QTime::currentTime().toString(Qt::RFC2822Date); });
     expander->registerVariable("CurrentDate:Locale", tr("The current date (Locale)."),
-                               []() { return QLocale::system()
+                               [] { return QLocale::system()
                                         .toString(QDate::currentDate(), QLocale::ShortFormat); });
     expander->registerVariable("CurrentTime:Locale", tr("The current time (Locale)."),
-                               []() { return QLocale::system()
+                               [] { return QLocale::system()
                                         .toString(QTime::currentTime(), QLocale::ShortFormat); });
     expander->registerVariable("Config:DefaultProjectDirectory", tr("The configured default directory for projects."),
-                               []() { return DocumentManager::projectsDirectory().toString(); });
+                               [] { return DocumentManager::projectsDirectory().toString(); });
     expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),
-                               []() { return DocumentManager::fileDialogLastVisitedDirectory().toString(); });
+                               [] { return DocumentManager::fileDialogLastVisitedDirectory().toString(); });
     expander->registerVariable("HostOs:isWindows",
                                tr("Is %1 running on Windows?").arg(Constants::IDE_DISPLAY_NAME),
-                               []() { return QVariant(Utils::HostOsInfo::isWindowsHost()).toString(); });
+                               [] { return QVariant(Utils::HostOsInfo::isWindowsHost()).toString(); });
     expander->registerVariable("HostOs:isOSX",
                                tr("Is %1 running on OS X?").arg(Constants::IDE_DISPLAY_NAME),
-                               []() { return QVariant(Utils::HostOsInfo::isMacHost()).toString(); });
+                               [] { return QVariant(Utils::HostOsInfo::isMacHost()).toString(); });
     expander->registerVariable("HostOs:isLinux",
                                tr("Is %1 running on Linux?").arg(Constants::IDE_DISPLAY_NAME),
-                               []() { return QVariant(Utils::HostOsInfo::isLinuxHost()).toString(); });
+                               [] { return QVariant(Utils::HostOsInfo::isLinuxHost()).toString(); });
     expander->registerVariable("HostOs:isUnix",
                                tr("Is %1 running on any unix-based platform?")
                                    .arg(Constants::IDE_DISPLAY_NAME),
-                               []() { return QVariant(Utils::HostOsInfo::isAnyUnixHost()).toString(); });
+                               [] { return QVariant(Utils::HostOsInfo::isAnyUnixHost()).toString(); });
     expander->registerVariable("HostOs:PathListSeparator",
                                tr("The path list separator for the platform."),
-                               []() { return QString(Utils::HostOsInfo::pathListSeparator()); });
+                               [] { return QString(Utils::HostOsInfo::pathListSeparator()); });
     expander->registerVariable("HostOs:ExecutableSuffix",
                                tr("The platform executable suffix."),
-                               []() { return QString(Utils::HostOsInfo::withExecutableSuffix("")); });
+                               [] { return QString(Utils::HostOsInfo::withExecutableSuffix("")); });
     expander->registerVariable("IDE:ResourcePath",
                                tr("The directory where %1 finds its pre-installed resources.")
                                    .arg(Constants::IDE_DISPLAY_NAME),
-                               []() { return ICore::resourcePath().toString(); });
+                               [] { return ICore::resourcePath().toString(); });
     expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
                              [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
     expander->registerVariable("UUID", tr("Generate a new UUID."),
-                               []() { return QUuid::createUuid().toString(); });
+                               [] { return QUuid::createUuid().toString(); });
 
     expander->registerPrefix("#:", tr("A comment."), [](const QString &) { return QString(); });
 
@@ -264,7 +264,7 @@ static void registerActionsForOptions()
         const QString actionTitle = Tr::tr("%1 > %2 Preferences...")
             .arg(categoryDisplay.value(page->category()), page->displayName());
         auto action = new QAction(actionTitle, m_instance);
-        QObject::connect(action, &QAction::triggered, m_instance, [id = page->id()]() {
+        QObject::connect(action, &QAction::triggered, m_instance, [id = page->id()] {
             ICore::showOptionsDialog(id);
         });
         ActionManager::registerAction(action, commandId);
@@ -299,10 +299,9 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
                                    const QStringList &args)
 {
     if (!ExtensionSystem::PluginManager::isInitializationDone()) {
-        connect(ExtensionSystem::PluginManager::instance(), &ExtensionSystem::PluginManager::initializationDone,
-                this, [this, workingDirectory, args]() {
-                    remoteCommand(QStringList(), workingDirectory, args);
-        });
+        connect(ExtensionSystem::PluginManager::instance(),
+                &ExtensionSystem::PluginManager::initializationDone,
+                this, [=] { remoteCommand(QStringList(), workingDirectory, args); });
         return nullptr;
     }
     const FilePaths filePaths = Utils::transform(args, FilePath::fromUserInput);
@@ -350,13 +349,13 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
 
     if (QDir().exists(pathChooser->filePath().toString())) {
         auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
-        connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser]() {
+        connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser] {
             Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath());
         });
         menu->insertAction(firstAction, showInGraphicalShell);
 
         auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalHereAction(), menu);
-        connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser]() {
+        connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser] {
             if (pathChooser->openTerminalHandler())
                 pathChooser->openTerminalHandler()();
             else
@@ -366,7 +365,7 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
 
     } else {
         auto *mkPathAct = new QAction(tr("Create Folder"), menu);
-        connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser]() {
+        connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
             QDir().mkpath(pathChooser->filePath().toString());
             pathChooser->triggerChanged();
         });
@@ -380,7 +379,7 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
 void CorePlugin::checkSettings()
 {
     const auto showMsgBox = [this](const QString &msg, QMessageBox::Icon icon) {
-        connect(ICore::instance(), &ICore::coreOpened, this, [msg, icon]() {
+        connect(ICore::instance(), &ICore::coreOpened, this, [msg, icon] {
             QMessageBox msgBox(ICore::dialogParent());
             msgBox.setWindowTitle(tr("Settings File Error"));
             msgBox.setText(msg);

@@ -238,7 +238,7 @@ public:
         if (ICore::settings()->value(showCrashButtonKey).toBool()) {
             auto crashButton = new QPushButton("CRASH!!!");
             crashButton->show();
-            connect(crashButton, &QPushButton::clicked, []() {
+            connect(crashButton, &QPushButton::clicked, [] {
                 // do a real crash
                 volatile int* a = reinterpret_cast<volatile int *>(NULL); *a = 1;
             });

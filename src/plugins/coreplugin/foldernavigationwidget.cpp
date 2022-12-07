@@ -347,13 +347,11 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
                 const QModelIndex sourceIndex = m_sortProxyModel->mapToSource(index);
                 const auto filePath = Utils::FilePath::fromString(
                     m_fileSystemModel->filePath(sourceIndex));
-                // QTimer::singleShot only posts directly onto the event loop if you use the SLOT("...")
-                // notation, so using a singleShot with a lambda would flicker
-                // QTimer::singleShot(0, this, [this, filePath]() { setCrumblePath(filePath); });
                 QMetaObject::invokeMethod(this, [this, filePath] { setCrumblePath(filePath); },
                                           Qt::QueuedConnection);
             });
-    connect(m_crumbLabel, &Utils::FileCrumbLabel::pathClicked, [this](const Utils::FilePath &path) {
+    connect(m_crumbLabel, &Utils::FileCrumbLabel::pathClicked,
+            this, [this](const Utils::FilePath &path) {
         const QModelIndex rootIndex = m_sortProxyModel->mapToSource(m_listView->rootIndex());
         const QModelIndex fileIndex = m_fileSystemModel->index(path.toString());
         if (!isChildOf(fileIndex, rootIndex))

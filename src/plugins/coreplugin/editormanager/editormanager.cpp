@@ -451,7 +451,7 @@ void EditorManagerPrivate::init()
 
     // Save Action
     ActionManager::registerAction(m_saveAction, Constants::SAVE, editManagerContext);
-    connect(m_saveAction, &QAction::triggered, m_instance, []() { EditorManager::saveDocument(); });
+    connect(m_saveAction, &QAction::triggered, m_instance, [] { EditorManager::saveDocument(); });
 
     // Save As Action
     ActionManager::registerAction(m_saveAsAction, Constants::SAVEAS, editManagerContext);
@@ -494,7 +494,7 @@ void EditorManagerPrivate::init()
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     cmd->setAttribute(Command::CA_UpdateText);
     connect(m_closeOtherDocumentsAction, &QAction::triggered,
-            m_instance, []() { EditorManager::closeOtherDocuments(); });
+            m_instance, [] { EditorManager::closeOtherDocuments(); });
 
     // Close All Others Except Visible Action
     cmd = ActionManager::registerAction(m_closeAllEditorsExceptVisibleAction, Constants::CLOSEALLEXCEPTVISIBLE, editManagerContext, true);
@@ -563,7 +563,7 @@ void EditorManagerPrivate::init()
     connect(m_openTerminalAction, &QAction::triggered, this, &EditorManagerPrivate::openTerminal);
     connect(m_findInDirectoryAction, &QAction::triggered,
             this, &EditorManagerPrivate::findInDirectory);
-    connect(m_filePropertiesAction, &QAction::triggered, this, []() {
+    connect(m_filePropertiesAction, &QAction::triggered, this, [] {
         if (!d->m_contextMenuEntry || d->m_contextMenuEntry->filePath().isEmpty())
             return;
         DocumentManager::showFilePropertiesDialog(d->m_contextMenuEntry->filePath());
@@ -608,7 +608,7 @@ void EditorManagerPrivate::init()
     cmd = ActionManager::registerAction(m_splitAction, Constants::SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,2") : tr("Ctrl+E,2")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-    connect(m_splitAction, &QAction::triggered, this, []() { split(Qt::Vertical); });
+    connect(m_splitAction, &QAction::triggered, this, [] { split(Qt::Vertical); });
 
     m_splitSideBySideAction = new QAction(Utils::Icons::SPLIT_VERTICAL.icon(),
                                           tr("Split Side by Side"), this);
@@ -622,7 +622,7 @@ void EditorManagerPrivate::init()
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+E,4") : tr("Ctrl+E,4")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(m_splitNewWindowAction, &QAction::triggered,
-            this, []() { splitNewWindow(currentEditorView()); });
+            this, [] { splitNewWindow(currentEditorView()); });
 
     m_removeCurrentSplitAction = new QAction(tr("Remove Current Split"), this);
     cmd = ActionManager::registerAction(m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
@@ -718,7 +718,7 @@ void EditorManagerPrivate::extensionsInitialized()
 {
     // Do not ask for files to save.
     // MainWindow::closeEvent has already done that.
-    ICore::addPreCloseListener([]() -> bool { return EditorManager::closeAllEditors(false); });
+    ICore::addPreCloseListener([] { return EditorManager::closeAllEditors(false); });
 }
 
 EditorManagerPrivate *EditorManagerPrivate::instance()
@@ -894,7 +894,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
             auto menu = new QMenu(button);
             for (EditorType *factory : std::as_const(factories)) {
                 QAction *action = menu->addAction(factory->displayName());
-                connect(action, &QAction::triggered, &msgbox, [&selectedFactory, factory, &msgbox]() {
+                connect(action, &QAction::triggered, &msgbox, [&selectedFactory, factory, &msgbox] {
                     selectedFactory = factory;
                     msgbox.done(QMessageBox::Open);
                 });
@@ -2967,18 +2967,13 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
             // is inside of a qrc file itself, and the qrc editor opens the Open with menu,
             // crashes happen, because the editor instance is deleted by openEditorWith
             // while the menu is still being processed.
-            connect(
-                action,
-                &QAction::triggered,
-                d,
-                [filePath, editorId]() {
-                    EditorType *type = EditorType::editorTypeForId(editorId);
-                    if (type && type->asExternalEditor())
-                        EditorManager::openExternalEditor(filePath, editorId);
-                    else
-                        EditorManagerPrivate::openEditorWith(filePath, editorId);
-                },
-                Qt::QueuedConnection);
+            connect(action, &QAction::triggered, d, [filePath, editorId] {
+                EditorType *type = EditorType::editorTypeForId(editorId);
+                if (type && type->asExternalEditor())
+                    EditorManager::openExternalEditor(filePath, editorId);
+                else
+                    EditorManagerPrivate::openEditorWith(filePath, editorId);
+            }, Qt::QueuedConnection);
         }
     }
     menu->setEnabled(anyMatches);

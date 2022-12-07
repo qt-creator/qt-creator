@@ -226,12 +226,13 @@ void ModeManagerPrivate::appendMode(IMode *mode)
     });
 
     Id id = mode->id();
-    QObject::connect(action, &QAction::triggered, [this, id] {
+    QObject::connect(action, &QAction::triggered, m_instance, [this, id] {
         ModeManager::activateMode(id);
         ICore::raiseWindow(m_modeStack);
     });
 
-    QObject::connect(mode, &IMode::enabledStateChanged, [this, mode] { enabledStateChanged(mode); });
+    QObject::connect(mode, &IMode::enabledStateChanged,
+                     m_instance, [this, mode] { enabledStateChanged(mode); });
 }
 
 void ModeManager::removeMode(IMode *mode)

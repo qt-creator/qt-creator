@@ -490,7 +490,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
         // Also save the buttongroup for every file to get the result for each entry.
         buttonGroups.append({filePath, radioButtonGroup});
         QObject::connect(radioButtonGroup, &QButtonGroup::buttonClicked,
-                         [this] { updateSelectAll(); });
+                         q, [this] { updateSelectAll(); });
     }
 
     // Apply the Mac file dialog style.
@@ -543,7 +543,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
         m_setAll->addItem(saveAsText);
         setAllIndexForOperation[SaveAs] = m_setAll->count() - 1;
     }
-    QObject::connect(m_setAll, &QComboBox::activated, [this](int index) { setAll(index); });
+    QObject::connect(m_setAll, &QComboBox::activated, q, [this](int index) { setAll(index); });
 
     // Filter which columns should be visible and resize them to content.
     for (int i = 0; i < NumberOfColumns; ++i) {

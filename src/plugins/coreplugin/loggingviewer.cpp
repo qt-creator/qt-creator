@@ -480,7 +480,7 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
                 m_logModel->destroyItem(m_logModel->itemForIndex(m_logModel->index(0, 0)));
             m_logModel->appendItem(LogEntry{timestamp, type, category, msg});
         }, Qt::QueuedConnection);
-    connect(m_logModel, &QAbstractItemModel::rowsInserted, this, [this, autoScroll]() {
+    connect(m_logModel, &QAbstractItemModel::rowsInserted, this, [this, autoScroll] {
             if (autoScroll->isChecked())
                 m_logView->scrollToBottom();
         }, Qt::QueuedConnection);
@@ -516,7 +516,7 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     connect(m_categoryView, &Utils::BaseTreeView::customContextMenuRequested,
             this, &LoggingViewManagerWidget::showLogCategoryContextMenu);
     connect(clean, &QToolButton::clicked, m_logModel, &Utils::ListModel<LogEntry>::clear);
-    connect(stop, &QToolButton::clicked, this, [this, stop]() {
+    connect(stop, &QToolButton::clicked, this, [this, stop] {
         if (m_manager->isEnabled()) {
             m_manager->setEnabled(false);
             stop->setIcon(Utils::Icons::RUN_SMALL.icon());
@@ -591,7 +591,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
 {
     // should we just let it continue without temporarily disabling?
     const bool enabled = m_manager->isEnabled();
-    Utils::ExecuteOnDestruction exec([this, enabled]() { m_manager->setEnabled(enabled); });
+    Utils::ExecuteOnDestruction exec([this, enabled] { m_manager->setEnabled(enabled); });
     if (enabled)
         m_manager->setEnabled(false);
     const Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
@@ -719,7 +719,7 @@ void LoggingViewer::showLoggingView()
 {
     ActionManager::command(Constants::LOGGER)->action()->setEnabled(false);
     auto widget = new LoggingViewManagerWidget(ICore::dialogParent());
-    QObject::connect(widget, &QDialog::finished, widget, [widget] () {
+    QObject::connect(widget, &QDialog::finished, widget, [widget] {
         ActionManager::command(Constants::LOGGER)->action()->setEnabled(true);
         // explicitly disable manager again
         widget->deleteLater();

@@ -167,7 +167,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     // this signal is disconnected for standalone toolbars and replaced with
     // a private slot connection
     connect(d->m_editorList, &QComboBox::activated, this, &EditorToolBar::listSelectionActivated);
-    connect(d->m_editorList, &QComboBox::customContextMenuRequested, [this](QPoint p) {
+    connect(d->m_editorList, &QComboBox::customContextMenuRequested, this, [this](QPoint p) {
        QMenu menu;
        fillListContextMenu(&menu);
        menu.exec(d->m_editorList->mapToGlobal(p));

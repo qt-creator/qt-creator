@@ -156,14 +156,16 @@ void WindowList::addWindow(QWidget *window)
     m_windowActionIds.append(id);
     auto action = new QAction(window->windowTitle());
     m_windowActions.append(action);
-    QObject::connect(action, &QAction::triggered, [action, this]() { activateWindow(action); });
+    QObject::connect(action, &QAction::triggered,
+                     action, [action, this] { activateWindow(action); });
     action->setCheckable(true);
     action->setChecked(false);
     Command *cmd = ActionManager::registerAction(action, id);
     cmd->setAttribute(Command::CA_UpdateText);
     ActionManager::actionContainer(Constants::M_WINDOW)->addAction(cmd, Constants::G_WINDOW_LIST);
     action->setVisible(window->isVisible() || window->isMinimized()); // minimized windows are hidden but should be shown
-    QObject::connect(window, &QWidget::windowTitleChanged, [window, this]() { updateTitle(window); });
+    QObject::connect(window, &QWidget::windowTitleChanged,
+                     window, [window, this] { updateTitle(window); });
     if (m_dockMenu)
         m_dockMenu->addAction(action);
     if (window->isActiveWindow())

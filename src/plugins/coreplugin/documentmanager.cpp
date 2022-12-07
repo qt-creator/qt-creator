@@ -231,7 +231,7 @@ void DocumentManagerPrivate::registerSaveAllAction()
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     m_saveAllAction->setEnabled(false);
-    connect(m_saveAllAction, &QAction::triggered, []() {
+    connect(m_saveAllAction, &QAction::triggered, [] {
         DocumentManager::saveAllModifiedDocumentsSilently();
     });
 }

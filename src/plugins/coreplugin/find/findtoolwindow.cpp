@@ -237,7 +237,7 @@ void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
         names << filter->displayName();
         m_configWidgets.append(filter->createConfigWidget());
         connect(filter, &IFindFilter::displayNameChanged,
-                this, [this, filter]() { updateFindFilterName(filter); });
+                this, [this, filter] { updateFindFilterName(filter); });
     }
     m_filterList->addItems(names);
     if (m_filters.size() > 0)

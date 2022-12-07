@@ -230,7 +230,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
         if (!ActionManager::command(actionId)) {
             QAction *action = new QAction(tr("Activate %1 View").arg(factory->displayName()), this);
             d->m_actionMap.insert(action, id);
-            connect(action, &QAction::triggered, this, [this, action]() {
+            connect(action, &QAction::triggered, this, [this, action] {
                 NavigationWidget::activateSubWidget(d->m_actionMap[action], Side::Left);
             });
             Command *cmd = ActionManager::registerAction(action, actionId, navicontext);

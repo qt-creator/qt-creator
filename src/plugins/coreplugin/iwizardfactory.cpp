@@ -192,7 +192,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
             newFactory->m_action = new QAction(newFactory->displayName(), newFactory);
             ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
 
-            connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory]() {
+            connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory] {
                 if (!ICore::isNewItemDialogRunning()) {
                     FilePath path = newFactory->runPath({});
                     newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
@@ -253,15 +253,15 @@ Wizard *IWizardFactory::runWizard(const FilePath &path, QWidget *parent, Id plat
         s_currentWizard = wizard;
         // Connect while wizard exists:
         if (m_action)
-            connect(m_action, &QAction::triggered, wizard, [wizard]() { ICore::raiseWindow(wizard); });
+            connect(m_action, &QAction::triggered, wizard, [wizard] { ICore::raiseWindow(wizard); });
         connect(s_inspectWizardAction, &QAction::triggered,
-                wizard, [wizard]() { wizard->showVariables(); });
+                wizard, [wizard] { wizard->showVariables(); });
         connect(wizard, &Utils::Wizard::finished, this, [wizard](int result) {
             if (result != QDialog::Accepted)
                 s_reopenData.clear();
             wizard->deleteLater();
         });
-        connect(wizard, &QObject::destroyed, this, []() {
+        connect(wizard, &QObject::destroyed, this, [] {
             s_isWizardRunning = false;
             s_currentWizard = nullptr;
             s_inspectWizardAction->setEnabled(false);
@@ -405,7 +405,7 @@ void IWizardFactory::initialize()
 
     connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
     connect(ICore::instance(), &ICore::newItemDialogStateChanged, resetAction,
-            [resetAction]() { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
+            [resetAction] { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
 
     s_inspectWizardAction = new QAction(tr("Inspect Wizard State"), ActionManager::instance());
     ActionManager::registerAction(s_inspectWizardAction, "Wizard.Inspect");

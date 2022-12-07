@@ -134,7 +134,7 @@ void NavigationSubWidget::populateSplitMenu()
                                                                  command->keySequence().toString(
                                                                      QKeySequence::NativeText));
         QAction *action = m_splitMenu->addAction(displayName);
-        connect(action, &QAction::triggered, this, [this, i]() { emit splitMe(i); });
+        connect(action, &QAction::triggered, this, [this, i] { emit splitMe(i); });
     }
 }
 

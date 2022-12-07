@@ -525,10 +525,10 @@ QAction *Command::touchBarAction() const
 void Command::augmentActionWithShortcutToolTip(QAction *a) const
 {
     a->setToolTip(stringWithAppendedShortcut(a->text()));
-    QObject::connect(this, &Command::keySequenceChanged, a, [this, a]() {
+    QObject::connect(this, &Command::keySequenceChanged, a, [this, a] {
         a->setToolTip(stringWithAppendedShortcut(a->text()));
     });
-    QObject::connect(a, &QAction::changed, this, [this, a]() {
+    QObject::connect(a, &QAction::changed, this, [this, a] {
         a->setToolTip(stringWithAppendedShortcut(a->text()));
     });
 }

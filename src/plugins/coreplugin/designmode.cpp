@@ -56,7 +56,7 @@ static DesignModePrivate *d = nullptr;
 
 DesignMode::DesignMode()
 {
-    ICore::addPreCloseListener([]() -> bool {
+    ICore::addPreCloseListener([] {
         m_instance->currentEditorChanged(nullptr);
         return true;
     });

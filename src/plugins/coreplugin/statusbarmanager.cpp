@@ -80,14 +80,14 @@ static void createStatusBarManager()
     statusContext->setWidget(bar);
     ICore::addContextObject(statusContext);
 
-    QObject::connect(ICore::instance(), &ICore::saveSettingsRequested, [] {
+    QObject::connect(ICore::instance(), &ICore::saveSettingsRequested, ICore::instance(), [] {
         QSettings *s = ICore::settings();
         s->beginGroup(QLatin1String(kSettingsGroup));
         s->setValue(QLatin1String(kLeftSplitWidthKey), m_splitter->sizes().at(0));
         s->endGroup();
     });
 
-    QObject::connect(ICore::instance(), &ICore::coreAboutToClose, [statusContext] {
+    QObject::connect(ICore::instance(), &ICore::coreAboutToClose, statusContext, [statusContext] {
         delete statusContext;
         // This is the catch-all on rampdown. Individual items may
         // have been removed earlier by destroyStatusBarWidget().
