@@ -55,7 +55,6 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
     }
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
     QPushButton *discardButton = m_buttonBox->addButton(tr("Do &Not Save"), discardButtonRole);
-    m_buttonBox->button(QDialogButtonBox::Save)->setDefault(true);
     m_treeWidget->setFocus();
 
     m_saveBeforeBuildCheckBox->setVisible(false);
@@ -103,6 +102,8 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
             &SaveItemsDialog::collectItemsToSave);
     connect(discardButton, &QAbstractButton::clicked, this, &SaveItemsDialog::discardAll);
     connect(m_treeWidget, &QTreeWidget::itemSelectionChanged, this, &SaveItemsDialog::updateButtons);
+
+    m_buttonBox->button(QDialogButtonBox::Save)->setDefault(true);
 }
 
 void SaveItemsDialog::setMessage(const QString &msg)
