@@ -124,19 +124,19 @@
     <name>CMakeProjectManager</name>
     <message>
         <source>Initial Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Initiale Konfiguration</translation>
     </message>
     <message>
         <source>Current Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Konfiguration</translation>
     </message>
     <message>
         <source>Kit Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit-Konfiguration</translation>
     </message>
     <message>
         <source>Edit the current kit&apos;s CMake configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die CMake-Konfiguration des aktuellen Kits bearbeiten.</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -176,11 +176,11 @@
     </message>
     <message>
         <source>&amp;Set</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Setzen</translation>
     </message>
     <message>
         <source>Set a value in the CMake configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einen Wert in der CMake-Konfiguration setzen.</translation>
     </message>
     <message>
         <source>&amp;Unset</source>
@@ -200,11 +200,11 @@
     </message>
     <message>
         <source>Batch Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Text bearbeiten...</translation>
     </message>
     <message>
         <source>Set or reset multiple values in the CMake configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehrere Variablen in der CMake-Konfiguration setzen oder zurücksetzen.</translation>
     </message>
     <message>
         <source>Advanced</source>
@@ -212,63 +212,63 @@
     </message>
     <message>
         <source>Clear system environment</source>
-        <translation type="unfinished">Systemumgebung löschen</translation>
+        <translation>Systemumgebung löschen</translation>
     </message>
     <message>
         <source>Help</source>
-        <translation type="unfinished">Hilfe</translation>
+        <translation>Hilfe</translation>
     </message>
     <message>
         <source>Apply Kit Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Wert des Kits anwenden</translation>
     </message>
     <message>
         <source>Apply Initial Configuration Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Wert der initialen Konfiguration anwenden</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <source>Change the build directory to &quot;%1&quot; and start with a basic CMake configuration?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wollen Sie das Build-Verzeichnis auf &quot;%1&quot; ändern und mit einer grundlegenden CMake-Konfiguration beginnen?</translation>
     </message>
     <message>
         <source>The CMake flag for the development team</source>
-        <translation type="unfinished"></translation>
+        <translation>Das CMake-Flag für das Entwicklerteam</translation>
     </message>
     <message>
         <source>The CMake flag for the provisioning profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Das CMake-Flag für das Provisioning-Profil</translation>
     </message>
     <message>
         <source>The CMake flag for the architecture on macOS</source>
-        <translation type="unfinished"></translation>
+        <translation>Das CMake-Flag für die macOS-Architektur</translation>
     </message>
     <message>
         <source>The CMake flag for QML debugging, if enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Das CMake-Flag für QML-Debuggen, falls aktiviert</translation>
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished">Profile</translation>
+        <translation>Profile</translation>
     </message>
     <message>
         <source>Clean Environment</source>
-        <translation type="unfinished">Saubere Umgebung</translation>
+        <translation>Saubere Umgebung</translation>
     </message>
     <message>
         <source>System Environment</source>
-        <translation type="unfinished">Systemumgebung</translation>
+        <translation>Systemumgebung</translation>
     </message>
     <message>
         <source>Additional CMake &lt;a href=&quot;options&quot;&gt;options&lt;/a&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Weitere CMake-&lt;a href=&quot;options&quot;&gt;Optionen&lt;/a&gt;:</translation>
     </message>
     <message>
         <source>Build type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Typ:</translation>
     </message>
     <message>
         <source>&lt;UNSET&gt;</source>
@@ -276,31 +276,31 @@
     </message>
     <message>
         <source>Enter one CMake &lt;a href=&quot;variable&quot;&gt;variable&lt;/a&gt; per line.&lt;br/&gt;To set or change a variable, use -D&amp;lt;variable&amp;gt;:&amp;lt;type&amp;gt;=&amp;lt;value&amp;gt;.&lt;br/&gt;&amp;lt;type&amp;gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.&lt;br/&gt;To unset a variable, use -U&amp;lt;variable&amp;gt;.&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine CMake-&lt;a href=&quot;variable&quot;&gt;Variable&lt;/a&gt; pro Zeile ein.&lt;br/&gt;Um eine Variable zu setzen oder zu ändern, benutzen Sie -D&amp;lt;Variable&amp;gt;:&amp;lt;Typ&amp;gt;=&amp;lt;Wert&amp;gt;.&lt;br/&gt;&amp;lt;Typ&amp;gt; kann einer der folgenden Werte sein: FILEPATH, PATH, BOOL, INTERNAL oder STRING.&lt;br/&gt;Um eine Variable zurückzusetzen, benutzen Sie -U&amp;lt;Variable&amp;gt;.&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Re-configure with Initial Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit initialen Parametern neu konfigurieren</translation>
     </message>
     <message>
         <source>Clear CMake configuration and configure with initial parameters?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die CMake-Konfiguration löschen und mit initialen Parametern konfigurieren?</translation>
     </message>
     <message>
         <source>Do not ask again</source>
-        <translation type="unfinished">Nicht noch einmal nachfragen</translation>
+        <translation>Nicht noch einmal nachfragen</translation>
     </message>
     <message>
         <source>Kit CMake Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Konfiguration des Kits</translation>
     </message>
     <message>
         <source>Configure</source>
-        <translation type="unfinished">Konfigurieren</translation>
+        <translation>Konfigurieren</translation>
     </message>
     <message>
         <source>Stop CMake</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake abbrechen</translation>
     </message>
     <message>
         <source>bool</source>
@@ -336,7 +336,7 @@
     </message>
     <message>
         <source>Clear CMake Configuration</source>
-        <translation>CMake-Konfiguration bereinigen</translation>
+        <translation>CMake-Konfiguration löschen</translation>
     </message>
     <message>
         <source>Rescan Project</source>
@@ -372,15 +372,15 @@
     </message>
     <message>
         <source>CMakeUserPresets.json cannot re-define the %1 preset: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>CMakeUserPresets.json kann das Preset %1 nicht erneut definieren: %2</translation>
     </message>
     <message>
         <source>Build preset %1 is missing a corresponding configure preset.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Build-Preset %1 fehlt ein entsprechendes Configure-Preset.</translation>
     </message>
     <message>
         <source>Failed to load %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht geladen werden: %2</translation>
     </message>
     <message>
         <source>yes</source>
@@ -416,35 +416,35 @@
     </message>
     <message>
         <source>Version: %1</source>
-        <translation type="unfinished">Version: %1</translation>
+        <translation>Version: %1</translation>
     </message>
     <message>
         <source>Supports fileApi: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterstützt fileApi: %1</translation>
     </message>
     <message>
         <source>Detection source: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>CMake executable path does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad für das CMake-Werkzeug existiert nicht.</translation>
     </message>
     <message>
         <source>CMake executable path is not a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad für das CMake-Werkzeug ist keine Datei.</translation>
     </message>
     <message>
         <source>CMake executable path is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad für das CMake-Werkzeug ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>CMake executable does not provide required IDE integration features.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare CMake-Datei unterstützt die benötigten Funktionen für die IDE-Integration nicht.</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished">Pfad</translation>
+        <translation>Pfad</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -456,7 +456,7 @@
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">Version:</translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <source>Help file:</source>
@@ -496,27 +496,27 @@
     </message>
     <message>
         <source>Current executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle ausführbare Datei</translation>
     </message>
     <message>
         <source>Build the executable used in the active run configuration. Currently: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei der aktiven Ausführungskonfiguration erstellen. Aktuell: %1</translation>
     </message>
     <message>
         <source>Target: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziel: %1</translation>
     </message>
     <message>
         <source>Enable automatic provisioning updates:</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Provisionierungsaktualisierungen aktivieren:</translation>
     </message>
     <message>
         <source>Tells xcodebuild to create and download a provisioning profile if a valid one does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Veranlasst xcodebuild, ein Provisionierungsprofil zu erstellen und herunterzuladen, wenn kein gültiges vorhanden ist.</translation>
     </message>
     <message>
         <source>Target</source>
-        <translation type="unfinished">Ziel</translation>
+        <translation>Ziel</translation>
     </message>
     <message>
         <source>The build configuration is currently disabled.</source>
@@ -524,7 +524,7 @@
     </message>
     <message>
         <source>A CMake tool must be set up for building. Configure a CMake tool in the kit options.</source>
-        <translation>Zum Erstellen muss ein CMake Tool eingestellt sein. Die Konfiguration erfolgt in den Kit Einstellungen.</translation>
+        <translation>Zum Erstellen muss ein CMake-Werkzeug eingestellt sein. Die Konfiguration erfolgt in den Kit Einstellungen.</translation>
     </message>
     <message>
         <source>There is a CMakeCache.txt file in &quot;%1&quot;, which suggest an in-source build was done before. You are now building in &quot;%2&quot;, and the CMakeCache.txt file might confuse CMake.</source>
@@ -545,7 +545,7 @@
     <message>
         <source>CMake Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
-        <translation type="unfinished">Erstellen mit CMake</translation>
+        <translation>Erstellen mit CMake</translation>
     </message>
     <message>
         <source>CMake arguments:</source>
@@ -558,7 +558,7 @@
     <message>
         <source>Build</source>
         <comment>ConfigWidget display name.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen</translation>
     </message>
     <message>
         <source>Targets:</source>
@@ -570,19 +570,19 @@
     </message>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished">Kit:</translation>
+        <translation>Kit:</translation>
     </message>
     <message>
         <source>Initial Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Initiale Konfiguration:</translation>
     </message>
     <message>
         <source>Current Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Konfiguration:</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">Typ:</translation>
+        <translation>Typ:</translation>
     </message>
     <message>
         <source>Value</source>
@@ -631,23 +631,23 @@
     </message>
     <message>
         <source>Package manager auto setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisches Aufsetzen von Paketmanagern</translation>
     </message>
     <message>
         <source>Add the CMAKE_PROJECT_INCLUDE_BEFORE variable pointing to a CMake script that will install dependencies from the conanfile.txt, conanfile.py, or vcpkg.json file from the project source directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt die Variable CMAKE_PROJECT_INCLUDE_BEFORE auf ein CMake-Script, das Abhängigkeiten von einer conanfile.txt, conanfile.py oder vcpkg.json-Datei im Quellverzeichnis des Projekts installiert.</translation>
     </message>
     <message>
         <source>Ask before re-configuring with initial parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Vor dem Neukonfigurieren mit initialen Parametern nachfragen</translation>
     </message>
     <message>
         <source>Show subfolders inside source group folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterverzeichnisse in Sourcegruppen anzeigen</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Adding Files</source>
@@ -675,12 +675,12 @@
     </message>
     <message>
         <source>Copy to Clipboard?</source>
-        <translation type="unfinished">In die Zwischenablage kopieren?</translation>
+        <translation>In die Zwischenablage kopieren?</translation>
     </message>
     <message>
         <source>Files are not automatically added to the CMakeLists.txt file of the CMake project.
 Copy the path to the source files to the clipboard?</source>
-        <translation type="unfinished">Dateien werden nicht automatisch zur Datei CMakeLists.txt des CMake-Projekts hinzugefügt.
+        <translation>Dateien werden nicht automatisch zur Datei CMakeLists.txt des CMake-Projekts hinzugefügt.
 Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</translation>
     </message>
     <message>
@@ -689,15 +689,15 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>Run CMake with configuration changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake mit Änderungen der Konfiguration ausführen?</translation>
     </message>
     <message>
         <source>&lt;b&gt;CMake configuration failed&lt;b&gt;&lt;p&gt;The backup of the previous configuration has been restored.&lt;/p&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;CMake-Konfiguration ist fehlgeschlagen&lt;b/&gt;&lt;p&gt;Das Backup der vorherigen Konfiguration wurde wiederhergestellt.&lt;/p&gt;&lt;p&gt;Details zu dem Problem finden Sie in &quot;Probleme&quot; und den Einstellungen in &quot;Projekte &gt; Erstellen&quot;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Failed to load project&lt;b&gt;&lt;p&gt;Issues and &quot;Projects &gt; Build&quot; settings show more information about the failure.&lt;/p</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Laden des Projekts fehlgeschlagen&lt;/b&gt;&lt;p&gt;Details zu dem Problem finden Sie in &quot;Probleme&quot; und den Einstellungen in &quot;Projekte &gt; Erstellen&quot;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to create build directory &quot;%1&quot;.</source>
@@ -705,11 +705,11 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>No CMake tool set up in kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Kit ist kein CMake-Werkzeug eingerichtet.</translation>
     </message>
     <message>
         <source>The remote CMake executable cannot write to the local build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das entfernte CMake-Werkzeug kann nicht in das lokale Build-Verzeichnis schreiben.</translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -729,11 +729,11 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>Path to the cmake executable</source>
-        <translation>Pfad zur ausführbaren Datei von cmake</translation>
+        <translation>Pfad zum CMake-Werkzeug</translation>
     </message>
     <message>
         <source>CMake version %1 is unsupported. Update to version 3.14 (with file-api) or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die CMake-Version %1 wird nicht unterstützt. Aktualisieren Sie auf Version 3.14 (mit file-api) oder neuer.</translation>
     </message>
     <message>
         <source>Change...</source>
@@ -749,11 +749,11 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>Platform</source>
-        <translation type="unfinished">Plattform</translation>
+        <translation>Plattform</translation>
     </message>
     <message>
         <source>Toolset</source>
-        <translation type="unfinished"></translation>
+        <translation>Toolset</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -777,11 +777,11 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
-        <translation>Das CMake-Tool ist nicht konfiguriert. Der CMake-Generator wird ignoriert.</translation>
+        <translation>Das CMake-Werkzeug ist nicht konfiguriert. Der CMake-Generator wird ignoriert.</translation>
     </message>
     <message>
         <source>CMake Tool does not support the configured generator.</source>
-        <translation>Das CMake-Tool unterstützt den konfigurierten Generator nicht.</translation>
+        <translation>Das CMake-Werkzeug unterstützt den konfigurierten Generator nicht.</translation>
     </message>
     <message>
         <source>Platform is not supported by the selected CMake generator.</source>
@@ -813,15 +813,15 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>CMake &lt;a href=&quot;generator&quot;&gt;generator&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-&lt;a href=&quot;generator&quot;&gt;Generator&lt;/a&gt;</translation>
     </message>
     <message>
         <source>The selected CMake binary does not support file-api. %1 will not be able to parse CMake projects.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gewählte CMake-Werkzeug unterstützt file-api nicht. %1 wird nicht in der Lage sein, CMake-Projekte auszuwerten.</translation>
     </message>
     <message>
         <source>Enter one CMake &lt;a href=&quot;variable&quot;&gt;variable&lt;/a&gt; per line.&lt;br/&gt;To set a variable, use -D&amp;lt;variable&amp;gt;:&amp;lt;type&amp;gt;=&amp;lt;value&amp;gt;.&lt;br/&gt;&amp;lt;type&amp;gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine CMake-&lt;a href=&quot;variable&quot;&gt;Variable&lt;/a&gt; pro Zeile ein.&lt;br/&gt;Um eine Variable zu setzen, benutzen Sie -D&amp;lt;Variable&amp;gt;:&amp;lt;Typ&amp;gt;=&amp;lt;Wert&amp;gt;.&lt;br/&gt;&amp;lt;Typ&amp;gt; kann einer der folgenden Werte sein: FILEPATH, PATH, BOOL, INTERNAL oder STRING.</translation>
     </message>
     <message>
         <source>CMake Configuration</source>
@@ -877,7 +877,7 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>Builds a target of any open CMake project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Ziel eines geöffneten CMake-Projekts.</translation>
     </message>
     <message>
         <source>Open CMake target</source>
@@ -885,23 +885,23 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>Jumps to the definition of a target of any open CMake project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Springt zur Definition eines Ziels eines geöffneten CMake-Projekts.</translation>
     </message>
     <message>
         <source>The source directory %1 is not reachable by the CMake executable %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Quellverzeichnis %1 kann vom CMake-Werkzeug %2 nicht erreicht werden.</translation>
     </message>
     <message>
         <source>The build directory %1 is not reachable by the CMake executable %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Verzeichnis %1 kann vom CMake-Werkzeug %2 nicht erreicht werden.</translation>
     </message>
     <message>
         <source>The build directory &quot;%1&quot; does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Build-Verzeichnis &quot;%1&quot; existiert nicht</translation>
     </message>
     <message>
         <source>CMake executable &quot;%1&quot; and build directory &quot;%2&quot; must be on the same device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das CMake-Werkzeug &quot;%1&quot; und das Build-Verzeichnis &quot;%2&quot; müssen auf demselben Gerät liegen.</translation>
     </message>
     <message>
         <source>Running %1 in %2.</source>
@@ -913,19 +913,19 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>CMake process failed to start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der CMake-Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>CMake process was canceled by the user.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der CMake-Prozess wurde vom Benutzer abgebrochen.</translation>
     </message>
     <message>
         <source>CMake process crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der CMake-Prozess ist abgestürzt.</translation>
     </message>
     <message>
         <source>CMake process exited with exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der CMake-Prozess wurde mit dem Rückgabewert %1 beendet.</translation>
     </message>
     <message>
         <source>&lt;Build Directory&gt;</source>
@@ -937,165 +937,167 @@ Möchten Sie den Pfad zu den Quelldateien in die Zwischenablage kopieren?</trans
     </message>
     <message>
         <source>Unexpected source directory &quot;%1&quot;, expected &quot;%2&quot;. This can be correct in some situations, for example when importing a standalone Qt test, but usually this is an error. Import the build anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartetes Quellverzeichnis &quot;%1&quot;, erwartet wurde &quot;%2&quot;. Dies kann in einigen Situationen korrekt sein, zum Beispiel beim Importieren eines eigenständigen Qt-Tests, aber normalerweise ist es ein Fehler. Soll der Build trotzdem importiert werden?</translation>
     </message>
     <message>
         <source>CMake Modules</source>
-        <translation type="unfinished">CMake-Module</translation>
+        <translation>CMake-Module</translation>
     </message>
     <message>
         <source>Target type: </source>
-        <translation type="unfinished">Zieltyp: </translation>
+        <translation>Zieltyp: </translation>
     </message>
     <message>
         <source>No build artifacts</source>
-        <translation type="unfinished">Keine Build-Artefakte</translation>
+        <translation>Keine Build-Artefakte</translation>
     </message>
     <message>
         <source>Build artifacts:</source>
-        <translation type="unfinished">Build-Artefakte:</translation>
+        <translation>Build-Artefakte:</translation>
     </message>
     <message>
         <source>Version not parseable</source>
-        <translation type="unfinished"></translation>
+        <translation>Version kann nicht ausgewertet werden</translation>
     </message>
     <message>
         <source>Searching CMake binaries...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche CMake-Werkzeuge...</translation>
     </message>
     <message>
         <source>Found &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; gefunden</translation>
     </message>
     <message>
         <source>Removing CMake entries...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne CMake-Einträge...</translation>
     </message>
     <message>
         <source>Removed &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; entfernt</translation>
     </message>
     <message>
         <source>CMake:</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake:</translation>
     </message>
     <message>
         <source>Failed to set up CMake file API support. %1 cannot extract project information.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake file-api-Unterstützung konnte nicht aufgesetzt werden. %1 kann keine Projektinformationen auswerten.</translation>
     </message>
     <message>
         <source>Invalid reply file created by CMake.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Antwortdatei erstellt.</translation>
     </message>
     <message>
         <source>Invalid cache file generated by CMake.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Cache-Datei erstellt.</translation>
     </message>
     <message>
         <source>Invalid cmakeFiles file generated by CMake.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat ungültige &quot;cmakeFiles&quot; erstellt.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: No directories.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Keine Verzeichnisse.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: Empty directory object.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Leeres Verzeichnisobjekt.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: No projects.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Keine Projekte.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: Empty project object.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Leeres Projektobjekt.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: Broken project data.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Fehlerhafte Projektdaten.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: Empty target object.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Leeres Zielobjekt.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: Broken target data.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Fehlerhafte Zieldaten.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: No configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Keine Konfigurationen.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: Empty configuration object.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Leeres Konfigurationsobjekt.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake: Broken indexes in directories, projects, or targets.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt: Fehlerhafte Indizes in Verzeichnissen, Projekten oder Zielen.</translation>
     </message>
     <message>
         <source>Invalid codemodel file generated by CMake.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Codemodell-Datei erstellt.</translation>
     </message>
     <message>
         <source>Invalid target file: Information is missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Zieldatei: Information fehlt.</translation>
     </message>
     <message>
         <source>Invalid target file generated by CMake: Broken indexes in target details.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat eine ungültige Zieldatei erstellt: Fehlerhafte Indizes in den Zieldetails.</translation>
     </message>
     <message>
         <source>CMake parsing was canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Auswertung wurde abgebrochen.</translation>
     </message>
     <message>
         <source>No &quot;%1&quot; CMake configuration found. Available configurations: &quot;%2&quot;.
 Make sure that CMAKE_CONFIGURATION_TYPES variable contains the &quot;Build type&quot; field.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Konfiguration &quot;%1 wurde nicht gefunden. Verfügbare Konfigurationen: &quot;%2&quot;.
+Stellen Sie sicher, dass der Wert des &quot;Build-Typ&quot;-Felds in der CMAKE_CONFIGURATION_TYPES-Variable enthalten ist.</translation>
     </message>
     <message>
         <source>No &quot;%1&quot; CMake configuration found. Available configuration: &quot;%2&quot;.
 Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; field.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Konfiguration &quot;%1 wurde nicht gefunden. Verfügbare Konfigurationen: &quot;%2&quot;.
+Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der des &quot;Build-Typ&quot;-Felds ist.</translation>
     </message>
     <message>
         <source>CMake returned error code: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake hat einen Fehlerwert zurückgegeben: %1</translation>
     </message>
     <message>
         <source>Failed to rename %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbenennen von %1 nach %2 ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to copy %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren von %1 nach %2 ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to read %1 file</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei %1 konnte nicht gelesen werden</translation>
     </message>
     <message>
         <source>Invalid %1 file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Datei %1</translation>
     </message>
     <message>
         <source>Invalid &quot;version&quot; in %1 file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige &quot;version&quot; in Datei %1</translation>
     </message>
     <message>
         <source>Invalid &quot;configurePresets&quot; section in %1 file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;configurePresets&quot; in Datei %1</translation>
     </message>
     <message>
         <source>Invalid &quot;buildPresets&quot; section in %1 file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;buildPresets&quot; in Datei %1</translation>
     </message>
     <message>
         <source>&lt;File System&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Dateisystem&gt;</translation>
     </message>
 </context>
 <context>
@@ -52708,7 +52710,7 @@ in &quot;%2&quot; aus.
     <name>CMakeProjectManager::Tr::Tr</name>
     <message>
         <source>Tools</source>
-        <translation type="unfinished">Werkzeuge</translation>
+        <translation>Werkzeuge</translation>
     </message>
 </context>
 <context>

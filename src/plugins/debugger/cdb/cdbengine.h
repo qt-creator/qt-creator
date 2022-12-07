@@ -168,6 +168,7 @@ private:
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);
     void mergeStartParametersSourcePathMap();
     void checkQtSdkPdbFiles(const QString &module);
+    BreakpointParameters parseBreakPoint(const GdbMi &gdbmi);
 
     const QString m_tokenPrefix;
     void handleSetupFailure(const QString &errorMessage);

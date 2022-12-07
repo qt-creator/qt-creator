@@ -93,7 +93,7 @@ FilterDialog::FilterDialog(const Checks &checks, QWidget *parent)
         buttonBox,
     }.attachTo(this);
 
-    connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&] {
+    connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=] {
         const bool hasSelection = !m_view->selectionModel()->selectedRows().isEmpty();
         buttonBox->button(QDialogButtonBox::Ok)->setEnabled(hasSelection);
     });

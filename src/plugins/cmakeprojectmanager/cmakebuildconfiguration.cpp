@@ -1623,10 +1623,24 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
         m_buildSystem->setInitialCMakeArguments(cmd.splitArguments());
     }
 
-    d->m_clearSystemConfigureEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY))
-                                               .toBool();
+    // Upgrading from Qt Creator version <9 to 9, if the build environment is set
+    // apply the specific values to the configure environment
+    auto settingsKey = [map](const QLatin1String &configureKey, const QLatin1String &buildKey) {
+        if (!map.contains(configureKey) && map.contains(buildKey))
+            return buildKey;
+        return configureKey;
+    };
+
+    const QLatin1String clearSystemEnvironmentKey
+        = settingsKey(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY),
+                      QLatin1String(ProjectExplorer::Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY));
+    const QLatin1String userEnvironmentChangesKey
+        = settingsKey(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY),
+                      QLatin1String(ProjectExplorer::Constants::USER_ENVIRONMENT_CHANGES_KEY));
+
+    d->m_clearSystemConfigureEnvironment = map.value(clearSystemEnvironmentKey).toBool();
     d->m_userConfigureEnvironmentChanges = EnvironmentItem::fromStringList(
-        map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+        map.value(userEnvironmentChangesKey).toStringList());
 
     updateAndEmitConfigureEnvironmentChanged();
 

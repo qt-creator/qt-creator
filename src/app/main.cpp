@@ -494,6 +494,11 @@ int main(int argc, char **argv)
         qputenv("QT_ENABLE_REGEXP_JIT", "0");
     }
 
+    if (Utils::HostOsInfo::isLinuxHost() && !qEnvironmentVariableIsSet("GTK_THEME"))
+        // Work around QTCREATORBUG-28497:
+        // Prevent Qt's GTK3 platform theme plugin from enforcing a dark palette
+        qputenv("GTK_THEME", ":light");
+
 #if defined(QTC_FORCE_XCB)
     if (Utils::HostOsInfo::isLinuxHost() && !qEnvironmentVariableIsSet("QT_QPA_PLATFORM")) {
         // Enforce XCB on Linux/Gnome, if the user didn't override via QT_QPA_PLATFORM

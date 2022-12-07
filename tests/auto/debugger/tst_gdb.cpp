@@ -115,6 +115,14 @@ void tst_gdb::version_data()
     QTest::newRow("Debian 7.12 git")
         << "GNU gdb (Debian 7.12-6) 7.12.0.20161007-git"
         << 71200 << 6 << false << false;
+
+    QTest::newRow("Debian 10.1 git")
+        << "GNU gdb (Debian 10.1-1.7) 10.1.90.20210103-git"
+        << 100100 << 1 << false << false;
+
+    QTest::newRow("Ubuntu 22.04")
+        << "GNU gdb (Ubuntu 12.1-0ubuntu1~22.04) 12.1"
+        << 120100 << 0 << false << false;
 }
 
 static QString chopConst(QString type)

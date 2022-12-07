@@ -356,8 +356,8 @@ void CppCodeStylePreferencesWidget::setCodeStyle(CppCodeStylePreferences *codeSt
         slotCurrentPreferencesChanged(currentPreferences);
     });
 
-    setTabSettings(m_preferences->tabSettings());
-    setCodeStyleSettings(m_preferences->codeStyleSettings(), false);
+    setTabSettings(m_preferences->currentTabSettings());
+    setCodeStyleSettings(m_preferences->currentCodeStyleSettings(), false);
     slotCurrentPreferencesChanged(m_preferences->currentPreferences(), false);
 
     updatePreview();
