@@ -11,10 +11,9 @@
 #include <QSet>
 #include <QTimer>
 
-// FIXME: Re-create in better location?
-//#ifdef WITH_TESTS
-//#include <extensionsystem/pluginmanager.h>
-//#endif
+// FIXME: Provide tst_StringTable that would run GC, make a sleep inside GC being run in other
+// thread and execute destructor of StringTable in main thread. In this case the test should
+// ensure that destructor of StringTable waits for its internal thread to finish.
 
 namespace Utils::StringTable {
 
@@ -116,13 +115,6 @@ static inline bool isQStringInUse(const QString &string)
 
 void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
 {
-//#ifdef WITH_TESTS
-//    if (ExtensionSystem::PluginManager::isScenarioRunning("TestStringTable")) {
-//        if (ExtensionSystem::PluginManager::finishScenario())
-//            QThread::sleep(5);
-//    }
-//#endif
-
     int initialSize = 0;
     bytesSaved = 0;
     QElapsedTimer timer;

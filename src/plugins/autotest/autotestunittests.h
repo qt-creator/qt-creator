@@ -33,7 +33,6 @@ private slots:
     void testCodeParserGTest_data();
     void testCodeParserBoostTest();
     void testCodeParserBoostTest_data();
-    void testStringTable();
     void testModelManagerInterface();
 
 private:

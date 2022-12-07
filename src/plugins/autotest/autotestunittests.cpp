@@ -291,11 +291,6 @@ static int executeScenario(const QString &scenario)
     return QProcess::execute(data.m_executable, data.m_args + additionalArgs);
 }
 
-void AutoTestUnitTests::testStringTable()
-{
-    QCOMPARE(executeScenario("TestStringTable"), 0);
-}
-
 void AutoTestUnitTests::testModelManagerInterface()
 {
     QCOMPARE(executeScenario("TestModelManagerInterface"), 0);

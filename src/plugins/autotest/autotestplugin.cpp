@@ -283,8 +283,6 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
 
     dd = new AutotestPluginPrivate;
 #ifdef WITH_TESTS
-    ExtensionSystem::PluginManager::registerScenario("TestStringTable",
-                   [] { return dd->m_loadProjectScenario(); });
     ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
                    [] { return dd->m_loadProjectScenario(); });
 #endif
