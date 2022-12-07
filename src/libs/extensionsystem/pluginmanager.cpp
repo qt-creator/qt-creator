@@ -1419,11 +1419,12 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
         spec->d->errorString += QLatin1Char('\n');
         int index = circularityCheckQueue.indexOf(spec);
         for (int i = index; i < circularityCheckQueue.size(); ++i) {
+            const PluginSpec *depSpec = circularityCheckQueue.at(i);
             spec->d->errorString.append(PluginManager::tr("%1 (%2) depends on")
-                .arg(circularityCheckQueue.at(i)->name()).arg(circularityCheckQueue.at(i)->version()));
+                                        .arg(depSpec->name(), depSpec->version()));
             spec->d->errorString += QLatin1Char('\n');
         }
-        spec->d->errorString.append(PluginManager::tr("%1 (%2)").arg(spec->name()).arg(spec->version()));
+        spec->d->errorString.append(PluginManager::tr("%1 (%2)").arg(spec->name(), spec->version()));
         return false;
     }
     circularityCheckQueue.append(spec);
@@ -1445,7 +1446,7 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
             spec->d->hasError = true;
             spec->d->errorString =
                 PluginManager::tr("Cannot load plugin because dependency failed to load: %1 (%2)\nReason: %3")
-                    .arg(depSpec->name()).arg(depSpec->version()).arg(depSpec->errorString());
+                    .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
             return false;
         }
     }
@@ -1593,7 +1594,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
             spec->d->hasError = true;
             spec->d->errorString =
                 PluginManager::tr("Cannot load plugin because dependency failed to load: %1(%2)\nReason: %3")
-                    .arg(depSpec->name()).arg(depSpec->version()).arg(depSpec->errorString());
+                    .arg(depSpec->name(), depSpec->version(), depSpec->errorString());
             return;
         }
     }

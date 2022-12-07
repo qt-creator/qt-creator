@@ -303,10 +303,10 @@ PluginView::PluginView(QWidget *parent)
     connect(PluginManager::instance(), &PluginManager::pluginsChanged,
             this, &PluginView::updatePlugins);
 
-    connect(m_categoryView, &QAbstractItemView::activated,
+    connect(m_categoryView, &QAbstractItemView::activated, this,
             [this](const QModelIndex &idx) { emit pluginActivated(pluginForIndex(idx)); });
 
-    connect(m_categoryView->selectionModel(), &QItemSelectionModel::currentChanged,
+    connect(m_categoryView->selectionModel(), &QItemSelectionModel::currentChanged, this,
             [this](const QModelIndex &idx) { emit currentPluginChanged(pluginForIndex(idx)); });
 
     updatePlugins();
@@ -385,12 +385,12 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         additionalPlugins.subtract(plugins);
         if (!additionalPlugins.isEmpty()) {
             if (QMessageBox::question(this, tr("Enabling Plugins"),
-                                      tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
-                                      .arg(pluginListString(plugins))
-                                      .arg(pluginListString(additionalPlugins)),
-                                      QMessageBox::Ok | QMessageBox::Cancel,
-                                      QMessageBox::Ok) != QMessageBox::Ok)
+                             tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
+                             .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
+                             QMessageBox::Ok | QMessageBox::Cancel,
+                             QMessageBox::Ok) != QMessageBox::Ok) {
                 return false;
+            }
         }
     } else {
         for (PluginSpec *spec : plugins) {
@@ -402,12 +402,12 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         additionalPlugins.subtract(plugins);
         if (!additionalPlugins.isEmpty()) {
             if (QMessageBox::question(this, tr("Disabling Plugins"),
-                                      tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
-                                      .arg(pluginListString(plugins))
-                                      .arg(pluginListString(additionalPlugins)),
-                                      QMessageBox::Ok | QMessageBox::Cancel,
-                                      QMessageBox::Ok) != QMessageBox::Ok)
+                             tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
+                             .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
+                             QMessageBox::Ok | QMessageBox::Cancel,
+                             QMessageBox::Ok) != QMessageBox::Ok) {
                 return false;
+            }
         }
     }
 

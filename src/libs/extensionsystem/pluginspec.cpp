@@ -1008,7 +1008,7 @@ bool PluginSpecPrivate::resolveDependencies(const QVector<PluginSpec *> &specs)
                 if (!errorString.isEmpty())
                     errorString.append(QLatin1Char('\n'));
                 errorString.append(QCoreApplication::translate("PluginSpec", "Could not resolve dependency '%1(%2)'")
-                    .arg(dependency.name).arg(dependency.version));
+                    .arg(dependency.name, dependency.version));
             }
             continue;
         }
