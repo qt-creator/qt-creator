@@ -12,7 +12,7 @@ namespace TextEditor {
 
 AsyncProcessor::AsyncProcessor()
 {
-    QObject::connect(&m_watcher, &QFutureWatcher<IAssistProposal *>::finished, [this]() {
+    QObject::connect(&m_watcher, &QFutureWatcher<IAssistProposal *>::finished, &m_watcher, [this] {
         setAsyncProposalAvailable(m_watcher.result());
     });
 }
@@ -21,7 +21,7 @@ IAssistProposal *AsyncProcessor::perform()
 {
     IAssistProposal *result = immediateProposal();
     interface()->prepareForAsyncUse();
-    m_watcher.setFuture(Utils::runAsync([this]() {
+    m_watcher.setFuture(Utils::runAsync([this] {
         interface()->recreateTextDocument();
         return performAsync();
     }));

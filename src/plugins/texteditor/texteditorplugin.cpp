@@ -104,7 +104,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     QAction *completionAction = new QAction(tr("Trigger Completion"), this);
     Command *command = ActionManager::registerAction(completionAction, Constants::COMPLETE_THIS, context);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
-    connect(completionAction, &QAction::triggered, []() {
+    connect(completionAction, &QAction::triggered, this, [] {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->invokeAssist(Completion);
     });
@@ -118,7 +118,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     command = ActionManager::registerAction(functionHintAction, Constants::FUNCTION_HINT, context);
     command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Shift+D")
                                                                 : tr("Ctrl+Shift+D")));
-    connect(functionHintAction, &QAction::triggered, []() {
+    connect(functionHintAction, &QAction::triggered, this, [] {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->invokeAssist(FunctionHint);
     });
@@ -127,7 +127,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     QAction *quickFixAction = new QAction(tr("Trigger Refactoring Action"), this);
     Command *quickFixCommand = ActionManager::registerAction(quickFixAction, Constants::QUICKFIX_THIS, context);
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
-    connect(quickFixAction, &QAction::triggered, []() {
+    connect(quickFixAction, &QAction::triggered, this, [] {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->invokeAssist(QuickFix);
     });
@@ -136,7 +136,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     ActionManager::registerAction(showContextMenuAction,
                                   Constants::SHOWCONTEXTMENU,
                                   context);
-    connect(showContextMenuAction, &QAction::triggered, []() {
+    connect(showContextMenuAction, &QAction::triggered, this, [] {
         if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
             editor->editorWidget()->showContextMenu();
     });
@@ -154,11 +154,10 @@ void TextEditorPluginPrivate::extensionsInitialized()
 {
     connect(FolderNavigationWidgetFactory::instance(),
             &FolderNavigationWidgetFactory::aboutToShowContextMenu,
-            this,
-            [](QMenu *menu, const FilePath &filePath, bool isDir) {
+            this, [](QMenu *menu, const FilePath &filePath, bool isDir) {
                 if (!isDir && Core::DiffService::instance()) {
                     menu->addAction(TextEditor::TextDocument::createDiffAgainstCurrentFileAction(
-                        menu, [filePath]() { return filePath; }));
+                        menu, [filePath] { return filePath; }));
                 }
             });
 
@@ -231,8 +230,7 @@ void TextEditorPlugin::extensionsInitialized()
         });
 
     expander->registerVariable(kCurrentDocumentWordUnderCursor,
-                               tr("Word under the current document's text cursor."),
-                               []() {
+                               tr("Word under the current document's text cursor."), [] {
                                    BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
                                    if (!editor)
                                        return QString();

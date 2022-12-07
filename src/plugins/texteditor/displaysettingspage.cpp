@@ -55,12 +55,13 @@ public:
         fontSettingsPageLineSpacing = fontSettingsPageLineSpacingLink();
 
         if (fontSettingsPageLineSpacing) {
-            connect(fontSettingsPageLineSpacing, QOverload<int>::of(&QSpinBox::valueChanged),
-                [=](const int &value) {
-                    if (value != 100)
-                        enableTextWrapping->setChecked(false);
-                    enableTextWrapping->setEnabled(value == 100);
-                    enableTextWrappingHintLabel->setVisible(value != 100); } );
+            connect(fontSettingsPageLineSpacing, &QSpinBox::valueChanged,
+                    this, [this](const int &value) {
+                if (value != 100)
+                    enableTextWrapping->setChecked(false);
+                enableTextWrapping->setEnabled(value == 100);
+                enableTextWrappingHintLabel->setVisible(value != 100);
+            });
 
             if (fontSettingsPageLineSpacing->value() != 100)
                 enableTextWrapping->setChecked(false);
@@ -69,7 +70,7 @@ public:
             enableTextWrappingHintLabel->setVisible(fontSettingsPageLineSpacing->value() != 100);
         }
 
-        connect(enableTextWrappingHintLabel, &QLabel::linkActivated, []() {
+        connect(enableTextWrappingHintLabel, &QLabel::linkActivated, [] {
             Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_FONT_SETTINGS); } );
 
 
