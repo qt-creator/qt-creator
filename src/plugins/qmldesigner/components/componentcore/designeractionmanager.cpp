@@ -3,6 +3,7 @@
 
 #include "designeractionmanager.h"
 
+#include "anchoraction.h"
 #include "changestyleaction.h"
 #include "designeractionmanagerview.h"
 #include "designermcumanager.h"
@@ -1525,6 +1526,72 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelectionItemIsAnchored));
 
     addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 10));
+
+    addDesignerAction(new ParentAnchorAction(
+                          anchorParentTopAndBottomCommandId,
+                          anchorParentTopAndBottomDisplayName,
+                          {},
+                          {},
+                          anchorsCategory,
+                          QKeySequence(),
+                          11,
+                          AnchorLineType(AnchorLineTop | AnchorLineBottom)));
+
+    addDesignerAction(new ParentAnchorAction(
+                          anchorParentLeftAndRightCommandId,
+                          anchorParentLeftAndRightDisplayName,
+                          {},
+                          {},
+                          anchorsCategory,
+                          QKeySequence(),
+                          12,
+                          AnchorLineType(AnchorLineLeft | AnchorLineRight)));
+
+    addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 20));
+
+    addDesignerAction(new ParentAnchorAction(
+                          anchorParentTopCommandId,
+                          anchorParentTopDisplayName,
+                          Utils::Icon({{":/qmldesigner/images/anchor_top.png", Utils::Theme::IconsBaseColor},
+                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
+                          anchorsCategory,
+                          QKeySequence(),
+                          21,
+                          AnchorLineTop));
+
+    addDesignerAction(new ParentAnchorAction(
+                          anchorParentBottomCommandId,
+                          anchorParentBottomDisplayName,
+                          Utils::Icon({{":/qmldesigner/images/anchor_bottom.png", Utils::Theme::IconsBaseColor},
+                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
+                          anchorsCategory,
+                          QKeySequence(),
+                          22,
+                          AnchorLineBottom));
+
+    addDesignerAction(new ParentAnchorAction(
+                          anchorParentLeftCommandId,
+                          anchorParentLeftDisplayName,
+                          Utils::Icon({{":/qmldesigner/images/anchor_left.png", Utils::Theme::IconsBaseColor},
+                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
+                          anchorsCategory,
+                          QKeySequence(),
+                          23,
+                          AnchorLineLeft));
+
+    addDesignerAction(new ParentAnchorAction(
+                          anchorParentRightCommandId,
+                          anchorParentRightDisplayName,
+                          Utils::Icon({{":/qmldesigner/images/anchor_right.png", Utils::Theme::IconsBaseColor},
+                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
+                          anchorsCategory,
+                          QKeySequence(),
+                          24,
+                          AnchorLineRight));
 
     addDesignerAction(new ActionGroup(
                           positionerCategoryDisplayName,

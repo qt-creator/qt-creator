@@ -41,6 +41,14 @@ const char applyFormatCommandId[] = "ApplyFormat";
 const char visiblityCommandId[] = "ToggleVisiblity";
 const char anchorsFillCommandId[] = "AnchorsFill";
 const char anchorsResetCommandId[] = "AnchorsReset";
+
+const char anchorParentTopAndBottomCommandId[] = "AnchorParentTopAndBottom";
+const char anchorParentLeftAndRightCommandId[] = "AnchorParentLeftAndRight";
+const char anchorParentTopCommandId[] = "AnchorParentTop";
+const char anchorParentRightCommandId[] = "AnchorParentRight";
+const char anchorParentBottomCommandId[] = "AnchorParentBottom";
+const char anchorParentLeftCommandId[] = "AnchorParentLeft";
+
 const char removePositionerCommandId[] = "RemovePositioner";
 const char createFlowActionAreaCommandId[] = "CreateFlowActionArea";
 const char setFlowStartCommandId[] = "SetFlowStart";
@@ -133,6 +141,13 @@ const char reverseDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "R
 
 const char anchorsFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Fill Parent");
 const char anchorsResetDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "No Anchors");
+
+const char anchorParentTopAndBottomDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Top And Bottom");
+const char anchorParentLeftAndRightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Left And Right");
+const char anchorParentTopDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Top");
+const char anchorParentRightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Right");
+const char anchorParentBottomDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Bottom");
+const char anchorParentLeftDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Left");
 
 const char layoutColumnPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Column Positioner");
 const char layoutRowPositionerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Row Positioner");

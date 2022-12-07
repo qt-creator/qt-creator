@@ -618,6 +618,7 @@ extend_qtc_plugin(QmlDesigner
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h
+    anchoraction.cpp anchoraction.h
     svgpasteaction.cpp svgpasteaction.h
     viewmanager.cpp viewmanager.h
 )
