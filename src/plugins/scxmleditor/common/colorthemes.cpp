@@ -82,7 +82,7 @@ void ColorThemes::updateColorThemeMenu()
                 ? Tr::tr("Factory Default") : key == Constants::C_COLOR_SCHEME_SCXMLDOCUMENT
                   ? Tr::tr("Colors from SCXML Document")
                   : key;
-        QAction *action = m_menu->addAction(actionText, this, [this, key]() {
+        QAction *action = m_menu->addAction(actionText, this, [this, key] {
             selectColorTheme(key);
         });
         action->setData(key);

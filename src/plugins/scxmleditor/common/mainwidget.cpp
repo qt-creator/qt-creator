@@ -216,19 +216,19 @@ void MainWidget::init()
             view->scene()->unhighlightAll();
     });
 
-    connect(m_errorPane, &ErrorWidget::warningEntered, [this](Warning *w) {
+    connect(m_errorPane, &ErrorWidget::warningEntered, this, [this](Warning *w) {
         StateView *view = m_views.last();
         if (view)
             view->scene()->highlightWarningItem(w);
     });
 
-    connect(m_errorPane, &ErrorWidget::warningSelected, [this](Warning *w) {
+    connect(m_errorPane, &ErrorWidget::warningSelected, this, [this](Warning *w) {
         StateView *view = m_views.last();
         if (view)
             view->scene()->selectWarningItem(w);
     });
 
-    connect(m_errorPane, &ErrorWidget::warningDoubleClicked, [this](Warning *w) {
+    connect(m_errorPane, &ErrorWidget::warningDoubleClicked, this, [this](Warning *w) {
         StateView *view = m_views.last();
         if (view)
             view->view()->zoomToItem(view->scene()->findItem(view->scene()->tagByWarning(w)));
@@ -333,14 +333,14 @@ void MainWidget::init()
     QToolButton *adjustToolButton = createToolButton(toolButtonIcon(ActionAdjustWidth), Tr::tr("Adjust Width"), QToolButton::MenuButtonPopup);
 
     // Connect state color change
-    connect(stateColorButton, &ColorToolButton::colorSelected, [this](const QString &color) {
+    connect(stateColorButton, &ColorToolButton::colorSelected, this, [this](const QString &color) {
         StateView *view = m_views.last();
         if (view)
             view->scene()->setEditorInfo(Constants::C_SCXML_EDITORINFO_STATECOLOR, color);
     });
 
     // Connect font color change
-    connect(fontColorButton, &ColorToolButton::colorSelected, [this](const QString &color) {
+    connect(fontColorButton, &ColorToolButton::colorSelected, this, [this](const QString &color) {
         StateView *view = m_views.last();
         if (view)
             view->scene()->setEditorInfo(Constants::C_SCXML_EDITORINFO_FONTCOLOR, color);

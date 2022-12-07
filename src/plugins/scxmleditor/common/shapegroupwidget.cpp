@@ -30,7 +30,7 @@ ShapeGroupWidget::ShapeGroupWidget(ShapeProvider *shapeProvider, int groupIndex,
         m_content->layout()->addWidget(button);
     }
 
-    connect(m_closeButton, &QToolButton::clicked, this, [this]() {
+    connect(m_closeButton, &QToolButton::clicked, this, [this] {
         m_content->setVisible(!m_content->isVisible());
         m_closeButton->setIcon(m_content->isVisible()
                                ? Utils::Icons::COLLAPSE_TOOLBAR.icon()

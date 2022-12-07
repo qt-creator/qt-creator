@@ -17,7 +17,7 @@ WarningModel::WarningModel(QObject *parent)
     m_countChecker = new QTimer(this);
     m_countChecker->setInterval(500);
     m_countChecker->setSingleShot(true);
-    connect(m_countChecker.data(), &QTimer::timeout, this, [this]() {
+    connect(m_countChecker.data(), &QTimer::timeout, this, [this] {
         if (m_warnings.count() != m_oldCount) {
             m_oldCount = m_warnings.count();
             emit countChanged(m_oldCount);

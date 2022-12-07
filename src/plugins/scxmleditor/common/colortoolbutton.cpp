@@ -32,7 +32,7 @@ ColorToolButton::ColorToolButton(const QString &key, const QString &iconName, co
     setToolTip(tooltip);
     setPopupMode(QToolButton::MenuButtonPopup);
 
-    connect(this, &ColorToolButton::clicked, this, [this]() {
+    connect(this, &ColorToolButton::clicked, this, [this] {
         setCurrentColor(m_color);
     });
 
