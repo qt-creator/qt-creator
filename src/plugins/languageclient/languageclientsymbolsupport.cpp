@@ -285,11 +285,9 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
         Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
             tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
         search->addResults(generateSearchResultItems(*result), Core::SearchResult::AddOrdered);
-        QObject::connect(search,
-                         &Core::SearchResult::activated,
-                         [](const Core::SearchResultItem &item) {
-                             Core::EditorManager::openEditorAtSearchResult(item);
-                         });
+        connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
+            Core::EditorManager::openEditorAtSearchResult(item);
+        });
         search->finishSearch(false);
         search->popup();
     }
@@ -493,27 +491,30 @@ Core::SearchResult *SymbolSupport::createSearch(
     const auto extraWidget = new ReplaceWidget;
     search->setAdditionalReplaceWidget(extraWidget);
 
-    QObject::connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
+    connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
         Core::EditorManager::openEditorAtSearchResult(item);
     });
-    QObject::connect(search, &Core::SearchResult::replaceTextChanged, [search, extraWidget]() {
+    connect(search, &Core::SearchResult::replaceTextChanged, this, [search, extraWidget]() {
         extraWidget->showLabel(true);
         search->setUserData(search->userData().toList().first(2));
         search->setSearchAgainEnabled(true);
         search->setReplaceEnabled(false);
     });
-    QObject::connect(search,
-                     &Core::SearchResult::searchAgainRequested,
-                     [this, positionParams, search]() {
-                         search->restart();
-                         requestRename(positionParams, search->textToReplace(), search);
-                     });
-    QObject::connect(search,
-                     &Core::SearchResult::replaceButtonClicked,
-                     [this, positionParams, search](const QString & /*replaceText*/,
-                                            const QList<Core::SearchResultItem> &checkedItems) {
-                         applyRename(checkedItems, search);
-                     });
+    connect(search, &Core::SearchResult::searchAgainRequested, this,
+            [this, positionParams, search]() {
+                search->restart();
+                requestRename(positionParams, search->textToReplace(), search);
+            });
+    connect(search, &Core::SearchResult::replaceButtonClicked, this,
+            [this, positionParams, search](const QString & /*replaceText*/,
+                                           const QList<Core::SearchResultItem> &checkedItems) {
+                applyRename(checkedItems, search);
+            });
+
+    connect(this, &QObject::destroyed, search, [search, clientName = m_client->name()](){
+        search->restart(); // clears potential current results
+        search->finishSearch(true, tr("%1 is not reachable anymore.").arg(clientName));
+    });
 
     return search;
 }
