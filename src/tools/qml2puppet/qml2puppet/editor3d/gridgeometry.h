@@ -39,6 +39,9 @@ signals:
 
 protected:
     void doUpdateGeometry() override;
+#if QT_VERSION_MAJOR == 6 && QT_VERSION_MINOR == 4
+    QSSGRenderGraphObject *updateSpatialNode(QSSGRenderGraphObject *node) override;
+#endif
 
 private:
     void fillVertexData(QByteArray &vertexData);
