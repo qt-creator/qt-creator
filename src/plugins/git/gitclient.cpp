@@ -1308,7 +1308,7 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
         }
     }
 
-    vcsExec(workingDirectory, {"archive", commit, "-o", archive.absoluteFilePath()}, nullptr, true);
+    vcsExec(workingDirectory, {"archive", commit, "-o", archive.absoluteFilePath()});
 }
 
 VcsBaseEditorWidget *GitClient::annotate(
@@ -1457,7 +1457,7 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
         }
         flags |= RunFlags::ExpectRepoChanges;
     }
-    vcsExec(workingDirectory, arguments, nullptr, true, flags);
+    vcsExec(workingDirectory, arguments, flags);
 }
 
 void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, const QString &remote)
@@ -1489,7 +1489,7 @@ void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
 
 void GitClient::addFile(const FilePath &workingDirectory, const QString &fileName)
 {
-    vcsExec(workingDirectory, {"add", fileName});
+    vcsExec(workingDirectory, {"add", fileName}, RunFlags::None, false);
 }
 
 bool GitClient::synchronousLog(const FilePath &workingDirectory, const QStringList &arguments,
@@ -3234,7 +3234,7 @@ void GitClient::subversionLog(const FilePath &workingDirectory) const
 
 void GitClient::subversionDeltaCommit(const FilePath &workingDirectory) const
 {
-    vcsExec(workingDirectory, {"svn", "dcommit"}, nullptr, true, RunFlags::ShowSuccessMessage);
+    vcsExec(workingDirectory, {"svn", "dcommit"}, RunFlags::ShowSuccessMessage);
 }
 
 enum class PushFailure { Unknown, NonFastForward, NoRemoteBranch };

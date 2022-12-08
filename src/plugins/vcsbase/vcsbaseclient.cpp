@@ -180,14 +180,12 @@ void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
 
 void VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
                                 const QStringList &arguments,
-                                VcsBaseEditorWidget *editor, bool useOutputToWindow,
-                                RunFlags additionalFlags) const
+                                RunFlags additionalFlags,
+                                bool useOutputToWindow) const
 {
-    VcsCommand *command = createCommand(workingDirectory, editor,
+    VcsCommand *command = createCommand(workingDirectory, nullptr,
                                         useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
     command->addFlags(additionalFlags);
-    if (editor)
-        command->setCodec(editor->codec());
     command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
     command->start();
 }
