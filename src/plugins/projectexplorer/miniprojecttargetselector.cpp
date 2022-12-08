@@ -895,7 +895,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     // Height to be aligned with side bar button
     int alignedWithActionHeight = 210;
     if (actionBar->isVisible())
-        alignedWithActionHeight = actionBar->height() - statusBar->height();
+        alignedWithActionHeight = qMax(0, actionBar->height() - statusBar->height());
     int bottomMargin = 9;
     int heightWithoutKitArea = 0;
 
