@@ -495,11 +495,8 @@ Utils::Text::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffe
     std::vector<clang::tooling::Range> ranges{{static_cast<unsigned int>(rangeStart), rangeLength}};
 
     clang::format::FormattingAttemptStatus status;
-    clang::tooling::Replacements clangReplacements = reformat(style,
-                                                              buffer.data(),
-                                                              ranges,
-                                                              m_fileName.toString().toStdString(),
-                                                              &status);
+    clang::tooling::Replacements clangReplacements = clang::format::reformat(
+        style, buffer.data(), ranges, m_fileName.toFSPathString().toStdString(), &status);
 
     clang::tooling::Replacements filtered;
     if (status.FormatComplete) {
@@ -546,7 +543,7 @@ Utils::Text::Replacements ClangFormatBaseIndenter::format(
     }
 
     clang::format::FormatStyle style = styleForFile();
-    const std::string assumedFileName = m_fileName.toString().toStdString();
+    const std::string assumedFileName = m_fileName.toFSPathString().toStdString();
     clang::tooling::Replacements clangReplacements = clang::format::sortIncludes(style,
                                                                                  buffer.data(),
                                                                                  ranges,
@@ -559,11 +556,11 @@ Utils::Text::Replacements ClangFormatBaseIndenter::format(
     ranges = clang::tooling::calculateRangesAfterReplacements(clangReplacements, ranges);
 
     clang::format::FormattingAttemptStatus status;
-    const clang::tooling::Replacements formatReplacements = reformat(style,
-                                                                     *changedCode,
-                                                                     ranges,
-                                                                     assumedFileName,
-                                                                     &status);
+    const clang::tooling::Replacements formatReplacements = clang::format::reformat(style,
+                                                                                    *changedCode,
+                                                                                    ranges,
+                                                                                    assumedFileName,
+                                                                                    &status);
     clangReplacements = clangReplacements.merge(formatReplacements);
 
     const Utils::Text::Replacements toReplace = utf16Replacements(m_doc, buffer, clangReplacements);
