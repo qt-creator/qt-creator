@@ -5,6 +5,10 @@
 
 #include "gridgeometry.h"
 
+#if QT_VERSION_MAJOR == 6 && QT_VERSION_MINOR == 4
+#include <private/qssgrendergeometry_p.h>
+#endif
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -81,6 +85,34 @@ void GridGeometry::doUpdateGeometry()
     setBounds(QVector3D(vertexPtr[0][0], vertexPtr[0][1], 0.0),
             QVector3D(vertexPtr[lastIndex][0], vertexPtr[lastIndex][1], 0.0));
 }
+
+#if QT_VERSION_MAJOR == 6 && QT_VERSION_MINOR == 4
+QSSGRenderGraphObject *GridGeometry::updateSpatialNode(QSSGRenderGraphObject *node)
+{
+    if (!node) {
+        markAllDirty();
+        auto geometryNode = new QSSGRenderGeometry();
+        node = geometryNode;
+        emit geometryNodeDirty();
+
+        // This is a work around for the issue of incorrect geometry objects getting matched for
+        // cached mesh data in QSSGBufferManager::loadRenderMesh in QtQuick3D in 6.4 (see QDS-8516).
+        // Each setting of stride value increments the generation id of the geometry node.
+        // By incrementing generation id by different amounts for each grid geometry node we have,
+        // we can ensure QSSGBufferManager cache never matches wrong mesh data.
+        // The cache should be cleared of old objects after they are unused for one frame,
+        // and we use 4 grid objects in total, so max of 8 different generation ids should ensure no
+        // invalid cache matches.
+        static int dirtyCount = 0;
+        if (++dirtyCount > 8)
+            dirtyCount = 0;
+        for (int i = 0; i < dirtyCount; ++i)
+            geometryNode->setStride(stride());
+    }
+
+    return QQuick3DGeometry::updateSpatialNode(node);
+}
+#endif
 
 void GridGeometry::fillVertexData(QByteArray &vertexData)
 {
