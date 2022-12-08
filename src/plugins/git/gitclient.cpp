@@ -357,7 +357,7 @@ void GitBaseDiffEditorController::updateBranchList()
     };
     m_instance->vcsExecWithHandler(baseDirectory(),
                                    {"branch", noColorOption, "-a", "--contains", revision},
-                                   this, commandHandler, RunFlags::None, false);
+                                   this, commandHandler, RunFlags::None, CommandOutputBindMode::NoBind);
 }
 
 ///////////////////////////////
@@ -1489,7 +1489,7 @@ void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
 
 void GitClient::addFile(const FilePath &workingDirectory, const QString &fileName)
 {
-    vcsExec(workingDirectory, {"add", fileName}, RunFlags::None, false);
+    vcsExec(workingDirectory, {"add", fileName}, RunFlags::None, CommandOutputBindMode::NoBind);
 }
 
 bool GitClient::synchronousLog(const FilePath &workingDirectory, const QStringList &arguments,
@@ -3368,7 +3368,7 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
 
     if (abortCommand.isEmpty())
         abortCommand = arguments.at(0);
-    VcsCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
+    VcsCommand *command = createCommand(workingDirectory, nullptr, CommandOutputBindMode::ToVcsWindow);
     command->addFlags(RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
