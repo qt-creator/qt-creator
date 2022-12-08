@@ -46,7 +46,7 @@ public:
         sdpPathChooser->setHistoryCompleter("Qnx.Sdp.History");
         sdpPathChooser->setFilePath(version->sdpPath());
 
-        connect(sdpPathChooser, &PathChooser::rawPathChanged, [this, version, sdpPathChooser] {
+        connect(sdpPathChooser, &PathChooser::rawPathChanged, this, [this, version, sdpPathChooser] {
             version->setSdpPath(sdpPathChooser->filePath());
             emit changed();
         });

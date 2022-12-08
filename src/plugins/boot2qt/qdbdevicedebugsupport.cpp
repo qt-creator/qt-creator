@@ -35,10 +35,10 @@ public:
         connect(&m_launcher, &QtcProcess::started, this, &RunWorker::reportStarted);
         connect(&m_launcher, &QtcProcess::done, this, &RunWorker::reportStopped);
 
-        connect(&m_launcher, &QtcProcess::readyReadStandardOutput, [this] {
+        connect(&m_launcher, &QtcProcess::readyReadStandardOutput, this, [this] {
                 appendMessage(QString::fromUtf8(m_launcher.readAllStandardOutput()), StdOutFormat);
         });
-        connect(&m_launcher, &QtcProcess::readyReadStandardError, [this] {
+        connect(&m_launcher, &QtcProcess::readyReadStandardError, this, [this] {
                 appendMessage(QString::fromUtf8(m_launcher.readAllStandardError()), StdErrFormat);
         });
 
