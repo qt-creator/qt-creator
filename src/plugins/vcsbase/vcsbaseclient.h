@@ -99,6 +99,9 @@ public:
                  VcsBaseEditorWidget *editor = nullptr,
                  bool useOutputToWindow = false,
                  RunFlags additionalFlags = RunFlags::None) const;
+    void vcsExecWithEditor(const Utils::FilePath &workingDirectory,
+                           const QStringList &arguments,
+                           VcsBaseEditorWidget *editor) const;
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);

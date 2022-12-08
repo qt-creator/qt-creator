@@ -1197,7 +1197,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
 
-    vcsExec(workingDir, arguments, editor);
+    vcsExecWithEditor(workingDir, arguments, editor);
 }
 
 void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
@@ -1226,7 +1226,7 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
-    vcsExec(workingDir, arguments, editor);
+    vcsExecWithEditor(workingDir, arguments, editor);
 }
 
 // Do not show "0000" or "^32ae4"
@@ -1342,7 +1342,7 @@ VcsBaseEditorWidget *GitClient::annotate(
         arguments << revision;
     arguments << "--" << file;
     editor->setDefaultLineNumber(lineNumber);
-    vcsExec(workingDir, arguments, editor);
+    vcsExecWithEditor(workingDir, arguments, editor);
     return editor;
 }
 
@@ -3229,7 +3229,7 @@ void GitClient::subversionLog(const FilePath &workingDirectory) const
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecNone),
                                                   "svnLog", sourceFile);
     editor->setWorkingDirectory(workingDirectory);
-    vcsExec(workingDirectory, arguments, editor);
+    vcsExecWithEditor(workingDirectory, arguments, editor);
 }
 
 void GitClient::subversionDeltaCommit(const FilePath &workingDirectory) const

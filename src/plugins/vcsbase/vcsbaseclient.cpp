@@ -192,6 +192,16 @@ void VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
     command->start();
 }
 
+void VcsBaseClientImpl::vcsExecWithEditor(const Utils::FilePath &workingDirectory,
+                                          const QStringList &arguments,
+                                          VcsBaseEditorWidget *editor) const
+{
+    VcsCommand *command = createCommand(workingDirectory, editor, NoOutputBind);
+    command->setCodec(editor->codec());
+    command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
+    command->start();
+}
+
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
     return m_baseSettings->timeout.value();
