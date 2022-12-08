@@ -30,6 +30,8 @@ class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
 class VcsCommand;
 
+using CommandHandler = std::function<void(const CommandResult &)>;
+
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 {
     Q_OBJECT
@@ -85,12 +87,18 @@ public:
                                      RunFlags flags = RunFlags::None,
                                      int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
+    void vcsExecWithHandler(const Utils::FilePath &workingDirectory,
+                            const QStringList &arguments,
+                            const QObject *context,
+                            const CommandHandler &handler,
+                            RunFlags additionalFlags = RunFlags::None,
+                            bool useOutputToWindow = true) const;
     // Simple helper to execute a single command using createCommand and enqueueJob.
-    VcsCommand *vcsExec(const Utils::FilePath &workingDirectory,
-                        const QStringList &arguments,
-                        VcsBaseEditorWidget *editor = nullptr,
-                        bool useOutputToWindow = false,
-                        RunFlags additionalFlags = RunFlags::None) const;
+    void vcsExec(const Utils::FilePath &workingDirectory,
+                 const QStringList &arguments,
+                 VcsBaseEditorWidget *editor = nullptr,
+                 bool useOutputToWindow = false,
+                 RunFlags additionalFlags = RunFlags::None) const;
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);

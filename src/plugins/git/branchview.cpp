@@ -416,28 +416,25 @@ bool BranchView::checkout()
                 return false;
         }
 
-        VcsCommand *command = m_model->checkoutBranch(selected);
         const bool moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch();
         const bool popStash = branchCheckoutDialog.popStashOfNextBranch();
-        if (command && (moveChanges || popStash)) {
-            connect(command, &VcsCommand::done,
-                    this, [this, client, popMessageStart, moveChanges, popStash] {
-                if (moveChanges) {
-                    client->endStashScope(m_repository);
-                } else if (popStash) {
-                    QList<Stash> stashes;
-                    QString stashName;
-                    client->synchronousStashList(m_repository, &stashes);
-                    for (const Stash &stash : std::as_const(stashes)) {
-                        if (stash.message.startsWith(popMessageStart)) {
-                            stashName = stash.name;
-                            break;
-                        }
+        const auto commandHandler = [=](const CommandResult &) {
+            if (moveChanges) {
+                client->endStashScope(m_repository);
+            } else if (popStash) {
+                QList<Stash> stashes;
+                QString stashName;
+                client->synchronousStashList(m_repository, &stashes);
+                for (const Stash &stash : std::as_const(stashes)) {
+                    if (stash.message.startsWith(popMessageStart)) {
+                        stashName = stash.name;
+                        break;
                     }
-                    client->synchronousStashRestore(m_repository, stashName, true);
                 }
-            });
-        }
+                client->synchronousStashRestore(m_repository, stashName, true);
+            }
+        };
+        m_model->checkoutBranch(selected, this, commandHandler);
     }
 
     if (QTC_GUARD(m_branchView))

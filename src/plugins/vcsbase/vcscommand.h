@@ -27,11 +27,14 @@ namespace VcsBase {
 
 namespace Internal { class VcsCommandPrivate; }
 
+class VcsCommand;
+
 class VCSBASE_EXPORT CommandResult
 {
 public:
     CommandResult() = default;
     CommandResult(const Utils::QtcProcess &process);
+    CommandResult(const VcsCommand &command);
     CommandResult(Utils::ProcessResult result, const QString &exitMessage)
         : m_result(result), m_exitMessage(exitMessage) {}
 

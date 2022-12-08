@@ -333,4 +333,10 @@ CommandResult::CommandResult(const QtcProcess &process)
     , m_rawStdOut(process.rawStdOut())
 {}
 
+CommandResult::CommandResult(const VcsCommand &command)
+    : m_result(command.result())
+    , m_cleanedStdOut(command.cleanedStdOut())
+    , m_cleanedStdErr(command.cleanedStdErr())
+{}
+
 } // namespace VcsBase

@@ -203,6 +203,7 @@ void GitSubmitEditor::updateFileModel()
     if (w->updateInProgress() || m_workingDirectory.isEmpty())
         return;
     w->setUpdateInProgress(true);
+    // TODO: Check if fetch works OK from separate thread, refactor otherwise
     m_fetchWatcher.setFuture(Utils::runAsync(&CommitDataFetchResult::fetch,
                                              m_commitType, m_workingDirectory));
     Core::ProgressManager::addTask(m_fetchWatcher.future(), Tr::tr("Refreshing Commit Data"),

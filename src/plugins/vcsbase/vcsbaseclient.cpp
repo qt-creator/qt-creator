@@ -159,18 +159,37 @@ void VcsBaseClientImpl::annotateRevisionRequested(const FilePath &workingDirecto
     annotate(workingDirectory, file, changeCopy, line);
 }
 
-VcsCommand *VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
-                                       const QStringList &arguments,
-                                       VcsBaseEditorWidget *editor, bool useOutputToWindow,
-                                       RunFlags additionalFlags) const
+void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
+                                           const QStringList &arguments,
+                                           const QObject *context,
+                                           const CommandHandler &handler,
+                                           RunFlags additionalFlags,
+                                           bool useOutputToWindow) const
+{
+    VcsCommand *command = createCommand(workingDirectory, nullptr,
+                                        useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
+    command->addFlags(additionalFlags);
+    command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
+    if (handler) {
+        connect(command, &VcsCommand::done, context, [command, handler] {
+            handler(CommandResult(*command));
+        });
+    }
+    command->start();
+}
+
+void VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
+                                const QStringList &arguments,
+                                VcsBaseEditorWidget *editor, bool useOutputToWindow,
+                                RunFlags additionalFlags) const
 {
     VcsCommand *command = createCommand(workingDirectory, editor,
                                         useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
     command->addFlags(additionalFlags);
     if (editor)
         command->setCodec(editor->codec());
-    enqueueJob(command, arguments);
-    return command;
+    command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
+    command->start();
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const

@@ -1572,19 +1572,19 @@ void GitPluginPrivate::instantBlame()
     const QFileInfo fi(filePath.toString());
     const Utils::FilePath workingDirectory = Utils::FilePath::fromString(fi.path());
     const QString lineString = QString("%1,%1").arg(line);
-    const VcsCommand *command = GitClient::instance()->vcsExec(
-                workingDirectory, {"blame", "-p", "-L", lineString, "--", filePath.toString()},
-                nullptr, false, RunFlags::NoOutput);
-    connect(command, &VcsCommand::done, this, [command, filePath, line, this] {
-        if (command->result() == ProcessResult::FinishedWithError &&
-                command->cleanedStdErr().contains("no such path")) {
+    const auto commandHandler = [this, filePath, line](const CommandResult &result) {
+        if (result.result() == ProcessResult::FinishedWithError &&
+                result.cleanedStdErr().contains("no such path")) {
             disconnect(m_blameCursorPosConn);
             return;
         }
-        const QString output = command->cleanedStdOut();
+        const QString output = result.cleanedStdOut();
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
-    });
+    };
+    GitClient::instance()->vcsExecWithHandler(workingDirectory,
+                           {"blame", "-p", "-L", lineString, "--", filePath.toString()},
+                           this, commandHandler, RunFlags::NoOutput, false);
 }
 
 void GitPluginPrivate::stopInstantBlame()

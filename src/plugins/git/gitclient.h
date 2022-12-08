@@ -181,8 +181,9 @@ public:
                                   QString revision = {}, QString *errorMessage = nullptr,
                                   bool revertStaging = true);
     enum class StashMode { NoStash, TryStash };
-    VcsBase::VcsCommand *checkout(const Utils::FilePath &workingDirectory, const QString &ref,
-                                  StashMode stashMode = StashMode::TryStash);
+    void checkout(const Utils::FilePath &workingDirectory, const QString &ref,
+                  StashMode stashMode = StashMode::TryStash, const QObject *context = nullptr,
+                  const VcsBase::CommandHandler &handler = {});
 
     QStringList setupCheckoutArguments(const Utils::FilePath &workingDirectory, const QString &ref);
     void updateSubmodulesIfNeeded(const Utils::FilePath &workingDirectory, bool prompt);
