@@ -367,7 +367,6 @@ private:
                          bool *isDirectory,
                          QString *errorMessage,
                          bool revertStaging);
-    void connectRepositoryChanged(const QString & repository, VcsBase::VcsCommand *cmd);
     bool executeAndHandleConflicts(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = {}) const;
     void tryLaunchingGitK(const Utils::Environment &env,
