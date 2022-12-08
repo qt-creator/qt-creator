@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
