@@ -720,76 +720,58 @@ public:
     }
 };
 
-class ConflictHandler final : public QObject
+class ConflictHandler
 {
-    Q_OBJECT
 public:
     static void attachToCommand(VcsCommand *command, const FilePath &workingDirectory,
                                 const QString &abortCommand = {}) {
-        auto handler = new ConflictHandler(workingDirectory, abortCommand);
-        handler->setParent(command); // delete when command goes out of scope
-
         command->addFlags(RunFlags::ExpectRepoChanges);
-        connect(command, &VcsCommand::done, handler, [handler, command] {
-            handler->readStdOut(command->cleanedStdOut());
-            handler->readStdErr(command->cleanedStdErr());
+        QObject::connect(command, &VcsCommand::done, command, [=] {
+            finalize(workingDirectory, abortCommand,
+                     command->cleanedStdOut(), command->cleanedStdErr());
         });
     }
 
     static void handleResponse(const VcsBase::CommandResult &result,
                                const FilePath &workingDirectory,
-                               const QString &abortCommand = QString())
+                               const QString &abortCommand)
     {
-        ConflictHandler handler(workingDirectory, abortCommand);
-        // No conflicts => do nothing
-        if (result.result() == ProcessResult::FinishedWithSuccess)
-            return;
-        handler.readStdOut(result.cleanedStdOut());
-        handler.readStdErr(result.cleanedStdErr());
+        const bool success = result.result() == ProcessResult::FinishedWithSuccess;
+        const QString stdOutData = success ? QString() : result.cleanedStdOut();
+        const QString stdErrData = success ? QString() : result.cleanedStdErr();
+        finalize(workingDirectory, abortCommand, stdOutData, stdErrData);
     }
 
 private:
-    ConflictHandler(const FilePath &workingDirectory, const QString &abortCommand) :
-          m_workingDirectory(workingDirectory),
-          m_abortCommand(abortCommand)
-    { }
-
-    ~ConflictHandler() final
+    static void finalize(const FilePath &workingDirectory, const QString &abortCommand,
+                         const QString &stdOutData, const QString &stdErrData)
     {
-        // If interactive rebase editor window is closed, plugin is terminated
-        // but referenced here when the command ends
-        if (m_commit.isEmpty() && m_files.isEmpty()) {
-            if (m_instance->checkCommandInProgress(m_workingDirectory) == GitClient::NoCommand)
-                m_instance->endStashScope(m_workingDirectory);
-        } else {
-            m_instance->handleMergeConflicts(m_workingDirectory, m_commit, m_files, m_abortCommand);
-        }
-    }
+        QString commit;
+        QStringList files;
 
-    void readStdOut(const QString &data)
-    {
         static const QRegularExpression patchFailedRE("Patch failed at ([^\\n]*)");
         static const QRegularExpression conflictedFilesRE("Merge conflict in ([^\\n]*)");
-        const QRegularExpressionMatch match = patchFailedRE.match(data);
-        if (match.hasMatch())
-            m_commit = match.captured(1);
-        QRegularExpressionMatchIterator it = conflictedFilesRE.globalMatch(data);
-        while (it.hasNext())
-            m_files.append(it.next().captured(1));
-    }
-
-    void readStdErr(const QString &data)
-    {
         static const QRegularExpression couldNotApplyRE("[Cc]ould not (?:apply|revert) ([^\\n]*)");
-        const QRegularExpressionMatch match = couldNotApplyRE.match(data);
-        if (match.hasMatch())
-            m_commit = match.captured(1);
+
+        const QRegularExpressionMatch outMatch = patchFailedRE.match(stdOutData);
+        if (outMatch.hasMatch())
+            commit = outMatch.captured(1);
+        QRegularExpressionMatchIterator it = conflictedFilesRE.globalMatch(stdOutData);
+        while (it.hasNext())
+            files.append(it.next().captured(1));
+        const QRegularExpressionMatch errMatch = couldNotApplyRE.match(stdErrData);
+        if (errMatch.hasMatch())
+            commit = errMatch.captured(1);
+
+        // If interactive rebase editor window is closed, plugin is terminated
+        // but referenced here when the command ends
+        if (commit.isEmpty() && files.isEmpty()) {
+            if (m_instance->checkCommandInProgress(workingDirectory) == GitClient::NoCommand)
+                m_instance->endStashScope(workingDirectory);
+        } else {
+            m_instance->handleMergeConflicts(workingDirectory, commit, files, abortCommand);
+        }
     }
-private:
-    FilePath m_workingDirectory;
-    QString m_abortCommand;
-    QString m_commit;
-    QStringList m_files;
 };
 
 class GitProgressParser
