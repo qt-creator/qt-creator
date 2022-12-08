@@ -4,9 +4,10 @@
 #include "languageclientsettings.h"
 
 #include "client.h"
-#include "languageclientmanager.h"
 #include "languageclient_global.h"
 #include "languageclientinterface.h"
+#include "languageclientmanager.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
@@ -827,6 +828,8 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     mimeLayout->addWidget(addMimeTypeButton);
     mainLayout->addLayout(mimeLayout, row, 1);
     m_filePattern->setPlaceholderText(tr("File pattern"));
+    m_filePattern->setToolTip(
+        Tr::tr("List of file patterns.\nExample: *.cpp%1*.h").arg(filterSeparator));
     mainLayout->addWidget(m_filePattern, ++row, 1);
 
     mainLayout->addWidget(new QLabel(tr("Startup behavior:")), ++row, 0);
