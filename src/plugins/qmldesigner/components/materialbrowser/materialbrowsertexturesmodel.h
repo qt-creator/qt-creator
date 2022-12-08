@@ -37,8 +37,10 @@ public:
     void deleteSelectedTexture();
     void updateSelectedTexture();
     void updateTextureSource(const ModelNode &texture);
-    int textureIndex(const ModelNode &material) const;
+    void updateAllTexturesSources();
+    int textureIndex(const ModelNode &texture) const;
     ModelNode textureAt(int idx) const;
+    ModelNode selectedTexture() const;
 
     bool hasSingleModelSelection() const;
     void setHasSingleModelSelection(bool b);
@@ -78,7 +80,6 @@ private:
 
     QString m_searchText;
     QList<ModelNode> m_textureList;
-    ModelNode m_copiedMaterial;
     QHash<qint32, int> m_textureIndexHash; // internalId -> index
 
     int m_selectedIndex = 0;

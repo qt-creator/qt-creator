@@ -49,11 +49,12 @@ public:
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
+    void active3DSceneChanged(qint32 sceneId) override;
+    void currentStateChanged(const ModelNode &node) override;
 
     void applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture);
     void applyTextureToMaterial(const QList<ModelNode> &materials, const ModelNode &texture);
 
-    void active3DSceneChanged(qint32 sceneId) override;
 
     Q_INVOKABLE void updatePropsModel(const QString &matId);
     Q_INVOKABLE void applyTextureToProperty(const QString &matId, const QString &propName);

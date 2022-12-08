@@ -33,7 +33,7 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
 
     QByteArray roleName = roleNames().value(role);
     if (roleName == "textureSource") {
-        QString source = m_textureList.at(index.row()).variantProperty("source").value().toString();
+        QString source = QmlObjectNode(m_textureList.at(index.row())).modelValue("source").toString();
         if (source.isEmpty())
             return {};
         if (Utils::FilePath::fromString(source).isAbsolutePath())
@@ -184,6 +184,11 @@ void MaterialBrowserTexturesModel::updateTextureSource(const ModelNode &texture)
         emit dataChanged(index(idx, 0), index(idx, 0), {roleNames().key("textureSource")});
 }
 
+void MaterialBrowserTexturesModel::updateAllTexturesSources()
+{
+    emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {roleNames().key("textureSource")});
+}
+
 void MaterialBrowserTexturesModel::updateSelectedTexture()
 {
     selectTexture(m_selectedIndex, true);
@@ -203,6 +208,11 @@ ModelNode MaterialBrowserTexturesModel::textureAt(int idx) const
         return m_textureList.at(idx);
 
     return {};
+}
+
+ModelNode MaterialBrowserTexturesModel::selectedTexture() const
+{
+    return textureAt(m_selectedIndex);
 }
 
 bool MaterialBrowserTexturesModel::hasSingleModelSelection() const

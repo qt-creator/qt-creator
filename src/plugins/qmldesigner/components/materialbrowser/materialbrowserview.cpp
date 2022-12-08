@@ -8,7 +8,6 @@
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserwidget.h"
-#include "modelnodeoperations.h"
 #include "nodeabstractproperty.h"
 #include "nodemetainfo.h"
 #include "qmlobjectnode.h"
@@ -327,10 +326,15 @@ void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> 
     for (const VariantProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
 
-        if (isMaterial(node) && property.name() == "objectName")
+        if (isMaterial(node) && property.name() == "objectName") {
             m_widget->materialBrowserModel()->updateMaterialName(node);
-        else if (isTexture(node) && property.name() == "source")
-            m_widget->materialBrowserTexturesModel()->updateTextureSource(node);
+        } else if (property.name() == "source") {
+            QmlObjectNode selectedTex = m_widget->materialBrowserTexturesModel()->selectedTexture();
+            if (isTexture(node))
+                m_widget->materialBrowserTexturesModel()->updateTextureSource(node);
+            else if (selectedTex.propertyChangeForCurrentState() == node)
+                m_widget->materialBrowserTexturesModel()->updateTextureSource(selectedTex);
+        }
     }
 }
 
@@ -481,6 +485,11 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
 void MaterialBrowserView::active3DSceneChanged(qint32 sceneId)
 {
     m_sceneId = sceneId;
+}
+
+void MaterialBrowserView::currentStateChanged([[maybe_unused]] const ModelNode &node)
+{
+    m_widget->materialBrowserTexturesModel()->updateAllTexturesSources();
 }
 
 void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
