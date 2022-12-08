@@ -57,6 +57,7 @@ void AxivionSettingsWidget::apply()
 }
 
 AxivionSettingsPage::AxivionSettingsPage(AxivionSettings *settings)
+    : m_settings(settings)
 {
     setId("Axivion.Settings.General");
     setDisplayName(Tr::tr("General"));
