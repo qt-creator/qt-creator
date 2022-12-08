@@ -420,7 +420,7 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
-    }, Qt::QueuedConnection);
+    });
     enqueueJob(cmd, args);
 }
 
@@ -436,7 +436,7 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
-    }, Qt::QueuedConnection);
+    });
     enqueueJob(createCommand(workingDir), args);
 }
 
@@ -448,8 +448,7 @@ void VcsBaseClient::status(const FilePath &workingDir,
     args << extraOptions << file;
     VcsOutputWindow::setRepository(workingDir);
     VcsCommand *cmd = createCommand(workingDir, nullptr, VcsWindowOutputBind);
-    connect(cmd, &VcsCommand::done, VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository,
-            Qt::QueuedConnection);
+    connect(cmd, &VcsCommand::done, VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository);
     enqueueJob(cmd, args);
 }
 
@@ -535,7 +534,7 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
     connect(cmd, &VcsCommand::done, this, [this, repositoryRoot, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(repositoryRoot.toString());
-    }, Qt::QueuedConnection);
+    });
     enqueueJob(cmd, args);
 }
 

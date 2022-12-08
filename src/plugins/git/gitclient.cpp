@@ -1108,8 +1108,8 @@ void GitClient::status(const FilePath &workingDirectory) const
 {
     VcsOutputWindow::setRepository(workingDirectory);
     VcsCommand *command = vcsExec(workingDirectory, {"status", "-u"}, nullptr, true);
-    connect(command, &VcsCommand::done, VcsOutputWindow::instance(),
-            &VcsOutputWindow::clearRepository, Qt::QueuedConnection);
+    connect(command, &VcsCommand::done,
+            VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository);
 }
 
 static QStringList normalLogArguments()
@@ -3113,7 +3113,7 @@ void GitClient::pull(const FilePath &workingDirectory, bool rebase)
     connect(command, &VcsCommand::done, this, [this, workingDirectory, command] {
         if (command->result() == ProcessResult::FinishedWithSuccess)
             updateSubmodulesIfNeeded(workingDirectory, true);
-    }, Qt::QueuedConnection);
+    });
 }
 
 void GitClient::synchronousAbortCommand(const FilePath &workingDir, const QString &abortCommand)
