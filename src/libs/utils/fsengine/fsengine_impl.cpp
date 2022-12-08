@@ -48,7 +48,8 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
 
     ensureStorage();
 
-    QTC_ASSERT(m_tempStorage->open(), return false);
+    const bool isOpened = m_tempStorage->open();
+    QTC_ASSERT(isOpened, return false);
 
     bool read = openMode & QIODevice::ReadOnly;
     bool write = openMode & QIODevice::WriteOnly;
@@ -76,7 +77,8 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
 
 bool FSEngineImpl::close()
 {
-    QTC_ASSERT(flush(), return false);
+    const bool isFlushed = flush();
+    QTC_ASSERT(isFlushed, return false);
     if (m_tempStorage)
         m_tempStorage->close();
     return true;

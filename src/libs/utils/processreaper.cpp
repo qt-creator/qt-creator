@@ -117,8 +117,9 @@ private:
     void handleFinished()
     {
         // In case the process is still running - wait until it has finished
-        QTC_ASSERT(emitFinished(), QTimer::singleShot(m_reaperSetup.m_timeoutMs,
-                                                      this, &Reaper::handleFinished));
+        const bool isFinished = emitFinished();
+        QTC_ASSERT(isFinished, QTimer::singleShot(m_reaperSetup.m_timeoutMs,
+                                                  this, &Reaper::handleFinished));
     }
 
     void handleTerminateTimeout()
@@ -187,7 +188,8 @@ private:
         Reaper *reaper = new Reaper(reaperSetup);
         connect(reaper, &Reaper::finished, this, [this, reaper, process = reaperSetup.m_process] {
             QMutexLocker locker(&m_mutex);
-            QTC_CHECK(m_reaperList.removeOne(reaper));
+            const bool isRemoved = m_reaperList.removeOne(reaper);
+            QTC_CHECK(isRemoved);
             delete reaper;
             delete process;
             if (m_reaperList.isEmpty())

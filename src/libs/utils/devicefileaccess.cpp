@@ -560,7 +560,8 @@ bool DesktopDeviceFileAccess::writeFileContents(
         qint64 offset) const
 {
     QFile file(filePath.path());
-    QTC_ASSERT(file.open(QFile::WriteOnly | QFile::Truncate), return false);
+    const bool isOpened = file.open(QFile::WriteOnly | QFile::Truncate);
+    QTC_ASSERT(isOpened, return false);
     if (offset != 0)
         file.seek(offset);
     qint64 res = file.write(data);
