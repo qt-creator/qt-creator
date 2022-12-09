@@ -535,7 +535,6 @@ void StudioWelcomePlugin::extensionsInitialized()
 
                 s_viewWindow->setFlag(Qt::FramelessWindowHint);
 
-                s_viewWindow->setModality(Qt::ApplicationModal);
                 s_viewWindow->engine()->addImportPath("qrc:/studiofonts");
 #ifdef QT_DEBUG
                 s_viewWindow->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
@@ -561,9 +560,13 @@ void StudioWelcomePlugin::extensionsInitialized()
                 s_viewWindow->setPosition((mainWindow->width() - s_viewWindow->width()) / 2,
                                           (mainWindow->height() - s_viewWindow->height()) / 2);
 
-                s_viewWindow->show();
-                s_viewWindow->raise();
+                Core::ICore::mainWindow()->setEnabled(false);
+                connect(s_viewWindow, &QObject::destroyed, []() {
+                    if (Core::ICore::mainWindow())
+                        Core::ICore::mainWindow()->setEnabled(true);
+                });
 
+                s_viewWindow->show();
                 s_viewWindow->requestActivate();
             } else {
                 s_viewWidget = new QQuickWidget(Core::ICore::dialogParent());
