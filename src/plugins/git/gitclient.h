@@ -121,10 +121,10 @@ public:
     Utils::FilePath vcsBinary() const override;
     QFuture<unsigned> gitVersion() const;
 
-    VcsBase::VcsCommand *vcsExecAbortable(const Utils::FilePath &workingDirectory,
-                                          const QStringList &arguments,
-                                          bool isRebase = false,
-                                          QString abortCommand = {});
+    void vcsExecAbortable(const Utils::FilePath &workingDirectory, const QStringList &arguments,
+                          bool isRebase = false, const QString &abortCommand = {},
+                          const QObject *context = nullptr,
+                          const VcsBase::CommandHandler &handler = {});
 
     Utils::FilePath findRepositoryForDirectory(const Utils::FilePath &directory) const;
     QString findGitDirForRepository(const Utils::FilePath &repositoryDir) const;

@@ -3110,11 +3110,11 @@ void GitClient::pull(const FilePath &workingDirectory, bool rebase)
         abortCommand = "merge";
     }
 
-    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand);
-    connect(command, &VcsCommand::done, this, [this, workingDirectory, command] {
-        if (command->result() == ProcessResult::FinishedWithSuccess)
+    const auto commandHandler = [this, workingDirectory](const CommandResult &result) {
+        if (result.result() == ProcessResult::FinishedWithSuccess)
             updateSubmodulesIfNeeded(workingDirectory, true);
-    });
+    };
+    vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand, this, commandHandler);
 }
 
 void GitClient::synchronousAbortCommand(const FilePath &workingDir, const QString &abortCommand)
@@ -3363,26 +3363,27 @@ void GitClient::revert(const FilePath &workingDirectory, const QString &argument
 
 // Executes a command asynchronously. Work tree is expected to be clean.
 // Stashing is handled prior to this call.
-VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
-                                        const QStringList &arguments,
-                                        bool isRebase,
-                                        QString abortCommand)
+void GitClient::vcsExecAbortable(const FilePath &workingDirectory, const QStringList &arguments,
+                                 bool isRebase, const QString &abortCommand,
+                                 const QObject *context, const CommandHandler &handler)
 {
-    QTC_ASSERT(!arguments.isEmpty(), return nullptr);
-
-    if (abortCommand.isEmpty())
-        abortCommand = arguments.at(0);
+    QTC_ASSERT(!arguments.isEmpty(), return);
+    const QString abortString = abortCommand.isEmpty() ? arguments.at(0) : abortCommand;
     VcsCommand *command = createCommand(workingDirectory);
     command->addFlags(RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
     command->addJob({vcsBinary(), arguments}, isRebase ? 0 : vcsTimeoutS());
-    ConflictHandler::attachToCommand(command, workingDirectory, abortCommand);
+    ConflictHandler::attachToCommand(command, workingDirectory, abortString);
+    if (handler) {
+        const QObject *actualContext = context ? context : this;
+        connect(command, &VcsCommand::done, actualContext, [command, handler] {
+            handler(CommandResult(*command));
+        });
+    }
     if (isRebase)
         command->setProgressParser(GitProgressParser());
     command->start();
-    // TODO: Don't return command, take handler arg
-    return command;
 }
 
 bool GitClient::synchronousRevert(const FilePath &workingDirectory, const QString &commit)
