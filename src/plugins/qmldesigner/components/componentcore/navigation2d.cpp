@@ -76,19 +76,19 @@ bool Navigation2dFilter::wheelEvent(QWheelEvent *event)
     bool zoomChangedConnected = QObject::isSignalConnected(zoomChangedSignal);
 
     if (zoomChangedConnected) {
-        const double globalMouseSpeed =
-            QmlDesignerPlugin::settings().value(DesignerSettingsKey::EDITOR_ZOOM_FACTOR).toDouble();
-
-        double speed = globalMouseSpeed/20.;
-        if (Utils::HostOsInfo::isMacHost())
-            speed = 1.0/200.;
-
-        if (QPointF delta = event->pixelDelta(); !delta.isNull()) {
+        double speed = 1.0 / 200.0;
+        bool isMac = Utils::HostOsInfo::isMacHost();
+        if (QPointF delta = event->pixelDelta(); !delta.isNull() && isMac) {
             double dist = std::abs(delta.x()) > std::abs(delta.y()) ? -delta.x() : delta.y();
             emit zoomChanged(dist * speed, event->position());
             event->accept();
             return true;
         } else if (QPointF delta = event->angleDelta(); !delta.isNull()) {
+
+            const double globalMouseSpeed =
+                QmlDesignerPlugin::settings().value(DesignerSettingsKey::EDITOR_ZOOM_FACTOR).toDouble();
+            speed = globalMouseSpeed / 20.0;
+
             constexpr double degreePerStep = 15.;
             constexpr double stepCount = 8.;
             double dist = std::abs(delta.x()) > std::abs(delta.y()) ? -delta.x() : delta.y();
