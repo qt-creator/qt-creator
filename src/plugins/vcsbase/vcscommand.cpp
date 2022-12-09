@@ -142,12 +142,8 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
                          || m_flags & RunFlags::ShowStdOut) {
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
         connect(process, &QtcProcess::textOnStandardOutput, this, [this](const QString &text) {
-            if (m_flags & RunFlags::ShowStdOut) {
-                if (m_flags & RunFlags::SilentOutput)
-                    VcsOutputWindow::appendSilently(text);
-                else
-                    VcsOutputWindow::append(text);
-            }
+            if (m_flags & RunFlags::ShowStdOut)
+                VcsOutputWindow::append(text);
             if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdOutText(text);
         });

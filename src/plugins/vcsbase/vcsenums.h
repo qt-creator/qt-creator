@@ -8,7 +8,7 @@
 namespace VcsBase {
 
 enum class RunFlags {
-    None                   = 0,        // Empty.
+    None                   = 0,         // Empty.
     // QtcProcess related
     MergeOutputChannels    = (1 <<  0), // See QProcess::ProcessChannelMode::MergedChannels.
     ForceCLocale           = (1 <<  1), // Force C-locale, sets LANG and LANGUAGE env vars to "C".
@@ -20,9 +20,8 @@ enum class RunFlags {
     SuppressCommandLogging = (1 <<  5), // No starting command log entry.
     ShowSuccessMessage     = (1 <<  6), // Show message about successful completion of command.
     ShowStdOut             = (1 <<  7), // Show standard output.
-    SilentOutput           = (1 <<  8), // Only when ShowStdOut is set to true, outputs silently.
-    ProgressiveOutput      = (1 <<  9), // Emit stdOutText() and stdErrText() signals.
-    ExpectRepoChanges      = (1 << 10), // Expect changes in repository by the command.
+    ProgressiveOutput      = (1 <<  8), // Emit stdOutText() and stdErrText() signals.
+    ExpectRepoChanges      = (1 <<  9), // Expect changes in repository by the command.
     NoOutput               = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
 };
 
