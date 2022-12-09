@@ -1725,7 +1725,7 @@ bool validateEffect(const QString &effectPath)
         msgBox.setDefaultButton(QMessageBox::Yes);
         msgBox.setIcon(QMessageBox::Question);
         if (msgBox.exec() == QMessageBox::Yes)
-            ModelNodeOperations::openEffectMaker(effectName);
+            ModelNodeOperations::openEffectMaker(effectPath);
         return false;
     }
     return true;
