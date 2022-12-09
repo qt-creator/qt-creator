@@ -1346,6 +1346,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     generatorContainer->setOnAllDisabledBehavior(ActionContainer::Show);
     generatorContainer->menu()->setTitle(tr("Run Generator"));
     mbuild->addMenu(generatorContainer, Constants::G_BUILD_BUILD);
+
+    // FIXME: This menu will never become visible if the user tried to open it once
+    //        without a project loaded.
     connect(generatorContainer->menu(), &QMenu::aboutToShow, [menu = generatorContainer->menu()] {
         menu->clear();
         if (Project * const project = SessionManager::startupProject()) {
@@ -1353,7 +1356,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                 menu->addAction(generator.second, [project, id = generator.first] {
                     project->runGenerator(id);
                 });
-                menu->show();
             }
         }
     });
