@@ -721,59 +721,38 @@ public:
     }
 };
 
-class ConflictHandler
+static void handleConflictResponse(const VcsBase::CommandResult &result,
+                                   const FilePath &workingDirectory,
+                                   const QString &abortCommand = {})
 {
-public:
-    static void attachToCommand(VcsCommand *command, const FilePath &workingDirectory,
-                                const QString &abortCommand = {}) {
-        command->addFlags(RunFlags::ExpectRepoChanges);
-        QObject::connect(command, &VcsCommand::done, command, [=] {
-            finalize(workingDirectory, abortCommand,
-                     command->cleanedStdOut(), command->cleanedStdErr());
-        });
+    const bool success = result.result() == ProcessResult::FinishedWithSuccess;
+    const QString stdOutData = success ? QString() : result.cleanedStdOut();
+    const QString stdErrData = success ? QString() : result.cleanedStdErr();
+    static const QRegularExpression patchFailedRE("Patch failed at ([^\\n]*)");
+    static const QRegularExpression conflictedFilesRE("Merge conflict in ([^\\n]*)");
+    static const QRegularExpression couldNotApplyRE("[Cc]ould not (?:apply|revert) ([^\\n]*)");
+    QString commit;
+    QStringList files;
+
+    const QRegularExpressionMatch outMatch = patchFailedRE.match(stdOutData);
+    if (outMatch.hasMatch())
+        commit = outMatch.captured(1);
+    QRegularExpressionMatchIterator it = conflictedFilesRE.globalMatch(stdOutData);
+    while (it.hasNext())
+        files.append(it.next().captured(1));
+    const QRegularExpressionMatch errMatch = couldNotApplyRE.match(stdErrData);
+    if (errMatch.hasMatch())
+        commit = errMatch.captured(1);
+
+    // If interactive rebase editor window is closed, plugin is terminated
+    // but referenced here when the command ends
+    if (commit.isEmpty() && files.isEmpty()) {
+        if (m_instance->checkCommandInProgress(workingDirectory) == GitClient::NoCommand)
+            m_instance->endStashScope(workingDirectory);
+    } else {
+        m_instance->handleMergeConflicts(workingDirectory, commit, files, abortCommand);
     }
-
-    static void handleResponse(const VcsBase::CommandResult &result,
-                               const FilePath &workingDirectory,
-                               const QString &abortCommand = {})
-    {
-        const bool success = result.result() == ProcessResult::FinishedWithSuccess;
-        const QString stdOutData = success ? QString() : result.cleanedStdOut();
-        const QString stdErrData = success ? QString() : result.cleanedStdErr();
-        finalize(workingDirectory, abortCommand, stdOutData, stdErrData);
-    }
-
-private:
-    static void finalize(const FilePath &workingDirectory, const QString &abortCommand,
-                         const QString &stdOutData, const QString &stdErrData)
-    {
-        QString commit;
-        QStringList files;
-
-        static const QRegularExpression patchFailedRE("Patch failed at ([^\\n]*)");
-        static const QRegularExpression conflictedFilesRE("Merge conflict in ([^\\n]*)");
-        static const QRegularExpression couldNotApplyRE("[Cc]ould not (?:apply|revert) ([^\\n]*)");
-
-        const QRegularExpressionMatch outMatch = patchFailedRE.match(stdOutData);
-        if (outMatch.hasMatch())
-            commit = outMatch.captured(1);
-        QRegularExpressionMatchIterator it = conflictedFilesRE.globalMatch(stdOutData);
-        while (it.hasNext())
-            files.append(it.next().captured(1));
-        const QRegularExpressionMatch errMatch = couldNotApplyRE.match(stdErrData);
-        if (errMatch.hasMatch())
-            commit = errMatch.captured(1);
-
-        // If interactive rebase editor window is closed, plugin is terminated
-        // but referenced here when the command ends
-        if (commit.isEmpty() && files.isEmpty()) {
-            if (m_instance->checkCommandInProgress(workingDirectory) == GitClient::NoCommand)
-                m_instance->endStashScope(workingDirectory);
-        } else {
-            m_instance->handleMergeConflicts(workingDirectory, commit, files, abortCommand);
-        }
-    }
-};
+}
 
 class GitProgressParser
 {
@@ -3095,7 +3074,7 @@ bool GitClient::executeAndHandleConflicts(const FilePath &workingDirectory,
                          | RunFlags::ShowSuccessMessage;
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, flags);
     // Notify about changed files or abort the rebase.
-    ConflictHandler::handleResponse(result, workingDirectory, abortCommand);
+    handleConflictResponse(result, workingDirectory, abortCommand);
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -3374,13 +3353,13 @@ void GitClient::vcsExecAbortable(const FilePath &workingDirectory, const QString
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
     command->addJob({vcsBinary(), arguments}, isRebase ? 0 : vcsTimeoutS());
-    ConflictHandler::attachToCommand(command, workingDirectory, abortString);
-    if (handler) {
-        const QObject *actualContext = context ? context : this;
-        connect(command, &VcsCommand::done, actualContext, [command, handler] {
-            handler(CommandResult(*command));
-        });
-    }
+    const QObject *actualContext = context ? context : this;
+    connect(command, &VcsCommand::done, actualContext, [=] {
+        const CommandResult result = CommandResult(*command);
+        handleConflictResponse(result, workingDirectory, abortString);
+        if (handler)
+            handler(result);
+    });
     if (isRebase)
         command->setProgressParser(GitProgressParser());
     command->start();
@@ -3440,7 +3419,7 @@ void GitClient::stashPop(const FilePath &workingDirectory, const QString &stash)
     if (!stash.isEmpty())
         arguments << stash;
     const auto commandHandler = [workingDirectory](const CommandResult &result) {
-        ConflictHandler::handleResponse(result, workingDirectory);
+        handleConflictResponse(result, workingDirectory);
     };
     vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
                        RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges);
