@@ -304,7 +304,7 @@ QSet<Id> CMakeKitAspect::availableFeatures(const Kit *k) const
 QString CMakeKitAspect::msgUnsupportedVersion(const QByteArray &versionString)
 {
     return Tr::tr("CMake version %1 is unsupported. Update to "
-              "version 3.14 (with file-api) or later.")
+              "version 3.15 (with file-api) or later.")
         .arg(QString::fromUtf8(versionString));
 }
 

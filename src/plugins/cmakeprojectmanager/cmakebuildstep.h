@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/abstractprocessstep.h>
+#include "cmakeabstractprocessstep.h"
 #include <utils/treemodel.h>
 
 namespace Utils {
@@ -31,7 +31,7 @@ private:
     bool m_special = false;
 };
 
-class CMakeBuildStep : public ProjectExplorer::AbstractProcessStep
+class CMakeBuildStep : public CMakeAbstractProcessStep
 {
     Q_OBJECT
 

@@ -565,13 +565,6 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
     m_introspection->m_version.minor = versionInfo.value("minor").toInt();
     m_introspection->m_version.patch = versionInfo.value("patch").toInt();
     m_introspection->m_version.fullVersion = versionInfo.value("string").toByteArray();
-
-    // Fix up fileapi support for cmake 3.14:
-    if (m_introspection->m_version.major == 3 && m_introspection->m_version.minor == 14) {
-        m_introspection->m_fileApis.append({QString("codemodel"), {2, 0}});
-        m_introspection->m_fileApis.append({QString("cache"), {2, 0}});
-        m_introspection->m_fileApis.append({QString("cmakefiles"), {1, 0}});
-    }
 }
 
 } // namespace CMakeProjectManager

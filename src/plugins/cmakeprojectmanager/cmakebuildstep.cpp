@@ -156,7 +156,7 @@ Qt::ItemFlags CMakeTargetItem::flags(int) const
 // CMakeBuildStep
 
 CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
-    AbstractProcessStep(bsl, id)
+    CMakeAbstractProcessStep(bsl, id)
 {
     m_cmakeArguments = addAspect<StringAspect>();
     m_cmakeArguments->setSettingsKey(CMAKE_ARGUMENTS_KEY);
@@ -212,7 +212,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Utils::Id id) :
 
 QVariantMap CMakeBuildStep::toMap() const
 {
-    QVariantMap map(AbstractProcessStep::toMap());
+    QVariantMap map(CMakeAbstractProcessStep::toMap());
     map.insert(BUILD_TARGETS_KEY, m_buildTargets);
     map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
@@ -239,27 +239,8 @@ bool CMakeBuildStep::fromMap(const QVariantMap &map)
 
 bool CMakeBuildStep::init()
 {
-    if (!AbstractProcessStep::init())
+    if (!CMakeAbstractProcessStep::init())
         return false;
-
-    BuildConfiguration *bc = buildConfiguration();
-    QTC_ASSERT(bc, return false);
-
-    if (!bc->isEnabled()) {
-        emit addTask(BuildSystemTask(Task::Error,
-                                     Tr::tr("The build configuration is currently disabled.")));
-        emitFaultyConfigurationMessage();
-        return false;
-    }
-
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
-    if (!tool || !tool->isValid()) {
-        emit addTask(BuildSystemTask(Task::Error,
-                          Tr::tr("A CMake tool must be set up for building. "
-                             "Configure a CMake tool in the kit options.")));
-        emitFaultyConfigurationMessage();
-        return false;
-    }
 
     if (m_buildTargets.contains(QString())) {
         RunConfiguration *rc = target()->activeRunConfiguration();
@@ -271,18 +252,6 @@ bool CMakeBuildStep::init()
                                     "Update the Make Step in your build settings.")));
             emitFaultyConfigurationMessage();
             return false;
-        }
-    }
-
-    // Warn if doing out-of-source builds with a CMakeCache.txt is the source directory
-    const Utils::FilePath projectDirectory = bc->target()->project()->projectDirectory();
-    if (bc->buildDirectory() != projectDirectory) {
-        if (projectDirectory.pathAppended("CMakeCache.txt").exists()) {
-            emit addTask(BuildSystemTask(Task::Warning,
-                              Tr::tr("There is a CMakeCache.txt file in \"%1\", which suggest an "
-                                 "in-source build was done before. You are now building in \"%2\", "
-                                 "and the CMakeCache.txt file might confuse CMake.")
-                              .arg(projectDirectory.toUserOutput(), bc->buildDirectory().toUserOutput())));
         }
     }
 
@@ -313,7 +282,7 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
         p->setRedirectionDetector(progressParser);
     formatter->addLineParsers(additionalParsers);
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
-    AbstractProcessStep::setupOutputFormatter(formatter);
+    CMakeAbstractProcessStep::setupOutputFormatter(formatter);
 }
 
 void CMakeBuildStep::doRun()
@@ -337,7 +306,7 @@ void CMakeBuildStep::doRun()
 void CMakeBuildStep::runImpl()
 {
     // Do the actual build:
-    AbstractProcessStep::doRun();
+    CMakeAbstractProcessStep::doRun();
 }
 
 void CMakeBuildStep::handleProjectWasParsed(bool success)

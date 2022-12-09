@@ -9,6 +9,7 @@
 #include "cmakeeditor.h"
 #include "cmakeformatter.h"
 #include "cmakeformattersettings.h"
+#include "cmakeinstallstep.h"
 #include "cmakekitinformation.h"
 #include "cmakelocatorfilter.h"
 #include "cmakeproject.h"
@@ -79,6 +80,7 @@ public:
     CMakeBuildStepFactory buildStepFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
+    CMakeInstallStepFactory installStepFactory;
     BuildCMakeTargetLocatorFilter buildCMakeTargetLocatorFilter;
     OpenCMakeTargetLocatorFilter openCMakeTargetLocationFilter;
 
