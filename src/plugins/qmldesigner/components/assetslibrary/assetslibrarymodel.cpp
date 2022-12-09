@@ -35,24 +35,17 @@ void AssetsLibraryModel::createBackendModel()
 
     setSourceModel(m_sourceFsModel);
     QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this, &AssetsLibraryModel::directoryLoaded);
-    QObject::connect(m_sourceFsModel, &QFileSystemModel::dataChanged, this, &AssetsLibraryModel::onDataChanged);
 
     QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this,
                      [this]([[maybe_unused]] const QString &dir) {
-                         syncHaveFiles();
-                     });
-}
+        syncHaveFiles();
+    });
 
-void AssetsLibraryModel::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                                       [[maybe_unused]] const QList<int> &roles)
-{
-    for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
-        QModelIndex index = m_sourceFsModel->index(i, 0, topLeft.parent());
-        QString path = m_sourceFsModel->filePath(index);
-
-        if (!isDirectory(path))
-            emit fileChanged(path);
-    }
+    m_fileWatcher = new Utils::FileSystemWatcher(parent());
+    QObject::connect(m_fileWatcher, &Utils::FileSystemWatcher::fileChanged, this,
+                     [this] (const QString &path) {
+        emit fileChanged(path);
+    });
 }
 
 void AssetsLibraryModel::destroyBackendModel()
@@ -61,6 +54,10 @@ void AssetsLibraryModel::destroyBackendModel()
     m_sourceFsModel->disconnect(this);
     m_sourceFsModel->deleteLater();
     m_sourceFsModel = nullptr;
+
+    m_fileWatcher->disconnect(this);
+    m_fileWatcher->deleteLater();
+    m_fileWatcher = nullptr;
 }
 
 void AssetsLibraryModel::setSearchText(const QString &searchText)
@@ -195,6 +192,9 @@ bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
 
     QModelIndex sourceIdx = m_sourceFsModel->index(sourceRow, 0, sourceParent);
     QString sourcePath = m_sourceFsModel->filePath(sourceIdx);
+
+    if (QFileInfo(sourcePath).isFile() && !m_fileWatcher->watchesFile(sourcePath))
+        m_fileWatcher->addFile(sourcePath, Utils::FileSystemWatcher::WatchModifiedDate);
 
     if (!m_searchText.isEmpty() && path.startsWith(m_rootPath) && QFileInfo{path}.isDir()) {
         QString sourceName = m_sourceFsModel->fileName(sourceIdx);

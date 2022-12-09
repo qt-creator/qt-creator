@@ -8,6 +8,7 @@
 #include <QFileInfo>
 
 #include <utils/qtcassert.h>
+#include <utils/filesystemwatcher.h>
 
 namespace QmlDesigner {
 
@@ -73,7 +74,6 @@ signals:
 private:
     void setHaveFiles(bool value);
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
-    void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles);
     void resetModel();
     void createBackendModel();
     void destroyBackendModel();
@@ -84,6 +84,7 @@ private:
     QString m_rootPath;
     QFileSystemModel *m_sourceFsModel = nullptr;
     bool m_haveFiles = false;
+    Utils::FileSystemWatcher *m_fileWatcher = nullptr;
 };
 
 } // namespace QmlDesigner
