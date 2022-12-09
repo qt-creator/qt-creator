@@ -53,7 +53,7 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
         for (const CMakeBuildTarget &target : buildTargets) {
             if (CMakeBuildSystem::filteredOutTarget(target))
                 continue;
-            const int index = target.title.indexOf(entry);
+            const int index = target.title.indexOf(entry, 0, Qt::CaseInsensitive);
             if (index >= 0) {
                 const FilePath path = target.backtrace.isEmpty() ? cmakeProject->projectFilePath()
                                                                  : target.backtrace.last().path;
