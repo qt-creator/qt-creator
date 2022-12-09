@@ -30,11 +30,6 @@ class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
 class VcsCommand;
 
-enum class CommandOutputBindMode {
-    NoBind,
-    ToVcsWindow
-};
-
 using CommandHandler = std::function<void(const CommandResult &)>;
 
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
@@ -59,8 +54,7 @@ public:
                                          const QString &dynamicPropertyValue) const;
 
     VcsCommand *createCommand(const Utils::FilePath &workingDirectory,
-                              VcsBaseEditorWidget *editor = nullptr,
-                              CommandOutputBindMode mode = CommandOutputBindMode::NoBind) const;
+                              VcsBaseEditorWidget *editor = nullptr) const;
 
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
                     const Utils::ExitCodeInterpreter &interpreter = {}) const;
@@ -91,12 +85,10 @@ public:
                             const QStringList &arguments,
                             const QObject *context,
                             const CommandHandler &handler,
-                            RunFlags additionalFlags = RunFlags::None,
-                            CommandOutputBindMode bindMode = CommandOutputBindMode::ToVcsWindow) const;
+                            RunFlags additionalFlags = RunFlags::None) const;
     void vcsExec(const Utils::FilePath &workingDirectory,
                  const QStringList &arguments,
-                 RunFlags additionalFlags = RunFlags::None,
-                 CommandOutputBindMode bindMode = CommandOutputBindMode::ToVcsWindow) const;
+                 RunFlags additionalFlags = RunFlags::None) const;
     void vcsExecWithEditor(const Utils::FilePath &workingDirectory,
                            const QStringList &arguments,
                            VcsBaseEditorWidget *editor) const;

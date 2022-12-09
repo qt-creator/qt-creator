@@ -357,7 +357,7 @@ void GitBaseDiffEditorController::updateBranchList()
     };
     m_instance->vcsExecWithHandler(baseDirectory(),
                                    {"branch", noColorOption, "-a", "--contains", revision},
-                                   this, commandHandler, RunFlags::None, CommandOutputBindMode::NoBind);
+                                   this, commandHandler);
 }
 
 ///////////////////////////////
@@ -1110,7 +1110,7 @@ void GitClient::status(const FilePath &workingDirectory) const
     VcsOutputWindow::setRepository(workingDirectory);
     vcsExecWithHandler(workingDirectory, {"status", "-u"}, this, [](const CommandResult &) {
         VcsOutputWindow::instance()->clearRepository();
-    });
+    }, RunFlags::ShowStdOut);
 }
 
 static QStringList normalLogArguments()
@@ -1308,7 +1308,8 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
         }
     }
 
-    vcsExec(workingDirectory, {"archive", commit, "-o", archive.absoluteFilePath()});
+    vcsExec(workingDirectory, {"archive", commit, "-o", archive.absoluteFilePath()},
+            RunFlags::ShowStdOut);
 }
 
 VcsBaseEditorWidget *GitClient::annotate(
@@ -1362,7 +1363,7 @@ void GitClient::checkout(const FilePath &workingDirectory, const QString &ref, S
             handler(result);
     };
     vcsExecWithHandler(workingDirectory, arguments, context, commandHandler,
-                       RunFlags::ExpectRepoChanges | RunFlags::ShowSuccessMessage);
+               RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges | RunFlags::ShowSuccessMessage);
 }
 
 /* method used to setup arguments for checkout, in case user wants to create local branch */
@@ -1444,7 +1445,7 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
     if (!commit.isEmpty())
         arguments << commit;
 
-    RunFlags flags = RunFlags::ShowSuccessMessage;
+    RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
     if (argument == "--hard") {
         if (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules)) != StatusUnchanged) {
             if (QMessageBox::question(
@@ -1468,7 +1469,7 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
             GitPlugin::updateBranches(workingDirectory);
     };
     vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
-                       RunFlags::ShowSuccessMessage);
+                       RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
 }
 
 void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
@@ -1489,7 +1490,7 @@ void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
 
 void GitClient::addFile(const FilePath &workingDirectory, const QString &fileName)
 {
-    vcsExec(workingDirectory, {"add", fileName}, RunFlags::None, CommandOutputBindMode::NoBind);
+    vcsExec(workingDirectory, {"add", fileName});
 }
 
 bool GitClient::synchronousLog(const FilePath &workingDirectory, const QStringList &arguments,
@@ -2297,7 +2298,7 @@ void GitClient::updateSubmodulesIfNeeded(const FilePath &workingDirectory, bool 
 
     vcsExecWithHandler(workingDirectory, {"submodule", "update"},
                        this, [this](const CommandResult &) { finishSubmoduleUpdate(); },
-                       RunFlags::ExpectRepoChanges);
+                       RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges);
 }
 
 void GitClient::finishSubmoduleUpdate()
@@ -3082,7 +3083,7 @@ void GitClient::fetch(const FilePath &workingDirectory, const QString &remote)
             GitPlugin::updateBranches(workingDirectory);
     };
     vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
-                       RunFlags::ShowSuccessMessage);
+                       RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
 }
 
 bool GitClient::executeAndHandleConflicts(const FilePath &workingDirectory,
@@ -3234,7 +3235,7 @@ void GitClient::subversionLog(const FilePath &workingDirectory) const
 
 void GitClient::subversionDeltaCommit(const FilePath &workingDirectory) const
 {
-    vcsExec(workingDirectory, {"svn", "dcommit"}, RunFlags::ShowSuccessMessage);
+    vcsExec(workingDirectory, {"svn", "dcommit"}, RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
 }
 
 enum class PushFailure { Unknown, NonFastForward, NoRemoteBranch };
@@ -3291,8 +3292,10 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
                 if (result.result() == ProcessResult::FinishedWithSuccess)
                     GitPlugin::updateCurrentBranch();
             };
-            vcsExecWithHandler(workingDirectory, QStringList{"push", "--force-with-lease"} + pushArgs,
-                               this, commandHandler, RunFlags::ShowSuccessMessage);
+            vcsExecWithHandler(workingDirectory,
+                               QStringList{"push", "--force-with-lease"} + pushArgs,
+                               this, commandHandler,
+                               RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
             return;
         }
         // NoRemoteBranch case
@@ -3312,10 +3315,11 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
                 GitPlugin::updateBranches(workingDirectory);
         };
         vcsExecWithHandler(workingDirectory, fallbackCommandParts.mid(1),
-                           this, commandHandler, RunFlags::ShowSuccessMessage);
+                           this, commandHandler,
+                           RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
     };
     vcsExecWithHandler(workingDirectory, QStringList({"push"}) + pushArgs, this, commandHandler,
-                       RunFlags::ShowSuccessMessage);
+                       RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
 }
 
 bool GitClient::synchronousMerge(const FilePath &workingDirectory, const QString &branch,
@@ -3368,7 +3372,7 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
 
     if (abortCommand.isEmpty())
         abortCommand = arguments.at(0);
-    VcsCommand *command = createCommand(workingDirectory, nullptr, CommandOutputBindMode::ToVcsWindow);
+    VcsCommand *command = createCommand(workingDirectory);
     command->addFlags(RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
@@ -3438,7 +3442,7 @@ void GitClient::stashPop(const FilePath &workingDirectory, const QString &stash)
         ConflictHandler::handleResponse(result, workingDirectory);
     };
     vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
-                       RunFlags::ExpectRepoChanges);
+                       RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges);
 }
 
 bool GitClient::synchronousStashRestore(const FilePath &workingDirectory,

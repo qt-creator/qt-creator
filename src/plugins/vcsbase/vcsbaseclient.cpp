@@ -72,17 +72,11 @@ FilePath VcsBaseClientImpl::vcsBinary() const
 }
 
 VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
-                                             VcsBaseEditorWidget *editor,
-                                             CommandOutputBindMode mode) const
+                                             VcsBaseEditorWidget *editor) const
 {
     auto cmd = createVcsCommand(workingDirectory, processEnvironment());
-    if (editor)
+    if (editor) {
         editor->setCommand(cmd);
-    if (mode == CommandOutputBindMode::ToVcsWindow) {
-        cmd->addFlags(RunFlags::ShowStdOut);
-        if (editor) // assume that the commands output is the important thing
-            cmd->addFlags(RunFlags::SilentOutput);
-    } else if (editor) {
         connect(cmd, &VcsCommand::done, editor, [editor, cmd] {
             if (cmd->result() != ProcessResult::FinishedWithSuccess) {
                 editor->textDocument()->setPlainText(tr("Failed to retrieve data."));
@@ -92,7 +86,6 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
             editor->gotoDefaultLine();
         });
     }
-
     return cmd;
 }
 
@@ -163,10 +156,9 @@ void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
                                            const QStringList &arguments,
                                            const QObject *context,
                                            const CommandHandler &handler,
-                                           RunFlags additionalFlags,
-                                           CommandOutputBindMode bindMode) const
+                                           RunFlags additionalFlags) const
 {
-    VcsCommand *command = createCommand(workingDirectory, nullptr, bindMode);
+    VcsCommand *command = createCommand(workingDirectory);
     command->addFlags(additionalFlags);
     command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
     if (handler) {
@@ -180,10 +172,9 @@ void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
 
 void VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
                                 const QStringList &arguments,
-                                RunFlags additionalFlags,
-                                CommandOutputBindMode bindMode) const
+                                RunFlags additionalFlags) const
 {
-    VcsCommand *command = createCommand(workingDirectory, nullptr, bindMode);
+    VcsCommand *command = createCommand(workingDirectory);
     command->addFlags(additionalFlags);
     command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
     command->start();
@@ -193,7 +184,7 @@ void VcsBaseClientImpl::vcsExecWithEditor(const Utils::FilePath &workingDirector
                                           const QStringList &arguments,
                                           VcsBaseEditorWidget *editor) const
 {
-    VcsCommand *command = createCommand(workingDirectory, editor, CommandOutputBindMode::NoBind);
+    VcsCommand *command = createCommand(workingDirectory, editor);
     command->setCodec(editor->codec());
     command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
     command->start();
@@ -473,7 +464,8 @@ void VcsBaseClient::status(const FilePath &workingDir,
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
     VcsOutputWindow::setRepository(workingDir);
-    VcsCommand *cmd = createCommand(workingDir, nullptr, CommandOutputBindMode::ToVcsWindow);
+    VcsCommand *cmd = createCommand(workingDir);
+    cmd->addFlags(RunFlags::ShowStdOut);
     connect(cmd, &VcsCommand::done, VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository);
     enqueueJob(cmd, args);
 }
@@ -579,7 +571,8 @@ void VcsBaseClient::commit(const FilePath &repositoryRoot,
     //   for example)
     QStringList args(vcsCommandString(CommitCommand));
     args << extraOptions << files;
-    VcsCommand *cmd = createCommand(repositoryRoot, nullptr, CommandOutputBindMode::ToVcsWindow);
+    VcsCommand *cmd = createCommand(repositoryRoot);
+    cmd->addFlags(RunFlags::ShowStdOut);
     if (!commitMessageFile.isEmpty())
         connect(cmd, &VcsCommand::done, [commitMessageFile] { QFile(commitMessageFile).remove(); });
     enqueueJob(cmd, args);
