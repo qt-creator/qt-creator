@@ -170,7 +170,8 @@ void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
     command->addFlags(additionalFlags);
     command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
     if (handler) {
-        connect(command, &VcsCommand::done, context, [command, handler] {
+        const QObject *actualContext = context ? context : this;
+        connect(command, &VcsCommand::done, actualContext, [command, handler] {
             handler(CommandResult(*command));
         });
     }
