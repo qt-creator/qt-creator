@@ -5,6 +5,7 @@
 #include "clangformatconstants.h"
 #include "clangformatsettings.h"
 #include "clangformatutils.h"
+#include "llvmfilesystem.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/editorconfiguration.h>
@@ -24,6 +25,8 @@
 #include <QTextDocument>
 
 namespace ClangFormat {
+
+Internal::LlvmFileSystemAdapter llvmFileSystemAdapter;
 
 namespace {
 void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
@@ -735,8 +738,8 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
 
 clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
 {
-    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
-        = clang::format::getStyle("file", m_fileName.path().toStdString(), "none");
+    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = clang::format::getStyle(
+        "file", m_fileName.toFSPathString().toStdString(), "none", "", &llvmFileSystemAdapter);
 
     const ProjectExplorer::Project *projectForFile
         = ProjectExplorer::SessionManager::projectForFile(m_fileName);
@@ -748,7 +751,7 @@ clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
               ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
               : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
 
-    if (overrideStyleFile || !styleFromProjectFolder
+    if (!styleFromProjectFolder || overrideStyleFile
         || *styleFromProjectFolder == clang::format::getNoStyle()) {
         Utils::FilePath filePath = filePathToCurrentSettings(preferences);
 
