@@ -165,8 +165,15 @@ def qdump__std____1__stack(d, value):
 
 def std_1_string_dumper(d, value):
     charType = value['__l']['__data_'].dereference().type
+    D = None
 
-    D = value[0][0][0][0]
+    try:  # LLDB
+        D = value[0][0][0][0]
+    except:  # GDB
+        try:  # std::string
+            D = value[0].members(True)[0][0][0]
+        except:  # std::u16string, std::u32string
+            D = value[2].members(True)[0][0][0]
 
     layoutDecider = D[0][0]
     if not layoutDecider:
@@ -218,12 +225,13 @@ def std_1_string_dumper(d, value):
 
     if short_mode and location_sp:
         d.putCharArrayHelper(d.extractPointer(location_sp), size,
-                                charType, d.currentItemFormat())
+                             charType, d.currentItemFormat())
     else:
         d.putCharArrayHelper(location_sp.integer(),
-                                size, charType, d.currentItemFormat())
+                             size, charType, d.currentItemFormat())
 
     return
+
 
 def qdump__std____1__string(d, value):
     std_1_string_dumper(d, value)

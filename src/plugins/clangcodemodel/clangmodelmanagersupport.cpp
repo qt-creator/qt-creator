@@ -127,7 +127,7 @@ static void checkSystemForClangdSuitability()
     if (ClangdSettings::hardwareFulfillsRequirements())
         return;
 
-    ClangdSettings::setUseClangd(false);
+    ClangdSettings::setUseClangdAndSave(false);
     const QString warnStr = ClangModelManagerSupport::tr("The use of clangd for the C/C++ "
             "code model was disabled, because it is likely that its memory requirements "
             "would be higher than what your system can handle.");
@@ -148,7 +148,7 @@ static void checkSystemForClangdSuitability()
         return label;
     });
     info.addCustomButton(ClangModelManagerSupport::tr("Enable Anyway"), [clangdWarningSetting] {
-        ClangdSettings::setUseClangd(true);
+        ClangdSettings::setUseClangdAndSave(true);
         Core::ICore::infoBar()->removeInfo(clangdWarningSetting);
     });
     Core::ICore::infoBar()->addInfo(info);
@@ -517,12 +517,14 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                         && currentClient->project() == docProject) {
                     continue;
                 }
-                if (!docProject || docProject == project) {
-                    if (currentClient)
-                        currentClient->closeDocument(doc);
-                    LanguageClientManager::openDocumentWithClient(doc, client);
-                    hasDocuments = true;
+                if (docProject != project
+                        && (docProject || !ProjectFile::isHeader(doc->filePath()))) {
+                    continue;
                 }
+                if (currentClient)
+                    currentClient->closeDocument(doc);
+                LanguageClientManager::openDocumentWithClient(doc, client);
+                hasDocuments = true;
             }
 
             for (auto it = m_queuedShadowDocuments.begin(); it != m_queuedShadowDocuments.end();) {
@@ -625,11 +627,13 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
         }
         if (!ClangdSettings::instance().sizeIsOkay(doc->filePath()))
             continue;
-        if (!ProjectExplorer::SessionManager::projectForFile(doc->filePath())) {
-            if (currentClient)
-                currentClient->closeDocument(doc);
-            LanguageClientManager::openDocumentWithClient(doc, client);
-        }
+        if (ProjectExplorer::SessionManager::projectForFile(doc->filePath()))
+            continue;
+        if (client->project() && !ProjectFile::isHeader(doc->filePath()))
+            continue;
+        if (currentClient)
+            currentClient->closeDocument(doc);
+        LanguageClientManager::openDocumentWithClient(doc, client);
     }
 }
 
@@ -717,7 +721,7 @@ void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)
             return;
         if (sessionModeEnabled())
             project = nullptr;
-        else if (!project)
+        else if (!project && ProjectFile::isHeader(document->filePath()))
             project = fallbackProject();
         if (ClangdClient * const client = clientForProject(project))
             LanguageClientManager::openDocumentWithClient(textDocument, client);

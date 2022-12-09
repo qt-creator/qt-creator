@@ -1529,7 +1529,7 @@ static QString normalizePathSegmentHelper(const QString &name)
 {
     const int len = name.length();
 
-    if (len == 0)
+    if (len == 0 || name.contains("%{"))
         return name;
 
     int i = len - 1;

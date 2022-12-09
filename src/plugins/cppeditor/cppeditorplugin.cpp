@@ -12,7 +12,6 @@
 #include "cppeditordocument.h"
 #include "cppeditorwidget.h"
 #include "cppfilesettingspage.h"
-#include "cpphighlighter.h"
 #include "cppincludehierarchy.h"
 #include "cppmodelmanager.h"
 #include "cppoutline.h"
@@ -261,21 +260,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     connect(openInNextSplitAction, &QAction::triggered,
             this, [] { CppModelManager::switchHeaderSource(true); });
 
-    QAction * const showPreprocessedAction = new QAction(tr("Show Preprocessed Source"), this);
-    command = ActionManager::registerAction(showPreprocessedAction,
-                                            Constants::SHOW_PREPROCESSED_FILE, context);
-    mcpptools->addAction(command);
-    connect(showPreprocessedAction, &QAction::triggered,
-            this, [] { CppModelManager::showPreprocessedFile(false); });
-
-    QAction * const showPreprocessedInSplitAction = new QAction
-            (tr("Show Preprocessed Source in Next Split"), this);
-    command = ActionManager::registerAction(showPreprocessedInSplitAction,
-                                            Constants::SHOW_PREPROCESSED_FILE_SPLIT, context);
-    mcpptools->addAction(command);
-    connect(showPreprocessedInSplitAction, &QAction::triggered,
-            this, [] { CppModelManager::showPreprocessedFile(true); });
-
     MacroExpander *expander = globalMacroExpander();
     expander->registerVariable("Cpp:LicenseTemplate",
                                tr("The license template."),
@@ -315,9 +299,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd->setTouchBarText(tr("Header/Source", "text on macOS touch bar"));
     contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
-
-    cmd = ActionManager::command(Constants::SHOW_PREPROCESSED_FILE);
-    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
 
     cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     cmd->setTouchBarText(tr("Follow", "text on macOS touch bar"));
@@ -397,6 +378,22 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     });
     contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
+
+    QAction * const showPreprocessedAction = new QAction(tr("Show Preprocessed Source"), this);
+    command = ActionManager::registerAction(showPreprocessedAction,
+                                            Constants::SHOW_PREPROCESSED_FILE, context);
+    mcpptools->addAction(command);
+    contextMenu->addAction(command, Constants::G_CONTEXT_FIRST);
+    connect(showPreprocessedAction, &QAction::triggered,
+            this, [] { CppModelManager::showPreprocessedFile(false); });
+
+    QAction * const showPreprocessedInSplitAction = new QAction
+            (tr("Show Preprocessed Source in Next Split"), this);
+    command = ActionManager::registerAction(showPreprocessedInSplitAction,
+                                            Constants::SHOW_PREPROCESSED_FILE_SPLIT, context);
+    mcpptools->addAction(command);
+    connect(showPreprocessedInSplitAction, &QAction::triggered,
+            this, [] { CppModelManager::showPreprocessedFile(true); });
 
     d->m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
     cmd = ActionManager::registerAction(d->m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);

@@ -96,14 +96,24 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
         for (const auto &p : presets)
             presetsHash.insert(p.name, p);
 
-        auto resolveInherits = [](const auto &presetsHash, auto &presetsList) {
+        auto resolveInherits = [](auto &presetsHash, auto &presetsList) {
+            Utils::sort(presetsList, [](const auto &left, const auto &right) {
+                if (left.inherits) {
+                    if (left.inherits.value().contains(right.name))
+                        return false;
+                }
+                return true;
+            });
             for (auto &p : presetsList) {
                 if (!p.inherits)
                     continue;
 
-                for (const QString &inheritFromName : p.inherits.value())
-                    if (presetsHash.contains(inheritFromName))
+                for (const QString &inheritFromName : p.inherits.value()) {
+                    if (presetsHash.contains(inheritFromName)) {
                         p.inheritFrom(presetsHash[inheritFromName]);
+                        presetsHash[p.name] = p;
+                    }
+                }
             }
         };
 

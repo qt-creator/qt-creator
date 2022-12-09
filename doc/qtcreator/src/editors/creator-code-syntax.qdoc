@@ -682,6 +682,20 @@
         \li An import statement has been added twice. For more information,
             see \l{Import Statements}.
 
+    \row
+        \li M401
+        \li Error
+        \li Do not reference the root item as alias
+        \li The alias property cannot reference the root component directly.
+            Create an instance of the component instead.
+
+    \row
+        \li M402
+        \li Warning
+        \li Avoid referencing the root item in a hierarchy
+        \li The alias property cannot reference the root component in a
+            hierarchy. Create an instance of the component instead.
+
     \endtable
 
     \section1 Resetting the Code Model

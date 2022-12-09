@@ -4061,15 +4061,15 @@ void tst_Dumpers::dumper_data()
                + Check("list.0", "[0]", "1", "int")
                + Check("list.1", "[1]", "2", "int")
                + Check("list.2", "[2]", "3", "int")
-               + Check("v3", "", "@QVariant (@QList<int>)") % Qt5
+               + Check("v3", "", "@QVariant (@QList<int>)") % NeedsInferiorCall % Qt5
                + Check("v3.data", "<3 items>", TypePattern(".*QList<int>")) % NeedsInferiorCall % Qt5
                + Check("v3.data.0", "[0]", "1", "int") % NeedsInferiorCall % Qt5
                + Check("v3.data.1", "[1]", "2", "int") % NeedsInferiorCall % Qt5
                + Check("v3.data.2", "[2]", "3", "int") % NeedsInferiorCall % Qt5
                + Check("v3", "<3 items>", "@QVariant (@QList<int>)") % Qt6
-               + Check("v3.0", "[0]", "1", "int") % NeedsInferiorCall % Qt6
-               + Check("v3.1", "[1]", "2", "int") % NeedsInferiorCall % Qt6
-               + Check("v3.2", "[2]", "3", "int") % NeedsInferiorCall % Qt6;
+               + Check("v3.0", "[0]", "1", "int") % Qt6
+               + Check("v3.1", "[1]", "2", "int") % Qt6
+               + Check("v3.2", "[2]", "3", "int") % Qt6;
 
 
     QTest::newRow("QVariant2")

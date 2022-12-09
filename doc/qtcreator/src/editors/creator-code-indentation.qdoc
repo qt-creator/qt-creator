@@ -65,7 +65,9 @@
     To visualize whitespace in the editor, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Visualize whitespace}. To visualize indentation, select
-    \uicontrol {Visualize Indent}.
+    \uicontrol {Visualize Indent}. To adjust the color of the visualization, 
+    change the value of the Visual Whitespace setting of the editor color scheme 
+    in \uicontrol {Font & Colors}.
 
     \image qtcreator-options-text-editor-display.png "Text Editor Display preferences"
 

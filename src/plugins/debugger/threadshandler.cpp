@@ -268,6 +268,7 @@ void ThreadsHandler::setCurrentThread(const Thread &thread)
 
     m_currentThread = thread;
     thread->update();
+    threadSwitcher()->setCurrentIndex(thread->index().row());
 }
 
 void ThreadsHandler::notifyGroupCreated(const QString &groupId, const QString &pid)

@@ -419,7 +419,7 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
             client->openDocument(document);
         else
             client->activateDocument(document);
-    } else if (Core::EditorManager::currentEditor()->document() == document) {
+    } else if (Core::EditorManager::currentDocument() == document) {
         TextEditor::IOutlineWidgetFactory::updateOutline();
     }
 }

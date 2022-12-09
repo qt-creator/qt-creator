@@ -22,7 +22,8 @@ function(qt5_query_qmake)
                   TIMEOUT 10
                   RESULT_VARIABLE _qmake_result
                   OUTPUT_VARIABLE _qmake_stdout
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+                  OUTPUT_STRIP_TRAILING_WHITESPACE
+                  ${QTC_COMMAND_ERROR_IS_FATAL})
 
   if (NOT "${_qmake_result}" STREQUAL "0")
     message(FATAL_ERROR "Qmake did not execute successfully: ${_qmake_result}.")

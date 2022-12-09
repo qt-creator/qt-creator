@@ -720,7 +720,9 @@ void ICore::raiseWindow(QWidget *widget)
     if (!widget)
         return;
     QWidget *window = widget->window();
-    if (window && window == m_mainwindow) {
+    if (!window)
+        return;
+    if (window == m_mainwindow) {
         m_mainwindow->raiseWindow();
     } else {
         window->raise();

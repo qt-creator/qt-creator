@@ -221,8 +221,14 @@ CommandLine DockerProcessImpl::fullLocalCommandLine(bool interactive)
     QStringList args;
 
     if (!m_setup.m_workingDirectory.isEmpty()) {
-        QTC_CHECK(DeviceManager::deviceForPath(m_setup.m_workingDirectory) == m_device);
-        args.append({"cd", m_setup.m_workingDirectory.path()});
+        FilePath workingDir = m_setup.m_workingDirectory;
+
+        if (DeviceManager::deviceForPath(workingDir) != m_device) {
+            QTC_CHECK(m_device->ensureReachable(workingDir));
+            workingDir = workingDir.onDevice(m_device->rootPath());
+        }
+
+        args.append({"cd", workingDir.path()});
         args.append("&&");
     }
 
