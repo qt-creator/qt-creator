@@ -744,8 +744,6 @@ static void handleConflictResponse(const VcsBase::CommandResult &result,
     if (errMatch.hasMatch())
         commit = errMatch.captured(1);
 
-    // If interactive rebase editor window is closed, plugin is terminated
-    // but referenced here when the command ends
     if (commit.isEmpty() && files.isEmpty()) {
         if (m_instance->checkCommandInProgress(workingDirectory) == GitClient::NoCommand)
             m_instance->endStashScope(workingDirectory);
