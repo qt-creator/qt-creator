@@ -413,7 +413,7 @@ void FossilPluginPrivate::annotateCurrentFile()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     const int lineNumber = VcsBase::VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
-    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), {}, lineNumber);
+    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), lineNumber);
 }
 
 void FossilPluginPrivate::diffCurrentFile()
@@ -958,7 +958,7 @@ bool FossilPluginPrivate::vcsCreateRepository(const FilePath &directory)
 
 void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_client.annotate(filePath.absolutePath(), filePath.fileName(), {}, line);
+    m_client.annotate(filePath.absolutePath(), filePath.fileName(), line);
 }
 
 void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id)

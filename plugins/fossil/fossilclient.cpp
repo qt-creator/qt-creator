@@ -717,9 +717,10 @@ void FossilClient::commit(const FilePath &repositoryRoot, const QStringList &fil
                           QStringList(extraOptions) << "-M" << commitMessageFile);
 }
 
-VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir, const QString &file, const QString &revision,
-        int lineNumber, const QStringList &extraOptions)
+void FossilClient::annotate(const FilePath &workingDir, const QString &file, int lineNumber,
+                            const QString &revision, const QStringList &extraOptions, int firstLine)
 {
+    Q_UNUSED(firstLine)
     // 'fossil annotate' command has a variant 'fossil blame'.
     // blame command attributes a committing username to source lines,
     // annotate shows line numbers
@@ -735,17 +736,16 @@ VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir, const QS
                                                   vcsCmdString.toLatin1().constData(), id);
 
     auto *fossilEditor = qobject_cast<FossilEditorWidget *>(editor);
-    QTC_ASSERT(fossilEditor, return editor);
+    QTC_ASSERT(fossilEditor, return);
 
     if (!fossilEditor->editorConfig()) {
         if (VcsBaseEditorConfig *editorConfig = createAnnotateEditor(fossilEditor)) {
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested,
-                    [=]() {
-                        const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
-                        return this->annotate(workingDir, file, revision, line, editorConfig->arguments());
-                    } );
+            connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+                const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
+                annotate(workingDir, file, line, revision, editorConfig->arguments());
+            });
             fossilEditor->setEditorConfig(editorConfig);
         }
     }
@@ -770,7 +770,6 @@ VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir, const QS
     editor->setDefaultLineNumber(lineNumber);
 
     enqueueJob(createCommand(workingDir, fossilEditor), args);
-    return fossilEditor;
 }
 
 bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const

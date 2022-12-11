@@ -92,9 +92,9 @@ public:
                          const QStringList &extraOptions = {}) final;
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile, const QStringList &extraOptions = {}) final;
-    VcsBase::VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir, const QString &file,
-                                           const QString &revision = {}, int lineNumber = -1,
-                                           const QStringList &extraOptions = {}) final;
+    void annotate(const Utils::FilePath &workingDir, const QString &file,
+                  int lineNumber = -1, const QString &revision = {},
+                  const QStringList &extraOptions = {}, int firstLine = -1) final;
     void log(const Utils::FilePath &workingDir, const QStringList &files = {},
              const QStringList &extraOptions = {}, bool enableAnnotationContextMenu = false) final;
     void logCurrentFile(const Utils::FilePath &workingDir, const QStringList &files = {},
