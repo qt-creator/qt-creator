@@ -52,15 +52,14 @@ public:
     bool chunkExists(int fileIndex, int chunkIndex) const;
     Core::IDocument *document() const;
 
-    // reloadFinished() should be called inside the reloader (for synchronous reload)
-    // or later (for asynchronous reload)
-    void setReloader(const std::function<void ()> &reloader);
-
 signals:
     void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,
                                const ChunkSelection &selection);
 
 protected:
+    // reloadFinished() should be called inside the reloader (for synchronous reload)
+    // or later (for asynchronous reload)
+    void setReloader(const std::function<void ()> &reloader);
     void reloadFinished(bool success);
 
     void setDiffFiles(const QList<FileData> &diffFileList,

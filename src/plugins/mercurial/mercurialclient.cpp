@@ -38,12 +38,14 @@ namespace Mercurial::Internal {
 class MercurialDiffEditorController : public VcsBaseDiffEditorController
 {
 public:
-    MercurialDiffEditorController(IDocument *document)
+    MercurialDiffEditorController(IDocument *document, const QStringList &args)
         : VcsBaseDiffEditorController(document)
     {
         setDisplayName("Hg Diff");
+        setReloader([this, args] { runCommand({addConfigurationArguments(args)}); });
     }
 
+private:
     void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
     QStringList addConfigurationArguments(const QStringList &args) const;
 };
@@ -416,10 +418,7 @@ void MercurialClient::requestReload(const QString &documentId, const QString &so
 
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
-    auto controller = new MercurialDiffEditorController(document);
-    controller->setReloader([controller, args] {
-        controller->runCommand({controller->addConfigurationArguments(args)});
-    });
+    auto controller = new MercurialDiffEditorController(document, args);
     controller->setVcsBinary(settings().binaryPath.filePath());
     controller->setVcsTimeoutS(settings().timeout.value());
     controller->setProcessEnvironment(processEnvironment());
