@@ -1133,11 +1133,8 @@ void GitPluginPrivate::blameFile()
     const FilePath fileName = FilePath::fromString(state.currentFile()).canonicalPath();
     FilePath topLevel;
     VcsManager::findVersionControlForDirectory(fileName.parentDir(), &topLevel);
-    VcsBaseEditorWidget *editor = m_gitClient.annotate(
-                topLevel, fileName.relativeChildPath(topLevel).toString(),
-                {}, lineNumber, extraOptions);
-    if (firstLine > 0)
-        editor->setFirstLineNumber(firstLine);
+    m_gitClient.annotate(topLevel, fileName.relativeChildPath(topLevel).toString(),
+                         lineNumber, {}, extraOptions, firstLine);
 }
 
 void GitPluginPrivate::logProject()
@@ -2126,7 +2123,7 @@ FilePaths GitPluginPrivate::unmanagedFiles(const FilePaths &filePaths) const
 
 void GitPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_gitClient.annotate(filePath.absolutePath(), filePath.fileName(), {}, line);
+    m_gitClient.annotate(filePath.absolutePath(), filePath.fileName(), line);
 }
 
 void GitPlugin::emitFilesChanged(const QStringList &l)

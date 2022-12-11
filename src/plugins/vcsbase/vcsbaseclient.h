@@ -62,11 +62,9 @@ public:
     virtual Utils::Environment processEnvironment() const;
 
     // VCS functionality:
-    virtual VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir,
-                                          const QString &file,
-                                          const QString &revision = {},
-                                          int lineNumber = -1,
-                                          const QStringList &extraOptions = {}) = 0;
+    virtual void annotate(const Utils::FilePath &workingDir, const QString &file,
+                          int lineNumber = -1, const QString &revision = {},
+                          const QStringList &extraOptions = {}, int firstLine = -1) = 0;
 
     static QStringList splitLines(const QString &s);
 
@@ -140,11 +138,9 @@ public:
     virtual bool synchronousPush(const Utils::FilePath &workingDir,
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = {});
-    VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir,
-                                  const QString &file,
-                                  const QString &revision = {},
-                                  int lineNumber = -1,
-                                  const QStringList &extraOptions = {}) override;
+    void annotate(const Utils::FilePath &workingDir, const QString &file,
+                  int lineNumber = -1, const QString &revision = {},
+                  const QStringList &extraOptions = {}, int firstLine = -1) override;
     virtual void diff(const Utils::FilePath &workingDir,
                       const QStringList &files = {},
                       const QStringList &extraOptions = {});

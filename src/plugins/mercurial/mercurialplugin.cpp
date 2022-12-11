@@ -351,7 +351,7 @@ void MercurialPluginPrivate::annotateCurrentFile()
         currentLine = editor->currentLine();
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), currentLine);
+    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), currentLine);
 }
 
 void MercurialPluginPrivate::diffCurrentFile()
@@ -775,7 +775,7 @@ bool MercurialPluginPrivate::vcsCreateRepository(const FilePath &directory)
 
 void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_client.annotate(filePath.parentDir(), filePath.fileName(), QString(), line);
+    m_client.annotate(filePath.parentDir(), filePath.fileName(), line);
 }
 
 VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,

@@ -152,9 +152,9 @@ public:
     void log(const Utils::FilePath &workingDirectory, const QString &fileName = {},
              bool enableAnnotationContextMenu = false, const QStringList &args = {});
     void reflog(const Utils::FilePath &workingDirectory, const QString &branch = {});
-    VcsBase::VcsBaseEditorWidget *annotate(const Utils::FilePath &workingDir, const QString &file,
-                                           const QString &revision = {}, int lineNumber = -1,
-                                           const QStringList &extraOptions = {}) override;
+    void annotate(const Utils::FilePath &workingDir, const QString &file,
+                  int lineNumber = -1, const QString &revision = {},
+                  const QStringList &extraOptions = {}, int firstLine = -1) override;
     void reset(const Utils::FilePath &workingDirectory, const QString &argument, const QString &commit = {});
     void removeStaleRemoteBranches(const Utils::FilePath &workingDirectory, const QString &remote);
     void recoverDeletedFiles(const Utils::FilePath &workingDirectory);

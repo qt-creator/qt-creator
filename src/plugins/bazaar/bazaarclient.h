@@ -22,9 +22,9 @@ public:
                              const QStringList &extraOptions = {});
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile, const QStringList &extraOptions = {}) override;
-    VcsBase::VcsBaseEditorWidget *annotate(
-            const Utils::FilePath &workingDir, const QString &file, const QString &revision = {},
-            int lineNumber = -1, const QStringList &extraOptions ={}) override;
+    void annotate(const Utils::FilePath &workingDir, const QString &file,
+                  int lineNumber = -1, const QString &revision = {},
+                  const QStringList &extraOptions = {}, int firstLine = -1) override;
     bool isVcsDirectory(const Utils::FilePath &filePath) const;
     Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;

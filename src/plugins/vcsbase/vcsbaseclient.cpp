@@ -149,7 +149,7 @@ void VcsBaseClientImpl::annotateRevisionRequested(const FilePath &workingDirecto
     const int blankPos = changeCopy.indexOf(QLatin1Char(' '));
     if (blankPos != -1)
         changeCopy.truncate(blankPos);
-    annotate(workingDirectory, file, changeCopy, line);
+    annotate(workingDirectory, file, line, changeCopy);
 }
 
 void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
@@ -324,10 +324,11 @@ bool VcsBaseClient::synchronousPush(const FilePath &workingDir,
             == ProcessResult::FinishedWithSuccess;
 }
 
-VcsBaseEditorWidget *VcsBaseClient::annotate(
-        const FilePath &workingDir, const QString &file, const QString &revision /* = QString() */,
-        int lineNumber /* = -1 */, const QStringList &extraOptions)
+void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &file,
+              int lineNumber /* = -1 */, const QString &revision /* = {} */,
+              const QStringList &extraOptions /* = {} */, int firstLine /* = -1 */)
 {
+    Q_UNUSED(firstLine)
     const QString vcsCmdString = vcsCommandString(AnnotateCommand);
     QStringList args;
     args << vcsCmdString << revisionSpec(revision) << extraOptions << file;
@@ -343,7 +344,6 @@ VcsBaseEditorWidget *VcsBaseClient::annotate(
     VcsCommand *cmd = createCommand(workingDir, editor);
     editor->setDefaultLineNumber(lineNumber);
     enqueueJob(cmd, args);
-    return editor;
 }
 
 void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files,

@@ -141,12 +141,12 @@ void BazaarClient::commit(const FilePath &repositoryRoot, const QStringList &fil
                           QStringList(extraOptions) << QLatin1String("-F") << commitMessageFile);
 }
 
-VcsBaseEditorWidget *BazaarClient::annotate(
-        const FilePath &workingDir, const QString &file, const QString &revision,
-        int lineNumber, const QStringList &extraOptions)
+void BazaarClient::annotate(const Utils::FilePath &workingDir, const QString &file,
+                            int lineNumber, const QString &revision,
+                            const QStringList &extraOptions, int firstLine)
 {
-    return VcsBaseClient::annotate(workingDir, file, revision, lineNumber,
-                                   QStringList(extraOptions) << QLatin1String("--long"));
+    VcsBaseClient::annotate(workingDir, file, lineNumber, revision,
+                            QStringList(extraOptions) << QLatin1String("--long"), firstLine);
 }
 
 bool BazaarClient::isVcsDirectory(const FilePath &filePath) const

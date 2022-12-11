@@ -38,9 +38,9 @@ public:
     void outgoing(const Utils::FilePath &repositoryRoot);
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
 
-    VcsBase::VcsBaseEditorWidget *annotate(
-            const Utils::FilePath &workingDir, const QString &file, const QString &revision = {},
-            int lineNumber = -1, const QStringList &extraOptions = {}) override;
+    void annotate(const Utils::FilePath &workingDir, const QString &file,
+                  int lineNumber = -1, const QString &revision = {},
+                  const QStringList &extraOptions = {}, int firstLine = -1) override;
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile,
                 const QStringList &extraOptions = QStringList()) override;

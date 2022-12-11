@@ -931,7 +931,7 @@ bool BazaarPluginPrivate::vcsCreateRepository(const FilePath &directory)
 
 void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
 {
-    m_client.annotate(file.parentDir(), file.fileName(), QString(), line);
+    m_client.annotate(file.parentDir(), file.fileName(), line);
 }
 
 VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url,

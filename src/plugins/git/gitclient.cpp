@@ -1291,27 +1291,24 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
             RunFlags::ShowStdOut);
 }
 
-VcsBaseEditorWidget *GitClient::annotate(
-        const FilePath &workingDir, const QString &file, const QString &revision,
-        int lineNumber, const QStringList &extraOptions)
+void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file, int lineNumber,
+                         const QString &revision, const QStringList &extraOptions, int firstLine)
 {
     const Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
     const QString id = VcsBaseEditor::getTitleId(workingDir, {file}, revision);
     const QString title = Tr::tr("Git Blame \"%1\"").arg(id);
     const QString sourceFile = VcsBaseEditor::getSource(workingDir, file);
 
-    VcsBaseEditorWidget *editor
-            = createVcsEditor(editorId, title, sourceFile, codecFor(CodecSource, FilePath::fromString(sourceFile)),
-                              "blameFileName", id);
+    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile,
+            codecFor(CodecSource, FilePath::fromString(sourceFile)), "blameFileName", id);
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
         argWidget = new GitBlameArgumentsWidget(settings(), editor->toolBar());
         argWidget->setBaseArguments(extraOptions);
-        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
-                [=] {
-                    const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
-                    annotate(workingDir, file, revision, line, extraOptions);
-                } );
+        connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+            const int line = VcsBaseEditor::lineNumberOfCurrentEditor();
+            annotate(workingDir, file, line, revision, extraOptions);
+        });
         editor->setEditorConfig(argWidget);
     }
 
@@ -1322,8 +1319,9 @@ VcsBaseEditorWidget *GitClient::annotate(
         arguments << revision;
     arguments << "--" << file;
     editor->setDefaultLineNumber(lineNumber);
+    if (firstLine > 0)
+        editor->setFirstLineNumber(firstLine);
     vcsExecWithEditor(workingDir, arguments, editor);
-    return editor;
 }
 
 void GitClient::checkout(const FilePath &workingDirectory, const QString &ref, StashMode stashMode,
