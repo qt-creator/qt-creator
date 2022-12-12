@@ -43,7 +43,7 @@ protected:
 private:
     void search();
     void replace();
-    void setCurrentFilter(int index);
+    void setCurrentFilterIndex(int index);
     void updateButtonStates();
     void updateFindFlags();
     void updateFindFilterName(IFindFilter *filter);

@@ -127,8 +127,7 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     connect(m_matchCase, &QAbstractButton::toggled, Find::instance(), &Find::setCaseSensitive);
     connect(m_wholeWords, &QAbstractButton::toggled, Find::instance(), &Find::setWholeWord);
     connect(m_regExp, &QAbstractButton::toggled, Find::instance(), &Find::setRegularExpression);
-    connect(m_filterList, &QComboBox::activated,
-            this, QOverload<int>::of(&FindToolWindow::setCurrentFilter));
+    connect(m_filterList, &QComboBox::activated, this, &FindToolWindow::setCurrentFilterIndex);
 
     m_findCompleter->setModel(Find::findCompletionModel());
     m_searchTerm->setSpecialCompleter(m_findCompleter);
@@ -241,7 +240,7 @@ void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
     }
     m_filterList->addItems(names);
     if (m_filters.size() > 0)
-        setCurrentFilter(0);
+        setCurrentFilterIndex(0);
 }
 
 QList<IFindFilter *> FindToolWindow::findFilters() const
@@ -267,13 +266,13 @@ void FindToolWindow::setCurrentFilter(IFindFilter *filter)
         filter = m_currentFilter;
     int index = m_filters.indexOf(filter);
     if (index >= 0)
-        setCurrentFilter(index);
+        setCurrentFilterIndex(index);
     updateFindFlags();
     m_searchTerm->setFocus();
     m_searchTerm->selectAll();
 }
 
-void FindToolWindow::setCurrentFilter(int index)
+void FindToolWindow::setCurrentFilterIndex(int index)
 {
     m_filterList->setCurrentIndex(index);
     for (int i = 0; i < m_configWidgets.size(); ++i) {
@@ -367,7 +366,7 @@ void FindToolWindow::readSettings()
         IFindFilter *filter = m_filters.at(i);
         filter->readSettings(settings);
         if (filter->id() == currentFilter)
-            setCurrentFilter(i);
+            setCurrentFilterIndex(i);
     }
     settings->endGroup();
 }
