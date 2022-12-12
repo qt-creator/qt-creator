@@ -196,7 +196,7 @@ public:
                 this, &FontSettingsPageWidget::fontZoomChanged);
         connect(m_antialias, &QCheckBox::toggled,
                 this, &FontSettingsPageWidget::antialiasChanged);
-        connect(m_lineSpacingSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+        connect(m_lineSpacingSpinBox, &QSpinBox::valueChanged,
                 this, &FontSettingsPageWidget::lineSpacingChanged);
         connect(m_schemeComboBox, &QComboBox::currentIndexChanged,
                 this, &FontSettingsPageWidget::colorSchemeSelected);
