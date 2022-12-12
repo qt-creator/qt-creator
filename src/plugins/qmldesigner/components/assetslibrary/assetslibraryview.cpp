@@ -82,6 +82,8 @@ void AssetsLibraryView::modelAttached(Model *model)
     m_widget->setModel(model);
 
     setResourcePath(DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath());
+
+    m_sceneId = model->active3DSceneId();
 }
 
 void AssetsLibraryView::modelAboutToBeDetached(Model *model)

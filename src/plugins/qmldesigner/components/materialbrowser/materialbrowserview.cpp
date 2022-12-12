@@ -229,6 +229,8 @@ void MaterialBrowserView::modelAttached(Model *model)
         refreshModel(true);
         loadPropertyGroups(); // Needs the delay because it uses metaInfo
     });
+
+    m_sceneId = model->active3DSceneId();
 }
 
 void MaterialBrowserView::refreshModel(bool updateImages)
