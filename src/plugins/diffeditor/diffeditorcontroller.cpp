@@ -8,6 +8,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 
 #include <utils/qtcassert.h>
 
@@ -122,12 +123,22 @@ void DiffEditorController::requestReload()
 {
     m_isReloading = true;
     m_document->beginReload();
-    QTC_ASSERT(m_reloader, reloadFinished(false); return);
-    m_reloader();
+    if (m_reloader) {
+        m_reloader();
+        return;
+    }
+    m_taskTree.reset(new TaskTree(reloadRecipe()));
+    connect(m_taskTree.get(), &TaskTree::done, this, [this] { reloadFinished(true); });
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] { reloadFinished(false); });
+    auto progress = new TaskProgress(m_taskTree.get());
+    progress->setDisplayName(displayName());
+    m_taskTree->start();
 }
 
 void DiffEditorController::reloadFinished(bool success)
 {
+    if (m_taskTree)
+        m_taskTree.release()->deleteLater();
     m_document->endReload(success);
     m_isReloading = false;
 }

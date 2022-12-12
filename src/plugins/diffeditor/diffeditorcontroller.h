@@ -7,6 +7,7 @@
 #include "diffutils.h"
 
 #include <utils/filepath.h>
+#include <utils/tasktree.h>
 
 #include <QObject>
 
@@ -57,6 +58,9 @@ signals:
                                const ChunkSelection &selection);
 
 protected:
+    void setDisplayName(const QString &name) { m_displayName = name; }
+    QString displayName() const { return m_displayName; }
+
     // reloadFinished() should be called inside the reloader (for synchronous reload)
     // or later (for asynchronous reload)
     void setReloader(const std::function<void ()> &reloader);
@@ -72,7 +76,10 @@ protected:
 private:
     Internal::DiffEditorDocument *const m_document;
     bool m_isReloading = false;
+    QString m_displayName;
     std::function<void()> m_reloader;
+    std::unique_ptr<Utils::TaskTree> m_taskTree;
+    virtual Utils::Tasking::Group reloadRecipe() { return {}; } // TODO: make pure abstract
 
     friend class Internal::DiffEditorDocument;
 };

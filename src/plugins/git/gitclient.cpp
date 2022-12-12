@@ -19,6 +19,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/asynctask.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
@@ -60,8 +61,6 @@
 #include <QTextBlock>
 #include <QToolButton>
 #include <QTextCodec>
-
-#include <vector>
 
 const char GIT_DIRECTORY[] = ".git";
 const char HEAD[] = "HEAD";
@@ -424,131 +423,171 @@ class ShowController : public GitBaseDiffEditorController
 {
     Q_OBJECT
 public:
-    ShowController(IDocument *document, const QString &id) :
-        GitBaseDiffEditorController(document, {}, {}),
-        m_id(id),
-        m_state(Idle)
+    ShowController(IDocument *document, const QString &id)
+        : GitBaseDiffEditorController(document, {}, {})
+        , m_id(id)
     {
         setDisplayName("Git Show");
-        setReloader([this] {
-            m_state = GettingDescription;
-            const QStringList args = {"show", "-s", noColorOption, showFormatC, m_id};
-            runCommand({args}, m_instance->encoding(workingDirectory(), "i18n.commitEncoding"));
-            setStartupFile(VcsBase::source(this->document()));
-        });
     }
-    ~ShowController()
-    {
-        abortCommands();
-    }
-
-    void processCommandOutput(const QString &output) override;
 
 private:
-    void processDescription(const QString &output);
-    void updateDescription();
-    void abortCommands();
+    Tasking::Group reloadRecipe() final;
     const QString m_id;
-    enum State { Idle, GettingDescription, GettingDiff };
-    State m_state;
-    QString m_header;
-    QString m_body;
-    QString m_precedes;
-    std::vector<QString> m_follows;
-    QList<QtcProcess *> m_commands;
 };
 
-void ShowController::processCommandOutput(const QString &output)
+Tasking::Group ShowController::reloadRecipe()
 {
-    QTC_ASSERT(m_state != Idle, return);
-    if (m_state == GettingDescription) {
-        processDescription(output);
-        // stage 2
-        m_state = GettingDiff;
-        const QStringList args = {"show", "--format=format:", // omit header, already generated
-                                  noColorOption, decorateOption, m_id};
-        runCommand(QList<QStringList>() << addConfigurationArguments(args));
-    } else if (m_state == GettingDiff) {
-        m_state = Idle;
-        GitBaseDiffEditorController::processCommandOutput(output);
-    }
-}
+    static const QString busyMessage = Tr::tr("<resolving>");
+    using namespace Tasking;
 
-void ShowController::processDescription(const QString &output)
-{
-    abortCommands();
-    if (!output.startsWith("commit ")) {
-        setDescription(output);
-        return;
-    }
-    QString modText = output;
-    int lastHeaderLine = modText.indexOf("\n\n") + 1;
-    m_header = output.left(lastHeaderLine) + Constants::EXPAND_BRANCHES + '\n';
-    m_body = output.mid(lastHeaderLine + 1);
-    m_precedes = Tr::tr("<resolving>");
-    m_follows.push_back(m_precedes);
-    updateDescription();
-    const QString commit = modText.mid(7, 8);
+    struct ReloadStorage {
+        bool m_postProcessDescription = false;
+        QString m_commit;
 
-    QtcProcess *precedesProcess = new QtcProcess(this);
-    m_commands.append(precedesProcess);
-    precedesProcess->setEnvironment(m_instance->processEnvironment());
-    precedesProcess->setCommand({m_instance->vcsBinary(), {"describe", "--contains", commit}});
-    precedesProcess->setWorkingDirectory(workingDirectory());
-    connect(precedesProcess, &QtcProcess::done, this, [this, precedesProcess] {
-        m_precedes = precedesProcess->result() == ProcessResult::FinishedWithSuccess
-                   ? precedesProcess->cleanedStdOut().trimmed() : QString();
-        const int tilde = m_precedes.indexOf('~');
+        QString m_header;
+        QString m_body;
+        QString m_precedes;
+        QStringList m_follows;
+
+        QString m_diffOutput;
+    };
+
+    const auto updateDescription = [this](const ReloadStorage &storage) {
+        QString desc = storage.m_header;
+        if (!storage.m_precedes.isEmpty())
+            desc.append("Precedes: " + storage.m_precedes + '\n');
+        QStringList follows;
+        for (const QString &str : storage.m_follows) {
+            if (!str.isEmpty())
+                follows.append(str);
+        }
+        if (!follows.isEmpty())
+            desc.append("Follows: " + follows.join(", ") + '\n');
+        desc.append('\n' + storage.m_body);
+        setDescription(desc);
+    };
+
+    const TreeStorage<ReloadStorage> storage;
+
+    const auto setupDescription = [this](QtcProcess &process) {
+        process.setCodec(m_instance->encoding(workingDirectory(), "i18n.commitEncoding"));
+        setStartupFile(VcsBase::source(this->document()));
+        setupCommand(process, {"show", "-s", noColorOption, showFormatC, m_id});
+        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        setDescription(Tr::tr("Waiting for data..."));
+    };
+    const auto onDescriptionDone = [this, storage, updateDescription](const QtcProcess &process) {
+        ReloadStorage *data = storage.activeStorage();
+        const QString output = process.cleanedStdOut();
+        data->m_postProcessDescription = output.startsWith("commit ");
+        if (!data->m_postProcessDescription) {
+            setDescription(output);
+            return;
+        }
+        const int lastHeaderLine = output.indexOf("\n\n") + 1;
+        data->m_commit = output.mid(7, 12);
+        data->m_header = output.left(lastHeaderLine) + Constants::EXPAND_BRANCHES + '\n';
+        data->m_body = output.mid(lastHeaderLine + 1);
+        updateDescription(*data);
+    };
+
+    const auto desciptionDetailsSetup = [storage] {
+        if (!storage->m_postProcessDescription)
+            return GroupConfig{GroupAction::StopWithDone};
+        return GroupConfig();
+    };
+
+    const auto setupPrecedes = [this, storage](QtcProcess &process) {
+        storage->m_precedes = busyMessage;
+        setupCommand(process, {"describe", "--contains", storage->m_commit});
+    };
+    const auto onPrecedesDone = [storage, updateDescription](const QtcProcess &process) {
+        ReloadStorage *data = storage.activeStorage();
+        data->m_precedes = process.cleanedStdOut().trimmed();
+        const int tilde = data->m_precedes.indexOf('~');
         if (tilde != -1)
-            m_precedes.truncate(tilde);
-        if (m_precedes.endsWith("^0"))
-            m_precedes.chop(2);
-        updateDescription();
-    });
-    precedesProcess->start();
+            data->m_precedes.truncate(tilde);
+        if (data->m_precedes.endsWith("^0"))
+            data->m_precedes.chop(2);
+        updateDescription(*data);
+    };
+    const auto onPrecedesError = [storage, updateDescription](const QtcProcess &) {
+        ReloadStorage *data = storage.activeStorage();
+        data->m_precedes.clear();
+        updateDescription(*data);
+    };
 
-    QStringList parents;
-    QString errorMessage;
-    m_instance->synchronousParentRevisions(workingDirectory(), commit, &parents, &errorMessage);
-    m_follows.resize(parents.size());
-    for (int i = 0, total = parents.size(); i < total; ++i) {
-        QtcProcess *followsProcess = new QtcProcess(this);
-        m_commands.append(followsProcess);
-        followsProcess->setEnvironment(m_instance->processEnvironment());
-        followsProcess->setCommand({m_instance->vcsBinary(),
-                                    {"describe", "--tags", "--abbrev=0", parents[i]}});
-        followsProcess->setWorkingDirectory(workingDirectory());
-        connect(followsProcess, &QtcProcess::done, this, [this, followsProcess, i] {
-            if (followsProcess->result() != ProcessResult::FinishedWithSuccess)
-                return;
-            m_follows[i] = followsProcess->cleanedStdOut().trimmed();
-            updateDescription();
-        });
-        followsProcess->start();
-    }
-}
+    const auto setupFollows = [this, storage, updateDescription](TaskTree &taskTree) {
+        ReloadStorage *data = storage.activeStorage();
+        QStringList parents;
+        QString errorMessage;
+        // TODO: it's trivial now to call below asynchonously, too
+        m_instance->synchronousParentRevisions(workingDirectory(), data->m_commit,
+                                               &parents, &errorMessage);
+        data->m_follows = {busyMessage};
+        data->m_follows.resize(parents.size());
 
-void ShowController::updateDescription()
-{
-    QString desc = m_header;
-    if (!m_precedes.isEmpty())
-        desc.append("Precedes: " + m_precedes + '\n');
-    QStringList follows;
-    for (const QString &str : m_follows) {
-        if (!str.isEmpty())
-            follows.append(str);
-    }
-    if (!follows.isEmpty())
-        desc.append("Follows: " + follows.join(", ") + '\n');
-    desc.append('\n' + m_body);
+        const auto setupFollow = [this](QtcProcess &process, const QString &parent) {
+            setupCommand(process, {"describe", "--tags", "--abbrev=0", parent});
+        };
+        const auto onFollowDone = [data, updateDescription](const QtcProcess &process, int index) {
+            data->m_follows[index] = process.cleanedStdOut().trimmed();
+            updateDescription(*data);
+        };
+        const auto onFollowsError = [data, updateDescription] {
+            data->m_follows.clear();
+            updateDescription(*data);
+        };
 
-    setDescription(desc);
-}
+        using namespace std::placeholders;
+        QList<TaskItem> tasks {parallel, continueOnDone, OnGroupError(onFollowsError)};
+        for (int i = 0, total = parents.size(); i < total; ++i) {
+            tasks.append(Process(std::bind(setupFollow, _1, parents.at(i)),
+                                 std::bind(onFollowDone, _1, i)));
+        }
+        taskTree.setupRoot(tasks);
+    };
 
-void ShowController::abortCommands()
-{
-    qDeleteAll(m_commands);
-    m_commands.clear();
+    const auto setupDiff = [this](QtcProcess &process) {
+        setupCommand(process, addConfigurationArguments(
+                                  {"show", "--format=format:", // omit header, already generated
+                                   noColorOption, decorateOption, m_id}));
+        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+    };
+    const auto onDiffDone = [storage](const QtcProcess &process) {
+        storage->m_diffOutput = process.cleanedStdOut();
+    };
+
+    const auto setupProcessDiff = [this, storage](AsyncTask<QList<FileData>> &async) {
+        setupDiffProcessor(async, storage->m_diffOutput);
+    };
+    const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
+        setDiffFiles(async.result(), workingDirectory(), startupFile());
+    };
+    const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
+        setDiffFiles({}, workingDirectory(), startupFile());
+    };
+
+    const Group root {
+        Storage(storage),
+        parallel,
+        Group {
+            optional,
+            Process(setupDescription, onDescriptionDone),
+            Group {
+                parallel,
+                optional,
+                DynamicSetup(desciptionDetailsSetup),
+                Process(setupPrecedes, onPrecedesDone, onPrecedesError),
+                Tree(setupFollows)
+            }
+        },
+        Group {
+            Process(setupDiff, onDiffDone),
+            Async<QList<FileData>>(setupProcessDiff, onProcessDiffDone, onProcessDiffError)
+        }
+    };
+    return root;
 }
 
 ///////////////////////////////

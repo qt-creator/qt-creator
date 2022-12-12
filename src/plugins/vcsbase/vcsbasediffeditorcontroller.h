@@ -15,8 +15,10 @@ QT_END_NAMESPACE
 namespace Core { class IDocument; }
 
 namespace Utils {
+template <typename R> class AsyncTask;
 class Environment;
 class FilePath;
+class QtcProcess;
 } // Utils
 
 namespace VcsBase {
@@ -37,13 +39,15 @@ public:
     void setWorkingDirectory(const Utils::FilePath &workingDir);
 
 protected:
+    void setupCommand(Utils::QtcProcess &process, const QStringList &args) const;
+    void setupDiffProcessor(Utils::AsyncTask<QList<DiffEditor::FileData>> &processor,
+                            const QString &patch) const;
     void runCommand(const QList<QStringList> &args, RunFlags flags, QTextCodec *codec = nullptr);
     virtual void processCommandOutput(const QString &output);
 
     Utils::FilePath workingDirectory() const;
     void setStartupFile(const QString &startupFile);
     QString startupFile() const;
-    void setDisplayName(const QString &displayName);
 
 private:
     friend class VcsBaseDiffEditorControllerPrivate;

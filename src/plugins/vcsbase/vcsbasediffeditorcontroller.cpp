@@ -4,13 +4,17 @@
 #include "vcsbasediffeditorcontroller.h"
 #include "vcsbaseclient.h"
 #include "vcscommand.h"
+#include "vcsplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <utils/asynctask.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
 #include <QPointer>
@@ -21,8 +25,7 @@ using namespace Utils;
 
 namespace VcsBase {
 
-static void readPatch(QFutureInterface<QList<FileData>> &futureInterface,
-                      const QString &patch)
+static void readPatch(QFutureInterface<QList<FileData>> &futureInterface, const QString &patch)
 {
     bool ok;
     const QList<FileData> &fileDataList = DiffUtils::readPatch(patch, &ok, &futureInterface);
@@ -48,7 +51,6 @@ public:
     FilePath m_vcsBinary;
     int m_vscTimeoutS;
     QString m_startupFile;
-    QString m_displayName;
     QPointer<VcsCommand> m_command;
     QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
 };
@@ -134,6 +136,20 @@ VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
     delete d;
 }
 
+void VcsBaseDiffEditorController::setupCommand(QtcProcess &process, const QStringList &args) const
+{
+    process.setEnvironment(d->m_processEnvironment);
+    process.setWorkingDirectory(workingDirectory());
+    process.setCommand({d->m_vcsBinary, args});
+}
+
+void VcsBaseDiffEditorController::setupDiffProcessor(AsyncTask<QList<FileData>> &processor,
+                                                     const QString &patch) const
+{
+    processor.setAsyncCallData(readPatch, patch);
+    processor.setFutureSynchronizer(Internal::VcsPlugin::futureSynchronizer());
+}
+
 void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, RunFlags flags, QTextCodec *codec)
 {
     // Cancel the possible ongoing reload without the commandFinished() nor
@@ -144,7 +160,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, Run
     d->cancelReload();
 
     d->m_command = VcsBaseClient::createVcsCommand(workingDirectory(), d->m_processEnvironment);
-    d->m_command->setDisplayName(d->m_displayName);
+    d->m_command->setDisplayName(displayName());
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
     connect(d->m_command.data(), &VcsCommand::done, this, [this] {
         d->commandFinished(d->m_command->result() == ProcessResult::FinishedWithSuccess);
@@ -178,11 +194,6 @@ void VcsBaseDiffEditorController::setStartupFile(const QString &startupFile)
 QString VcsBaseDiffEditorController::startupFile() const
 {
     return d->m_startupFile;
-}
-
-void VcsBaseDiffEditorController::setDisplayName(const QString &displayName)
-{
-    d->m_displayName = displayName;
 }
 
 void VcsBase::VcsBaseDiffEditorController::setWorkingDirectory(const FilePath &workingDir)
