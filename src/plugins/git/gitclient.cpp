@@ -42,7 +42,6 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
-#include <diffeditor/descriptionwidgetwatcher.h>
 #include <diffeditor/diffeditorconstants.h>
 
 #include <texteditor/fontsettings.h>
@@ -120,125 +119,6 @@ static QString branchesDisplay(const QString &prefix, QStringList *branches, boo
     return output;
 }
 
-class DescriptionWidgetDecorator : public QObject
-{
-    Q_OBJECT
-public:
-    DescriptionWidgetDecorator(DescriptionWidgetWatcher *watcher);
-
-    bool eventFilter(QObject *watched, QEvent *event) override;
-
-signals:
-    void branchListRequested();
-
-private:
-    bool checkContentsUnderCursor(const QTextCursor &cursor) const;
-    void highlightCurrentContents(TextEditor::TextEditorWidget *textEditor,
-                                  const QTextCursor &cursor);
-    void handleCurrentContents(const QTextCursor &cursor);
-    void addWatch(TextEditor::TextEditorWidget *widget);
-    void removeWatch(TextEditor::TextEditorWidget *widget);
-
-    DescriptionWidgetWatcher *m_watcher;
-    QHash<QObject *, TextEditor::TextEditorWidget *> m_viewportToTextEditor;
-};
-
-DescriptionWidgetDecorator::DescriptionWidgetDecorator(DescriptionWidgetWatcher *watcher)
-    : QObject(),
-      m_watcher(watcher)
-{
-    QList<TextEditor::TextEditorWidget *> widgets = m_watcher->descriptionWidgets();
-    for (auto *widget : widgets)
-        addWatch(widget);
-
-    connect(m_watcher, &DescriptionWidgetWatcher::descriptionWidgetAdded,
-            this, &DescriptionWidgetDecorator::addWatch);
-    connect(m_watcher, &DescriptionWidgetWatcher::descriptionWidgetRemoved,
-            this, &DescriptionWidgetDecorator::removeWatch);
-}
-
-bool DescriptionWidgetDecorator::eventFilter(QObject *watched, QEvent *event)
-{
-    TextEditor::TextEditorWidget *textEditor = m_viewportToTextEditor.value(watched);
-    if (!textEditor)
-        return QObject::eventFilter(watched, event);
-
-    if (event->type() == QEvent::MouseMove) {
-        auto mouseEvent = static_cast<QMouseEvent *>(event);
-        if (mouseEvent->buttons())
-            return QObject::eventFilter(watched, event);
-
-        Qt::CursorShape cursorShape;
-
-        const QTextCursor cursor = textEditor->cursorForPosition(mouseEvent->pos());
-        if (checkContentsUnderCursor(cursor)) {
-            highlightCurrentContents(textEditor, cursor);
-            cursorShape = Qt::PointingHandCursor;
-        } else {
-            textEditor->setExtraSelections(TextEditor::TextEditorWidget::OtherSelection,
-                                           QList<QTextEdit::ExtraSelection>());
-            cursorShape = Qt::IBeamCursor;
-        }
-
-        bool ret = QObject::eventFilter(watched, event);
-        textEditor->viewport()->setCursor(cursorShape);
-        return ret;
-    } else if (event->type() == QEvent::MouseButtonRelease) {
-        auto mouseEvent = static_cast<QMouseEvent *>(event);
-
-        if (mouseEvent->button() == Qt::LeftButton && !(mouseEvent->modifiers() & Qt::ShiftModifier)) {
-            const QTextCursor cursor = textEditor->cursorForPosition(mouseEvent->pos());
-            if (checkContentsUnderCursor(cursor)) {
-                handleCurrentContents(cursor);
-                return true;
-            }
-        }
-
-        return QObject::eventFilter(watched, event);
-    }
-    return QObject::eventFilter(watched, event);
-}
-
-bool DescriptionWidgetDecorator::checkContentsUnderCursor(const QTextCursor &cursor) const
-{
-    return cursor.block().text() == Constants::EXPAND_BRANCHES;
-}
-
-void DescriptionWidgetDecorator::highlightCurrentContents(
-        TextEditor::TextEditorWidget *textEditor, const QTextCursor &cursor)
-{
-    QTextEdit::ExtraSelection sel;
-    sel.cursor = cursor;
-    sel.cursor.select(QTextCursor::LineUnderCursor);
-    sel.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    const QColor textColor = TextEditor::TextEditorSettings::fontSettings().formatFor(TextEditor::C_TEXT).foreground();
-    sel.format.setUnderlineColor(textColor.isValid() ? textColor : textEditor->palette().color(QPalette::WindowText));
-    textEditor->setExtraSelections(TextEditor::TextEditorWidget::OtherSelection,
-                       QList<QTextEdit::ExtraSelection>() << sel);
-}
-
-void DescriptionWidgetDecorator::handleCurrentContents(const QTextCursor &cursor)
-{
-    QTextCursor copy = cursor;
-
-    copy.select(QTextCursor::LineUnderCursor);
-    copy.removeSelectedText();
-    copy.insertText("Branches: Expanding...");
-    emit branchListRequested();
-}
-
-void DescriptionWidgetDecorator::addWatch(TextEditor::TextEditorWidget *widget)
-{
-    m_viewportToTextEditor.insert(widget->viewport(), widget);
-    widget->viewport()->installEventFilter(this);
-}
-
-void DescriptionWidgetDecorator::removeWatch(TextEditor::TextEditorWidget *widget)
-{
-    widget->viewport()->removeEventFilter(this);
-    m_viewportToTextEditor.remove(widget->viewport());
-}
-
 ///////////////////////////////
 
 class GitBaseDiffEditorController : public VcsBaseDiffEditorController
@@ -259,10 +139,6 @@ public:
     void initialize();
 
 private:
-    void updateBranchList();
-
-    DescriptionWidgetWatcher m_watcher;
-    DescriptionWidgetDecorator m_decorator;
     QString m_leftCommit;
     QString m_rightCommit;
 };
@@ -287,13 +163,9 @@ GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document,
                                                          const QString &leftCommit,
                                                          const QString &rightCommit) :
     VcsBaseDiffEditorController(document),
-    m_watcher(this),
-    m_decorator(&m_watcher),
     m_leftCommit(leftCommit),
     m_rightCommit(rightCommit)
 {
-    connect(&m_decorator, &DescriptionWidgetDecorator::branchListRequested,
-            this, &GitBaseDiffEditorController::updateBranchList);
     setDisplayName("Git Diff");
 }
 
@@ -308,55 +180,6 @@ void GitBaseDiffEditorController::initialize()
         if (commandInProgress != GitClient::NoCommand)
             m_rightCommit = HEAD;
     }
-}
-
-void GitBaseDiffEditorController::updateBranchList()
-{
-    const QString revision = description().mid(7, 12);
-    if (revision.isEmpty())
-        return;
-
-    const auto commandHandler = [this](const CommandResult &result) {
-        const QString remotePrefix = "remotes/";
-        const QString localPrefix = "<Local>";
-        const int prefixLength = remotePrefix.length();
-        QString output = BRANCHES_PREFIX;
-        QStringList branches;
-        QString previousRemote = localPrefix;
-        bool first = true;
-        for (const QString &branch : result.cleanedStdOut().split('\n')) {
-            const QString b = branch.mid(2).trimmed();
-            if (b.isEmpty())
-                continue;
-            if (b.startsWith(remotePrefix)) {
-                const int nextSlash = b.indexOf('/', prefixLength);
-                if (nextSlash < 0)
-                    continue;
-                const QString remote = b.mid(prefixLength, nextSlash - prefixLength);
-                if (remote != previousRemote) {
-                    output += branchesDisplay(previousRemote, &branches, &first) + '\n';
-                    branches.clear();
-                    previousRemote = remote;
-                }
-                branches << b.mid(nextSlash + 1);
-            } else {
-                branches << b;
-            }
-        }
-        if (branches.isEmpty()) {
-            if (previousRemote == localPrefix)
-                output += Tr::tr("<None>");
-        } else {
-            output += branchesDisplay(previousRemote, &branches, &first);
-        }
-        const QString branchList = output.trimmed();
-        QString newDescription = description();
-        newDescription.replace(Constants::EXPAND_BRANCHES, branchList);
-        setDescription(newDescription);
-    };
-    m_instance->vcsExecWithHandler(baseDirectory(),
-                                   {"branch", noColorOption, "-a", "--contains", revision},
-                                   this, commandHandler);
 }
 
 ///////////////////////////////
