@@ -42,11 +42,12 @@ private:
                 if (auto exeAspect = rc->aspect<ExecutableAspect>())
                     remoteExe = exeAspect->executable().nativePath();
             }
-            const QString args = m_makeDefault && !remoteExe.isEmpty()
-                    ? QStringLiteral("--make-default ") + remoteExe
-                    : QStringLiteral("--remove-default");
-            process.setCommand({deviceConfiguration()->filePath(Constants::AppcontrollerFilepath),
-                                {args}});
+            CommandLine cmd{deviceConfiguration()->filePath(Constants::AppcontrollerFilepath)};
+            if (m_makeDefault && !remoteExe.isEmpty())
+                cmd.addArgs({"--make-default", remoteExe});
+            else
+                cmd.addArg("--remove-default");
+            process.setCommand(cmd);
             QtcProcess *proc = &process;
             connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
                 emit stdErrData(QString::fromUtf8(proc->readAllStandardError()));
