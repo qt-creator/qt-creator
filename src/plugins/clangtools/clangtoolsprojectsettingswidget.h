@@ -29,7 +29,6 @@ public:
     explicit ClangToolsProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent = nullptr);
 
 private:
-    void onGlobalCustomChanged();
     void onGlobalCustomChanged(bool useGlobal);
 
     void updateButtonStates();

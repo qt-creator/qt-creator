@@ -7,7 +7,6 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
-#include "clangtoolsutils.h"
 #include "runsettingswidget.h"
 
 #include <coreplugin/icore.h>
@@ -86,15 +85,13 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
     }.attachTo(this, WithoutMargins);
 
     setUseGlobalSettings(m_projectSettings->useGlobalSettings());
-    onGlobalCustomChanged();
+    onGlobalCustomChanged(useGlobalSettings());
     connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-            this, QOverload<bool>::of(&ClangToolsProjectSettingsWidget::onGlobalCustomChanged));
+            this, &ClangToolsProjectSettingsWidget::onGlobalCustomChanged);
 
     // Global settings
-    connect(ClangToolsSettings::instance(),
-            &ClangToolsSettings::changed,
-            this,
-            QOverload<>::of(&ClangToolsProjectSettingsWidget::onGlobalCustomChanged));
+    connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
+            this, [this] { onGlobalCustomChanged(useGlobalSettings()); });
     connect(m_restoreGlobal, &QPushButton::clicked, this, [this] {
         m_runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings());
     });
@@ -133,11 +130,6 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
             this, [this](bool) { removeSelected(); });
     connect(m_removeAllButton, &QAbstractButton::clicked,
             this, [this](bool) { m_projectSettings->removeAllSuppressedDiagnostics();});
-}
-
-void ClangToolsProjectSettingsWidget::onGlobalCustomChanged()
-{
-    onGlobalCustomChanged(useGlobalSettings());
 }
 
 void ClangToolsProjectSettingsWidget::onGlobalCustomChanged(bool useGlobal)
