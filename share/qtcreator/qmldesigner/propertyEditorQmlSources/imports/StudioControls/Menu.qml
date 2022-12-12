@@ -40,5 +40,13 @@ T.Menu {
         color: StudioTheme.Values.themeControlBackground
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
+        MouseArea {
+            // This mouse area is here to eat clicks that are not handled by menu items
+            // to prevent them going through to the underlying view.
+            // This is primarily problem with disabled menu items, but right clicks would go
+            // through enabled menu items as well.
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+        }
     }
 }
