@@ -16,6 +16,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 200; }
+            toolTip: qsTr("Groups several visual items.")
         }
     }
 
@@ -32,6 +33,7 @@ MetaInfo {
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 200; }
             Property { name: "color"; type: "QColor"; value: "#ffffff"; }
+            toolTip: qsTr("A rectangle with an optional border.")
         }
     }
 
@@ -47,6 +49,7 @@ MetaInfo {
 
             Property { name: "font.pixelSize"; type: "int"; value: 12; }
             Property { name: "text"; type: "binding"; value: "qsTr(\"Text\")"; }
+            toolTip: qsTr("A read-only text label.")
         }
     }
 
@@ -64,6 +67,7 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 20; }
             Property { name: "font.pixelSize"; type: "int"; value: 12; }
             Property { name: "text"; type: "binding"; value: "qsTr(\"Text Edit\")"; }
+            toolTip: qsTr("A multi-line block of editable text.")
         }
     }
 
@@ -81,6 +85,7 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 20; }
             Property { name: "font.pixelSize"; type: "int"; value: 12; }
             Property { name: "text"; type: "binding"; value: "qsTr(\"Text Input\")"; }
+            toolTip: qsTr("An editable line of text.")
         }
     }
 
@@ -96,6 +101,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("An area with mouse functionality.")
         }
     }
 
@@ -113,6 +119,7 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 100; }
             Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
             Property { name: "fillMode"; type: "enum"; value: "Image.PreserveAspectFit"; }
+            toolTip: qsTr("Displays an image.")
         }
     }
 
@@ -129,6 +136,7 @@ MetaInfo {
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
             Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
+            toolTip: qsTr("Animates a series of images.")
         }
     }
 
@@ -145,6 +153,7 @@ MetaInfo {
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
             Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
+            toolTip: qsTr("A responsive border based on an image.")
         }
     }
 
@@ -160,6 +169,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 300; }
             Property { name: "height"; type: "int"; value: 300; }
+            toolTip: qsTr("An area for keeping dragable objects.")
         }
     }
 
@@ -217,6 +227,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("A scope to focus on a specific text element.")
         }
     }
 
