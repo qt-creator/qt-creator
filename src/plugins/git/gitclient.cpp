@@ -223,23 +223,80 @@ class FileListDiffController : public GitBaseDiffEditorController
 {
 public:
     FileListDiffController(IDocument *document,
-                           const QStringList &stagedFiles, const QStringList &unstagedFiles) :
-        GitBaseDiffEditorController(document, {}, {})
+                           const QStringList &stagedFiles, const QStringList &unstagedFiles)
+        : GitBaseDiffEditorController(document, {}, {})
+        , m_stagedFiles(stagedFiles)
+        , m_unstagedFiles(unstagedFiles)
     {
-        setReloader([this, stagedFiles, unstagedFiles] {
-            QList<QStringList> argLists;
-            if (!stagedFiles.isEmpty()) {
-                QStringList stagedArgs = QStringList({"diff", "--cached", "--"}) << stagedFiles;
-                argLists << addConfigurationArguments(stagedArgs);
-            }
-
-            if (!unstagedFiles.isEmpty())
-                argLists << addConfigurationArguments(baseArguments() << "--" << unstagedFiles);
-
-            if (!argLists.isEmpty())
-                runCommand(argLists, VcsBaseEditor::getCodec(workingDirectory(), stagedFiles + unstagedFiles));
-        });
     }
+private:
+    Tasking::Group reloadRecipe() final
+    {
+        using namespace Tasking;
+
+        struct DiffStorage {
+            QString m_stagedOutput;
+            QString m_unstagedOutput;
+        };
+
+        const TreeStorage<DiffStorage> storage;
+
+        const auto setupStaged = [this](QtcProcess &process) {
+            process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), m_stagedFiles));
+            setupCommand(process, addConfigurationArguments(
+                                      QStringList({"diff", "--cached", "--"}) + m_stagedFiles));
+            VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        };
+        const auto onStagedDone = [storage](const QtcProcess &process) {
+            storage->m_stagedOutput = process.cleanedStdOut();
+        };
+
+        const auto setupUnstaged = [this](QtcProcess &process) {
+            process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), m_unstagedFiles));
+            setupCommand(process, addConfigurationArguments(
+                                      QStringList({"diff", "--"}) + m_unstagedFiles));
+            VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        };
+        const auto onUnstagedDone = [storage](const QtcProcess &process) {
+            storage->m_unstagedOutput = process.cleanedStdOut();
+        };
+
+        const auto onStagingDynamicSetup = [this] {
+            setStartupFile(VcsBase::source(document()));
+            QSet<int> config;
+            if (!m_stagedFiles.isEmpty())
+                config.insert(0);
+            if (!m_unstagedFiles.isEmpty())
+                config.insert(1);
+            return GroupConfig{GroupAction::ContinueSelected, config};
+        };
+
+        const auto setupProcessDiff = [this, storage](AsyncTask<QList<FileData>> &async) {
+            setupDiffProcessor(async, storage->m_stagedOutput + storage->m_unstagedOutput);
+        };
+        const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
+            setDiffFiles(async.result(), workingDirectory(), startupFile());
+        };
+        const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
+            setDiffFiles({}, workingDirectory(), startupFile());
+        };
+
+        const Group root {
+            Storage(storage),
+            Group {
+                parallel,
+                optional,
+                DynamicSetup(onStagingDynamicSetup),
+                Process(setupStaged, onStagedDone),
+                Process(setupUnstaged, onUnstagedDone)
+            },
+            Async<QList<FileData>>(setupProcessDiff, onProcessDiffDone, onProcessDiffError)
+        };
+        return root;
+    }
+
+    QStringList m_stagedFiles;
+    QStringList m_unstagedFiles;
 };
 
 class ShowController : public GitBaseDiffEditorController
