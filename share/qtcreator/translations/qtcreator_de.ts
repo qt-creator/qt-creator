@@ -212,7 +212,7 @@
     </message>
     <message>
         <source>Clear system environment</source>
-        <translation>Systemumgebung löschen</translation>
+        <translation>Systemumgebung bereinigen</translation>
     </message>
     <message>
         <source>Help</source>
@@ -2700,11 +2700,11 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
-        <translation>Mitglieder von Klassen und Strukturen alphabetisch sortieren</translation>
+        <translation>Member von Klassen und Strukturen alphabetisch sortieren</translation>
     </message>
     <message>
         <source>Sort members of classes and structs alphabetically</source>
-        <translation>Mitglieder von Klassen und Strukturen alphabetisch sortieren</translation>
+        <translation>Member von Klassen und Strukturen alphabetisch sortieren</translation>
     </message>
     <message>
         <source>Use Debugging Helpers</source>
@@ -5435,7 +5435,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
-        <translation>Komplexe Kommandozeilen werden beim Debuggen unter Windows gegenwärtig nicht unterstützt.</translation>
+        <translation>Komplexe Kommandozeilen werden beim Debuggen unter Windows aktuell nicht unterstützt.</translation>
     </message>
     <message>
         <source>Not enough free ports for QML debugging.</source>
@@ -6013,7 +6013,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
-        <translation>Der Debugger läuft noch. Das Beenden im gegenwärtigen Zustand könnte zu einem inkonsistenten Zustand des untersuchten Prozesses führen. Möchten Sie ihn trotzdem beenden?</translation>
+        <translation>Der Debugger läuft noch. Das Beenden im aktuellen Zustand könnte zu einem inkonsistenten Zustand des untersuchten Prozesses führen. Möchten Sie ihn trotzdem beenden?</translation>
     </message>
     <message>
         <source>Debugged executable</source>
@@ -8835,11 +8835,11 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Saves the current state of your work and resets the repository.</source>
-        <translation>Speichert den gegenwärtigen Stand der Arbeit und setzt das Repository zurück.</translation>
+        <translation>Speichert den aktuellen Stand der Arbeit und setzt das Repository zurück.</translation>
     </message>
     <message>
         <source>Saves the current state of your unstaged files and resets the repository to its staged state.</source>
-        <translation>Speichert den gegenwärtigen Stand der nicht bereitgestellten Dateien und setzt das Repository auf den bereitgestellten Zustand zurück.</translation>
+        <translation>Speichert den aktuellen Stand der nicht bereitgestellten Dateien und setzt das Repository auf den bereitgestellten Zustand zurück.</translation>
     </message>
     <message>
         <source>Take Snapshot...</source>
@@ -8847,7 +8847,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Saves the current state of your work.</source>
-        <translation>Sichert den gegenwärtigen Arbeitsstand.</translation>
+        <translation>Sichert den aktuellen Arbeitsstand.</translation>
     </message>
     <message>
         <source>Restores changes saved to the stash list using &quot;Stash&quot;.</source>
@@ -10497,7 +10497,7 @@ Außer: %2
     </message>
     <message>
         <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>Die Build-Konfiguration &lt;b&gt;%1&lt;/b&gt; wird gegenwärtig erstellt.</translation>
+        <translation>Die Build-Konfiguration &lt;b&gt;%1&lt;/b&gt; wird gerade erstellt.</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
@@ -10855,7 +10855,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>Die Deployment-Konfiguration &lt;b&gt;%1&lt;/b&gt; wird gegenwärtig ausgeführt.</translation>
+        <translation>Die Deployment-Konfiguration &lt;b&gt;%1&lt;/b&gt; wird gerade erstellt.</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
@@ -10992,7 +10992,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Run Without Deployment</source>
-        <translation>Ausführung ohne Deployment</translation>
+        <translation>Ausführen ohne Deployment</translation>
     </message>
     <message>
         <source>Cancel Build</source>
@@ -11548,7 +11548,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation>Alles aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Quick Switch Kit Selector</source>
@@ -13755,7 +13755,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Name of current build</source>
-        <translation>Name der gegenwärtigen Build-Konfiguration</translation>
+        <translation>Name der aktuellen Build-Konfiguration</translation>
     </message>
     <message>
         <source>Main file of current project</source>
@@ -13783,7 +13783,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Type of current build</source>
-        <translation>Typ der gegenwärtigen Build-Konfiguration</translation>
+        <translation>Typ der aktuellen Build-Konfiguration</translation>
     </message>
     <message>
         <source>Type of the project&apos;s active build configuration</source>
@@ -14110,7 +14110,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Expand All</source>
-        <translation>Alles aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -14355,7 +14355,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>The following ABIs are currently not supported: %1</source>
-        <translation>Die folgenden ABIs werden gegenwärtig nicht unterstützt: %1</translation>
+        <translation>Die folgenden ABIs werden aktuell nicht unterstützt: %1</translation>
     </message>
     <message>
         <source>Select a qmake Executable</source>
@@ -14475,7 +14475,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>&lt;p&gt;The project you are about to open is located in the write-protected location:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Please select a writable location below and click &quot;Copy Project and Open&quot; to open a modifiable copy of the project or click &quot;Keep Project and Open&quot; to open the project in location.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; You will not be able to alter or compile your project in the current location.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Das zu öffnende Projekt befindet sich in einem schreibgeschützten Verzeichnis:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Bitte geben Sie ein schreibbares Verzeichnis an und wählen dann &quot;Kopieren und öffne Projekt&quot;, um eine modifizierbare Kopie des Projektes erhalten, oder &quot;Öffne Projekt hier&quot;, um das Projekt im gegenwärtigen Verzeichnis zu öffnen&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Im gegenwärtigen.Verzeichnis kann das Projekt weder compiliert noch modifiziert werden.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Das zu öffnende Projekt befindet sich in einem schreibgeschützten Verzeichnis:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Bitte geben Sie ein schreibbares Verzeichnis an und wählen dann &quot;Kopieren und öffne Projekt&quot;, um eine modifizierbare Kopie des Projektes erhalten, oder &quot;Öffne Projekt hier&quot;, um das Projekt im aktuellen Verzeichnis zu öffnen&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Im aktuellen Verzeichnis kann das Projekt weder compiliert noch modifiziert werden.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&amp;Location:</source>
@@ -16678,7 +16678,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Debugging complex shell commands in a terminal is currently not supported.</source>
-        <translation>Das Debuggen komplexer Shell-Kommandos in einem Terminal wird gegenwärtig nicht unterstützt.</translation>
+        <translation>Das Debuggen komplexer Shell-Kommandos in einem Terminal wird aktuell nicht unterstützt.</translation>
     </message>
     <message>
         <source>Quoting error in terminal command.</source>
@@ -16764,7 +16764,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
-        <translation>Alles aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -21563,7 +21563,7 @@ Außer: %3
     </message>
     <message>
         <source>No updates found.</source>
-        <translation>Es wurden keine Aktualisierungen gefunden.</translation>
+        <translation>Keine Aktualisierungen gefunden.</translation>
     </message>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
@@ -22675,7 +22675,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Pressing Alt displays context-sensitive help or type information as tooltips.</source>
-        <translation>Drücken Sie die Alt-Taste um kontextabhängige Hilfe oder Typinformation als Tool-Tip anzuzeigen.</translation>
+        <translation>Drücken Sie die Alt-Taste um kontextabhängige Hilfe oder Typinformation als Tooltip anzuzeigen.</translation>
     </message>
     <message>
         <source>Using Select Block Up / Down actions will now provide smarter selections.</source>
@@ -25135,7 +25135,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
     <message>
         <source>Scan only the currently edited document</source>
-        <translation>Nur im gegenwärtig bearbeiteten Dokument suchen</translation>
+        <translation>Nur im aktuell bearbeiteten Dokument suchen</translation>
     </message>
     <message>
         <source>Scan the current subproject</source>
@@ -25163,7 +25163,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
     <message>
         <source>Scan only the currently edited document.</source>
-        <translation>Nur im gegenwärtig bearbeiteten Dokument suchen.</translation>
+        <translation>Nur im aktuell bearbeiteten Dokument suchen.</translation>
     </message>
     <message>
         <source>Active Project</source>
@@ -25359,7 +25359,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
     <message>
         <source>Type Specific</source>
-        <translation>typspezifisch</translation>
+        <translation>Typabhängig</translation>
     </message>
     <message>
         <source>&amp;Add...</source>
@@ -37198,11 +37198,11 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>Expand All</source>
-        <translation>Alles aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation>Alles einklappen</translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <source>Sort Alphabetically</source>
@@ -41490,7 +41490,7 @@ Wird benutzt um die Funktion zu markieren, die ein gesuchtes Symbol benutzt.</tr
     </message>
     <message>
         <source>Class&apos; data members.</source>
-        <translation>Mitgliedsvariablen von Klassen.</translation>
+        <translation>Membervariablen einer Klasse.</translation>
     </message>
     <message>
         <source>Global</source>
@@ -48329,7 +48329,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Clear system environment</source>
-        <translation>Systemumgebung löschen</translation>
+        <translation>Systemumgebung bereinigen</translation>
     </message>
 </context>
 <context>
@@ -53840,7 +53840,7 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
     <message>
         <source>Expand All</source>
-        <translation>Alles aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -55510,7 +55510,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Use context-specific margin</source>
-        <translation>Kontextspezifischen Rand verwenden</translation>
+        <translation>Kontextabhängigen Rand verwenden</translation>
     </message>
     <message>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
