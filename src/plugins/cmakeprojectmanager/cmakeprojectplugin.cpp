@@ -43,8 +43,7 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-bool isAutoFormatApplicable(const Core::IDocument *document,
-                            const QList<Utils::MimeType> &allowedMimeTypes)
+bool isAutoFormatApplicable(const Core::IDocument *document, const QStringList &allowedMimeTypes)
 {
     if (!document)
         return false;
@@ -53,8 +52,8 @@ bool isAutoFormatApplicable(const Core::IDocument *document,
         return true;
 
     const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
-    return Utils::anyOf(allowedMimeTypes, [&documentMimeType](const Utils::MimeType &mime) {
-        return documentMimeType.inherits(mime.name());
+    return Utils::anyOf(allowedMimeTypes, [&documentMimeType](const QString &mime) {
+        return documentMimeType.inherits(mime);
     });
 }
 

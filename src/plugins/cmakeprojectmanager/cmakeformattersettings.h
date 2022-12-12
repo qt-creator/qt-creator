@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <utils/mimeutils.h>
-
 #include <QList>
+#include <QObject>
 #include <QVersionNumber>
 
 namespace Core { class IDocument; }
+namespace Utils { class FilePath; }
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -32,9 +32,9 @@ public:
     bool autoFormatOnSave() const;
     void setAutoFormatOnSave(bool autoFormatOnSave);
 
-    QList<Utils::MimeType> autoFormatMime() const;
+    QStringList autoFormatMime() const;
     QString autoFormatMimeAsString() const;
-    void setAutoFormatMime(const QList<Utils::MimeType> &autoFormatMime);
+    void setAutoFormatMime(const QStringList &autoFormatMime);
     void setAutoFormatMime(const QString &mimeList);
 
     bool autoFormatOnlyCurrentProject() const;
@@ -51,7 +51,7 @@ private:
     bool m_autoFormatOnSave = false;
     bool m_autoFormatOnlyCurrentProject = true;
     QString m_autoFormatTool;
-    QList<Utils::MimeType> m_autoFormatMime;
+    QStringList m_autoFormatMime;
 };
 
 } // namespace Internal

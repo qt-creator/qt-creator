@@ -83,17 +83,17 @@ void CMakeFormatterSettings::setAutoFormatOnSave(bool autoFormatOnSave)
     m_autoFormatOnSave = autoFormatOnSave;
 }
 
-QList<Utils::MimeType> CMakeFormatterSettings::autoFormatMime() const
+QStringList CMakeFormatterSettings::autoFormatMime() const
 {
     return m_autoFormatMime;
 }
 
 QString CMakeFormatterSettings::autoFormatMimeAsString() const
 {
-    return Utils::transform(m_autoFormatMime, &Utils::MimeType::name).join("; ");
+    return m_autoFormatMime.join("; ");
 }
 
-void CMakeFormatterSettings::setAutoFormatMime(const QList<Utils::MimeType> &autoFormatMime)
+void CMakeFormatterSettings::setAutoFormatMime(const QStringList &autoFormatMime)
 {
     if (m_autoFormatMime == autoFormatMime)
         return;
@@ -104,16 +104,7 @@ void CMakeFormatterSettings::setAutoFormatMime(const QList<Utils::MimeType> &aut
 
 void CMakeFormatterSettings::setAutoFormatMime(const QString &mimeList)
 {
-    const QStringList stringTypes = mimeList.split(';');
-    QList<Utils::MimeType> types;
-    types.reserve(stringTypes.count());
-    for (QString t : stringTypes) {
-        t = t.trimmed();
-        const Utils::MimeType mime = Utils::mimeTypeForName(t);
-        if (mime.isValid())
-            types << mime;
-    }
-    setAutoFormatMime(types);
+    setAutoFormatMime(mimeList.split(';'));
 }
 
 bool CMakeFormatterSettings::autoFormatOnlyCurrentProject() const
@@ -135,8 +126,8 @@ bool CMakeFormatterSettings::isApplicable(const Core::IDocument *document) const
         return true;
 
     const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
-    return Utils::anyOf(m_autoFormatMime, [&documentMimeType](const Utils::MimeType &mime) {
-        return documentMimeType.inherits(mime.name());
+    return Utils::anyOf(m_autoFormatMime, [&documentMimeType](const QString &mime) {
+        return documentMimeType.inherits(mime);
     });
 }
 
