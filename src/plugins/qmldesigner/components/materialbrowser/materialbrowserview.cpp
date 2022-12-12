@@ -323,12 +323,18 @@ void MaterialBrowserView::modelNodePreviewPixmapChanged(const ModelNode &node, c
         m_widget->updateMaterialPreview(node, pixmap);
 }
 
+void MaterialBrowserView::nodeIdChanged(const ModelNode &node, [[maybe_unused]] const QString &newId,
+                                                               [[maybe_unused]] const QString &oldId)
+{
+    if (isTexture(node))
+        m_widget->materialBrowserTexturesModel()->updateTextureSource(node);
+}
+
 void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                                    [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
     for (const VariantProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
-
         if (isMaterial(node) && property.name() == "objectName") {
             m_widget->materialBrowserModel()->updateMaterialName(node);
         } else if (property.name() == "source") {

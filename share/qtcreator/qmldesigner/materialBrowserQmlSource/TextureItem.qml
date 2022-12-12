@@ -44,8 +44,18 @@ Rectangle {
 
     ToolTip {
         visible: mouseArea.containsMouse
-        text: textureSource ? textureSource : qsTr("Texture has no source image.")
+        // contentWidth is not calculated correctly by the toolTip (resulting in a wider tooltip than
+        // needed). Using a helper Text to calculate the correct width
+        contentWidth: helperText.width
+        bottomInset: -2
+        text: textureToolTip
         delay: 1000
+
+        Text {
+            id: helperText
+            text: textureToolTip
+            visible: false
+        }
     }
 
     Image {

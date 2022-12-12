@@ -87,6 +87,12 @@ private:
     bool m_isEmpty = true;
     bool m_hasSingleModelSelection = false;
     bool m_hasSceneEnv = false;
+
+    const static int RoleTexHasDynamicProps = Qt::UserRole + 1;
+    const static int RoleTexInternalId      = Qt::UserRole + 2;
+    const static int RoleTexSource          = Qt::UserRole + 3;
+    const static int RoleTexToolTip         = Qt::UserRole + 4;
+    const static int RoleTexVisible         = Qt::UserRole + 5;
 };
 
 } // namespace QmlDesigner
