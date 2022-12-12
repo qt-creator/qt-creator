@@ -32,8 +32,8 @@
     your project as a fully working C++ application with developers.
 
     If you add or remove QML files in \QDS, you have to regenerate the
-    \e CMakeLists.txt project configuration file by selecting \uicontrol Build
-    > \uicontrol Run > \uicontrol {Generate CMakeLists.txt Files}.
+    \e CMakeLists.txt project configuration file by selecting \uicontrol File
+    > \uicontrol {Export Project} > \uicontrol {Generate CMake Build Files}.
 
     If you use Git, you can clone an example project
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/playground/AuroraCluster0}
@@ -99,6 +99,8 @@
     This isn't mandatory.
 
     \li Generate CMake files and C++ source files that are used to compile the application into
-    an executable file by selecting \uicontrol Build > \uicontrol{Generate CMakeLists.txt files}.
+    an executable file by selecting \uicontrol File > \uicontrol {Export Project} >
+    \uicontrol {Generate CMake Build Files}.
+
     \endlist
 */
