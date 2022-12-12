@@ -1,30 +1,41 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd
-** All rights reserved.
-** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
-**
-** This file is part of the Qt Enterprise Axivion Add-on.
-**
-** Licensees holding valid Qt Enterprise licenses may use this file in
-** accordance with the Qt Enterprise License Agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company.
-**
-** If you have questions regarding the use of this file, please use
-** contact form at http://www.qt.io/contact-us
-**
-****************************************************************************/
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial
 
 #pragma once
+
+#include <utils/filepath.h>
+#include <utils/id.h>
 
 #include <QtGlobal>
 
 QT_BEGIN_NAMESPACE
+class QJsonObject;
 class QSettings;
 QT_END_NAMESPACE
 
 namespace Axivion::Internal {
+
+class AxivionServer
+{
+public:
+    AxivionServer() = default;
+    AxivionServer(const Utils::Id &id, const QString &dashboardUrl,
+                  const QString &description, const QString &token);
+
+    bool operator==(const AxivionServer &other) const;
+    bool operator!=(const AxivionServer &other) const;
+
+    QJsonObject toJson() const;
+    static AxivionServer fromJson(const QJsonObject &json);
+    QStringList curlArguments() const;
+
+    Utils::Id id;
+    QString dashboard;
+    QString description;
+    QString token;
+
+    bool validateCert = true;
+};
 
 class AxivionSettings
 {
@@ -32,6 +43,9 @@ public:
     AxivionSettings();
     void toSettings(QSettings *s) const;
     void fromSettings(QSettings *s);
+
+    AxivionServer server; // shall we have more than one?
+    Utils::FilePath curl;
 };
 
-} // namespace Axivion::Internal
+} // Axivion::Internal

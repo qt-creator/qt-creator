@@ -1,31 +1,44 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd
-** All rights reserved.
-** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
-**
-** This file is part of the Qt Enterprise Axivion Add-on.
-**
-** Licensees holding valid Qt Enterprise licenses may use this file in
-** accordance with the Qt Enterprise License Agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company.
-**
-** If you have questions regarding the use of this file, please use
-** contact form at http://www.qt.io/contact-us
-**
-****************************************************************************/
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial
 
 #pragma once
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
+#include <utils/id.h>
 
 #include <QPointer>
+#include <QWidget>
 
 namespace Axivion::Internal {
 
+class AxivionServer;
 class AxivionSettings;
 class AxivionSettingsWidget;
+
+class DashboardWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    enum Mode { Display, Edit };
+    explicit DashboardWidget(Mode m = Display, QWidget *parent = nullptr);
+
+    AxivionServer dashboardServer() const;
+    void setDashboardServer(const AxivionServer &server);
+
+    bool isValid() const;
+
+signals:
+    void validChanged(bool valid);
+private:
+    Mode m_mode = Display;
+    Utils::Id m_id;
+    Utils::StringAspect m_dashboardUrl;
+    Utils::StringAspect m_description;
+    Utils::StringAspect m_token;
+    bool m_valid = false;
+};
+
 
 class AxivionSettingsPage : public Core::IOptionsPage
 {
@@ -37,4 +50,4 @@ private:
     AxivionSettings *m_settings;
 };
 
-} // namespace Axivion::Internal
+} // Axivion::Internal
