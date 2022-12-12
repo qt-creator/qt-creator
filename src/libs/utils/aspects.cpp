@@ -51,7 +51,7 @@ public:
 
     bool m_visible = true;
     bool m_enabled = true;
-    bool m_readOnly = true;
+    bool m_readOnly = false;
     bool m_autoApply = true;
     int m_spanX = 1;
     int m_spanY = 1;
