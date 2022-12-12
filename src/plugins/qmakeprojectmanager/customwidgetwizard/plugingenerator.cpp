@@ -306,20 +306,17 @@ QString PluginGenerator::processTemplate(const QString &tmpl,
 {
     Utils::FileReader reader;
     if (!reader.fetch(Utils::FilePath::fromString(tmpl), errorMessage))
-        return QString();
-
+        return {};
 
     QString cont = QString::fromUtf8(reader.data());
 
     // Expander needed to handle extra variable "Cpp:PragmaOnce"
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
-    QString errMsg;
-    cont = Utils::TemplateEngine::processText(expander, cont, &errMsg);
-    if (!errMsg.isEmpty()) {
+    cont = Utils::TemplateEngine::processText(expander, cont, errorMessage);
+    if (!errorMessage->isEmpty()) {
         qWarning("Error processing custom plugin file: %s\nFile:\n%s",
-                 qPrintable(errMsg), qPrintable(cont));
-        errorMessage = &errMsg;
-        return QString();
+                 qPrintable(*errorMessage), qPrintable(cont));
+        return {};
     }
 
     const QChar atChar = QLatin1Char('@');

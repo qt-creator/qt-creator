@@ -95,8 +95,7 @@ public:
 // CppDeclarableElement
 CppDeclarableElement::CppDeclarableElement(Symbol *declaration)
     : CppElement()
-    , declaration(declaration)
-    , icon(CPlusPlus::Icons::iconForSymbol(declaration))
+    , iconType(CPlusPlus::Icons::iconTypeForSymbol(declaration))
 {
     Overview overview;
     overview.showArgumentNames = true;
@@ -136,11 +135,6 @@ CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
     tooltip = qualifiedName;
 }
 
-bool CppClass::operator==(const CppClass &other)
-{
-    return this->declaration == other.declaration;
-}
-
 CppClass *CppClass::toCppClass()
 {
     return this;
@@ -149,32 +143,30 @@ CppClass *CppClass::toCppClass()
 void CppClass::lookupBases(QFutureInterfaceBase &futureInterface,
                            Symbol *declaration, const LookupContext &context)
 {
-    using Data = QPair<ClassOrNamespace*, CppClass*>;
+    ClassOrNamespace *hierarchy = context.lookupType(declaration);
+    if (!hierarchy)
+        return;
+    QSet<ClassOrNamespace *> visited;
+    addBaseHierarchy(futureInterface, context, hierarchy, &visited);
+}
 
-    if (ClassOrNamespace *clazz = context.lookupType(declaration)) {
-        QSet<ClassOrNamespace *> visited;
-
-        QQueue<Data> q;
-        q.enqueue({clazz, this});
-        while (!q.isEmpty()) {
-            if (futureInterface.isCanceled())
-                return;
-            Data current = q.dequeue();
-            clazz = current.first;
-            visited.insert(clazz);
-            const QList<ClassOrNamespace *> &bases = clazz->usings();
-            for (ClassOrNamespace *baseClass : bases) {
-                const QList<Symbol *> &symbols = baseClass->symbols();
-                for (Symbol *symbol : symbols) {
-                    if (symbol->asClass() && (
-                        clazz = context.lookupType(symbol)) &&
-                        !visited.contains(clazz)) {
-                        CppClass baseCppClass(symbol);
-                        CppClass *cppClass = current.second;
-                        cppClass->bases.append(baseCppClass);
-                        q.enqueue({clazz, &cppClass->bases.last()});
-                    }
-                }
+void CppClass::addBaseHierarchy(QFutureInterfaceBase &futureInterface, const LookupContext &context,
+                                ClassOrNamespace *hierarchy, QSet<ClassOrNamespace *> *visited)
+{
+    if (futureInterface.isCanceled())
+        return;
+    visited->insert(hierarchy);
+    const QList<ClassOrNamespace *> &baseClasses = hierarchy->usings();
+    for (ClassOrNamespace *baseClass : baseClasses) {
+        const QList<Symbol *> &symbols = baseClass->symbols();
+        for (Symbol *symbol : symbols) {
+            if (!symbol->asClass())
+                continue;
+            ClassOrNamespace *baseHierarchy = context.lookupType(symbol);
+            if (baseHierarchy && !visited->contains(baseHierarchy)) {
+                CppClass classSymbol(symbol);
+                classSymbol.addBaseHierarchy(futureInterface, context, baseHierarchy, visited);
+                bases.append(classSymbol);
             }
         }
     }
@@ -183,28 +175,20 @@ void CppClass::lookupBases(QFutureInterfaceBase &futureInterface,
 void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
                              Symbol *declaration, const Snapshot &snapshot)
 {
-    using Data = QPair<CppClass*, TypeHierarchy>;
-
     snapshot.updateDependencyTable(futureInterface);
     if (futureInterface.isCanceled())
         return;
-    const TypeHierarchy &completeHierarchy
-            = TypeHierarchyBuilder::buildDerivedTypeHierarchy(futureInterface, declaration, snapshot);
+    addDerivedHierarchy(TypeHierarchyBuilder::buildDerivedTypeHierarchy(
+                        futureInterface, declaration, snapshot));
+}
 
-    QQueue<Data> q;
-    q.enqueue({this, completeHierarchy});
-    while (!q.isEmpty()) {
-        if (futureInterface.isCanceled())
-            return;
-        const Data &current = q.dequeue();
-        CppClass *clazz = current.first;
-        const TypeHierarchy &classHierarchy = current.second;
-        const QList<TypeHierarchy> hierarchy = classHierarchy.hierarchy();
-        for (const TypeHierarchy &derivedHierarchy : hierarchy) {
-            clazz->derived.append(CppClass(derivedHierarchy.symbol()));
-            q.enqueue({&clazz->derived.last(), derivedHierarchy});
-        }
-    }
+void CppClass::addDerivedHierarchy(const TypeHierarchy &hierarchy)
+{
+    CppClass classSymbol(hierarchy.symbol());
+    const QList<TypeHierarchy> derivedHierarchies = hierarchy.hierarchy();
+    for (const TypeHierarchy &derivedHierarchy : derivedHierarchies)
+        classSymbol.addDerivedHierarchy(derivedHierarchy);
+    derived.append(classSymbol);
 }
 
 class CppFunction : public CppDeclarableElement

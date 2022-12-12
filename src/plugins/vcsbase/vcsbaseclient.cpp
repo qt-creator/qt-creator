@@ -454,7 +454,7 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
     });
-    enqueueJob(createCommand(workingDir), args);
+    enqueueJob(cmd, args);
 }
 
 void VcsBaseClient::status(const FilePath &workingDir,

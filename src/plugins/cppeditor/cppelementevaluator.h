@@ -3,13 +3,14 @@
 
 #pragma once
 
-#include <coreplugin/helpitem.h>
-#include <texteditor/texteditor.h>
+#include "typehierarchybuilder.h"
 
+#include <coreplugin/helpitem.h>
 #include <cplusplus/CppDocument.h>
+#include <texteditor/texteditor.h>
+#include <utils/utilsicons.h>
 
 #include <QFuture>
-#include <QIcon>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
@@ -18,6 +19,7 @@
 #include <functional>
 
 namespace CPlusPlus {
+class ClassOrNamespace;
 class LookupItem;
 class LookupContext;
 }
@@ -76,11 +78,10 @@ public:
     explicit CppDeclarableElement(CPlusPlus::Symbol *declaration);
 
 public:
-    CPlusPlus::Symbol *declaration;
+    Utils::CodeModelIcon::Type iconType;
     QString name;
     QString qualifiedName;
     QString type;
-    QIcon icon;
 };
 
 class CppClass : public CppDeclarableElement
@@ -89,8 +90,6 @@ public:
     CppClass();
     explicit CppClass(CPlusPlus::Symbol *declaration);
 
-    bool operator==(const CppClass &other);
-
     CppClass *toCppClass() final;
 
     void lookupBases(QFutureInterfaceBase &futureInterface,
@@ -98,9 +97,15 @@ public:
     void lookupDerived(QFutureInterfaceBase &futureInterface,
                        CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);
 
-public:
     QList<CppClass> bases;
     QList<CppClass> derived;
+
+private:
+    void addBaseHierarchy(QFutureInterfaceBase &futureInterface,
+                          const CPlusPlus::LookupContext &context,
+                          CPlusPlus::ClassOrNamespace *hierarchy,
+                          QSet<CPlusPlus::ClassOrNamespace *> *visited);
+    void addDerivedHierarchy(const TypeHierarchy &hierarchy);
 };
 
 } // namespace Internal

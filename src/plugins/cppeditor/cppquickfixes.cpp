@@ -4309,6 +4309,8 @@ void GenerateGetterSetter::match(const CppQuickFixInterface &interface, QuickFix
                 return;
             declarator = path.at(n - i++)->asDeclarator();
         }
+        if (!declarator)
+            return;
     }
     const auto variableDecl = path.at(n - i++)->asSimpleDeclaration();
     const auto classSpecifier = path.at(n - i++)->asClassSpecifier();

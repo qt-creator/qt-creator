@@ -7850,7 +7850,7 @@ struct MappedText
 
 void TextEditorWidget::insertFromMimeData(const QMimeData *source)
 {
-    if (isReadOnly())
+    if (!source || isReadOnly())
         return;
 
     QString text = source->text();
@@ -7859,7 +7859,6 @@ void TextEditorWidget::insertFromMimeData(const QMimeData *source)
 
     if (d->m_codeAssistant.hasContext())
         d->m_codeAssistant.destroyContext();
-
 
     if (d->m_snippetOverlay->isVisible() && (text.contains('\n') || text.contains('\t')))
         d->m_snippetOverlay->accept();

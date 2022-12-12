@@ -445,11 +445,6 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
     if (m_blockUpdates)
         return;
 
-    if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
-        if (current)
-            current->setCodeStyleSettings(cppCodeStyleSettings());
-    }
     emit codeStyleSettingsChanged(cppCodeStyleSettings());
     updatePreview();
 }
@@ -458,12 +453,6 @@ void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &se
 {
     if (m_blockUpdates)
         return;
-
-    if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
-        if (current)
-            current->setTabSettings(settings);
-    }
 
     emit tabSettingsChanged(settings);
     updatePreview();
@@ -547,6 +536,14 @@ void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tab
 
 void CppCodeStylePreferencesWidget::apply()
 {
+    if (m_preferences) {
+        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        if (current) {
+            current->setTabSettings(tabSettings());
+            current->setCodeStyleSettings(cppCodeStyleSettings());
+        }
+    }
+
     emit applyEmitted();
 }
 
