@@ -193,6 +193,13 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             m_widget->materialBrowserTexturesModel()->setHasSceneEnv(sceneEnvExists);
         });
 
+        connect(texturesModel, &MaterialBrowserTexturesModel::updateModelSelectionStateRequested, this, [&]() {
+            bool hasModel = false;
+            if (m_selectedModels.size() == 1)
+                hasModel = getMaterialOfModel(m_selectedModels.at(0)).isValid();
+            m_widget->materialBrowserTexturesModel()->setHasSingleModelSelection(hasModel);
+        });
+
         connect(texturesModel, &MaterialBrowserTexturesModel::applyAsLightProbeRequested, this,
                 [&] (const ModelNode &texture) {
             executeInTransaction(__FUNCTION__, [&] {
@@ -290,7 +297,6 @@ void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedN
     });
 
     m_widget->materialBrowserModel()->setHasModelSelection(!m_selectedModels.isEmpty());
-    m_widget->materialBrowserTexturesModel()->setHasSingleModelSelection(m_selectedModels.size() == 1);
 
     // the logic below selects the material of the first selected model if auto selection is on
     if (!m_autoSelectModelMaterial)
@@ -299,13 +305,8 @@ void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedN
     if (selectedNodeList.size() > 1 || m_selectedModels.isEmpty())
         return;
 
-    QmlObjectNode qmlObjNode(m_selectedModels.at(0));
-    QString matExp = qmlObjNode.expression("materials");
-    if (matExp.isEmpty())
-        return;
+    ModelNode mat = getMaterialOfModel(m_selectedModels.at(0));
 
-    QString matId = matExp.remove('[').remove(']').split(',', Qt::SkipEmptyParts).at(0);
-    ModelNode mat = modelNodeForId(matId);
     if (!mat.isValid())
         return;
 
@@ -433,6 +434,25 @@ void MaterialBrowserView::requestPreviews()
             model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
     }
     m_previewRequests.clear();
+}
+
+ModelNode MaterialBrowserView::getMaterialOfModel(const ModelNode &model)
+{
+    QmlObjectNode qmlObjNode(model);
+    QString matExp = qmlObjNode.expression("materials");
+    if (matExp.isEmpty())
+        return {};
+
+    const QStringList mats = matExp.remove('[').remove(']').split(',', Qt::SkipEmptyParts);
+    if (mats.isEmpty())
+        return {};
+
+    for (const auto &matId : mats) {
+        ModelNode mat = modelNodeForId(matId);
+        if (mat.isValid())
+            return mat;
+    }
+    return {};
 }
 
 void MaterialBrowserView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,

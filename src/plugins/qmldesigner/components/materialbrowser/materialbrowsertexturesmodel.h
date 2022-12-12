@@ -16,8 +16,7 @@ class MaterialBrowserTexturesModel : public QAbstractListModel
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
-    Q_PROPERTY(bool hasSingleModelSelection READ hasSingleModelSelection
-               WRITE setHasSingleModelSelection NOTIFY hasSingleModelSelectionChanged)
+    Q_PROPERTY(bool hasSingleModelSelection READ hasSingleModelSelection NOTIFY hasSingleModelSelectionChanged)
     Q_PROPERTY(bool hasSceneEnv READ hasSceneEnv NOTIFY hasSceneEnvChanged)
 
 public:
@@ -60,6 +59,7 @@ public:
     Q_INVOKABLE void applyToSelectedModel(qint64 internalId);
     Q_INVOKABLE void openTextureEditor();
     Q_INVOKABLE void updateSceneEnvState();
+    Q_INVOKABLE void updateModelSelectionState();
     Q_INVOKABLE void applyAsLightProbe(qint64 internalId);
 
 signals:
@@ -71,6 +71,7 @@ signals:
     void applyToSelectedModelTriggered(const QmlDesigner::ModelNode &texture);
     void addNewTextureTriggered();
     void updateSceneEnvStateRequested();
+    void updateModelSelectionStateRequested();
     void hasSceneEnvChanged();
     void applyAsLightProbeRequested(const QmlDesigner::ModelNode &texture);
 

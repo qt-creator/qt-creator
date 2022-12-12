@@ -70,6 +70,7 @@ private:
     void loadPropertyGroups();
     void requestPreviews();
     ModelNode resolveSceneEnv();
+    ModelNode getMaterialOfModel(const ModelNode &model);
 
     AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;

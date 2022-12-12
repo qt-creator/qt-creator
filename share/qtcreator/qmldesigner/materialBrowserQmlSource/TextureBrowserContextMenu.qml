@@ -16,6 +16,7 @@ StudioControls.Menu {
     {
         this.targetTexture = targetTexture
         materialBrowserTexturesModel.updateSceneEnvState()
+        materialBrowserTexturesModel.updateModelSelectionState()
         popup()
     }
 

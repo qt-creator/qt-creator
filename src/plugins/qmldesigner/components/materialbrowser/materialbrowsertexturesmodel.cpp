@@ -316,4 +316,9 @@ void MaterialBrowserTexturesModel::applyAsLightProbe(qint64 internalId)
     }
 }
 
+void MaterialBrowserTexturesModel::updateModelSelectionState()
+{
+    emit updateModelSelectionStateRequested();
+}
+
 } // namespace QmlDesigner
