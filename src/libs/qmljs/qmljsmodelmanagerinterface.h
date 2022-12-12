@@ -188,6 +188,9 @@ public:
     void removeProjectInfo(ProjectExplorer::Project *project);
     void maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc);
 
+    QFuture<void> refreshSourceFiles(const QList<Utils::FilePath> &sourceFiles,
+                                     bool emitDocumentOnDiskChanged);
+
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);
     void documentChangedOnDisk(QmlJS::Document::Ptr doc);
@@ -206,9 +209,6 @@ protected:
     virtual WorkingCopy workingCopyInternal() const;
     virtual void addTaskInternal(const QFuture<void> &result, const QString &msg,
                                  const char *taskId) const;
-
-    QFuture<void> refreshSourceFiles(const QList<Utils::FilePath> &sourceFiles,
-                                     bool emitDocumentOnDiskChanged);
 
     static void parseLoop(QSet<Utils::FilePath> &scannedPaths,
                           QSet<Utils::FilePath> &newLibraries,
