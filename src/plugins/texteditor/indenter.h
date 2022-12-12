@@ -39,7 +39,7 @@ public:
         : m_doc(doc)
     {}
 
-    void setFileName(const Utils::FilePath &fileName) { m_fileName = fileName; }
+    virtual void setFileName(const Utils::FilePath &fileName) { m_fileName = fileName; }
 
     virtual ~Indenter() = default;
 

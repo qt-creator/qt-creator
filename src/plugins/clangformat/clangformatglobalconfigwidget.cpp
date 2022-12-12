@@ -40,7 +40,7 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ProjectExplorer::Pr
     using namespace Layouting;
 
     Group globalSettingsGroupBox {
-        title(tr("ClangFormat global setting:")),
+        title(tr("ClangFormat settings:")),
             Column {
             Row { m_formattingModeLabel, m_indentingOrFormatting, st },
                 m_formatWhileTyping,
@@ -62,7 +62,6 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ProjectExplorer::Pr
         m_formattingModeLabel->hide();
         m_formatOnSave->hide();
         m_formatWhileTyping->hide();
-        m_indentingOrFormatting->hide();
         return;
     }
     globalSettingsGroupBox.widget->show();
@@ -95,8 +94,18 @@ void ClangFormatGlobalConfigWidget::initIndentationOrFormattingCombobox()
     m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Disable),
                                         tr("Disable"));
 
-    m_indentingOrFormatting->setCurrentIndex(
-        static_cast<int>(ClangFormatSettings::instance().mode()));
+    if (m_project) {
+        m_indentingOrFormatting->setCurrentIndex(
+            m_project->namedSettings(Constants::MODE_ID).toInt());
+    } else {
+        m_indentingOrFormatting->setCurrentIndex(
+            static_cast<int>(ClangFormatSettings::instance().mode()));
+    }
+
+    connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged, this, [this](int index) {
+        if (m_project)
+            m_project->setNamedSettings(Constants::MODE_ID, index);
+    });
 }
 
 bool ClangFormatGlobalConfigWidget::projectClangFormatFileExists()
@@ -138,10 +147,6 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
     connect(m_overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
         if (m_project)
             m_project->setNamedSettings(Constants::OVERRIDE_FILE_ID, checked);
-        else {
-            ClangFormatSettings::instance().setOverrideDefaultFile(checked);
-            ClangFormatSettings::instance().write();
-        }
     });
 }
 
@@ -151,7 +156,11 @@ void ClangFormatGlobalConfigWidget::apply()
     ClangFormatSettings &settings = ClangFormatSettings::instance();
     settings.setFormatOnSave(m_formatOnSave->isChecked());
     settings.setFormatWhileTyping(m_formatWhileTyping->isChecked());
-    settings.setMode(static_cast<ClangFormatSettings::Mode>(m_indentingOrFormatting->currentIndex()));
+    if (!m_project) {
+        settings.setMode(
+            static_cast<ClangFormatSettings::Mode>(m_indentingOrFormatting->currentIndex()));
+        settings.setOverrideDefaultFile(m_overrideDefault->isChecked());
+    }
     settings.write();
 }
 

@@ -62,9 +62,7 @@ class ClangFormatStyleFactory : public CppEditor::CppCodeStylePreferencesFactory
 public:
     TextEditor::Indenter *createIndenter(QTextDocument *doc) const override
     {
-        if (ClangFormatSettings::instance().mode() == ClangFormatSettings::Disable)
-            return CppEditor::CppCodeStylePreferencesFactory::createIndenter(doc);
-        return new ClangFormatIndenter(doc);
+        return new ClangFormatForwardingIndenter(doc);
     }
 
     std::pair<CppEditor::CppCodeStyleWidget *, QString> additionalTab(

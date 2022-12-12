@@ -22,4 +22,48 @@ private:
     int lastSaveRevision() const override;
 };
 
+class ClangFormatForwardingIndenter : public TextEditor::Indenter
+{
+public:
+    explicit ClangFormatForwardingIndenter(QTextDocument *doc);
+    ~ClangFormatForwardingIndenter() override;
+
+    void setFileName(const Utils::FilePath &fileName) override;
+    bool isElectricCharacter(const QChar &ch) const override;
+    void setCodeStylePreferences(TextEditor::ICodeStylePreferences *preferences) override;
+    void invalidateCache() override;
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
+    int visualIndentFor(const QTextBlock &block,
+                        const TextEditor::TabSettings &tabSettings) override;
+    void autoIndent(const QTextCursor &cursor,
+                    const TextEditor::TabSettings &tabSettings,
+                    int cursorPositionInEditor = -1) override;
+    Utils::Text::Replacements format(const TextEditor::RangesInLines &rangesInLines) override;
+    bool formatOnSave() const override;
+    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+                                                         const TextEditor::TabSettings &tabSettings,
+                                                         int cursorPositionInEditor = -1) override;
+    std::optional<TextEditor::TabSettings> tabSettings() const override;
+    void indentBlock(const QTextBlock &block,
+                     const QChar &typedChar,
+                     const TextEditor::TabSettings &tabSettings,
+                     int cursorPositionInEditor = -1) override;
+    void indent(const QTextCursor &cursor,
+                const QChar &typedChar,
+                const TextEditor::TabSettings &tabSettings,
+                int cursorPositionInEditor = -1) override;
+    virtual void reindent(const QTextCursor &cursor,
+                          const TextEditor::TabSettings &tabSettings,
+                          int cursorPositionInEditor = -1) override;
+    std::optional<int> margin() const override;
+
+private:
+    TextEditor::Indenter *currentIndenter() const;
+
+    std::unique_ptr<TextEditor::Indenter> m_clangFormatIndenter;
+    std::unique_ptr<TextEditor::Indenter> m_cppIndenter;
+};
+
 } // namespace ClangFormat
