@@ -28,7 +28,7 @@ public:
     void apply();
 
 private:
-    void addMesonTool(const MesonTools::Tool_t &);
+    void addMesonToolHelper(const MesonTools::Tool_t &);
     QString uniqueName(const QString &baseName);
     Utils::TreeItem *autoDetectedGroup() const;
     Utils::TreeItem *manualGroup() const;

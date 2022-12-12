@@ -21,9 +21,8 @@ ToolsModel::ToolsModel()
         new Utils::StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                   {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
     rootItem()->appendChild(new Utils::StaticTreeItem(ProjectExplorer::Constants::msgManual()));
-    for (const auto &tool : MesonTools::tools()) {
-        addMesonTool(tool);
-    }
+    for (const auto &tool : MesonTools::tools())
+        addMesonToolHelper(tool);
 }
 
 ToolTreeItem *ToolsModel::mesoneToolTreeItem(const QModelIndex &index) const
@@ -73,7 +72,7 @@ void ToolsModel::apply()
     }
 }
 
-void ToolsModel::addMesonTool(const MesonTools::Tool_t &tool)
+void ToolsModel::addMesonToolHelper(const MesonTools::Tool_t &tool)
 {
     if (tool->autoDetected())
         autoDetectedGroup()->appendChild(new ToolTreeItem(tool));

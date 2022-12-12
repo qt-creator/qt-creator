@@ -68,7 +68,7 @@ ToolsSettingsWidget::ToolsSettingsWidget()
             this, &ToolsSettingsWidget::currentMesonToolChanged);
     connect(m_itemSettings, &ToolItemSettings::applyChanges, &m_model, &ToolsModel::updateItem);
 
-    connect(addButton, &QPushButton::clicked, &m_model, QOverload<>::of(&ToolsModel::addMesonTool));
+    connect(addButton, &QPushButton::clicked, &m_model, &ToolsModel::addMesonTool);
     connect(m_cloneButton, &QPushButton::clicked, this, &ToolsSettingsWidget::cloneMesonTool);
     connect(m_removeButton, &QPushButton::clicked, this, &ToolsSettingsWidget::removeMesonTool);
 }
