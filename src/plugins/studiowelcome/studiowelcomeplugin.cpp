@@ -241,6 +241,7 @@ public:
                                  const QString &formFile,
                                  const QString &explicitQmlproject)
     {
+        QTC_ASSERT(!exampleName.isEmpty(), return );
         QmlDesigner::QmlDesignerPlugin::emitUsageStatistics("exampleOpened:"
                                                             + exampleName);
 
