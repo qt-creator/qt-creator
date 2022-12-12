@@ -151,15 +151,6 @@ FilePath CMakeTool::filePath() const
     return m_executable;
 }
 
-void CMakeTool::setAutorun(bool autoRun)
-{
-    if (m_isAutoRun == autoRun)
-        return;
-
-    m_isAutoRun = autoRun;
-    CMakeToolManager::notifyAboutUpdate(this);
-}
-
 bool CMakeTool::isValid() const
 {
     if (!m_id.isValid() || !m_introspection)

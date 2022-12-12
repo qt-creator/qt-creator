@@ -5,6 +5,8 @@
 
 #include "cmakeprocess.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakeprojectplugin.h"
+#include "cmakespecificsettings.h"
 #include "fileapidataextractor.h"
 #include "fileapiparser.h"
 
@@ -106,7 +108,8 @@ void FileApiReader::parse(bool forceCMakeRun,
     //  * A query file is newer than the reply file
     const bool hasArguments = !args.isEmpty();
     const bool replyFileMissing = !replyFile.exists();
-    const bool cmakeFilesChanged = m_parameters.cmakeTool() && m_parameters.cmakeTool()->isAutoRun()
+    const auto settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    const bool cmakeFilesChanged = m_parameters.cmakeTool() && settings->autorunCMake.value()
                                    && anyOf(m_cmakeFiles, [&replyFile](const CMakeFileInfo &info) {
                                           return !info.isGenerated
                                                  && info.path.lastModified() > replyFile.lastModified();

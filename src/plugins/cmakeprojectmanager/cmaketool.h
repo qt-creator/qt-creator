@@ -61,8 +61,6 @@ public:
     Utils::Id id() const { return m_id; }
     QVariantMap toMap () const;
 
-    void setAutorun(bool autoRun);
-
     void setFilePath(const Utils::FilePath &executable);
     Utils::FilePath filePath() const;
     Utils::FilePath cmakeExecutable() const;

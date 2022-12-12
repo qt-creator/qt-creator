@@ -58,8 +58,7 @@ public:
     void updateCMakeTool(const Utils::Id &id,
                          const QString &displayName,
                          const FilePath &executable,
-                         const FilePath &qchFile,
-                         bool autoRun);
+                         const FilePath &qchFile);
     void removeCMakeTool(const Utils::Id &id);
     void apply();
 
@@ -82,7 +81,6 @@ public:
         , m_qchFile(item->qchFilePath())
         , m_versionDisplay(item->versionDisplay())
         , m_detectionSource(item->detectionSource())
-        , m_isAutoRun(item->isAutoRun())
         , m_autodetected(item->isAutoDetected())
         , m_isSupported(item->hasFileApi())
         , m_changed(changed)
@@ -280,8 +278,7 @@ void CMakeToolItemModel::reevaluateChangedFlag(CMakeToolTreeItem *item) const
 void CMakeToolItemModel::updateCMakeTool(const Id &id,
                                          const QString &displayName,
                                          const FilePath &executable,
-                                         const FilePath &qchFile,
-                                         bool autoRun)
+                                         const FilePath &qchFile)
 {
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
     QTC_ASSERT(treeItem, return );
@@ -289,7 +286,6 @@ void CMakeToolItemModel::updateCMakeTool(const Id &id,
     treeItem->m_name = displayName;
     treeItem->m_executable = executable;
     treeItem->m_qchFile = qchFile;
-    treeItem->m_isAutoRun = autoRun;
 
     treeItem->updateErrorFlags();
 
@@ -331,7 +327,6 @@ void CMakeToolItemModel::apply()
             cmake->setFilePath(item->m_executable);
             cmake->setQchFilePath(item->m_qchFile);
             cmake->setDetectionSource(item->m_detectionSource);
-            cmake->setAutorun(item->m_isAutoRun);
         } else {
             toRegister.append(item);
         }
@@ -399,7 +394,6 @@ private:
 
     CMakeToolItemModel *m_model;
     QLineEdit *m_displayNameLineEdit;
-    QCheckBox *m_autoRunCheckBox;
     PathChooser *m_binaryChooser;
     PathChooser *m_qchFileChooser;
     QLabel *m_versionLabel;
@@ -428,24 +422,17 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
 
     m_versionLabel = new QLabel(this);
 
-    m_autoRunCheckBox = new QCheckBox;
-    m_autoRunCheckBox->setText(Tr::tr("Autorun CMake"));
-    m_autoRunCheckBox->setToolTip(Tr::tr("Automatically run CMake after changes to CMake project files."));
-
     auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(Tr::tr("Name:")), m_displayNameLineEdit);
     formLayout->addRow(new QLabel(Tr::tr("Path:")), m_binaryChooser);
     formLayout->addRow(new QLabel(Tr::tr("Version:")), m_versionLabel);
     formLayout->addRow(new QLabel(Tr::tr("Help file:")), m_qchFileChooser);
-    formLayout->addRow(m_autoRunCheckBox);
 
     connect(m_binaryChooser, &PathChooser::browsingFinished, this, &CMakeToolItemConfigWidget::onBinaryPathEditingFinished);
     connect(m_binaryChooser, &PathChooser::editingFinished, this, &CMakeToolItemConfigWidget::onBinaryPathEditingFinished);
     connect(m_qchFileChooser, &PathChooser::rawPathChanged, this, &CMakeToolItemConfigWidget::store);
     connect(m_displayNameLineEdit, &QLineEdit::textChanged, this, &CMakeToolItemConfigWidget::store);
-    connect(m_autoRunCheckBox, &QCheckBox::toggled,
-            this, &CMakeToolItemConfigWidget::store);
 }
 
 void CMakeToolItemConfigWidget::store() const
@@ -454,8 +441,7 @@ void CMakeToolItemConfigWidget::store() const
         m_model->updateCMakeTool(m_id,
                                  m_displayNameLineEdit->text(),
                                  m_binaryChooser->filePath(),
-                                 m_qchFileChooser->filePath(),
-                                 m_autoRunCheckBox->checkState() == Qt::Checked);
+                                 m_qchFileChooser->filePath());
 }
 
 void CMakeToolItemConfigWidget::onBinaryPathEditingFinished()
@@ -492,8 +478,6 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     m_qchFileChooser->setFilePath(item->m_qchFile);
 
     m_versionLabel->setText(item->m_versionDisplay);
-
-    m_autoRunCheckBox->setChecked(item->m_isAutoRun);
 
     m_id = item->m_id;
     m_loadingItem = false;

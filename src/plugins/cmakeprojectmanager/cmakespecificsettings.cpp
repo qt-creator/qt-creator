@@ -23,6 +23,13 @@ CMakeSpecificSettings::CMakeSpecificSettings()
     setSettingsGroup("CMakeSpecificSettings");
     setAutoApply(false);
 
+    registerAspect(&autorunCMake);
+    autorunCMake.setSettingsKey("AutorunCMake");
+    autorunCMake.setDefaultValue(true);
+    autorunCMake.setLabelText(::CMakeProjectManager::Tr::tr("Autorun CMake"));
+    autorunCMake.setToolTip(::CMakeProjectManager::Tr::tr(
+        "Automatically run CMake after changes to CMake project files."));
+
     registerAspect(&afterAddFileSetting);
     afterAddFileSetting.setSettingsKey("ProjectPopupSetting");
     afterAddFileSetting.setDefaultValue(AfterAddFileAction::AskUser);
@@ -85,6 +92,7 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
                 title(::CMakeProjectManager::Tr::tr("Adding Files")),
                 Column { s.afterAddFileSetting }
             },
+            s.autorunCMake,
             s.packageManagerAutoSetup,
             s.askBeforeReConfigureInitialParams,
             s.showSourceSubFolders,

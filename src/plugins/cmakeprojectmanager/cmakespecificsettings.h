@@ -20,6 +20,7 @@ class CMakeSpecificSettings final : public Utils::AspectContainer
 public:
     CMakeSpecificSettings();
 
+    Utils::BoolAspect autorunCMake;
     Utils::SelectionAspect afterAddFileSetting;
     Utils::StringAspect ninjaPath;
     Utils::BoolAspect packageManagerAutoSetup;
