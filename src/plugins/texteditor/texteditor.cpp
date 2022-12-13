@@ -2695,7 +2695,8 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
         break;
     case Qt::Key_Delete:
-        if (hasMultipleCursors && !ro && e->modifiers() == Qt::NoModifier) {
+        if (hasMultipleCursors && !ro
+            && (e->modifiers() == Qt::NoModifier || e->modifiers() == Qt::KeypadModifier)) {
             if (cursor.hasSelection()) {
                 cursor.removeSelectedText();
             } else {
