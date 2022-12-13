@@ -40,9 +40,7 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace QmlProjectManager {
-class QmlMultiLanguageAspect;
-namespace Internal {
+namespace QmlProjectManager::Internal {
 
 // QmlProjectRunConfiguration
 
@@ -59,7 +57,6 @@ private:
 
     QString mainScript() const;
     FilePath qmlRuntimeFilePath() const;
-    QString commandLineArguments() const;
     void createQtVersionAspect();
 
     StringAspect *m_qmlViewerAspect = nullptr;
@@ -80,8 +77,42 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     auto argumentAspect = addAspect<ArgumentsAspect>(macroExpander());
     argumentAspect->setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
-    setCommandLineGetter([this] {
-        return CommandLine(qmlRuntimeFilePath(), commandLineArguments(), CommandLine::Raw);
+    setCommandLineGetter([this, target] {
+        const FilePath qmlRuntime = qmlRuntimeFilePath();
+        CommandLine cmd(qmlRuntime);
+
+        // arguments in .user file
+        cmd.addArgs(aspect<ArgumentsAspect>()->arguments(), CommandLine::Raw);
+
+        // arguments from .qmlproject file
+        const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target->buildSystem());
+        const QStringList importPaths = QmlBuildSystem::makeAbsolute(bs->targetDirectory(),
+                                                                     bs->customImportPaths());
+        for (const QString &importPath : importPaths) {
+            cmd.addArg("-I");
+            cmd.addArg(importPath);
+        }
+
+        for (const QString &fileSelector : bs->customFileSelectors()) {
+            cmd.addArg("-S");
+            cmd.addArg(fileSelector);
+        }
+
+        if (qmlRuntime.osType() == OsTypeWindows && bs->forceFreeType()) {
+            cmd.addArg("-platform");
+            cmd.addArg("windows:fontengine=freetype");
+        }
+
+        if (bs->qt6Project() && bs->widgetApp()) {
+            cmd.addArg("--apptype");
+            cmd.addArg("widget");
+        }
+
+        const FilePath main = bs->targetFile(FilePath::fromString(mainScript()));
+        if (!main.isEmpty())
+            cmd.addArg(main.nativePath());
+
+        return cmd;
     });
 
     m_qmlMainFileAspect = addAspect<QmlMainFileAspect>(target);
@@ -188,45 +219,6 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     return qmlRuntime.isEmpty() ? "qmlscene" : qmlRuntime;
 }
 
-QString QmlProjectRunConfiguration::commandLineArguments() const
-{
-    // arguments in .user file
-    QString args = aspect<ArgumentsAspect>()->arguments();
-    const IDevice::ConstPtr device = DeviceKitAspect::device(kit());
-    const OsType osType = device ? device->osType() : HostOsInfo::hostOs();
-
-    // arguments from .qmlproject file
-    const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target()->buildSystem());
-    const QStringList importPaths = QmlBuildSystem::makeAbsolute(bs->targetDirectory(),
-                                                                 bs->customImportPaths());
-    for (const QString &importPath : importPaths) {
-        ProcessArgs::addArg(&args, "-I", osType);
-        ProcessArgs::addArg(&args, importPath, osType);
-    }
-
-    for (const QString &fileSelector : bs->customFileSelectors()) {
-        ProcessArgs::addArg(&args, "-S", osType);
-        ProcessArgs::addArg(&args, fileSelector, osType);
-    }
-
-    if (HostOsInfo::isWindowsHost() && bs->forceFreeType()) {
-        ProcessArgs::addArg(&args, "-platform", osType);
-        ProcessArgs::addArg(&args, "windows:fontengine=freetype", osType);
-    }
-
-    if (bs->qt6Project() && bs->widgetApp()) {
-        ProcessArgs::addArg(&args, "--apptype", osType);
-        ProcessArgs::addArg(&args, "widget", osType);
-    }
-
-    const QString main = bs->targetFile(FilePath::fromString(mainScript())).toString();
-    if (!main.isEmpty())
-        ProcessArgs::addArg(&args, main, osType);
-
-
-    return args;
-}
-
 void QmlProjectRunConfiguration::createQtVersionAspect()
 {
     if (!QmlProject::isQtDesignStudio())
@@ -312,5 +304,4 @@ QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
     addSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
 }
 
-} // namespace Internal
-} // namespace QmlProjectManager
+} // QmlProjectManager::Internal
