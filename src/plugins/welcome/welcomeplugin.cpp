@@ -17,7 +17,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/iwelcomepage.h>
-#include <coreplugin/iwizardfactory.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/welcomepagehelper.h>
 
@@ -31,7 +30,6 @@
 #include <utils/treemodel.h>
 
 #include <QDesktopServices>
-#include <QHeaderView>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
@@ -95,8 +93,6 @@ public:
     ~WelcomeMode();
 
     void initPlugins();
-
-    bool openDroppedFiles(const QList<QUrl> &urls);
 
 private:
     void addPage(IWelcomePage *page);
@@ -419,18 +415,6 @@ void WelcomeMode::initPlugins()
         if (!m_activePage.isValid())
             m_pageButtons.at(defaultIndex)->click();
     }
-}
-
-bool WelcomeMode::openDroppedFiles(const QList<QUrl> &urls)
-{
-    const QList<QUrl> localUrls = Utils::filtered(urls, &QUrl::isLocalFile);
-    if (!localUrls.isEmpty()) {
-        QTimer::singleShot(0, [localUrls]() {
-            ICore::openFiles(Utils::transform(localUrls, &FilePath::fromUrl), ICore::SwitchMode);
-        });
-        return true;
-    }
-    return false;
 }
 
 void WelcomeMode::addPage(IWelcomePage *page)
