@@ -6,9 +6,6 @@
 #include "filepath.h"
 #include "hostosinfo.h"
 
-#include <QDir>
-#include <QUrl>
-
 namespace Utils {
 
 FileCrumbLabel::FileCrumbLabel(QWidget *parent)
@@ -16,17 +13,15 @@ FileCrumbLabel::FileCrumbLabel(QWidget *parent)
 {
     setTextFormat(Qt::RichText);
     setWordWrap(true);
-    connect(this, &QLabel::linkActivated, this, [this](const QString &url) {
-        emit pathClicked(FilePath::fromUrl(QUrl(url)));
+    connect(this, &QLabel::linkActivated, this, [this](const QString &filePath) {
+        emit pathClicked(FilePath::fromString(filePath));
     });
     setPath(FilePath());
 }
 
 static QString linkForPath(const FilePath &path, const QString &display)
 {
-    return "<a href=\""
-            + path.toUrl().toString(QUrl::FullyEncoded) + "\">"
-            + display + "</a>";
+    return "<a href=\"" + path.toFSPathString() + "\">" + display + "</a>";
 }
 
 void FileCrumbLabel::setPath(const FilePath &path)
