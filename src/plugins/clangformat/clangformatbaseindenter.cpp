@@ -8,9 +8,11 @@
 #include "llvmfilesystem.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -737,39 +739,48 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
     }
 }
 
-clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
+clang::format::FormatStyle overrideStyle(const ProjectExplorer::Project *projectForFile)
 {
-    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = clang::format::getStyle(
-        "file", m_fileName.toFSPathString().toStdString(), "none", "", &llvmFileSystemAdapter);
-
-    const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::SessionManager::projectForFile(m_fileName);
-    const bool overrideStyleFile
-        = projectForFile ? projectForFile->namedSettings(Constants::OVERRIDE_FILE_ID).toBool()
-                         : ClangFormatSettings::instance().overrideDefaultFile();
     const TextEditor::ICodeStylePreferences *preferences
         = projectForFile
               ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
               : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
 
-    if (!styleFromProjectFolder || overrideStyleFile
-        || *styleFromProjectFolder == clang::format::getNoStyle()) {
-        Utils::FilePath filePath = filePathToCurrentSettings(preferences);
+    Utils::FilePath filePath = filePathToCurrentSettings(preferences);
 
-        if (!filePath.exists())
-            return qtcStyle();
+    if (!filePath.exists())
+        return qtcStyle();
 
-        clang::format::FormatStyle currentSettingsStyle;
-        currentSettingsStyle.Language = clang::format::FormatStyle::LK_Cpp;
-        const std::error_code error = clang::format::parseConfiguration(filePath.fileContents()
-                                                                            .value_or(QByteArray())
-                                                                            .toStdString(),
-                                                                        &currentSettingsStyle);
-        QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
-                   return qtcStyle());
+    clang::format::FormatStyle currentSettingsStyle;
+    currentSettingsStyle.Language = clang::format::FormatStyle::LK_Cpp;
+    const std::error_code error = clang::format::parseConfiguration(filePath.fileContents()
+                                                                        .value_or(QByteArray())
+                                                                        .toStdString(),
+                                                                    &currentSettingsStyle);
+    QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
+               return qtcStyle());
 
-        return currentSettingsStyle;
-    }
+    return currentSettingsStyle;
+}
+
+clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
+{
+    const ProjectExplorer::Project *projectForFile
+        = ProjectExplorer::SessionManager::projectForFile(m_fileName);
+
+    const bool overrideStyleFile
+        = projectForFile ? projectForFile->namedSettings(Constants::OVERRIDE_FILE_ID).toBool()
+                         : ClangFormatSettings::instance().overrideDefaultFile();
+
+    if (overrideStyleFile)
+        return overrideStyle(projectForFile);
+
+    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
+        = clang::format::getStyle("file",
+                                  m_fileName.toFSPathString().toStdString(),
+                                  "none",
+                                  "",
+                                  &llvmFileSystemAdapter);
 
     if (styleFromProjectFolder) {
         addQtcStatementMacros(*styleFromProjectFolder);
