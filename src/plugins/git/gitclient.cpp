@@ -29,7 +29,6 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 #include <utils/theme/theme.h>
 
@@ -50,15 +49,12 @@
 #include <QAction>
 #include <QCoreApplication>
 #include <QDir>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QHash>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QTextBlock>
-#include <QToolButton>
 #include <QTextCodec>
 
 const char GIT_DIRECTORY[] = ".git";
@@ -126,21 +122,10 @@ class GitBaseDiffEditorController : public VcsBaseDiffEditorController
     Q_OBJECT
 
 protected:
-    explicit GitBaseDiffEditorController(IDocument *document,
-                                         const QString &leftCommit,
-                                         const QString &rightCommit);
+    explicit GitBaseDiffEditorController(IDocument *document);
 
     void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
-
     QStringList addConfigurationArguments(const QStringList &args) const;
-    QStringList baseArguments() const;
-
-public:
-    void initialize();
-
-private:
-    QString m_leftCommit;
-    QString m_rightCommit;
 };
 
 class GitDiffEditorController : public GitBaseDiffEditorController
@@ -150,36 +135,44 @@ public:
                                      const QString &leftCommit,
                                      const QString &rightCommit,
                                      const QStringList &extraArgs)
-        : GitBaseDiffEditorController(document, leftCommit, rightCommit)
+        : GitBaseDiffEditorController(document)
     {
-        setReloader([this, extraArgs] {
-            runCommand({addConfigurationArguments(baseArguments() << extraArgs)},
+        setReloader([=] {
+            runCommand({addConfigurationArguments(diffArgs(leftCommit, rightCommit, extraArgs))},
                        VcsBaseEditor::getCodec(workingDirectory(), {}));
         });
     }
-};
+private:
+    QStringList diffArgs(const QString &leftCommit, const QString &rightCommit,
+                         const QStringList &extraArgs) const
+    {
+        QStringList res = {"diff"};
+        if (!leftCommit.isEmpty())
+            res << leftCommit;
 
-GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document,
-                                                         const QString &leftCommit,
-                                                         const QString &rightCommit) :
-    VcsBaseDiffEditorController(document),
-    m_leftCommit(leftCommit),
-    m_rightCommit(rightCommit)
-{
-    setDisplayName("Git Diff");
-}
-
-void GitBaseDiffEditorController::initialize()
-{
-    if (m_rightCommit.isEmpty()) {
         // This is workaround for lack of support for merge commits and resolving conflicts,
         // we compare the current state of working tree to the HEAD of current branch
         // instead of showing unsupported combined diff format.
-        GitClient::CommandInProgress commandInProgress =
-                m_instance->checkCommandInProgress(workingDirectory());
-        if (commandInProgress != GitClient::NoCommand)
-            m_rightCommit = HEAD;
+        auto fixRightCommit = [this](const QString &commit) {
+            if (!commit.isEmpty())
+                return commit;
+            if (m_instance->checkCommandInProgress(workingDirectory()) == GitClient::NoCommand)
+                return QString();
+            return QString(HEAD);
+        };
+        const QString fixedRightCommit = fixRightCommit(rightCommit);
+        if (!fixedRightCommit.isEmpty())
+            res << fixedRightCommit;
+
+        res << extraArgs;
+        return res;
     }
+};
+
+GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document)
+    : VcsBaseDiffEditorController(document)
+{
+    setDisplayName("Git Diff");
 }
 
 ///////////////////////////////
@@ -209,26 +202,15 @@ QStringList GitBaseDiffEditorController::addConfigurationArguments(const QString
     return realArgs;
 }
 
-QStringList GitBaseDiffEditorController::baseArguments() const
-{
-    QStringList res = {"diff"};
-    if (!m_leftCommit.isEmpty())
-        res << m_leftCommit;
-    if (!m_rightCommit.isEmpty())
-        res << m_rightCommit;
-    return res;
-}
-
 class FileListDiffController : public GitBaseDiffEditorController
 {
 public:
-    FileListDiffController(IDocument *document,
-                           const QStringList &stagedFiles, const QStringList &unstagedFiles)
-        : GitBaseDiffEditorController(document, {}, {})
+    FileListDiffController(IDocument *document, const QStringList &stagedFiles,
+                           const QStringList &unstagedFiles)
+        : GitBaseDiffEditorController(document)
         , m_stagedFiles(stagedFiles)
-        , m_unstagedFiles(unstagedFiles)
-    {
-    }
+        , m_unstagedFiles(unstagedFiles) {}
+
 private:
     Tasking::Group reloadRecipe() final
     {
@@ -304,7 +286,7 @@ class ShowController : public GitBaseDiffEditorController
     Q_OBJECT
 public:
     ShowController(IDocument *document, const QString &id)
-        : GitBaseDiffEditorController(document, {}, {})
+        : GitBaseDiffEditorController(document)
         , m_id(id)
     {
         setDisplayName("Git Show");
@@ -976,7 +958,6 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
     controller->setVcsTimeoutS(settings().timeout.value());
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
-    controller->initialize();
 
     using namespace std::placeholders;
 
