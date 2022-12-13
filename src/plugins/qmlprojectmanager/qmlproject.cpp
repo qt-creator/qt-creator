@@ -214,9 +214,9 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
             }
         }
         if (m_projectItem) {
-            m_projectItem->setSourceDirectory(canonicalProjectDir().toString());
+            m_projectItem->setSourceDirectory(canonicalProjectDir());
             if (m_projectItem->targetDirectory().isEmpty())
-                m_projectItem->setTargetDirectory(canonicalProjectDir().toString());
+                m_projectItem->setTargetDirectory(canonicalProjectDir());
 
             if (auto modelManager = QmlJS::ModelManagerInterface::instance()) {
                 QStringList files = m_projectItem->files();
@@ -415,23 +415,22 @@ void QmlBuildSystem::setMainFile(const QString &mainFilePath)
         m_projectItem->setMainFile(mainFilePath);
 }
 
-Utils::FilePath QmlBuildSystem::targetDirectory() const
+FilePath QmlBuildSystem::targetDirectory() const
 {
     if (DeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return canonicalProjectDir();
 
-    return m_projectItem ? Utils::FilePath::fromString(m_projectItem->targetDirectory())
-                         : Utils::FilePath();
+    return m_projectItem ? m_projectItem->targetDirectory() : FilePath();
 }
 
-Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) const
+FilePath QmlBuildSystem::targetFile(const FilePath &sourceFile) const
 {
-    const QDir sourceDir(m_projectItem ? m_projectItem->sourceDirectory()
-                                       : canonicalProjectDir().toString());
-    const QDir targetDir(targetDirectory().toString());
-    const QString relative = sourceDir.relativeFilePath(sourceFile.toString());
-    return Utils::FilePath::fromString(QDir::cleanPath(targetDir.absoluteFilePath(relative)));
+    const FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
+                                             : canonicalProjectDir();
+    const FilePath targetDir = targetDirectory();
+    const FilePath relative = sourceFile.relativePathFrom(sourceDir);
+    return targetDir.resolvePath(relative);
 }
 
 Utils::EnvironmentItems QmlBuildSystem::environment() const

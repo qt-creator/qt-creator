@@ -2,14 +2,20 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmlprojectfileformat.h"
+
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
+
 #include <qmljs/qmljssimplereader.h>
+
+#include <utils/filepath.h>
 
 #include <QDebug>
 #include <QVariant>
 
 #include <memory>
+
+using namespace Utils;
 
 enum {
     debug = false
@@ -108,7 +114,7 @@ std::unique_ptr<QmlProjectItem> QmlProjectFileFormat::parseProjectFile(const Uti
 
         const auto targetDirectoryPropery = rootNode->property("targetDirectory");
         if (targetDirectoryPropery.isValid())
-            projectItem->setTargetDirectory(targetDirectoryPropery.value.toString());
+            projectItem->setTargetDirectory(FilePath::fromVariant(targetDirectoryPropery.value));
 
         const auto qtForMCUProperty = rootNode->property("qtForMCUs");
         if (qtForMCUProperty.isValid() && qtForMCUProperty.value.toBool())
