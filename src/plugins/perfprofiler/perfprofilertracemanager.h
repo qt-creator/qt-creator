@@ -139,9 +139,9 @@ public:
     const QHash<qint32, TracePoint> &tracePoints() const { return m_tracePoints; }
     const QHash<quint32, Thread> &threads() const { return m_threads; }
 
-    void loadFromTraceFile(const QString &filePath);
-    void saveToTraceFile(const QString &filePath);
-    void loadFromPerfData(const QString &filePath, const QString &executableDirPath,
+    void loadFromTraceFile(const Utils::FilePath &filePath);
+    void saveToTraceFile(const Utils::FilePath &filePath);
+    void loadFromPerfData(const Utils::FilePath &filePath, const QString &executableDirPath,
                           ProjectExplorer::Kit *kit);
 
     void finalize() override;

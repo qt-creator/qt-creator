@@ -35,6 +35,7 @@
 #include <QtEndian>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace PerfProfiler {
 namespace Internal {
@@ -125,20 +126,25 @@ PerfDataReader::~PerfDataReader()
     qDeleteAll(m_buffer);
 }
 
-void PerfDataReader::loadFromFile(const QString &filePath, const QString &executableDirPath,
-                                  ProjectExplorer::Kit *kit)
+void PerfDataReader::loadFromFile(const FilePath &filePath, const QString &executableDirPath,
+                                  Kit *kit)
 {
-    createParser(collectArguments(executableDirPath, kit) << QLatin1String("--input") << filePath);
+    CommandLine cmd{findPerfParser()};
+    collectArguments(&cmd, executableDirPath, kit);
+    cmd.addArg("--input");
+    cmd.addArg(filePath.nativePath());
+    createParser(cmd);
+
     m_remoteProcessStart = 0; // Don't try to guess the timestamps
     m_input.start(QIODevice::ReadOnly);
 }
 
-void PerfDataReader::createParser(const QStringList &arguments)
+void PerfDataReader::createParser(const CommandLine &cmd)
 {
     clear();
-    QString program = findPerfParser();
+    const QString program = cmd.executable().path();
     m_input.setProgram(program);
-    m_input.setArguments(arguments);
+    m_input.setArguments(cmd.splitArguments());
     m_input.setWorkingDirectory(QFileInfo(program).dir().absolutePath());
 }
 
@@ -269,35 +275,39 @@ bool PerfDataReader::acceptsSamples() const
     return m_recording;
 }
 
-QStringList PerfDataReader::collectArguments(const QString &executableDirPath, const Kit *kit) const
+void PerfDataReader::collectArguments(CommandLine *cmd, const QString &exe, const Kit *kit) const
 {
-    QStringList arguments;
-    if (!executableDirPath.isEmpty())
-        arguments << "--app" << executableDirPath;
+    if (!exe.isEmpty()) {
+        cmd->addArg("--app");
+        cmd->addArg(exe);
+    }
 
     if (QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit)) {
-        arguments << "--extra" << QString("%1%5%2%5%3%5%4")
-                     .arg(QDir::toNativeSeparators(qt->libraryPath().toString()))
-                     .arg(QDir::toNativeSeparators(qt->pluginPath().toString()))
-                     .arg(QDir::toNativeSeparators(qt->hostBinPath().toString()))
-                     .arg(QDir::toNativeSeparators(qt->qmlPath().toString()))
-                     .arg(QDir::listSeparator());
+        cmd->addArg("--extra");
+        cmd->addArg(QString("%1%5%2%5%3%5%4")
+                     .arg(qt->libraryPath().nativePath())
+                     .arg(qt->pluginPath().nativePath())
+                     .arg(qt->hostBinPath().nativePath())
+                     .arg(qt->qmlPath().nativePath())
+                     .arg(cmd->executable().osType() == OsTypeWindows ? u';' : u':'));
     }
 
     if (auto toolChain = ToolChainKitAspect::cxxToolChain(kit)) {
         Abi::Architecture architecture = toolChain->targetAbi().architecture();
         if (architecture == Abi::ArmArchitecture && toolChain->targetAbi().wordWidth() == 64) {
-            arguments << "--arch" << "aarch64";
+            cmd->addArg("--arch");
+            cmd->addArg("aarch64");
         } else if (architecture != Abi::UnknownArchitecture) {
-            arguments << "--arch" << Abi::toString(architecture);
+            cmd->addArg("--arch");
+            cmd->addArg(Abi::toString(architecture));
         }
     }
 
-    QString sysroot = SysRootKitAspect::sysRoot(kit).toString();
-    if (!sysroot.isEmpty())
-        arguments << "--sysroot" << sysroot;
-
-    return arguments;
+    const FilePath sysroot = SysRootKitAspect::sysRoot(kit);
+    if (!sysroot.isEmpty()) {
+        cmd->addArg("--sysroot");
+        cmd->addArg(sysroot.nativePath());
+    }
 }
 
 static bool checkedWrite(QIODevice *device, const QByteArray &input)
@@ -372,21 +382,21 @@ bool PerfDataReader::feedParser(const QByteArray &input)
     return true;
 }
 
-QStringList PerfDataReader::findTargetArguments(const ProjectExplorer::RunControl *runControl) const
+void PerfDataReader::addTargetArguments(CommandLine *cmd, const RunControl *runControl) const
 {
     ProjectExplorer::Kit *kit = runControl->kit();
-    QTC_ASSERT(kit, return QStringList());
+    QTC_ASSERT(kit, return);
     ProjectExplorer::BuildConfiguration *buildConfig = runControl->target()->activeBuildConfiguration();
     QString buildDir = buildConfig ? buildConfig->buildDirectory().toString() : QString();
-    return collectArguments(buildDir, kit);
+    collectArguments(cmd, buildDir, kit);
 }
 
-QString PerfDataReader::findPerfParser()
+FilePath findPerfParser()
 {
-    QString filePath = Utils::qtcEnvironmentVariable("PERFPROFILER_PARSER_FILEPATH");
+    FilePath filePath = FilePath::fromUserInput(qtcEnvironmentVariable("PERFPROFILER_PARSER_FILEPATH"));
     if (filePath.isEmpty())
-        filePath = Core::ICore::libexecPath("perfparser" QTC_HOST_EXE_SUFFIX).toString();
-    return QDir::toNativeSeparators(QDir::cleanPath(filePath));
+        filePath = Core::ICore::libexecPath("perfparser" QTC_HOST_EXE_SUFFIX);
+    return filePath;
 }
 
 } // namespace Internal

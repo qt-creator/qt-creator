@@ -12,8 +12,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QFutureInterface>
+
+using namespace Utils;
 
 namespace PerfProfiler {
 namespace Internal {
@@ -575,19 +576,19 @@ qint32 PerfProfilerTraceManager::symbolLocation(qint32 locationId) const
     return symbol(locationId).name != -1 ? locationId : location(locationId).parentLocationId;
 }
 
-void PerfProfilerTraceManager::loadFromTraceFile(const QString &filePath)
+void PerfProfilerTraceManager::loadFromTraceFile(const FilePath &filePath)
 {
-    Core::ProgressManager::addTask(load(filePath), Tr::tr("Loading Trace Data"),
+    Core::ProgressManager::addTask(load(filePath.toFSPathString()), Tr::tr("Loading Trace Data"),
                                    Constants::PerfProfilerTaskLoadTrace);
 }
 
-void PerfProfilerTraceManager::saveToTraceFile(const QString &filePath)
+void PerfProfilerTraceManager::saveToTraceFile(const FilePath &filePath)
 {
-    Core::ProgressManager::addTask(save(filePath), Tr::tr("Saving Trace Data"),
+    Core::ProgressManager::addTask(save(filePath.toFSPathString()), Tr::tr("Saving Trace Data"),
                                    Constants::PerfProfilerTaskSaveTrace);
 }
 
-void PerfProfilerTraceManager::loadFromPerfData(const QString &filePath,
+void PerfProfilerTraceManager::loadFromPerfData(const FilePath &filePath,
                                                 const QString &executableDirPath,
                                                 ProjectExplorer::Kit *kit)
 {
@@ -604,7 +605,7 @@ void PerfProfilerTraceManager::loadFromPerfData(const QString &filePath,
     connect(reader, &QObject::destroyed, this, &TimelineTraceManager::loadFinished);
 
     const int fileMegabytes = static_cast<int>(
-                qMin(QFileInfo(filePath).size() >> 20,
+                qMin(filePath.fileSize() >> 20,
                      static_cast<qint64>(std::numeric_limits<int>::max())));
     Core::FutureProgress *fp = Core::ProgressManager::addTimedTask(
                 reader->future(), Tr::tr("Loading Trace Data"), Constants::PerfProfilerTaskLoadPerf,

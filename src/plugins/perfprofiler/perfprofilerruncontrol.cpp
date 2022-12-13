@@ -60,13 +60,14 @@ public:
 
     void start() override
     {
-        QStringList args = m_reader.findTargetArguments(runControl());
+        CommandLine cmd{findPerfParser()};
+        m_reader.addTargetArguments(&cmd, runControl());
         QUrl url = runControl()->property("PerfConnection").toUrl();
         if (url.isValid()) {
-            args.append(QStringList{"--host", url.host(), "--port", QString::number(url.port())});
+            cmd.addArgs({"--host", url.host(), "--port", QString::number(url.port())});
         }
-        appendMessage("PerfParser args: " + args.join(' '), Utils::NormalMessageFormat);
-        m_reader.createParser(args);
+        appendMessage("PerfParser args: " + cmd.arguments(), NormalMessageFormat);
+        m_reader.createParser(cmd);
         m_reader.startParser();
     }
 

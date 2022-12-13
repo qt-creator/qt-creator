@@ -593,7 +593,7 @@ void PerfProfilerTool::showLoadPerfDialog()
     m_fileFinder.setAdditionalSearchDirectories(collectQtIncludePaths(kit));
     m_fileFinder.setSysroot(sysroot(kit));
     m_fileFinder.setProjectFiles(sourceFiles());
-    m_traceManager->loadFromPerfData(dlg.traceFilePath(), dlg.executableDirPath(), kit);
+    m_traceManager->loadFromPerfData(FilePath::fromUserInput(dlg.traceFilePath()), dlg.executableDirPath(), kit);
 }
 
 void PerfProfilerTool::showLoadTraceDialog()
@@ -612,7 +612,7 @@ void PerfProfilerTool::showLoadTraceDialog()
     const Kit *kit = target ? target->kit() : nullptr;
     populateFileFinder(currentProject, kit);
 
-    m_traceManager->loadFromTraceFile(filePath.toString());
+    m_traceManager->loadFromTraceFile(filePath);
 }
 
 void PerfProfilerTool::showSaveTraceDialog()
@@ -627,7 +627,7 @@ void PerfProfilerTool::showSaveTraceDialog()
         filePath = filePath.stringAppended(".ptq");
 
     setToolActionsEnabled(false);
-    m_traceManager->saveToTraceFile(filePath.toString());
+    m_traceManager->saveToTraceFile(filePath);
 }
 
 void PerfProfilerTool::setAggregated(bool aggregated)
