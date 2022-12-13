@@ -705,7 +705,7 @@ void DockerDevice::fromMap(const QVariantMap &map)
     data.mounts = map.value(DockerDeviceMappedPaths).toStringList();
     data.keepEntryPoint = map.value(DockerDeviceKeepEntryPoint).toBool();
     data.enableLldbFlags = map.value(DockerDeviceEnableLldbFlags).toBool();
-    data.clangdExecutable = FilePath::fromUrl(map.value(DockerDeviceClangDExecutable).toUrl());
+    data.clangdExecutable = FilePath::fromVariant(map.value(DockerDeviceClangDExecutable));
     d->setData(data);
 }
 
@@ -722,7 +722,7 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceMappedPaths, data.mounts);
     map.insert(DockerDeviceKeepEntryPoint, data.keepEntryPoint);
     map.insert(DockerDeviceEnableLldbFlags, data.enableLldbFlags);
-    map.insert(DockerDeviceClangDExecutable, data.clangdExecutable.toUrl());
+    map.insert(DockerDeviceClangDExecutable, data.clangdExecutable.toVariant());
     return map;
 }
 
