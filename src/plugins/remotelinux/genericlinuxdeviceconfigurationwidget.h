@@ -59,8 +59,8 @@ private:
     QSpinBox *m_timeoutSpinBox;
     Utils::PathChooser *m_keyFileLineEdit;
     QLabel *m_machineTypeValueLabel;
-    QLineEdit *m_gdbServerLineEdit;
-    QLineEdit *m_qmlRuntimeLineEdit;
+    Utils::PathChooser *m_gdbServerLineEdit;
+    Utils::PathChooser *m_qmlRuntimeLineEdit;
 };
 
 } // RemoteLinux::Internal

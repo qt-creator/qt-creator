@@ -530,6 +530,16 @@ void PathChooser::setDefaultValue(const QString &defaultValue)
     d->m_lineEdit->validate();
 }
 
+void PathChooser::setPlaceholderText(const QString &placeholderText)
+{
+    d->m_lineEdit->setPlaceholderText(placeholderText);
+}
+
+void PathChooser::setToolTip(const QString &toolTip)
+{
+    d->m_lineEdit->setToolTip(toolTip);
+}
+
 FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
 {
     return std::bind(&PathChooser::validatePath, this, std::placeholders::_1, std::placeholders::_2);

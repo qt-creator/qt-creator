@@ -133,6 +133,8 @@ public:
     // input value during validation if the real value is empty
     // setting an empty QString will disable this and clear the placeHolderText
     void setDefaultValue(const QString &defaultValue);
+    void setPlaceholderText(const QString &placeholderText);
+    void setToolTip(const QString &toolTip);
 
     void setAllowPathFromDevice(bool allow);
     bool allowPathFromDevice() const;
