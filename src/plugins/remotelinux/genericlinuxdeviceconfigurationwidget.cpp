@@ -91,9 +91,9 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         Tr::tr("&Host name:"), m_hostLineEdit, sshPortLabel, m_sshPortSpinBox, m_hostKeyCheckBox, st, br,
         Tr::tr("Free ports:"), m_portsLineEdit, m_portsWarningLabel, Tr::tr("Timeout:"), m_timeoutSpinBox, st, br,
         Tr::tr("&Username:"), m_userLineEdit, st, br,
-        m_keyLabel, m_keyFileLineEdit, createKeyButton, st, br,
-        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, st, br,
-        Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, st, br
+        m_keyLabel, m_keyFileLineEdit, createKeyButton, br,
+        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, br,
+        Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, br
     }.attachTo(this);
 
     connect(m_hostLineEdit, &QLineEdit::editingFinished,
