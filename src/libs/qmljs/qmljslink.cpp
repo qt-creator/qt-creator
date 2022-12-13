@@ -83,6 +83,7 @@ public:
                               const Utils::FilePath &libraryPath);
     void loadImplicitDirectoryImports(Imports *imports, const Document::Ptr &doc);
     void loadImplicitDefaultImports(Imports *imports);
+    void loadImplicitBuiltinsImports(Imports *imports);
 
     void error(const Document::Ptr &doc, const SourceLocation &loc, const QString &message);
     void warning(const Document::Ptr &doc, const SourceLocation &loc, const QString &message);
@@ -90,6 +91,8 @@ public:
 
 private:
     friend class Link;
+
+    void loadImplicitImports(Imports *imports, const QString &packageName, const QString &moduleName);
 
     Snapshot m_snapshot;
     ValueOwner *m_valueOwner = nullptr;
@@ -254,8 +257,11 @@ void LinkPrivate::populateImportedTypes(Imports *imports, const Document::Ptr &d
 {
     importableModuleApis.clear();
 
-    // implicit imports: the <default> package is always available
+    // implicit imports: the <default> package is always available (except when the QML package was loaded).
+    // In the latter case, still try to load the <default>'s module <defaults>.
     loadImplicitDefaultImports(imports);
+    // Load the <builtins> import, if the QML package was loaded.
+    loadImplicitBuiltinsImports(imports);
 
     // implicit imports:
     // qml files in the same directory are available without explicit imports
@@ -683,20 +689,19 @@ void LinkPrivate::loadImplicitDirectoryImports(Imports *imports, const Document:
     }
 }
 
-void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
+void LinkPrivate::loadImplicitImports(Imports *imports, const QString &packageName, const QString &moduleName)
 {
-    const QString defaultPackage = CppQmlTypes::defaultPackage;
-    if (m_valueOwner->cppQmlTypes().hasModule(defaultPackage)) {
+    if (m_valueOwner->cppQmlTypes().hasModule(packageName)) {
         const ComponentVersion maxVersion(ComponentVersion::MaxVersion,
                                           ComponentVersion::MaxVersion);
-        const ImportInfo info = ImportInfo::moduleImport(defaultPackage, maxVersion, QString());
+        const ImportInfo info = ImportInfo::moduleImport(packageName, maxVersion, QString());
         Import import = importCache.value(ImportCacheKey(info));
         if (!import.object) {
             import.valid = true;
             import.info = info;
-            import.object = new ObjectValue(m_valueOwner, QLatin1String("<defaults>"));
+            import.object = new ObjectValue(m_valueOwner, moduleName);
 
-            const auto objects = m_valueOwner->cppQmlTypes().createObjectsForImport(defaultPackage,
+            const auto objects = m_valueOwner->cppQmlTypes().createObjectsForImport(packageName,
                                                                                     maxVersion);
             for (const CppComponentValue *object : objects)
                 import.object->setMember(object->className(), object);
@@ -705,6 +710,16 @@ void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
         }
         imports->append(import);
     }
+}
+
+void LinkPrivate::loadImplicitDefaultImports(Imports *imports)
+{
+    loadImplicitImports(imports, CppQmlTypes::defaultPackage, QLatin1String("<defaults>"));
+}
+
+void LinkPrivate::loadImplicitBuiltinsImports(Imports *imports)
+{
+    loadImplicitImports(imports, QLatin1String("QML"), QLatin1String("<builtins>"));
 }
 
 } // namespace QmlJS
