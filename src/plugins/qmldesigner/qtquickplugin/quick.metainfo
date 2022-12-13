@@ -184,6 +184,7 @@ MetaInfo {
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/gridviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets in a grid.")
         }
     }
 
@@ -198,6 +199,7 @@ MetaInfo {
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/listviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets in a list.")
         }
     }
 
@@ -212,6 +214,7 @@ MetaInfo {
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/pathviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets along a path.")
         }
     }
 
