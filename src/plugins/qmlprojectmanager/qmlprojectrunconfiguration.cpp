@@ -72,7 +72,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
     m_qmlViewerAspect = addAspect<StringAspect>();
-    m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));
+    m_qmlViewerAspect->setLabelText(tr("Override device QML viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(commandLine().executable().toString());
     m_qmlViewerAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
@@ -130,9 +130,14 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return envModifier(environment);
     });
 
+    if (HostOsInfo::isAnyUnixHost())
+        addAspect<X11ForwardingAspect>(macroExpander());
+
     setRunnableModifier([this](Runnable &r) {
         const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
         r.workingDirectory = bs->targetDirectory();
+        if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
+            r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
     });
 
     setDisplayName(tr("QML Utility", "QMLRunConfiguration display name."));
@@ -157,7 +162,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
 
 FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 {
-    // Give precedence to the manual override.
+    // Give precedence to the manual override in the run configuration.
     const FilePath qmlViewer = m_qmlViewerAspect->filePath();
     if (!qmlViewer.isEmpty())
         return qmlViewer;
