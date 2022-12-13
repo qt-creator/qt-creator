@@ -69,8 +69,14 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
 
     m_machineTypeValueLabel = new QLabel(this);
 
+    const QString hint = Tr::tr("Leave empty to look up executable in $PATH");
     m_gdbServerLineEdit = new QLineEdit(this);
-    m_gdbServerLineEdit->setPlaceholderText(Tr::tr("Leave empty to look up executable in $PATH"));
+    m_gdbServerLineEdit->setPlaceholderText(hint);
+    m_gdbServerLineEdit->setToolTip(hint);
+
+    m_qmlRuntimeLineEdit = new QLineEdit(this);
+    m_qmlRuntimeLineEdit->setPlaceholderText(hint);
+    m_qmlRuntimeLineEdit->setToolTip(hint);
 
     auto sshPortLabel = new QLabel(Tr::tr("&SSH port:"));
     sshPortLabel->setBuddy(m_sshPortSpinBox);
@@ -84,7 +90,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         Tr::tr("Free ports:"), m_portsLineEdit, m_portsWarningLabel, Tr::tr("Timeout:"), m_timeoutSpinBox, st, br,
         Tr::tr("&Username:"), m_userLineEdit, st, br,
         m_keyLabel, m_keyFileLineEdit, createKeyButton, st, br,
-        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, st, br
+        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, st, br,
+        Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, st, br
     }.attachTo(this);
 
     connect(m_hostLineEdit, &QLineEdit::editingFinished,
@@ -111,9 +118,10 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::createNewKey);
     connect(m_gdbServerLineEdit, &QLineEdit::editingFinished,
             this, &GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished);
+    connect(m_qmlRuntimeLineEdit, &QLineEdit::editingFinished,
+            this, &GenericLinuxDeviceConfigurationWidget::qmlRuntimeEditingFinished);
     connect(m_hostKeyCheckBox, &QCheckBox::toggled,
             this, &GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged);
-    m_gdbServerLineEdit->setToolTip(m_gdbServerLineEdit->placeholderText());
 
     initGui();
 }
@@ -170,6 +178,11 @@ void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 void GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished()
 {
     device()->setDebugServerPath(device()->filePath(m_gdbServerLineEdit->text()));
+}
+
+void GenericLinuxDeviceConfigurationWidget::qmlRuntimeEditingFinished()
+{
+    device()->setQmlRunCommand(device()->filePath(m_qmlRuntimeLineEdit->text()));
 }
 
 void GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged()
@@ -254,6 +267,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_keyFileLineEdit->setFilePath(sshParams.privateKeyFile);
     // FIXME: Use a remote executable line edit
     m_gdbServerLineEdit->setText(device()->debugServerPath().path());
+    m_qmlRuntimeLineEdit->setText(device()->qmlRunCommand().path());
 
     updatePortsWarningLabel();
 }

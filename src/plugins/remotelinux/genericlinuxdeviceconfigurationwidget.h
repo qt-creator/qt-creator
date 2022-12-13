@@ -37,6 +37,7 @@ private:
     void userNameEditingFinished();
     void keyFileEditingFinished();
     void gdbServerEditingFinished();
+    void qmlRuntimeEditingFinished();
     void handleFreePortsChanged();
     void setPrivateKey(const Utils::FilePath &path);
     void createNewKey();
@@ -59,6 +60,7 @@ private:
     Utils::PathChooser *m_keyFileLineEdit;
     QLabel *m_machineTypeValueLabel;
     QLineEdit *m_gdbServerLineEdit;
+    QLineEdit *m_qmlRuntimeLineEdit;
 };
 
 } // RemoteLinux::Internal
