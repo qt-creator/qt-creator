@@ -15,6 +15,7 @@ add_qtc_plugin(Axivion
     axivion.qrc
     axivionoutputpane.cpp axivionoutputpane.h
     axivionplugin.cpp axivionplugin.h
+    axivionprojectsettings.h axivionprojectsettings.cpp
     axivionsettings.cpp axivionsettings.h
     axivionsettingspage.cpp axivionsettingspage.h
     axiviontr.h

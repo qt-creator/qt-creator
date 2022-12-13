@@ -5,7 +5,12 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace ProjectExplorer { class Project; }
+
 namespace Axivion::Internal {
+
+class AxivionSettings;
+class AxivionProjectSettings;
 
 class AxivionPlugin final : public ExtensionSystem::IPlugin
 {
@@ -16,11 +21,12 @@ public:
     AxivionPlugin() = default;
     ~AxivionPlugin() final;
 
+    static AxivionSettings *settings();
+    static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
+
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final {}
-
-    class AxivionPluginPrivate *d = nullptr;
 };
 
 } // Axivion::Internal

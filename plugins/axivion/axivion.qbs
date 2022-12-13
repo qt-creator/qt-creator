@@ -16,6 +16,8 @@ QtcCommercialPlugin {
         "axivionoutputpane.h",
         "axivionplugin.cpp",
         "axivionplugin.h",
+        "axivionprojectsettings.h",
+        "axivionprojectsettings.cpp",
         "axivionsettings.cpp",
         "axivionsettings.h",
         "axivionsettingspage.cpp",
