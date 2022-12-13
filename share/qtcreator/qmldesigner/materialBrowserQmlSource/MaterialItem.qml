@@ -43,6 +43,18 @@ Rectangle {
     color: "transparent"
     visible: materialVisible
 
+    DropArea {
+        anchors.fill: parent
+
+        onEntered: (drag) => {
+            drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.texture"
+        }
+
+        onDropped: (drag) => {
+            rootView.acceptTextureDropOnMaterial(index, drag.getDataAsString(drag.keys[0]))
+        }
+    }
+
     MouseArea {
         id: mouseArea
 

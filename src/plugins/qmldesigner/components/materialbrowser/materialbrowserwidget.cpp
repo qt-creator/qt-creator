@@ -265,6 +265,17 @@ void MaterialBrowserWidget::acceptBundleTextureDrop()
     m_materialBrowserView->emitCustomNotification("drop_bundle_texture", {}, {}); // To ContentLibraryView
 }
 
+void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QString &texId)
+{
+    ModelNode mat = m_materialBrowserModel->materialAt(matIndex);
+    ModelNode tex = m_materialBrowserView->modelNodeForInternalId(texId.toInt());
+
+    if (mat.isValid() && tex.isValid()) {
+        m_materialBrowserModel->selectMaterial(matIndex);
+        m_materialBrowserView->applyTextureToMaterial({mat}, tex);
+    }
+}
+
 void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)
 {
     if (focusMatSec != m_materialSectionFocused) {
