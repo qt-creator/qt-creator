@@ -450,6 +450,8 @@ struct PaintEventData
         , ifdefedOutFormat(fontSettings.toTextCharFormat(C_DISABLED_CODE))
         , suppressSyntaxInIfdefedOutBlock(ifdefedOutFormat.foreground()
                                           != fontSettings.toTextCharFormat(C_TEXT).foreground())
+        , tabSettings(editor->textDocument()->tabSettings())
+
     { }
     QPointF offset;
     const QRect viewportRect;
@@ -472,6 +474,7 @@ struct PaintEventData
     QPointF visibleCollapsedBlockOffset;
     QTextBlock block;
     QList<CursorData> cursors;
+    const TabSettings tabSettings;
 };
 
 struct PaintEventBlockData
@@ -512,7 +515,7 @@ public:
     void updateHighlights();
     void updateCurrentLineInScrollbar();
     void updateCurrentLineHighlight();
-    int indentDepthForBlock(const QTextBlock &block);
+    int indentDepthForBlock(const QTextBlock &block, const PaintEventData &data);
 
     void drawFoldingMarker(QPainter *painter, const QPalette &pal,
                            const QRect &rect,
@@ -4404,14 +4407,13 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
     }
 }
 
-int TextEditorWidgetPrivate::indentDepthForBlock(const QTextBlock &block)
+int TextEditorWidgetPrivate::indentDepthForBlock(const QTextBlock &block, const PaintEventData &data)
 {
-    const TabSettings &tabSettings = m_document->tabSettings();
     const auto blockDepth = [&](const QTextBlock &block) {
         int depth = m_visualIndentCache.value(block.blockNumber(), -1);
         if (depth < 0) {
             const QString text = block.text().mid(m_visualIndentOffset);
-            depth = text.simplified().isEmpty() ? -1 : tabSettings.indentationColumn(text);
+            depth = text.simplified().isEmpty() ? -1 : data.tabSettings.indentationColumn(text);
         }
         return depth;
     };
@@ -4421,7 +4423,7 @@ int TextEditorWidgetPrivate::indentDepthForBlock(const QTextBlock &block)
     };
     int depth = blockDepth(block);
     if (depth < 0) // the block was empty and uncached ask the indenter for a visual indentation
-        depth = m_document->indenter()->visualIndentFor(block, tabSettings);
+        depth = m_document->indenter()->visualIndentFor(block, data.tabSettings);
     if (depth >= 0) {
         ensureCacheSize(block.blockNumber() + 1);
         m_visualIndentCache[block.blockNumber()] = depth;
@@ -4465,13 +4467,12 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     if (!m_displaySettings.m_visualizeIndent)
         return;
 
-    const int depth = indentDepthForBlock(data.block);
+    const int depth = indentDepthForBlock(data.block, data);
     if (depth <= 0 || blockData.layout->lineCount() < 1)
         return;
 
-    const TabSettings &tabSettings = m_document->tabSettings();
     const qreal singleAdvance = charWidth();
-    const qreal indentAdvance = singleAdvance * tabSettings.m_indentSize;
+    const qreal indentAdvance = singleAdvance * data.tabSettings.m_indentSize;
 
     painter.save();
     painter.setPen(data.visualWhitespaceFormat.foreground().color());
@@ -4485,7 +4486,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     const QString text = data.block.text().mid(m_visualIndentOffset);
     while (paintColumn < depth) {
         if (x >= 0) {
-            int paintPosition = tabSettings.positionAtColumn(text, paintColumn);
+            int paintPosition = data.tabSettings.positionAtColumn(text, paintColumn);
             if (blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0)
                 break;
             const QPointF top(x, blockData.boundingRect.top());
@@ -4494,7 +4495,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
             painter.drawLine(line);
         }
         x += indentAdvance;
-        paintColumn += tabSettings.m_indentSize;
+        paintColumn += data.tabSettings.m_indentSize;
     }
     painter.restore();
 }
