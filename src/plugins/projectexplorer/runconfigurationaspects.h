@@ -257,4 +257,19 @@ public:
     MainScriptAspect() = default;
 };
 
+class PROJECTEXPLORER_EXPORT X11ForwardingAspect : public Utils::StringAspect
+{
+    Q_OBJECT
+
+public:
+    X11ForwardingAspect(const Utils::MacroExpander *macroExpander);
+
+    struct Data : StringAspect::Data { QString display; };
+
+    QString display() const;
+
+private:
+    const Utils::MacroExpander *m_macroExpander;
+};
+
 } // namespace ProjectExplorer

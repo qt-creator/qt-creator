@@ -6,7 +6,6 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 #include "remotelinuxenvironmentaspect.h"
-#include "x11forwardingaspect.h"
 
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>

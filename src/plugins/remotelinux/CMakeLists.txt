@@ -35,7 +35,6 @@ add_qtc_plugin(RemoteLinux
     sshprocessinterface.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h
     tarpackagedeploystep.cpp tarpackagedeploystep.h
-    x11forwardingaspect.cpp x11forwardingaspect.h
 )
 
 extend_qtc_plugin(RemoteLinux

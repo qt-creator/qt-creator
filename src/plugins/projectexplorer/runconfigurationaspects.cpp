@@ -9,6 +9,7 @@
 #include "kitinformation.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 #include "target.h"
 
 #include <coreplugin/icore.h>
@@ -868,6 +869,39 @@ void InterpreterAspect::updateComboBox()
     else if (defaultIndex >= 0)
         m_comboBox->setCurrentIndex(defaultIndex);
     updateCurrentInterpreter();
+}
+
+/*!
+    \class ProjectExplorer::X11ForwardingAspect
+    \inmodule QtCreator
+
+    \brief The X11ForwardingAspect class lets a user specify a display
+     for a remotely running X11 client.
+*/
+
+static QString defaultDisplay()
+{
+    return qtcEnvironmentVariable("DISPLAY");
+}
+
+X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
+    : m_macroExpander(expander)
+{
+    setLabelText(Tr::tr("X11 Forwarding:"));
+    setDisplayStyle(LineEditDisplay);
+    setId("X11ForwardingAspect");
+    setSettingsKey("RunConfiguration.X11Forwarding");
+    makeCheckable(CheckBoxPlacement::Right, Tr::tr("Forward to local display"),
+                  "RunConfiguration.UseX11Forwarding");
+    setValue(defaultDisplay());
+
+    addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
+}
+
+QString X11ForwardingAspect::display() const
+{
+    QTC_ASSERT(m_macroExpander, return value());
+    return !isChecked() ? QString() : m_macroExpander->expandProcessArgs(value());
 }
 
 } // namespace ProjectExplorer
