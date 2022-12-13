@@ -33,7 +33,6 @@ namespace Android::Internal {
 class AndroidManifestEditor;
 class AndroidManifestEditorIconContainerWidget;
 class AndroidManifestEditorWidget;
-class AndroidServiceWidget;
 class SplashScreenContainerWidget;
 
 class PermissionsModel: public QAbstractListModel
@@ -114,14 +113,10 @@ private:
 
     void updateInfoBar(const QString &errorMessage, int line, int column);
     void hideInfoBar();
-    void setInvalidServiceInfo();
-    void clearInvalidServiceInfo();
 
     void parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseSplashScreen(QXmlStreamWriter &writer);
-    void parseService(QXmlStreamReader &reader, QXmlStreamWriter &writer);
-    void parseNewServices(QXmlStreamWriter &writer);
     void parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     bool parseMetaData(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseUsesSdk(QXmlStreamReader &reader, QXmlStreamWriter &writer);
@@ -129,14 +124,12 @@ private:
                                 QXmlStreamWriter &writer,
                                 const QSet<QString> &permissions);
     QString parseComment(QXmlStreamReader &reader, QXmlStreamWriter &writer);
-    void parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer, bool ignore=false);
+    void parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer);
 
     QGroupBox *createPermissionsGroupBox(QWidget *parent);
     QGroupBox *createPackageFormLayout(QWidget *parent);
     QGroupBox *createApplicationGroupBox(QWidget *parent);
     QGroupBox *createAdvancedGroupBox(QWidget *parent);
-
-    void addServiceMetadata(QXmlStreamWriter &writer);
 
     bool m_dirty = false; // indicates that we need to call syncToEditor()
     bool m_stayClean = false;
@@ -170,8 +163,6 @@ private:
     QPushButton *m_removePermissionButton;
     QComboBox *m_permissionsComboBox;
 
-    // Services
-    AndroidServiceWidget *m_services;
     QTimer m_timerParseCheck;
     TextEditor::TextEditorWidget *m_textEditorWidget;
     AndroidManifestEditor *m_editor;

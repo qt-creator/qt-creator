@@ -8,7 +8,6 @@
 #include "androidmanifesteditor.h"
 #include "androidmanifesteditoriconcontainerwidget.h"
 #include "androidmanifesteditorwidget.h"
-#include "androidservicewidget.h"
 #include "androidtr.h"
 #include "splashscreencontainerwidget.h"
 
@@ -47,7 +46,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
@@ -445,18 +443,10 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
     m_iconButtons = new AndroidManifestEditorIconContainerWidget(otherGroupBox, m_textEditorWidget);
     m_advanvedTabWidget->addTab(m_iconButtons, Tr::tr("Application icon"));
 
-    m_services = new AndroidServiceWidget(otherGroupBox);
-    m_advanvedTabWidget->addTab(m_services, Tr::tr("Android services"));
-
     m_splashButtons = new SplashScreenContainerWidget(otherGroupBox,
                                                       m_textEditorWidget);
     m_advanvedTabWidget->addTab(m_splashButtons, Tr::tr("Splash screen"));
 
-    connect(m_services, &AndroidServiceWidget::servicesModified, this, [this] { setDirty(); });
-    connect(m_services, &AndroidServiceWidget::servicesModified,
-            this, &AndroidManifestEditorWidget::clearInvalidServiceInfo);
-    connect(m_services, &AndroidServiceWidget::servicesInvalid,
-            this, &AndroidManifestEditorWidget::setInvalidServiceInfo);
     connect(m_splashButtons, &SplashScreenContainerWidget::splashScreensModified,
             this, [this] { setDirty(); });
     connect(m_iconButtons, &AndroidManifestEditorIconContainerWidget::iconsModified,
@@ -534,14 +524,6 @@ AndroidManifestEditorWidget::EditorPage AndroidManifestEditorWidget::activePage(
     return AndroidManifestEditorWidget::EditorPage(currentIndex());
 }
 
-bool servicesValid(const QList<AndroidServiceData> &services)
-{
-    for (auto &&x : services)
-        if (!x.isValid())
-            return false;
-    return true;
-}
-
 bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
 {
     EditorPage prevPage = activePage();
@@ -550,12 +532,6 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
         return true;
 
     if (page == Source) {
-        if (!servicesValid(m_services->services())) {
-            QMessageBox::critical(nullptr, Tr::tr("Service Definition Invalid"),
-                                  Tr::tr("Cannot switch to source when there are invalid services."));
-            m_advanvedTabWidget->setCurrentIndex(1);
-            return false;
-        }
         syncToEditor();
     } else {
         if (!syncToWidgets())
@@ -577,11 +553,6 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
 void AndroidManifestEditorWidget::preSave()
 {
     if (activePage() != Source) {
-        if (!servicesValid(m_services->services())) {
-            QMessageBox::critical(nullptr, Tr::tr("Service Definition Invalid"),
-                                  Tr::tr("Cannot save when there are invalid services."));
-            return;
-        }
         syncToEditor();
     }
 
@@ -728,25 +699,6 @@ void AndroidManifestEditorWidget::hideInfoBar()
         m_timerParseCheck.stop();
 }
 
-static const char kServicesInvalid[] = "AndroidServiceDefinitionInvalid";
-
-void AndroidManifestEditorWidget::setInvalidServiceInfo()
-{
-    Id id(kServicesInvalid);
-    if (m_textEditorWidget->textDocument()->infoBar()->containsInfo(id))
-        return;
-    InfoBarEntry info(id,
-             Tr::tr("Services invalid. "
-                    "Manifest cannot be saved. Correct the service definitions before saving."));
-    m_textEditorWidget->textDocument()->infoBar()->addInfo(info);
-
-}
-
-void AndroidManifestEditorWidget::clearInvalidServiceInfo()
-{
-    m_textEditorWidget->textDocument()->infoBar()->removeInfo(Id(kServicesInvalid));
-}
-
 void setApiLevel(QComboBox *box, const QDomElement &element, const QString &attribute)
 {
     if (!element.isNull() && element.hasAttribute(attribute)) {
@@ -885,33 +837,6 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
 
     m_permissionsModel->setPermissions(permissions);
     updateAddRemovePermissionButtons();
-
-    QList<AndroidServiceData> services;
-    QDomElement serviceElem = applicationElement.firstChildElement(QLatin1String("service"));
-    while (!serviceElem.isNull()) {
-        AndroidServiceData service;
-        service.setClassName(serviceElem.attribute(QLatin1String("android:name")));
-        QString process = serviceElem.attribute(QLatin1String("android:process"));
-        service.setRunInExternalProcess(!process.isEmpty());
-        service.setExternalProcessName(process);
-        QDomElement serviceMetadataElem = serviceElem.firstChildElement(QLatin1String("meta-data"));
-        while (!serviceMetadataElem.isNull()) {
-            QString metadataName = serviceMetadataElem.attribute(QLatin1String("android:name"));
-            if (metadataName == QLatin1String("android.app.lib_name")) {
-                QString metadataValue = serviceMetadataElem.attribute(QLatin1String("android:value"));
-                service.setRunInExternalLibrary(metadataValue != QLatin1String("-- %%INSERT_APP_LIB_NAME%% --"));
-                service.setExternalLibraryName(metadataValue);
-            }
-            else if (metadataName == QLatin1String("android.app.arguments")) {
-                QString metadataValue = serviceMetadataElem.attribute(QLatin1String("android:value"));
-                service.setServiceArguments(metadataValue);
-            }
-            serviceMetadataElem = serviceMetadataElem.nextSiblingElement(QLatin1String("meta-data"));
-        }
-        services << service;
-        serviceElem = serviceElem.nextSiblingElement(QLatin1String("service"));
-    }
-    m_services->setServices(services);
 
     m_iconButtons->loadIcons();
     m_splashButtons->loadImages();
@@ -1092,19 +1017,13 @@ void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXm
 
     while (!reader.atEnd()) {
         if (reader.isEndElement()) {
-            parseNewServices(writer);
             writer.writeCurrentToken(reader);
-            m_services->servicesSaved();
             return;
         } else if (reader.isStartElement()) {
             if (reader.name() == QLatin1String("activity"))
                 parseActivity(reader, writer);
-            else if (reader.name() == QLatin1String("service"))
-                parseService(reader, writer);
             else
                 parseUnknownElement(reader, writer);
-        } else if (reader.isWhitespace()) {
-            /* no copying of whitespace */
         } else {
             writer.writeCurrentToken(reader);
         }
@@ -1162,139 +1081,6 @@ void AndroidManifestEditorWidget::parseSplashScreen(QXmlStreamWriter &writer)
                              writer);
 }
 
-static int findService(const QString &name, const QList<AndroidServiceData> &data)
-{
-    for (int i  = 0; i < data.size(); ++i) {
-        if (data[i].className() == name)
-            return i;
-    }
-    return -1;
-}
-
-static void writeMetadataElement(const char *name,
-                                        const char *attributeName,
-                                        const char *value,
-                                        QXmlStreamWriter &writer)
-{
-    writer.writeStartElement(QLatin1String("meta-data"));
-    writer.writeAttribute(QLatin1String("android:name"), QLatin1String(name));
-    writer.writeAttribute(QLatin1String(attributeName), QLatin1String(value));
-    writer.writeEndElement();
-
-}
-
-static void addServiceArgumentsAndLibName(const AndroidServiceData &service, QXmlStreamWriter &writer)
-{
-    if (!service.isRunInExternalLibrary() && !service.serviceArguments().isEmpty())
-        writeMetadataElement("android.app.arguments", "android:value", service.serviceArguments(), writer);
-    if (service.isRunInExternalLibrary() && !service.externalLibraryName().isEmpty())
-        writeMetadataElement("android.app.lib_name", "android:value", service.externalLibraryName(), writer);
-    else
-        writeMetadataElement("android.app.lib_name", "android:value", "-- %%INSERT_APP_LIB_NAME%% --", writer);
-}
-
-void AndroidManifestEditorWidget::addServiceMetadata(QXmlStreamWriter &writer)
-{
-    // The values below are no longer needed in Qt 6.2+, don't add them
-    const Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath());
-    if (target) {
-        const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-        if (qt && qt->qtVersion() >= QVersionNumber(6, 2))
-            return;
-    }
-    writeMetadataElement("android.app.qt_sources_resource_id", "android:resource", "@array/qt_sources", writer);
-    writeMetadataElement("android.app.repository", "android:value", "default", writer);
-    writeMetadataElement("android.app.qt_libs_resource_id", "android:resource", "@array/qt_libs", writer);
-    writeMetadataElement("android.app.bundled_libs_resource_id", "android:resource", "@array/bundled_libs", writer);
-    writeMetadataElement("android.app.bundle_local_qt_libs", "android:value", "-- %%BUNDLE_LOCAL_QT_LIBS%% --", writer);
-    writeMetadataElement("android.app.use_local_qt_libs", "android:value", "-- %%USE_LOCAL_QT_LIBS%% --", writer);
-    writeMetadataElement("android.app.libs_prefix", "android:value", "/data/local/tmp/qt/", writer);
-    writeMetadataElement("android.app.load_local_libs_resource_id", "android:resource", "@array/load_local_libs", writer);
-    writeMetadataElement("android.app.load_local_jars", "android:value", "-- %%INSERT_LOCAL_JARS%% --", writer);
-    writeMetadataElement("android.app.static_init_classes", "android:value", "-- %%INSERT_INIT_CLASSES%% --", writer);
-}
-
-void AndroidManifestEditorWidget::parseService(QXmlStreamReader &reader, QXmlStreamWriter &writer)
-{
-    Q_ASSERT(reader.isStartElement());
-    const auto &services = m_services->services();
-    QString serviceName = reader.attributes().value(QLatin1String("android:name")).toString();
-    int serviceIndex = findService(serviceName, services);
-    const AndroidServiceData* serviceFound = (serviceIndex >= 0) ? &services[serviceIndex] : nullptr;
-    if (serviceFound && serviceFound->isValid()) {
-        writer.writeStartElement(reader.name().toString());
-        writer.writeAttribute(QLatin1String("android:name"), serviceFound->className());
-        if (serviceFound->isRunInExternalProcess())
-            writer.writeAttribute(QLatin1String("android:process"), serviceFound->externalProcessName());
-    }
-
-    reader.readNext();
-
-    bool bundleTagFound = false;
-
-    while (!reader.atEnd()) {
-        if (reader.isEndElement()) {
-            if (serviceFound && serviceFound->isValid()) {
-                addServiceArgumentsAndLibName(*serviceFound, writer);
-                if (serviceFound->isRunInExternalProcess() && !bundleTagFound)
-                    addServiceMetadata(writer);
-                writer.writeCurrentToken(reader);
-            }
-            return;
-        } else if (reader.isStartElement()) {
-            if (serviceFound && !serviceFound->isValid())
-                parseUnknownElement(reader, writer, true);
-            else if (reader.name() == QLatin1String("meta-data")) {
-                QString metaTagName = reader.attributes().value(QLatin1String("android:name")).toString();
-                if (serviceFound) {
-                    if (metaTagName == QLatin1String("android.app.bundle_local_qt_libs"))
-                        bundleTagFound = true;
-                    if (metaTagName == QLatin1String("android.app.arguments"))
-                        parseUnknownElement(reader, writer, true);
-                    else if (metaTagName == QLatin1String("android.app.lib_name"))
-                        parseUnknownElement(reader, writer, true);
-                    else if (serviceFound->isRunInExternalProcess()
-                        || metaTagName == QLatin1String("android.app.background_running"))
-                        parseUnknownElement(reader, writer);
-                    else
-                        parseUnknownElement(reader, writer, true);
-                } else
-                    parseUnknownElement(reader, writer, true);
-            } else
-                parseUnknownElement(reader, writer, true);
-        } else if (reader.isWhitespace()) {
-            /* no copying of whitespace */
-        } else {
-            if (serviceFound)
-                writer.writeCurrentToken(reader);
-        }
-        reader.readNext();
-    }
-}
-
-void AndroidManifestEditorWidget::parseNewServices(QXmlStreamWriter &writer)
-{
-    const auto &services = m_services->services();
-    for (const auto &x : services) {
-        if (x.isNewService() && x.isValid()) {
-            writer.writeStartElement(QLatin1String("service"));
-            writer.writeAttribute(QLatin1String("android:name"), x.className());
-            if (x.isRunInExternalProcess()) {
-                writer.writeAttribute(QLatin1String("android:process"),
-                                      x.externalProcessName());
-            }
-            addServiceArgumentsAndLibName(x, writer);
-            if (x.isRunInExternalProcess())
-                addServiceMetadata(writer);
-            writer.writeStartElement(QLatin1String("meta-data"));
-            writer.writeAttribute(QLatin1String("android:name"), QLatin1String("android.app.background_running"));
-            writer.writeAttribute(QLatin1String("android:value"), QLatin1String("true"));
-            writer.writeEndElement();
-            writer.writeEndElement();
-        }
-    }
-}
-
 void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
     Q_ASSERT(reader.isStartElement());
@@ -1326,7 +1112,7 @@ void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlSt
             if (reader.name() == QLatin1String("meta-data")) {
                 QString metaTagName = reader.attributes().value(QLatin1String("android:name")).toString();
                 if (metaTagName.startsWith(QLatin1String("android.app.splash_screen")))
-                    parseUnknownElement(reader, writer, true);
+                    parseUnknownElement(reader, writer);
                 else
                     found = parseMetaData(reader, writer) || found; // ORDER MATTERS
             } else
@@ -1474,24 +1260,20 @@ QString AndroidManifestEditorWidget::parseComment(QXmlStreamReader &reader, QXml
     return commentText;
 }
 
-void AndroidManifestEditorWidget::parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer,
-                                                      bool ignore)
+void AndroidManifestEditorWidget::parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
     Q_ASSERT(reader.isStartElement());
-    if (!ignore)
-        writer.writeCurrentToken(reader);
+    writer.writeCurrentToken(reader);
     reader.readNext();
 
     while (!reader.atEnd()) {
         if (reader.isEndElement()) {
-            if (!ignore)
-                writer.writeCurrentToken(reader);
+            writer.writeCurrentToken(reader);
             return;
         } else if (reader.isStartElement()) {
-            parseUnknownElement(reader, writer, ignore);
+            parseUnknownElement(reader, writer);
         } else {
-            if (!ignore)
-                writer.writeCurrentToken(reader);
+            writer.writeCurrentToken(reader);
         }
         reader.readNext();
     }
