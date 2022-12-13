@@ -21,6 +21,8 @@ namespace Utils { class InfoLabel; }
 
 namespace Axivion::Internal {
 
+class DashboardInfo;
+
 class AxivionProjectSettings : public QObject
 {
 public:
@@ -45,6 +47,10 @@ public:
 
 private:
     void fetchProjects();
+    void onDashboardInfoReceived(const DashboardInfo &info);
+    void onSettingsChanged();
+    void linkProject();
+    void unlinkProject();
     void updateUi();
     void updateEnabledStates();
 

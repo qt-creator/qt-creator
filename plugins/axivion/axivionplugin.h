@@ -18,11 +18,17 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Axivion.json")
 
 public:
-    AxivionPlugin() = default;
+    AxivionPlugin();
     ~AxivionPlugin() final;
 
+    static AxivionPlugin *instance();
     static AxivionSettings *settings();
     static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
+
+    static bool handleCertificateIssue();
+
+signals:
+    void settingsChanged();
 
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;

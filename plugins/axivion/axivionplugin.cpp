@@ -19,6 +19,8 @@
 #  include <licensechecker/licensecheckerplugin.h>
 #endif
 
+#include <QMessageBox>
+
 namespace Axivion::Internal {
 
 class AxivionPluginPrivate
@@ -30,7 +32,13 @@ public:
     QHash<ProjectExplorer::Project *, AxivionProjectSettings *> projectSettings;
 };
 
+static AxivionPlugin *s_instance = nullptr;
 static AxivionPluginPrivate *dd = nullptr;
+
+AxivionPlugin::AxivionPlugin()
+{
+    s_instance = this;
+}
 
 AxivionPlugin::~AxivionPlugin()
 {
@@ -40,6 +48,11 @@ AxivionPlugin::~AxivionPlugin()
     }
     delete dd;
     dd = nullptr;
+}
+
+AxivionPlugin *AxivionPlugin::instance()
+{
+    return s_instance;
 }
 
 bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -83,6 +96,24 @@ AxivionProjectSettings *AxivionPlugin::projectSettings(ProjectExplorer::Project 
     if (!settings)
         settings = new AxivionProjectSettings(project);
     return settings;
+}
+
+bool AxivionPlugin::handleCertificateIssue()
+{
+    QTC_ASSERT(dd, return false);
+
+    const QString serverHost = QUrl(dd->axivionSettings.server.dashboard).host();
+    if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
+                              Tr::tr("Server certificate for %1 cannot be authenticated.\n"
+                                     "Do you want to disable SSL verification for this server?\n"
+                                     "Note: This can expose you to man-in-the-middle attack.")
+                              .arg(serverHost))
+            != QMessageBox::Yes) {
+        return false;
+    }
+    dd->axivionSettings.server.validateCert = false;
+    emit s_instance->settingsChanged();
+    return true;
 }
 
 } // Axivion::Internal

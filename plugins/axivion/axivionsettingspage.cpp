@@ -3,6 +3,7 @@
 
 #include "axivionsettingspage.h"
 
+#include "axivionplugin.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
@@ -160,6 +161,7 @@ void AxivionSettingsWidget::apply()
     m_settings->server = m_dashboardDisplay->dashboardServer();
     m_settings->curl = m_curlPC.filePath();
     m_settings->toSettings(Core::ICore::settings());
+    emit AxivionPlugin::instance()->settingsChanged();
 }
 
 void AxivionSettingsWidget::showEditServerDialog()

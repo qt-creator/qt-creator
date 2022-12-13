@@ -4,11 +4,14 @@
 #include "axivionprojectsettings.h"
 
 #include "axivionplugin.h"
+#include "axivionquery.h"
+#include "axivionresultparser.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
 #include <projectexplorer/project.h>
 #include <utils/infolabel.h>
+#include <utils/qtcassert.h>
 
 #include <QPushButton>
 #include <QTreeWidget>
@@ -80,6 +83,12 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Proj
             this, &AxivionProjectSettingsWidget::updateEnabledStates);
     connect(m_fetchProjects, &QPushButton::clicked,
             this, &AxivionProjectSettingsWidget::fetchProjects);
+    connect(m_link, &QPushButton::clicked,
+            this, &AxivionProjectSettingsWidget::linkProject);
+    connect(m_unlink, &QPushButton::clicked,
+            this, &AxivionProjectSettingsWidget::unlinkProject);
+    connect(AxivionPlugin::instance(), &AxivionPlugin::settingsChanged,
+            this, &AxivionProjectSettingsWidget::onSettingsChanged);
 
     updateUi();
 }
@@ -88,7 +97,59 @@ void AxivionProjectSettingsWidget::fetchProjects()
 {
     m_dashboardProjects->clear();
     m_fetchProjects->setEnabled(false);
+    m_infoLabel->setVisible(false);
     // TODO perform query and populate m_dashboardProjects
+    const AxivionQuery query(AxivionQuery::DashboardInfo);
+    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
+    connect(runner, &AxivionQueryRunner::resultRetrieved,
+            this, [this](const QByteArray &result){
+        onDashboardInfoReceived(ResultParser::parseDashboardInfo(result));
+    });
+    connect(runner, &AxivionQueryRunner::finished, this, [runner]{ runner->deleteLater(); });
+    runner->start();
+}
+
+void AxivionProjectSettingsWidget::onDashboardInfoReceived(const DashboardInfo &info)
+{
+    if (!info.error.isEmpty()) {
+        if (info.error.contains("credentials")) {
+            m_infoLabel->setText("Authentication failed. Check credentials settings.");
+            m_infoLabel->setType(Utils::InfoLabel::Error);
+            m_infoLabel->setVisible(true);
+        }
+        // send error to general message and discard results
+        // FIXME currently we do not get all errors - e.g. wrong curl calls
+        updateEnabledStates();
+        return;
+    }
+
+    for (const Project &project : info.projects)
+        new QTreeWidgetItem(m_dashboardProjects, {project.name});
+    updateEnabledStates();
+}
+
+void AxivionProjectSettingsWidget::onSettingsChanged()
+{
+    m_dashboardProjects->clear();
+    m_infoLabel->setVisible(false);
+    updateUi();
+}
+
+void AxivionProjectSettingsWidget::linkProject()
+{
+    const QList<QTreeWidgetItem *> selected = m_dashboardProjects->selectedItems();
+    QTC_ASSERT(selected.size() == 1, return);
+
+    m_projectSettings->setDashboardProjectName(selected.first()->text(0));
+    updateUi();
+}
+
+void AxivionProjectSettingsWidget::unlinkProject()
+{
+    QTC_ASSERT(!m_projectSettings->dashboardProjectName().isEmpty(), return);
+
+    m_projectSettings->setDashboardProjectName({});
+    updateUi();
 }
 
 void AxivionProjectSettingsWidget::updateUi()
