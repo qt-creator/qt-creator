@@ -253,10 +253,7 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
         m_widget->setDragType(itemLibraryEntry.typeName());
         m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
-        QByteArray data = mimeData->data(Constants::MIME_TYPE_MATERIAL);
-        QDataStream stream(data);
-        qint32 internalId;
-        stream >> internalId;
+        qint32 internalId = mimeData->data(Constants::MIME_TYPE_MATERIAL).toInt();
         ModelNode matNode = modelNodeForInternalId(internalId);
 
         m_widget->setDragType(matNode.metaInfo().typeName());
