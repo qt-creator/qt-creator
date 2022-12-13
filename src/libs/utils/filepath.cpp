@@ -1421,6 +1421,24 @@ Qt::CaseSensitivity FilePath::caseSensitivity() const
 }
 
 /*!
+ * \brief Returns the separator of path components for this path.
+ * \returns The path separator of the path.
+ */
+QChar FilePath::pathComponentSeparator() const
+{
+    return osType() == OsTypeWindows ? u'\\' : u'/';
+}
+
+/*!
+ * \brief Returns the path list separator for the device this path belongs to.
+ * \returns The path list separator of the device for this path
+ */
+QChar FilePath::pathListSeparator() const
+{
+    return osType() == OsTypeWindows ? u';' : u':';
+}
+
+/*!
 *  \brief Recursively resolves symlinks if this is a symlink.
 *  To resolve symlinks anywhere in the path, see canonicalPath.
 *  Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
