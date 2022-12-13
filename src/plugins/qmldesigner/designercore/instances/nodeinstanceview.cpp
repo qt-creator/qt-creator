@@ -1908,6 +1908,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                 const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
                 imageData.pixmap = originalPixmap.scaled(dim, dim, Qt::KeepAspectRatio);
                 imageData.pixmap.setDevicePixelRatio(ratio);
+                imageData.time = modified;
 
                 double imgSize = double(imageFi.size());
                 static QStringList units({::QmlDesigner::NodeInstanceView::tr("B"),
