@@ -405,15 +405,14 @@ static QWidget *dialogParent(QWidget *parent)
     return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
 }
 
-
-FilePath qUrlToFilePath(const QUrl &url)
+static FilePath qUrlToFilePath(const QUrl &url)
 {
     if (url.isLocalFile())
         return FilePath::fromString(url.toLocalFile());
-    return FilePath::fromUrl(url);
+    return FilePath::fromParts(url.scheme(), url.host(), url.path());
 }
 
-QUrl filePathToQUrl(const FilePath &filePath)
+static QUrl filePathToQUrl(const FilePath &filePath)
 {
    return QUrl::fromLocalFile(filePath.toFSPathString());
 }

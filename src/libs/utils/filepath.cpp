@@ -149,11 +149,6 @@ QFileInfo FilePath::toFileInfo() const
     return QFileInfo(toFSPathString());
 }
 
-FilePath FilePath::fromUrl(const QUrl &url)
-{
-    return FilePath::fromParts(url.scheme(), url.host(), url.path());
-}
-
 FilePath FilePath::fromParts(const QStringView scheme, const QStringView host, const QStringView path)
 {
     FilePath result;
@@ -920,8 +915,10 @@ FilePath FilePath::fromUtf8(const char *filename, int filenameSize)
 
 FilePath FilePath::fromVariant(const QVariant &variant)
 {
-    if (variant.type() == QVariant::Url)
-        return FilePath::fromUrl(variant.toUrl());
+    if (variant.type() == QVariant::Url) {
+        const QUrl url = variant.toUrl();
+        return FilePath::fromParts(url.scheme(), url.host(), url.path());
+    }
     return FilePath::fromUserInput(variant.toString());
 }
 

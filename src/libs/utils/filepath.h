@@ -62,7 +62,6 @@ public:
     [[nodiscard]] static FilePath fromUserInput(const QString &filepath);
     [[nodiscard]] static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
     [[nodiscard]] static FilePath fromVariant(const QVariant &variant);
-    [[nodiscard]] static FilePath fromUrl(const QUrl &url);
     [[nodiscard]] static FilePath fromParts(const QStringView scheme, const QStringView host, const QStringView path);
     [[nodiscard]] static FilePath fromPathPart(const QStringView path);
 
