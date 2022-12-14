@@ -99,7 +99,11 @@ void tst_PluginSpec::read()
     QCOMPARE(spec.vendor, QString("The Qt Company Ltd"));
     QCOMPARE(spec.copyright, QString("(C) 2015 The Qt Company Ltd"));
     QCOMPARE(spec.license, QString("This is a default license bla\nblubbblubb\nend of terms"));
-    QCOMPARE(spec.description, QString("This plugin is just a test.\n    it demonstrates the great use of the plugin spec."));
+    QCOMPARE(spec.description, QString("This plugin is just a test."));
+    QCOMPARE(
+        spec.longDescription,
+        QString(
+            "This plugin is just a test.\n    it demonstrates the great use of the plugin spec."));
     QCOMPARE(spec.url, QString("http://www.qt.io"));
     PluginDependency dep1;
     dep1.name = QString("SomeOtherPlugin");

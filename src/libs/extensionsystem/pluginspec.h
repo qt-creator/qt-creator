@@ -68,6 +68,7 @@ public:
     QString copyright() const;
     QString license() const;
     QString description() const;
+    QString longDescription() const;
     QString url() const;
     QString category() const;
     QString revision() const;

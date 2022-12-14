@@ -249,6 +249,15 @@ QString PluginSpec::description() const
 }
 
 /*!
+    Returns the plugin's long description. This is valid after the PluginSpec::Read
+    state is reached.
+*/
+QString PluginSpec::longDescription() const
+{
+    return d->longDescription;
+}
+
+/*!
     Returns the plugin URL where you can find more information about the plugin.
     This is valid after the PluginSpec::Read state is reached.
 */
@@ -560,6 +569,7 @@ namespace {
     const char COPYRIGHT[] = "Copyright";
     const char LICENSE[] = "License";
     const char DESCRIPTION[] = "Description";
+    const char LONGDESCRIPTION[] = "LongDescription";
     const char URL[] = "Url";
     const char CATEGORY[] = "Category";
     const char PLATFORM[] = "Platform";
@@ -591,6 +601,7 @@ void PluginSpecPrivate::reset()
     copyright.clear();
     license.clear();
     description.clear();
+    longDescription.clear();
     url.clear();
     category.clear();
     location.clear();
@@ -794,6 +805,10 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     value = metaData.value(QLatin1String(DESCRIPTION));
     if (!value.isUndefined() && !Utils::readMultiLineString(value, &description))
         return reportError(msgValueIsNotAString(DESCRIPTION));
+
+    value = metaData.value(QLatin1String(LONGDESCRIPTION));
+    if (!value.isUndefined() && !Utils::readMultiLineString(value, &longDescription))
+        return reportError(msgValueIsNotAString(LONGDESCRIPTION));
 
     value = metaData.value(QLatin1String(URL));
     if (!value.isUndefined() && !value.isString())

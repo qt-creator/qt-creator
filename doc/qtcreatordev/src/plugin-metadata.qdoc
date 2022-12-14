@@ -103,8 +103,13 @@
                 designed for long texts.
         \row
             \li Description
+            \li String
+            \li Short description of what the plugin is supposed to provide.
+                This is shown when running \QC with \c{-version}.
+        \row
+            \li LongDescription
             \li String or array of strings
-            \li Possibly multi-line description of what the plugin is supposed
+            \li Possibly multi-line, more extensive description of what the plugin is supposed
                 to provide.
                 Should still be kept relatively short, since the UI is not
                 designed for long texts.

@@ -60,6 +60,7 @@ public:
     QString copyright;
     QString license;
     QString description;
+    QString longDescription;
     QString url;
     QString category;
     QRegularExpression platformSpecification;

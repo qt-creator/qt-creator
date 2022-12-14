@@ -56,6 +56,7 @@ public:
     {
         using namespace Utils::Layouting;
 
+        // clang-format off
         Form {
             tr("Name:"), name, br,
             tr("Version:"), version, br,
@@ -70,6 +71,7 @@ public:
             tr("License:"), license, br,
             tr("Dependencies:"), dependencies
         }.attachTo(q, WithoutMargins);
+        // clang-format on
     }
 
     PluginDetailsView *q = nullptr;
@@ -144,7 +146,11 @@ void PluginDetailsView::update(PluginSpec *spec)
     const QString platformString = tr("%1 (current: \"%2\")")
                                    .arg(platform, PluginManager::platformName());
     d->platforms->setText(platformString);
-    d->description->setText(spec->description());
+    QString description = spec->description();
+    if (!description.isEmpty() && !spec->longDescription().isEmpty())
+        description += "\n\n";
+    description += spec->longDescription();
+    d->description->setText(description);
     d->copyright->setText(spec->copyright());
     d->license->setText(spec->license());
     d->dependencies->addItems(Utils::transform<QList>(spec->dependencies(),
