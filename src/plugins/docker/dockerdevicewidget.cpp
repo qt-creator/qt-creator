@@ -167,7 +167,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 paths.append(FilePath::fromString(path.trimmed()));
         }
         paths = Utils::transform(paths, [dockerDevice](const FilePath &path) {
-            return dockerDevice->mapToGlobalPath(path);
+            return dockerDevice->filePath(path.path());
         });
         return paths;
     };

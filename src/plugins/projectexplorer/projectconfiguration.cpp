@@ -119,7 +119,7 @@ FilePath ProjectConfiguration::mapFromBuildDeviceToGlobalPath(const FilePath &pa
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(kit());
     QTC_ASSERT(dev, return path);
-    return dev->mapToGlobalPath(path);
+    return dev->filePath(path.path());
 }
 
 Id ProjectExplorer::idFromMap(const QVariantMap &map)

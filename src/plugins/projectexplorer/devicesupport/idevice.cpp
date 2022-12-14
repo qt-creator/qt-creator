@@ -200,20 +200,10 @@ DeviceFileAccess *IDevice::fileAccess() const
     return d->fileAccess;
 }
 
-FilePath IDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
-{
-    if (pathOnDevice.needsDevice()) {
-        // Already correct form, only sanity check it's ours...
-        QTC_CHECK(handlesFile(pathOnDevice));
-        return pathOnDevice;
-    }
-    // match DeviceManager::deviceForPath
-    return FilePath::fromParts(u"device", id().toString(), pathOnDevice.path());
-}
-
 FilePath IDevice::filePath(const QString &pathOnDevice) const
 {
-    return mapToGlobalPath(FilePath::fromString(pathOnDevice));
+    // match DeviceManager::deviceForPath
+    return FilePath::fromParts(u"device", id().toString(), pathOnDevice);
 }
 
 bool IDevice::handlesFile(const FilePath &filePath) const
@@ -226,8 +216,8 @@ bool IDevice::handlesFile(const FilePath &filePath) const
 FilePath IDevice::searchExecutableInPath(const QString &fileName) const
 {
     FilePaths paths;
-    for (const FilePath &path : systemEnvironment().path())
-        paths.append(mapToGlobalPath(path));
+    for (const FilePath &pathEntry : systemEnvironment().path())
+        paths.append(filePath(pathEntry.path()));
     return searchExecutable(fileName, paths);
 }
 
@@ -235,7 +225,7 @@ FilePath IDevice::searchExecutable(const QString &fileName, const FilePaths &dir
 {
     for (FilePath dir : dirs) {
         if (!handlesFile(dir)) // Allow device-local dirs to be used.
-            dir = mapToGlobalPath(dir);
+            dir = filePath(dir.path());
         QTC_CHECK(handlesFile(dir));
         const FilePath candidate = dir / fileName;
         if (candidate.isExecutableFile())

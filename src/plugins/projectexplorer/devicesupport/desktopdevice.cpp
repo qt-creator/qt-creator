@@ -139,10 +139,9 @@ bool DesktopDevice::handlesFile(const FilePath &filePath) const
     return !filePath.needsDevice();
 }
 
-FilePath DesktopDevice::mapToGlobalPath(const Utils::FilePath &pathOnDevice) const
+FilePath DesktopDevice::filePath(const QString &pathOnDevice) const
 {
-    QTC_CHECK(!pathOnDevice.needsDevice());
-    return pathOnDevice;
+    return FilePath::fromParts({}, {}, pathOnDevice);
 }
 
 Environment DesktopDevice::systemEnvironment() const

@@ -81,9 +81,8 @@ public:
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     bool usableAsBuildDevice() const override;
 
-    Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
-
     Utils::FilePath rootPath() const override;
+    Utils::FilePath filePath(const QString &pathOnDevice) const override;
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool ensureReachable(const Utils::FilePath &other) const override;

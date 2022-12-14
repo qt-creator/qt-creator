@@ -189,7 +189,7 @@ public:
     void setMachineType(MachineType machineType);
 
     virtual Utils::FilePath rootPath() const;
-    Utils::FilePath filePath(const QString &pathOnDevice) const;
+    virtual Utils::FilePath filePath(const QString &pathOnDevice) const;
 
     Utils::FilePath debugServerPath() const;
     void setDebugServerPath(const Utils::FilePath &path);
@@ -218,8 +218,6 @@ public:
 
     Utils::DeviceFileAccess *fileAccess() const;
     virtual bool handlesFile(const Utils::FilePath &filePath) const;
-
-    virtual Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const;
 
     virtual Utils::FilePath searchExecutableInPath(const QString &fileName) const;
     virtual Utils::FilePath searchExecutable(const QString &fileName,

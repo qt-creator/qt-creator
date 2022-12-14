@@ -773,17 +773,11 @@ bool DockerDevice::usableAsBuildDevice() const
     return true;
 }
 
-FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
+FilePath DockerDevice::filePath(const QString &pathOnDevice) const
 {
-    if (pathOnDevice.needsDevice()) {
-        // Already correct form, only sanity check it's ours...
-        QTC_CHECK(handlesFile(pathOnDevice));
-        return pathOnDevice;
-    }
-
     return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
                                d->repoAndTagEncoded(),
-                               pathOnDevice.path());
+                               pathOnDevice);
 
 // The following would work, but gives no hint on repo and tag
 //   result.setScheme("docker");

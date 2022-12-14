@@ -1120,7 +1120,7 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
                     compilerPaths << candidate;
                 return true;
             };
-            const FilePath globalDir = device->mapToGlobalPath(deviceDir);
+            const FilePath globalDir = device->filePath(deviceDir.path());
             globalDir.iterateDirectory(callBack, {nameFilters, QDir::Files | QDir::Executable});
         }
     } else {
