@@ -367,8 +367,9 @@ void IosQmlProfilerSupport::start()
 {
     QUrl serverUrl;
     QTcpServer server;
-    QTC_ASSERT(server.listen(QHostAddress::LocalHost)
-               || server.listen(QHostAddress::LocalHostIPv6), return);
+    const bool isListening = server.listen(QHostAddress::LocalHost)
+                          || server.listen(QHostAddress::LocalHostIPv6);
+    QTC_ASSERT(isListening, return);
     serverUrl.setScheme(Utils::urlTcpScheme());
     serverUrl.setHost(server.serverAddress().toString());
 
@@ -463,8 +464,9 @@ void IosDebugSupport::start()
     QUrl qmlServer;
     if (qmlDebug) {
         QTcpServer server;
-        QTC_ASSERT(server.listen(QHostAddress::LocalHost)
-                   || server.listen(QHostAddress::LocalHostIPv6), return);
+        const bool isListening = server.listen(QHostAddress::LocalHost)
+                              || server.listen(QHostAddress::LocalHostIPv6);
+        QTC_ASSERT(isListening, return);
         qmlServer.setHost(server.serverAddress().toString());
         if (!cppDebug)
             setStartMode(AttachToRemoteServer);
