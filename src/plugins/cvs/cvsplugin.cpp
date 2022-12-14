@@ -149,9 +149,8 @@ public:
 
     QStringList arguments() const override
     {
-        QStringList args = m_settings.diffOptions.value().split(' ', Qt::SkipEmptyParts);
-        args += VcsBaseEditorConfig::arguments();
-        return args;
+        return m_settings.diffOptions.value().split(' ', Qt::SkipEmptyParts)
+               + VcsBaseEditorConfig::arguments();
     }
 
 private:

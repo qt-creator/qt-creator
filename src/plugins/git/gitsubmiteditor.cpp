@@ -245,7 +245,7 @@ GitSubmitEditorPanelData GitSubmitEditor::panelData() const
 
 QString GitSubmitEditor::amendSHA1() const
 {
-    QString commit = submitEditorWidget()->amendSHA1();
+    const QString commit = submitEditorWidget()->amendSHA1();
     return commit.isEmpty() ? m_amendSHA1 : commit;
 }
 

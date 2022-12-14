@@ -118,22 +118,22 @@ void PerforceChecker::slotDone()
 static inline QString findTerm(const QString& in, const QLatin1String& term)
 {
     QRegularExpression regExp(QString("(\\n|\\r\\n|\\r)%1\\s*(.*)(\\n|\\r\\n|\\r)").arg(term));
-    QTC_ASSERT(regExp.isValid(), return QString());
+    QTC_ASSERT(regExp.isValid(), return {});
     QRegularExpressionMatch match = regExp.match(in);
     if (match.hasMatch())
         return match.captured(2).trimmed();
-    return QString();
+    return {};
 }
 
 // Parse p4 client output for the top level
 static inline QString clientRootFromOutput(const QString &in)
 {
-    QString root = findTerm(in, QLatin1String("Root:"));
+    const QString root = findTerm(in, QLatin1String("Root:"));
     if (!root.isNull()) {
         // Normalize slashes and capitalization of Windows drive letters for caching.
         return QFileInfo(root).absoluteFilePath();
     }
-    return QString();
+    return {};
 }
 
 // When p4 port and p4 user is set a preconfigured Root: is given, which doesn't relate with
@@ -141,9 +141,8 @@ static inline QString clientRootFromOutput(const QString &in)
 // invalid case.
 static inline bool clientAndHostAreEqual(const QString &in)
 {
-    QString client = findTerm(in, QLatin1String("Client:"));
-    QString host = findTerm(in, QLatin1String("Host:"));
-
+    const QString client = findTerm(in, QLatin1String("Client:"));
+    const QString host = findTerm(in, QLatin1String("Host:"));
     return client == host;
 }
 

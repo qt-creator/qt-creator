@@ -125,7 +125,7 @@ QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos
     cursor.select(QTextCursor::BlockUnderCursor);
     if (!cursor.hasSelection())
         return QString();
-    QString block = cursor.selectedText();
+    const QString block = cursor.selectedText();
     // Determine cursor position within line and find blank-delimited word
     const int cursorPos = cursorDocumentPos - cursor.block().position();
     const int blockSize = block.size();

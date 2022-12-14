@@ -125,7 +125,7 @@ void LogChangeWidget::setItemDelegate(QAbstractItemDelegate *delegate)
 void LogChangeWidget::emitCommitActivated(const QModelIndex &index)
 {
     if (index.isValid()) {
-        QString commit = index.sibling(index.row(), Sha1Column).data().toString();
+        const QString commit = index.sibling(index.row(), Sha1Column).data().toString();
         if (!commit.isEmpty())
             emit commitActivated(commit);
     }

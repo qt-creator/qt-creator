@@ -588,9 +588,9 @@ void VcsBaseClient::statusParser(const QString &text)
 {
     QList<VcsBaseClient::StatusItem> lineInfoList;
 
-    QStringList rawStatusList = text.split(QLatin1Char('\n'));
+    const QStringList rawStatusList = text.split(QLatin1Char('\n'));
 
-    for (const QString &string : std::as_const(rawStatusList)) {
+    for (const QString &string : rawStatusList) {
         const VcsBaseClient::StatusItem lineInfo = parseStatusLine(string);
         if (!lineInfo.flags.isEmpty() && !lineInfo.file.isEmpty())
             lineInfoList.append(lineInfo);

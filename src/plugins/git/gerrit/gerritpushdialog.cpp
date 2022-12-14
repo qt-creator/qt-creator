@@ -86,7 +86,7 @@ void GerritPushDialog::initRemoteBranches()
     QString output;
     const QString head = "/HEAD";
 
-    QString remotesPrefix("refs/remotes/");
+    const QString remotesPrefix("refs/remotes/");
     if (!GitClient::instance()->synchronousForEachRefCmd(
                 m_workingDir, {"--format=%(refname)\t%(committerdate:raw)", remotesPrefix}, &output)) {
         return;
@@ -94,7 +94,7 @@ void GerritPushDialog::initRemoteBranches()
 
     const QStringList refs = output.split("\n");
     for (const QString &reference : refs) {
-        QStringList entries = reference.split('\t');
+        const QStringList entries = reference.split('\t');
         if (entries.count() < 2 || entries.first().endsWith(head))
             continue;
         const QString ref = entries.at(0).mid(remotesPrefix.size());
@@ -194,16 +194,11 @@ QString GerritPushDialog::selectedCommit() const
 
 QString GerritPushDialog::calculateChangeRange(const QString &branch)
 {
-    QString remote = selectedRemoteName();
-    remote += '/';
-    remote += selectedRemoteBranchName();
-
+    const QString remote = selectedRemoteName() + '/' + selectedRemoteBranchName();
     QString number;
     QString error;
-
     GitClient::instance()->synchronousRevListCmd(
                 m_workingDir, { remote + ".." + branch, "--count" }, &number, &error);
-
     number.chop(1);
     return number;
 }
@@ -376,7 +371,7 @@ void GerritPushDialog::updateCommits(int index)
 {
     const QString branch = m_localBranchComboBox->itemText(index);
     m_hasLocalCommits = m_commitView->init(m_workingDir, branch, LogChangeWidget::Silent);
-    QString topic = GitClient::instance()->readConfigValue(
+    const QString topic = GitClient::instance()->readConfigValue(
                 m_workingDir, QString("branch.%1.topic").arg(branch));
     if (!topic.isEmpty())
         m_topicLineEdit->setText(topic);

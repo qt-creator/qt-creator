@@ -782,9 +782,8 @@ static bool parseOutput(const QSharedPointer<GerritParameters> &parameters,
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(adaptedOutput, &error);
     if (doc.isNull()) {
-        QString errorMessage = Git::Tr::tr("Parse error: \"%1\" -> %2")
-                .arg(QString::fromUtf8(output))
-                .arg(error.errorString());
+        const QString errorMessage = Git::Tr::tr("Parse error: \"%1\" -> %2")
+                                         .arg(QString::fromUtf8(output), error.errorString());
         qWarning() << errorMessage;
         VcsOutputWindow::appendError(errorMessage);
         res = false;
@@ -919,9 +918,8 @@ void GerritModel::resultRetrieved(const QByteArray &output)
                 // too-deeply nested items.
                 for (; changeFromItem(parent)->depth >= 1; parent = parent->parent()) {}
                 parent->appendRow(newRow);
-                QString parentFilterString = parent->data(FilterRole).toString();
-                parentFilterString += ' ';
-                parentFilterString += newRow.first()->data(FilterRole).toString();
+                const QString parentFilterString = parent->data(FilterRole).toString() + ' '
+                                                   + newRow.first()->data(FilterRole).toString();
                 parent->setData(QVariant(parentFilterString), FilterRole);
             } else {
                 appendRow(newRow);

@@ -328,7 +328,7 @@ void VcsCommandPage::delayedInitialize()
         if (!JsonWizard::boolFromVariant(job.condition, wiz->expander()))
             continue;
 
-        QString commandString = wiz->expander()->expand(job.job.at(0));
+        const QString commandString = wiz->expander()->expand(job.job.at(0));
         if (commandString.isEmpty())
             continue;
 

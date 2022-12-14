@@ -49,7 +49,8 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
     autoCheckOut = settings->value(QLatin1String(autoCheckOutKeyC), false).toBool();
     noComment = settings->value(QLatin1String(noCommentKeyC), false).toBool();
     keepFileUndoCheckout = settings->value(QLatin1String(keepFileUndoCheckoutKeyC), true).toBool();
-    QString sDiffType = settings->value(QLatin1String(diffTypeKeyC), QLatin1String("Graphical")).toString();
+    const QString sDiffType = settings->value(QLatin1String(diffTypeKeyC),
+                                              QLatin1String("Graphical")).toString();
     switch (sDiffType[0].toUpper().toLatin1()) {
         case 'G': diffType = GraphicalDiff; break;
         case 'E': diffType = ExternalDiff; break;

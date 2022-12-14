@@ -164,10 +164,7 @@ FilePath BazaarClient::findTopLevelForFile(const FilePath &file) const
 
 bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    QStringList args(QLatin1String("status"));
-    args << fileName;
-
-    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, {"status", fileName});
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
     return result.rawStdOut().startsWith("unknown");
@@ -190,7 +187,7 @@ Utils::Id BazaarClient::vcsEditorKind(VcsCommandTag cmd) const
     case LogCommand:
         return Constants::FILELOG_ID;
     default:
-        return Utils::Id();
+        return {};
     }
 }
 

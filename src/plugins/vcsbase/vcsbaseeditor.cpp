@@ -1510,7 +1510,7 @@ QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inB
         const QString line = block.text();
         const QRegularExpressionMatch match = d->m_diffFilePattern.match(line);
         if (match.hasMatch()) {
-            QString cap = match.captured(1);
+            const QString cap = match.captured(1);
             if (header)
                 header->prepend(line + QLatin1String("\n"));
             if (fileName.isEmpty() && !cap.isEmpty())

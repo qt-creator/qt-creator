@@ -33,7 +33,7 @@ QString ClearCaseEditorWidget::changeUnderCursor(const QTextCursor &c) const
     cursor.select(QTextCursor::BlockUnderCursor);
     if (!cursor.hasSelection())
         return QString();
-    QString change = cursor.selectedText();
+    const QString change = cursor.selectedText();
     // Annotation output has number, log output has revision numbers
     // as r1, r2...
     const QRegularExpressionMatch match = m_versionNumberPattern.match(change);

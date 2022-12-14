@@ -58,11 +58,9 @@ void MercurialDiffEditorController::runCommand(const QList<QStringList> &args, Q
 
 QStringList MercurialDiffEditorController::addConfigurationArguments(const QStringList &args) const
 {
-    QStringList configArgs{ "-g", "-p" };
-    configArgs << "-U" << QString::number(contextLineCount());
-    if (ignoreWhitespace()) {
+    QStringList configArgs{"-g", "-p", "-U", QString::number(contextLineCount())};
+    if (ignoreWhitespace())
         configArgs << "-w" << "-b" << "-B" << "-Z";
-    }
     return args + configArgs;
 }
 
@@ -103,16 +101,13 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
 
     if (workingDirectory.exists()) {
         // Let's make first init
-        QStringList arguments(QLatin1String("init"));
-        if (vcsSynchronousExec(workingDirectory, arguments).result()
+        if (vcsSynchronousExec(workingDirectory, QStringList{"init"}).result()
                 != ProcessResult::FinishedWithSuccess) {
             return false;
         }
 
         // Then pull remote repository
-        arguments.clear();
-        arguments << QLatin1String("pull") << dstLocation;
-        if (vcsSynchronousExec(workingDirectory, arguments, flags).result()
+        if (vcsSynchronousExec(workingDirectory, {"pull", dstLocation}, flags).result()
                 != ProcessResult::FinishedWithSuccess) {
             return false;
         }
@@ -127,13 +122,10 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
         }
 
         // And last update repository
-        arguments.clear();
-        arguments << QLatin1String("update");
-        return vcsSynchronousExec(workingDirectory, arguments, flags).result()
+        return vcsSynchronousExec(workingDirectory, QStringList{"update"}, flags).result()
                 == ProcessResult::FinishedWithSuccess;
     } else {
-        QStringList arguments(QLatin1String("clone"));
-        arguments << dstLocation << workingDirectory.parentDir().toString();
+        const QStringList arguments{"clone", dstLocation, workingDirectory.parentDir().toString()};
         return vcsSynchronousExec(workingDirectory.parentDir(), arguments, flags).result()
                 == ProcessResult::FinishedWithSuccess;
     }
@@ -198,7 +190,7 @@ user: ...
                                         msgParseParentsOutputFailed(result.cleanedStdOut())));
         return {};
     }
-    QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
+    const QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
     if (changeSets.size() < 2) {
         VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision,
                                         msgParseParentsOutputFailed(result.cleanedStdOut())));
@@ -206,8 +198,8 @@ user: ...
     }
     // Remove revision numbers
     const QChar colon = QLatin1Char(':');
-    const QStringList::iterator end = changeSets.end();
-    QStringList::iterator it = changeSets.begin();
+    const auto end = changeSets.cend();
+    auto it = changeSets.cbegin();
     for (++it; it != end; ++it) {
         const int colonIndex = it->indexOf(colon);
         if (colonIndex != -1)

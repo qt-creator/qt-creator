@@ -1194,7 +1194,7 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
     FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (repoDirectory.isEmpty())
         repoDirectory = workingDirectory;
-    QString repoName = repoDirectory.fileName();
+    const QString repoName = repoDirectory.fileName();
 
     QHash<QString, QString> filters;
     QString selectedFilter;
@@ -1222,7 +1222,7 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
                 &selectedFilter);
     if (archiveName.isEmpty())
         return;
-    QString extension = filters.value(selectedFilter);
+    const QString extension = filters.value(selectedFilter);
     QFileInfo archive(archiveName.toString());
     if (extension != "." + archive.completeSuffix()) {
         archive = QFileInfo(archive.filePath() + extension);
@@ -1691,7 +1691,7 @@ bool GitClient::synchronousHeadRefs(const FilePath &workingDirectory, QStringLis
 QString GitClient::synchronousTopic(const FilePath &workingDirectory) const
 {
     // First try to find branch
-    QString branch = synchronousCurrentLocalBranch(workingDirectory);
+    const QString branch = synchronousCurrentLocalBranch(workingDirectory);
     if (!branch.isEmpty())
         return branch;
 
@@ -2000,10 +2000,10 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
         if (!configLine.startsWith(submoduleLineStart))
             continue;
 
-        int nameStart = submoduleLineStart.size();
-        int nameEnd   = configLine.indexOf('.', nameStart);
+        const int nameStart = submoduleLineStart.size();
+        const int nameEnd   = configLine.indexOf('.', nameStart);
 
-        QString submoduleName = configLine.mid(nameStart, nameEnd - nameStart);
+        const QString submoduleName = configLine.mid(nameStart, nameEnd - nameStart);
 
         SubmoduleData submoduleData;
         if (result.contains(submoduleName))
@@ -2032,7 +2032,7 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
             } else {
                 SubmoduleData &submoduleRef = result[submoduleName];
                 submoduleRef.dir = path;
-                QString ignore = gitmodulesFile.value("ignore").toString();
+                const QString ignore = gitmodulesFile.value("ignore").toString();
                 if (!ignore.isEmpty() && submoduleRef.ignore.isEmpty())
                     submoduleRef.ignore = ignore;
             }
@@ -2130,7 +2130,7 @@ bool GitClient::synchronousApplyPatch(const FilePath &workingDirectory,
 Environment GitClient::processEnvironment() const
 {
     Environment environment = VcsBaseClientImpl::processEnvironment();
-    QString gitPath = settings().path.value();
+    const QString gitPath = settings().path.value();
     environment.prependOrSetPath(FilePath::fromUserInput(gitPath));
     if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value()) {
         QString homePath;
@@ -2594,7 +2594,7 @@ FilePath GitClient::vcsBinary() const
 
 QTextCodec *GitClient::encoding(const FilePath &workingDirectory, const QString &configVar) const
 {
-    QString codecName = readConfigValue(workingDirectory, configVar).trimmed();
+    const QString codecName = readConfigValue(workingDirectory, configVar).trimmed();
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
     if (codecName.isEmpty())
@@ -2671,7 +2671,7 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
 
     commitData.panelInfo.repository = repoDirectory;
 
-    QString gitDir = findGitDirForRepository(repoDirectory);
+    const QString gitDir = findGitDirForRepository(repoDirectory);
     if (gitDir.isEmpty()) {
         *errorMessage = Tr::tr("The repository \"%1\" is not initialized.").arg(repoDirectory.toString());
         return false;
@@ -2818,7 +2818,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
 
     for (int i = 0; i < model->rowCount(); ++i) {
         const FileStates state = static_cast<FileStates>(model->extraData(i).toInt());
-        QString file = model->file(i);
+        const QString file = model->file(i);
         const bool checked = model->checked(i);
 
         if (checked)
@@ -3004,7 +3004,7 @@ void GitClient::revertFiles(const QStringList &files, bool revertStaging)
 
 void GitClient::fetch(const FilePath &workingDirectory, const QString &remote)
 {
-    QStringList const arguments = {"fetch", (remote.isEmpty() ? "--all" : remote)};
+    const QStringList arguments{"fetch", (remote.isEmpty() ? "--all" : remote)};
     const auto commandHandler = [workingDirectory](const CommandResult &result) {
         if (result.result() == ProcessResult::FinishedWithSuccess)
             GitPlugin::updateBranches(workingDirectory);
@@ -3050,7 +3050,7 @@ void GitClient::synchronousAbortCommand(const FilePath &workingDir, const QStrin
     if (abortCommand.isEmpty()) {
         // no abort command - checkout index to clean working copy.
         synchronousCheckoutFiles(VcsManager::findTopLevelForDirectory(workingDir),
-                                 QStringList(), QString(), nullptr, false);
+                                 {}, {}, nullptr, false);
         return;
     }
 
@@ -3064,15 +3064,15 @@ QString GitClient::synchronousTrackingBranch(const FilePath &workingDirectory, c
     QString remote;
     QString localBranch = branch.isEmpty() ? synchronousCurrentLocalBranch(workingDirectory) : branch;
     if (localBranch.isEmpty())
-        return QString();
+        return {};
     localBranch.prepend("branch.");
     remote = readConfigValue(workingDirectory, localBranch + ".remote");
     if (remote.isEmpty())
-        return QString();
+        return {};
     const QString rBranch = readConfigValue(workingDirectory, localBranch + ".merge")
             .replace("refs/heads/", QString());
     if (rBranch.isEmpty())
-        return QString();
+        return {};
     return remote + '/' + rBranch;
 }
 
@@ -3252,7 +3252,7 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
 bool GitClient::synchronousMerge(const FilePath &workingDirectory, const QString &branch,
                                  bool allowFastForward)
 {
-    QString command = "merge";
+    const QString command = "merge";
     QStringList arguments = {command};
     if (!allowFastForward)
         arguments << "--no-ff";

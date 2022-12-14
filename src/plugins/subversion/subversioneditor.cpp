@@ -46,7 +46,7 @@ QString SubversionEditorWidget::changeUnderCursor(const QTextCursor &c) const
     cursor.select(QTextCursor::LineUnderCursor);
     if (!cursor.hasSelection())
         return QString();
-    QString change = cursor.selectedText();
+    const QString change = cursor.selectedText();
     const int pos = c.position() - cursor.selectionStart() + 1;
     // Annotation output has number, log output has revision numbers,
     // both at the start of the line.

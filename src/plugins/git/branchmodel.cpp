@@ -441,7 +441,7 @@ bool BranchModel::refresh(const FilePath &workingDirectory, QString *errorMessag
 
 void BranchModel::setCurrentBranch()
 {
-    QString currentBranch = d->client->synchronousCurrentLocalBranch(d->workingDirectory);
+    const QString currentBranch = d->client->synchronousCurrentLocalBranch(d->workingDirectory);
     if (currentBranch.isEmpty())
         return;
 
@@ -563,7 +563,7 @@ bool BranchModel::isTag(const QModelIndex &idx) const
 
 void BranchModel::removeBranch(const QModelIndex &idx)
 {
-    QString branch = fullName(idx);
+    const QString branch = fullName(idx);
     if (branch.isEmpty())
         return;
 
@@ -579,7 +579,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
 
 void BranchModel::removeTag(const QModelIndex &idx)
 {
-    QString tag = fullName(idx);
+    const QString tag = fullName(idx);
     if (tag.isEmpty())
         return;
 
@@ -608,7 +608,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx, const QObject *context,
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)
 {
-    QString branch = fullName(idx);
+    const QString branch = fullName(idx);
     if (branch.isEmpty())
         return false;
 
@@ -622,9 +622,9 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
 
     const QStringList lines = output.split('\n', Qt::SkipEmptyParts);
     for (const QString &l : lines) {
-        QString currentBranch = l.mid(2); // remove first letters (those are either
-                                          // "  " or "* " depending on whether it is
-                                          // the currently checked out branch or not)
+        const QString currentBranch = l.mid(2); // remove first letters (those are either
+                                                // "  " or "* " depending on whether it is
+                                                // the currently checked out branch or not)
         if (currentBranch != branch)
             return true;
     }
@@ -745,7 +745,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
         return;
 
     // objectname, refname, upstream:short, *objectname, committerdate:raw, *committerdate:raw
-    QStringList lineParts = line.split('\t');
+    const QStringList lineParts = line.split('\t');
     const QString shaDeref = lineParts.at(3);
     const QString sha = shaDeref.isEmpty() ? lineParts.at(0) : shaDeref;
     const QString fullName = lineParts.at(1);
@@ -907,9 +907,7 @@ QString BranchModel::toolTip(const QString &sha) const
     // Show the sha description excluding diff as toolTip
     QString output;
     QString errorMessage;
-    QStringList arguments("-n1");
-    arguments << sha;
-    if (!d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
+    if (!d->client->synchronousLog(d->workingDirectory, {"-n1", sha}, &output, &errorMessage,
                                    RunFlags::SuppressCommandLogging)) {
         return errorMessage;
     }

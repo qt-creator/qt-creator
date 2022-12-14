@@ -448,7 +448,7 @@ bool BranchView::remove()
     const QModelIndex selected = selectedIndex();
     QTC_CHECK(selected != m_model->currentBranch());
 
-    QString branchName = m_model->fullName(selected);
+    const QString branchName = m_model->fullName(selected);
     if (branchName.isEmpty())
         return false;
 
@@ -480,7 +480,7 @@ bool BranchView::rename()
     const bool isTag = m_model->isTag(selected);
     QTC_CHECK(m_model->isLocal(selected) || isTag);
 
-    QString oldName = m_model->fullName(selected);
+    const QString oldName = m_model->fullName(selected);
     QStringList localNames;
     if (!isTag)
         localNames = m_model->localBranchNames();

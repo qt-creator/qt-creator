@@ -1634,8 +1634,8 @@ bool GitPluginPrivate::activateCommit()
         return true;
 
     auto model = qobject_cast<SubmitFileModel *>(editor->fileModel());
-    CommitType commitType = editor->commitType();
-    QString amendSHA1 = editor->amendSHA1();
+    const CommitType commitType = editor->commitType();
+    const QString amendSHA1 = editor->amendSHA1();
     if (model->hasCheckedFiles() || !amendSHA1.isEmpty()) {
         // get message & commit
         if (!DocumentManager::saveDocument(editorDocument))

@@ -695,16 +695,14 @@ void SubversionPluginPrivate::diffProject()
     QTC_ASSERT(state.hasProject(), return);
     const QString relativeProject = state.relativeCurrentProject();
     m_client->diff(state.currentProjectTopLevel(),
-                   relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject),
-                   QStringList());
+                   relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject), {});
 }
 
 void SubversionPluginPrivate::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
-                   QStringList());
+    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), {});
 }
 
 void SubversionPluginPrivate::startCommitCurrentFile()
@@ -1049,8 +1047,8 @@ bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString 
 bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByteArray &url)
 {
     QUrl tempUrl = QUrl::fromEncoded(url);
-    QString username = tempUrl.userName();
-    QString password = tempUrl.password();
+    const QString username = tempUrl.userName();
+    const QString password = tempUrl.password();
     QStringList args = QStringList(QLatin1String("checkout"));
     args << QLatin1String(Constants::NON_INTERACTIVE_OPTION) ;
 
@@ -1060,7 +1058,7 @@ bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByte
         // authentication will always fail (if the username and password data are not stored locally),
         // if for example we are logging into a new host for the first time using svn. There seems to
         // be a bug in subversion, so this might get fixed in the future.
-        tempUrl.setUserInfo(QString());
+        tempUrl.setUserInfo({});
         args << QLatin1String("--username") << username;
         if (!password.isEmpty())
             args << QLatin1String("--password") << password;

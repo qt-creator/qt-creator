@@ -365,8 +365,7 @@ void MercurialPluginPrivate::logCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
-                 QStringList(), true);
+    m_client.log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), {}, true);
 }
 
 void MercurialPluginPrivate::revertCurrentFile()
