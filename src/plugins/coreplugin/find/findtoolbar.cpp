@@ -78,6 +78,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     m_horizontalSpacer = new QSpacerItem(40, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
     m_close = new QToolButton;
+    m_close->setObjectName("closeFindToolBarButton");
 
     auto findButtonsWidget = new QWidget;
 
