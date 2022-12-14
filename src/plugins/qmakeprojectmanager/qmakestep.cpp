@@ -552,6 +552,11 @@ QWidget *QMakeStep::createConfigWidget()
             BuildManager::buildLists({bc->cleanSteps()});
     });
 
+    connect(widget, &QObject::destroyed, this, [this] {
+        abisLabel = nullptr;
+        abisListWidget = nullptr;
+    });
+
     VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     return widget;
