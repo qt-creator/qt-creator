@@ -394,7 +394,12 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
                              project ? tr("Indexing %1 with clangd").arg(project->displayName())
                                      : tr("Indexing session with clangd"));
     setClickHandlerForToken(indexingToken(), [] {
-        ICore::showOptionsDialog(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
+        // don't directly open modal dialog from click handler, because that would mess
+        // up the stack
+        QMetaObject::invokeMethod(
+            ICore::instance(),
+            [] { ICore::showOptionsDialog(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID); },
+            Qt::QueuedConnection);
     });
     setCurrentProject(project);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);

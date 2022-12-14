@@ -1320,7 +1320,11 @@ void SimpleTargetRunnerPrivate::stop()
         switch (m_state) {
             case Run:
                 m_process.stop();
-                m_process.waitForFinished();
+                if (!m_process.waitForFinished(2000)) { // TODO: it may freeze on some devices
+                    QTC_CHECK(false); // Shouldn't happen, just emergency handling
+                    m_process.close();
+                    forwardDone();
+                }
                 break;
             case Inactive:
                 break;

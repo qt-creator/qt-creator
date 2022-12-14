@@ -490,8 +490,10 @@ bool SshProcessInterface::runInShell(const CommandLine &command, const QByteArra
     process.setCommand(cmd);
     process.setWriteData(data);
     process.start();
-    QTC_CHECK(process.waitForFinished()); // otherwise we may start producing killers for killers
-    return process.exitCode() == 0;
+    bool isFinished = process.waitForFinished(2000); // TODO: it may freeze on some devices
+    // otherwise we may start producing killers for killers
+    QTC_CHECK(isFinished);
+    return isFinished;
 }
 
 void SshProcessInterface::start()
