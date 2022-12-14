@@ -36,7 +36,6 @@ public:
     void setProcessEnvironment(const Utils::Environment &value);
     void setVcsBinary(const Utils::FilePath &path);
     void setVcsTimeoutS(int value);
-    void setWorkingDirectory(const Utils::FilePath &workingDir);
 
 protected:
     void setupCommand(Utils::QtcProcess &process, const QStringList &args) const;
@@ -44,8 +43,6 @@ protected:
                             const QString &patch) const;
     void runCommand(const QList<QStringList> &args, RunFlags flags, QTextCodec *codec = nullptr);
     virtual void processCommandOutput(const QString &output);
-
-    Utils::FilePath workingDirectory() const;
 
 private:
     friend class VcsBaseDiffEditorControllerPrivate;

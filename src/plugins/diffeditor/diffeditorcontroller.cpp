@@ -32,14 +32,14 @@ bool DiffEditorController::isReloading() const
     return m_isReloading;
 }
 
-FilePath DiffEditorController::baseDirectory() const
+FilePath DiffEditorController::workingDirectory() const
 {
-    return m_document->baseDirectory();
+    return m_document->workingDirectory();
 }
 
-void DiffEditorController::setBaseDirectory(const FilePath &directory)
+void DiffEditorController::setWorkingDirectory(const FilePath &directory)
 {
-    m_document->setBaseDirectory(directory);
+    m_document->setWorkingDirectory(directory);
 }
 
 int DiffEditorController::contextLineCount() const
@@ -76,10 +76,9 @@ DiffEditorController *DiffEditorController::controller(Core::IDocument *document
     return doc ? doc->controller() : nullptr;
 }
 
-void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,
-                                        const FilePath &workingDirectory)
+void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList)
 {
-    m_document->setDiffFiles(diffFileList, workingDirectory);
+    m_document->setDiffFiles(diffFileList);
 }
 
 void DiffEditorController::setDescription(const QString &description)

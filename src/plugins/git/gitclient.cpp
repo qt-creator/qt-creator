@@ -256,10 +256,10 @@ private:
             setupDiffProcessor(async, storage->m_stagedOutput + storage->m_unstagedOutput);
         };
         const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
-            setDiffFiles(async.result(), workingDirectory());
+            setDiffFiles(async.result());
         };
         const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
-            setDiffFiles({}, workingDirectory());
+            setDiffFiles({});
         };
 
         const Group root {
@@ -474,10 +474,10 @@ Tasking::Group ShowController::reloadRecipe()
         setupDiffProcessor(async, storage->m_diffOutput);
     };
     const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
-        setDiffFiles(async.result(), workingDirectory());
+        setDiffFiles(async.result());
     };
     const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
-        setDiffFiles({}, workingDirectory());
+        setDiffFiles({});
     };
 
     const Group root {
@@ -915,7 +915,7 @@ void GitClient::stage(DiffEditor::DiffEditorController *diffController,
     if (!patchFile.open())
         return;
 
-    const FilePath baseDir = diffController->baseDirectory();
+    const FilePath baseDir = diffController->workingDirectory();
     QTextCodec *codec = EditorManager::defaultTextCodec();
     const QByteArray patchData = codec
             ? codec->fromUnicode(patch) : patch.toLocal8Bit();

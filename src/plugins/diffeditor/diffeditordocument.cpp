@@ -139,11 +139,9 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
                                 lastChunk && fileData.lastChunkAtTheEndOfFile);
 }
 
-void DiffEditorDocument::setDiffFiles(const QList<FileData> &data, const FilePath &directory)
+void DiffEditorDocument::setDiffFiles(const QList<FileData> &data)
 {
     m_diffFiles = data;
-    if (!directory.isEmpty())
-        m_baseDirectory = directory;
     emit documentChanged();
 }
 
@@ -152,14 +150,14 @@ QList<FileData> DiffEditorDocument::diffFiles() const
     return m_diffFiles;
 }
 
-FilePath DiffEditorDocument::baseDirectory() const
+FilePath DiffEditorDocument::workingDirectory() const
 {
-    return m_baseDirectory;
+    return m_workingDirectory;
 }
 
-void DiffEditorDocument::setBaseDirectory(const FilePath &directory)
+void DiffEditorDocument::setWorkingDirectory(const FilePath &directory)
 {
-    m_baseDirectory = directory;
+    m_workingDirectory = directory;
 }
 
 void DiffEditorDocument::setStartupFile(const QString &startupFile)
@@ -226,8 +224,8 @@ bool DiffEditorDocument::setContents(const QByteArray &contents)
 
 FilePath DiffEditorDocument::fallbackSaveAsPath() const
 {
-    if (!m_baseDirectory.isEmpty())
-        return m_baseDirectory;
+    if (!m_workingDirectory.isEmpty())
+        return m_workingDirectory;
     return FileUtils::homePath();
 }
 
@@ -301,7 +299,8 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
         setTemporary(false);
         emit temporaryStateChanged();
         setFilePath(filePath.absoluteFilePath());
-        setDiffFiles(fileDataList, filePath.absoluteFilePath());
+        setWorkingDirectory(filePath.absoluteFilePath());
+        setDiffFiles(fileDataList);
     }
     endReload(ok);
     if (!ok && readResult == TextFileFormat::ReadEncodingError)
@@ -386,7 +385,7 @@ void DiffEditorDocument::beginReload()
     m_state = Reloading;
     emit changed();
     QSignalBlocker blocker(this);
-    setDiffFiles({}, {});
+    setDiffFiles({});
     setDescription({});
 }
 

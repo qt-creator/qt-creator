@@ -46,7 +46,6 @@ public:
     void commandFinished(bool success);
 
     VcsBaseDiffEditorController *q;
-    FilePath m_directory;
     Environment m_processEnvironment;
     FilePath m_vcsBinary;
     int m_vscTimeoutS;
@@ -75,7 +74,7 @@ void VcsBaseDiffEditorControllerPrivate::processingFinished()
     m_processWatcher->deleteLater();
     m_processWatcher = nullptr;
 
-    q->setDiffFiles(fileDataList, q->workingDirectory());
+    q->setDiffFiles(fileDataList);
     q->reloadFinished(success);
 }
 
@@ -178,17 +177,6 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, Run
 void VcsBaseDiffEditorController::processCommandOutput(const QString &output)
 {
     d->processDiff(output);
-}
-
-FilePath VcsBaseDiffEditorController::workingDirectory() const
-{
-    return d->m_directory;
-}
-
-void VcsBase::VcsBaseDiffEditorController::setWorkingDirectory(const FilePath &workingDir)
-{
-    d->m_directory = workingDir;
-    setBaseDirectory(workingDir);
 }
 
 void VcsBaseDiffEditorController::setVcsTimeoutS(int value)

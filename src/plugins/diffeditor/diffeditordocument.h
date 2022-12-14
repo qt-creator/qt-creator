@@ -38,10 +38,10 @@ public:
                       Core::PatchAction patchAction, bool addPrefix = false,
                       const QString &overriddenFileName = {}) const;
 
-    void setDiffFiles(const QList<FileData> &data, const Utils::FilePath &directory);
+    void setDiffFiles(const QList<FileData> &data);
     QList<FileData> diffFiles() const;
-    Utils::FilePath baseDirectory() const;
-    void setBaseDirectory(const Utils::FilePath &directory);
+    Utils::FilePath workingDirectory() const;
+    void setWorkingDirectory(const Utils::FilePath &directory);
     void setStartupFile(const QString &startupFile);
     QString startupFile() const;
 
@@ -82,7 +82,7 @@ private:
 
     DiffEditorController *m_controller = nullptr;
     QList<FileData> m_diffFiles;
-    Utils::FilePath m_baseDirectory;
+    Utils::FilePath m_workingDirectory;
     QString m_startupFile;
     QString m_description;
     int m_contextLineCount = 3;

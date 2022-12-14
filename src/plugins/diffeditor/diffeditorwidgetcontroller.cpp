@@ -142,9 +142,9 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
             ? fileData.fileInfo[LeftSide].patchBehaviour
             : fileData.fileInfo[RightSide].patchBehaviour;
 
-    const FilePath workingDirectory = m_document->baseDirectory().isEmpty()
+    const FilePath workingDirectory = m_document->workingDirectory().isEmpty()
             ? FilePath::fromString(fileName).absolutePath()
-            : m_document->baseDirectory();
+            : m_document->workingDirectory();
     const FilePath absFilePath = workingDirectory.resolvePath(fileName).absoluteFilePath();
 
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(
@@ -158,7 +158,7 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
     if (patchBehaviour == DiffFileInfo::PatchFile) {
         if (textDocument && !EditorManager::saveDocument(textDocument))
             return;
-        const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
+        const int strip = m_document->workingDirectory().isEmpty() ? -1 : 0;
 
         const QString patch = m_document->makePatch(fileIndex, chunkIndex, {}, patchAction);
 
@@ -205,7 +205,7 @@ void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,
     if (!m_document)
         return;
 
-    const FilePath filePath = m_document->baseDirectory().resolvePath(fileName);
+    const FilePath filePath = m_document->workingDirectory().resolvePath(fileName);
     if (filePath.exists() && !filePath.isDir())
         EditorManager::openEditorAt({filePath, lineNumber, columnNumber});
 }
