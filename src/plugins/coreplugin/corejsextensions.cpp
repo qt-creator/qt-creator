@@ -132,7 +132,8 @@ QString UtilsJsExtension::mktemp(const QString &pattern) const
 
     QTemporaryFile file(tmp);
     file.setAutoRemove(false);
-    QTC_ASSERT(file.open(), return QString());
+    const bool isOpen = file.open();
+    QTC_ASSERT(isOpen, return {});
     file.close();
     return file.fileName();
 }
