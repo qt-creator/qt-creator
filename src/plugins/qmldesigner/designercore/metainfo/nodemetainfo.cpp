@@ -562,9 +562,9 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
         const CppComponentValue * qmlObjectValue = value_cast<CppComponentValue>(prototype);
 
         if (qmlObjectValue)
-            propertyList.append(getQmlTypes(qmlObjectValue, context, local, rec));
+            propertyList.append(getQmlTypes(qmlObjectValue, context, local, rec + 1));
         else
-            propertyList.append(getObjectTypes(prototype, context, local, rec));
+            propertyList.append(getObjectTypes(prototype, context, local, rec + 1));
     }
 
     return propertyList;
