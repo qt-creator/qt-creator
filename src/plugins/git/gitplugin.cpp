@@ -1581,7 +1581,7 @@ void GitPluginPrivate::instantBlame()
     };
     GitClient::instance()->vcsExecWithHandler(workingDirectory,
                            {"blame", "-p", "-L", lineString, "--", filePath.toString()},
-                           this, commandHandler);
+                           this, commandHandler, RunFlags::SuppressCommandLogging);
 }
 
 void GitPluginPrivate::stopInstantBlame()
