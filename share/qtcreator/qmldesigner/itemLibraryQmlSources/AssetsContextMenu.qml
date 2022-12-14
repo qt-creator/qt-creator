@@ -1,90 +1,148 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
-import QtQuickDesignerTheme
-import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
 StudioControls.Menu {
-    id: contextMenu
+    id: root
+
+    required property Item assetsView
+
+    property bool __isDirectory: false
+    property var __fileIndex: null
+    property string __dirPath: ""
+    property string __dirName: ""
+    property var __onFolderCreated: null
+    property var __onFolderRenamed: null
+    property var __dirIndex: null
+    property string __allExpandedState: ""
+    property var __selectedAssetPathsList: null
 
     closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
 
-    onOpened: {
-        var numSelected = Object.values(root.selectedAssets).filter(p => p).length
-        deleteFileItem.text = numSelected > 1 ? qsTr("Delete Files") : qsTr("Delete File")
+    function openContextMenuForRoot(rootModelIndex, dirPath, dirName, onFolderCreated)
+    {
+        root.__onFolderCreated = onFolderCreated
+        root.__fileIndex = ""
+        root.__dirPath = dirPath
+        root.__dirName = dirName
+        root.__dirIndex = rootModelIndex
+        root.__isDirectory = false
+        root.popup()
+    }
+
+    function openContextMenuForDir(dirModelIndex, dirPath, dirName, allExpandedState,
+                                   onFolderCreated, onFolderRenamed)
+    {
+        root.__onFolderCreated = onFolderCreated
+        root.__onFolderRenamed = onFolderRenamed
+        root.__dirPath = dirPath
+        root.__dirName = dirName
+        root.__fileIndex = ""
+        root.__dirIndex = dirModelIndex
+        root.__isDirectory = true
+        root.__allExpandedState = allExpandedState
+        root.popup()
+    }
+
+    function openContextMenuForFile(fileIndex, dirModelIndex, selectedAssetPathsList, onFolderCreated)
+    {
+        if (selectedAssetPathsList.length > 1) {
+            deleteFileItem.text = qsTr("Delete Files")
+            addTexturesItem.text = qsTr("Add Textures")
+        } else {
+            deleteFileItem.text = qsTr("Delete File")
+            addTexturesItem.text = qsTr("Add Texture")
+        }
+
+        root.__onFolderCreated = onFolderCreated
+        root.__selectedAssetPathsList = selectedAssetPathsList
+        root.__fileIndex = fileIndex
+        root.__dirIndex = dirModelIndex
+        root.__dirPath = assetsModel.filePath(dirModelIndex)
+        root.__isDirectory = false
+        root.popup()
     }
 
     StudioControls.MenuItem {
         text: qsTr("Expand All")
-        enabled: root.allExpandedState !== 1
-        visible: root.isDirContextMenu
+        enabled: root.__allExpandedState !== "all_expanded"
+        visible: root.__isDirectory
         height: visible ? implicitHeight : 0
-        onTriggered: assetsModel.toggleExpandAll(true)
+        onTriggered: root.assetsView.expandAll()
     }
 
     StudioControls.MenuItem {
         text: qsTr("Collapse All")
-        enabled: root.allExpandedState !== 2
-        visible: root.isDirContextMenu
+        enabled: root.__allExpandedState !== "all_collapsed"
+        visible: root.__isDirectory
         height: visible ? implicitHeight : 0
-        onTriggered: assetsModel.toggleExpandAll(false)
+        onTriggered: root.assetsView.collapseAll()
     }
 
     StudioControls.MenuSeparator {
-        visible: root.isDirContextMenu
+        visible: root.__isDirectory
         height: visible ? StudioTheme.Values.border : 0
+    }
+
+    StudioControls.MenuItem {
+        id: addTexturesItem
+        text: qsTr("Add Texture")
+        visible: root.__fileIndex && assetsModel.allFilePathsAreImages(root.__selectedAssetPathsList)
+        height: addTexturesItem.visible ? addTexturesItem.implicitHeight : 0
+        onTriggered: rootView.addTextures(root.__selectedAssetPathsList)
+    }
+
+    StudioControls.MenuItem {
+        id: addLightProbes
+        text: qsTr("Add Light Probe")
+        visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
+                 && assetsModel.allFilePathsAreImages(root.__selectedAssetPathsList)
+        height: addLightProbes.visible ? addLightProbes.implicitHeight : 0
+        onTriggered: rootView.addLightProbe(root.__selectedAssetPathsList[0])
     }
 
     StudioControls.MenuItem {
         id: deleteFileItem
         text: qsTr("Delete File")
-        visible: root.contextFilePath
+        visible: root.__fileIndex
         height: deleteFileItem.visible ? deleteFileItem.implicitHeight : 0
         onTriggered: {
-            assetsModel.deleteFiles(Object.keys(root.selectedAssets).filter(p => root.selectedAssets[p]))
+            let deleted = assetsModel.requestDeleteFiles(root.__selectedAssetPathsList)
+            if (!deleted)
+                confirmDeleteFiles.open()
+        }
+
+        ConfirmDeleteFilesDialog {
+            id: confirmDeleteFiles
+            parent: root.assetsView
+            files: root.__selectedAssetPathsList
+
+            onAccepted: root.assetsView.selectedAssets = {}
         }
     }
 
     StudioControls.MenuSeparator {
-        visible: root.contextFilePath
+        visible: root.__fileIndex
         height: visible ? StudioTheme.Values.border : 0
     }
 
     StudioControls.MenuItem {
         text: qsTr("Rename Folder")
-        visible: root.isDirContextMenu
+        visible: root.__isDirectory
         height: visible ? implicitHeight : 0
         onTriggered: renameFolderDialog.open()
 
         RenameFolderDialog {
             id: renameFolderDialog
+            parent: root.assetsView
+            dirPath: root.__dirPath
+            dirName: root.__dirName
+
+            onAccepted: root.__onFolderRenamed()
         }
     }
 
@@ -93,6 +151,10 @@ StudioControls.Menu {
 
         NewFolderDialog {
             id: newFolderDialog
+            parent: root.assetsView
+            dirPath: root.__dirPath
+
+            onAccepted: root.__onFolderCreated(newFolderDialog.createdDirPath)
         }
 
         onTriggered: newFolderDialog.open()
@@ -100,21 +162,25 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Delete Folder")
-        visible: root.isDirContextMenu
+        visible: root.__isDirectory
         height: visible ? implicitHeight : 0
 
         ConfirmDeleteFolderDialog {
             id: confirmDeleteFolderDialog
+            parent: root.assetsView
+            dirName: root.__dirName
+            dirIndex: root.__dirIndex
         }
 
         onTriggered: {
-            var dirEmpty = !(root.contextDir.dirsModel && root.contextDir.dirsModel.rowCount() > 0)
-                        && !(root.contextDir.filesModel && root.contextDir.filesModel.rowCount() > 0);
-
-            if (dirEmpty)
-                assetsModel.deleteFolder(root.contextDir.dirPath)
-            else
+            if (!assetsModel.hasChildren(root.__dirIndex)) {
+                // NOTE: the folder may still not be empty -- it doesn't have files visible to the
+                // user, but that doesn't mean that there are no other files (e.g. files of unknown
+                // types) on disk in this directory.
+                assetsModel.deleteFolderRecursively(root.__dirIndex)
+            } else {
                 confirmDeleteFolderDialog.open()
+            }
         }
     }
 }

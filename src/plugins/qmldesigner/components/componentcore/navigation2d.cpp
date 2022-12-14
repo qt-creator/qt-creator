@@ -1,6 +1,9 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #include "navigation2d.h"
+#include <utils/hostosinfo.h>
+#include <designersettings.h>
+#include <qmldesignerplugin.h>
 
 #include <QGestureEvent>
 #include <QScrollBar>
@@ -73,15 +76,24 @@ bool Navigation2dFilter::wheelEvent(QWheelEvent *event)
     bool zoomChangedConnected = QObject::isSignalConnected(zoomChangedSignal);
 
     if (zoomChangedConnected) {
+        const double globalMouseSpeed =
+            QmlDesignerPlugin::settings().value(DesignerSettingsKey::EDITOR_ZOOM_FACTOR).toDouble();
+
+        double speed = globalMouseSpeed/20.;
+        if (Utils::HostOsInfo::isMacHost())
+            speed = 1.0/200.;
+
         if (QPointF delta = event->pixelDelta(); !delta.isNull()) {
             double dist = std::abs(delta.x()) > std::abs(delta.y()) ? -delta.x() : delta.y();
-            emit zoomChanged(dist/200.0, event->position());
+            emit zoomChanged(dist * speed, event->position());
             event->accept();
             return true;
         } else if (QPointF delta = event->angleDelta(); !delta.isNull()) {
+            constexpr double degreePerStep = 15.;
+            constexpr double stepCount = 8.;
             double dist = std::abs(delta.x()) > std::abs(delta.y()) ? -delta.x() : delta.y();
-            dist = dist / (8*15);
-            emit zoomChanged(dist/200.0, event->position());
+            dist = dist / (stepCount*degreePerStep);
+            emit zoomChanged(dist * speed, event->position());
             event->accept();
             return true;
         }

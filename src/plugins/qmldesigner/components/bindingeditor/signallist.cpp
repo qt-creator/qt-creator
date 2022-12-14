@@ -223,7 +223,7 @@ void SignalList::addConnection(const QModelIndex &modelIndex)
     const ModelNode rootModelNode = view->rootModelNode();
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
-        NodeMetaInfo nodeMetaInfo = view->model()->metaInfo("QtQuick.Connections");
+        NodeMetaInfo nodeMetaInfo = view->model()->qtQuickConnectionsMetaInfo();
         if (nodeMetaInfo.isValid()) {
             view->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode](){
                 ModelNode newNode = view->createModelNode("QtQuick.Connections",

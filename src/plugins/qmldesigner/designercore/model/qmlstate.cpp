@@ -254,17 +254,31 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
     if (!isValid())
         return {};
 
-//    QmlModelState newState(stateGroup().addState(name));
     QmlModelState newState(createQmlState(view(), {{PropertyName("name"), QVariant(name)}}));
+
+    if (hasExtend())
+        newState.setExtend(extend());
+
     const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
     for (const ModelNode &childNode : nodes) {
-        ModelNode newModelNode(view()->createModelNode(childNode.type(), childNode.majorVersion(), childNode.minorVersion()));
+        ModelNode newModelNode(view()->createModelNode(childNode.type(),
+                                                       childNode.majorVersion(),
+                                                       childNode.minorVersion()));
+
+        for (const BindingProperty &bindingProperty : childNode.bindingProperties()) {
+            auto property = newModelNode.bindingProperty(bindingProperty.name());
+            property.setExpression(bindingProperty.expression());
+        }
+
         const QList<BindingProperty> bindingProperties = childNode.bindingProperties();
         for (const BindingProperty &bindingProperty : bindingProperties)
-            newModelNode.bindingProperty(bindingProperty.name()).setExpression(bindingProperty.expression());
-        const QList<VariantProperty> variantProperties = childNode.variantProperties();
-        for (const VariantProperty &variantProperty : variantProperties)
-            newModelNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
+            newModelNode.bindingProperty(bindingProperty.name())
+                .setExpression(bindingProperty.expression());
+
+        for (const VariantProperty &variantProperty : childNode.variantProperties()) {
+            auto property = newModelNode.variantProperty(variantProperty.name());
+            property.setValue(variantProperty.value());
+        }
         newState.modelNode().nodeListProperty("changes").reparentHere(newModelNode);
     }
 

@@ -57,10 +57,16 @@ public:
     void emitSelectionToBeChanged();
     void emitSelectionChanged();
 
-    void setValueforLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &name);
+    void setValueforLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode,
+                                             const PropertyName &name);
+    void setValueforInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
+                                              const PropertyName &name);
     void setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, AuxiliaryDataKeyView key);
 
-    void setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor);
+    void setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode,
+                                       PropertyEditorView *propertyEditor);
+    void setupInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
+                                        PropertyEditorView *propertyEditor);
     void setupAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor);
 
     static NodeMetaInfo findCommonAncestor(const ModelNode &node);

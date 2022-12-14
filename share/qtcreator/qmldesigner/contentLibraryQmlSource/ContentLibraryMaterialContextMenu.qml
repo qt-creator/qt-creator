@@ -10,7 +10,13 @@ StudioControls.Menu {
     id: root
 
     property var targetMaterial: null
+    property bool hasModelSelection: false
+    property bool importerRunning: false
+
+    readonly property bool targetAvailable: targetMaterial && !importerRunning
+
     signal unimport(var bundleMat);
+    signal addToProject(var bundleMat)
 
     function popupMenu(targetMaterial = null)
     {
@@ -22,31 +28,31 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Apply to selected (replace)")
-        enabled: root.targetMaterial && materialsModel.hasModelSelection
-        onTriggered: materialsModel.applyToSelected(root.targetMaterial, false)
+        enabled: root.targetAvailable && root.hasModelSelection
+        onTriggered: root.applyToSelected(root.targetMaterial, false)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Apply to selected (add)")
-        enabled: root.targetMaterial && materialsModel.hasModelSelection
-        onTriggered: materialsModel.applyToSelected(root.targetMaterial, true)
+        enabled: root.targetAvailable && root.hasModelSelection
+        onTriggered: root.applyToSelected(root.targetMaterial, true)
     }
 
     StudioControls.MenuSeparator {}
 
     StudioControls.MenuItem {
-        enabled: !materialsModel.importerRunning
+        enabled: root.targetAvailable
         text: qsTr("Add an instance to project")
 
         onTriggered: {
-            materialsModel.addToProject(root.targetMaterial)
+            root.addToProject(root.targetMaterial)
         }
     }
 
     StudioControls.MenuItem {
-        enabled: !materialsModel.importerRunning && root.targetMaterial && root.targetMaterial.bundleMaterialImported
+        enabled: root.targetAvailable && root.targetMaterial.bundleMaterialImported
         text: qsTr("Remove from project")
 
-        onTriggered: root.unimport(root.targetMaterial);
+        onTriggered: root.unimport(root.targetMaterial)
     }
 }

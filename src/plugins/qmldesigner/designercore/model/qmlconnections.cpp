@@ -99,7 +99,7 @@ QList<SignalHandlerProperty> QmlConnections::signalProperties() const
 
 ModelNode QmlConnections::createQmlConnections(AbstractView *view)
 {
-    NodeMetaInfo nodeMetaInfo = view->model()->metaInfo("QtQuick.Connections");
+    NodeMetaInfo nodeMetaInfo = view->model()->qtQuickConnectionsMetaInfo();
     return view->createModelNode("QtQuick.Connections",
                                  nodeMetaInfo.majorVersion(),
                                  nodeMetaInfo.minorVersion());

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "createtexture.h"
+
 #include <QFrame>
 #include <QPointer>
 
@@ -23,6 +25,9 @@ class ContentLibraryWidget : public QFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport  NOTIFY hasQuick3DImportChanged)
+    Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+
 public:
     ContentLibraryWidget();
 
@@ -30,6 +35,12 @@ public:
 
     static QString qmlSourcesPath();
     void clearSearchFilter();
+
+    bool hasQuick3DImport() const;
+    void setHasQuick3DImport(bool b);
+
+    bool hasMaterialLibrary() const;
+    void setHasMaterialLibrary(bool b);
 
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
 
@@ -44,13 +55,15 @@ public:
     Q_INVOKABLE void addImage(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void addTexture(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
-
-    enum class AddTextureMode { Image, Texture, LightProbe };
+    Q_INVOKABLE void updateSceneEnvState();
 
 signals:
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
-    void draggedMaterialChanged();
-    void addTextureRequested(const QString texPath, QmlDesigner::ContentLibraryWidget::AddTextureMode mode);
+    void bundleTextureDragStarted(QmlDesigner::ContentLibraryTexture *bundleTex);
+    void addTextureRequested(const QString texPath, QmlDesigner::AddTextureMode mode);
+    void updateSceneEnvStateRequested();
+    void hasQuick3DImportChanged();
+    void hasMaterialLibraryChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -70,9 +83,11 @@ private:
     QString m_filterText;
 
     ContentLibraryMaterial *m_materialToDrag = nullptr;
-    ContentLibraryMaterial *m_draggedMaterial = nullptr;
     ContentLibraryTexture *m_textureToDrag = nullptr;
     QPoint m_dragStartPoint;
+
+    bool m_hasMaterialLibrary = false;
+    bool m_hasQuick3DImport = false;
 };
 
 } // namespace QmlDesigner

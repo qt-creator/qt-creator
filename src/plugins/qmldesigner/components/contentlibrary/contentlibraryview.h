@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "createtexture.h"
 #include "abstractview.h"
 #include "nodemetainfo.h"
 
@@ -12,6 +13,7 @@
 namespace QmlDesigner {
 
 class ContentLibraryMaterial;
+class ContentLibraryTexture;
 class ContentLibraryWidget;
 class Model;
 
@@ -35,6 +37,10 @@ public:
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
+                        const NodeAbstractProperty &oldPropertyParent,
+                        AbstractView::PropertyChangeFlags propertyChange) override;
+    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
 
 private:
     void updateBundleMaterialsImportedState();
@@ -47,9 +53,11 @@ private:
     QList<ModelNode> m_bundleMaterialTargets;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
-    ModelNode m_activeSceneEnv;
+    ContentLibraryTexture *m_draggedBundleTexture = nullptr;
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
+    qint32 m_sceneId = -1;
+    CreateTexture m_createTexture;
 };
 
 } // namespace QmlDesigner

@@ -58,11 +58,6 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_MATERIAL, data);
                 mimeData->removeFormat("text/plain");
 
-                if (!m_draggedMaterial) {
-                    m_draggedMaterial = m_materialToDrag;
-                    emit draggedMaterialChanged();
-                }
-
                 emit bundleMaterialDragStarted(m_materialToDrag);
                 model->startDrag(mimeData, m_materialToDrag->icon().toLocalFile());
                 m_materialToDrag = nullptr;
@@ -77,6 +72,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, data);
                 mimeData->removeFormat("text/plain");
 
+                emit bundleTextureDragStarted(m_textureToDrag);
                 model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
                 m_textureToDrag = nullptr;
             }
@@ -84,11 +80,6 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = nullptr;
         m_textureToDrag = nullptr;
-
-        if (m_draggedMaterial) {
-            m_draggedMaterial = nullptr;
-            emit draggedMaterialChanged();
-        }
     }
 
     return QObject::eventFilter(obj, event);
@@ -166,6 +157,44 @@ void ContentLibraryWidget::clearSearchFilter()
     QMetaObject::invokeMethod(m_quickWidget->rootObject(), "clearSearchFilter");
 }
 
+bool ContentLibraryWidget::hasQuick3DImport() const
+{
+    return m_hasQuick3DImport;
+}
+
+void ContentLibraryWidget::setHasQuick3DImport(bool b)
+{
+    if (b == m_hasQuick3DImport)
+        return;
+
+    const bool oldRequired = m_materialsModel->hasRequiredQuick3DImport();
+    m_hasQuick3DImport = b;
+    const bool newRequired = m_materialsModel->hasRequiredQuick3DImport();
+
+    if (oldRequired != newRequired)
+        emit m_materialsModel->hasRequiredQuick3DImportChanged();
+
+    emit hasQuick3DImportChanged();
+
+    m_materialsModel->updateIsEmpty();
+}
+
+bool ContentLibraryWidget::hasMaterialLibrary() const
+{
+    return m_hasMaterialLibrary;
+}
+
+void ContentLibraryWidget::setHasMaterialLibrary(bool b)
+{
+    if (m_hasMaterialLibrary == b)
+        return;
+
+    m_hasMaterialLibrary = b;
+    emit hasMaterialLibraryChanged();
+
+    m_materialsModel->updateIsEmpty();
+}
+
 void ContentLibraryWidget::reloadQmlSource()
 {
     const QString materialBrowserQmlPath = qmlSourcesPath() + "/ContentLibrary.qml";
@@ -228,6 +257,11 @@ void ContentLibraryWidget::addTexture(ContentLibraryTexture *tex)
 void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
 {
     emit addTextureRequested(tex->path(), AddTextureMode::LightProbe);
+}
+
+void ContentLibraryWidget::updateSceneEnvState()
+{
+    emit updateSceneEnvStateRequested();
 }
 
 QPointer<ContentLibraryMaterialsModel> ContentLibraryWidget::materialsModel() const

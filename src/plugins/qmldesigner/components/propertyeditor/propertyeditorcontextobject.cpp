@@ -424,6 +424,20 @@ void PropertyEditorContextObject::setHasMultiSelection(bool b)
     emit hasMultiSelectionChanged();
 }
 
+void PropertyEditorContextObject::setInsightEnabled(bool value)
+{
+    if (value != m_insightEnabled) {
+        m_insightEnabled = value;
+        emit insightEnabledChanged();
+    }
+}
+
+void PropertyEditorContextObject::setInsightCategories(const QStringList &categories)
+{
+    m_insightCategories = categories;
+    emit insightCategoriesChanged();
+}
+
 void PropertyEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)
 {
     if (newSpecificsUrl == m_specificsUrl)
@@ -579,6 +593,14 @@ bool PropertyEditorContextObject::isBlocked(const QString &propName) const
         }
     }
     return false;
+}
+
+void PropertyEditorContextObject::verifyInsightImport()
+{
+    Import import = Import::createLibraryImport("QtInsightTracker", "1.0");
+
+    if (!m_model->hasImport(import))
+        m_model->changeImports({import}, {});
 }
 
 void EasingCurveEditor::registerDeclarativeType()

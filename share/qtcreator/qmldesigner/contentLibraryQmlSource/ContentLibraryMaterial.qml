@@ -19,6 +19,7 @@ Item {
     MouseArea {
         id: mouseArea
 
+        hoverEnabled: true
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
@@ -81,6 +82,7 @@ Item {
                 anchors.right: img.right
                 anchors.bottom: img.bottom
                 enabled: !materialsModel.importerRunning
+                visible: containsMouse || mouseArea.containsMouse
 
                 onClicked: {
                     materialsModel.addToProject(modelData)

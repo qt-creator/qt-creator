@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "modelnodeoperations.h"
+#include "coreplugin/coreplugintr.h"
 #include "designmodewidget.h"
 #include "modelnodecontextmenu_helper.h"
 #include "addimagesdialog.h"
 #include "layoutingridlayout.h"
 #include "findimplementation.h"
-
 
 #include "addsignalhandlerdialog.h"
 
@@ -1042,16 +1042,20 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
 {
     QString directory = showDialog ? AddImagesDialog::getDirectory(fileNames, defaultDir) : defaultDir;
     if (directory.isEmpty())
-        return AddFilesResult::Cancelled;
+        return AddFilesResult::cancelled(directory);
 
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    QTC_ASSERT(document, return AddFilesResult::Failed);
+    QTC_ASSERT(document, return AddFilesResult::failed(directory));
 
     QList<QPair<QString, QString>> copyList;
     QStringList removeList;
     for (const QString &fileName : fileNames) {
         const QString targetFile = directory + "/" + QFileInfo(fileName).fileName();
-        if (QFileInfo::exists(targetFile)) {
+        Utils::FilePath srcFilePath = Utils::FilePath::fromString(fileName);
+        Utils::FilePath targetFilePath = Utils::FilePath::fromString(targetFile);
+        if (targetFilePath.exists()) {
+            if (srcFilePath.lastModified() == targetFilePath.lastModified())
+                continue;
             const QString title = QCoreApplication::translate(
                         "ModelNodeOperations", "Overwrite Existing File?");
             const QString question = QCoreApplication::translate(
@@ -1073,7 +1077,7 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
     for (const auto &filePair : std::as_const(copyList)) {
         const bool success = QFile::copy(filePair.first, filePair.second);
         if (!success)
-            return AddFilesResult::Failed;
+            return AddFilesResult::failed(directory);
 
         ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(document->fileName());
         if (node) {
@@ -1083,7 +1087,7 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
         }
     }
 
-    return AddFilesResult::Succeeded;
+    return AddFilesResult::succeeded(directory);
 }
 
 static QString getAssetDefaultDirectory(const QString &assetDir, const QString &defaultDirectory)
@@ -1642,7 +1646,7 @@ void openEffectMaker(const QString &filePath)
 
     const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (baseQtVersion) {
-        auto effectMakerPath = baseQtVersion->binPath().pathAppended("QQEffectMaker").withExecutableSuffix();
+        auto effectMakerPath = baseQtVersion->binPath().pathAppended("qqem").withExecutableSuffix();
         if (!effectMakerPath.exists()) {
             qWarning() << __FUNCTION__ << "Cannot find EffectMaker app";
             return;
@@ -1651,7 +1655,7 @@ void openEffectMaker(const QString &filePath)
         Utils::FilePath effectPath = Utils::FilePath::fromString(filePath);
         QStringList arguments;
         arguments << filePath;
-        if (effectPath.fileContents())
+        if (effectPath.fileContents()->isEmpty())
             arguments << "--create";
         arguments << "--exportpath" << effectResPath.toString();
 
@@ -1682,6 +1686,56 @@ Utils::FilePath getEffectsDirectory()
     }
 
     return effectsPath;
+}
+
+QString getEffectIcon(const QString &effectPath)
+{
+    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
+    if (!target) {
+        qWarning() << __FUNCTION__ << "No project open";
+        return QString();
+    }
+
+    Utils::FilePath projectPath = target->project()->projectDirectory();
+    QString effectName = QFileInfo(effectPath).baseName();
+    QString effectResDir = "asset_imports/Effects/" + effectName;
+    Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir + "/" + effectName + ".qml");
+
+    return effectResPath.exists() ? QString("effectExported") : QString("effectClass");
+}
+
+bool useLayerEffect()
+{
+    QSettings *settings = Core::ICore::settings();
+    const QString layerEffectEntry = "QML/Designer/UseLayerEffect";
+
+    return settings->value(layerEffectEntry, true).toBool();
+}
+
+bool validateEffect(const QString &effectPath)
+{
+    const QString effectName = QFileInfo(effectPath).baseName();
+    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsDirectory();
+    Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
+    if (!qmlPath.exists()) {
+        QMessageBox msgBox;
+        msgBox.setText(QObject::tr("Effect %1 not complete").arg(effectName));
+        msgBox.setInformativeText(QObject::tr("Do you want to edit %1?").arg(effectName));
+        msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        msgBox.setIcon(QMessageBox::Question);
+        if (msgBox.exec() == QMessageBox::Yes)
+            ModelNodeOperations::openEffectMaker(effectPath);
+        return false;
+    }
+    return true;
+}
+
+Utils::FilePath getImagesDefaultDirectory()
+{
+    return Utils::FilePath::fromString(
+                getAssetDefaultDirectory(
+        "images", QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString()));
 }
 
 } // namespace ModelNodeOperations

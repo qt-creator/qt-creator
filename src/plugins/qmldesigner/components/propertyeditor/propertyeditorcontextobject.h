@@ -49,6 +49,9 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool hasMultiSelection READ hasMultiSelection WRITE setHasMultiSelection NOTIFY
                    hasMultiSelectionChanged)
 
+    Q_PROPERTY(bool insightEnabled MEMBER m_insightEnabled NOTIFY insightEnabledChanged)
+    Q_PROPERTY(QStringList insightCategories MEMBER m_insightCategories NOTIFY insightCategoriesChanged)
+
 public:
     PropertyEditorContextObject(QObject *parent = nullptr);
 
@@ -87,6 +90,8 @@ public:
 
     Q_INVOKABLE bool isBlocked(const QString &propName) const;
 
+    Q_INVOKABLE void verifyInsightImport();
+
     QString activeDragSuffix() const;
     void setActiveDragSuffix(const QString &suffix);
 
@@ -111,6 +116,9 @@ public:
 
     void setHasMultiSelection(bool);
 
+    void setInsightEnabled(bool value);
+    void setInsightCategories(const QStringList &categories);
+
 signals:
     void specificsUrlChanged();
     void specificQmlDataChanged();
@@ -128,6 +136,9 @@ signals:
     void hasActiveTimelineChanged();
     void activeDragSuffixChanged();
     void hasMultiSelectionChanged();
+
+    void insightEnabledChanged();
+    void insightCategoriesChanged();
 
 public slots:
 
@@ -180,6 +191,9 @@ private:
     QString m_activeDragSuffix;
 
     bool m_hasMultiSelection = false;
+
+    bool m_insightEnabled = false;
+    QStringList m_insightCategories;
 };
 
 class EasingCurveEditor : public QObject

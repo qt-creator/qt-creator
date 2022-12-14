@@ -806,8 +806,11 @@ void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, in
 void AbstractView::ensureMaterialLibraryNode()
 {
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-    if (matLib.isValid() || rootModelNode().metaInfo().isQtQuick3DMaterial())
+    if (matLib.isValid()
+            || (!rootModelNode().metaInfo().isQtQuick3DNode()
+                && !rootModelNode().metaInfo().isQtQuickItem())) {
         return;
+    }
 
     executeInTransaction(__FUNCTION__, [&] {
         // Create material library node
@@ -911,6 +914,30 @@ void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const Mod
     BindingProperty modelMatsProp = modelNode.bindingProperty("materials");
     modelMatsProp.setExpression(newMaterialNode.id());
 }
+
+ModelNode AbstractView::getTextureDefaultInstance(const QString &source)
+{
+    ModelNode matLib = materialLibraryNode();
+    if (!matLib.isValid())
+        return {};
+
+    const QList <ModelNode> matLibNodes = matLib.directSubModelNodes();
+    for (const ModelNode &tex : matLibNodes) {
+        if (tex.isValid() && tex.metaInfo().isQtQuick3DTexture()) {
+            const QList<AbstractProperty> props = tex.properties();
+            if (props.size() != 1)
+                continue;
+            const AbstractProperty &prop = props[0];
+            if (prop.name() == "source" && prop.isVariantProperty()
+                    && prop.toVariantProperty().value().toString() == source) {
+                return tex;
+            }
+        }
+    }
+
+    return {};
+}
+
 
 ModelNode AbstractView::currentStateNode() const
 {

@@ -108,7 +108,7 @@
 
     We will now copy the color animation from the text label to the indicator.
     First, we right-click the text component in the \uicontrol Timeline view to
-    open a context menu and select \uicontrol {Copy All Keyframes from Item} to
+    open a context menu and select \uicontrol {Copy All Keyframes} to
     copy the keyframe values we specified for the text label.
 
     Next, we select the indicator in the \uicontrol Navigator, and then select

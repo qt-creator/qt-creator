@@ -14,6 +14,7 @@ Rectangle {
     property alias icon: icon.text
     property alias tooltip: toolTip.text
     property alias iconSize: icon.font.pixelSize
+    property alias containsMouse: mouseArea.containsMouse
 
     property bool enabled: true
     property int buttonSize: StudioTheme.Values.height

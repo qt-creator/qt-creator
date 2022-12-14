@@ -9,8 +9,10 @@
 #include <modelmerger.h>
 
 #include "designdocument.h"
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <nodelistproperty.h>
+#include <nodemetainfo.h>
 
 #include <QApplication>
 #include <QPlainTextEdit>
@@ -18,6 +20,7 @@
 #include <QMimeData>
 #include <QDebug>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 namespace QmlDesigner {
@@ -80,6 +83,18 @@ void DesignDocumentView::fromClipboard()
 //    }
 }
 
+static bool hasOnly3DNodes(const ModelNode &node)
+{
+    if (node.id() == "__multi__selection__") {
+        bool hasNon3DNode = Utils::anyOf(node.directSubModelNodes(), [](const ModelNode &node) {
+            return !node.metaInfo().isQtQuick3DNode();
+        });
+
+        return !hasNon3DNode;
+    }
+    return node.metaInfo().isQtQuick3DNode();
+}
+
 QString DesignDocumentView::toText() const
 {
     auto outputModel = Model::create("QtQuick.Rectangle", 1, 0, model());
@@ -110,7 +125,11 @@ QString DesignDocumentView::toText() const
     ModelNode rewriterNode(rewriterView->rootModelNode());
 
     rewriterView->writeAuxiliaryData();
-    return rewriterView->extractText({rewriterNode}).value(rewriterNode) + rewriterView->getRawAuxiliaryData();
+
+    QString paste3DHeader = hasOnly3DNodes(rewriterNode) ? QString(Constants::HEADER_3DPASTE_CONTENT) : QString();
+    return paste3DHeader
+            + rewriterView->extractText({rewriterNode}).value(rewriterNode)
+            + rewriterView->getRawAuxiliaryData();
     //get the text of the root item without imports
 }
 

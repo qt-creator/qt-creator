@@ -3,7 +3,11 @@
 
 /*!
     \page creator-project-managing-workspaces.html
+    \if defined(qtdesignstudio)
+    \previouspage studio-texture-editor.html
+    \else
     \previouspage creator-open-documents-view.html
+    \endif
     \nextpage creator-project-managing-sessions.html
 
     \title Managing Workspaces

@@ -36,12 +36,24 @@ Rectangle {
         mouseArea.forceActiveFocus()
     }
 
-    border.width: materialBrowserModel.selectedIndex === index ? 1 : 0
+    border.width: materialBrowserModel.selectedIndex === index ? rootView.materialSectionFocused ? 3 : 1 : 0
     border.color: materialBrowserModel.selectedIndex === index
                         ? StudioTheme.Values.themeControlOutlineInteraction
                         : "transparent"
     color: "transparent"
     visible: materialVisible
+
+    DropArea {
+        anchors.fill: parent
+
+        onEntered: (drag) => {
+            drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.texture"
+        }
+
+        onDropped: (drag) => {
+            rootView.acceptTextureDropOnMaterial(index, drag.getDataAsString(drag.keys[0]))
+        }
+    }
 
     MouseArea {
         id: mouseArea
@@ -50,6 +62,7 @@ Rectangle {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
+            rootView.focusMaterialSection(true)
             materialBrowserModel.selectMaterial(index)
 
             if (mouse.button === Qt.LeftButton)
@@ -116,7 +129,10 @@ Rectangle {
 
                 anchors.fill: parent
 
-                onClicked: materialBrowserModel.selectMaterial(index)
+                onClicked: {
+                    rootView.focusMaterialSection(true)
+                    materialBrowserModel.selectMaterial(index)
+                }
                 onDoubleClicked: root.startRename()
             }
         }

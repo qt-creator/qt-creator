@@ -19,6 +19,8 @@ typedef unsigned char RGBE[4];
 #define B 2
 #define E 3
 
+constexpr float GAMMA = 1.f / 2.2f;
+
 QByteArray fileToByteArray(QString const &filename)
 {
     QFile file(filename);
@@ -38,7 +40,11 @@ float convertComponent(int exponent, int val)
 {
     float v = val / (256.0f);
     float d = powf(2.0f, (float)exponent - 128.0f);
-    return v * d;
+    float converted = v * d;
+
+    // Apply gamma correction to brighten the image.
+    // This will approximately match the default (i.e. linear) tonemapping of SceneEnvironment
+    return powf(converted, GAMMA);
 }
 
 void decrunchScanline(const char *&p, const char *pEnd, RGBE *scanline, int w)

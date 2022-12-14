@@ -69,8 +69,10 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
     auto doCreateQmlItemNodeFromImage = [=, &newQmlItemNode, &parentproperty]() {
         NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
         QList<QPair<PropertyName, QVariant> > propertyPairList;
-        propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
-        propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
+        if (const int intX = qRound(position.x()))
+            propertyPairList.append({PropertyName("x"), QVariant(intX)});
+        if (const int intY = qRound(position.y()))
+            propertyPairList.append({PropertyName("y"), QVariant(intY)});
 
         QString relativeImageName = imageName;
 
@@ -131,8 +133,10 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
     auto doCreateQmlItemNodeFromFont = [=, &newQmlItemNode, &parentproperty]() {
         NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Text");
         QList<QPair<PropertyName, QVariant>> propertyPairList;
-        propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
-        propertyPairList.append({PropertyName("y"), QVariant(qRound(position.y()))});
+        if (const int intX = qRound(position.x()))
+            propertyPairList.append({PropertyName("x"), QVariant(intX)});
+        if (const int intY = qRound(position.y()))
+            propertyPairList.append({PropertyName("y"), QVariant(intY)});
         propertyPairList.append({PropertyName("font.family"), QVariant(fontFamily)});
         propertyPairList.append({PropertyName("font.pointSize"), 20});
         propertyPairList.append({PropertyName("text"), QVariant(fontFamily)});
@@ -154,42 +158,61 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
     return newQmlItemNode;
 }
 
-static bool useLayerEffect()
+QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
+                                                    QmlItemNode parentQmlItemNode,
+                                                    const QString &effectPath,
+                                                    bool isLayerEffect)
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString layerEffectEntry = "QML/Designer/UseLayerEffect";
+    if (!parentQmlItemNode.isValid())
+        parentQmlItemNode = QmlItemNode(view->rootModelNode());
 
-    return settings->value(layerEffectEntry, true).toBool();
+    NodeAbstractProperty parentProperty = isLayerEffect
+            ? parentQmlItemNode.nodeAbstractProperty("layer.effect")
+            : parentQmlItemNode.defaultNodeAbstractProperty();
+
+    return createQmlItemNodeForEffect(view, parentProperty, effectPath, isLayerEffect);
 }
 
-void QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
-                                             const QmlItemNode &parentNode,
-                                             const QString &effectName)
+QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
+                                                    NodeAbstractProperty parentProperty,
+                                                    const QString &effectPath,
+                                                    bool isLayerEffect)
 {
     QmlItemNode newQmlItemNode;
 
-    const bool layerEffect = useLayerEffect();
+    auto createEffectNode = [=, &newQmlItemNode, &parentProperty]() {
+        const QString effectName = QFileInfo(effectPath).baseName();
+        Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
+        try {
+            if (!view->model()->hasImport(import, true, true))
+                view->model()->changeImports({import}, {});
+        } catch (const Exception &) {
+            QTC_ASSERT(false, return);
+        }
 
-    QmlDesigner::Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
-    try {
-        if (!view->model()->hasImport(import, true, true))
-            view->model()->changeImports({import}, {});
-    } catch (const Exception &) {
-        QTC_ASSERT(false, return);
+        TypeName type(effectName.toUtf8());
+        newQmlItemNode = QmlItemNode(view->createModelNode(type, -1, -1));
+
+        placeEffectNode(parentProperty, newQmlItemNode, isLayerEffect);
+    };
+
+    view->executeInTransaction("QmlItemNode::createQmlItemNodeFromEffect", createEffectNode);
+    return newQmlItemNode;
+}
+
+void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty, const QmlItemNode &effectNode, bool isLayerEffect) {
+    if (isLayerEffect && !parentProperty.isEmpty()) { // already contains a node
+        ModelNode oldEffect = parentProperty.toNodeProperty().modelNode();
+        QmlObjectNode(oldEffect).destroy();
     }
 
-    TypeName type(effectName.toUtf8());
-    newQmlItemNode = QmlItemNode(view->createModelNode(type, 1, 0));
-    NodeAbstractProperty parentProperty = layerEffect
-                                              ? parentNode.nodeAbstractProperty("layer.effect")
-                                              : parentNode.defaultNodeAbstractProperty();
-    parentProperty.reparentHere(newQmlItemNode);
+    parentProperty.reparentHere(effectNode);
 
-    if (!layerEffect) {
-        newQmlItemNode.modelNode().bindingProperty("source").setExpression("parent");
-        newQmlItemNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
+    if (!isLayerEffect) {
+        effectNode.modelNode().bindingProperty("source").setExpression("parent");
+        effectNode.modelNode().bindingProperty("anchors.fill").setExpression("parent");
     } else {
-        parentNode.modelNode().variantProperty("layer.enabled").setValue(true);
+        parentProperty.parentModelNode().variantProperty("layer.enabled").setValue(true);
     }
 }
 

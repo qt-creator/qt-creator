@@ -60,9 +60,19 @@ public:
                                                  const QPointF &position,
                                                  NodeAbstractProperty parentproperty,
                                                  bool executeInTransaction = true);
-    static void createQmlItemNodeForEffect(AbstractView *view,
-                                           const QmlItemNode &parentNode,
-                                           const QString &effectName);
+
+    static QmlItemNode createQmlItemNodeForEffect(AbstractView *view,
+                                                  QmlItemNode parentQmlItemNode,
+                                                  const QString &effectPath,
+                                                  bool isLayerEffect);
+    static QmlItemNode createQmlItemNodeForEffect(AbstractView *view,
+                                                  NodeAbstractProperty parentProperty,
+                                                  const QString &effectPath,
+                                                  bool isLayerEffect);
+    static void placeEffectNode(NodeAbstractProperty &parentProperty,
+                                const QmlItemNode &effectNode,
+                                bool isLayerEffect);
+
     QList<QmlItemNode> children() const;
     QList<QmlObjectNode> resources() const;
     QList<QmlObjectNode> allDirectSubNodes() const;

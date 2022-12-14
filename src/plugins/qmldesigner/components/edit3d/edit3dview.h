@@ -8,14 +8,15 @@
 #include <modelcache.h>
 
 #include <QImage>
+#include <QPointer>
 #include <QSize>
 #include <QTimer>
 #include <QVariant>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
-class QInputEvent;
 class QAction;
+class QInputEvent;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -62,6 +63,7 @@ public:
     void startContextMenu(const QPoint &pos);
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
+    void dropTexture(const ModelNode &textureNode, const QPointF &pos);
 
 private slots:
     void onEntriesChanged();
@@ -70,6 +72,7 @@ private:
     enum class NodeAtPosReqType {
         BundleMaterialDrop,
         MaterialDrop,
+        TextureDrop,
         ContextMenu,
         None
     };
@@ -77,6 +80,7 @@ private:
     void createEdit3DWidget();
     void checkImports();
     void handleEntriesChanged();
+    void showMaterialPropertiesView();
 
     Edit3DAction *createSelectBackgroundColorAction(QAction *syncBackgroundColorAction);
     Edit3DAction *createGridColorSelectionAction();
@@ -112,7 +116,7 @@ private:
     SeekerSlider *m_seeker = nullptr;
     int particlemode;
     ModelCache<QImage> m_canvasCache;
-    ModelNode m_droppedMaterial;
+    ModelNode m_droppedModelNode;
     NodeAtPosReqType m_nodeAtPosReqType;
     QPoint m_contextMenuPos;
     QTimer m_compressionTimer;

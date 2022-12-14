@@ -1596,6 +1596,14 @@ void Model::setActive3DSceneId(qint32 sceneId)
     d->notifyActive3DSceneIdChanged(sceneId);
 }
 
+qint32 Model::active3DSceneId() const
+{
+    auto sceneId = d->rootNode()->auxiliaryData(active3dSceneProperty);
+    if (sceneId)
+        return sceneId->toInt();
+    return -1;
+}
+
 void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
 {
     d->notifyDragStarted(mimeData);

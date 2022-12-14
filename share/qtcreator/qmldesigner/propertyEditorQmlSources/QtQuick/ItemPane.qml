@@ -15,6 +15,10 @@ PropertyEditorPane {
         showState: true
     }
 
+    InsightSection {
+        visible: insightEnabled
+    }
+
     DynamicPropertiesSection {
         propertiesModel: SelectionDynamicPropertiesModel {}
         visible: !hasMultiSelection

@@ -146,16 +146,25 @@ static bool isInLayoutable(NodeAbstractProperty &parentProperty)
 static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty, const ModelNode &modelNode)
 {
     try {
+        if (parentProperty.parentModelNode().type().startsWith("Effects."))
+            return;
+
         if (!modelNode.hasParentProperty() || parentProperty != modelNode.parentProperty()) {
             if (isInLayoutable(parentProperty)) {
                 removePosition(modelNode);
                 parentProperty.reparentHere(modelNode);
             } else {
                 if (QmlItemNode::isValidQmlItemNode(modelNode)) {
-                    QPointF scenePosition = QmlItemNode(modelNode).instanceScenePosition();
-                    parentProperty.reparentHere(modelNode);
-                    if (!scenePosition.isNull())
-                        setScenePosition(modelNode, scenePosition);
+                    if (modelNode.hasParentProperty() && modelNode.parentProperty().name() == "layer.effect") {
+                        parentProperty = parentProperty.parentModelNode().nodeAbstractProperty("layer.effect");
+                        QmlItemNode::placeEffectNode(parentProperty, modelNode, true);
+                    } else {
+                        QPointF scenePosition = QmlItemNode(modelNode).instanceScenePosition();
+                        parentProperty.reparentHere(modelNode);
+                        if (!scenePosition.isNull())
+                            setScenePosition(modelNode, scenePosition);
+                    }
+
                 } else {
                     parentProperty.reparentHere(modelNode);
                 }
@@ -597,6 +606,9 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                         } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                             currNode = handleItemLibraryTexture3dDrop(assetPath, targetProperty,
                                                                       rowModelIndex, moveNodesAfter);
+                        } else if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
+                            currNode = handleItemLibraryEffectDrop(assetPath, rowModelIndex);
+                            moveNodesAfter = false;
                         }
 
                         if (currNode.isValid())
@@ -998,6 +1010,24 @@ ModelNode NavigatorTreeModel::handleItemLibraryTexture3dDrop(const QString &tex3
             if (!NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode))
                 newModelNode.destroy();
         });
+    }
+
+    return newModelNode;
+}
+
+ModelNode NavigatorTreeModel::handleItemLibraryEffectDrop(const QString &effectPath, const QModelIndex &rowModelIndex)
+{
+    QTC_ASSERT(m_view, return {});
+
+    ModelNode targetNode(modelNodeForIndex(rowModelIndex));
+    ModelNode newModelNode;
+
+    if (targetNode.hasParentProperty() && targetNode.parentProperty().name() == "layer.effect")
+        return newModelNode;
+
+    if (ModelNodeOperations::validateEffect(effectPath)) {
+        bool layerEffect = ModelNodeOperations::useLayerEffect();
+        newModelNode = QmlItemNode::createQmlItemNodeForEffect(m_view, targetNode, effectPath, layerEffect);
     }
 
     return newModelNode;

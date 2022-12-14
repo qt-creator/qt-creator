@@ -43,6 +43,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QGroupBox>
+#include <QMainWindow>
 #include <QPointer>
 #include <QPushButton>
 #include <QQmlContext>
@@ -72,6 +73,16 @@ static bool useNewWelcomePage()
     return settings->value(newWelcomePageEntry, false).toBool();
 }
 
+static void openOpenProjectDialog()
+{
+    const FilePath path = Core::DocumentManager::useProjectsDirectory()
+                              ? Core::DocumentManager::projectsDirectory()
+                              : FilePath();
+    const FilePaths files = Core::DocumentManager::getOpenFileNames("*.qmlproject", path);
+    if (!files.isEmpty())
+        Core::ICore::openFiles(files, Core::ICore::None);
+}
+
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
 const char DETAILED_USAGE_STATISTICS[] = "DetailedUsageStatistics";
@@ -81,7 +92,8 @@ const char CRASH_REPORTER_SETTING[] = "CrashReportingEnabled";
 
 const char EXAMPLES_DOWNLOAD_PATH[] = "StudioWelcome/ExamplesDownloadPath";
 
-QPointer<QQuickWidget> s_view = nullptr;
+QPointer<QQuickView> s_viewWindow = nullptr;
+QPointer<QQuickWidget> s_viewWidget = nullptr;
 static StudioWelcomePlugin *s_pluginInstance = nullptr;
 
 std::unique_ptr<QSettings> makeUserFeedbackSettings()
@@ -194,16 +206,14 @@ public:
 
     Q_INVOKABLE void createProject()
     {
-        QTimer::singleShot(0, []() {
+        QTimer::singleShot(0, this, []() {
             ProjectExplorer::ProjectExplorerPlugin::openNewProjectDialog();
         });
     }
 
     Q_INVOKABLE void openProject()
     {
-        QTimer::singleShot(0, []() {
-            ProjectExplorer::ProjectExplorerPlugin::openOpenProjectDialog();
-        });
+        QTimer::singleShot(0, this, []() { openOpenProjectDialog(); });
     }
 
     Q_INVOKABLE void openProjectAt(int row)
@@ -246,7 +256,7 @@ public:
         const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/" + formFile;
 
         // This timer should be replaced with a signal send from project loading
-        QTimer::singleShot(1000, [qmlFile](){
+        QTimer::singleShot(1000, this, [qmlFile]() {
             Core::EditorManager::openEditor(Utils::FilePath::fromString(qmlFile));
         });
     }
@@ -441,22 +451,13 @@ private:
 
 void StudioWelcomePlugin::closeSplashScreen()
 {
-    if (!s_view.isNull()) {
-        const bool doNotShowAgain = s_view->rootObject()->property("doNotShowAgain").toBool();
-        if (doNotShowAgain)
-            Utils::CheckableMessageBox::doNotAskAgain(Core::ICore::settings(),
-                                                      DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+    Utils::CheckableMessageBox::doNotAskAgain(Core::ICore::settings(),
+                                              DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+    if (!s_viewWindow.isNull())
+        s_viewWindow->deleteLater();
 
-        s_view->deleteLater();
-    }
-}
-
-void StudioWelcomePlugin::showSystemSettings()
-{
-    Core::ICore::infoBar()->removeInfo("WarnCrashReporting");
-    Core::ICore::infoBar()->globallySuppressInfo("WarnCrashReporting");
-
-    Core::ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM);
+    if (!s_viewWidget.isNull())
+        s_viewWidget->deleteLater();
 }
 
 StudioWelcomePlugin::StudioWelcomePlugin()
@@ -529,47 +530,83 @@ void StudioWelcomePlugin::extensionsInitialized()
 
     if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
-            s_view = new QQuickWidget(Core::ICore::dialogParent());
-            s_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
-            s_view->setWindowFlag(Qt::SplashScreen, true);
-            s_view->setWindowModality(Qt::ApplicationModal);
-            s_view->engine()->addImportPath("qrc:/studiofonts");
+            if (Utils::HostOsInfo::isMacHost()) {
+                s_viewWindow = new QQuickView(Core::ICore::mainWindow()->windowHandle());
+
+                s_viewWindow->setFlag(Qt::FramelessWindowHint);
+
+                s_viewWindow->engine()->addImportPath("qrc:/studiofonts");
 #ifdef QT_DEBUG
-            s_view->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH) + "splashscreen/imports");
-            s_view->setSource(
-                QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "splashscreen/main.qml"));
+                s_viewWindow->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
+                                                      + "splashscreen/imports");
+                s_viewWindow->setSource(
+                    QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "splashscreen/main.qml"));
 #else
-            s_view->engine()->addImportPath("qrc:/qml/splashscreen/imports");
-            s_view->setSource(QUrl("qrc:/qml/splashscreen/main.qml"));
+                s_viewWindow->engine()->addImportPath("qrc:/qml/splashscreen/imports");
+                s_viewWindow->setSource(QUrl("qrc:/qml/splashscreen/main.qml"));
 #endif
 
+                QTC_ASSERT(s_viewWindow->rootObject(),
+                           qWarning() << "The StudioWelcomePlugin has a runtime depdendency on "
+                                         "qt/qtquicktimeline.";
+                           return );
 
-            QTC_ASSERT(s_view->rootObject(),
-                       qWarning() << "The StudioWelcomePlugin has a runtime depdendency on "
-                                     "qt/qtquicktimeline.";
-                       return );
+                connect(s_viewWindow->rootObject(),
+                        SIGNAL(closeClicked()),
+                        this,
+                        SLOT(closeSplashScreen()));
 
-            connect(s_view->rootObject(), SIGNAL(closeClicked()), this, SLOT(closeSplashScreen()));
-            connect(s_view->rootObject(),
-                    SIGNAL(configureClicked()),
-                    this,
-                    SLOT(showSystemSettings()));
+                auto mainWindow = Core::ICore::mainWindow()->windowHandle();
+                s_viewWindow->setPosition((mainWindow->width() - s_viewWindow->width()) / 2,
+                                          (mainWindow->height() - s_viewWindow->height()) / 2);
 
-            s_view->show();
-            s_view->raise();
-            s_view->setFocus();
+                Core::ICore::mainWindow()->setEnabled(false);
+                connect(s_viewWindow, &QObject::destroyed, []() {
+                    if (Core::ICore::mainWindow())
+                        Core::ICore::mainWindow()->setEnabled(true);
+                });
+
+                s_viewWindow->show();
+                s_viewWindow->requestActivate();
+            } else {
+                s_viewWidget = new QQuickWidget(Core::ICore::dialogParent());
+
+                s_viewWidget->setWindowFlag(Qt::SplashScreen, true);
+
+                s_viewWidget->setWindowModality(Qt::ApplicationModal);
+                s_viewWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+                s_viewWidget->engine()->addImportPath("qrc:/studiofonts");
+#ifdef QT_DEBUG
+                s_viewWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
+                                                      + "splashscreen/imports");
+                s_viewWidget->setSource(
+                    QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "splashscreen/main.qml"));
+#else
+                s_viewWidget->engine()->addImportPath("qrc:/qml/splashscreen/imports");
+                s_viewWidget->setSource(QUrl("qrc:/qml/splashscreen/main.qml"));
+#endif
+
+                QTC_ASSERT(s_viewWidget->rootObject(),
+                           qWarning() << "The StudioWelcomePlugin has a runtime depdendency on "
+                                         "qt/qtquicktimeline.";
+                           return );
+
+                connect(s_viewWidget->rootObject(),
+                        SIGNAL(closeClicked()),
+                        this,
+                        SLOT(closeSplashScreen()));
+
+                s_viewWidget->show();
+                s_viewWidget->raise();
+                s_viewWidget->setFocus();
+            }
         });
     }
 }
 
 bool StudioWelcomePlugin::delayedInitialize()
 {
-    if (s_view.isNull())
-        return false;
-
-    QTC_ASSERT(s_view->rootObject(), return true);
-
-    return false;
+    return true;
 }
 
 Utils::FilePath StudioWelcomePlugin::defaultExamplesPath()

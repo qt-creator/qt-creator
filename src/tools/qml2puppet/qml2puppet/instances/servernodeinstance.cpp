@@ -285,7 +285,15 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
             if (object == nullptr)
                 object = new QQuickItem;
         } else {
-            object = Internal::ObjectNodeInstance::createPrimitive("QtQml/QtObject", 2, 0, nodeInstanceServer->context());
+            object = Internal::ObjectNodeInstance::createPrimitive("QML/QtObject",
+                                                                   1,
+                                                                   0,
+                                                                   nodeInstanceServer->context());
+            if (object == nullptr) //Fallback for Qt 5
+                object = Internal::ObjectNodeInstance::createPrimitive("QtQml/QtObject",
+                                                                       2,
+                                                                       0,
+                                                                       nodeInstanceServer->context());
         }
    }
 

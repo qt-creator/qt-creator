@@ -55,7 +55,7 @@ EventListAction::EventListAction()
                       QObject::tr("Show Event List"),
                       ComponentCoreConstants::eventListCategory,
                       QKeySequence("Alt+e"),
-                      230,
+                      11,
                       &handleAction,
                       &eventListEnabled)
 {}
@@ -77,7 +77,7 @@ AssignEventEditorAction::AssignEventEditorAction()
                       QObject::tr("Assign Events to Actions"),
                       ComponentCoreConstants::eventListCategory,
                       QKeySequence("Alt+a"),
-                      220,
+                      21,
                       &handleAssignEventActionOperation,
                       &eventListEnabled)
 {}
@@ -88,7 +88,7 @@ ConnectSignalAction::ConnectSignalAction()
                                  assignEventListIcon(),
                                  ComponentCoreConstants::eventListCategory,
                                  QKeySequence(),
-                                 210,
+                                 31,
                                  &handleAssignEventActionOperation)
 {}
 

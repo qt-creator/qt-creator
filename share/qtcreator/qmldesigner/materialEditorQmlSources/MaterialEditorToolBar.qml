@@ -5,7 +5,7 @@ import QtQuick 2.15
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
-import ToolBarAction 1.0
+import MaterialToolBarAction 1.0
 
 Rectangle {
     id: root
@@ -28,7 +28,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasMaterial && hasModelSelection && hasQuick3DImport && !hasMaterialRoot
+            enabled: hasMaterial && hasModelSelection && hasQuick3DImport && hasMaterialLibrary
             onClicked: root.toolBarAction(ToolBarAction.ApplyToSelected)
             tooltip: qsTr("Apply material to selected model.")
         }
@@ -39,7 +39,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasQuick3DImport && !hasMaterialRoot
+            enabled: hasQuick3DImport && hasMaterialLibrary
             onClicked: root.toolBarAction(ToolBarAction.AddNewMaterial)
             tooltip: qsTr("Create new material.")
         }
@@ -50,7 +50,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasMaterial && hasQuick3DImport && !hasMaterialRoot
+            enabled: hasMaterial && hasQuick3DImport && hasMaterialLibrary
             onClicked: root.toolBarAction(ToolBarAction.DeleteCurrentMaterial)
             tooltip: qsTr("Delete current material.")
         }
@@ -61,7 +61,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasMaterial && hasQuick3DImport && !hasMaterialRoot
+            enabled: hasMaterial && hasQuick3DImport && hasMaterialLibrary
             onClicked: root.toolBarAction(ToolBarAction.OpenMaterialBrowser)
             tooltip: qsTr("Open material browser.")
         }

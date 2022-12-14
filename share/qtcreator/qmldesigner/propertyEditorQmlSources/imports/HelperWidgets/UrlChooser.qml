@@ -102,8 +102,8 @@ Row {
 
                 Item {
                     visible: thumbnail.status === Image.Ready
-                    Layout.preferredWidth: 100
-                    Layout.preferredHeight: 100
+                    Layout.preferredWidth: 96
+                    Layout.preferredHeight: 96
 
                     Image {
                         id: checker
@@ -116,7 +116,10 @@ Row {
                     Image {
                         id: thumbnail
                         asynchronous: true
-                        anchors.fill: parent
+                        sourceSize.height: 96
+                        sourceSize.width: 96
+                        height: 96
+                        width: 96
                         fillMode: Image.PreserveAspectFit
                         source: {
                             if (root.isBuiltInPrimitive(root.absoluteFilePath))
@@ -231,8 +234,8 @@ Row {
 
                     Item {
                         visible: delegateThumbnail.status === Image.Ready
-                        Layout.preferredWidth: 100
-                        Layout.preferredHeight: 100
+                        Layout.preferredWidth: 96
+                        Layout.preferredHeight: 96
 
                         Image {
                             id: delegateChecker
@@ -245,7 +248,10 @@ Row {
                         Image {
                             id: delegateThumbnail
                             asynchronous: true
-                            anchors.fill: parent
+                            sourceSize.height: 96
+                            sourceSize.width: 96
+                            height: 96
+                            width: 96
                             fillMode: Image.PreserveAspectFit
                             source: {
                                 if (root.isBuiltInPrimitive(delegateRoot.name))

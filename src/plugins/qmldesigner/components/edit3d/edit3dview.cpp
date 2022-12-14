@@ -2,26 +2,26 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "edit3dview.h"
+
 #include "backgroundcolorselection.h"
+#include "designersettings.h"
+#include "designmodecontext.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dviewconfig.h"
 #include "edit3dwidget.h"
 #include "metainfo.h"
 #include "nodehints.h"
+#include "nodeinstanceview.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignericons.h"
+#include "qmldesignerplugin.h"
 #include "seekerslider.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-#include <designeractionmanager.h>
-#include <designersettings.h>
-#include <designmodecontext.h>
-#include <nodeinstanceview.h>
-#include <viewmanager.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignericons.h>
-#include <qmldesignerplugin.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -278,15 +278,19 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
             setSelectedModelNode(modelNode);
         m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode, pos3d);
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MaterialDrop) {
-        const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-        if (m_droppedMaterial.isValid() && modelNode.isValid() && isModel) {
+        bool isModel = modelNode.metaInfo().isQtQuick3DModel();
+        if (m_droppedModelNode.isValid() && modelNode.isValid() && isModel) {
             executeInTransaction(__FUNCTION__, [&] {
-                assignMaterialTo3dModel(modelNode, m_droppedMaterial);
+                assignMaterialTo3dModel(modelNode, m_droppedModelNode);
             });
         }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {
         emitCustomNotification("drop_bundle_material", {modelNode}); // To ContentLibraryView
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::TextureDrop) {
+        emitCustomNotification("apply_texture_to_model3D", {modelNode, m_droppedModelNode});
     }
+
+    m_droppedModelNode = {};
     m_nodeAtPosReqType = NodeAtPosReqType::None;
 }
 
@@ -842,13 +846,20 @@ void Edit3DView::startContextMenu(const QPoint &pos)
 void Edit3DView::dropMaterial(const ModelNode &matNode, const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::MaterialDrop;
-    m_droppedMaterial = matNode;
+    m_droppedModelNode = matNode;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 
 void Edit3DView::dropBundleMaterial(const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::BundleMaterialDrop;
+    emitView3DAction(View3DActionType::GetNodeAtPos, pos);
+}
+
+void Edit3DView::dropTexture(const ModelNode &textureNode, const QPointF &pos)
+{
+    m_nodeAtPosReqType = NodeAtPosReqType::TextureDrop;
+    m_droppedModelNode = textureNode;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 

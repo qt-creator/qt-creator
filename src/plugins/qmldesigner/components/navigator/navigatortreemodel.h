@@ -106,6 +106,7 @@ private:
                                          const QModelIndex &rowModelIndex);
     ModelNode handleItemLibraryTexture3dDrop(const QString &tex3DPath, NodeAbstractProperty targetProperty,
                                              const QModelIndex &rowModelIndex, bool &outMoveNodesAfter);
+    ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const QModelIndex &rowModelIndex);
     bool dropAsImage3dTexture(const ModelNode &targetNode, const NodeAbstractProperty &targetProp,
                               const QString &imagePath, ModelNode &newNode, bool &outMoveNodesAfter);
     ModelNode createTextureNode(const NodeAbstractProperty &targetProp, const QString &imagePath);

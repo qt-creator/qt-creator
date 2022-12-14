@@ -65,7 +65,7 @@ QmlPreviewAction::QmlPreviewAction() : ModelNodeAction(livePreviewId,
                                                        QmlPreviewWidgetPlugin::tr("Show Live Preview"),
                                                        ComponentCoreConstants::qmlPreviewCategory,
                                                        QKeySequence("Alt+p"),
-                                                       20,
+                                                       1,
                                                        &handleAction,
                                                        &SelectionContextFunctors::always)
 {

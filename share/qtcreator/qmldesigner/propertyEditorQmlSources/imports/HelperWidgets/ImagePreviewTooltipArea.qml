@@ -5,7 +5,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import HelperWidgets 2.0
 
-MouseArea {
+ToolTipArea {
     id: mouseArea
 
     property bool allowTooltip: true

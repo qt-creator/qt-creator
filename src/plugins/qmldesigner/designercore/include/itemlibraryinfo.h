@@ -47,6 +47,7 @@ public:
     QString requiredImport() const;
     QString customComponentSource() const;
     QStringList extraFilePaths() const;
+    QString toolTip() const;
 
     using Property = QmlDesigner::PropertyContainer;
 
@@ -62,6 +63,7 @@ public:
     void setCategory(const QString &category);
     void setQmlPath(const QString &qml);
     void setRequiredImport(const QString &requiredImport);
+    void setToolTip(const QString &tooltip);
     void addHints(const QHash<QString, QString> &hints);
     void setCustomComponentSource(const QString &source);
     void addExtraFilePath(const QString &extraFile);

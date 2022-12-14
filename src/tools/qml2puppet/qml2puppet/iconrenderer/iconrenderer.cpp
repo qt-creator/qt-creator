@@ -129,7 +129,7 @@ void IconRenderer::setupRender()
 void IconRenderer::startCreateIcon()
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    m_designerSupport.refFromEffectItem(m_containerItem, false);
+    m_designerSupport->refFromEffectItem(m_containerItem, false);
 #endif
     QQuickDesignerSupportItems::disableNativeTextRendering(m_containerItem);
 
@@ -202,7 +202,7 @@ void IconRenderer::render(const QString &fileName)
     QRect rect(QPoint(), m_contentItem->size().toSize());
     QImage renderImage;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    renderImage = m_designerSupport.renderImageForItem(m_containerItem, rect, rect.size());
+    renderImage = m_designerSupport->renderImageForItem(m_containerItem, rect, rect.size());
 #else
     m_renderControl->polishItems();
     m_renderControl->beginFrame();

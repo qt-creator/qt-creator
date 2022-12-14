@@ -8,6 +8,7 @@ namespace Constants {
 
 const char C_BACKSPACE[] = "QmlDesigner.Backspace";
 const char C_DELETE[]    = "QmlDesigner.Delete";
+const char C_DUPLICATE[] = "QmlDesigner.Duplicate";
 
 // Context
 const char C_QMLDESIGNER[]        = "QmlDesigner::QmlDesignerMain";
@@ -113,6 +114,7 @@ const char EVENT_TRANSITIONEDITOR_TIME[] = "transitionEditor";
 const char EVENT_CURVEDITOR_TIME[] = "curveEditor";
 const char EVENT_STATESEDITOR_TIME[] = "statesEditor";
 const char EVENT_TEXTEDITOR_TIME[] = "textEditor";
+const char EVENT_TEXTUREEDITOR_TIME[] = "textureEditor";
 const char EVENT_PROPERTYEDITOR_TIME[] = "propertyEditor";
 const char EVENT_ASSETSLIBRARY_TIME[] = "assetsLibrary";
 const char EVENT_ITEMLIBRARY_TIME[] = "itemLibrary";
@@ -124,6 +126,9 @@ const char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 const char EVENT_INSIGHT_TIME[] = "insight";
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
+
+// Copy/Paste Headers
+const char HEADER_3DPASTE_CONTENT[] = "// __QmlDesigner.Editor3D.Paste__ \n";
 
 namespace Internal {
     enum { debug = 0 };

@@ -125,7 +125,7 @@ public:
     Q_INVOKABLE bool idListAdd(const QString &value);
     Q_INVOKABLE bool idListRemove(int idx);
     Q_INVOKABLE bool idListReplace(int idx, const QString &value);
-    Q_INVOKABLE void commitDrop(const QString &path);
+    Q_INVOKABLE void commitDrop(const QString &dropData);
 
 public slots:
     void resetValue();

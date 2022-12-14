@@ -14,3 +14,4 @@ IDE_DOC_FILES_ONLINE = $$PWD/doc/qtcreator/qtcreator-online.qdocconf \
                        $$PWD/doc/qtcreatordev/qtcreator-dev-online.qdocconf
 IDE_DOC_FILES = $$PWD/doc/qtcreator/qtcreator.qdocconf \
                 $$PWD/doc/qtcreatordev/qtcreator-dev.qdocconf
+

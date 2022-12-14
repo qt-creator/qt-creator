@@ -256,23 +256,28 @@ QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
     return instanceValue(name).toString();
 }
 
-QString QmlObjectNode::expression(const PropertyName &name) const
+BindingProperty QmlObjectNode::bindingProperty(const PropertyName &name) const
 {
     if (!isValid())
         return {};
 
     if (currentState().isBaseState())
-        return modelNode().bindingProperty(name).expression();
+        return modelNode().bindingProperty(name);
 
     if (!currentState().hasPropertyChanges(modelNode()))
-        return modelNode().bindingProperty(name).expression();
+        return modelNode().bindingProperty(name);
 
     QmlPropertyChanges propertyChanges(currentState().propertyChanges(modelNode()));
 
     if (!propertyChanges.modelNode().hasProperty(name))
-        return modelNode().bindingProperty(name).expression();
+        return modelNode().bindingProperty(name);
 
-    return propertyChanges.modelNode().bindingProperty(name).expression();
+    return propertyChanges.modelNode().bindingProperty(name);
+}
+
+QString QmlObjectNode::expression(const PropertyName &name) const
+{
+    return bindingProperty(name).expression();
 }
 
 /*!

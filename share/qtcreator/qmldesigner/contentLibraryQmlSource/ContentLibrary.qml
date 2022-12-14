@@ -35,35 +35,24 @@ Item {
             id: searchBox
 
             width: root.width
-            enabled: !materialsModel.hasMaterialRoot && materialsModel.hasQuick3DImport
+            enabled: {
+                if (tabBar.currIndex == 0) { // Materials tab
+                    materialsModel.matBundleExists
+                            && rootView.hasMaterialLibrary
+                            && materialsModel.hasRequiredQuick3DImport
+                } else { // Textures / Environments tabs
+                    texturesModel.texBundleExists
+                }
+            }
 
             onSearchChanged: (searchText) => {
                 rootView.handleSearchFilterChanged(searchText)
 
                 // make sure categories with matches are expanded
                 materialsView.expandVisibleSections()
+                texturesView.expandVisibleSections()
+                environmentsView.expandVisibleSections()
             }
-        }
-
-        Text {
-            // TODO: only disable the materials section, textures should be available
-            text: {
-                if (materialsModel.hasMaterialRoot)
-                    qsTr("<b>Content Library</b> is disabled inside a material component.")
-                else if (!materialsModel.hasQuick3DImport)
-                    qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
-                else
-                    ""
-            }
-
-            textFormat: Text.RichText
-            color: StudioTheme.Values.themeTextColor
-            font.pixelSize: StudioTheme.Values.mediumFontSize
-            topPadding: 30
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-            width: root.width
-            visible: text !== ""
         }
 
         UnimportBundleMaterialDialog {
@@ -72,8 +61,6 @@ Item {
 
         ContentLibraryTabBar {
             id: tabBar
-
-            visible: materialsModel.hasQuick3DImport
              // TODO: update icons
             tabsModel: [{name: qsTr("Materials"),    icon: StudioTheme.Constants.gradient},
                         {name: qsTr("Textures"),     icon: StudioTheme.Constants.materialPreviewEnvironment},
@@ -84,7 +71,6 @@ Item {
             width: root.width
             height: root.height - y
             currentIndex: tabBar.currIndex
-            visible: materialsModel.hasQuick3DImport
 
             ContentLibraryMaterialsView {
                 id: materialsView
@@ -94,8 +80,8 @@ Item {
                 searchBox: searchBox
 
                 onUnimport: (bundleMat) => {
-                    unimportBundleMaterialDialog.targetBundleMaterial = bundleMat
-                    unimportBundleMaterialDialog.open()
+                    confirmUnimportDialog.targetBundleMaterial = bundleMat
+                    confirmUnimportDialog.open()
                 }
             }
 

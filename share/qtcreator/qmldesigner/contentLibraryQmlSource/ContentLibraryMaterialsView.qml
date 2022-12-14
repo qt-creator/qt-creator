@@ -10,6 +10,7 @@ HelperWidgets.ScrollView {
     id: root
 
     clip: true
+    interactive: !ctxMenu.opened
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 120
@@ -31,7 +32,7 @@ HelperWidgets.ScrollView {
         for (let i = 0; i < categoryRepeater.count; ++i) {
             let cat = categoryRepeater.itemAt(i)
             if (cat.visible && !cat.expanded)
-                cat.expanded = true
+                cat.expandSection()
         }
     }
 
@@ -39,7 +40,11 @@ HelperWidgets.ScrollView {
         ContentLibraryMaterialContextMenu {
             id: ctxMenu
 
+            hasModelSelection: materialsModel.hasModelSelection
+            importerRunning: materialsModel.importerRunning
+
             onUnimport: (bundleMat) => root.unimport(bundleMat)
+            onAddToProject: (bundleMat) => materialsModel.addToProject(bundleMat)
         }
 
         Repeater {
@@ -52,10 +57,16 @@ HelperWidgets.ScrollView {
                 caption: bundleCategoryName
                 addTopPadding: false
                 sectionBackgroundColor: "transparent"
-                visible: bundleCategoryVisible
+                visible: bundleCategoryVisible && !materialsModel.isEmpty
                 expanded: bundleCategoryExpanded
                 expandOnClick: false
                 onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
+                onExpand: bundleCategoryExpanded = true
+                onCollapse: bundleCategoryExpanded = false
+
+                function expandSection() {
+                    bundleCategoryExpanded = true
+                }
 
                 Grid {
                     width: root.width
@@ -79,13 +90,26 @@ HelperWidgets.ScrollView {
         }
 
         Text {
-            id: noMatchText
-            text: qsTr("No match found.");
+            id: infoText
+            text: {
+                if (!materialsModel.matBundleExists)
+                    qsTr("<b>Content Library</b> materials are not installed.")
+                else if (!rootView.hasQuick3DImport)
+                    qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
+                else if (!materialsModel.hasRequiredQuick3DImport)
+                    qsTr("To use <b>Content Library</b>, version 6.3 or later of the QtQuick3D module is required.")
+                else if (!rootView.hasMaterialLibrary)
+                    qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
+                else if (!searchBox.isEmpty())
+                    qsTr("No match found.")
+                else
+                    ""
+            }
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
-            visible: materialsModel.isEmpty && !searchBox.isEmpty() && !materialsModel.hasMaterialRoot
+            visible: materialsModel.isEmpty
         }
     }
 }

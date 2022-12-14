@@ -2,28 +2,23 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "propertyeditorvalue.h"
-#include "variantproperty.h"
-#include "documentmanager.h"
 
-#include <abstractview.h>
-#include <bindingproperty.h>
-#include <designdocument.h>
-#include <nodelistproperty.h>
-#include <nodemetainfo.h>
-#include <nodeproperty.h>
-#include <qmldesignerplugin.h>
-#include <qmlobjectnode.h>
-#include <designermcumanager.h>
-#include <qmlitemnode.h>
+#include "abstractview.h"
+#include "bindingproperty.h"
+#include "designermcumanager.h"
+#include "documentmanager.h"
+#include "nodelistproperty.h"
+#include "nodemetainfo.h"
+#include "nodeproperty.h"
+#include "qmlitemnode.h"
+#include "qmlobjectnode.h"
+#include "variantproperty.h"
 
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
-#include <QUrl>
 #include <QScopedPointer>
-#include <assetslibrarymodel.h>
-
-//using namespace QmlDesigner;
+#include <QUrl>
 
 PropertyEditorValue::PropertyEditorValue(QObject *parent)
     : QObject(parent),
@@ -498,27 +493,40 @@ bool PropertyEditorValue::idListReplace(int idx, const QString &value)
     return true;
 }
 
-void PropertyEditorValue::commitDrop(const QString &path)
+void PropertyEditorValue::commitDrop(const QString &dropData)
 {
     if (m_modelNode.metaInfo().isQtQuick3DMaterial()
         && m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
-        // create a texture node
-        QmlDesigner::NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo("QtQuick3D.Texture");
-        QmlDesigner::ModelNode texture = m_modelNode.view()->createModelNode("QtQuick3D.Texture",
-                                                                             metaInfo.majorVersion(),
-                                                                             metaInfo.minorVersion());
-        texture.validId();
-        m_modelNode.view()->rootModelNode().defaultNodeListProperty().reparentHere(texture);
-        // TODO: group textures under 1 node (just like materials)
+        m_modelNode.view()->executeInTransaction(__FUNCTION__, [&] {
+            QmlDesigner::ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
+            if (!texture || !texture.metaInfo().isQtQuick3DTexture()) {
+                Utils::FilePath imagePath = Utils::FilePath::fromString(dropData);
+                Utils::FilePath currFilePath = QmlDesigner::DocumentManager::currentFilePath();
+                QString sourceVal = imagePath.relativePathFrom(currFilePath).toString();
+                texture = m_modelNode.view()->getTextureDefaultInstance(sourceVal);
 
-        // set texture source
-        Utils::FilePath imagePath = Utils::FilePath::fromString(path);
-        Utils::FilePath currFilePath = QmlDesigner::DocumentManager::currentFilePath();
-        QmlDesigner::VariantProperty srcProp = texture.variantProperty("source");
-        srcProp.setValue(imagePath.relativePathFrom(currFilePath).toString());
+                if (!texture.isValid()) {
+                    // create a texture node
+                    QmlDesigner::NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo("QtQuick3D.Texture");
+                    texture = m_modelNode.view()->createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
+                                                                                       metaInfo.minorVersion());
+                    texture.validId();
+                    m_modelNode.view()->materialLibraryNode().defaultNodeListProperty().reparentHere(texture);
+                }
 
-        // assign the texture to the property
-        setExpressionWithEmit(texture.id());
+                // set texture source
+                QmlDesigner::VariantProperty srcProp = texture.variantProperty("source");
+                srcProp.setValue(sourceVal);
+
+                QTimer::singleShot(0, this, [this, texture]() {
+                    if (m_modelNode.isValid() && texture.isValid() && m_modelNode.view())
+                        m_modelNode.view()->emitCustomNotification("selected_texture_changed", {texture});
+                });
+            }
+
+            // assign the texture to the property
+            setExpressionWithEmit(texture.id());
+        });
     }
 
     m_modelNode.view()->model()->endDrag();

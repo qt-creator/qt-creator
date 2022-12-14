@@ -8,6 +8,8 @@
 
 #include <QStringList>
 
+#include <set>
+
 namespace QmlJS {
 
 struct QMLJS_EXPORT ViewerContext
@@ -21,7 +23,7 @@ struct QMLJS_EXPORT ViewerContext
     };
 
     QStringList selectors;
-    QList<Utils::FilePath> paths;
+    std::set<Utils::FilePath> paths;
     QList<Utils::FilePath> applicationDirectories;
     Dialect language = Dialect::Qml;
     Flags flags = AddAllPaths;
