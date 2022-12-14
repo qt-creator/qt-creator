@@ -1021,7 +1021,7 @@ Utils::Links SquishTools::setBreakpoints()
             continue;
         const Utils::FilePath filePath = Utils::FilePath::fromString(
                     gb->data(BreakpointFileColumn, Qt::DisplayRole).toString());
-        auto fileName = filePath.toUserOutput();
+        auto fileName = filePath.canonicalPath().toUserOutput();
         if (fileName.isEmpty())
             continue;
         if (!fileName.endsWith(extension))

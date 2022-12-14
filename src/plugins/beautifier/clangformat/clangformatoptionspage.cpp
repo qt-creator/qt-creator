@@ -13,6 +13,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
+#include <QButtonGroup>
 #include <QComboBox>
 #include <QGroupBox>
 #include <QLabel>
@@ -47,8 +48,10 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     auto options = new QGroupBox(tr("Options"));
     options->setEnabled(false);
 
+    auto styleButtonGroup = new QButtonGroup(this);
+
     auto useCustomizedStyle = new QRadioButton(tr("Use customized style:"));
-    useCustomizedStyle->setAutoExclusive(true);
+    styleButtonGroup->addButton(useCustomizedStyle);
 
     m_configurations = new ConfigurationPanel;
     m_configurations->setSettings(m_settings);
@@ -57,7 +60,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
     m_usePredefinedStyle = new QRadioButton(tr("Use predefined style:"));
 
     m_usePredefinedStyle->setChecked(true);
-    m_usePredefinedStyle->setAutoExclusive(true);
+    styleButtonGroup->addButton(m_usePredefinedStyle);
 
     m_predefinedStyle = new QComboBox;
     m_predefinedStyle->addItems(m_settings->predefinedStyles());

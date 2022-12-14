@@ -2098,7 +2098,9 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     saver.write("set CLINK_NOAUTORUN=1\r\n");
     saver.write("setlocal enableextensions\r\n");
     saver.write("if defined VCINSTALLDIR (\r\n");
-    saver.write("  call \"%VCINSTALLDIR%/Auxiliary/Build/vcvarsall.bat\" /clean_env\r\n");
+    saver.write("  if not defined QTC_NO_MSVC_CLEAN_ENV (\r\n");
+    saver.write("    call \"%VCINSTALLDIR%/Auxiliary/Build/vcvarsall.bat\" /clean_env\r\n");
+    saver.write("  )\r\n");
     saver.write(")\r\n");
     saver.write(call + "\r\n");
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");

@@ -31,6 +31,8 @@ def __syntaxErrorDetected__():
                         "Expected ';' at end of declaration (fix available)",
                         "Use of undeclared identifier 'syntaxError'"]:
             return True
+        if re.match(issue[3], "Declaration of reference variable '.+' requires an initializer"):
+            return True
     return False
 
 
