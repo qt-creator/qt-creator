@@ -76,13 +76,13 @@ void FileDownloader::start()
     auto request = QNetworkRequest(m_url);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                          QNetworkRequest::UserVerifiedRedirectPolicy);
-    QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
+    m_reply = Utils::NetworkAccessManager::instance()->get(request);
 
-    QNetworkReply::connect(reply, &QNetworkReply::readyRead, this, [this, reply]() {
-        m_tempFile.write(reply->readAll());
+    QNetworkReply::connect(m_reply, &QNetworkReply::readyRead, this, [this]() {
+        m_tempFile.write(m_reply->readAll());
     });
 
-    QNetworkReply::connect(reply,
+    QNetworkReply::connect(m_reply,
                            &QNetworkReply::downloadProgress,
                            this,
                            [this](qint64 current, qint64 max) {
@@ -93,16 +93,21 @@ void FileDownloader::start()
                                emit progressChanged();
                            });
 
-    QNetworkReply::connect(reply, &QNetworkReply::redirected, [reply](const QUrl &) {
-        emit reply->redirectAllowed();
+    QNetworkReply::connect(m_reply, &QNetworkReply::redirected, [this](const QUrl &) {
+        emit m_reply->redirectAllowed();
     });
 
-    QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        if (reply->error()) {
+    QNetworkReply::connect(m_reply, &QNetworkReply::finished, this, [this]() {
+        if (m_reply->error()) {
             if (m_tempFile.exists())
                 m_tempFile.remove();
-            qWarning() << Q_FUNC_INFO << m_url << reply->errorString();
-            emit downloadFailed();
+
+            if (m_reply->error() != QNetworkReply::OperationCanceledError) {
+                qWarning() << Q_FUNC_INFO << m_url << m_reply->errorString();
+                emit downloadFailed();
+            } else {
+                emit downloadCanceled();
+            }
         } else {
             m_tempFile.flush();
             m_tempFile.close();
@@ -110,7 +115,15 @@ void FileDownloader::start()
             emit tempFileChanged();
             emit finishedChanged();
         }
+
+        m_reply = nullptr;
     });
+}
+
+void FileDownloader::cancel()
+{
+    if (m_reply)
+        m_reply->abort();
 }
 
 void FileDownloader::setUrl(const QUrl &url)
