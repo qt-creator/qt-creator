@@ -248,6 +248,7 @@ QueryContext::QueryContext(const QString &query,
                            QObject *parent)
     : QObject(parent)
 {
+    m_process.setUseCtrlCStub(true);
     if (server.type == GerritServer::Ssh) {
         m_binary = p->ssh;
         if (server.port)

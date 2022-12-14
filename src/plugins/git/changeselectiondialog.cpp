@@ -213,6 +213,7 @@ void ChangeSelectionDialog::recalculateCompletion()
     process->setEnvironment(client->processEnvironment());
     process->setCommand({client->vcsBinary(), {"for-each-ref", "--format=%(refname:short)"}});
     process->setWorkingDirectory(workingDir);
+    process->setUseCtrlCStub(true);
     connect(process, &QtcProcess::done, this, [this, process] {
         if (process->result() == ProcessResult::FinishedWithSuccess)
             m_changeModel->setStringList(process->cleanedStdOut().split('\n'));

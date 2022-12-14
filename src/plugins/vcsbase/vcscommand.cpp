@@ -114,6 +114,7 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
         process->setProcessChannelMode(QProcess::MergedChannels);
     if (m_codec)
         process->setCodec(m_codec);
+    process->setUseCtrlCStub(true);
 
     installStdCallbacks(process);
 

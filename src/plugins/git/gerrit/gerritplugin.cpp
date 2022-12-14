@@ -119,6 +119,7 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     , m_server(server)
     , m_state(FetchState)
 {
+    m_process.setUseCtrlCStub(true);
     connect(&m_process, &QtcProcess::done, this, &FetchContext::processDone);
     connect(&m_process, &QtcProcess::readyReadStandardError,
             this, &FetchContext::processReadyReadStandardError);
