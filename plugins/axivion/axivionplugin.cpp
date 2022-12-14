@@ -149,6 +149,12 @@ void AxivionPlugin::fetchProjectInfo(const QString &projectName)
     dd->fetchProjectInfo(projectName);
 }
 
+ProjectInfo AxivionPlugin::projectInfo()
+{
+    QTC_ASSERT(dd, return {});
+    return dd->currentProjectInfo;
+}
+
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
     if (runningQuery) { // re-schedule

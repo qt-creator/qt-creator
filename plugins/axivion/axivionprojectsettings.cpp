@@ -148,6 +148,7 @@ void AxivionProjectSettingsWidget::unlinkProject()
 
     m_projectSettings->setDashboardProjectName({});
     updateUi();
+    AxivionPlugin::fetchProjectInfo({});
 }
 
 void AxivionProjectSettingsWidget::updateUi()

@@ -11,6 +11,7 @@ namespace Axivion::Internal {
 
 class AxivionSettings;
 class AxivionProjectSettings;
+class ProjectInfo;
 
 class AxivionPlugin final : public ExtensionSystem::IPlugin
 {
@@ -27,7 +28,7 @@ public:
 
     static bool handleCertificateIssue();
     static void fetchProjectInfo(const QString &projectName);
-
+    static ProjectInfo projectInfo();
 signals:
     void settingsChanged();
 
