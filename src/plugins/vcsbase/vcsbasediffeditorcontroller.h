@@ -46,8 +46,6 @@ protected:
     virtual void processCommandOutput(const QString &output);
 
     Utils::FilePath workingDirectory() const;
-    void setStartupFile(const QString &startupFile);
-    QString startupFile() const;
 
 private:
     friend class VcsBaseDiffEditorControllerPrivate;

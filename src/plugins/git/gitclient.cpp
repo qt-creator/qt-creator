@@ -256,10 +256,10 @@ private:
             setupDiffProcessor(async, storage->m_stagedOutput + storage->m_unstagedOutput);
         };
         const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
-            setDiffFiles(async.result(), workingDirectory(), startupFile());
+            setDiffFiles(async.result(), workingDirectory());
         };
         const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
-            setDiffFiles({}, workingDirectory(), startupFile());
+            setDiffFiles({}, workingDirectory());
         };
 
         const Group root {
@@ -474,10 +474,10 @@ Tasking::Group ShowController::reloadRecipe()
         setupDiffProcessor(async, storage->m_diffOutput);
     };
     const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
-        setDiffFiles(async.result(), workingDirectory(), startupFile());
+        setDiffFiles(async.result(), workingDirectory());
     };
     const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
-        setDiffFiles({}, workingDirectory(), startupFile());
+        setDiffFiles({}, workingDirectory());
     };
 
     const Group root {

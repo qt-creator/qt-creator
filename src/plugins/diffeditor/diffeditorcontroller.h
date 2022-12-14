@@ -66,9 +66,9 @@ protected:
     void setReloader(const std::function<void ()> &reloader);
     void reloadFinished(bool success);
 
+    void setStartupFile(const QString &startupFile);
     void setDiffFiles(const QList<FileData> &diffFileList,
-                      const Utils::FilePath &baseDirectory = {},
-                      const QString &startupFile = {});
+                      const Utils::FilePath &baseDirectory = {});
     void setDescription(const QString &description);
     QString description() const;
     void forceContextLineCount(int lines);

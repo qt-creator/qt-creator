@@ -50,7 +50,6 @@ public:
     Environment m_processEnvironment;
     FilePath m_vcsBinary;
     int m_vscTimeoutS;
-    QString m_startupFile;
     QPointer<VcsCommand> m_command;
     QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
 };
@@ -76,7 +75,7 @@ void VcsBaseDiffEditorControllerPrivate::processingFinished()
     m_processWatcher->deleteLater();
     m_processWatcher = nullptr;
 
-    q->setDiffFiles(fileDataList, q->workingDirectory(), q->startupFile());
+    q->setDiffFiles(fileDataList, q->workingDirectory());
     q->reloadFinished(success);
 }
 
@@ -184,16 +183,6 @@ void VcsBaseDiffEditorController::processCommandOutput(const QString &output)
 FilePath VcsBaseDiffEditorController::workingDirectory() const
 {
     return d->m_directory;
-}
-
-void VcsBaseDiffEditorController::setStartupFile(const QString &startupFile)
-{
-    d->m_startupFile = startupFile;
-}
-
-QString VcsBaseDiffEditorController::startupFile() const
-{
-    return d->m_startupFile;
 }
 
 void VcsBase::VcsBaseDiffEditorController::setWorkingDirectory(const FilePath &workingDir)

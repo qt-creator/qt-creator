@@ -38,11 +38,11 @@ public:
                       Core::PatchAction patchAction, bool addPrefix = false,
                       const QString &overriddenFileName = {}) const;
 
-    void setDiffFiles(const QList<FileData> &data, const Utils::FilePath &directory,
-                      const QString &startupFile = {});
+    void setDiffFiles(const QList<FileData> &data, const Utils::FilePath &directory);
     QList<FileData> diffFiles() const;
     Utils::FilePath baseDirectory() const;
     void setBaseDirectory(const Utils::FilePath &directory);
+    void setStartupFile(const QString &startupFile);
     QString startupFile() const;
 
     void setDescription(const QString &description);

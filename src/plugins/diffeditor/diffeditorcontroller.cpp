@@ -77,10 +77,9 @@ DiffEditorController *DiffEditorController::controller(Core::IDocument *document
 }
 
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList,
-                                        const FilePath &workingDirectory,
-                                        const QString &startupFile)
+                                        const FilePath &workingDirectory)
 {
-    m_document->setDiffFiles(diffFileList, workingDirectory, startupFile);
+    m_document->setDiffFiles(diffFileList, workingDirectory);
 }
 
 void DiffEditorController::setDescription(const QString &description)
@@ -141,6 +140,11 @@ void DiffEditorController::reloadFinished(bool success)
         m_taskTree.release()->deleteLater();
     m_document->endReload(success);
     m_isReloading = false;
+}
+
+void DiffEditorController::setStartupFile(const QString &startupFile)
+{
+    m_document->setStartupFile(startupFile);
 }
 
 void DiffEditorController::requestChunkActions(QMenu *menu, int fileIndex, int chunkIndex,

@@ -381,16 +381,16 @@ void DiffEditor::updateDescription()
 {
     QTC_ASSERT(m_toolBar, return);
 
-    QString description = m_document->description();
+    const QString description = m_document->description();
     m_descriptionWidget->setPlainText(description);
     m_descriptionWidget->setVisible(m_showDescription && !description.isEmpty());
 
+    const QString actionText = m_showDescription ? tr("Hide Change Description")
+                                                 : tr("Show Change Description");
     GuardLocker guard(m_ignoreChanges);
     m_toggleDescriptionAction->setChecked(m_showDescription);
-    m_toggleDescriptionAction->setToolTip(m_showDescription ? tr("Hide Change Description")
-                                                      : tr("Show Change Description"));
-    m_toggleDescriptionAction->setText(m_showDescription ? tr("Hide Change Description")
-                                                   : tr("Show Change Description"));
+    m_toggleDescriptionAction->setToolTip(actionText);
+    m_toggleDescriptionAction->setText(actionText);
     m_toggleDescriptionAction->setVisible(!description.isEmpty());
 }
 
