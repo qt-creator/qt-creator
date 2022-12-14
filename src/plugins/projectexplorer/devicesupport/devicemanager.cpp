@@ -430,7 +430,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
 
     deviceHooks.deviceDisplayName = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return QString());
+        QTC_ASSERT(device, return filePath.toUserOutput());
         return device->displayName();
     };
 
