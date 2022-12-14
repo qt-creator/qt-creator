@@ -5,14 +5,18 @@
 
 #include "axivionoutputpane.h"
 #include "axivionprojectsettings.h"
+#include "axivionquery.h"
+#include "axivionresultparser.h"
 #include "axivionsettings.h"
 #include "axivionsettingspage.h"
 #include "axiviontr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
 #ifdef LICENSECHECKER
@@ -20,16 +24,22 @@
 #endif
 
 #include <QMessageBox>
+#include <QTimer>
 
 namespace Axivion::Internal {
 
-class AxivionPluginPrivate
+class AxivionPluginPrivate : public QObject
 {
 public:
+    void fetchProjectInfo(const QString &projectName);
+    void handleProjectInfo(const ProjectInfo &info);
+
     AxivionSettings axivionSettings;
     AxivionSettingsPage axivionSettingsPage{&axivionSettings};
     AxivionOutputPane axivionOutputPane;
     QHash<ProjectExplorer::Project *, AxivionProjectSettings *> projectSettings;
+    ProjectInfo currentProjectInfo;
+    bool runningQuery = false;
 };
 
 static AxivionPlugin *s_instance = nullptr;
@@ -78,7 +88,24 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
         return new AxivionProjectSettingsWidget(project);
     });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::startupProjectChanged,
+            this, &AxivionPlugin::onStartupProjectChanged);
     return true;
+}
+
+void AxivionPlugin::onStartupProjectChanged()
+{
+    QTC_ASSERT(dd, return);
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project) {
+        dd->currentProjectInfo = ProjectInfo();
+        dd->axivionOutputPane.updateDashboard();
+        return;
+    }
+
+    const AxivionProjectSettings *projSettings = projectSettings(project);
+    dd->fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
 AxivionSettings *AxivionPlugin::settings()
@@ -114,6 +141,46 @@ bool AxivionPlugin::handleCertificateIssue()
     dd->axivionSettings.server.validateCert = false;
     emit s_instance->settingsChanged();
     return true;
+}
+
+void AxivionPlugin::fetchProjectInfo(const QString &projectName)
+{
+    QTC_ASSERT(dd, return);
+    dd->fetchProjectInfo(projectName);
+}
+
+void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
+{
+    if (runningQuery) { // re-schedule
+        QTimer::singleShot(3000, [this, projectName]{ fetchProjectInfo(projectName); });
+        return;
+    }
+    if (projectName.isEmpty()) {
+        currentProjectInfo = ProjectInfo();
+        axivionOutputPane.updateDashboard();
+        return;
+    }
+    runningQuery = true;
+
+    AxivionQuery query(AxivionQuery::ProjectInfo, {projectName});
+    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
+    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
+        handleProjectInfo(ResultParser::parseProjectInfo(result));
+    });
+    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
+    runner->start();
+}
+
+void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
+{
+    runningQuery = false;
+    if (!info.error.isEmpty()) {
+        Core::MessageManager::writeFlashing("Axivion: " + info.error);
+        return;
+    }
+
+    currentProjectInfo = info;
+    axivionOutputPane.updateDashboard();
 }
 
 } // Axivion::Internal

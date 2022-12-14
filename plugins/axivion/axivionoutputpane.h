@@ -33,6 +33,7 @@ public:
     void goToNext() override;
     void goToPrev() override;
 
+    void updateDashboard();
 private:
     QStackedWidget *m_outputWidget = nullptr;
 };

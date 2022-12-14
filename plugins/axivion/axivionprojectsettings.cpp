@@ -136,8 +136,10 @@ void AxivionProjectSettingsWidget::linkProject()
     const QList<QTreeWidgetItem *> selected = m_dashboardProjects->selectedItems();
     QTC_ASSERT(selected.size() == 1, return);
 
-    m_projectSettings->setDashboardProjectName(selected.first()->text(0));
+    const QString projectName = selected.first()->text(0);
+    m_projectSettings->setDashboardProjectName(projectName);
     updateUi();
+    AxivionPlugin::fetchProjectInfo(projectName);
 }
 
 void AxivionProjectSettingsWidget::unlinkProject()

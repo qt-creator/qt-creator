@@ -89,4 +89,9 @@ void AxivionOutputPane::goToPrev()
 {
 }
 
+void AxivionOutputPane::updateDashboard()
+{
+
+}
+
 } // Axivion::Internal

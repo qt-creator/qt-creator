@@ -12,7 +12,7 @@ namespace Axivion::Internal {
 class AxivionQuery
 {
 public:
-    enum QueryType {NoQuery, DashboardInfo};
+    enum QueryType {NoQuery, DashboardInfo, ProjectInfo};
     explicit AxivionQuery(QueryType type, const QStringList &parameters = {});
 
     QString toString() const;

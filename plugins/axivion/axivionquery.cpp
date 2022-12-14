@@ -9,6 +9,8 @@
 #include <utils/processenums.h>
 #include <utils/qtcassert.h>
 
+#include <QUrl>
+
 using namespace Utils;
 
 namespace Axivion::Internal {
@@ -26,6 +28,10 @@ QString AxivionQuery::toString() const
     case NoQuery:
         return {};
     case DashboardInfo:
+        return query;
+    case ProjectInfo:
+        QTC_ASSERT(m_parameters.size() == 1, return {});
+        query += "/projects/" + QUrl::toPercentEncoding(m_parameters.first());
         return query;
     }
 

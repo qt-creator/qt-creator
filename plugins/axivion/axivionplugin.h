@@ -26,6 +26,7 @@ public:
     static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
 
     static bool handleCertificateIssue();
+    static void fetchProjectInfo(const QString &projectName);
 
 signals:
     void settingsChanged();
@@ -33,6 +34,7 @@ signals:
 private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final {}
+    void onStartupProjectChanged();
 };
 
 } // Axivion::Internal
