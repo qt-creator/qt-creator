@@ -192,6 +192,8 @@ public:
             }
         }
         m_addButton->setMenu(addMenu);
+        if (HostOsInfo::isMacHost())
+            m_addButton->setStyleSheet("text-align:center;");
 
         m_cloneButton = new QPushButton(ToolChainOptionsPage::tr("Clone"), this);
         connect(m_cloneButton, &QAbstractButton::clicked, [this] { cloneToolChain(); });

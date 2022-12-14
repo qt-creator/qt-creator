@@ -29,6 +29,8 @@ Editing
 * Fixed crash after closing settings when opened from indexing progress
   (QTCREATORBUG-28566)
 * Fixed crash when opening type hierarchy (QTCREATORBUG-28529)
+* Fixed code style settings being saved even when canceling
+* Fixed checkbox state in Beautifier settings (QTCREATORBUG-28525)
 
 Projects
 --------

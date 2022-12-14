@@ -184,11 +184,12 @@ void CppClass::lookupDerived(QFutureInterfaceBase &futureInterface,
 
 void CppClass::addDerivedHierarchy(const TypeHierarchy &hierarchy)
 {
-    CppClass classSymbol(hierarchy.symbol());
     const QList<TypeHierarchy> derivedHierarchies = hierarchy.hierarchy();
-    for (const TypeHierarchy &derivedHierarchy : derivedHierarchies)
+    for (const TypeHierarchy &derivedHierarchy : derivedHierarchies) {
+        CppClass classSymbol(derivedHierarchy.symbol());
         classSymbol.addDerivedHierarchy(derivedHierarchy);
-    derived.append(classSymbol);
+        derived.append(classSymbol);
+    }
 }
 
 class CppFunction : public CppDeclarableElement
