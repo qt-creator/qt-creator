@@ -418,13 +418,13 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         if (!filePath.needsDevice())
             return DesktopDeviceFileAccess::instance();
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return nullptr);
+        QTC_ASSERT(device, qDebug() << filePath.toString(); return nullptr);
         return device->fileAccess();
     };
 
     deviceHooks.environment = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return Environment{});
+        QTC_ASSERT(device, qDebug() << filePath.toString(); return Environment{});
         return device->systemEnvironment();
     };
 

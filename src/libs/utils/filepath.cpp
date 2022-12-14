@@ -873,7 +873,7 @@ DeviceFileAccess *FilePath::fileAccess() const
 
     static DeviceFileAccess dummy;
     DeviceFileAccess *access = s_deviceHooks.fileAccess(*this);
-    QTC_ASSERT(access, return &dummy);
+    QTC_ASSERT(access, qDebug() << toString(); return &dummy);
     return access;
 }
 
