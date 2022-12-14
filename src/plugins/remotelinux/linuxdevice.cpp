@@ -75,7 +75,7 @@ public:
     QProcess::ProcessState state() const;
     QString socketFilePath() const
     {
-        QTC_ASSERT(m_masterSocketDir, return QString());
+        QTC_ASSERT(m_masterSocketDir, return {});
         return m_masterSocketDir->path() + "/cs";
     }
 
@@ -1116,8 +1116,8 @@ RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArra
 {
     QMutexLocker locker(&m_shellMutex);
     DEBUG(cmd.toUserOutput());
-    QTC_ASSERT(setupShell(), return {});
-
+    const bool isSetup = setupShell();
+    QTC_ASSERT(isSetup, return {});
     return m_handler->runInShell(cmd, data);
 }
 
