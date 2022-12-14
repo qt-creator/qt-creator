@@ -22,6 +22,7 @@ add_qtc_library(QmlDesignerUtils STATIC
   SOURCES
     designersettings.cpp designersettings.h
     hdrimage.cpp hdrimage.h
+    imageutils.cpp imageutils.h
     qmldesignerutils_global.h
 )
 

@@ -25,6 +25,7 @@
 #include "createscenecommand.h"
 #include "debugoutputcommand.h"
 #include "informationchangedcommand.h"
+#include "imageutils.h"
 #include "inputeventcommand.h"
 #include "nodeabstractproperty.h"
 #include "nodeinstanceserverproxy.h"
@@ -83,6 +84,8 @@
 
 #include <QDirIterator>
 #include <QFileSystemWatcher>
+#include <QImageReader>
+#include <QLocale>
 #include <QMultiHash>
 #include <QPainter>
 #include <QPicture>
@@ -135,13 +138,13 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
     // related to a single event to be received before we act.
     m_resetTimer.setSingleShot(true);
     m_resetTimer.setInterval(100);
-    QObject::connect(&m_resetTimer, &QTimer::timeout, [this] {
+    QObject::connect(&m_resetTimer, &QTimer::timeout, this, [this] {
         if (isAttached())
             resetPuppet();
     });
     m_updateWatcherTimer.setSingleShot(true);
     m_updateWatcherTimer.setInterval(100);
-    QObject::connect(&m_updateWatcherTimer, &QTimer::timeout, [this] {
+    QObject::connect(&m_updateWatcherTimer, &QTimer::timeout, this, [this] {
         for (const auto &path : std::as_const(m_pendingUpdateDirs))
             updateWatcher(path);
         m_pendingUpdateDirs.clear();
@@ -152,11 +155,11 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
     // unnecessary generation when project with multiple shaders is opened.
     m_generateQsbFilesTimer.setSingleShot(true);
     m_generateQsbFilesTimer.setInterval(100);
-    QObject::connect(&m_generateQsbFilesTimer, &QTimer::timeout, [this] {
+    QObject::connect(&m_generateQsbFilesTimer, &QTimer::timeout, this, [this] {
         handleShaderChanges();
     });
 
-    connect(m_fileSystemWatcher, &QFileSystemWatcher::directoryChanged,
+    connect(m_fileSystemWatcher, &QFileSystemWatcher::directoryChanged, this,
             [this](const QString &path) {
         const QSet<QString> pendingDirs = m_pendingUpdateDirs;
         for (const auto &pendingPath : pendingDirs) {
@@ -172,7 +175,7 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
         m_updateWatcherTimer.start();
 
     });
-    connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, [this](const QString &path) {
+    connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
         if (m_qsbTargets.contains(path)) {
             m_qsbTargets.insert(path, true);
             m_generateQsbFilesTimer.start();
@@ -1910,23 +1913,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                 imageData.pixmap = originalPixmap.scaled(dim, dim, Qt::KeepAspectRatio);
                 imageData.pixmap.setDevicePixelRatio(ratio);
                 imageData.time = modified;
-
-                double imgSize = double(imageFi.size());
-                static QStringList units({::QmlDesigner::NodeInstanceView::tr("B"),
-                                          ::QmlDesigner::NodeInstanceView::tr("KB"),
-                                          ::QmlDesigner::NodeInstanceView::tr("MB"),
-                                          ::QmlDesigner::NodeInstanceView::tr("GB")});
-                int unitIndex = 0;
-                while (imgSize > 1024. && unitIndex < units.size() - 1) {
-                    ++unitIndex;
-                    imgSize /= 1024.;
-                }
-                imageData.info = QStringLiteral("%1 x %2\n%3%4 (%5)")
-                                     .arg(originalPixmap.width())
-                                     .arg(originalPixmap.height())
-                                     .arg(QString::number(imgSize, 'g', 3))
-                                     .arg(units[unitIndex])
-                                     .arg(imageFi.suffix());
+                imageData.info = ImageUtils::imageInfo(imageSource);
                 m_imageDataMap.insert(imageData.id, imageData);
             }
         }
