@@ -1,0 +1,47 @@
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page studio-texture-editor.html
+    \previouspage studio-content-library.html
+    \nextpage creator-project-managing-workspaces.html
+
+    \title Texture Editor
+
+    In the \uicontrol {Texture Editor} view, you create and manage textures.
+
+    \image texture-editor.png
+
+    \section1 Creating a Texture
+
+    To create a texture, select \inlineimage icons/plus.png
+    in the \uicontrol {Texture Editor} view.
+
+    \note You can also create textures from the
+    \l{creating texture material browser}{Material Browser view}.
+
+    When you create a texture, it is empty. To add an image to the texture,
+    do one of the following:
+
+    \list
+      \li In the \uicontrol{Texture Editor} view, set the image in the
+      \uicontrol Source property.
+      \li From the \uicontrol Assets view, drag an image to the
+      \uicontrol Source property in the \uicontrol {Texture Editor} view.
+    \endlist
+
+    \section1 Applying a Texture to a Material
+
+    To apply a texture to a material, first select the material in the
+    \uicontrol {Material Browser} view and then:
+    \list 1
+      \li Select \inlineimage icons/apply-material.png
+      .
+      \li Select the material and property that you want to add the texture to.
+      \image select-material-property.png
+    \endlist
+
+    \note You can also apply textures to materials in the
+    \l {Material Editor and Browser}{Material Browser view}.
+
+*/

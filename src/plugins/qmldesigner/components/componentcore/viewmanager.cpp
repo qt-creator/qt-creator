@@ -27,6 +27,7 @@
 #include <stateseditornew/stateseditorview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
+#include <textureeditorview.h>
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
@@ -68,7 +69,8 @@ public:
         , navigatorView{externalDependencies}
         , propertyEditorView(imageCache, externalDependencies)
         , materialEditorView{externalDependencies}
-        , materialBrowserView{externalDependencies}
+        , materialBrowserView{imageCache, externalDependencies}
+        , textureEditorView{imageCache, externalDependencies}
         , statesEditorView{externalDependencies}
         , newStatesEditorView{externalDependencies}
     {}
@@ -90,6 +92,7 @@ public:
     PropertyEditorView propertyEditorView;
     MaterialEditorView materialEditorView;
     MaterialBrowserView materialBrowserView;
+    TextureEditorView textureEditorView;
     StatesEditorView statesEditorView;
     Experimental::StatesEditorView newStatesEditorView;
 
@@ -216,9 +219,9 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->itemLibraryView,
                                   &d->navigatorView,
                                   &d->propertyEditorView,
-                                  &d->contentLibraryView,
                                   &d->materialEditorView,
                                   &d->materialBrowserView,
+                                  &d->textureEditorView,
                                   &d->statesEditorView,
                                   &d->newStatesEditorView, // TODO
                                   &d->designerActionManagerView};
@@ -234,6 +237,13 @@ QList<AbstractView *> ViewManager::standardViews() const
             .toBool())
         list.append(&d->debugView);
 
+#ifdef CHECK_LICENSE
+    if (checkLicense() == FoundLicense::enterprise)
+        list.append(&d->contentLibraryView);
+#else
+    list.append(&d->contentLibraryView);
+#endif
+
     return list;
 }
 
@@ -248,7 +258,7 @@ void ViewManager::registerNanotraceActions()
                                                         QObject::tr("Start Nanotrace"),
                                                         ComponentCoreConstants::eventListCategory,
                                                         QKeySequence(),
-                                                        220,
+                                                        22,
                                                         handleShutdownNanotraceAction);
 
         QObject::connect(startNanotraceAction->defaultAction(), &QAction::triggered, [&]() {
@@ -263,7 +273,7 @@ void ViewManager::registerNanotraceActions()
                                                            QObject::tr("Shut Down Nanotrace"),
                                                            ComponentCoreConstants::eventListCategory,
                                                            QKeySequence(),
-                                                           220,
+                                                           23,
                                                            handleShutdownNanotraceAction);
 
         QObject::connect(shutDownNanotraceAction->defaultAction(), &QAction::triggered, [&]() {
@@ -397,13 +407,20 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->itemLibraryView.widgetInfo());
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
-    widgetInfoList.append(d->contentLibraryView.widgetInfo());
     widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
+    widgetInfoList.append(d->textureEditorView.widgetInfo());
     if (useOldStatesEditor())
         widgetInfoList.append(d->statesEditorView.widgetInfo());
     else
         widgetInfoList.append(d->newStatesEditorView.widgetInfo());
+
+#ifdef CHECK_LICENSE
+    if (checkLicense() == FoundLicense::enterprise)
+        widgetInfoList.append(d->contentLibraryView.widgetInfo());
+#else
+    widgetInfoList.append(d->contentLibraryView.widgetInfo());
+#endif
 
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());

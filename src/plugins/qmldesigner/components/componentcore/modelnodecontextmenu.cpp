@@ -42,7 +42,7 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
 
     QList<ActionInterface* > matchingFactoriesList = Utils::toList(matchingFactories);
     Utils::sort(matchingFactoriesList, [](ActionInterface *l, ActionInterface *r) {
-        return l->priority() > r->priority();
+        return l->priority() < r->priority();
     });
 
     for (ActionInterface* actionInterface : std::as_const(matchingFactoriesList)) {

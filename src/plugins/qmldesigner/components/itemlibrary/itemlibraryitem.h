@@ -24,6 +24,7 @@ class ItemLibraryItem: public QObject
     Q_PROPERTY(bool itemUsable READ isUsable FINAL)
     Q_PROPERTY(QString itemRequiredImport READ requiredImport FINAL)
     Q_PROPERTY(QString itemComponentSource READ componentSource FINAL)
+    Q_PROPERTY(QString toolTip READ toolTip FINAL)
 
 public:
     ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, bool isImported, QObject *parent);
@@ -35,6 +36,7 @@ public:
     QString componentPath() const;
     QString requiredImport() const;
     QString componentSource() const;
+    QString toolTip() const;
 
     bool setVisible(bool isVisible);
     bool isVisible() const;

@@ -68,6 +68,8 @@ Item {
             id: mouseRegion
             anchors.fill: parent
 
+            tooltip: toolTip
+
             onShowContextMenu: delegateRoot.showContextMenu()
             onPressed: (mouse)=> {
                 allowTooltip = false

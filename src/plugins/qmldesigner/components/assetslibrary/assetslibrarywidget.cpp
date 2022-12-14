@@ -17,7 +17,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -85,16 +84,12 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
 AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
                                          SynchronousImageCache &synchronousFontImageCache)
-    : m_itemIconSize(24, 24)
-    , m_fontImageCache(synchronousFontImageCache)
-    , m_assetsIconProvider(new AssetsLibraryIconProvider(synchronousFontImageCache))
-    , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
-    , m_assetsModel(new AssetsLibraryModel(m_fileSystemWatcher, this))
-    , m_assetsWidget(new QQuickWidget(this))
+    : m_itemIconSize{24, 24}
+    , m_fontImageCache{synchronousFontImageCache}
+    , m_assetsIconProvider{new AssetsLibraryIconProvider(synchronousFontImageCache)}
+    , m_assetsModel{new AssetsLibraryModel(this)}
+    , m_assetsWidget{new QQuickWidget(this)}
 {
-    m_assetCompressionTimer.setInterval(200);
-    m_assetCompressionTimer.setSingleShot(true);
-
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
     setMinimumWidth(250);
 
@@ -119,21 +114,12 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     m_assetsWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     m_assetsWidget->engine()->addImageProvider("qmldesigner_assets", m_assetsIconProvider);
     m_assetsWidget->rootContext()->setContextProperties(QVector<QQmlContext::PropertyPair>{
-        {{"assetsModel"}, QVariant::fromValue(m_assetsModel.data())},
+        {{"assetsModel"}, QVariant::fromValue(m_assetsModel)},
         {{"rootView"}, QVariant::fromValue(this)},
         {{"tooltipBackend"}, QVariant::fromValue(m_fontPreviewTooltipBackend.get())}
     });
 
-    // If project directory contents change, or one of the asset files is modified, we must
-    // reconstruct the model to update the icons
-    connect(m_fileSystemWatcher,
-            &Utils::FileSystemWatcher::directoryChanged,
-            [this]([[maybe_unused]] const QString &changedDirPath) {
-                m_assetCompressionTimer.start();
-            });
-
-    connect(m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
-            [](const QString &changeFilePath) {
+    connect(m_assetsModel, &AssetsLibraryModel::fileChanged, [](const QString &changeFilePath) {
         QmlDesignerPlugin::instance()->emitAssetChanged(changeFilePath);
     });
 
@@ -149,23 +135,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F6), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &AssetsLibraryWidget::reloadQmlSource);
-
-    connect(&m_assetCompressionTimer, &QTimer::timeout, this, [this]() {
-        // TODO: find a clever way to only refresh the changed directory part of the model
-
-        // Don't bother with asset updates after model has detached, project is probably closing
-        if (!m_model.isNull()) {
-            if (QApplication::activeModalWidget()) {
-                // Retry later, as updating file system watchers can crash when there is an active
-                // modal widget
-                m_assetCompressionTimer.start();
-            } else {
-                m_assetsModel->refresh();
-                // reload assets qml so that an overridden file's image shows the new image
-                QTimer::singleShot(100, this, &AssetsLibraryWidget::reloadQmlSource);
-            }
-        }
-    });
+    connect(this, &AssetsLibraryWidget::extFilesDrop, this, &AssetsLibraryWidget::handleExtFilesDrop, Qt::QueuedConnection);
 
      QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ASSETSLIBRARY_TIME);
 
@@ -173,7 +143,26 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     reloadQmlSource();
 }
 
-AssetsLibraryWidget::~AssetsLibraryWidget() = default;
+bool AssetsLibraryWidget::qtVersionIsAtLeast6_4() const
+{
+    return (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0));
+}
+
+
+void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
+{
+    emit addTexturesRequested(filePaths, AddTextureMode::Texture);
+}
+
+void AssetsLibraryWidget::addLightProbe(const QString &filePath)
+{
+    emit addTexturesRequested({filePath}, AddTextureMode::LightProbe);
+}
+
+void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
+{
+    m_assetsIconProvider->invalidateThumbnail(id);
+}
 
 QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
 {
@@ -182,8 +171,9 @@ QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
 
 void AssetsLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 {
-    if (filterText == m_filterText || (m_assetsModel->isEmpty() && filterText.contains(m_filterText)))
-            return;
+    if (filterText == m_filterText || (!m_assetsModel->haveFiles()
+                                       && filterText.contains(m_filterText, Qt::CaseInsensitive)))
+        return;
 
     m_filterText = filterText;
     updateSearch();
@@ -192,6 +182,16 @@ void AssetsLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 void AssetsLibraryWidget::handleAddAsset()
 {
     addResources({});
+}
+
+void AssetsLibraryWidget::emitExtFilesDrop(const QList<QUrl> &simpleFilePaths,
+                                           const QList<QUrl> &complexFilePaths,
+                                           const QString &targetDirPath)
+{
+    // workaround for but QDS-8010: we need to postpone the call to handleExtFilesDrop, otherwise
+    // the TreeViewDelegate might be recreated (therefore, destroyed) while we're still in a handler
+    // of a QML DropArea which is a child of the delegate being destroyed - this would cause a crash.
+    emit extFilesDrop(simpleFilePaths, complexFilePaths, targetDirPath);
 }
 
 void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
@@ -210,7 +210,7 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
         } else {
             AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilePathStrings,
                                                                            targetDirPath);
-            if (result == AddFilesResult::Failed) {
+            if (result.status() == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                       tr("Could not add %1 to project.")
                                                           .arg(simpleFilePathStrings.join(' ')));
@@ -276,6 +276,7 @@ void AssetsLibraryWidget::updateSearch()
 void AssetsLibraryWidget::setResourcePath(const QString &resourcePath)
 {
     m_assetsModel->setRootPath(resourcePath);
+    m_assetsIconProvider->clearCache();
     updateSearch();
 }
 
@@ -408,10 +409,22 @@ void AssetsLibraryWidget::addResources(const QStringList &files)
         if (operation) {
             AddFilesResult result = operation(fileNames,
                                               document->fileName().parentDir().toString(), true);
-            if (result == AddFilesResult::Failed) {
+            if (result.status() == AddFilesResult::Failed) {
                 Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                       tr("Could not add %1 to project.")
                                                           .arg(fileNames.join(' ')));
+            } else {
+                if (!result.directory().isEmpty()) {
+                    emit directoryCreated(result.directory());
+                } else if (result.haveDelayedResult()) {
+                    QObject *delayedResult = result.delayedResult();
+                    QObject::connect(delayedResult, &QObject::destroyed, this, [this, delayedResult]() {
+                        QVariant propValue = delayedResult->property(AddFilesResult::directoryPropName);
+                        QString directory = propValue.toString();
+                        if (!directory.isEmpty())
+                            emit directoryCreated(directory);
+                    });
+                }
             }
         } else {
             Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),

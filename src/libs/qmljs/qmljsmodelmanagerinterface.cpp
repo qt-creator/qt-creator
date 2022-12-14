@@ -63,8 +63,8 @@ static const char *qtQuickUISuffix = "ui.qml";
 
 static void maybeAddPath(ViewerContext &context, const Utils::FilePath &path)
 {
-    if (!path.isEmpty() && !context.paths.contains(path))
-        context.paths.append(path);
+    if (!path.isEmpty() && !(context.paths.count(path) > 0))
+        context.paths.insert(path);
 }
 
 static QList<Utils::FilePath> environmentImportPaths()

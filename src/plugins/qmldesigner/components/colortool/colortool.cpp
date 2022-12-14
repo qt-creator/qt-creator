@@ -27,53 +27,8 @@
 
 namespace QmlDesigner {
 
-class ColorToolAction : public AbstractAction
-{
-public:
-    ColorToolAction() : AbstractAction(QCoreApplication::translate("ColorToolAction","Edit Color")) {}
-
-    QByteArray category() const override
-    {
-        return QByteArray();
-    }
-
-    QByteArray menuId() const override
-    {
-        return "ColorTool";
-    }
-
-    int priority() const override
-    {
-        return CustomActionsPriority;
-    }
-
-    Type type() const override
-    {
-        return FormEditorAction;
-    }
-
-protected:
-    bool isVisible(const SelectionContext &selectionContext) const override
-    {
-        if (selectionContext.singleNodeIsSelected())
-            return selectionContext.currentSingleSelectedNode().metaInfo().hasProperty("color");
-
-        return false;
-    }
-
-    bool isEnabled(const SelectionContext &selectionContext) const override
-    {
-        return isVisible(selectionContext);
-    }
-};
-
 ColorTool::ColorTool()
 {
-    auto colorToolAction = new ColorToolAction;
-    QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(colorToolAction);
-    connect(colorToolAction->action(), &QAction::triggered, [=]() {
-        view()->changeCurrentToolTo(this);
-    });
 }
 
 ColorTool::~ColorTool() = default;

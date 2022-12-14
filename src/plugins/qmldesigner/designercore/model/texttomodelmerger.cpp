@@ -54,7 +54,8 @@ namespace {
 
 bool isSupportedAttachedProperties(const QString &propertyName)
 {
-    return propertyName.startsWith(QLatin1String("Layout."));
+    return propertyName.startsWith(QLatin1String("Layout."))
+           || propertyName.startsWith(QLatin1String("InsightCategory."));
 }
 
 QStringList supportedVersionsList()
@@ -498,8 +499,6 @@ public:
                 qDebug() << Q_FUNC_INFO;
                 qDebug() << astTypeNode->name.toString() << typeName;
                 qDebug() << metaInfo.isValid() << metaInfo.typeName();
-                if (metaInfo.isValid())
-                    qDebug() << metaInfo.superClasses().front().typeName();
             }
 
             typeName = QString::fromUtf8(metaInfo.typeName());
@@ -986,6 +985,9 @@ static QList<QmlDesigner::Import> generatePossibleLibraryImports(const QHash<QSt
 
 void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
 {
+    if (!m_rewriterView->possibleImportsEnabled())
+        return;
+
     static QUrl lastProjectUrl;
     auto &externalDependencies = m_rewriterView->externalDependencies();
     auto projectUrl = externalDependencies.projectUrl();

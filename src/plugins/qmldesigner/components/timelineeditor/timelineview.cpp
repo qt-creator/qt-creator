@@ -584,7 +584,7 @@ void TimelineView::registerActions()
 
     actionManager.addDesignerAction(new ActionGroup(TimelineConstants::timelineCategoryDisplayName,
                                                     TimelineConstants::timelineCategory,
-                                                    TimelineConstants::priorityTimelineCategory,
+                                                    ComponentCoreConstants::Priorities::TimelineCategory,
                                                     timelineEnabled,
                                                     &SelectionContextFunctors::always));
 
@@ -594,7 +594,7 @@ void TimelineView::registerActions()
                                        {},
                                        TimelineConstants::timelineCategory,
                                        QKeySequence(),
-                                       160,
+                                       3,
                                        deleteKeyframes,
                                        timelineHasKeyframes));
 
@@ -604,7 +604,7 @@ void TimelineView::registerActions()
                                        {},
                                        TimelineConstants::timelineCategory,
                                        QKeySequence(),
-                                       140,
+                                       1,
                                        insertKeyframes,
                                        timelineHasKeyframes));
 
@@ -614,7 +614,7 @@ void TimelineView::registerActions()
                                        {},
                                        TimelineConstants::timelineCategory,
                                        QKeySequence(),
-                                       120,
+                                       4,
                                        copyKeyframes,
                                        timelineHasKeyframes));
 
@@ -624,7 +624,7 @@ void TimelineView::registerActions()
                                        {},
                                        TimelineConstants::timelineCategory,
                                        QKeySequence(),
-                                       100,
+                                       5,
                                        pasteKeyframes,
                                        timelineHasClipboard));
 }

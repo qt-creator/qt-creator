@@ -6,6 +6,7 @@
 #include "designersettings.h"
 #include "formeditoritem.h"
 #include "formeditorscene.h"
+#include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
 #include "qmldesignerplugin.h"
@@ -67,47 +68,49 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     auto layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(true);
 
-    m_noSnappingAction = layoutActionGroup->addAction(tr("No snapping."));
+    m_noSnappingAction = layoutActionGroup->addAction(tr("No Snapping"));
     m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);
-    m_noSnappingAction->setIcon(Icons::NO_SNAPPING.icon());
-    registerActionAsCommand(m_noSnappingAction, Constants::FORMEDITOR_NO_SNAPPING, QKeySequence(Qt::Key_T));
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap to parent or sibling components and generate anchors."));
+    registerActionAsCommand(m_noSnappingAction,
+                            Constants::FORMEDITOR_NO_SNAPPING,
+                            QKeySequence(Qt::Key_T),
+                            ComponentCoreConstants::snappingCategory,
+                            1);
+
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction(tr("Snap with Anchors"));
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
-    m_snappingAndAnchoringAction->setIcon(Icons::NO_SNAPPING_AND_ANCHORING.icon());
-    registerActionAsCommand(m_snappingAndAnchoringAction, Constants::FORMEDITOR_NO_SNAPPING_AND_ANCHORING, QKeySequence(Qt::Key_W));
 
-    m_snappingAction = layoutActionGroup->addAction(tr("Snap to parent or sibling components but do not generate anchors."));
+    registerActionAsCommand(m_snappingAndAnchoringAction,
+                            Constants::FORMEDITOR_NO_SNAPPING_AND_ANCHORING,
+                            QKeySequence(Qt::Key_W),
+                            ComponentCoreConstants::snappingCategory,
+                            2);
+
+    m_snappingAction = layoutActionGroup->addAction(tr("Snap without Anchors"));
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
-    m_snappingAction->setIcon(Icons::SNAPPING.icon());
-    registerActionAsCommand(m_snappingAction, Constants::FORMEDITOR_SNAPPING, QKeySequence(Qt::Key_E));
+
+    registerActionAsCommand(m_snappingAction,
+                            Constants::FORMEDITOR_SNAPPING,
+                            QKeySequence(Qt::Key_E),
+                            ComponentCoreConstants::snappingCategory,
+                            3);
 
     addActions(layoutActionGroup->actions());
-    upperActions.append(layoutActionGroup->actions());
 
-    auto separatorAction = new QAction(this);
-    separatorAction->setSeparator(true);
-    addAction(separatorAction);
-    upperActions.append(separatorAction);
-
-    m_showBoundingRectAction = new QAction(Utils::Icons::BOUNDING_RECT.icon(),
-                                           tr("Show bounding rectangles and stripes for empty components."),
-                                           this);
+    m_showBoundingRectAction = new QAction(tr("Show Bounds"), this);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(false);
-    registerActionAsCommand(m_showBoundingRectAction, Constants::FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE, QKeySequence(Qt::Key_A));
+    registerActionAsCommand(m_showBoundingRectAction,
+                            Constants::FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE,
+                            QKeySequence(Qt::Key_A),
+                            ComponentCoreConstants::rootCategory,
+                            ComponentCoreConstants::Priorities::ShowBoundingRect);
 
     addAction(m_showBoundingRectAction.data());
-    upperActions.append(m_showBoundingRectAction.data());
-
-    separatorAction = new QAction(this);
-    separatorAction->setSeparator(true);
-    addAction(separatorAction);
-    upperActions.append(separatorAction);
 
     m_rootWidthAction = new LineEditAction(tr("Override Width"), this);
     m_rootWidthAction->setToolTip(tr("Override width of root component."));
@@ -266,7 +269,11 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
     m_resetAction = new QAction(Utils::Icons::RESET_TOOLBAR.icon(), tr("Reset View"), this);
-    registerActionAsCommand(m_resetAction, Constants::FORMEDITOR_REFRESH, QKeySequence(Qt::Key_R));
+    registerActionAsCommand(m_resetAction,
+                            Constants::FORMEDITOR_REFRESH,
+                            QKeySequence(Qt::Key_R),
+                            ComponentCoreConstants::rootCategory,
+                            ComponentCoreConstants::Priorities::ResetView);
 
     addAction(m_resetAction.data());
     upperActions.append(m_resetAction.data());
@@ -334,12 +341,25 @@ void FormEditorWidget::changeBackgound(const QColor &color)
     }
 }
 
-void FormEditorWidget::registerActionAsCommand(QAction *action, Utils::Id id, const QKeySequence &keysequence)
+void FormEditorWidget::registerActionAsCommand(
+    QAction *action, Utils::Id id, const QKeySequence &, const QByteArray &category, int priority)
 {
     Core::Context context(Constants::C_QMLFORMEDITOR);
 
     Core::Command *command = Core::ActionManager::registerAction(action, id, context);
-    command->setDefaultKeySequence(keysequence);
+
+    DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()
+                                                       ->viewManager()
+                                                       .designerActionManager();
+
+    designerActionManager.addCreatorCommand(command, category, priority);
+
+    connect(command->action(), &QAction::enabledChanged, command, [command](bool b) {
+        command->action()->setVisible(b);
+    });
+
+    command->action()->setVisible(command->action()->isEnabled());
+
     command->augmentActionWithShortcutToolTip(action);
 }
 

@@ -69,6 +69,7 @@ public:
     QVariant modelValue(const PropertyName &name) const;
     bool isTranslatableText(const PropertyName &name) const;
     QString stripedTranslatableText(const PropertyName &name) const;
+    BindingProperty bindingProperty(const PropertyName &name) const;
     QString expression(const PropertyName &name) const;
     bool isInBaseState() const;
     bool timelineIsActive() const;

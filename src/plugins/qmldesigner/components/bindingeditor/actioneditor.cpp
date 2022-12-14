@@ -132,8 +132,7 @@ bool isLiteral(QmlJS::AST::Node *ast)
         || QmlJS::AST::cast<QmlJS::AST::TrueLiteral *>(ast)
         || QmlJS::AST::cast<QmlJS::AST::FalseLiteral *>(ast))
         return true;
-    else
-        return false;
+    return false;
 }
 
 TypeName skipCpp(TypeName typeName)
@@ -229,16 +228,18 @@ void ActionEditor::prepareConnections()
             QmlJS::AST::ExpressionNode *expression = newDoc->expression();
 
             if (expression && !isLiteral(expression)) {
-                QmlJS::ValueOwner *interp = context->valueOwner();
-                const QmlJS::Value *value = interp->convertToObject(scopeChain.evaluate(expression));
+                if (QmlJS::ValueOwner *interp = context->valueOwner()) {
+                    if (const QmlJS::Value *value = interp->convertToObject(
+                            scopeChain.evaluate(expression))) {
+                        if (value->asNullValue() && !methodBlackList.contains(slotName))
+                            connection.methods.append(QString::fromUtf8(slotName));
 
-                if (value->asNullValue() && !methodBlackList.contains(slotName))
-                    connection.methods.append(QString::fromUtf8(slotName));
-
-                if (const QmlJS::FunctionValue *f = value->asFunctionValue()) {
-                    // Only add slots with zero arguments
-                    if (f->namedArgumentCount() == 0 && !methodBlackList.contains(slotName))
-                        connection.methods.append(QString::fromUtf8(slotName));
+                        if (const QmlJS::FunctionValue *f = value->asFunctionValue()) {
+                            // Only add slots with zero arguments
+                            if (f->namedArgumentCount() == 0 && !methodBlackList.contains(slotName))
+                                connection.methods.append(QString::fromUtf8(slotName));
+                        }
+                    }
                 }
             }
         }

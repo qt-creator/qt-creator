@@ -57,7 +57,7 @@ TextInput {
                     myControl.focus = false
                 } else {
                     myControl.popup.open()
-                    myControl.forceActiveFocus()
+                    //myControl.forceActiveFocus()
                 }
             } else {
                 textInput.forceActiveFocus()

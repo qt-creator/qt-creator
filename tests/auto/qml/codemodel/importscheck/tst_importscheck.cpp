@@ -58,7 +58,7 @@ void scanDirectory(const QString &dir)
                                       ModelManagerInterface::instance(), false);
     ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
-    vCtx.paths.append(dirPath);
+    vCtx.paths.insert(dirPath);
     Snapshot snap = ModelManagerInterface::instance()->snapshot();
 
     ImportDependencies *iDeps = snap.importDependencies();
@@ -176,7 +176,10 @@ void tst_ImportCheck::test()
                                       ModelManagerInterface::instance(), false);
     ModelManagerInterface::instance()->test_joinAllThreads();
     ViewerContext vCtx;
-    vCtx.paths.append(pathPaths);
+
+    for (const Utils::FilePath &path : pathPaths)
+        vCtx.paths.insert(path);
+
     Snapshot snap = ModelManagerInterface::instance()->snapshot();
 
     ImportDependencies *iDeps = snap.importDependencies();

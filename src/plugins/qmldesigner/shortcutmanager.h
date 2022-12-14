@@ -41,6 +41,7 @@ private:
     void deleteSelected();
     void cutSelected();
     void copySelected();
+    void duplicateSelected();
     void paste();
     void selectAll();
     void undoAvailable(bool isAvailable);
@@ -61,6 +62,7 @@ private:
     QAction m_cutAction;
     QAction m_copyAction;
     QAction m_pasteAction;
+    QAction m_duplicateAction;
     QAction m_selectAllAction;
     QAction m_escapeAction;
 

@@ -167,6 +167,9 @@ public:
 
     void resetPossibleImports();
 
+    bool possibleImportsEnabled() const;
+    void setPossibleImportsEnabled(bool b);
+
 signals:
     void modelInterfaceProjectUpdated();
 
@@ -212,6 +215,7 @@ private: //variables
     bool m_restoringAuxData = false;
     bool m_modelAttachPending = false;
     bool m_allowComponentRoot = false;
+    bool m_possibleImportsEnabled = true;
 
     mutable QHash<int, ModelNode> m_canonicalIntModelNode;
     mutable QHash<ModelNode, int> m_canonicalModelNodeInt;

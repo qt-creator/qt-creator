@@ -31,11 +31,15 @@
     \list 1
       \li Open the application in \QDS.
       \li Select \uicontrol File > \uicontrol {Share Application Online}.
-      \li In the dialog, select \uicontrol Share.
+      \li Optionally, select \uicontrol {Protect with password}, and enter a password to prevent
+      unauthorized viewing of the application.
+      \note If you share the same application again, you must set the password
+      again. Otherwise, the application is not password protected any longer.
+      \li Select \uicontrol Share.
       \image share-online.webp
     \endlist
 
-    In the dialog, you can now open the application in a web
+    You can now open the application in a web
     browser, copy the link to share with others, or manage your shared
     applications.
 

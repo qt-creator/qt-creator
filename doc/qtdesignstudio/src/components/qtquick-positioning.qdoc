@@ -44,23 +44,19 @@
 
     Property bindings are created implicitly whenever a property is assigned a
     JavaScript expression. To set JavaScript expressions as values of properties
-    in the \l Properties view, select the \inlineimage icons/action-icon.png
-    (\uicontrol Actions) menu next to a property, and then select
-    \uicontrol {Set Binding}.
+    in the \l Properties view:
+    \list 1
+        \li Select the \inlineimage icons/action-icon.png
+        (\uicontrol Actions) menu next to a property, and then select
+        \uicontrol {Set Binding}.
 
-    \image qmldesigner-set-expression.png "Actions menu"
+        \image qmldesigner-set-expression.png "Actions menu"
 
-    In \uicontrol {Binding Editor}, select a component and a property from
-    lists of available components and their properties.
+        \li In \uicontrol {Binding Editor}, select a component and a property from
+        lists of available components and their properties.
 
-    \image qmldesigner-binding-editor.png "Binding Editor"
-
-    Alternatively, start typing a
-    string and press \key Ctrl+Space to display a list of properties, IDs, and
-    code snippets. When you enter a period (.) after a property name, a list of
-    available values is displayed. Press \key Enter to accept the first
-    suggestion in the list and to complete the code. For more information, see
-    \l{Completing Code}.
+        \image qmldesigner-binding-editor.png "Binding Editor"
+    \endlist
 
     When a binding is set, the \uicontrol Actions menu icon changes to
     \inlineimage icons/action-icon-binding.png

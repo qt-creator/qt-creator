@@ -43,9 +43,10 @@
 
 #include <QApplication>
 
+#include <QBoxLayout>
 #include <QFileInfo>
-#include <QShortcut>
 #include <QKeySequence>
+#include <QShortcut>
 
 #include <QQmlContext>
 #include <QQmlEngine>
@@ -141,6 +142,7 @@ void StatesEditorWidget::showEvent(QShowEvent *event)
 {
     QQuickWidget::showEvent(event);
     update();
+    QMetaObject::invokeMethod(rootObject(), "showEvent");
 }
 
 void StatesEditorWidget::focusOutEvent(QFocusEvent *focusEvent)

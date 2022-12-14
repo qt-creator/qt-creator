@@ -20,6 +20,7 @@ public:
     QQuickTextureFactory *textureFactory() const override;
 
     void setImage(const QImage &image);
+    QImage image() const { return m_image; }
 
     void abort();
 
@@ -37,6 +38,7 @@ public:
 
     QQuickImageResponse *requestImageResponse(const QString &id,
                                               const QSize &requestedSize) override;
+    QImage defaultImage() const { return m_defaultImage; }
 
 private:
     AsynchronousImageCache &m_cache;

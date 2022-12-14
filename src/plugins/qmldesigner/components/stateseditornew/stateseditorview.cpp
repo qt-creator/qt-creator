@@ -105,6 +105,8 @@ void StatesEditorView::setActiveStatesGroupNode(const ModelNode &modelNode)
     m_activeStatesGroupNode = modelNode;
     resetModel();
 
+    checkForStatesAvailability();
+
     emit m_statesEditorModel->activeStateGroupChanged();
     emit m_statesEditorModel->activeStateGroupIndexChanged();
 }
@@ -228,6 +230,16 @@ void StatesEditorView::cloneState(int nodeId)
     ModelNode newNode = newState.modelNode();
     int from = newNode.parentProperty().indexOf(newNode);
     int to = stateNode.parentProperty().indexOf(stateNode) + 1;
+
+    // When duplicating an extended state the new state needs to be added after the extend group.
+    if (!modelState.hasExtend()) {
+        auto modelNodeList = activeStatesGroupNode().nodeListProperty("states").toModelNodeList();
+        for (; to != modelNodeList.count(); ++to) {
+            QmlModelState currentState(modelNodeList.at(to));
+            if (!currentState.isValid() || currentState.isBaseState() || !currentState.hasExtend())
+                break;
+        }
+    }
 
     executeInTransaction("moveState", [this, &newState, from, to]() {
         activeStatesGroupNode().nodeListProperty("states").slide(from, to);
@@ -420,8 +432,10 @@ void StatesEditorView::resetStateGroups()
 void StatesEditorView::checkForStatesAvailability()
 {
     if (m_statesEditorWidget) {
-        const bool isVisual = QmlVisualNode::isValidQmlVisualNode(activeStatesGroupNode());
-        m_statesEditorWidget->showAddNewStatesButton(isVisual);
+        const bool isVisual = activeStatesGroupNode().metaInfo().isBasedOn(
+            model()->qtQuickItemMetaInfo(), model()->qtQuick3DNodeMetaInfo());
+        const bool isRoot = activeStatesGroupNode().isRootNode();
+        m_statesEditorWidget->showAddNewStatesButton(isVisual || !isRoot);
     }
 }
 
@@ -714,6 +728,9 @@ void StatesEditorView::modelAttached(Model *model)
 
     resetModel();
     resetStateGroups();
+
+    emit m_statesEditorModel->activeStateGroupChanged();
+    emit m_statesEditorModel->activeStateGroupIndexChanged();
 }
 
 void StatesEditorView::modelAboutToBeDetached(Model *model)

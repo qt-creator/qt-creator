@@ -10,6 +10,7 @@ HelperWidgets.ScrollView {
     id: root
 
     clip: true
+    interactive: !ctxMenu.opened
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 100
@@ -32,7 +33,7 @@ HelperWidgets.ScrollView {
         for (let i = 0; i < categoryRepeater.count; ++i) {
             let cat = categoryRepeater.itemAt(i)
             if (cat.visible && !cat.expanded)
-                cat.expanded = true
+                cat.expandSection()
         }
     }
     Column {
@@ -52,10 +53,16 @@ HelperWidgets.ScrollView {
                 caption: bundleCategoryName
                 addTopPadding: false
                 sectionBackgroundColor: "transparent"
-                visible: bundleCategoryVisible
+                visible: bundleCategoryVisible && !root.model.isEmpty
                 expanded: bundleCategoryExpanded
                 expandOnClick: false
                 onToggleExpand: bundleCategoryExpanded = !bundleCategoryExpanded
+                onExpand: bundleCategoryExpanded = true
+                onCollapse: bundleCategoryExpanded = false
+
+                function expandSection() {
+                    bundleCategoryExpanded = true
+                }
 
                 Grid {
                     width: root.width
@@ -80,13 +87,20 @@ HelperWidgets.ScrollView {
         }
 
         Text {
-            id: noMatchText
-            text: qsTr("No match found.");
+            id: infoText
+            text: {
+                if (!root.model.texBundleExists)
+                    qsTr("<b>Content Library</b> textures are not installed.")
+                else if (!searchBox.isEmpty())
+                    qsTr("No match found.")
+                else
+                    ""
+            }
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
-            visible: root.model.isEmpty && !searchBox.isEmpty() && !root.model.hasMaterialRoot
+            visible: root.model.isEmpty
         }
     }
 }

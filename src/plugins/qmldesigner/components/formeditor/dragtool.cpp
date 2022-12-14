@@ -243,33 +243,15 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
         if (!effectPath.isEmpty()) {
             FormEditorItem *targetContainerFormEditorItem = targetContainerOrRootItem(itemList);
             if (targetContainerFormEditorItem) {
-                QmlItemNode parentQmlItemNode = targetContainerFormEditorItem->qmlItemNode();
-                QString effectName = QFileInfo(effectPath).baseName();
-
-                if (!AssetsLibraryModel::isEffectQmlExist(effectName)) {
-                    QMessageBox msgBox;
-                    msgBox.setText("Effect " + effectName + " is empty");
-                    msgBox.setInformativeText("Do you want to edit " + effectName + "?");
-                    msgBox.setStandardButtons(QMessageBox::No |QMessageBox::Yes);
-                    msgBox.setDefaultButton(QMessageBox::Yes);
-                    msgBox.setIcon(QMessageBox::Question);
-                    int ret = msgBox.exec();
-                    switch (ret) {
-                      case QMessageBox::Yes:
-                        ModelNodeOperations::openEffectMaker(effectPath);
-                        break;
-                      default:
-                        break;
-                    }
-
+                if (!ModelNodeOperations::validateEffect(effectPath)) {
                     event->ignore();
                     return;
                 }
 
-                QmlItemNode::createQmlItemNodeForEffect(view(), parentQmlItemNode, effectName);
-
+                bool layerEffect = ModelNodeOperations::useLayerEffect();
+                QmlItemNode parentQmlItemNode = targetContainerFormEditorItem->qmlItemNode();
+                QmlItemNode::createQmlItemNodeForEffect(view(), parentQmlItemNode, effectPath, layerEffect);
                 view()->setSelectedModelNodes({parentQmlItemNode});
-                view()->resetPuppet();
 
                 commitTransaction();
             }

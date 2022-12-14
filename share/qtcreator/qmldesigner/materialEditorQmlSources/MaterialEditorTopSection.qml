@@ -140,6 +140,7 @@ Column {
                 anchors.centerIn: parent
                 source: "image://materialEditor/preview"
                 cache: false
+                smooth: true
             }
         }
 

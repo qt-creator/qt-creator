@@ -42,6 +42,7 @@ IconButton 2.0 IconButton.qml
 IconLabel 2.0 IconLabel.qml
 ImagePreviewTooltipArea 2.0 ImagePreviewTooltipArea.qml
 ImageSection 2.0 ImageSection.qml
+InsightSection 2.0 InsightSection.qml
 ItemFilterComboBox 2.0 ItemFilterComboBox.qml
 Label 2.0 Label.qml
 LineEdit 2.0 LineEdit.qml

@@ -3,14 +3,14 @@
 
 #include "contentlibraryview.h"
 
-#include "bindingproperty.h"
 #include "contentlibrarybundleimporter.h"
-#include "contentlibrarywidget.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
+#include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
-#include "modelnodeoperations.h"
+#include "contentlibrarywidget.h"
 #include "nodelistproperty.h"
+#include "qmldesignerconstants.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
@@ -30,6 +30,7 @@ namespace QmlDesigner {
 
 ContentLibraryView::ContentLibraryView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
+    , m_createTexture(this, true)
 {}
 
 ContentLibraryView::~ContentLibraryView()
@@ -49,42 +50,23 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 [&] (QmlDesigner::ContentLibraryMaterial *mat) {
             m_draggedBundleMaterial = mat;
         });
+        connect(m_widget, &ContentLibraryWidget::bundleTextureDragStarted, this,
+                [&] (QmlDesigner::ContentLibraryTexture *tex) {
+            m_draggedBundleTexture = tex;
+        });
+
         connect(m_widget, &ContentLibraryWidget::addTextureRequested, this,
-                [&] (const QString texPath, ContentLibraryWidget::AddTextureMode mode) {
-            executeInTransaction("ContentLibraryView::widgetInfo", [&] {
-                // copy image to project
-                AddFilesResult result = ModelNodeOperations::addImageToProject({texPath}, "images", false);
-
-                if (result == AddFilesResult::Failed) {
-                    Core::AsynchronousMessageBox::warning(tr("Failed to Add Texture"),
-                                                          tr("Could not add %1 to project.").arg(texPath));
-                    return;
-                }
-
-                if (mode == ContentLibraryWidget::AddTextureMode::Image)
-                    return;
-
-                // create a texture from the image
-                ModelNode matLib = materialLibraryNode();
-                if (!matLib.isValid())
-                    return;
-
-                NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.Texture");
-                ModelNode newTexNode = createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
-                                                                            metaInfo.minorVersion());
-                newTexNode.validId();
-                VariantProperty sourceProp = newTexNode.variantProperty("source");
-                sourceProp.setValue(QLatin1String("images/%1").arg(texPath.split('/').last()));
-                matLib.defaultNodeListProperty().reparentHere(newTexNode);
-
-                // assign the texture as scene environment's light probe
-                if (mode == ContentLibraryWidget::AddTextureMode::LightProbe && m_activeSceneEnv.isValid()) {
-                    BindingProperty lightProbeProp = m_activeSceneEnv.bindingProperty("lightProbe");
-                    lightProbeProp.setExpression(newTexNode.id());
-                    VariantProperty bgModeProp = m_activeSceneEnv.variantProperty("backgroundMode");
-                    bgModeProp.setValue(QVariant::fromValue(Enumeration("SceneEnvironment", "SkyBox")));
-                }
+                [&] (const QString &texPath, AddTextureMode mode) {
+            executeInTransaction("ContentLibraryView::widgetInfo", [&]() {
+                m_createTexture.execute(texPath, mode, m_sceneId);
             });
+        });
+
+        connect(m_widget, &ContentLibraryWidget::updateSceneEnvStateRequested, this, [&]() {
+            ModelNode activeSceneEnv = m_createTexture.resolveSceneEnv(m_sceneId);
+            const bool sceneEnvExists = activeSceneEnv.isValid();
+            m_widget->texturesModel()->setHasSceneEnv(sceneEnvExists);
+            m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);
         });
 
         ContentLibraryMaterialsModel *materialsModel = m_widget->materialsModel().data();
@@ -142,15 +124,20 @@ void ContentLibraryView::modelAttached(Model *model)
 
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
-    m_widget->materialsModel()->setHasMaterialRoot(rootModelNode().metaInfo().isQtQuick3DMaterial());
-    m_widget->materialsModel()->setHasQuick3DImport(m_hasQuick3DImport);
-
     updateBundleMaterialsQuick3DVersion();
     updateBundleMaterialsImportedState();
+
+    const bool hasLibrary = materialLibraryNode().isValid();
+    m_widget->setHasMaterialLibrary(hasLibrary);
+    m_widget->setHasQuick3DImport(m_hasQuick3DImport);
+
+    m_sceneId = model->active3DSceneId();
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)
 {
+    m_widget->setHasMaterialLibrary(false);
+    m_widget->setHasQuick3DImport(false);
 
     AbstractView::modelAboutToBeDetached(model);
 }
@@ -168,35 +155,12 @@ void ContentLibraryView::importsChanged(const QList<Import> &addedImports, const
         return;
 
     m_hasQuick3DImport = hasQuick3DImport;
-    m_widget->materialsModel()->setHasQuick3DImport(m_hasQuick3DImport);
+    m_widget->setHasQuick3DImport(m_hasQuick3DImport);
 }
 
 void ContentLibraryView::active3DSceneChanged(qint32 sceneId)
 {
-    m_activeSceneEnv = {};
-    bool sceneEnvExists = false;
-    if (sceneId != -1) {
-        ModelNode activeScene = active3DSceneNode();
-        if (activeScene.isValid()) {
-            ModelNode view3D;
-            if (activeScene.metaInfo().isQtQuick3DView3D()) {
-                view3D = activeScene;
-            } else {
-                ModelNode sceneParent = activeScene.parentProperty().parentModelNode();
-                if (sceneParent.metaInfo().isQtQuick3DView3D())
-                    view3D = sceneParent;
-            }
-
-            if (view3D.isValid()) {
-                m_activeSceneEnv = modelNodeForId(view3D.bindingProperty("environment").expression());
-                if (m_activeSceneEnv.isValid())
-                    sceneEnvExists = true;
-            }
-        }
-    }
-
-    m_widget->texturesModel()->setHasSceneEnv(sceneEnvExists);
-    m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);
+    m_sceneId = sceneId;
 }
 
 void ContentLibraryView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
@@ -237,7 +201,30 @@ void ContentLibraryView::customNotification(const AbstractView *view, const QStr
         }
 
         m_draggedBundleMaterial = nullptr;
+    } else  if (identifier == "drop_bundle_texture") {
+        ModelNode matLib = materialLibraryNode();
+        if (!matLib.isValid())
+            return;
+
+        m_widget->addTexture(m_draggedBundleTexture);
+
+        m_draggedBundleTexture = nullptr;
     }
+}
+
+void ContentLibraryView::nodeReparented(const ModelNode &node,
+                                        [[maybe_unused]] const NodeAbstractProperty &newPropertyParent,
+                                        [[maybe_unused]] const NodeAbstractProperty &oldPropertyParent,
+                                        [[maybe_unused]] PropertyChangeFlags propertyChange)
+{
+    if (node.id() == Constants::MATERIAL_LIB_ID)
+        m_widget->setHasMaterialLibrary(true);
+}
+
+void ContentLibraryView::nodeAboutToBeRemoved(const ModelNode &removedNode)
+{
+    if (removedNode.id() == Constants::MATERIAL_LIB_ID)
+        m_widget->setHasMaterialLibrary(false);
 }
 
 void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundleMat,

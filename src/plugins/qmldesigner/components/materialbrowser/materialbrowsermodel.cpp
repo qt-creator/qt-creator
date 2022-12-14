@@ -171,18 +171,18 @@ void MaterialBrowserModel::setHasModelSelection(bool b)
     emit hasModelSelectionChanged();
 }
 
-bool MaterialBrowserModel::hasMaterialRoot() const
+bool MaterialBrowserModel::hasMaterialLibrary() const
 {
-    return m_hasMaterialRoot;
+    return m_hasMaterialLibrary;
 }
 
-void MaterialBrowserModel::setHasMaterialRoot(bool b)
+void MaterialBrowserModel::setHasMaterialLibrary(bool b)
 {
-    if (m_hasMaterialRoot == b)
+    if (m_hasMaterialLibrary == b)
         return;
 
-    m_hasMaterialRoot = b;
-    emit hasMaterialRootChanged();
+    m_hasMaterialLibrary = b;
+    emit hasMaterialLibraryChanged();
 }
 
 QString MaterialBrowserModel::copiedMaterialType() const
@@ -213,6 +213,11 @@ void MaterialBrowserModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
+    refreshSearch();
+}
+
+void MaterialBrowserModel::refreshSearch()
+{
     bool isEmpty = false;
 
     // if selected material goes invisible, select nearest material
@@ -256,9 +261,13 @@ void MaterialBrowserModel::setMaterials(const QList<ModelNode> &materials, bool 
         emit isEmptyChanged();
     }
 
-    setHasQuick3DImport(hasQuick3DImport);
+    if (!m_searchText.isEmpty())
+        refreshSearch();
+    else
+        resetModel();
+
     updateSelectedMaterial();
-    resetModel();
+    setHasQuick3DImport(hasQuick3DImport);
 }
 
 void MaterialBrowserModel::removeMaterial(const ModelNode &material)
@@ -312,6 +321,13 @@ ModelNode MaterialBrowserModel::materialAt(int idx) const
     if (isValidIndex(idx))
         return m_materialList.at(idx);
 
+    return {};
+}
+
+ModelNode MaterialBrowserModel::selectedMaterial() const
+{
+    if (isValidIndex(m_selectedIndex))
+        return m_materialList[m_selectedIndex];
     return {};
 }
 

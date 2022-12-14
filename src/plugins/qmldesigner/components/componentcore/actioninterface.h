@@ -25,10 +25,10 @@ public:
     };
 
     enum Priorities {
-        HighestPriority = ComponentCoreConstants::priorityFirst,
-        CustomActionsPriority = ComponentCoreConstants::priorityCustomActions,
-        RefactoringActionsPriority = ComponentCoreConstants::priorityRefactoring,
-        LowestPriority = ComponentCoreConstants::priorityLast
+        HighestPriority = ComponentCoreConstants::Priorities::Top,
+        CustomActionsPriority = ComponentCoreConstants::Priorities::CustomActionsSection,
+        RefactoringActionsPriority = ComponentCoreConstants::Priorities::Refactoring,
+        LowestPriority = ComponentCoreConstants::Priorities::Last
     };
 
     enum class TargetView {

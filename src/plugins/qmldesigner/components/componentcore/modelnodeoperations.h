@@ -9,7 +9,48 @@
 
 namespace QmlDesigner {
 
-enum class AddFilesResult { Succeeded, Failed, Cancelled };
+class AddFilesResult
+{
+public:
+    enum Status { Succeeded, Failed, Cancelled, Delayed };
+    static constexpr char directoryPropName[] = "directory";
+
+    static AddFilesResult cancelled(const QString &directory = {})
+    {
+        return AddFilesResult{Cancelled, directory};
+    }
+
+    static AddFilesResult failed(const QString &directory = {})
+    {
+        return AddFilesResult{Failed, directory};
+    }
+
+    static AddFilesResult succeeded(const QString &directory = {})
+    {
+        return AddFilesResult{Succeeded, directory};
+    }
+
+    static AddFilesResult delayed(QObject *delayedResult)
+    {
+        return AddFilesResult{Delayed, {}, delayedResult};
+    }
+
+    Status status() const { return m_status; }
+    QString directory() const { return m_directory; }
+    bool haveDelayedResult() const { return m_delayedResult != nullptr; }
+    QObject *delayedResult() const { return m_delayedResult; }
+
+private:
+    AddFilesResult(Status status, const QString &directory, QObject *delayedResult = nullptr)
+        : m_status{status}
+        , m_directory{directory}
+        , m_delayedResult{delayedResult}
+    {}
+
+    Status m_status;
+    QString m_directory;
+    QObject *m_delayedResult = nullptr;
+};
 
 namespace ModelNodeOperations {
 
@@ -80,6 +121,11 @@ void updateImported3DAsset(const SelectionContext &selectionContext);
 
 QMLDESIGNERCORE_EXPORT Utils::FilePath getEffectsDirectory();
 void openEffectMaker(const QString &filePath);
+QString getEffectIcon(const QString &effectPath);
+bool useLayerEffect();
+bool validateEffect(const QString &effectPath);
+
+Utils::FilePath getImagesDefaultDirectory();
 
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);

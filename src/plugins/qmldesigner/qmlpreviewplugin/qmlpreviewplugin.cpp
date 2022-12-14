@@ -40,7 +40,7 @@ QmlPreviewWidgetPlugin::QmlPreviewWidgetPlugin()
     designerActionManager.addDesignerAction(new ActionGroup(
                                                 QString(),
                                                 ComponentCoreConstants::qmlPreviewCategory,
-                                                ComponentCoreConstants::priorityQmlPreviewCategory,
+                                                ComponentCoreConstants::Priorities::QmlPreviewCategory,
                                                 &SelectionContextFunctors::always));
     s_previewPlugin = getPreviewPlugin();
 

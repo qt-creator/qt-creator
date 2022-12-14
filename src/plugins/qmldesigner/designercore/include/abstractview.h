@@ -230,6 +230,7 @@ public:
     ModelNode materialLibraryNode();
     ModelNode active3DSceneNode();
     void assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode = {});
+    ModelNode getTextureDefaultInstance(const QString &source);
 
     const NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;

@@ -62,6 +62,10 @@ public:
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
+                        const NodeAbstractProperty &oldPropertyParent,
+                        AbstractView::PropertyChangeFlags propertyChange) override;
+    void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
 
     void dragStarted(QMimeData *mimeData) override;
     void dragEnded() override;

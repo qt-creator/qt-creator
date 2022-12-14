@@ -61,6 +61,8 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
         if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
             && model()->rewriterView()->errors().isEmpty()) {
             ensureMaterialLibraryNode();
+            if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
+                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
             m_ensureMatLibTimer.stop();
         }
     });
@@ -534,7 +536,7 @@ void MaterialEditorView::setupQmlBackend()
     QString specificQmlData;
     QString currentTypeName;
 
-    if (m_selectedMaterial.isValid() && m_hasQuick3DImport) {
+    if (m_selectedMaterial.isValid() && m_hasQuick3DImport && (materialLibraryNode().isValid() || m_hasMaterialRoot)) {
         qmlPaneUrl = QUrl::fromLocalFile(materialEditorResourcesPath() + "/MaterialEditorPane.qml");
 
         TypeName diffClassName;
@@ -587,7 +589,7 @@ void MaterialEditorView::setupQmlBackend()
 
     currentQmlBackend->widget()->installEventFilter(this);
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
-    currentQmlBackend->contextObject()->setHasMaterialRoot(m_hasMaterialRoot);
+    currentQmlBackend->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     currentQmlBackend->contextObject()->setCurrentType(currentTypeName);
 
@@ -781,6 +783,7 @@ void MaterialEditorView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
     m_dynamicPropertiesModel->reset();
     m_qmlBackEnd->materialEditorTransaction()->end();
+    m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
 }
 
 void MaterialEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
@@ -822,6 +825,12 @@ void MaterialEditorView::variantPropertiesChanged(const QList<VariantProperty> &
             else
                 setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).modelValue(property.name()));
 
+            changed = true;
+        }
+
+        if (!changed && node.metaInfo().isQtQuick3DTexture()
+            && m_selectedMaterial.bindingProperties().size() > 0) {
+            // update preview when editing texture properties if the material has binding properties
             changed = true;
         }
 
@@ -1097,6 +1106,21 @@ void MaterialEditorView::customNotification([[maybe_unused]] const AbstractView 
     }
 }
 
+void MaterialEditorView::nodeReparented(const ModelNode &node,
+                                        [[maybe_unused]] const NodeAbstractProperty &newPropertyParent,
+                                        [[maybe_unused]] const NodeAbstractProperty &oldPropertyParent,
+                                        [[maybe_unused]] PropertyChangeFlags propertyChange)
+{
+    if (node.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
+        m_qmlBackEnd->contextObject()->setHasMaterialLibrary(true);
+}
+
+void MaterialEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
+{
+    if (removedNode.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
+        m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+}
+
 void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highlight)
 {
     if (!m_selectedMaterial.isValid())
@@ -1118,16 +1142,17 @@ void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highligh
 
 void MaterialEditorView::dragStarted(QMimeData *mimeData)
 {
-    if (!mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
-        return;
+    if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
+        const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',')[0];
+        QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
 
-    const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',')[0];
-    QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
+        if (assetType != Constants::MIME_TYPE_ASSET_IMAGE) // currently only image assets have dnd-supported properties
+            return;
 
-    if (assetType != Constants::MIME_TYPE_ASSET_IMAGE) // currently only image assets have dnd-supported properties
-        return;
-
-    highlightSupportedProperties();
+        highlightSupportedProperties();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+        highlightSupportedProperties();
+    }
 }
 
 void MaterialEditorView::dragEnded()
@@ -1149,7 +1174,7 @@ bool MaterialEditorView::eventFilter(QObject *obj, QEvent *event)
         if (m_qmlBackEnd && m_qmlBackEnd->widget() == obj)
             QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(), "closeContextMenu");
     }
-    return QObject::eventFilter(obj, event);
+    return AbstractView::eventFilter(obj, event);
 }
 
 void MaterialEditorView::reloadQml()

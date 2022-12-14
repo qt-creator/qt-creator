@@ -1,5 +1,8 @@
 import QtQuick %{QtQuickVersion}
 import QtQuick.Controls %{QtQuickVersion}
+@if !%{IsQt6Project}
+import QtQuick.Window %{QtQuickVersion}
+@endif
 import %{ImportModuleName} %{ImportModuleVersion}
 
 Window {

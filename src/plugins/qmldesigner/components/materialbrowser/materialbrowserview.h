@@ -4,10 +4,15 @@
 #pragma once
 
 #include "abstractview.h"
+#include "createtexture.h"
 
 #include <QPointer>
 #include <QSet>
 #include <QTimer>
+
+QT_BEGIN_NAMESPACE
+class QQuickView;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -18,7 +23,8 @@ class MaterialBrowserView : public AbstractView
     Q_OBJECT
 
 public:
-    MaterialBrowserView(ExternalDependenciesInterface &externalDependencies);
+    MaterialBrowserView(class AsynchronousImageCache &imageCache,
+                        ExternalDependenciesInterface &externalDependencies);
     ~MaterialBrowserView() override;
 
     bool hasWidget() const override;
@@ -30,7 +36,9 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap) override;
+    void nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId) override;
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange) override;
+    void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
@@ -42,6 +50,19 @@ public:
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
+    void active3DSceneChanged(qint32 sceneId) override;
+    void currentStateChanged(const ModelNode &node) override;
+
+    void applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture);
+    void applyTextureToMaterial(const QList<ModelNode> &materials, const ModelNode &texture);
+
+
+    Q_INVOKABLE void updatePropsModel(const QString &matId);
+    Q_INVOKABLE void applyTextureToProperty(const QString &matId, const QString &propName);
+    Q_INVOKABLE void closeChooseMatPropsView();
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     void refreshModel(bool updateImages);
@@ -49,7 +70,10 @@ private:
     bool isTexture(const ModelNode &node) const;
     void loadPropertyGroups();
     void requestPreviews();
+    ModelNode resolveSceneEnv();
+    ModelNode getMaterialOfModel(const ModelNode &model);
 
+    AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
 
@@ -60,6 +84,10 @@ private:
 
     QTimer m_previewTimer;
     QSet<ModelNode> m_previewRequests;
+    QPointer<QQuickView> m_chooseMatPropsView;
+    QHash<QString, QList<PropertyName>> m_textureModels;
+    QString m_appliedTextureId;
+    int m_sceneId = -1;
 };
 
 } // namespace QmlDesigner

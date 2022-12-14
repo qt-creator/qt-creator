@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0
 
 import QtQuick %{QtQuickVersion}
+@if !%{IsQt6Project}
 import QtQuick.Window %{QtQuickVersion}
+@endif
 import %{ImportModuleName} %{ImportModuleVersion}
 @if %{UseVirtualKeyboard}
 import QtQuick.VirtualKeyboard %{QtQuickVersion}

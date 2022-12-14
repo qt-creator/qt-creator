@@ -296,6 +296,10 @@
                     "target": "%{ProjectDirectory}/qmlmodules"
                 },
                 {
+                    "source": "../common/qmlcomponents.tpl",
+                    "target": "%{ProjectDirectory}/qmlcomponents"
+                },
+                {
                     "source": "../common/main.qml",
                     "target": "%{ProjectDirectory}/main.qml"
                 },
@@ -314,6 +318,10 @@
                 {
                     "source": "../common/import_qml_plugins.h.tpl",
                     "target": "%{ProjectDirectory}/src/import_qml_plugins.h"
+                },
+                {
+                    "source": "../common/import_qml_components_plugins.h.tpl",
+                    "target": "%{ProjectDirectory}/src/import_qml_components_plugins.h"
                 },
                 {
                     "source": "../common/CMakeLists.content.txt.tpl",

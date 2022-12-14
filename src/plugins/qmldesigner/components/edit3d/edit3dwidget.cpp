@@ -30,6 +30,8 @@
 #include <utils/utilsicons.h>
 
 #include <QActionGroup>
+#include <QApplication>
+#include <QClipboard>
 #include <QMimeData>
 #include <QVBoxLayout>
 
@@ -235,34 +237,7 @@ void Edit3DWidget::createContextMenu()
 
 bool Edit3DWidget::isPasteAvailable() const
 {
-    if (TimelineActions::clipboardContainsKeyframes())
-        return false;
-
-    auto pasteModel(DesignDocumentView::pasteToModel(view()->externalDependencies()));
-    if (!pasteModel)
-        return false;
-
-    DesignDocumentView docView{view()->externalDependencies()};
-    pasteModel->attachView(&docView);
-    auto rootNode = docView.rootModelNode();
-
-    if (rootNode.type() == "empty")
-        return false;
-
-    QList<ModelNode> allNodes;
-    if (rootNode.id() == "__multi__selection__")
-        allNodes << rootNode.directSubModelNodes();
-    else
-        allNodes << rootNode;
-
-    bool hasNon3DNode = std::any_of(allNodes.begin(), allNodes.end(), [](const ModelNode &node) {
-        return !node.metaInfo().isQtQuick3DNode();
-    });
-
-    if (hasNon3DNode)
-        return false;
-
-    return true;
+    return QApplication::clipboard()->text().startsWith(Constants::HEADER_3DPASTE_CONTENT);
 }
 
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
@@ -426,7 +401,8 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
                                                      ->viewManager().designerActionManager();
     if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
         || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         dragEnterEvent->acceptProposedAction();
     }
 }
@@ -435,15 +411,19 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 {
     const QPointF pos = m_canvas->mapFrom(this, dropEvent->position());
 
-    // handle dropping materials
-    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
-        QByteArray data = dropEvent->mimeData()->data(Constants::MIME_TYPE_MATERIAL);
-        QDataStream stream(data);
-        qint32 internalId;
-        stream >> internalId;
-
-        if (ModelNode matNode = m_view->modelNodeForInternalId(internalId))
-            m_view->dropMaterial(matNode, pos);
+    // handle dropping materials and textures
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
+        || dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+        bool isMaterial = dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL);
+        QByteArray data = dropEvent->mimeData()->data(isMaterial
+                                          ? QString::fromLatin1(Constants::MIME_TYPE_MATERIAL)
+                                          : QString::fromLatin1(Constants::MIME_TYPE_TEXTURE));
+        if (ModelNode dropNode = m_view->modelNodeForInternalId(data.toInt())) {
+            if (isMaterial)
+                m_view->dropMaterial(dropNode, pos);
+            else
+                m_view->dropTexture(dropNode, pos);
+        }
         return;
     }
 

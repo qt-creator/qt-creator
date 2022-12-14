@@ -7,9 +7,10 @@
 #include "propertyeditortransaction.h"
 #include "propertyeditorvalue.h"
 
+#include <auxiliarydataproperties.h>
+#include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmltimeline.h>
-#include <nodemetainfo.h>
 
 #include <invalididexception.h>
 #include <rewritingexception.h>
@@ -46,6 +47,11 @@ namespace QmlDesigner {
 static bool propertyIsAttachedLayoutProperty(const PropertyName &propertyName)
 {
     return propertyName.contains("Layout.");
+}
+
+static bool propertyIsAttachedInsightProperty(const PropertyName &propertyName)
+{
+    return propertyName.contains("InsightCategory.");
 }
 
 PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
@@ -164,7 +170,8 @@ void PropertyEditorView::changeValue(const QString &name)
 
     if (auto property = metaInfo.property(propertyName)) {
         castedValue = property.castedValue(value->value());
-    } else if (propertyIsAttachedLayoutProperty(propertyName)) {
+    } else if (propertyIsAttachedLayoutProperty(propertyName)
+               || propertyIsAttachedInsightProperty(propertyName)) {
         castedValue = value->value();
     } else {
         qWarning() << "PropertyEditor:" << propertyName << "cannot be casted (metainfo)";
@@ -500,6 +507,13 @@ void PropertyEditorView::setupQmlBackend()
 
     m_qmlBackEndForCurrentType = currentQmlBackend;
 
+    if (rootModelNode().hasAuxiliaryData(insightEnabledProperty))
+        m_qmlBackEndForCurrentType->contextObject()->setInsightEnabled(
+            rootModelNode().auxiliaryData(insightEnabledProperty)->toBool());
+
+    if (rootModelNode().hasAuxiliaryData(insightCategoriesProperty))
+        m_qmlBackEndForCurrentType->contextObject()->setInsightCategories(
+            rootModelNode().auxiliaryData(insightCategoriesProperty)->toStringList());
 }
 
 void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
@@ -641,6 +655,11 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
                 }
             }
 
+            if (propertyIsAttachedInsightProperty(property.name())) {
+                m_qmlBackEndForCurrentType->setValueforInsightAttachedProperties(m_selectedNode,
+                                                                                 property.name());
+            }
+
             if ("width" == property.name() || "height" == property.name()) {
                 const QmlItemNode qmlItemNode = m_selectedNode;
                 if (qmlItemNode.isInLayout())
@@ -662,7 +681,12 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
         ModelNode node(property.parentModelNode());
 
         if (propertyIsAttachedLayoutProperty(property.name()))
-            m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, property.name());
+            m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode,
+                                                                            property.name());
+
+        if (propertyIsAttachedInsightProperty(property.name()))
+            m_qmlBackEndForCurrentType->setValueforInsightAttachedProperties(m_selectedNode,
+                                                                             property.name());
 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             if ( QmlObjectNode(m_selectedNode).modelNode().property(property.name()).isBindingProperty())
@@ -701,9 +725,8 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
 
 void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
                                               [[maybe_unused]] AuxiliaryDataKeyView key,
-                                              const QVariant &)
+                                              const QVariant &data)
 {
-
     if (noValidSelection())
         return;
 
@@ -711,6 +734,12 @@ void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
         return;
 
     m_qmlBackEndForCurrentType->setValueforAuxiliaryProperties(m_selectedNode, key);
+
+    if (key == insightEnabledProperty)
+        m_qmlBackEndForCurrentType->contextObject()->setInsightEnabled(data.toBool());
+
+    if (key == insightCategoriesProperty)
+        m_qmlBackEndForCurrentType->contextObject()->setInsightCategories(data.toStringList());
 }
 
 void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
@@ -747,6 +776,12 @@ void PropertyEditorView::select()
         m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
 
     delayedResetView();
+
+    auto nodes = selectedModelNodes();
+
+    for (const auto &n : nodes) {
+        n.metaInfo().isFileComponent();
+    }
 }
 
 void PropertyEditorView::setSelelectedModelNode()

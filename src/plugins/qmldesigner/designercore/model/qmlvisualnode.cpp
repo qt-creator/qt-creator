@@ -209,14 +209,19 @@ void QmlVisualNode::setDoubleProperty(const PropertyName &name, double value)
 
 void QmlVisualNode::setPosition(const QmlVisualNode::Position &position)
 {
-    if (!isValid())
+    if (!modelNode().isValid())
         return;
 
-    setDoubleProperty("x", position.x());
-    setDoubleProperty("y", position.y());
+    if (!qFuzzyIsNull(position.x()) || modelNode().hasProperty("x"))
+        setDoubleProperty("x", position.x());
+    if (!qFuzzyIsNull(position.y()) || modelNode().hasProperty("y"))
+        setDoubleProperty("y", position.y());
 
-    if (position.is3D() && modelNode().metaInfo().isQtQuick3DNode())
+    if (position.is3D()
+            && (!qFuzzyIsNull(position.z()) || modelNode().hasProperty("z"))
+            && modelNode().metaInfo().isQtQuick3DNode()) {
         setDoubleProperty("z", position.z());
+    }
 }
 
 QmlVisualNode::Position QmlVisualNode::position() const
@@ -566,11 +571,19 @@ QList<QPair<PropertyName, QVariant> > QmlVisualNode::Position::propertyPairList(
 {
     QList<QPair<PropertyName, QVariant> > propertyPairList;
 
-    propertyPairList.append({"x", QVariant(qRound(x()))});
-    propertyPairList.append({"y", QVariant(qRound(y()))});
-
-    if (m_is3D)
-        propertyPairList.append({"z", QVariant(z())});
+    if (m_is3D) {
+        if (!qFuzzyIsNull(x()))
+            propertyPairList.append({"x", QVariant{x()}});
+        if (!qFuzzyIsNull(y()))
+            propertyPairList.append({"y", QVariant{y()}});
+        if (!qFuzzyIsNull(z()))
+            propertyPairList.append({"z", QVariant{z()}});
+    } else {
+        if (const int intX = qRound(x()))
+            propertyPairList.append({"x", QVariant(intX)});
+        if (const int intY = qRound(y()))
+            propertyPairList.append({"y", QVariant(intY)});
+    }
 
     return propertyPairList;
 }

@@ -30,7 +30,7 @@ MaterialEditorContextObject::MaterialEditorContextObject(QQmlContext *context, Q
     : QObject(parent)
     , m_qmlContext(context)
 {
-    qmlRegisterUncreatableType<MaterialEditorContextObject>("ToolBarAction", 1, 0, "ToolBarAction", "Enum type");
+    qmlRegisterUncreatableType<MaterialEditorContextObject>("MaterialToolBarAction", 1, 0, "ToolBarAction", "Enum type");
 }
 
 QQmlComponent *MaterialEditorContextObject::specificQmlComponent()
@@ -227,18 +227,18 @@ void MaterialEditorContextObject::setHasQuick3DImport(bool b)
     emit hasQuick3DImportChanged();
 }
 
-bool MaterialEditorContextObject::hasMaterialRoot() const
+bool MaterialEditorContextObject::hasMaterialLibrary() const
 {
-    return m_hasMaterialRoot;
+    return m_hasMaterialLibrary;
 }
 
-void MaterialEditorContextObject::setHasMaterialRoot(bool b)
+void MaterialEditorContextObject::setHasMaterialLibrary(bool b)
 {
-    if (b == m_hasMaterialRoot)
+    if (b == m_hasMaterialLibrary)
         return;
 
-    m_hasMaterialRoot = b;
-    emit hasMaterialRootChanged();
+    m_hasMaterialLibrary = b;
+    emit hasMaterialLibraryChanged();
 }
 
 bool MaterialEditorContextObject::hasModelSelection() const

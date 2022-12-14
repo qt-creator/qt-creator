@@ -51,6 +51,12 @@
         \li Provides an editor for files you created using 3D graphics
             applications and stored in one of the supported formats.
         \li \l {3D}
+    \row
+        \li \l {Material Editor and Browser}
+        \li In the \uicontrol {Material Editor} and
+        \uicontrol {Material Browser} views, you create and manage materials and
+        textures.
+        \li \l {Material Editor and Browser}
    \row
         \li \l Components
         \li Contains preset components and your own components, that you can use
@@ -121,6 +127,16 @@
         \li \l{Open Documents}
         \li Shows currently open files.
         \li \l{Open Documents}
+    \row
+        \li \l{Content Library}
+        \li The \uicontrol {Content Library} view contains material, texture,
+        and environment bundles with assets that you can use in your project.
+        \li \l{Content Library}
+    \row
+        \li \l{Texture Editor}
+        \li In the \uicontrol {Texture Editor} view, you create and manage
+        textures.
+        \li \l{Texture Editor}
     \endtable
 
     \section1 Summary of Main Toolbar Actions

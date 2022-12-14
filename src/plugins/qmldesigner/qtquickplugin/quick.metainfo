@@ -16,6 +16,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 200; }
+            toolTip: qsTr("Groups several visual items.")
         }
     }
 
@@ -32,6 +33,7 @@ MetaInfo {
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 200; }
             Property { name: "color"; type: "QColor"; value: "#ffffff"; }
+            toolTip: qsTr("A rectangle with an optional border.")
         }
     }
 
@@ -47,6 +49,7 @@ MetaInfo {
 
             Property { name: "font.pixelSize"; type: "int"; value: 12; }
             Property { name: "text"; type: "binding"; value: "qsTr(\"Text\")"; }
+            toolTip: qsTr("A read-only text label.")
         }
     }
 
@@ -64,6 +67,7 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 20; }
             Property { name: "font.pixelSize"; type: "int"; value: 12; }
             Property { name: "text"; type: "binding"; value: "qsTr(\"Text Edit\")"; }
+            toolTip: qsTr("A multi-line block of editable text.")
         }
     }
 
@@ -81,6 +85,7 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 20; }
             Property { name: "font.pixelSize"; type: "int"; value: 12; }
             Property { name: "text"; type: "binding"; value: "qsTr(\"Text Input\")"; }
+            toolTip: qsTr("An editable line of text.")
         }
     }
 
@@ -96,6 +101,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("An area with mouse functionality.")
         }
     }
 
@@ -113,6 +119,7 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 100; }
             Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
             Property { name: "fillMode"; type: "enum"; value: "Image.PreserveAspectFit"; }
+            toolTip: qsTr("Displays an image.")
         }
     }
 
@@ -129,6 +136,7 @@ MetaInfo {
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
             Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
+            toolTip: qsTr("Animates a series of images.")
         }
     }
 
@@ -145,6 +153,7 @@ MetaInfo {
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
             Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
+            toolTip: qsTr("A responsive border based on an image.")
         }
     }
 
@@ -160,6 +169,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 300; }
             Property { name: "height"; type: "int"; value: 300; }
+            toolTip: qsTr("An area for keeping dragable objects.")
         }
     }
 
@@ -174,6 +184,7 @@ MetaInfo {
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/gridviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets in a grid.")
         }
     }
 
@@ -188,6 +199,7 @@ MetaInfo {
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/listviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets in a list.")
         }
     }
 
@@ -202,6 +214,7 @@ MetaInfo {
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/pathviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets along a path.")
         }
     }
 
@@ -217,6 +230,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 100; }
             Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("A scope to focus on a specific text element.")
         }
     }
 
@@ -232,6 +246,8 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 400; }
+
+            toolTip: qsTr("Organizes items in a column.")
         }
     }
 
@@ -244,6 +260,7 @@ MetaInfo {
             category: "c.Qt Quick - Positioner"
             libraryIcon: ":/qtquickplugin/images/row-positioner-icon.png"
             version: "2.0"
+            toolTip: qsTr("Organizes items in a row.")
 
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 400; }
@@ -262,6 +279,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 400; }
             Property { name: "height"; type: "int"; value: 400; }
+            toolTip: qsTr("Organizes items in a fixed grid.")
         }
     }
 
@@ -277,6 +295,7 @@ MetaInfo {
 
             Property { name: "width"; type: "int"; value: 400; }
             Property { name: "height"; type: "int"; value: 400; }
+            toolTip: qsTr("Organizes items in free-flowing rows.")
         }
     }
 
@@ -351,6 +370,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Animates changes in property values.")
         }
     }
 
@@ -370,6 +390,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Provides a pause between animations.")
         }
     }
 
@@ -388,6 +409,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Runs animations one after the other.")
         }
     }
 
@@ -406,6 +428,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Runs animations together at the same time.")
         }
     }
 
@@ -425,6 +448,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Provides an immediate property change during animations.")
         }
     }
 
@@ -444,6 +468,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Runs a script during animation.")
         }
     }
 
@@ -463,6 +488,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/item-icon.png"
             version: "2.0"
+            toolTip: qsTr("Animates the color of an item.")
         }
     }
 
@@ -484,6 +510,7 @@ MetaInfo {
             version: "2.0"
             Property { name: "to"; type: "int"; value: 0; }
             Property { name: "from"; type: "int"; value: 0; }
+            toolTip: qsTr("Animates a numerical property of an item.")
         }
     }
 
@@ -503,6 +530,7 @@ MetaInfo {
             category: "d.Qt Quick - Animation"
             libraryIcon: ":/qtquickplugin/images/timer-24px.png"
             version: "2.0"
+            toolTip: qsTr(" Triggers an action at a given time.")
         }
     }
 
@@ -522,6 +550,7 @@ MetaInfo {
             version: "2.0"
 
             QmlSource { source: ":/qtquickplugin/source/component.qml" }
+            toolTip: qsTr("Allows you to define components inline, within a QML document.")
         }
     }
 
@@ -556,6 +585,7 @@ MetaInfo {
             version: "2.0"
             Property { name: "width"; type: "int"; value: 200; }
             Property { name: "height"; type: "int"; value: 200; }
+            toolTip: qsTr("Allows you to load components dynamically.")
         }
     }
 
@@ -573,6 +603,7 @@ MetaInfo {
             category: "e.Qt Quick - Component"
             libraryIcon: ":/qtquickplugin/images/repeater-icon.png"
             version: "2.0"
+            toolTip: qsTr("Creates a number of copies of the same item.")
         }
     }
 

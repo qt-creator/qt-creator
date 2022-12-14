@@ -41,6 +41,10 @@
 #include <private/qquick3drepeater_p.h>
 #endif
 
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    #include <private/qqmlvaluetype_p.h>
+#endif
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -52,10 +56,10 @@ bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
     return QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName);
 }
 
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0)) && (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 
 static void addToPropertyNameListIfNotBlackListed(
-    PropertyNameList *propertyNameList, const QQuickQQuickDesignerSupport::PropertyName &propertyName)
+    PropertyNameList *propertyNameList, const QQuickDesignerSupport::PropertyName &propertyName)
 {
     if (!QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName))
         propertyNameList->append(propertyName);
@@ -66,7 +70,7 @@ PropertyNameList allPropertyNamesInline(QObject *object,
                                         QObjectList *inspectedObjects = nullptr,
                                         int depth = 0)
 {
-    QQuickQQuickDesignerSupport::PropertyNameList propertyNameList;
+    QQuickDesignerSupport::PropertyNameList propertyNameList;
 
     QObjectList localObjectList;
 
@@ -100,7 +104,7 @@ PropertyNameList allPropertyNamesInline(QObject *object,
                     propertyNameList.append(
                         allPropertyNamesInline(childObject,
                                                baseName
-                                                   + QQuickQQuickDesignerSupport::PropertyName(
+                                                   + QQuickDesignerSupport::PropertyName(
                                                        metaProperty.name())
                                                    + '.',
                                                inspectedObjects,
@@ -110,18 +114,18 @@ PropertyNameList allPropertyNamesInline(QObject *object,
                    = QQmlGadgetPtrWrapper::instance(qmlEngine(object), metaProperty.userType())) {
             valueType->setValue(metaProperty.read(object));
             propertyNameList.append(baseName
-                                    + QQuickQQuickDesignerSupport::PropertyName(metaProperty.name()));
+                                    + QQuickDesignerSupport::PropertyName(metaProperty.name()));
             propertyNameList.append(
                 allPropertyNamesInline(valueType,
                                        baseName
-                                           + QQuickQQuickDesignerSupport::PropertyName(metaProperty.name())
+                                           + QQuickDesignerSupport::PropertyName(metaProperty.name())
                                            + '.',
                                        inspectedObjects,
                                        depth + 1));
         } else {
             addToPropertyNameListIfNotBlackListed(&propertyNameList,
                                                   baseName
-                                                      + QQuickQQuickDesignerSupport::PropertyName(
+                                                      + QQuickDesignerSupport::PropertyName(
                                                           metaProperty.name()));
         }
     }

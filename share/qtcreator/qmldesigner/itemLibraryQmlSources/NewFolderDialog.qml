@@ -1,43 +1,34 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2022 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
-import QtQuickDesignerTheme
-import HelperWidgets
+import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
 Dialog {
-    id: newFolderDialog
+    id: root
 
     title: qsTr("Create New Folder")
     anchors.centerIn: parent
     closePolicy: Popup.CloseOnEscape
     modal: true
+
+    required property string dirPath
+    property string createdDirPath: ""
+    readonly property int __maxPath: 260
+
+    HelperWidgets.RegExpValidator {
+        id: folderNameValidator
+        regExp: /^(\w[^*/><?\\|:]*)$/
+    }
+
+    ErrorDialog {
+        id: creationFailedDialog
+        title: qsTr("Could not create folder")
+        message: qsTr("An error occurred while trying to create the folder.")
+    }
 
     contentItem: Column {
         spacing: 2
@@ -58,6 +49,10 @@ Dialog {
 
                 Keys.onEnterPressed: btnCreate.onClicked()
                 Keys.onReturnPressed: btnCreate.onClicked()
+
+                onTextChanged: {
+                    root.createdDirPath = root.dirPath + '/' + folderName.text
+                }
             }
         }
 
@@ -68,6 +63,13 @@ Dialog {
             visible: folderName.text === ""
         }
 
+        Text {
+            text: qsTr("Folder path is too long.")
+            color: "#ff0000"
+            anchors.right: parent.right
+            visible: root.createdDirPath.length > root.__maxPath
+        }
+
         Item { // spacer
             width: 1
             height: 20
@@ -76,20 +78,23 @@ Dialog {
         Row {
             anchors.right: parent.right
 
-            Button {
+            HelperWidgets.Button {
                 id: btnCreate
 
                 text: qsTr("Create")
-                enabled: folderName.text !== ""
+                enabled: folderName.text !== "" && root.createdDirPath.length <= root.__maxPath
                 onClicked: {
-                    assetsModel.addNewFolder(root.contextDir.dirPath + '/' + folderName.text)
-                    newFolderDialog.accept()
+                    root.createdDirPath = root.dirPath + '/' + folderName.text
+                    if (assetsModel.addNewFolder(root.createdDirPath))
+                        root.accept()
+                    else
+                        creationFailedDialog.open()
                 }
             }
 
-            Button {
+            HelperWidgets.Button {
                 text: qsTr("Cancel")
-                onClicked: newFolderDialog.reject()
+                onClicked: root.reject()
             }
         }
     }
@@ -98,5 +103,9 @@ Dialog {
         folderName.text = qsTr("New folder")
         folderName.selectAll()
         folderName.forceActiveFocus()
+    }
+
+    onRejected: {
+        root.createdDirPath = ""
     }
 }

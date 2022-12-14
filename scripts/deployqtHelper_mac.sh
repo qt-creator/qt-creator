@@ -126,11 +126,15 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
     if [ -f "$qml2puppetapp" ]; then
         qml2puppetArgument="-executable=$qml2puppetapp"
     fi
+    sdktoolapp="$libexec_path/sdktool"
+    if [ -f "$sdktoolapp" ]; then
+        sdktoolArgument="-executable=$sdktoolapp"
+    fi
 
     "$bin_src/macdeployqt" "$app_path" \
         "-executable=$app_path/Contents/MacOS/qtdiag" \
         "-executable=$libexec_path/qtpromaker" \
-        "-executable=$libexec_path/sdktool" \
+        "$sdktoolArgument" \
         "-executable=$libexec_path/ios/iostool" \
         "-executable=$libexec_path/buildoutputparser" \
         "-executable=$libexec_path/cpaster" \

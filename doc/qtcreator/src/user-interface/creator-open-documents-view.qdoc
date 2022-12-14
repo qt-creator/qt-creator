@@ -4,7 +4,11 @@
 /*!
     \page creator-open-documents-view.html
     \previouspage creator-file-system-view.html
+    \if defined(qtdesignstudio)
+    \nextpage studio-content-library.html
+    \else
     \nextpage creator-output-panes.html
+    \endif
 
     \title Open Documents
 

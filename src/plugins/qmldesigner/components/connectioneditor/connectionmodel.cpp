@@ -297,7 +297,7 @@ void ConnectionModel::addConnection()
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
 
-        NodeMetaInfo nodeMetaInfo = connectionView()->model()->metaInfo("QtQuick.Connections");
+        NodeMetaInfo nodeMetaInfo = connectionView()->model()->qtQuickConnectionsMetaInfo();
 
         if (nodeMetaInfo.isValid()) {
             connectionView()->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode](){

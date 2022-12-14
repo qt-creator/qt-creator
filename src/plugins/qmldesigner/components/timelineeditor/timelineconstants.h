@@ -20,7 +20,6 @@ const int timelineBounds = 8;
 const int timelineLeftOffset = 10;
 
 const char timelineCategory[] = "Timeline";
-const int priorityTimelineCategory = 110;
 const char timelineCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Timeline");
 
 const char timelineCopyKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
@@ -28,7 +27,7 @@ const char timelineCopyKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerCo
 const char timelinePasteKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                    "Paste Keyframes");
 const char timelineInsertKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                    "Add Keyframes at Current Frame");
+                                                                    "Add Keyframe");
 const char timelineDeleteKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                     "Delete All Keyframes");
 

@@ -7,6 +7,7 @@
 #include <QQuickView>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QMatrix4x4>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
@@ -427,6 +428,9 @@ void Qt5InformationNodeInstanceServer::getNodeAtPos(const QPointF &pos)
         if (!qFuzzyCompare(planePos.z(), -1.f) && qAbs(planePos.x()) < limit && qAbs(planePos.y()) < limit)
             pos3d = {planePos.x(), 0, planePos.y()};
     }
+    if (auto rootScene = qobject_cast<QQuick3DNode *>(m_active3DScene))
+        pos3d = rootScene->sceneTransform().inverted().map(pos3d);
+
     QVariantList data;
     data.append(instanceId);
     data.append(pos3d);

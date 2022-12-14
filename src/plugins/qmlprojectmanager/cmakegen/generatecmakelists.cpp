@@ -14,18 +14,19 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/qmlmainfileaspect.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
-#include <qmlprojectmanager/qmlmainfileaspect.h>
 
 #include <utils/fileutils.h>
 
 #include <QAction>
+#include <QMenu>
 #include <QMessageBox>
-#include <QtConcurrent>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
+#include <QtConcurrent>
 
 using namespace Utils;
 using namespace QmlProjectManager::GenerateCmake::Constants;
@@ -56,16 +57,27 @@ enum ProjectDirectoryError {
 };
 
 const QString MENU_ITEM_GENERATE = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                               "Generate CMake Build Files");
+                                                               "Generate CMake Build Files...");
 
 void generateMenuEntry(QObject *parent)
 {
-    Core::ActionContainer *menu =
-            Core::ActionManager::actionContainer(Core::Constants::M_FILE);
+    Core::ActionContainer *menu = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
+
+    Core::ActionContainer *exportMenu = Core::ActionManager::createMenu(
+        QmlProjectManager::Constants::EXPORT_MENU);
+
+    exportMenu->menu()->setTitle(
+        QCoreApplication::translate("QmlDesigner::GenerateCmake", "Export Project"));
+    menu->addMenu(exportMenu, Core::Constants::G_FILE_EXPORT);
+
+    exportMenu->appendGroup(QmlProjectManager::Constants::G_EXPORT_GENERATE);
+    exportMenu->appendGroup(QmlProjectManager::Constants::G_EXPORT_CONVERT);
+    exportMenu->addSeparator(QmlProjectManager::Constants::G_EXPORT_CONVERT);
+
     auto action = new QAction(MENU_ITEM_GENERATE, parent);
     QObject::connect(action, &QAction::triggered, GenerateCmake::onGenerateCmakeLists);
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateCMakeLists");
-    menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
+    exportMenu->addAction(cmd, QmlProjectManager::Constants::G_EXPORT_GENERATE);
 
     action->setEnabled(false);
     QObject::connect(ProjectExplorer::SessionManager::instance(),
