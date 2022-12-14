@@ -244,7 +244,6 @@ private:
         };
 
         const auto onStagingDynamicSetup = [this] {
-            setStartupFile(VcsBase::source(document()));
             QSet<int> config;
             if (!m_stagedFiles.isEmpty())
                 config.insert(0);
@@ -336,7 +335,6 @@ Tasking::Group ShowController::reloadRecipe()
 
     const auto setupDescription = [this](QtcProcess &process) {
         process.setCodec(m_instance->encoding(workingDirectory(), "i18n.commitEncoding"));
-        setStartupFile(VcsBase::source(this->document()));
         setupCommand(process, {"show", "-s", noColorOption, showFormatC, m_id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         setDescription(Tr::tr("Waiting for data..."));
@@ -485,6 +483,7 @@ Tasking::Group ShowController::reloadRecipe()
     const Group root {
         Storage(storage),
         parallel,
+        OnGroupSetup([this] { setStartupFile(VcsBase::source(document())); }),
         Group {
             optional,
             Process(setupDescription, onDescriptionDone),
