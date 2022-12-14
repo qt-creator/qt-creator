@@ -5,6 +5,8 @@
 
 #include "qmldesignercorelib_global.h"
 
+#include "utils/filepath.h"
+
 #include <QString>
 #include <QHash>
 #include <modelnode.h>
@@ -26,7 +28,12 @@ class QMLDESIGNERCORE_EXPORT StylesheetMerger
 public:
     StylesheetMerger(AbstractView*, AbstractView*);
     void merge();
-    static void styleMerge(Model *model, const QString &templateFile, class ExternalDependenciesInterface &externalDependencies);
+    static void styleMerge(const Utils::FilePath &templateFile,
+                           Model *model,
+                           class ExternalDependenciesInterface &ed);
+    static void styleMerge(const QString &qmlTemplateString,
+                           Model *model,
+                           class ExternalDependenciesInterface &externalDependencies);
 
 private:
     void preprocessStyleSheet();

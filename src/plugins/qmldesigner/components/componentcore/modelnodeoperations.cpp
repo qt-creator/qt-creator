@@ -1525,8 +1525,11 @@ void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDepende
 
     const QString templateFile = getTemplateDialog(projectPath);
 
-    if (QFileInfo::exists(templateFile))
-        StylesheetMerger::styleMerge(selectionContext.view()->model(), templateFile, externalDependencies);
+    if (QFileInfo::exists(templateFile)) {
+        StylesheetMerger::styleMerge(Utils::FilePath::fromString(templateFile),
+                                     selectionContext.view()->model(),
+                                     externalDependencies);
+    }
 }
 
 void removeGroup(const SelectionContext &selectionContext)
