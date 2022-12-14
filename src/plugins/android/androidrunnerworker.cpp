@@ -235,7 +235,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
         qCDebug(androidRunWorkerLog) << "QML debugging enabled";
         QTcpServer server;
-        QTC_ASSERT(server.listen(QHostAddress::LocalHost),
+        const bool isListening = server.listen(QHostAddress::LocalHost);
+        QTC_ASSERT(isListening,
                    qDebug() << Tr::tr("No free ports available on host for QML debugging."));
         m_qmlServer.setScheme(Utils::urlTcpScheme());
         m_qmlServer.setHost(server.serverAddress().toString());
@@ -350,8 +351,9 @@ bool AndroidRunnerWorker::uploadDebugServer(const QString &debugServerFileName)
         qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed";
         return false;
     }
-    QTC_ASSERT(runAdb({"shell", "run-as", m_packageName, "chmod", "777", debugServerFileName}),
-                   qCDebug(androidRunWorkerLog) << "Debug server chmod 777 failed.");
+
+    const bool ok = runAdb({"shell", "run-as", m_packageName, "chmod", "777", debugServerFileName});
+    QTC_ASSERT(ok, qCDebug(androidRunWorkerLog) << "Debug server chmod 777 failed.");
     return true;
 }
 
