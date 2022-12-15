@@ -83,12 +83,6 @@ namespace Git::Internal {
 
 static GitClient *m_instance = nullptr;
 
-// Suppress git diff warnings about "LF will be replaced by CRLF..." on Windows.
-static RunFlags diffExecutionFlags()
-{
-    return HostOsInfo::isWindowsHost() ? RunFlags::SuppressStdErr : RunFlags::None;
-}
-
 static QString branchesDisplay(const QString &prefix, QStringList *branches, bool *first)
 {
     const int limit = 12;
@@ -124,7 +118,6 @@ class GitBaseDiffEditorController : public VcsBaseDiffEditorController
 protected:
     explicit GitBaseDiffEditorController(IDocument *document);
 
-    void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
     QStringList addConfigurationArguments(const QStringList &args) const;
 };
 
@@ -196,11 +189,6 @@ GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document)
 }
 
 ///////////////////////////////
-
-void GitBaseDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
-{
-    VcsBaseDiffEditorController::runCommand(args, diffExecutionFlags(), codec);
-}
 
 QStringList GitBaseDiffEditorController::addConfigurationArguments(const QStringList &args) const
 {
