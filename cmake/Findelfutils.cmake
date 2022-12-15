@@ -2,10 +2,12 @@
 # Findelfutils
 # -----------------
 #
-# Try to locate the elfutils binary installation
+# Try to locate the elfutils development installation
 #
-# The ``ELFUTILS_INSTALL_DIR`` (CMake or Environment) variable should be used
-# to pinpoint the elfutils binary installation
+# On Debian-like systems, you can install libdw-dev.
+#
+# Otherwise, the ``ELFUTILS_INSTALL_DIR`` (CMake or Environment) variable
+# can be used to pinpoint the elfutils binary installation
 #
 # If found, this will define the following variables:
 #
