@@ -695,7 +695,7 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
 
     using namespace Layouting;
 
-    Form {
+    Grid {
         new QLabel("BasedOnStyle"), m_BasedOnStyle, br,
         new QLabel("InheritsParentConfig"), m_InheritsParentConfig, br,
         new QLabel("AccessModifierOffset"), Row {m_AccessModifierOffset, m_setAccessModifierOffset}, br,

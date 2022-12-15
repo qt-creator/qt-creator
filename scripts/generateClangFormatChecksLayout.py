@@ -8,7 +8,7 @@ import os
 import CppHeaderParser
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Clazy checks header file \
+    parser = argparse.ArgumentParser(description='Clang-Format checks header file \
     generator')
     parser.add_argument('--clang-format-header-file', help='path to \
     Format.h usually /usr/lib/llvm-x/include/clang/Format/Format.h',
@@ -80,7 +80,7 @@ ClangFormatChecks::ClangFormatChecks(QWidget *parent)
 ''' + source_code + '''
     using namespace Layouting;
 
-    Form {
+    Grid {
 ''' + layout_code + '''    }.attachTo(this);
 }
 '''

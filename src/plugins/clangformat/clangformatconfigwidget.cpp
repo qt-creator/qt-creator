@@ -73,7 +73,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     m_checksWidget = new ClangFormatChecks();
 
     m_checksScrollArea->setWidget(m_checksWidget);
-    m_checksScrollArea->setMaximumWidth(600);
+    m_checksScrollArea->setWidgetResizable(true);
     m_checksWidget->setEnabled(!codeStyle->isReadOnly());
 
     FilePath fileName;
