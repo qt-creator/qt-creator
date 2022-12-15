@@ -56,6 +56,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
         if (quickWindow() && nodeInstanceClient()->bytesToWrite() < 10000) {
             bool windowDirty = false;
+            bool hasView3D = false;
             foreach (QQuickItem *item, allItems()) {
                 if (item) {
                     if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
@@ -65,8 +66,13 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                         }
                     } else {
                         if (hasInstanceForObject(item)) {
-                            if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::ContentUpdateMask))
+                            if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::ContentUpdateMask)) {
+                                if (!hasView3D && ServerNodeInstance::isSubclassOf(
+                                            item, QByteArrayLiteral("QQuick3DViewport"))) {
+                                    hasView3D = true;
+                                }
                                 m_dirtyInstanceSet.insert(instanceForObject(item));
+                            }
                             if (QQuickItem *effectParent = parentEffectItem(item)) {
                                 if ((QQuickDesignerSupport::isDirty(
                                         item,
@@ -100,9 +106,19 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand({rootNodeInstance()}));
             } else {
                 if (!m_dirtyInstanceSet.isEmpty()) {
-                    nodeInstanceClient()->pixmapChanged(
-                        createPixmapChangedCommand(QtHelpers::toList(m_dirtyInstanceSet)));
-                    m_dirtyInstanceSet.clear();
+                    auto renderList = QtHelpers::toList(m_dirtyInstanceSet);
+
+                    // If there is a View3D to be rendered, add all other View3Ds to be rendered
+                    // as well, in case they share materials.
+                    if (hasView3D) {
+                        const QList<ServerNodeInstance> view3Ds = allView3DInstances();
+                        for (auto &view3D : view3Ds) {
+                            if (!m_dirtyInstanceSet.contains(view3D))
+                                renderList.append(view3D);
+                        }
+                    }
+
+                    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(renderList));
                 }
             }
 
