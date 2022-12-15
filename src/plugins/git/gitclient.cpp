@@ -134,14 +134,7 @@ public:
     explicit GitDiffEditorController(IDocument *document,
                                      const QString &leftCommit,
                                      const QString &rightCommit,
-                                     const QStringList &extraArgs)
-        : GitBaseDiffEditorController(document)
-    {
-        setReloader([=] {
-            runCommand({addConfigurationArguments(diffArgs(leftCommit, rightCommit, extraArgs))},
-                       VcsBaseEditor::getCodec(workingDirectory(), {}));
-        });
-    }
+                                     const QStringList &extraArgs);
 private:
     QStringList diffArgs(const QString &leftCommit, const QString &rightCommit,
                          const QStringList &extraArgs) const
@@ -168,6 +161,33 @@ private:
         return res;
     }
 };
+
+GitDiffEditorController::GitDiffEditorController(IDocument *document,
+                                                 const QString &leftCommit,
+                                                 const QString &rightCommit,
+                                                 const QStringList &extraArgs)
+    : GitBaseDiffEditorController(document)
+{
+    using namespace Tasking;
+
+    const TreeStorage<QString> diffInputStorage = inputStorage();
+
+    const auto setupDiff = [=](QtcProcess &process) {
+        process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), {}));
+        setupCommand(process, {addConfigurationArguments(diffArgs(leftCommit, rightCommit, extraArgs))});
+        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+    };
+    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
+        *diffInputStorage.activeStorage() = process.cleanedStdOut();
+    };
+
+    const Group root {
+        Storage(diffInputStorage),
+        Process(setupDiff, onDiffDone),
+        postProcessTask()
+    };
+    setReloadRecipe(root);
+}
 
 GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document)
     : VcsBaseDiffEditorController(document)
