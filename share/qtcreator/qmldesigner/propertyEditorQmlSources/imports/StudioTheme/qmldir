@@ -1,4 +1,6 @@
 singleton Values 1.0 Values.qml
 singleton Constants 1.0 Constants.qml
+ControlStyle 1.0 ControlStyle.qml
+DefaultStyle 1.0 DefaultStyle.qml
 InternalConstants 1.0 InternalConstants.qml
-
+ToolbarStyle 1.0 ToolbarStyle.qml

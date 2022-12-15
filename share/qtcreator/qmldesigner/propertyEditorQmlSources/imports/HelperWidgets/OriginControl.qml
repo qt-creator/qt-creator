@@ -36,7 +36,7 @@ Row {
 
     ActionIndicator {
         id: actionIndicator
-        myControl: myButton
+        __parentControl: myButton
         x: 0
         y: 0
         width: actionIndicator.visible ? myButton.__actionIndicatorWidth : 0

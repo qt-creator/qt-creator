@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuick.Layouts
 
-RowLayout {
-    Layout.fillWidth: true
-    spacing: 0
+ControlStyle {
+    background {
+        idle: "red"
+    }
 }
