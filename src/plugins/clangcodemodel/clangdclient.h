@@ -74,10 +74,9 @@ public:
 
     void gatherHelpItemForTooltip(
             const LanguageServerProtocol::HoverRequest::Response &hoverResponse,
-            const LanguageServerProtocol::DocumentUri &uri);
-    bool gatherMemberFunctionOverrideHelpItemForTooltip(
-        const LanguageServerProtocol::MessageId &token,
-        const LanguageServerProtocol::DocumentUri &uri,
+            const Utils::FilePath &filePath);
+    bool gatherMemberFunctionOverrideHelpItemForTooltip(const LanguageServerProtocol::MessageId &token,
+        const Utils::FilePath &uri,
         const QList<ClangdAstNode> &path);
 
     void setVirtualRanges(const Utils::FilePath &filePath,

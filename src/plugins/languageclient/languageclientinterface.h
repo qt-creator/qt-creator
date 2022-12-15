@@ -28,6 +28,8 @@ public:
     void sendMessage(const LanguageServerProtocol::JsonRpcMessage message);
     void start() { startImpl(); }
 
+    virtual Utils::FilePath serverDeviceTemplate() const = 0;
+
     void resetBuffer();
 
 signals:
@@ -65,6 +67,8 @@ public:
     void setCommandLine(const Utils::CommandLine &cmd);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setEnvironment(const Utils::Environment &environment);
+
+    Utils::FilePath serverDeviceTemplate() const override;
 
 protected:
     void sendData(const QByteArray &data) final;

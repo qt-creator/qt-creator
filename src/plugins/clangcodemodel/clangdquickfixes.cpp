@@ -24,11 +24,10 @@ void ClangdQuickFixFactory::match(const CppEditor::Internal::CppQuickFixInterfac
     if (!client)
         return;
 
-    const auto uri = DocumentUri::fromFilePath(interface.filePath());
     QTextCursor cursor(interface.textDocument());
     cursor.setPosition(interface.position());
     cursor.select(QTextCursor::LineUnderCursor);
-    const QList<Diagnostic> &diagnostics = client->diagnosticsAt(uri, cursor);
+    const QList<Diagnostic> &diagnostics = client->diagnosticsAt(interface.filePath(), cursor);
     for (const Diagnostic &diagnostic : diagnostics) {
         ClangdDiagnostic clangdDiagnostic(diagnostic);
         if (const auto actions = clangdDiagnostic.codeActions()) {

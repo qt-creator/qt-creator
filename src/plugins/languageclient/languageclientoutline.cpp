@@ -195,14 +195,14 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     : m_client(client)
     , m_editor(editor)
     , m_view(this)
-    , m_uri(DocumentUri::fromFilePath(editor->textDocument()->filePath()))
+    , m_uri(m_client->hostPathToServerUri(editor->textDocument()->filePath()))
 {
     connect(client->documentSymbolCache(),
             &DocumentSymbolCache::gotSymbols,
             this,
             &LanguageClientOutlineWidget::handleResponse);
     connect(client, &Client::documentUpdated, this, [this](TextEditor::TextDocument *document) {
-        if (m_client && m_uri == DocumentUri::fromFilePath(document->filePath()))
+        if (m_client && m_uri == m_client->hostPathToServerUri(document->filePath()))
             m_client->documentSymbolCache()->requestSymbols(m_uri, Schedule::Delayed);
     });
 
@@ -375,7 +375,7 @@ Utils::TreeViewComboBox *LanguageClientOutlineWidgetFactory::createComboBox(
 OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)
     : m_client(client)
     , m_editorWidget(editor->editorWidget())
-    , m_uri(DocumentUri::fromFilePath(editor->document()->filePath()))
+    , m_uri(m_client->hostPathToServerUri(editor->document()->filePath()))
 {
     m_model.setSymbolStringifier(client->symbolStringifier());
     m_proxyModel.setSourceModel(&m_model);

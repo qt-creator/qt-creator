@@ -387,7 +387,7 @@ MessageId requestAst(Client *client, const FilePath &filePath, const Range range
         explicit AstRequest(const AstParams &params) : Request("textDocument/ast", params) {}
     };
 
-    AstRequest request(AstParams(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)),
+    AstRequest request(AstParams(TextDocumentIdentifier(client->hostPathToServerUri(filePath)),
                                  range));
     request.setResponseCallback([handler, reqId = request.id()](AstRequest::Response response) {
         const auto result = response.result();

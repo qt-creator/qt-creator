@@ -446,7 +446,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform()
     params.setPosition({line, column});
     params.setContext(context);
     params.setTextDocument(
-        TextDocumentIdentifier(DocumentUri::fromFilePath(interface()->filePath())));
+        TextDocumentIdentifier(m_client->hostPathToServerUri(interface()->filePath())));
     if (const int limit = m_client->completionResultsLimit(); limit >= 0)
         params.setLimit(limit);
     CompletionRequest completionRequest(params);

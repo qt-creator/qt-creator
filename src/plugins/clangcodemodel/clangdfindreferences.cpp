@@ -193,7 +193,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, const Link &lin
         client->openExtraFile(link.targetFilePath, contents);
         d->checkUnusedData->openedExtraFileForLink = true;
     }
-    const TextDocumentIdentifier documentId(DocumentUri::fromFilePath(link.targetFilePath));
+    const TextDocumentIdentifier documentId(client->hostPathToServerUri(link.targetFilePath));
     const Position pos(link.targetLine - 1, link.targetColumn);
     ReferenceParams params(TextDocumentPositionParams(documentId, pos));
     params.setContext(ReferenceParams::ReferenceContext(true));
@@ -280,7 +280,7 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
     for (const Location &loc : locations)
         fileData[loc.uri()].rangesAndLineText.push_back({loc.range(), {}});
     for (auto it = fileData.begin(); it != fileData.end();) {
-        const Utils::FilePath filePath = it.key().toFilePath();
+        const Utils::FilePath filePath = client()->serverUriToHostPath(it.key());
         if (!filePath.exists()) { // https://github.com/clangd/clangd/issues/935
             it = fileData.erase(it);
             continue;
@@ -303,19 +303,19 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
     }
 
     for (auto it = fileData.begin(); it != fileData.end(); ++it) {
-        const FilePath filePath = it.key().toFilePath();
+        const FilePath filePath = client()->serverUriToHostPath(it.key());
         const TextDocument * const doc = client()->documentForFilePath(filePath);
         const bool openExtraFile = !doc && (!checkUnusedData
                 || !checkUnusedData->openedExtraFileForLink
                 || checkUnusedData->link.targetFilePath != filePath);
         if (openExtraFile)
-            client()->openExtraFile(it.key().toFilePath(), it->fileContent);
+            client()->openExtraFile(filePath, it->fileContent);
         it->fileContent.clear();
         const auto docVariant = doc ? ClangdClient::TextDocOrFile(doc)
-                                    : ClangdClient::TextDocOrFile(it.key().toFilePath());
-        const auto astHandler = [sentinel = QPointer(q), this, loc = it.key()](
+                                    : ClangdClient::TextDocOrFile(filePath);
+        const auto astHandler = [sentinel = QPointer(q), this, loc = it.key(), filePath](
                 const ClangdAstNode &ast, const MessageId &reqId) {
-            qCDebug(clangdLog) << "AST for" << loc.toFilePath();
+            qCDebug(clangdLog) << "AST for" << filePath;
             if (!sentinel)
                 return;
             if (!search || canceled)
@@ -324,7 +324,7 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
             data.ast = ast;
             pendingAstRequests.removeOne(reqId);
             qCDebug(clangdLog) << pendingAstRequests.size() << "AST requests still pending";
-            addSearchResultsForFile(loc.toFilePath(), data);
+            addSearchResultsForFile(filePath, data);
             fileData.remove(loc);
             if (pendingAstRequests.isEmpty() && !canceled) {
                 qCDebug(clangdLog) << "retrieved all ASTs";
@@ -335,7 +335,7 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
                     docVariant, astHandler, ClangdClient::AstCallbackMode::AlwaysAsync, {});
         pendingAstRequests << reqId;
         if (openExtraFile)
-            client()->closeExtraFile(it.key().toFilePath());
+            client()->closeExtraFile(filePath);
     }
 }
 
@@ -370,7 +370,7 @@ void ClangdFindReferences::Private::reportAllSearchResultsAndFinish()
 {
     if (!checkUnusedData) {
         for (auto it = fileData.begin(); it != fileData.end(); ++it)
-            addSearchResultsForFile(it.key().toFilePath(), it.value());
+            addSearchResultsForFile(client()->serverUriToHostPath(it.key()), it.value());
     }
     finishSearch();
 }
@@ -647,7 +647,7 @@ public:
     Private(ClangdFindLocalReferences *q, TextDocument *document, const QTextCursor &cursor,
             const RenameCallback &callback)
         : q(q), document(document), cursor(cursor), callback(callback),
-          uri(DocumentUri::fromFilePath(document->filePath())),
+          uri(client()->hostPathToServerUri(document->filePath())),
           revision(document->document()->revision())
     {}
 
@@ -749,7 +749,12 @@ void ClangdFindLocalReferences::Private::checkDefinitionAst(const ClangdAstNode 
 void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> &references)
 {
     qCDebug(clangdLog) << "found" << references.size() << "local references";
-    const Utils::Links links = Utils::transform(references, &Location::toLink);
+
+    const auto transformLocation = [mapper = client()->hostPathMapper()](const Location &loc) {
+        return loc.toLink(mapper);
+    };
+
+    const Utils::Links links = Utils::transform(references, transformLocation);
 
     // The callback only uses the symbol length, so we just create a dummy.
     // Note that the calculation will be wrong for identifiers with

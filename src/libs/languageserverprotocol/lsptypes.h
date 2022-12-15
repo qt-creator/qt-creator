@@ -27,16 +27,17 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentUri : public QUrl
 {
 public:
     DocumentUri() = default;
-    Utils::FilePath toFilePath() const;
+    using PathMapper = std::function<Utils::FilePath(const Utils::FilePath &)>;
+    Utils::FilePath toFilePath(const PathMapper &mapToHostPath) const;
 
-    static DocumentUri fromProtocol(const QString &uri) { return DocumentUri(uri); }
-    static DocumentUri fromFilePath(const Utils::FilePath &file) { return DocumentUri(file); }
+    static DocumentUri fromProtocol(const QString &uri);
+    static DocumentUri fromFilePath(const Utils::FilePath &file, const PathMapper &mapToServerPath);
 
     operator QJsonValue() const { return QJsonValue(toString()); }
 
 private:
     DocumentUri(const QString &other);
-    DocumentUri(const Utils::FilePath &other);
+    DocumentUri(const Utils::FilePath &other, const PathMapper &mapToServerPath);
 
     friend class LanguageClientValue<QString>;
 };
@@ -137,7 +138,7 @@ public:
     Range range() const { return typedValue<Range>(rangeKey); }
     void setRange(const Range &range) { insert(rangeKey, range); }
 
-    Utils::Link toLink() const;
+    Utils::Link toLink(const DocumentUri::PathMapper &mapToHostPath) const;
 
     bool isValid() const override { return contains(uriKey) && contains(rangeKey); }
 };

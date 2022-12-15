@@ -213,7 +213,7 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
             const FilePath workspacePath = documentPath.parentDir();
             if (!m_extraWorkspaceDirs.contains(workspacePath)) {
                 WorkspaceFoldersChangeEvent event;
-                event.setAdded({WorkSpaceFolder(DocumentUri::fromFilePath(workspacePath),
+                event.setAdded({WorkSpaceFolder(hostPathToServerUri(workspacePath),
                                                 workspacePath.fileName())});
                 DidChangeWorkspaceFoldersParams params;
                 params.setEvent(event);

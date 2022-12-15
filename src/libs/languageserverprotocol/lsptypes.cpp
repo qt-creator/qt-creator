@@ -62,7 +62,7 @@ void WorkspaceEdit::setChanges(const Changes &changes)
         QJsonArray edits;
         for (const TextEdit &edit : it.value())
             edits.append(QJsonValue(edit));
-        changesObject.insert(it.key().toFilePath().toString(), edits);
+        changesObject.insert(QJsonValue(it.key()).toString(), edits);
     }
     insert(changesKey, changesObject);
 }
@@ -345,36 +345,46 @@ bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeT
     return !contains(schemeKey) && !contains(languageKey) && !contains(patternKey);
 }
 
-Utils::Link Location::toLink() const
+Utils::Link Location::toLink(const DocumentUri::PathMapper &mapToHostPath) const
 {
     if (!isValid())
         return Utils::Link();
 
-    // Ensure %xx like %20 are really decoded using fromPercentEncoding
-    // Else, a path with spaces would keep its %20 which would cause failure
-    // to open the file by the text editor. This is the cases with compilers in
-    // C:\Programs Files on Windows.
-    auto file = uri().toString(QUrl::PrettyDecoded | QUrl::PreferLocalFile);
-    // fromPercentEncoding convert %xx encoding to raw values and then interpret
-    // the result as utf-8, so toUtf8() must be used here.
-    file = QUrl::fromPercentEncoding(file.toUtf8());
-    return Utils::Link(Utils::FilePath::fromString(file),
+    return Utils::Link(uri().toFilePath(mapToHostPath),
                        range().start().line() + 1,
                        range().start().character());
 }
 
+// Ensure %xx like %20 are really decoded using fromPercentEncoding
+// Else, a path with spaces would keep its %20 which would cause failure
+// to open the file by the text editor. This is the cases with compilers in
+// C:\Programs Files on Windows.
 DocumentUri::DocumentUri(const QString &other)
     : QUrl(QUrl::fromPercentEncoding(other.toUtf8()))
 { }
 
-DocumentUri::DocumentUri(const Utils::FilePath &other)
-    : QUrl(QUrl::fromLocalFile(other.toString()))
+DocumentUri::DocumentUri(const Utils::FilePath &other, const PathMapper &mapToServerPath)
+    : QUrl(QUrl::fromLocalFile(mapToServerPath(other).path()))
 { }
 
-Utils::FilePath DocumentUri::toFilePath() const
+Utils::FilePath DocumentUri::toFilePath(const PathMapper &mapToHostPath) const
 {
-    return isLocalFile() ? Utils::FilePath::fromUserInput(QUrl(*this).toLocalFile())
-                         : Utils::FilePath();
+    if (isLocalFile()) {
+        const Utils::FilePath serverPath = Utils::FilePath::fromUserInput(toLocalFile());
+        QTC_ASSERT(mapToHostPath, return serverPath);
+        return mapToHostPath(serverPath);
+    }
+    return Utils::FilePath();
+}
+
+DocumentUri DocumentUri::fromProtocol(const QString &uri)
+{
+    return DocumentUri(uri);
+}
+
+DocumentUri DocumentUri::fromFilePath(const Utils::FilePath &file, const PathMapper &mapToServerPath)
+{
+    return DocumentUri(file, mapToServerPath);
 }
 
 MarkupKind::MarkupKind(const QJsonValue &value)

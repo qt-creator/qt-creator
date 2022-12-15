@@ -15,7 +15,7 @@ namespace LanguageClient {
 class Client;
 
 using HelpItemProvider = std::function<void(const LanguageServerProtocol::HoverRequest::Response &,
-                                            const LanguageServerProtocol::DocumentUri &uri)>;
+                                            const Utils::FilePath &path)>;
 
 class LANGUAGECLIENT_EXPORT HoverHandler final : public TextEditor::BaseHoverHandler
 {
@@ -49,7 +49,7 @@ private:
 
     QPointer<Client> m_client;
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
-    LanguageServerProtocol::DocumentUri m_uri;
+    Utils::FilePath m_filePath;
     LanguageServerProtocol::HoverRequest::Response m_response;
     TextEditor::BaseHoverHandler::ReportPriority m_report;
     HelpItemProvider m_helpItemProvider;

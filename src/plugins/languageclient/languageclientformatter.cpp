@@ -73,7 +73,7 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
             return nullptr;
     }
     DocumentRangeFormattingParams params;
-    const DocumentUri uri = DocumentUri::fromFilePath(filePath);
+    const DocumentUri uri = m_client->hostPathToServerUri(filePath);
     params.setTextDocument(TextDocumentIdentifier(uri));
     params.setOptions(formattingOptions(tabSettings));
     if (!cursor.hasSelection()) {

@@ -60,7 +60,7 @@ void SemanticTokenSupport::reloadSemanticTokensImpl(TextDocument *textDocument,
     if (supportedRequests.testFlag(SemanticRequestType::None))
         return;
     const Utils::FilePath filePath = textDocument->filePath();
-    const TextDocumentIdentifier docId(DocumentUri::fromFilePath(filePath));
+    const TextDocumentIdentifier docId(m_client->hostPathToServerUri(filePath));
     auto responseCallback = [this,
                              remainingRerequests,
                              filePath,
@@ -128,7 +128,7 @@ void SemanticTokenSupport::updateSemanticTokensImpl(TextDocument *textDocument,
             if (documentVersion == versionedToken.version)
                 return;
             SemanticTokensDeltaParams params;
-            params.setTextDocument(TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)));
+            params.setTextDocument(TextDocumentIdentifier(m_client->hostPathToServerUri(filePath)));
             params.setPreviousResultId(previousResultId);
             SemanticTokensFullDeltaRequest request(params);
             request.setResponseCallback(

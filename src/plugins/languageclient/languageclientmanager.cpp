@@ -391,11 +391,6 @@ Client *LanguageClientManager::clientForFilePath(const Utils::FilePath &filePath
     return clientForDocument(TextEditor::TextDocument::textDocumentForFilePath(filePath));
 }
 
-Client *LanguageClientManager::clientForUri(const DocumentUri &uri)
-{
-    return clientForFilePath(uri.toFilePath());
-}
-
 const QList<Client *> LanguageClientManager::clientsForProject(
         const ProjectExplorer::Project *project)
 {

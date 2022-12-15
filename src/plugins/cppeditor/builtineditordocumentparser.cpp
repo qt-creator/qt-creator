@@ -5,8 +5,8 @@
 
 #include "cppsourceprocessor.h"
 
-#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmacro.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -23,9 +23,12 @@ static QByteArray overwrittenToolchainDefines(const ProjectPart &projectPart)
     // MSVC's predefined macros like __FUNCSIG__ expand to itself.
     // We can't parse this, so redefine to the empty string literal.
     if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        defines += "#define __FUNCSIG__ \"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"\n"
-                   "#define __FUNCDNAME__ \"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"\n"
-                   "#define __FUNCTION__ \"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"\n";
+        defines += "#define __FUNCSIG__ \"void __cdecl "
+                   "someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"\n"
+                   "#define __FUNCDNAME__ "
+                   "\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"\n"
+                   "#define __FUNCTION__ "
+                   "\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"\n";
     }
 
     return defines;
@@ -63,11 +66,11 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
     baseState.projectPartInfo = determineProjectPart(filePath().toString(),
-                                                    baseConfig.preferredProjectPartId,
-                                                    baseState.projectPartInfo,
-                                                    updateParams.activeProject,
-                                                    updateParams.languagePreference,
-                                                    updateParams.projectsUpdated);
+                                                     baseConfig.preferredProjectPartId,
+                                                     baseState.projectPartInfo,
+                                                     updateParams.activeProject,
+                                                     updateParams.languagePreference,
+                                                     updateParams.projectsUpdated);
     emit projectPartInfoUpdated(baseState.projectPartInfo);
 
     if (state.forceSnapshotInvalidation) {
@@ -131,8 +134,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     if (invalidateSnapshot) {
         state.snapshot = Snapshot();
         if (!baseState.editorDefines.isEmpty()) {
-                workingCopy.insert(CppModelManager::editorConfigurationFileName(),
-                                   baseState.editorDefines);
+            workingCopy.insert(CppModelManager::editorConfigurationFileName(),
+                               baseState.editorDefines);
         }
     } else {
         // Remove changed files from the snapshot
@@ -177,9 +180,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
                 doc->releaseSourceAndAST();
         });
         sourceProcessor.setFileSizeLimitInMb(m_fileSizeLimitInMb);
-        sourceProcessor.setCancelChecker([future]() {
-           return future.isCanceled();
-        });
+        sourceProcessor.setCancelChecker([future]() { return future.isCanceled(); });
 
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(filePath());
@@ -201,7 +202,9 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         sourceProcessor.run(filePath(), transform(includedFiles, &FilePath::fromString));
         state.snapshot = sourceProcessor.snapshot();
         Snapshot newSnapshot = state.snapshot.simplified(state.snapshot.document(filePath()));
-        for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end(); i != ei; ++i) {
+        for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end();
+             i != ei;
+             ++i) {
             if (Client::isInjectedFile(i.key().toString()))
                 newSnapshot.insert(i.value());
         }

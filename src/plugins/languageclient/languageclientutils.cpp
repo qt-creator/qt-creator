@@ -62,7 +62,7 @@ bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
     if (edits.isEmpty())
         return true;
     const DocumentUri &uri = edit.textDocument().uri();
-    const FilePath &filePath = uri.toFilePath();
+    const FilePath &filePath = client->serverUriToHostPath(uri);
     LanguageClientValue<int> version = edit.textDocument().version();
     if (!version.isNull() && version.value(0) < client->documentVersion(filePath))
         return false;
@@ -71,12 +71,19 @@ bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
 
 bool applyTextEdits(const Client *client, const DocumentUri &uri, const QList<TextEdit> &edits)
 {
+    return applyTextEdits(client, client->serverUriToHostPath(uri), edits);
+}
+
+bool applyTextEdits(const Client *client,
+                    const Utils::FilePath &filePath,
+                    const QList<LanguageServerProtocol::TextEdit> &edits)
+{
     if (edits.isEmpty())
         return true;
     RefactoringChangesData * const backend = client->createRefactoringChangesBackend();
     RefactoringChanges changes(backend);
     RefactoringFilePtr file;
-    file = changes.file(uri.toFilePath());
+    file = changes.file(filePath);
     file->setChangeSet(editsToChangeSet(edits, file->document()));
     if (backend) {
         for (const TextEdit &edit : edits)
@@ -130,7 +137,7 @@ void updateCodeActionRefactoringMarker(Client *client,
                                        const QList<CodeAction> &actions,
                                        const DocumentUri &uri)
 {
-    TextDocument* doc = TextDocument::textDocumentForFilePath(uri.toFilePath());
+    TextDocument* doc = TextDocument::textDocumentForFilePath(client->serverUriToHostPath(uri));
     if (!doc)
         return;
     const QVector<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);

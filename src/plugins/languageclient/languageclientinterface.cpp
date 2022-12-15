@@ -131,6 +131,11 @@ void StdIOClientInterface::setEnvironment(const Utils::Environment &environment)
     m_env = environment;
 }
 
+Utils::FilePath StdIOClientInterface::serverDeviceTemplate() const
+{
+    return m_cmd.executable();
+}
+
 void StdIOClientInterface::sendData(const QByteArray &data)
 {
     if (!m_process || m_process->state() != QProcess::Running) {

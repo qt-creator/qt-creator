@@ -9,9 +9,13 @@
 #include "languageclientutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <languageserverprotocol/lsptypes.h>
 #include <languageserverprotocol/servercapabilities.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
 #include <utils/fuzzymatcher.h>
 #include <utils/linecolumn.h>
 
@@ -43,6 +47,7 @@ void DocumentLocatorFilter::updateCurrentClient()
     TextEditor::TextDocument *document = TextEditor::TextDocument::currentTextDocument();
     if (Client *client = LanguageClientManager::clientForDocument(document);
             client && (client->locatorsEnabled() || m_forced)) {
+
         setEnabled(!m_forced);
         if (m_symbolCache != client->documentSymbolCache()) {
             disconnect(m_updateSymbolsConnection);
@@ -52,12 +57,14 @@ void DocumentLocatorFilter::updateCurrentClient()
         }
         m_resetSymbolsConnection = connect(document, &Core::IDocument::contentsChanged,
                                            this, &DocumentLocatorFilter::resetSymbols);
-        m_currentUri = DocumentUri::fromFilePath(document->filePath());
+        m_currentUri = client->hostPathToServerUri(document->filePath());
+        m_pathMapper = client->hostPathMapper();
     } else {
         disconnect(m_updateSymbolsConnection);
         m_symbolCache.clear();
         m_currentUri.clear();
         setEnabled(false);
+        m_pathMapper = DocumentUri::PathMapper();
     }
 }
 
@@ -78,7 +85,8 @@ void DocumentLocatorFilter::resetSymbols()
 }
 
 static Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
-                                                     Core::ILocatorFilter *filter)
+                                                     Core::ILocatorFilter *filter,
+                                                     DocumentUri::PathMapper pathMapper)
 {
     Core::LocatorFilterEntry entry;
     entry.filter = filter;
@@ -86,14 +94,14 @@ static Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &in
     if (std::optional<QString> container = info.containerName())
         entry.extraInfo = container.value_or(QString());
     entry.displayIcon = symbolIcon(info.kind());
-    entry.internalData = QVariant::fromValue(info.location().toLink());
+    entry.internalData = QVariant::fromValue(info.location().toLink(pathMapper));
     return entry;
-
 }
 
 Core::LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(const SymbolInformation &info)
 {
-    return LanguageClient::generateLocatorEntry(info, this);
+    QTC_ASSERT(m_pathMapper, return {});
+    return LanguageClient::generateLocatorEntry(info, this, m_pathMapper);
 }
 
 QList<Core::LocatorFilterEntry> DocumentLocatorFilter::generateLocatorEntries(
@@ -203,8 +211,11 @@ void DocumentLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
                                    int * /*selectionLength*/) const
 {
     if (selection.internalData.canConvert<Utils::LineColumn>()) {
+        QTC_ASSERT(m_pathMapper, return);
         auto lineColumn = qvariant_cast<Utils::LineColumn>(selection.internalData);
-        const Utils::Link link(m_currentUri.toFilePath(), lineColumn.line + 1, lineColumn.column);
+        const Utils::Link link(m_currentUri.toFilePath(m_pathMapper),
+                               lineColumn.line + 1,
+                               lineColumn.column);
         Core::EditorManager::openEditorAt(link, {}, Core::EditorManager::AllowExternalEditor);
     } else if (selection.internalData.canConvert<Utils::Link>()) {
         Core::EditorManager::openEditorAt(qvariant_cast<Utils::Link>(selection.internalData),
@@ -293,15 +304,14 @@ QList<Core::LocatorFilterEntry> WorkspaceLocatorFilter::matchesFor(
 
 
     if (!m_filterKinds.isEmpty()) {
-        m_results = Utils::filtered(m_results, [&](const SymbolInformation &info) {
-            return m_filterKinds.contains(SymbolKind(info.kind()));
+        m_results = Utils::filtered(m_results, [&](const SymbolInfoWithPathMapper &info) {
+            return m_filterKinds.contains(SymbolKind(info.symbol.kind()));
         });
     }
-    return Utils::transform(m_results,
-                            [this](const SymbolInformation &info) {
-                                return generateLocatorEntry(info, this);
-                            })
-        .toList();
+    auto generateEntry = [this](const SymbolInfoWithPathMapper &info) {
+        return generateLocatorEntry(info.symbol, this, info.mapper);
+    };
+    return Utils::transform(m_results, generateEntry).toList();
 }
 
 void WorkspaceLocatorFilter::accept(const Core::LocatorFilterEntry &selection,
@@ -322,7 +332,10 @@ void WorkspaceLocatorFilter::handleResponse(Client *client,
     m_pendingRequests.remove(client);
     auto result = response.result().value_or(LanguageClientArray<SymbolInformation>());
     if (!result.isNull())
-        m_results.append(result.toList().toVector());
+        m_results.append(
+            Utils::transform(result.toList().toVector(), [client](const SymbolInformation &info) {
+                return SymbolInfoWithPathMapper{info, client->hostPathMapper()};
+            }));
     if (m_pendingRequests.isEmpty())
         emit allRequestsFinished(QPrivateSignal());
 }

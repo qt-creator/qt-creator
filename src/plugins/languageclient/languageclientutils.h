@@ -32,6 +32,9 @@ applyTextDocumentEdit(const Client *client, const LanguageServerProtocol::TextDo
 bool LANGUAGECLIENT_EXPORT applyTextEdits(const Client *client,
                                           const LanguageServerProtocol::DocumentUri &uri,
                                           const QList<LanguageServerProtocol::TextEdit> &edits);
+bool LANGUAGECLIENT_EXPORT applyTextEdits(const Client *client,
+                                          const Utils::FilePath &filePath,
+                                          const QList<LanguageServerProtocol::TextEdit> &edits);
 void LANGUAGECLIENT_EXPORT applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
                                          const LanguageServerProtocol::TextEdit &edit,
                                          bool newTextIsSnippet = false);

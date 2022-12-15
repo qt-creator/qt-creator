@@ -30,11 +30,11 @@ public:
     explicit DiagnosticManager(Client *client);
     ~DiagnosticManager() override;
 
-    virtual void setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
+    virtual void setDiagnostics(const Utils::FilePath &filePath,
                                 const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
                                 const std::optional<int> &version);
 
-    virtual void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri, int version);
+    virtual void showDiagnostics(const Utils::FilePath &filePath, int version);
     virtual void hideDiagnostics(const Utils::FilePath &filePath);
     virtual QList<LanguageServerProtocol::Diagnostic> filteredDiagnostics(
         const QList<LanguageServerProtocol::Diagnostic> &diagnostics) const;
@@ -43,9 +43,9 @@ public:
     void clearDiagnostics();
 
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
-        const LanguageServerProtocol::DocumentUri &uri,
+        const Utils::FilePath &filePath,
         const QTextCursor &cursor) const;
-    bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+    bool hasDiagnostic(const Utils::FilePath &filePath,
                        const TextEditor::TextDocument *doc,
                        const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *doc) const;
@@ -71,7 +71,7 @@ private:
         std::optional<int> version;
         QList<LanguageServerProtocol::Diagnostic> diagnostics;
     };
-    QMap<LanguageServerProtocol::DocumentUri, VersionedDiagnostics> m_diagnostics;
+    QMap<Utils::FilePath, VersionedDiagnostics> m_diagnostics;
     class Marks
     {
     public:

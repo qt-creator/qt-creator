@@ -274,7 +274,7 @@ public:
     QTextCursor adjustedCursor(const QTextCursor &cursor, const TextDocument *doc);
 
     void setHelpItemForTooltip(const MessageId &token,
-                               const DocumentUri &uri,
+                               const Utils::FilePath &filePath,
                                const QString &fqn = {},
                                HelpItem::Category category = HelpItem::Unknown,
                                const QString &type = {});
@@ -409,8 +409,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         d->handleSemanticTokens(doc, tokens, version, force);
     });
     hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
-                                               const DocumentUri &uri) {
-        gatherHelpItemForTooltip(response, uri);
+                                               const Utils::FilePath &filePath) {
+        gatherHelpItemForTooltip(response, filePath);
     });
 
     connect(this, &Client::workDone, this,
@@ -462,7 +462,7 @@ void ClangdClient::openExtraFile(const Utils::FilePath &filePath, const QString 
         return;
     TextDocumentItem item;
     item.setLanguageId("cpp");
-    item.setUri(DocumentUri::fromFilePath(filePath));
+    item.setUri(hostPathToServerUri(filePath));
     item.setText(!content.isEmpty() ? content : QString::fromUtf8(cxxFile.readAll()));
     item.setVersion(0);
     sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
@@ -480,7 +480,7 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
         return;
     d->openedExtraFiles.erase(it);
     sendMessage(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
-            TextDocumentIdentifier{DocumentUri::fromFilePath(filePath)})),
+            TextDocumentIdentifier{hostPathToServerUri(filePath)})),
                 SendDocUpdates::Ignore);
 }
 
@@ -533,7 +533,7 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
 {
     const DocumentUri &uri = params.uri();
     Client::handleDiagnostics(params);
-    const int docVersion = documentVersion(uri.toFilePath());
+    const int docVersion = documentVersion(uri);
     if (params.version().value_or(docVersion) != docVersion)
         return;
     for (const Diagnostic &diagnostic : params.diagnostics()) {
@@ -593,11 +593,10 @@ class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
         return doc && doc->filePath() == filePath;
     }
 
-    void showDiagnostics(const DocumentUri &uri, int version) override
+    void showDiagnostics(const Utils::FilePath &filePath, int version) override
     {
-        const Utils::FilePath filePath = uri.toFilePath();
         getClient()->clearTasks(filePath);
-        DiagnosticManager::showDiagnostics(uri, version);
+        DiagnosticManager::showDiagnostics(filePath, version);
         if (isCurrentDocument(filePath))
             getClient()->switchIssuePaneEntries(filePath);
     }
@@ -851,7 +850,7 @@ MessageId ClangdClient::getAndHandleAst(const TextDocOrFile &doc, const AstHandl
 MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const Position &position,
                                           const SymbolInfoHandler &handler)
 {
-    const TextDocumentIdentifier docId(DocumentUri::fromFilePath(filePath));
+    const TextDocumentIdentifier docId(hostPathToServerUri(filePath));
     const TextDocumentPositionParams params(docId, position);
     SymbolInfoRequest symReq(params);
     symReq.setResponseCallback([handler, reqId = symReq.id()]
@@ -932,15 +931,16 @@ void ClangdClient::switchHeaderSource(const Utils::FilePath &filePath, bool inNe
     {
     public:
         using Request::Request;
-        explicit SwitchSourceHeaderRequest(const Utils::FilePath &filePath)
-            : Request("textDocument/switchSourceHeader",
-                      TextDocumentIdentifier(DocumentUri::fromFilePath(filePath))) {}
+        explicit SwitchSourceHeaderRequest(const DocumentUri &uri)
+            : Request("textDocument/switchSourceHeader", TextDocumentIdentifier(uri))
+        {}
     };
-    SwitchSourceHeaderRequest req(filePath);
-    req.setResponseCallback([inNextSplit](const SwitchSourceHeaderRequest::Response &response) {
+    SwitchSourceHeaderRequest req(hostPathToServerUri(filePath));
+    req.setResponseCallback([inNextSplit, pathMapper = hostPathMapper()](
+                                const SwitchSourceHeaderRequest::Response &response) {
         if (const std::optional<QJsonValue> result = response.result()) {
             const DocumentUri uri = DocumentUri::fromProtocol(result->toString());
-            const Utils::FilePath filePath = uri.toFilePath();
+            const Utils::FilePath filePath = uri.toFilePath(pathMapper);
             if (!filePath.isEmpty())
                 CppEditor::openEditor(filePath, inNextSplit);
         }
@@ -976,7 +976,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
 }
 
 void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverResponse,
-                                            const DocumentUri &uri)
+                                            const Utils::FilePath &filePath)
 {
     if (const std::optional<HoverResult> result = hoverResponse.result()) {
         if (auto hover = std::get_if<Hover>(&(*result))) {
@@ -994,7 +994,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                         const QString macroName = markupString.mid(nameStart,
                                                                    closingQuoteIndex - nameStart);
                         d->setHelpItemForTooltip(hoverResponse.id(),
-                                                 uri,
+                                                 filePath,
                                                  macroName,
                                                  HelpItem::Macro);
                         return;
@@ -1006,11 +1006,12 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 cleanString.remove('`');
                 const QStringList lines = cleanString.trimmed().split('\n');
                 if (!lines.isEmpty()) {
-                    const auto filePath = Utils::FilePath::fromUserInput(lines.last().simplified());
-                    if (filePath.exists()) {
+                    const auto markupFilePath = Utils::FilePath::fromUserInput(
+                        lines.last().simplified());
+                    if (markupFilePath.exists()) {
                         d->setHelpItemForTooltip(hoverResponse.id(),
-                                                 uri,
-                                                 filePath.fileName(),
+                                                 filePath,
+                                                 markupFilePath.fileName(),
                                                  HelpItem::Brief);
                         return;
                     }
@@ -1019,9 +1020,10 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         }
     }
 
-    const TextDocument * const doc = documentForFilePath(uri.toFilePath());
+    const TextDocument * const doc = documentForFilePath(filePath);
     QTC_ASSERT(doc, return);
-    const auto astHandler = [this, uri, hoverResponse](const ClangdAstNode &ast, const MessageId &) {
+    const auto astHandler = [this, filePath, hoverResponse](const ClangdAstNode &ast,
+                                                            const MessageId &) {
         const MessageId id = hoverResponse.id();
         Range range;
         if (const std::optional<HoverResult> result = hoverResponse.result()) {
@@ -1030,7 +1032,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         }
         const ClangdAstPath path = getAstPath(ast, range);
         if (path.isEmpty()) {
-            d->setHelpItemForTooltip(id, uri);
+            d->setHelpItemForTooltip(id, filePath);
             return;
         }
         ClangdAstNode node = path.last();
@@ -1054,7 +1056,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 type = type.left(angleBracketIndex);
         };
 
-        if (gatherMemberFunctionOverrideHelpItemForTooltip(id, uri, path))
+        if (gatherMemberFunctionOverrideHelpItemForTooltip(id, filePath, path))
             return;
 
         const bool isMemberFunction = node.role() == "expression" && node.kind() == "Member"
@@ -1062,9 +1064,8 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         const bool isFunction = node.role() == "expression" && node.kind() == "DeclRef"
                 && type.contains('(');
         if (isMemberFunction || isFunction) {
-            const auto symbolInfoHandler = [this, id, uri, type, isFunction](const QString &name,
-                                                                             const QString &prefix,
-                                                                             const MessageId &) {
+            const auto symbolInfoHandler = [this, id, filePath, type, isFunction]
+                    (const QString &name, const QString &prefix, const MessageId &) {
                 qCDebug(clangdLog) << "handling symbol info reply";
                 const QString fqn = prefix + name;
 
@@ -1074,12 +1075,12 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 // with mainOverload = true, such information would get ignored anyway.
                 if (!fqn.isEmpty())
                     d->setHelpItemForTooltip(id,
-                                             uri,
+                                             filePath,
                                              fqn,
                                              HelpItem::Function,
                                              isFunction ? type : "()");
             };
-            requestSymbolInfo(uri.toFilePath(), range.start(), symbolInfoHandler);
+            requestSymbolInfo(filePath, range.start(), symbolInfoHandler);
             return;
         }
         if ((node.role() == "expression" && node.kind() == "DeclRef")
@@ -1088,7 +1089,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                         || node.kind() == "Field"))) {
             if (node.arcanaContains("EnumConstant")) {
                 d->setHelpItemForTooltip(id,
-                                         uri,
+                                         filePath,
                                          node.detail().value_or(QString()),
                                          HelpItem::Enum,
                                          type);
@@ -1103,12 +1104,12 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                     && type != "double" && !type.contains(" double")
                     && type != "float" && type != "bool") {
                 d->setHelpItemForTooltip(id,
-                                         uri,
+                                         filePath,
                                          type,
                                          node.qdocCategoryForDeclaration(
                                              HelpItem::ClassOrNamespace));
             } else {
-                d->setHelpItemForTooltip(id, uri);
+                d->setHelpItemForTooltip(id, filePath);
             }
             return;
         }
@@ -1121,19 +1122,22 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                         ns.prepend("::").prepend(name);
                 }
             }
-            d->setHelpItemForTooltip(id, uri, ns, HelpItem::ClassOrNamespace);
+            d->setHelpItemForTooltip(id, filePath, ns, HelpItem::ClassOrNamespace);
             return;
         }
         if (node.role() == "type") {
             if (node.kind() == "Enum") {
-                d->setHelpItemForTooltip(id, uri, node.detail().value_or(QString()), HelpItem::Enum);
+                d->setHelpItemForTooltip(id,
+                                         filePath,
+                                         node.detail().value_or(QString()),
+                                         HelpItem::Enum);
             } else if (node.kind() == "Record" || node.kind() == "TemplateSpecialization") {
                 stripTemplatePartOffType();
-                d->setHelpItemForTooltip(id, uri, type, HelpItem::ClassOrNamespace);
+                d->setHelpItemForTooltip(id, filePath, type, HelpItem::ClassOrNamespace);
             } else if (node.kind() == "Typedef") {
-                d->setHelpItemForTooltip(id, uri, type, HelpItem::Typedef);
+                d->setHelpItemForTooltip(id, filePath, type, HelpItem::Typedef);
             } else {
-                d->setHelpItemForTooltip(id, uri);
+                d->setHelpItemForTooltip(id, filePath);
             }
             return;
         }
@@ -1141,23 +1145,23 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
             const QString name = node.detail().value_or(QString());
             if (!name.isEmpty())
                 type = name;
-            d->setHelpItemForTooltip(id, uri, type, HelpItem::ClassOrNamespace);
+            d->setHelpItemForTooltip(id, filePath, type, HelpItem::ClassOrNamespace);
         }
         if (node.role() == "specifier" && node.kind() == "NamespaceAlias") {
             d->setHelpItemForTooltip(id,
-                                     uri,
+                                     filePath,
                                      node.detail().value_or(QString()).chopped(2),
                                      HelpItem::ClassOrNamespace);
             return;
         }
-        d->setHelpItemForTooltip(id, uri);
+        d->setHelpItemForTooltip(id, filePath);
     };
     d->getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
 
 bool ClangdClient::gatherMemberFunctionOverrideHelpItemForTooltip(
     const LanguageServerProtocol::MessageId &token,
-    const DocumentUri &uri,
+    const Utils::FilePath &filePath,
     const QList<ClangdAstNode> &path)
 {
     // Heuristic: If we encounter a member function re-declaration, continue under the
@@ -1196,7 +1200,7 @@ bool ClangdClient::gatherMemberFunctionOverrideHelpItemForTooltip(
     if (!baseClassNode.detail())
         return false;
     d->setHelpItemForTooltip(token,
-                             uri,
+                             filePath,
                              *baseClassNode.detail() + "::" + *methodNode.detail(),
                              HelpItem::Function,
                              "()");
@@ -1320,7 +1324,7 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
 }
 
 void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token,
-                                                  const DocumentUri &uri,
+                                                  const Utils::FilePath &filePath,
                                                   const QString &fqn,
                                                   HelpItem::Category category,
                                                   const QString &type)
@@ -1344,7 +1348,7 @@ void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token,
     if (category == HelpItem::Enum && !type.isEmpty())
         mark = type;
 
-    const HelpItem helpItem(helpIds, uri.toFilePath(), mark, category);
+    const HelpItem helpItem(helpIds, filePath, mark, category);
     if (isTesting)
         emit q->helpItemGathered(helpItem);
     else

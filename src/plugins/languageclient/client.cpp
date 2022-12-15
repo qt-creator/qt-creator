@@ -139,6 +139,7 @@ public:
         , m_hoverHandler(q)
         , m_symbolSupport(q)
         , m_tokenSupport(q)
+        , m_serverDeviceTemplate(clientInterface->serverDeviceTemplate())
     {
         using namespace ProjectExplorer;
 
@@ -329,6 +330,7 @@ public:
     LanguageServerProtocol::ClientInfo m_clientInfo;
     QJsonValue m_configuration;
     int m_completionResultsLimit = -1;
+    const Utils::FilePath m_serverDeviceTemplate;
 };
 
 Client::Client(BaseClientInterface *clientInterface)
@@ -500,11 +502,11 @@ void Client::initialize()
     params.setCapabilities(d->m_clientCapabilities);
     params.setInitializationOptions(d->m_initializationOptions);
     if (d->m_project)
-        params.setRootUri(DocumentUri::fromFilePath(d->m_project->projectDirectory()));
+        params.setRootUri(hostPathToServerUri(d->m_project->projectDirectory()));
 
     const QList<WorkSpaceFolder> workspaces
-        = Utils::transform(SessionManager::projects(), [](Project *pro) {
-              return WorkSpaceFolder(DocumentUri::fromFilePath(pro->projectDirectory()),
+        = Utils::transform(SessionManager::projects(), [this](Project *pro) {
+              return WorkSpaceFolder(hostPathToServerUri(pro->projectDirectory()),
                                      pro->displayName());
           });
     if (workspaces.isEmpty())
@@ -746,7 +748,6 @@ void ClientPrivate::requestDocumentHighlights(TextEditor::TextEditorWidget *widg
 {
     QTimer *timer = m_documentHighlightsTimer[widget];
     if (!timer) {
-        const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
         if (m_highlightRequests.contains(widget))
             q->cancelRequest(m_highlightRequests.take(widget));
         timer = new QTimer;
@@ -771,7 +772,7 @@ void ClientPrivate::requestDocumentHighlights(TextEditor::TextEditorWidget *widg
 void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget)
 {
     QTC_ASSERT(q->reachable(), return);
-    const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
+    const auto uri = q->hostPathToServerUri(widget->textDocument()->filePath());
     if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
         TextDocumentRegistrationOptions option(
             m_dynamicCapabilities.option(DocumentHighlightsRequest::methodName));
@@ -833,9 +834,8 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
     const FilePath &filePath = document->filePath();
-    auto uri = DocumentUri::fromFilePath(filePath);
     if (d->m_diagnosticManager)
-        d->m_diagnosticManager->showDiagnostics(uri, d->m_documentVersions.value(filePath));
+        d->m_diagnosticManager->showDiagnostics(filePath, d->m_documentVersions.value(filePath));
     d->m_tokenSupport.updateSemanticTokens(document);
     // only replace the assist provider if the language server support it
     d->updateCompletionProvider(document);
@@ -897,7 +897,7 @@ void ClientPrivate::sendOpenNotification(const FilePath &filePath, const QString
 {
     TextDocumentItem item;
     item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(mimeType));
-    item.setUri(DocumentUri::fromFilePath(filePath));
+    item.setUri(q->hostPathToServerUri(filePath));
     item.setText(content);
     item.setVersion(version);
     q->sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
@@ -907,7 +907,7 @@ void ClientPrivate::sendOpenNotification(const FilePath &filePath, const QString
 void ClientPrivate::sendCloseNotification(const FilePath &filePath)
 {
     q->sendMessage(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
-            TextDocumentIdentifier{DocumentUri::fromFilePath(filePath)})),
+            TextDocumentIdentifier{q->hostPathToServerUri(filePath)})),
                    Client::SendDocUpdates::Ignore);
 }
 
@@ -950,7 +950,7 @@ void Client::setShadowDocument(const Utils::FilePath &filePath, const QString &c
     } else  {
         shadowIt.value().first = content;
         if (!shadowIt.value().second.isEmpty()) {
-            VersionedTextDocumentIdentifier docId(DocumentUri::fromFilePath(filePath));
+            VersionedTextDocumentIdentifier docId(hostPathToServerUri(filePath));
             docId.setVersion(++d->m_documentVersions[filePath]);
             const DidChangeTextDocumentParams params(docId, content);
             sendMessage(DidChangeTextDocumentNotification(params), SendDocUpdates::Ignore);
@@ -981,7 +981,6 @@ void ClientPrivate::openShadowDocument(const TextEditor::TextDocument *requringD
     shadowIt.value().second << requringDoc;
     if (shadowIt.value().second.size() > 1)
         return;
-    const auto uri = DocumentUri::fromFilePath(shadowIt.key());
     const QString mimeType = mimeTypeForFile(shadowIt.key(), MimeMatchMode::MatchExtension).name();
     sendOpenNotification(shadowIt.key(), mimeType, shadowIt.value().first,
                          ++m_documentVersions[shadowIt.key()]);
@@ -1021,7 +1020,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
     if (!send)
         return;
     DidSaveTextDocumentParams params(
-                TextDocumentIdentifier(DocumentUri::fromFilePath(document->filePath())));
+                TextDocumentIdentifier(hostPathToServerUri(document->filePath())));
     d->openRequiredShadowDocuments(document);
     if (includeText)
         params.setText(document->plainText());
@@ -1053,7 +1052,7 @@ void Client::documentWillSave(Core::IDocument *document)
     if (!send)
         return;
     const WillSaveTextDocumentParams params(
-        TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)));
+        TextDocumentIdentifier(hostPathToServerUri(filePath)));
     sendMessage(WillSaveTextDocumentNotification(params));
 }
 
@@ -1241,7 +1240,7 @@ void ClientPrivate::requestCodeActions(const DocumentUri &uri,
                                        const Range &range,
                                        const QList<Diagnostic> &diagnostics)
 {
-    const Utils::FilePath fileName = uri.toFilePath();
+    const Utils::FilePath fileName = q->serverUriToHostPath(uri);
     TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(fileName);
     if (!doc)
         return;
@@ -1273,8 +1272,11 @@ void Client::requestCodeActions(const CodeActionRequest &request)
     if (!request.isValid(nullptr))
         return;
 
-    const Utils::FilePath fileName
-        = request.params().value_or(CodeActionParams()).textDocument().uri().toFilePath();
+    const Utils::FilePath fileName = request.params()
+                                         .value_or(CodeActionParams())
+                                         .textDocument()
+                                         .uri()
+                                         .toFilePath(hostPathMapper());
 
     const QString method(CodeActionRequest::methodName);
     if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
@@ -1349,7 +1351,7 @@ void Client::projectOpened(ProjectExplorer::Project *project)
     if (!d->sendWorkspceFolderChanges())
         return;
     WorkspaceFoldersChangeEvent event;
-    event.setAdded({WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
+    event.setAdded({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
                                     project->displayName())});
     DidChangeWorkspaceFoldersParams params;
     params.setEvent(event);
@@ -1361,7 +1363,7 @@ void Client::projectClosed(ProjectExplorer::Project *project)
 {
     if (d->sendWorkspceFolderChanges()) {
         WorkspaceFoldersChangeEvent event;
-        event.setRemoved({WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
+        event.setRemoved({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
                                           project->displayName())});
         DidChangeWorkspaceFoldersParams params;
         params.setEvent(event);
@@ -1420,7 +1422,7 @@ bool Client::isSupportedFile(const Utils::FilePath &filePath, const QString &mim
 
 bool Client::isSupportedUri(const DocumentUri &uri) const
 {
-    const FilePath &filePath = uri.toFilePath();
+    const FilePath &filePath = serverUriToHostPath(uri);
     return d->m_languagFilter.isSupported(filePath, Utils::mimeTypeForFile(filePath).name());
 }
 
@@ -1434,18 +1436,18 @@ void Client::removeAssistProcessor(TextEditor::IAssistProcessor *processor)
     d->m_runningAssistProcessors.remove(processor);
 }
 
-QList<Diagnostic> Client::diagnosticsAt(const DocumentUri &uri, const QTextCursor &cursor) const
+QList<Diagnostic> Client::diagnosticsAt(const FilePath &filePath, const QTextCursor &cursor) const
 {
     if (d->m_diagnosticManager)
-        return d->m_diagnosticManager->diagnosticsAt(uri, cursor);
+        return d->m_diagnosticManager->diagnosticsAt(filePath, cursor);
     return {};
 }
 
-bool Client::hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+bool Client::hasDiagnostic(const FilePath &filePath,
                            const LanguageServerProtocol::Diagnostic &diag) const
 {
     if (d->m_diagnosticManager)
-        return d->m_diagnosticManager->hasDiagnostic(uri, documentForFilePath(uri.toFilePath()), diag);
+        return d->m_diagnosticManager->hasDiagnostic(filePath, documentForFilePath(filePath), diag);
     return false;
 }
 
@@ -1708,7 +1710,7 @@ void ClientPrivate::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule
                                                                  [this](const auto &elem) {
         TextEditor::TextDocument * const document = elem.first;
         const FilePath &filePath = document->filePath();
-        const auto uri = DocumentUri::fromFilePath(filePath);
+        const LanguageServerProtocol::DocumentUri uri = q->hostPathToServerUri(filePath);
         VersionedTextDocumentIdentifier docId(uri);
         docId.setVersion(m_documentVersions[filePath]);
         DidChangeTextDocumentParams params;
@@ -1867,8 +1869,8 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         } else {
             response.setResult(Utils::transform(
                 projects,
-                [](ProjectExplorer::Project *project) {
-                    return WorkSpaceFolder(DocumentUri::fromFilePath(project->projectDirectory()),
+                [this](ProjectExplorer::Project *project) {
+                    return WorkSpaceFolder(q->hostPathToServerUri(project->projectDirectory()),
                                            project->displayName());
                 }));
         }
@@ -1906,9 +1908,10 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     const QList<Diagnostic> &diagnostics = params.diagnostics();
     if (!d->m_diagnosticManager)
         d->m_diagnosticManager = createDiagnosticManager();
-    d->m_diagnosticManager->setDiagnostics(uri, diagnostics, params.version());
-    if (LanguageClientManager::clientForUri(uri) == this) {
-        d->m_diagnosticManager->showDiagnostics(uri, d->m_documentVersions.value(uri.toFilePath()));
+    const FilePath &path = serverUriToHostPath(uri);
+    d->m_diagnosticManager->setDiagnostics(path, diagnostics, params.version());
+    if (LanguageClientManager::clientForFilePath(path) == this) {
+        d->m_diagnosticManager->showDiagnostics(path, d->m_documentVersions.value(path));
         if (d->m_autoRequestCodeActions)
             requestCodeActions(uri, diagnostics);
     }
@@ -1930,6 +1933,11 @@ bool Client::documentUpdatePostponed(const Utils::FilePath &fileName) const
 int Client::documentVersion(const Utils::FilePath &filePath) const
 {
     return d->m_documentVersions.value(filePath);
+}
+
+int Client::documentVersion(const LanguageServerProtocol::DocumentUri &uri) const
+{
+    return documentVersion(serverUriToHostPath(uri));
 }
 
 void Client::setDocumentChangeUpdateThreshold(int msecs)
@@ -2069,6 +2077,25 @@ bool Client::referencesShadowFile(const TextEditor::TextDocument *doc,
 bool Client::fileBelongsToProject(const Utils::FilePath &filePath) const
 {
     return project() && project()->isKnownFile(filePath);
+}
+
+DocumentUri::PathMapper Client::hostPathMapper() const
+{
+    return [serverDeviceTemplate = d->m_serverDeviceTemplate](const Utils::FilePath &serverPath) {
+        return serverDeviceTemplate.withNewPath(serverPath.path());
+    };
+}
+
+FilePath Client::serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const
+{
+    return uri.toFilePath(hostPathMapper());
+}
+
+DocumentUri Client::hostPathToServerUri(const Utils::FilePath &path) const
+{
+    return DocumentUri::fromFilePath(path, [&](const Utils::FilePath &clientPath){
+        return clientPath.onDevice(d->m_serverDeviceTemplate);
+    });
 }
 
 } // namespace LanguageClient

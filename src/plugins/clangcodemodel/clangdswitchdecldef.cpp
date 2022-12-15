@@ -31,7 +31,7 @@ class ClangdSwitchDeclDef::Private
 public:
     Private(ClangdSwitchDeclDef * q, ClangdClient *client, TextDocument *doc,
             const QTextCursor &cursor, CppEditorWidget *editorWidget, const LinkHandler &callback)
-        : q(q), client(client), document(doc), uri(DocumentUri::fromFilePath(doc->filePath())),
+        : q(q), client(client), document(doc), uri(client->hostPathToServerUri(doc->filePath())),
           cursor(cursor), editorWidget(editorWidget), callback(callback)
     {}
 

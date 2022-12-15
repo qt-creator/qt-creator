@@ -163,7 +163,9 @@ ClangSourceRange convertRange(const FilePath &filePath, const Range &src)
     return ClangSourceRange(start, end);
 }
 
-ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &filePath)
+ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
+                                  const FilePath &filePath,
+                                  const DocumentUri::PathMapper &mapper)
 {
     ClangDiagnostic target;
     target.location = convertRange(filePath, src.range()).start;
@@ -226,7 +228,8 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &f
         for (auto it = changes->cbegin(); it != changes->cend(); ++it) {
             for (const TextEdit &textEdit : it.value()) {
                 fixItDiag.fixIts << ClangFixIt(textEdit.newText(),
-                        convertRange(it.key().toFilePath(), textEdit.range()));
+                                               convertRange(it.key().toFilePath(mapper),
+                                                            textEdit.range()));
             }
         }
         target.children << fixItDiag;
@@ -270,7 +273,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
                                ClangdClient *client)
     : TextEditor::TextMark(filePath, int(diagnostic.range().start().line() + 1), client->id())
     , m_lspDiagnostic(diagnostic)
-    , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath))
+    , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath, client->hostPathMapper()))
     , m_client(client)
 {
     setSettingsPage(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
@@ -319,8 +322,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
 bool ClangdTextMark::addToolTipContent(QLayout *target) const
 {
     const auto canApplyFixIt = [c = m_client, diag = m_lspDiagnostic, fp = fileName()] {
-        return QTC_GUARD(c) && c->reachable()
-               && c->hasDiagnostic(DocumentUri::fromFilePath(fp), diag);
+        return QTC_GUARD(c) && c->reachable() && c->hasDiagnostic(fp, diag);
     };
     const QString clientName = QTC_GUARD(m_client) ? m_client->name() : "clangd [unknown]";
     target->addWidget(ClangDiagnosticWidget::createWidget({m_diagnostic},

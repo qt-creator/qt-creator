@@ -55,7 +55,7 @@ void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
 
 bool HoverHandler::reportDiagnostics(const QTextCursor &cursor)
 {
-    const QList<Diagnostic> &diagnostics = m_client->diagnosticsAt(m_uri, cursor);
+    const QList<Diagnostic> &diagnostics = m_client->diagnosticsAt(m_filePath, cursor);
     if (diagnostics.isEmpty())
         return false;
 
@@ -76,7 +76,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         report(Priority_None);
         return;
     }
-    m_uri = DocumentUri::fromFilePath(editorWidget->textDocument()->filePath());
+    m_filePath = editorWidget->textDocument()->filePath();
     m_response = {};
     m_report = report;
 
@@ -108,8 +108,9 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         return;
     }
 
-    HoverRequest request{TextDocumentPositionParams(TextDocumentIdentifier(m_uri),
-                                                    Position(cursor))};
+    HoverRequest request{
+        TextDocumentPositionParams(TextDocumentIdentifier(m_client->hostPathToServerUri(m_filePath)),
+                                   Position(cursor))};
     m_currentRequest = request.id();
     request.setResponseCallback(
         [this, cursor](const HoverRequest::Response &response) { handleResponse(response, cursor); });
@@ -127,7 +128,7 @@ void HoverHandler::handleResponse(const HoverRequest::Response &response, const 
         if (auto hover = std::get_if<Hover>(&(*result))) {
             if (m_helpItemProvider) {
                 m_response = response;
-                m_helpItemProvider(response, m_uri);
+                m_helpItemProvider(response, m_filePath);
                 return;
             }
             setContent(hover->content());

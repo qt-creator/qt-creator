@@ -126,6 +126,7 @@ public:
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
     bool documentUpdatePostponed(const Utils::FilePath &fileName) const;
     int documentVersion(const Utils::FilePath &filePath) const;
+    int documentVersion(const LanguageServerProtocol::DocumentUri &uri) const;
     void setDocumentChangeUpdateThreshold(int msecs);
 
     // workspace control
@@ -151,10 +152,9 @@ public:
     SymbolSupport &symbolSupport();
     DocumentSymbolCache *documentSymbolCache();
     HoverHandler *hoverHandler();
-    QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
-        const LanguageServerProtocol::DocumentUri &uri,
-        const QTextCursor &cursor) const;
-    bool hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+    QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(const Utils::FilePath &filePath,
+                                                            const QTextCursor &cursor) const;
+    bool hasDiagnostic(const Utils::FilePath &filePath,
                        const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *document) const;
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
@@ -165,6 +165,10 @@ public:
     void setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider);
     virtual bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const;
     virtual bool fileBelongsToProject(const Utils::FilePath &filePath) const;
+
+    LanguageServerProtocol::DocumentUri::PathMapper hostPathMapper() const;
+    Utils::FilePath serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const;
+    LanguageServerProtocol::DocumentUri hostPathToServerUri(const Utils::FilePath &path) const;
 
     // logging
     enum class LogTarget { Console, Ui };

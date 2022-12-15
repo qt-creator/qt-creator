@@ -18,8 +18,8 @@ DocumentSymbolCache::DocumentSymbolCache(Client *client)
 {
     auto connectDocument = [this](Core::IDocument *document) {
         connect(document, &Core::IDocument::contentsChanged, this, [document, this]() {
-            const auto uri = DocumentUri::fromFilePath(document->filePath());
-            m_cache.remove(DocumentUri::fromFilePath(document->filePath()));
+            const auto uri = m_client->hostPathToServerUri(document->filePath());
+            m_cache.remove(uri);
             auto requestIdIt = m_runningRequests.find(uri);
             if (requestIdIt != m_runningRequests.end()) {
                 m_client->cancelRequest(requestIdIt.value());
@@ -54,7 +54,8 @@ void DocumentSymbolCache::requestSymbols(const DocumentUri &uri, Schedule schedu
 bool clientSupportsDocumentSymbols(const Client *client, const DocumentUri &uri)
 {
     QTC_ASSERT(client, return false);
-    const auto doc = TextEditor::TextDocument::textDocumentForFilePath(uri.toFilePath());
+    const auto doc = TextEditor::TextDocument::textDocumentForFilePath(
+        uri.toFilePath(client->hostPathMapper()));
     return client->supportsDocumentSymbols(doc);
 }
 

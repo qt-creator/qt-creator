@@ -56,12 +56,12 @@ DiagnosticManager::~DiagnosticManager()
     clearDiagnostics();
 }
 
-void DiagnosticManager::setDiagnostics(const DocumentUri &uri,
+void DiagnosticManager::setDiagnostics(const FilePath &filePath,
                                        const QList<Diagnostic> &diagnostics,
                                        const std::optional<int> &version)
 {
-    hideDiagnostics(uri.toFilePath());
-    m_diagnostics[uri] = {version, filteredDiagnostics(diagnostics)};
+    hideDiagnostics(filePath);
+    m_diagnostics[filePath] = {version, filteredDiagnostics(diagnostics)};
 }
 
 void DiagnosticManager::hideDiagnostics(const Utils::FilePath &filePath)
@@ -89,12 +89,11 @@ void DiagnosticManager::disableDiagnostics(TextEditor::TextDocument *document)
     marks.enabled = false;
 }
 
-void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
+void DiagnosticManager::showDiagnostics(const FilePath &filePath, int version)
 {
-    const FilePath &filePath = uri.toFilePath();
     if (TextDocument *doc = TextDocument::textDocumentForFilePath(filePath)) {
         QList<QTextEdit::ExtraSelection> extraSelections;
-        const VersionedDiagnostics &versionedDiagnostics = m_diagnostics.value(uri);
+        const VersionedDiagnostics &versionedDiagnostics = m_diagnostics.value(filePath);
         if (versionedDiagnostics.version.value_or(version) == version
             && !versionedDiagnostics.diagnostics.isEmpty()) {
             Marks &marks = m_marks[filePath];
@@ -167,17 +166,17 @@ void DiagnosticManager::forAllMarks(std::function<void (TextEditor::TextMark *)>
 
 void DiagnosticManager::clearDiagnostics()
 {
-    for (const DocumentUri &uri : m_diagnostics.keys())
-        hideDiagnostics(uri.toFilePath());
+    for (const Utils::FilePath &path : m_diagnostics.keys())
+        hideDiagnostics(path);
     m_diagnostics.clear();
     QTC_ASSERT(m_marks.isEmpty(), m_marks.clear());
 }
 
-QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri,
+QList<Diagnostic> DiagnosticManager::diagnosticsAt(const FilePath &filePath,
                                                    const QTextCursor &cursor) const
 {
-    const int documentRevision = m_client->documentVersion(uri.toFilePath());
-    auto it = m_diagnostics.find(uri);
+    const int documentRevision = m_client->documentVersion(filePath);
+    auto it = m_diagnostics.find(filePath);
     if (it == m_diagnostics.end())
         return {};
     if (documentRevision != it->version.value_or(documentRevision))
@@ -187,16 +186,16 @@ QList<Diagnostic> DiagnosticManager::diagnosticsAt(const DocumentUri &uri,
     });
 }
 
-bool DiagnosticManager::hasDiagnostic(const LanguageServerProtocol::DocumentUri &uri,
+bool DiagnosticManager::hasDiagnostic(const FilePath &filePath,
                                       const TextDocument *doc,
                                       const LanguageServerProtocol::Diagnostic &diag) const
 {
     if (!doc)
         return false;
-    const auto it = m_diagnostics.find(uri);
+    const auto it = m_diagnostics.find(filePath);
     if (it == m_diagnostics.end())
         return {};
-    const int revision = m_client->documentVersion(uri.toFilePath());
+    const int revision = m_client->documentVersion(filePath);
     if (revision != it->version.value_or(revision))
         return false;
     return it->diagnostics.contains(diag);
@@ -205,7 +204,7 @@ bool DiagnosticManager::hasDiagnostic(const LanguageServerProtocol::DocumentUri 
 bool DiagnosticManager::hasDiagnostics(const TextDocument *doc) const
 {
     const FilePath docPath = doc->filePath();
-    const auto it = m_diagnostics.find(DocumentUri::fromFilePath(docPath));
+    const auto it = m_diagnostics.find(docPath);
     if (it == m_diagnostics.end())
         return {};
     const int revision = m_client->documentVersion(docPath);

@@ -7,8 +7,9 @@
 #include "languageclient_global.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
-#include <languageserverprotocol/lsptypes.h>
+
 #include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lsptypes.h>
 #include <languageserverprotocol/workspace.h>
 
 #include <QPointer>
@@ -67,6 +68,7 @@ private:
     QMetaObject::Connection m_updateSymbolsConnection;
     QMetaObject::Connection m_resetSymbolsConnection;
     std::optional<LanguageServerProtocol::DocumentSymbolsResult> m_currentSymbols;
+    LanguageServerProtocol::DocumentUri::PathMapper m_pathMapper;
     bool m_forced = false;
 };
 
@@ -101,8 +103,15 @@ private:
                         const LanguageServerProtocol::WorkspaceSymbolRequest::Response &response);
 
     QMutex m_mutex;
+
+    struct SymbolInfoWithPathMapper
+    {
+        LanguageServerProtocol::SymbolInformation symbol;
+        LanguageServerProtocol::DocumentUri::PathMapper mapper;
+    };
+
     QMap<Client *, LanguageServerProtocol::MessageId> m_pendingRequests;
-    QVector<LanguageServerProtocol::SymbolInformation> m_results;
+    QVector<SymbolInfoWithPathMapper> m_results;
     QVector<LanguageServerProtocol::SymbolKind> m_filterKinds;
     qint64 m_maxResultCount = 0;
 };

@@ -72,7 +72,7 @@ public:
             CppEditorWidget *editorWidget, const FilePath &filePath, const LinkHandler &callback,
             bool openInSplit)
         : q(q), client(client), cursor(cursor), editorWidget(editorWidget),
-          uri(DocumentUri::fromFilePath(filePath)), callback(callback),
+          uri(client->hostPathToServerUri(filePath)), callback(callback),
           virtualFuncAssistProvider(q),
           docRevision(editorWidget ? editorWidget->textDocument()->document()->revision() : -1),
           openInSplit(openInSplit) {}
@@ -246,7 +246,7 @@ void ClangdFollowSymbol::Private::sendGotoImplementationRequest(const Link &link
     if (!client->documentForFilePath(link.targetFilePath) && addOpenFile(link.targetFilePath))
         client->openExtraFile(link.targetFilePath);
     const Position position(link.targetLine - 1, link.targetColumn);
-    const TextDocumentIdentifier documentId(DocumentUri::fromFilePath(link.targetFilePath));
+    const TextDocumentIdentifier documentId(client->hostPathToServerUri(link.targetFilePath));
     GotoImplementationRequest req(TextDocumentPositionParams(documentId, position));
     req.setResponseCallback([sentinel = QPointer(q), this, reqId = req.id()]
                             (const GotoImplementationRequest::Response &response) {
@@ -363,12 +363,13 @@ void ClangdFollowSymbol::Private::goToTypeDefinition()
         if (!sentinel)
             return;
         Link link;
+
         if (const std::optional<GotoResult> &result = response.result()) {
             if (const auto ploc = std::get_if<Location>(&*result)) {
-                link = {ploc->toLink()};
+                link = {ploc->toLink(client->hostPathMapper())};
             } else if (const auto plloc = std::get_if<QList<Location>>(&*result)) {
                 if (!plloc->empty())
-                    link = plloc->first().toLink();
+                    link = plloc->first().toLink(client->hostPathMapper());
             }
         }
         q->emitDone(link);
@@ -399,12 +400,15 @@ void ClangdFollowSymbol::Private::handleGotoDefinitionResult()
 void ClangdFollowSymbol::Private::handleGotoImplementationResult(
         const GotoImplementationRequest::Response &response)
 {
+    auto transformLink = [mapper = client->hostPathMapper()](const Location &loc) {
+        return loc.toLink(mapper);
+    };
     if (const std::optional<GotoResult> &result = response.result()) {
         QList<Link> newLinks;
         if (const auto ploc = std::get_if<Location>(&*result))
-            newLinks = {ploc->toLink()};
+            newLinks = {transformLink(*ploc)};
         if (const auto plloc = std::get_if<QList<Location>>(&*result))
-            newLinks = transform(*plloc, &Location::toLink);
+            newLinks = transform(*plloc, transformLink);
         for (const Link &link : std::as_const(newLinks)) {
             if (!allLinks.contains(link)) {
                 allLinks << link;
@@ -465,33 +469,34 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
         if (link == defLink)
             continue;
 
-        const TextDocumentIdentifier doc(DocumentUri::fromFilePath(link.targetFilePath));
+        const TextDocumentIdentifier doc(client->hostPathToServerUri(link.targetFilePath));
         const TextDocumentPositionParams params(doc, pos);
         GotoDefinitionRequest defReq(params);
-        defReq.setResponseCallback([this, link, sentinel = QPointer(q), reqId = defReq.id()]
-                (const GotoDefinitionRequest::Response &response) {
-            qCDebug(clangdLog) << "handling additional go to definition reply for"
-                               << link.targetFilePath << link.targetLine;
-            if (!sentinel)
-                return;
-            Link newLink;
-            if (std::optional<GotoResult> _result = response.result()) {
-                const GotoResult result = _result.value();
-                if (const auto ploc = std::get_if<Location>(&result)) {
-                    newLink = ploc->toLink();
-                } else if (const auto plloc = std::get_if<QList<Location>>(&result)) {
-                    if (!plloc->isEmpty())
-                        newLink = plloc->value(0).toLink();
+        defReq.setResponseCallback(
+            [this, link, transformLink, sentinel = QPointer(q), reqId = defReq.id()](
+                const GotoDefinitionRequest::Response &response) {
+                qCDebug(clangdLog) << "handling additional go to definition reply for"
+                                   << link.targetFilePath << link.targetLine;
+                if (!sentinel)
+                    return;
+                Link newLink;
+                if (std::optional<GotoResult> _result = response.result()) {
+                    const GotoResult result = _result.value();
+                    if (const auto ploc = std::get_if<Location>(&result)) {
+                        newLink = transformLink(*ploc);
+                    } else if (const auto plloc = std::get_if<QList<Location>>(&result)) {
+                        if (!plloc->isEmpty())
+                            newLink = transformLink(plloc->value(0));
+                    }
                 }
-            }
-            qCDebug(clangdLog) << "def link is" << newLink.targetFilePath << newLink.targetLine;
-            declDefMap.insert(link, newLink);
-            pendingGotoDefRequests.removeOne(reqId);
-            if (pendingSymbolInfoRequests.isEmpty() && pendingGotoDefRequests.isEmpty()
+                qCDebug(clangdLog) << "def link is" << newLink.targetFilePath << newLink.targetLine;
+                declDefMap.insert(link, newLink);
+                pendingGotoDefRequests.removeOne(reqId);
+                if (pendingSymbolInfoRequests.isEmpty() && pendingGotoDefRequests.isEmpty()
                     && defLinkNode.isValid()) {
-                handleDocumentInfoResults();
-            }
-        });
+                    handleDocumentInfoResults();
+                }
+            });
         pendingGotoDefRequests << defReq.id();
         qCDebug(clangdLog) << "sending additional go to definition request"
                            << link.targetFilePath << link.targetLine;

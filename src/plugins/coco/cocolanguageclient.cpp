@@ -209,12 +209,12 @@ private:
         return {};
     }
 
-    void setDiagnostics(const DocumentUri &uri,
+    void setDiagnostics(const FilePath &filePath,
                         const QList<Diagnostic> &diagnostics,
                         const std::optional<int> &version) override
     {
-        DiagnosticManager::setDiagnostics(uri, diagnostics, version);
-        showDiagnostics(uri, client()->documentVersion(uri.toFilePath()));
+        DiagnosticManager::setDiagnostics(filePath, diagnostics, version);
+        showDiagnostics(filePath, client()->documentVersion(filePath));
     }
 };
 
@@ -227,7 +227,7 @@ void CocoLanguageClient::handleDiagnostics(const PublishDiagnosticsParams &param
 {
     using namespace TextEditor;
     Client::handleDiagnostics(params);
-    TextDocument *document = documentForFilePath(params.uri().toFilePath());
+    TextDocument *document = documentForFilePath(serverUriToHostPath(params.uri()));
     for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(document))
         editor->editorWidget()->addHoverHandler(hoverHandler());
 }
