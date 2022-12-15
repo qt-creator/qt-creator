@@ -78,6 +78,7 @@ void VcsBaseDiffEditorController::setupCommand(QtcProcess &process, const QStrin
     process.setEnvironment(d->m_processEnvironment);
     process.setWorkingDirectory(workingDirectory());
     process.setCommand({d->m_vcsBinary, args});
+    process.setUseCtrlCStub(true);
 }
 
 void VcsBaseDiffEditorController::setVcsBinary(const FilePath &path)
