@@ -136,7 +136,8 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
     m_resetTimer.setSingleShot(true);
     m_resetTimer.setInterval(100);
     QObject::connect(&m_resetTimer, &QTimer::timeout, [this] {
-        resetPuppet();
+        if (isAttached())
+            resetPuppet();
     });
     m_updateWatcherTimer.setSingleShot(true);
     m_updateWatcherTimer.setInterval(100);
