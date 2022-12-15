@@ -22,7 +22,7 @@ public:
         : m_path(FilePath::fromString(QString::fromStdString(Path.str())))
     {}
     /// Destroy the file after closing it (if open).
-    /// Sub-classes should generally call close() inside their destructors.  We
+    /// Sub-classes should generally call close() inside their destructors. We
     /// cannot do that from the base class, since close is virtual.
     ~LlvmFileAdapter() { close(); }
 
@@ -50,8 +50,8 @@ public:
         Q_UNUSED(IsVolatile);
 
         const FilePath path = FilePath::fromString(QString::fromStdString(Name.str()));
-        const std::optional<QByteArray> contents = path.fileContents(FileSize, 0);
-        QTC_ASSERT(contents, return std::error_code());
+        const expected_str<QByteArray> contents = path.fileContents(FileSize, 0);
+        QTC_ASSERT_EXPECTED(contents, return std::error_code());
 
         return MemoryBuffer::getMemBufferCopy(contents->data(), Name);
     }
@@ -108,6 +108,8 @@ public:
     /// \note The 'end' iterator is directory_iterator().
     vfs::directory_iterator dir_begin(const Twine &Dir, std::error_code &EC) override
     {
+        Q_UNUSED(Dir);
+        Q_UNUSED(EC);
         Q_UNIMPLEMENTED();
         return {};
     }
