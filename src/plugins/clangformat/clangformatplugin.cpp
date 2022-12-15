@@ -127,25 +127,6 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
                         openClangFormatConfigAction->setData(doc->filePath().toVariant());
                 });
     }
-#ifndef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
-#ifdef _MSC_VER
-#pragma message( \
-    "ClangFormat: building against unmodified Clang, see README.md for more info")
-#else
-#warning ClangFormat: building against unmodified Clang, see README.md for more info
-#endif
-    static const Id clangFormatFormatWarningKey = "ClangFormatFormatWarning";
-    if (!ICore::infoBar()->canInfoBeAdded(clangFormatFormatWarningKey))
-        return true;
-    InfoBarEntry
-        info(clangFormatFormatWarningKey,
-             tr("The ClangFormat plugin has been built against an unmodified Clang. "
-                "You might experience formatting glitches in certain circumstances. "
-                "See https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md for more "
-                 "information."),
-             InfoBarEntry::GlobalSuppression::Enabled);
-    ICore::infoBar()->addInfo(info);
-#endif
     return true;
 }
 
