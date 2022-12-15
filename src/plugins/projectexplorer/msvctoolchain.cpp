@@ -622,15 +622,22 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     Macros predefinedMacros;
 
     QStringList toProcess;
-    for (const QString &arg : cxxflags) {
-        if (arg.startsWith("/D") || arg.startsWith("-D")) {
-            const QString define = arg.mid(2);
-            predefinedMacros.append(Macro::fromKeyValue(define));
-        } else if (arg.startsWith("/U") || arg.startsWith("-U")) {
-            predefinedMacros.append(
-                {arg.mid(2).toLocal8Bit(), ProjectExplorer::MacroType::Undefine});
+    for (auto arg = cxxflags.begin(); arg != cxxflags.end(); ++arg) {
+        if (arg->startsWith("/D") || arg->startsWith("-D")) {
+            if (arg->length() > 2)
+                predefinedMacros.append(Macro::fromKeyValue(arg->mid(2)));
+            else if (std::next(arg) != cxxflags.end())
+                predefinedMacros.append(Macro::fromKeyValue(*++arg));
+        } else if (arg->startsWith("/U") || arg->startsWith("-U")) {
+            if (arg->length() > 2) {
+                predefinedMacros.append({arg->mid(2).toLocal8Bit(),
+                                         MacroType::Undefine});
+            } else if (std::next(arg) != cxxflags.end()) {
+                predefinedMacros.append({(++arg)->toLocal8Bit(),
+                                         MacroType::Undefine});
+            }
         } else {
-            toProcess.append(arg);
+            toProcess.append(*arg);
         }
     }
 
