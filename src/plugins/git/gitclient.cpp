@@ -206,98 +206,86 @@ class FileListDiffController : public GitBaseDiffEditorController
 {
 public:
     FileListDiffController(IDocument *document, const QStringList &stagedFiles,
-                           const QStringList &unstagedFiles)
-        : GitBaseDiffEditorController(document)
-        , m_stagedFiles(stagedFiles)
-        , m_unstagedFiles(unstagedFiles) {}
-
-private:
-    Tasking::Group reloadRecipe() final
-    {
-        using namespace Tasking;
-
-        struct DiffStorage {
-            QString m_stagedOutput;
-            QString m_unstagedOutput;
-        };
-
-        const TreeStorage<DiffStorage> storage;
-
-        const auto setupStaged = [this](QtcProcess &process) {
-            process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), m_stagedFiles));
-            setupCommand(process, addConfigurationArguments(
-                                      QStringList({"diff", "--cached", "--"}) + m_stagedFiles));
-            VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
-        };
-        const auto onStagedDone = [storage](const QtcProcess &process) {
-            storage->m_stagedOutput = process.cleanedStdOut();
-        };
-
-        const auto setupUnstaged = [this](QtcProcess &process) {
-            process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), m_unstagedFiles));
-            setupCommand(process, addConfigurationArguments(
-                                      QStringList({"diff", "--"}) + m_unstagedFiles));
-            VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
-        };
-        const auto onUnstagedDone = [storage](const QtcProcess &process) {
-            storage->m_unstagedOutput = process.cleanedStdOut();
-        };
-
-        const auto onStagingDynamicSetup = [this] {
-            QSet<int> config;
-            if (!m_stagedFiles.isEmpty())
-                config.insert(0);
-            if (!m_unstagedFiles.isEmpty())
-                config.insert(1);
-            return GroupConfig{GroupAction::ContinueSelected, config};
-        };
-
-        const auto setupProcessDiff = [this, storage](AsyncTask<QList<FileData>> &async) {
-            setupDiffProcessor(async, storage->m_stagedOutput + storage->m_unstagedOutput);
-        };
-        const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
-            setDiffFiles(async.result());
-        };
-        const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
-            setDiffFiles({});
-        };
-
-        const Group root {
-            Storage(storage),
-            Group {
-                parallel,
-                optional,
-                DynamicSetup(onStagingDynamicSetup),
-                Process(setupStaged, onStagedDone),
-                Process(setupUnstaged, onUnstagedDone)
-            },
-            Async<QList<FileData>>(setupProcessDiff, onProcessDiffDone, onProcessDiffError)
-        };
-        return root;
-    }
-
-    QStringList m_stagedFiles;
-    QStringList m_unstagedFiles;
+                           const QStringList &unstagedFiles);
 };
+
+FileListDiffController::FileListDiffController(IDocument *document, const QStringList &stagedFiles,
+                                               const QStringList &unstagedFiles)
+        : GitBaseDiffEditorController(document)
+{
+    using namespace Tasking;
+
+    struct DiffStorage {
+        QString m_stagedOutput;
+        QString m_unstagedOutput;
+    };
+
+    const TreeStorage<DiffStorage> storage;
+
+    const auto setupStaged = [this, stagedFiles](QtcProcess &process) {
+        process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), stagedFiles));
+        setupCommand(process, addConfigurationArguments(
+                              QStringList({"diff", "--cached", "--"}) + stagedFiles));
+        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+    };
+    const auto onStagedDone = [storage](const QtcProcess &process) {
+        storage->m_stagedOutput = process.cleanedStdOut();
+    };
+
+    const auto setupUnstaged = [this, unstagedFiles](QtcProcess &process) {
+        process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), unstagedFiles));
+        setupCommand(process, addConfigurationArguments(
+                              QStringList({"diff", "--"}) + unstagedFiles));
+        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+    };
+    const auto onUnstagedDone = [storage](const QtcProcess &process) {
+        storage->m_unstagedOutput = process.cleanedStdOut();
+    };
+
+    const auto onStagingDynamicSetup = [stagedFiles, unstagedFiles] {
+        QSet<int> config;
+        if (!stagedFiles.isEmpty())
+            config.insert(0);
+        if (!unstagedFiles.isEmpty())
+            config.insert(1);
+        return GroupConfig{GroupAction::ContinueSelected, config};
+    };
+
+    const auto setupProcessDiff = [this, storage](AsyncTask<QList<FileData>> &async) {
+        setupDiffProcessor(async, storage->m_stagedOutput + storage->m_unstagedOutput);
+    };
+    const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
+        setDiffFiles(async.result());
+    };
+    const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
+        setDiffFiles({});
+    };
+
+    const Group root {
+        Storage(storage),
+        Group {
+            parallel,
+            optional,
+            DynamicSetup(onStagingDynamicSetup),
+            Process(setupStaged, onStagedDone),
+            Process(setupUnstaged, onUnstagedDone)
+        },
+        Async<QList<FileData>>(setupProcessDiff, onProcessDiffDone, onProcessDiffError)
+    };
+    setReloadRecipe(root);
+}
 
 class ShowController : public GitBaseDiffEditorController
 {
     Q_OBJECT
 public:
-    ShowController(IDocument *document, const QString &id)
-        : GitBaseDiffEditorController(document)
-        , m_id(id)
-    {
-        setDisplayName("Git Show");
-    }
-
-private:
-    Tasking::Group reloadRecipe() final;
-    const QString m_id;
+    ShowController(IDocument *document, const QString &id);
 };
 
-Tasking::Group ShowController::reloadRecipe()
+ShowController::ShowController(IDocument *document, const QString &id)
+    : GitBaseDiffEditorController(document)
 {
+    setDisplayName("Git Show");
     static const QString busyMessage = Tr::tr("<resolving>");
     using namespace Tasking;
 
@@ -333,9 +321,9 @@ Tasking::Group ShowController::reloadRecipe()
 
     const TreeStorage<ReloadStorage> storage;
 
-    const auto setupDescription = [this](QtcProcess &process) {
+    const auto setupDescription = [this, id](QtcProcess &process) {
         process.setCodec(m_instance->encoding(workingDirectory(), "i18n.commitEncoding"));
-        setupCommand(process, {"show", "-s", noColorOption, showFormatC, m_id});
+        setupCommand(process, {"show", "-s", noColorOption, showFormatC, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         setDescription(Tr::tr("Waiting for data..."));
     };
@@ -460,10 +448,10 @@ Tasking::Group ShowController::reloadRecipe()
         taskTree.setupRoot(tasks);
     };
 
-    const auto setupDiff = [this](QtcProcess &process) {
+    const auto setupDiff = [this, id](QtcProcess &process) {
         setupCommand(process, addConfigurationArguments(
                                   {"show", "--format=format:", // omit header, already generated
-                                   noColorOption, decorateOption, m_id}));
+                                   noColorOption, decorateOption, id}));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
     const auto onDiffDone = [storage](const QtcProcess &process) {
@@ -483,7 +471,7 @@ Tasking::Group ShowController::reloadRecipe()
     const Group root {
         Storage(storage),
         parallel,
-        OnGroupSetup([this] { setStartupFile(VcsBase::source(document())); }),
+        OnGroupSetup([this] { setStartupFile(VcsBase::source(this->document())); }),
         Group {
             optional,
             Process(setupDescription, onDescriptionDone),
@@ -501,7 +489,7 @@ Tasking::Group ShowController::reloadRecipe()
             Async<QList<FileData>>(setupProcessDiff, onProcessDiffDone, onProcessDiffError)
         }
     };
-    return root;
+    setReloadRecipe(root);
 }
 
 ///////////////////////////////

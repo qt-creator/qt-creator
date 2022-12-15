@@ -19,9 +19,10 @@ using namespace Utils;
 
 namespace DiffEditor {
 
-DiffEditorController::DiffEditorController(Core::IDocument *document) :
-    QObject(document),
-    m_document(qobject_cast<Internal::DiffEditorDocument *>(document))
+DiffEditorController::DiffEditorController(Core::IDocument *document)
+    : QObject(document)
+    , m_document(qobject_cast<Internal::DiffEditorDocument *>(document))
+    , m_reloadRecipe{}
 {
     QTC_ASSERT(m_document, return);
     m_document->setController(this);
@@ -125,7 +126,7 @@ void DiffEditorController::requestReload()
         m_reloader();
         return;
     }
-    m_taskTree.reset(new TaskTree(reloadRecipe()));
+    m_taskTree.reset(new TaskTree(m_reloadRecipe));
     connect(m_taskTree.get(), &TaskTree::done, this, [this] { reloadFinished(true); });
     connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] { reloadFinished(false); });
     auto progress = new TaskProgress(m_taskTree.get());
