@@ -9,7 +9,6 @@
 #include "linuxprocessinterface.h"
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
-#include "remotelinuxenvironmentreader.h"
 #include "remotelinuxsignaloperation.h"
 #include "remotelinuxtr.h"
 #include "sshprocessinterface.h"
@@ -1043,31 +1042,6 @@ DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
     return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(sharedFromThis()));
 }
 
-class LinuxDeviceEnvironmentFetcher : public DeviceEnvironmentFetcher
-{
-public:
-    LinuxDeviceEnvironmentFetcher(const IDevice::ConstPtr &device)
-        : m_reader(device)
-    {
-        connect(&m_reader, &Internal::RemoteLinuxEnvironmentReader::finished,
-                this, &LinuxDeviceEnvironmentFetcher::readerFinished);
-        connect(&m_reader, &Internal::RemoteLinuxEnvironmentReader::error,
-                this, &LinuxDeviceEnvironmentFetcher::readerError);
-    }
-
-private:
-    void start() override { m_reader.start(); }
-    void readerFinished() { emit finished(m_reader.remoteEnvironment(), true); }
-    void readerError() { emit finished(Environment(), false); }
-
-    Internal::RemoteLinuxEnvironmentReader m_reader;
-};
-
-DeviceEnvironmentFetcher::Ptr LinuxDevice::environmentFetcher() const
-{
-    return DeviceEnvironmentFetcher::Ptr(new LinuxDeviceEnvironmentFetcher(sharedFromThis()));
-}
-
 bool LinuxDevice::usableAsBuildDevice() const
 {
     return true;
@@ -1095,11 +1069,6 @@ bool LinuxDevice::handlesFile(const FilePath &filePath) const
 ProcessInterface *LinuxDevice::createProcessInterface() const
 {
     return new LinuxProcessInterface(this);
-}
-
-Environment LinuxDevice::systemEnvironment() const
-{
-    return {}; // FIXME. See e.g. Docker implementation.
 }
 
 LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)

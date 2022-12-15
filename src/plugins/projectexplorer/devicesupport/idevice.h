@@ -76,21 +76,6 @@ protected:
     QString m_errorMessage;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceEnvironmentFetcher : public QObject
-{
-    Q_OBJECT
-public:
-    using Ptr = QSharedPointer<DeviceEnvironmentFetcher>;
-
-    virtual void start() = 0;
-
-signals:
-    void finished(const Utils::Environment &env, bool success);
-
-protected:
-    explicit DeviceEnvironmentFetcher();
-};
-
 class PROJECTEXPLORER_EXPORT PortsGatheringMethod final
 {
 public:
@@ -163,7 +148,6 @@ public:
     virtual DeviceTester *createDeviceTester() const;
 
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
-    virtual DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;

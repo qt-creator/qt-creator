@@ -25,7 +25,6 @@ add_qtc_plugin(RemoteLinux
     remotelinuxdeployconfiguration.cpp remotelinuxdeployconfiguration.h
     remotelinuxenvironmentaspect.cpp remotelinuxenvironmentaspect.h
     remotelinuxenvironmentaspectwidget.cpp remotelinuxenvironmentaspectwidget.h
-    remotelinuxenvironmentreader.cpp remotelinuxenvironmentreader.h
     remotelinuxplugin.cpp remotelinuxplugin.h
     remotelinuxqmltoolingsupport.cpp remotelinuxqmltoolingsupport.h
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h

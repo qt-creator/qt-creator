@@ -29,7 +29,6 @@ public:
     bool hasDeviceTester() const override { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
     bool usableAsBuildDevice() const override;
 
     QString userAtHost() const;
@@ -41,7 +40,6 @@ public:
     Utils::ProcessInterface *createProcessInterface() const override;
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(
             const ProjectExplorer::FileTransferSetupData &setup) const override;
-    Utils::Environment systemEnvironment() const override;
 
 protected:
     LinuxDevice();

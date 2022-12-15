@@ -15,6 +15,8 @@ class QTCREATOR_UTILS_EXPORT DeviceFileAccess
 public:
     virtual ~DeviceFileAccess();
 
+    virtual Environment deviceEnvironment() const;
+
 protected:
     friend class FilePath;
 
@@ -123,6 +125,8 @@ protected:
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
+    Environment deviceEnvironment() const override;
+
     expected_str<QByteArray> fileContents(const FilePath &filePath,
                                           qint64 limit,
                                           qint64 offset) const override;
@@ -172,6 +176,7 @@ protected:
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
+    Environment deviceEnvironment() const override;
     expected_str<QByteArray> fileContents(const FilePath &filePath,
                                           qint64 limit,
                                           qint64 offset) const override;

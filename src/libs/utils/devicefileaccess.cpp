@@ -179,6 +179,12 @@ void DeviceFileAccess::iterateDirectory(const FilePath &filePath,
     QTC_CHECK(false);
 }
 
+Environment DeviceFileAccess::deviceEnvironment() const
+{
+    QTC_CHECK(false);
+    return {};
+}
+
 expected_str<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath,
                                                         qint64 limit,
                                                         qint64 offset) const
@@ -532,6 +538,11 @@ void DesktopDeviceFileAccess::iterateDirectory(const FilePath &filePath,
         if (!res)
             return;
     }
+}
+
+Environment DesktopDeviceFileAccess::deviceEnvironment() const
+{
+    return Environment::systemEnvironment();
 }
 
 expected_str<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePath,
@@ -1077,4 +1088,11 @@ void UnixDeviceFileAccess::iterateDirectory(const FilePath &filePath,
     iterateLsOutput(filePath, entries, filter, callBack);
 }
 
-} // namespace Utils
+Environment UnixDeviceFileAccess::deviceEnvironment() const
+{
+    const RunResult result = runInShell({"env", {}, OsType::OsTypeLinux});
+    const QString out = QString::fromUtf8(result.stdOut);
+    return Environment(out.split('\n', Qt::SkipEmptyParts), OsTypeLinux);
+}
+
+} // Utils

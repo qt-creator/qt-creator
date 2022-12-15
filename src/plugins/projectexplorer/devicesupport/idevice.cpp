@@ -251,8 +251,9 @@ FileTransferInterface *IDevice::createFileTransferInterface(
 
 Environment IDevice::systemEnvironment() const
 {
-    QTC_CHECK(false);
-    return Environment::systemEnvironment();
+    DeviceFileAccess *access = fileAccess();
+    QTC_ASSERT(access, return Environment::systemEnvironment());
+    return access->deviceEnvironment();
 }
 
 /*!
@@ -387,11 +388,6 @@ OsType IDevice::osType() const
 }
 
 DeviceProcessSignalOperation::Ptr IDevice::signalOperation() const
-{
-    return {};
-}
-
-DeviceEnvironmentFetcher::Ptr IDevice::environmentFetcher() const
 {
     return {};
 }
@@ -651,8 +647,6 @@ void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
 }
 
 DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
-
-DeviceEnvironmentFetcher::DeviceEnvironmentFetcher() = default;
 
 void DeviceProcessKiller::start()
 {

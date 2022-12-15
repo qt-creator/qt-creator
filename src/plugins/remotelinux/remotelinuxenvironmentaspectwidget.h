@@ -5,15 +5,9 @@
 
 #include <projectexplorer/environmentaspectwidget.h>
 
-QT_BEGIN_NAMESPACE
-class QPushButton;
-QT_END_NAMESPACE
-
 namespace RemoteLinux {
 
 class RemoteLinuxEnvironmentAspect;
-
-namespace Internal { class RemoteLinuxEnvironmentReader; }
 
 class RemoteLinuxEnvironmentAspectWidget : public ProjectExplorer::EnvironmentAspectWidget
 {
@@ -22,15 +16,6 @@ class RemoteLinuxEnvironmentAspectWidget : public ProjectExplorer::EnvironmentAs
 public:
     RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect,
                                        ProjectExplorer::Target *target);
-
-private:
-    void fetchEnvironment();
-    void fetchEnvironmentFinished();
-    void fetchEnvironmentError(const QString &error);
-    void stopFetchEnvironment();
-
-    Internal::RemoteLinuxEnvironmentReader *m_deviceEnvReader = nullptr;
-    QPushButton *m_fetchButton = nullptr;
 };
 
 } // namespace RemoteLinux

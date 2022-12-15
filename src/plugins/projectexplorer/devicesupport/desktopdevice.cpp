@@ -80,22 +80,6 @@ DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
     return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());
 }
 
-class DesktopDeviceEnvironmentFetcher : public DeviceEnvironmentFetcher
-{
-public:
-    DesktopDeviceEnvironmentFetcher() = default;
-
-    void start() override
-    {
-        emit finished(Utils::Environment::systemEnvironment(), true);
-    }
-};
-
-DeviceEnvironmentFetcher::Ptr DesktopDevice::environmentFetcher() const
-{
-    return DeviceEnvironmentFetcher::Ptr(new DesktopDeviceEnvironmentFetcher());
-}
-
 PortsGatheringMethod DesktopDevice::portsGatheringMethod() const
 {
     return {
