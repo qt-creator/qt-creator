@@ -25,13 +25,17 @@ QPixmap AssetsLibraryIconProvider::requestPixmap(const QString &id, QSize *size,
         pixmap = m_thumbnails[id];
     } else {
         pixmap = fetchPixmap(id, requestedSize);
-        if (pixmap.isNull())
+        bool haveValidImage = true;
+        if (pixmap.isNull()) {
             pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/assets_default.png");
+            haveValidImage = false;
+        }
 
         if (requestedSize.isValid())
             pixmap = pixmap.scaled(requestedSize, Qt::KeepAspectRatio);
 
-        m_thumbnails[id] = pixmap;
+        if (haveValidImage)
+            m_thumbnails[id] = pixmap;
     }
 
     if (size) {
