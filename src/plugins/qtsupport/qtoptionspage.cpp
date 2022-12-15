@@ -872,7 +872,8 @@ static bool canLinkWithQt(QString *toolTip)
 void QtOptionsPageWidget::setupLinkWithQtButton()
 {
     QString tip;
-    canLinkWithQt(&tip);
+    const bool canLink = canLinkWithQt(&tip);
+    m_linkWithQtButton->setEnabled(canLink);
     m_linkWithQtButton->setToolTip(tip);
     connect(m_linkWithQtButton, &QPushButton::clicked, this, &QtOptionsPage::linkWithQt);
 }
@@ -1030,8 +1031,17 @@ void QtOptionsPageWidget::linkWithQt()
     if (dialog.result() == QDialog::Accepted) {
         const std::optional<QString> settingsDir = settingsDirForQtDir(pathInput->rawFilePath().toString());
         if (QTC_GUARD(settingsDir)) {
-            QSettings(settingsFile(Core::ICore::resourcePath().toString()), QSettings::IniFormat)
-                .setValue(kInstallSettingsKey, *settingsDir);
+            const QString settingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
+            QSettings settings(settingsFilePath, QSettings::IniFormat);
+            settings.setValue(kInstallSettingsKey, *settingsDir);
+            settings.sync();
+            if (settings.status() == QSettings::AccessError) {
+                QMessageBox::critical(Core::ICore::dialogParent(),
+                                      Tr::tr("Error Linking With Qt"),
+                                      Tr::tr("Could not write to \"%1\".").arg(settingsFilePath));
+                return;
+            }
+
             askForRestart = true;
         }
     }
