@@ -488,11 +488,12 @@ void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
     m_currentVariableName = widget->property(kVariableNameProperty).toByteArray();
     bool supportsVariables = chooser == q;
     if (auto lineEdit = qobject_cast<QLineEdit *>(widget))
-        m_lineEdit = (supportsVariables ? lineEdit : nullptr);
+        m_lineEdit = (supportsVariables && !lineEdit->isReadOnly() ? lineEdit : nullptr);
     else if (auto textEdit = qobject_cast<QTextEdit *>(widget))
-        m_textEdit = (supportsVariables ? textEdit : nullptr);
+        m_textEdit = (supportsVariables && !textEdit->isReadOnly() ? textEdit : nullptr);
     else if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
-        m_plainTextEdit = (supportsVariables ? plainTextEdit : nullptr);
+        m_plainTextEdit = (supportsVariables && !plainTextEdit->isReadOnly() ?
+                               plainTextEdit : nullptr);
 
     QWidget *current = currentWidget();
     if (current != previousWidget) {
