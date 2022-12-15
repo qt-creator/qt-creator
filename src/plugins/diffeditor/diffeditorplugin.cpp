@@ -23,6 +23,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/differ.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/mapreduce.h>
@@ -52,17 +53,17 @@ public:
     {}
 
     void operator()(QFutureInterface<FileData> &futureInterface,
-                    const ReloadInput &reloadInfo) const
+                    const ReloadInput &reloadInput) const
     {
-        if (reloadInfo.text[LeftSide] == reloadInfo.text[RightSide])
+        if (reloadInput.text[LeftSide] == reloadInput.text[RightSide])
             return; // We show "No difference" in this case, regardless if it's binary or not
 
         Differ differ(&futureInterface);
 
         FileData fileData;
-        if (!reloadInfo.binaryFiles) {
+        if (!reloadInput.binaryFiles) {
             const QList<Diff> diffList = Differ::cleanupSemantics(
-                        differ.diff(reloadInfo.text[LeftSide], reloadInfo.text[RightSide]));
+                        differ.diff(reloadInput.text[LeftSide], reloadInput.text[RightSide]));
 
             QList<Diff> leftDiffList;
             QList<Diff> rightDiffList;
@@ -86,9 +87,9 @@ public:
                         outputLeftDiffList, outputRightDiffList);
             fileData = DiffUtils::calculateContextData(chunkData, m_contextLineCount, 0);
         }
-        fileData.fileInfo = reloadInfo.fileInfo;
-        fileData.fileOperation = reloadInfo.fileOperation;
-        fileData.binaryFiles = reloadInfo.binaryFiles;
+        fileData.fileInfo = reloadInput.fileInfo;
+        fileData.fileOperation = reloadInput.fileOperation;
+        fileData.binaryFiles = reloadInput.binaryFiles;
         futureInterface.reportResult(fileData);
     }
 
@@ -102,50 +103,55 @@ class DiffFilesController : public DiffEditorController
     Q_OBJECT
 public:
     DiffFilesController(IDocument *document);
-    ~DiffFilesController() override { cancelReload(); }
 
 protected:
     virtual QList<ReloadInput> reloadInputList() const = 0;
-
-private:
-    void reloaded();
-    void cancelReload();
-
-    QFutureWatcher<FileData> m_futureWatcher;
 };
 
 DiffFilesController::DiffFilesController(IDocument *document)
     : DiffEditorController(document)
 {
-    connect(&m_futureWatcher, &QFutureWatcher<FileData>::finished,
-            this, &DiffFilesController::reloaded);
+    setDisplayName(tr("Diff"));
+    using namespace Tasking;
 
-    setReloader([this] {
-        cancelReload();
-        m_futureWatcher.setFuture(map(reloadInputList(),
-                                      DiffFile(ignoreWhitespace(), contextLineCount())));
+    const TreeStorage<QList<FileData>> storage;
 
-        Core::ProgressManager::addTask(m_futureWatcher.future(),
-                                       tr("Calculating diff"), "DiffEditor");
-    });
-}
+    const auto setupTree = [this, storage](TaskTree &taskTree) {
+        QList<FileData> *outputList = storage.activeStorage();
 
-void DiffFilesController::reloaded()
-{
-    const bool success = !m_futureWatcher.future().isCanceled();
-    const QList<FileData> fileDataList = success
-            ? m_futureWatcher.future().results() : QList<FileData>();
+        const auto setupDiff = [this](AsyncTask<FileData> &async, const ReloadInput &reloadInput) {
+            async.setAsyncCallData(DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
+            async.setFutureSynchronizer(Internal::DiffEditorPlugin::futureSynchronizer());
+        };
+        const auto onDiffDone = [outputList](const AsyncTask<FileData> &async, int i) {
+            (*outputList)[i] = async.result();
+        };
 
-    setDiffFiles(fileDataList);
-    reloadFinished(success);
-}
+        const QList<ReloadInput> inputList = reloadInputList();
+        outputList->resize(inputList.size());
 
-void DiffFilesController::cancelReload()
-{
-    if (m_futureWatcher.future().isRunning()) {
-        m_futureWatcher.future().cancel();
-        m_futureWatcher.setFuture({});
-    }
+        using namespace std::placeholders;
+        QList<TaskItem> tasks {parallel, continueOnDone};
+        for (int i = 0; i < inputList.size(); ++i) {
+            tasks.append(Async<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
+                                         std::bind(onDiffDone, _1, i)));
+        }
+        taskTree.setupRoot(tasks);
+    };
+    const auto onTreeDone = [this, storage] {
+        setDiffFiles(*storage.activeStorage());
+    };
+    const auto onTreeError = [this, storage] {
+        setDiffFiles({});
+    };
+
+    const Group root = {
+        Storage(storage),
+        Tree(setupTree),
+        OnGroupDone(onTreeDone),
+        OnGroupError(onTreeError)
+    };
+    setReloadRecipe(root);
 }
 
 class DiffCurrentFileController : public DiffFilesController
