@@ -272,7 +272,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     d->m_terminalButton = new QPushButton(this);
     d->m_terminalButton->setText(tr("Open &Terminal"));
     d->m_terminalButton->setToolTip(tr("Open a terminal with this environment set up."));
-    d->m_terminalButton->setEnabled(type == TypeLocal);
+    d->m_terminalButton->setEnabled(true);
     buttonLayout->addWidget(d->m_terminalButton);
     buttonLayout->addStretch();
 
