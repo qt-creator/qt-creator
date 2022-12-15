@@ -38,9 +38,10 @@ public:
     void setVcsTimeoutS(int value);
 
 protected:
+    Utils::Tasking::TreeStorage<QString> inputStorage() const;
+    Utils::Tasking::TaskItem postProcessTask();
+
     void setupCommand(Utils::QtcProcess &process, const QStringList &args) const;
-    void setupDiffProcessor(Utils::AsyncTask<QList<DiffEditor::FileData>> &processor,
-                            const QString &patch) const;
     void runCommand(const QList<QStringList> &args, RunFlags flags, QTextCodec *codec = nullptr);
     virtual void processCommandOutput(const QString &output);
 

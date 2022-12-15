@@ -221,6 +221,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     };
 
     const TreeStorage<DiffStorage> storage;
+    const TreeStorage<QString> diffInputStorage = inputStorage();
 
     const auto setupStaged = [this, stagedFiles](QtcProcess &process) {
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), stagedFiles));
@@ -248,29 +249,26 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
             config.insert(0);
         if (!unstagedFiles.isEmpty())
             config.insert(1);
+        if (config.isEmpty())
+            return GroupConfig{GroupAction::StopWithError};
         return GroupConfig{GroupAction::ContinueSelected, config};
     };
-
-    const auto setupProcessDiff = [this, storage](AsyncTask<QList<FileData>> &async) {
-        setupDiffProcessor(async, storage->m_stagedOutput + storage->m_unstagedOutput);
-    };
-    const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
-        setDiffFiles(async.result());
-    };
-    const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
-        setDiffFiles({});
+    const auto onStagingDone = [storage, diffInputStorage] {
+        *diffInputStorage.activeStorage() = storage->m_stagedOutput + storage->m_unstagedOutput;
     };
 
     const Group root {
         Storage(storage),
+        Storage(diffInputStorage),
         Group {
             parallel,
-            optional,
+            continueOnDone,
             DynamicSetup(onStagingDynamicSetup),
             Process(setupStaged, onStagedDone),
-            Process(setupUnstaged, onUnstagedDone)
+            Process(setupUnstaged, onUnstagedDone),
+            OnGroupDone(onStagingDone)
         },
-        Async<QList<FileData>>(setupProcessDiff, onProcessDiffDone, onProcessDiffError)
+        postProcessTask()
     };
     setReloadRecipe(root);
 }
@@ -298,9 +296,10 @@ ShowController::ShowController(IDocument *document, const QString &id)
         QString m_branches;
         QString m_precedes;
         QStringList m_follows;
-
-        QString m_diffOutput;
     };
+
+    const TreeStorage<ReloadStorage> storage;
+    const TreeStorage<QString> diffInputStorage = inputStorage();
 
     const auto updateDescription = [this](const ReloadStorage &storage) {
         QString desc = storage.m_header;
@@ -318,8 +317,6 @@ ShowController::ShowController(IDocument *document, const QString &id)
         desc.append('\n' + storage.m_body);
         setDescription(desc);
     };
-
-    const TreeStorage<ReloadStorage> storage;
 
     const auto setupDescription = [this, id](QtcProcess &process) {
         process.setCodec(m_instance->encoding(workingDirectory(), "i18n.commitEncoding"));
@@ -454,22 +451,13 @@ ShowController::ShowController(IDocument *document, const QString &id)
                                    noColorOption, decorateOption, id}));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onDiffDone = [storage](const QtcProcess &process) {
-        storage->m_diffOutput = process.cleanedStdOut();
-    };
-
-    const auto setupProcessDiff = [this, storage](AsyncTask<QList<FileData>> &async) {
-        setupDiffProcessor(async, storage->m_diffOutput);
-    };
-    const auto onProcessDiffDone = [this, storage](const AsyncTask<QList<FileData>> &async) {
-        setDiffFiles(async.result());
-    };
-    const auto onProcessDiffError = [this, storage](const AsyncTask<QList<FileData>> &) {
-        setDiffFiles({});
+    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
+        *diffInputStorage.activeStorage() = process.cleanedStdOut();
     };
 
     const Group root {
         Storage(storage),
+        Storage(diffInputStorage),
         parallel,
         OnGroupSetup([this] { setStartupFile(VcsBase::source(this->document())); }),
         Group {
@@ -486,7 +474,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         },
         Group {
             Process(setupDiff, onDiffDone),
-            Async<QList<FileData>>(setupProcessDiff, onProcessDiffDone, onProcessDiffError)
+            postProcessTask()
         }
     };
     setReloadRecipe(root);

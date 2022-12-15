@@ -51,6 +51,8 @@ public:
     int m_vscTimeoutS;
     QPointer<VcsCommand> m_command;
     QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
+
+    const Tasking::TreeStorage<QString> m_inputStorage;
 };
 
 VcsBaseDiffEditorControllerPrivate::~VcsBaseDiffEditorControllerPrivate()
@@ -134,18 +136,37 @@ VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
     delete d;
 }
 
+Tasking::TreeStorage<QString> VcsBaseDiffEditorController::inputStorage() const
+{
+    return d->m_inputStorage;
+}
+
+Tasking::TaskItem VcsBaseDiffEditorController::postProcessTask()
+{
+    using namespace Tasking;
+
+    const auto setupDiffProcessor = [this](AsyncTask<QList<FileData>> &async) {
+        const QString *storage = inputStorage().activeStorage();
+        QTC_ASSERT(storage, qWarning("Using postProcessTask() requires putting inputStorage() "
+                                     "into task tree's root group."));
+        const QString inputData = storage ? *storage : QString();
+        async.setAsyncCallData(readPatch, inputData);
+        async.setFutureSynchronizer(Internal::VcsPlugin::futureSynchronizer());
+    };
+    const auto onDiffProcessorDone = [this](const AsyncTask<QList<FileData>> &async) {
+        setDiffFiles(async.result());
+    };
+    const auto onDiffProcessorError = [this](const AsyncTask<QList<FileData>> &) {
+        setDiffFiles({});
+    };
+    return Async<QList<FileData>>(setupDiffProcessor, onDiffProcessorDone, onDiffProcessorError);
+}
+
 void VcsBaseDiffEditorController::setupCommand(QtcProcess &process, const QStringList &args) const
 {
     process.setEnvironment(d->m_processEnvironment);
     process.setWorkingDirectory(workingDirectory());
     process.setCommand({d->m_vcsBinary, args});
-}
-
-void VcsBaseDiffEditorController::setupDiffProcessor(AsyncTask<QList<FileData>> &processor,
-                                                     const QString &patch) const
-{
-    processor.setAsyncCallData(readPatch, patch);
-    processor.setFutureSynchronizer(Internal::VcsPlugin::futureSynchronizer());
 }
 
 void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, RunFlags flags, QTextCodec *codec)
