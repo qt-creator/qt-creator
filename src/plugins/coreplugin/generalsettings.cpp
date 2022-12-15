@@ -163,10 +163,10 @@ void GeneralSettingsWidget::fillLanguageBox() const
         QStringList(QLatin1String("qtcreator*.qm")));
 
     for (const FilePath &languageFile : languageFiles) {
-        const QString path = languageFile.path();
-        int start = path.indexOf('_') + 1;
-        int end = path.lastIndexOf('.');
-        const QString locale = path.mid(start, end-start);
+        const QString name = languageFile.fileName();
+        int start = name.indexOf('_') + 1;
+        int end = name.lastIndexOf('.');
+        const QString locale = name.mid(start, end - start);
         // no need to show a language that creator will not load anyway
         if (hasQmFilesForLocale(locale, creatorTrPath.toString())) {
             QLocale tmpLocale(locale);
