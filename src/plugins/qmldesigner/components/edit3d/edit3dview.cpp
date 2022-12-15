@@ -389,12 +389,12 @@ Edit3DAction *Edit3DView::createResetColorAction(QAction *syncBackgroundColorAct
 
     auto operation = [this, syncBackgroundColorAction](const SelectionContext &) {
         QList<QColor> bgColors = {QRgb(0x222222), QRgb(0x999999)};
-        Edit3DViewConfig::setColor(this, View3DActionType::SelectBackgroundColor, bgColors);
-        Edit3DViewConfig::saveColor(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
+        Edit3DViewConfig::setColors(this, View3DActionType::SelectBackgroundColor, bgColors);
+        Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
 
         QColor gridColor{0xaaaaaa};
-        Edit3DViewConfig::setColor(this, View3DActionType::SelectGridColor, gridColor);
-        Edit3DViewConfig::saveColor(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, gridColor);
+        Edit3DViewConfig::setColors(this, View3DActionType::SelectGridColor, {gridColor});
+        Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, {gridColor});
 
         if (syncBackgroundColorAction->isChecked()) {
             Edit3DViewConfig::set(this, View3DActionType::SyncBackgroundColor, false);
